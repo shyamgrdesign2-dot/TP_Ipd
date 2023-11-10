@@ -10,13 +10,13 @@ function PatientDetails() {
         <>
             <div className="appointment-wrap PatientDetailswrap">
                 <div className='row'>
-                    <div className='col-5'>
+                    <div className='col-lg-5 col-md-12 col-12'>
                         <VitalsBodyComposition />
                         <MedicalHistory />
                         <LabParameters />
                         <Vaccination />
                     </div>
-                    <div className='col-7'>
+                    <div className='col-lg-7 col-md-12 col-12'>
                         <Cardiology />
                     </div>
                 </div>
