@@ -1,0 +1,16 @@
+@import 'variables.scss';
+@import 'buttons.scss';
+@import 'header.scss';
+@import 'sidebar.scss';
+@import 'buttons.scss';
+@import 'fonts.scss';
+@import 'welcome.scss';
+@import 'appointment.scss';
+@import 'common.scss';
+@import 'table.scss';
+@import 'cards.scss';
+
+.wrapper {
+    height: calc(100vh - 56px);
+    overflow-y: scroll;
+}

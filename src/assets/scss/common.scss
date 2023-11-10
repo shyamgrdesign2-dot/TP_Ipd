@@ -1,0 +1,57 @@
+body {
+    font-family: 'Poppins' !important;
+    color: $maincolor;
+    .title {
+        color: $welcomecolor !important;
+        font-family: 'popins';
+        font-weight: 500;
+    } 
+    .small, small {
+        font-size: .800em;
+    }
+    .highlighted {
+        color: #FF974A !important;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+    table, p, div, span, tr, th, td{
+        font-family: 'Poppins' !important;
+        color: $maincolor !important;
+    }
+    .bg-body {
+        background-color: $bgbody !important;
+    }
+    .ant-tooltip {
+        --antd-arrow-background-color: rgba(255, 255, 255, 0.85);
+        .ant-tooltip-inner {
+            background-color: rgba(255, 255, 255, 0.85);
+        }
+    }
+    input {
+        font-family: 'Roboto', sans-serif !important;
+    }
+   .pt-2px {
+        padding-top: 2px;
+    }
+    .rounded-10px {
+        border-radius: 10px;
+    }
+}
+* {
+    scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+    width: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: #eee;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #b0aef7;
+    border-radius: 20px;
+}

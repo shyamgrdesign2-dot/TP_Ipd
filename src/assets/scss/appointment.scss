@@ -1,0 +1,148 @@
+.appointment-wrap {
+    margin: -80px 30px 30px;
+    background-color: $white;
+    position: relative;
+    &.PatientDetailswrap {
+        background-color: transparent;
+    }
+    .ant-picker {
+        border-color : transparent; 
+        .ant-picker-input {
+            input::placeholder {
+                color: $maincolor;
+            }
+        } 
+    }
+    .ant-picker-focused.ant-picker {
+        box-shadow: none;
+    }
+    .ant-tabs-tab {
+        margin: 0 0 0 30px !important;
+        padding: 20px 15px;
+        .ant-tabs-tab-btn {
+            font-size: 14px;
+            font-weight: 500;
+            i {
+                padding-right: 10px;
+                &:before {
+                    font-size: 17px;
+                }
+            }
+            &:hover, &:focus, &:active, .ant-tabs-tab-active {
+                color: $theme;
+            }
+        }
+    }
+    .ant-tabs-nav {
+        margin: 0;
+        .ant-tabs-ink-bar {
+            height: 3px;
+            border-radius: 10px;
+        }
+    }
+    .ant-tabs-tab-active .ant-tabs-tab-btn, .ant-tabs-tab:hover {
+        color: $theme !important;
+        div{
+            color: $theme !important;
+        }
+    }
+    .ant-tabs-ink-bar.ant-tabs-ink-bar-animated {
+        background-color: $theme;
+    }
+}
+.appointment-data {
+    .form-control {
+        border-radius: 10px;
+        &:focus {
+            box-shadow: none;
+            border-color: $theme;
+        }
+        &::-webkit-input-placeholder {
+            color: #A2A2A8;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+        }
+    }
+    .ant-table {
+        table thead {
+            position: sticky;
+            top: 0;
+            z-index: 9;
+        }
+    }
+}
+.ant-table {
+    .btn.btn-more {
+        font-size: 20px;
+        padding: 0;
+        line-height: 0;
+    }
+    thead.ant-table-thead {
+        th {
+            padding: 7.5px 16px;
+            border-bottom: 0;
+            background-color: #F1F1F5;
+            font-size: 12px;
+            text-transform: uppercase;
+            &:first-child {
+                border-bottom-left-radius: 8px;
+            }
+            &:last-child {
+                border-bottom-right-radius: 8px;
+            }
+        }
+    }
+    tbody.ant-table-tbody {
+        td {
+            padding: 9px 16px;
+            border-bottom: 0;
+        }
+    }
+
+}
+.table-border {
+    .ant-table {
+        tbody.ant-table-tbody {
+            tr{
+                td {
+                    border-bottom: 1px solid $bordercolor !important;
+                }
+                &:last-child {
+                    td {
+                        border-bottom: transparent !important;
+                    }
+                }
+            }
+        }
+    }
+}
+.ant-segmented { border-radius: 10px;
+    .ant-segmented-item {
+        background-color: $white;
+        border-radius: 10px;
+        &.ant-segmented-item-selected, &:focus, &:active, &:hover {
+            background-color: $theme;
+            &:first-child{
+                border-bottom-right-radius: 0;
+                border-top-right-radius: 0;
+            }
+            &:last-child{
+                border-bottom-left-radius: 0;
+                border-top-left-radius: 0;
+            }
+            i {
+                color: $white !important;
+            }
+        }
+    }
+    .ant-segmented-item-label {
+        // line-height: 2.4;
+        .ant-segmented-item-icon {
+            i {
+                font-size: 20px;
+                line-height: 1.6;
+            }
+        }
+    }
+}
