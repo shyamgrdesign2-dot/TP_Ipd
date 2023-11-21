@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Card from 'react-bootstrap/Card';
-import { Table } from 'antd';
+import { Table, Dropdown } from 'antd';
 import Symptomsicon from '../assets/images/Symptoms.svg';
 import Examinationsicon from '../assets/images/Examination.svg';
 import Diagnosisicon from '../assets/images/Diagnosis.svg';
@@ -10,9 +10,9 @@ import notesicon from '../assets/images/notes.svg';
 
 function Cardiology() {
     const [filteredInfo, setFilteredInfo] = useState({});
-    const [sortedInfo, setSortedInfo] = useState({});
+    const [setSortedInfo] = useState({});
 
-    const [data, setData] = useState([
+    const [data] = useState([
         {
             key: Math.random(),
             name: 'John Brown',
@@ -55,6 +55,21 @@ function Cardiology() {
         }
     ]);
 
+    const items = [
+        {
+          label: 'Cardiology 1',
+          key: '0',
+        },
+        {
+          label: 'Cardiology 2',
+          key: '1',
+        },
+        {
+          label: 'Cardiology 3',
+          key: '3',
+        },
+      ];
+
     const handleChange = (pagination, filters, sorter) => {
         console.log('Various parameters', pagination, filters, sorter);
         setFilteredInfo(filters);
@@ -93,15 +108,17 @@ function Cardiology() {
                                 <div className='subtitle'>10 Oct 2023, 5:13 pm</div>
                             </div>
                             <div>
-                                <a href="#" className='me-3 text-dark'>
-                                    <i className='icon-Edit'></i>
-                                </a>
-                                <a href="#" className='me-3 text-dark'>
-                                    <i className='icon-Print'></i>
-                                </a>
-                                <a href="#" className='me-3 text-dark'>
-                                    <i className='icon-More'></i>
-                                </a>
+                                <button className="btn p-0 ms-3">
+                                    <i className="icon-Edit"></i>                                
+                                </button>
+                                <button className="btn p-0 ms-3">
+                                    <i className="icon-Print"></i>                                
+                                </button>
+                                <Dropdown className='btn btn-outline btn-more ms-1' menu={{ items,}} trigger={['click']}>
+                                    <a onClick={(e) => e.preventDefault()}>
+                                        <i className='icon-More'></i>
+                                    </a>
+                                </Dropdown>                             
                             </div>
                         </div>
                     </Card.Header>

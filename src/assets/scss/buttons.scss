@@ -57,9 +57,15 @@ body{
             }
         }
     }
+    .ant-btn {
+        padding: 5px 15px;
+    }
     .ant-dropdown-trigger {
         &:focus, &:active, &:hover {
             border-color: transparent !important;
         }
+    }
+    .btn-check:checked+.btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active {
+        border-color: transparent;
     }
 }

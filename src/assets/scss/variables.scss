@@ -1,4 +1,5 @@
 //common variables
+$grayColor: #A2A2A8;
 $white: #fff;
 $theme: #4B4AD5;
 $maincolor: #454551;
@@ -72,9 +73,13 @@ $link-color-darkgray: #545454;
 $link-color-theme: $theme;
 $link-color-themesecondary: $themesecondary;
 $link-color-red: $red;
-$link-color-darkred:$darkred;
+$link-color-darkred: $darkred;
 $link-color-maincolor: $maincolor;
 $link-color-gray: #545454;
 $link-color-lightgray: #999;
 
-$font-size-18px:18px
+$font-size-18px: 18px;
+
+:export {
+    grayColor: $grayColor;
+}

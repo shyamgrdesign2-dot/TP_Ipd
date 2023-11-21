@@ -6,8 +6,18 @@ body {
         font-family: 'popins';
         font-weight: 500;
     } 
+    .text-primary {
+        color: $theme !important;
+    }
+    .fs-21 {
+        font-size: 21px;
+    }
     .small, small {
         font-size: .800em;
+    }
+    .backbar {
+        color: $grayColor !important;
+        font-weight: 500;
     }
     .highlighted {
         color: #FF974A !important;
