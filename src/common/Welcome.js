@@ -1,6 +1,8 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
+
 function Welcome() {
+
     return (
         <>
             <div className="welcomesection position-relative">
@@ -23,4 +25,5 @@ function Welcome() {
         </>
     )
 }
-export default Welcome
+
+export default React.memo(Welcome)

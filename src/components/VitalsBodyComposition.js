@@ -6,6 +6,7 @@ import arrowright from '../assets/images/arrow-box-right.svg';
 import graph from '../assets/images/Graph.svg';
 
 function VitalsBodyComposition() {
+
     const [filteredInfo, setFilteredInfo] = useState({});
     const [sortedInfo, setSortedInfo] = useState({});
 
@@ -79,32 +80,32 @@ function VitalsBodyComposition() {
             ellipsis: true,
         },
     ];
+
     return (
-        <>
-            <div className="appointment-wrap PatientDetailswrap m-0">
-                <Card className=''>
-                    <Card.Header className='bg-white py-3'>
-                        <div className='d-flex align-items-center justify-content-between'>
-                            <div>
-                                <img src={vitals} alt="vitals" className='me-3' />
-                                Vitals & Body Composition
-                            </div>
-                            <div>
-                                <a href="#" className='me-3'>
-                                    <img src={graph} alt="Graph" />
-                                </a>
-                                <a href="#">
-                                    <img src={arrowright} alt="Arrow" />
-                                </a>
-                            </div>
+        <div className="appointment-wrap PatientDetailswrap m-0">
+            <Card className=''>
+                <Card.Header className='bg-white py-3'>
+                    <div className='d-flex align-items-center justify-content-between'>
+                        <div>
+                            <img src={vitals} alt="vitals" className='me-3' />
+                            Vitals & Body Composition
                         </div>
-                    </Card.Header>
-                    <Card.Body className='p-0'>
-                        <Table columns={columns} dataSource={data} onChange={handleChange} pagination={false} />
-                    </Card.Body>
-                </Card>
-            </div>
-        </>
+                        <div>
+                            <a href="#" className='me-3'>
+                                <img src={graph} alt="Graph" />
+                            </a>
+                            <a href="#">
+                                <img src={arrowright} alt="Arrow" />
+                            </a>
+                        </div>
+                    </div>
+                </Card.Header>
+                <Card.Body className='p-0'>
+                    <Table columns={columns} dataSource={data} onChange={handleChange} pagination={false} />
+                </Card.Body>
+            </Card>
+        </div>
     )
 }
-export default VitalsBodyComposition
+
+export default React.memo(VitalsBodyComposition)

@@ -1,19 +1,35 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Table, Select, Segmented, DatePicker, Dropdown } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import Form from 'react-bootstrap/Form';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import { Form, Row, Col, Button, ButtonGroup } from 'react-bootstrap';
 
 function AppointmentData() {
+
+    const navigate = useNavigate();
+
+    const calanderList = [
+        { value: 'Clinic1', label: 'Clinic 1' },
+        { value: 'Clinic2', label: 'Clinic 2' },
+    ];
+
+    const segmentedList = [
+        { value: 1, icon: <i className="icon-List"></i> },
+        { value: 2, icon: <i className="icon-calendar"></i> },
+    ]
+    const [segmented, setSegmented] = useState(1)
+
+
     const [filteredInfo, setFilteredInfo] = useState({});
     const [sortedInfo, setSortedInfo] = useState({});
-    const [segmented, setSegmented] = useState(1);
+
+    const segmentedChange = useCallback((key) => {
+        setSegmented(key);
+    }, [segmented]);
+
     const [data, setData] = useState([
         {
-            contact: '+91-9711365448', 
+            contact: '+91-9711365448',
             key: Math.random(),
             srno: '1',
             name: 'John Brown',
@@ -24,7 +40,7 @@ function AppointmentData() {
             visittype: 'new',
         },
         {
-            contact: '+91-9711365448', 
+            contact: '+91-9711365448',
             key: Math.random(),
             srno: '2',
             name: 'Jim Green',
@@ -35,7 +51,7 @@ function AppointmentData() {
             visittype: 'new',
         },
         {
-            contact: '+91-9711365448', 
+            contact: '+91-9711365448',
             key: Math.random(),
             srno: '3',
             name: 'Joe Black',
@@ -46,7 +62,7 @@ function AppointmentData() {
             visittype: 'Follow Up',
         },
         {
-            contact: '+91-9711365448', 
+            contact: '+91-9711365448',
             key: Math.random(),
             srno: '4',
             name: 'Jim Red',
@@ -57,7 +73,7 @@ function AppointmentData() {
             visittype: 'new',
         },
         {
-            contact: '+91-9711365448', 
+            contact: '+91-9711365448',
             key: Math.random(),
             srno: '5',
             name: 'Jim Red',
@@ -68,7 +84,7 @@ function AppointmentData() {
             visittype: 'Follow Up',
         },
         {
-            contact: '+91-9711365448', 
+            contact: '+91-9711365448',
             key: Math.random(),
             srno: '6',
             name: 'Jim Red',
@@ -79,7 +95,7 @@ function AppointmentData() {
             visittype: 'Follow Up',
         },
         {
-            contact: '+91-9711365448', 
+            contact: '+91-9711365448',
             key: Math.random(),
             srno: '7',
             name: 'Jim Red',
@@ -90,7 +106,7 @@ function AppointmentData() {
             visittype: 'new',
         },
         {
-            contact: '+91-9711365448', 
+            contact: '+91-9711365448',
             key: Math.random(),
             srno: '8',
             name: 'Jim Red',
@@ -101,7 +117,7 @@ function AppointmentData() {
             visittype: 'Follow Up',
         },
         {
-            contact: '+91-9711365448', 
+            contact: '+91-9711365448',
             key: Math.random(),
             srno: '9',
             name: 'Jim Red',
@@ -112,7 +128,7 @@ function AppointmentData() {
             visittype: 'new',
         },
         {
-            contact: '+91-9711365448', 
+            contact: '+91-9711365448',
             key: Math.random(),
             srno: '10',
             name: 'Jim Red',
@@ -129,6 +145,7 @@ function AppointmentData() {
         setFilteredInfo(filters);
         setSortedInfo(sorter);
     };
+
 
     const columns = [
         {
@@ -156,7 +173,7 @@ function AppointmentData() {
             onFilter: (value, record) => record.name.includes(value),
             sorter: (a, b) => a.name.length - b.name.length,
             sortOrder: sortedInfo.columnKey === 'name' ? sortedInfo.order : null,
-            render:(text, record)=><div><span>{text}</span><br/><small>{record.gender}, {record.age}</small></div>,
+            render: (text, record) => <div><span>{text}</span><br /><small>{record.gender}, {record.age}</small></div>,
             ellipsis: true,
         },
         {
@@ -169,7 +186,7 @@ function AppointmentData() {
             title: 'Visit Type',
             dataIndex: 'visittype',
             key: 'visittype',
-            sorter: (a, b) => a.visittype - b.visittype,
+            sorter: (a, b) => a.visittype.length - b.visittype.length,
             sortOrder: sortedInfo.columnKey === 'visittype' ? sortedInfo.order : null,
             ellipsis: true,
         },
@@ -181,7 +198,7 @@ function AppointmentData() {
             onFilter: (value, record) => record.time.includes(value),
             sorter: (a, b) => a.time.length - b.time.length,
             sortOrder: sortedInfo.columnKey === 'time' ? sortedInfo.order : null,
-            render:(text, record)=><div><span>{record.time} </span> <br /> <small> {record.date}</small></div>,
+            render: (text, record) => <div><span>{record.time} </span> <br /> <small> {record.date}</small></div>,
             ellipsis: true,
         },
         {
@@ -189,8 +206,9 @@ function AppointmentData() {
             key: 'action',
             render: (_, record) => (
                 <div size="middle">
-                    <button className='btn btn-outline-primary btn-consult'>Consult</button>
-                    <Dropdown className='btn btn-outline btn-more ms-3' menu={{ items,}} trigger={['click']}>
+                    {/* <button className='btn btn-outline-primary btn-consult' onClick={() => navigate("/patient_details")}>Consult</button> */}
+                    <Link to='/patient_details'><button className='btn btn-outline-primary btn-consult'>Consult</button></Link>
+                    <Dropdown className='btn btn-outline btn-more ms-3' menu={{ items }} trigger={['click']}>
                         <a onClick={(e) => e.preventDefault()}>
                             <i className='icon-More'></i>
                         </a>
@@ -200,12 +218,11 @@ function AppointmentData() {
             width: 170,
         },
     ];
-    const segmentedChange = (key) => {
-        setSegmented(key);
-    };
+
     const dateChange = (date, dateString) => {
         console.log(date, dateString);
     };
+
     const loadMoreData = () => {
         var dummyData = []
         data.map((e, i) => {
@@ -216,79 +233,58 @@ function AppointmentData() {
 
     const items = [
         {
-          label: '1st menu item',
-          key: '0',
+            label: '1st menu item',
+            key: '0',
         },
         {
-          label: '2nd menu item',
-          key: '1',
+            label: '2nd menu item',
+            key: '1',
         },
         {
-          label: '3rd menu item',
-          key: '3',
+            label: '3rd menu item',
+            key: '3',
         },
-      ];
+    ];
 
     return (
-        <>
-            <div className='p-4 appointment-data'>
-                <Row className='justify-content-between'>
-                    <Col md={3}>
-                        <Form>
-                            <Form.Group className="mb-4" controlId="exampleForm.ControlInput1">
-                                <Form.Control type="email" placeholder="Search by patient name" />
-                            </Form.Group>
-                        </Form>
-                    </Col>
-                    <Col md="auto">
-                        <div className='d-flex align-items-center'>
-                            <ButtonGroup aria-label="Basic example">
-                                <Button variant="outline-light" className='dateoutline'><LeftOutlined /></Button>
-                                <Button variant="outline-light" className='p-0'>
-                                    <DatePicker onChange={dateChange} />
-                                </Button>
-                                <Button variant="outline-light" className='dateoutline'><RightOutlined /></Button>
-                            </ButtonGroup>
-                            <Select placeholder="Clinic Name" className='ms-3 appointmentselect'
-                                options={[
-                                    {
-                                        value: 'Clinic1',
-                                        label: 'Clinic 1',
-                                    },
-                                    {
-                                        value: 'Clinic2',
-                                        label: 'Clinic 2',
-                                    },
-                                ]}
-                            />
-                            <Segmented className='ms-3'
-                                defaultValue={1}
-                                options={[
-                                    {
-                                        value: 1,
-                                        icon: <i className="icon-List"></i>,
-                                    },
-                                    {
-                                        value: 2,
-                                        icon: <i className="icon-calendar"></i>,
-                                    },
-                                ]}
-                                onChange={segmentedChange}
-                            />
-                        </div>
-                    </Col>
-                </Row>
-                {segmented == 1 ? (
-                    <div>
-                        <Table columns={columns} dataSource={data} onChange={handleChange} pagination={false} />
-                        <button className='btn btn-light w-100 mt-3 load-more' onClick={loadMoreData}>Show All (10)</button>
+        <div className='p-4 appointment-data'>
+            <Row className='justify-content-between'>
+                <Col md={3}>
+                    <Form>
+                        <Form.Group className="mb-4" controlId="exampleForm.ControlInput1">
+                            <Form.Control type="email" placeholder="Search by patient name" />
+                        </Form.Group>
+                    </Form>
+                </Col>
+                <Col md="auto">
+                    <div className='d-flex align-items-center'>
+                        <ButtonGroup aria-label="Basic example">
+                            <Button variant="outline-light" className='dateoutline'><LeftOutlined /></Button>
+                            <Button variant="outline-light" className='p-0'>
+                                <DatePicker onChange={dateChange} />
+                            </Button>
+                            <Button variant="outline-light" className='dateoutline'><RightOutlined /></Button>
+                        </ButtonGroup>
+                        <Select placeholder="Clinic Name" className='ms-3 appointmentselect' options={calanderList} />
+                        <Segmented className='ms-3'
+                            defaultValue={1}
+                            options={segmentedList}
+                            onChange={segmentedChange}
+                        />
                     </div>
-                )
-                    :
-                    <h1>Grid View</h1>
-                }
-            </div>
-        </>
+                </Col>
+            </Row>
+            {segmented == 1 ? (
+                <div>
+                    <Table columns={columns} dataSource={data} onChange={handleChange} pagination={false} />
+                    <button className='btn btn-light w-100 mt-3 load-more' onClick={loadMoreData}>Show All (10)</button>
+                </div>
+            )
+                :
+                <h1>Grid View</h1>
+            }
+        </div>
     );
 }
-export default AppointmentData
+
+export default React.memo(AppointmentData)

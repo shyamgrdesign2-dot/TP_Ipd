@@ -1,6 +1,8 @@
 import React from 'react';
 import Nav from 'react-bootstrap/Nav';
+
 function SidebarDoctor() {
+
     return (
         <>
             <div className="SidebarDoctor">
@@ -32,4 +34,5 @@ function SidebarDoctor() {
         </>
     )
 }
-export default SidebarDoctor
+
+export default React.memo(SidebarDoctor)

@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Tabs } from 'antd';
-import AppointmentData from '../components/Appointment-data'
+
+import AppointmentData from '../components/AppointmentData'
 
 function Appointment() {
 
     const [tabChange, setTabChange] = useState('1')
+
     const items = [
         {
             key: '1',
@@ -34,27 +36,26 @@ function Appointment() {
             ),
         },
     ];
-    const onChange = (key) => {
+
+    const onChange = useCallback((key) => {
         setTabChange(key);
-    };
+    }, [tabChange]);
 
     return (
-        <>
-            <div className="border rounded-4 appointment-wrap">
-                <Tabs
-                    defaultActiveKey="1"
-                    items={items}
-                    onChange={onChange}
-                />
-                {tabChange == 1 ?
-                    <AppointmentData />
-                    : tabChange == 2 ?
+        <div className="border rounded-4 appointment-wrap">
+            <Tabs
+                defaultActiveKey="1"
+                items={items}
+                onChange={onChange}
+            />
+            {tabChange == 1 ?
+                <AppointmentData />
+                : tabChange == 2 ?
                     <h1>Finished</h1>
                     :
                     <h1>Cancelled</h1>
-                }
-            </div>
-        </>
+            }
+        </div>
     )
 }
-export default Appointment
+export default React.memo(Appointment)

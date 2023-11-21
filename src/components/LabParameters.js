@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import Card from 'react-bootstrap/Card';
 import { Table } from 'antd';
+
 import LabParametersicon from '../assets/images/Lab-Parameters.svg';
 import arrowright from '../assets/images/arrow-box-right.svg';
 import graph from '../assets/images/Graph.svg';
 
 function LabParameters() {
+
     const [filteredInfo, setFilteredInfo] = useState({});
     const [sortedInfo, setSortedInfo] = useState({});
 
@@ -79,32 +81,32 @@ function LabParameters() {
             ellipsis: true,
         },
     ];
+
     return (
-        <>
-            <div className="appointment-wrap PatientDetailswrap m-0">
-                <Card className=''>
-                    <Card.Header className='bg-white py-3'>
-                        <div className='d-flex align-items-center justify-content-between'>
-                            <div>
-                                <img src={LabParametersicon} alt="vitals" className='me-3' />
-                                Lab Parameters
-                            </div>
-                            <div>
-                                <a href="#" className='me-3'>
-                                    <img src={graph} alt="vitals" />
-                                </a>
-                                <a href="#">
-                                    <img src={arrowright} alt="vitals" />
-                                </a>
-                            </div>
+        <div className="appointment-wrap PatientDetailswrap m-0">
+            <Card className=''>
+                <Card.Header className='bg-white py-3'>
+                    <div className='d-flex align-items-center justify-content-between'>
+                        <div>
+                            <img src={LabParametersicon} alt="vitals" className='me-3' />
+                            Lab Parameters
                         </div>
-                    </Card.Header>
-                    <Card.Body className='p-0'>
-                        <Table columns={columns} dataSource={data} onChange={handleChange} pagination={false} />
-                    </Card.Body>
-                </Card>
-            </div>
-        </>
+                        <div>
+                            <a href="#" className='me-3'>
+                                <img src={graph} alt="vitals" />
+                            </a>
+                            <a href="#">
+                                <img src={arrowright} alt="vitals" />
+                            </a>
+                        </div>
+                    </div>
+                </Card.Header>
+                <Card.Body className='p-0'>
+                    <Table columns={columns} dataSource={data} onChange={handleChange} pagination={false} />
+                </Card.Body>
+            </Card>
+        </div>
     )
 }
-export default LabParameters
+
+export default React.memo(LabParameters)
