@@ -1,20 +1,26 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
+import { useNavigate } from 'react-router-dom';
 
-function Welcome() {
+function Welcome(props) {
+
+    const navigate = useNavigate();
+
+    const { title, subTitle, backVisible, buttonIcon, firstButtonName, firstButtonPath, secondButtonName, secondButtonPath, onClick } = props
 
     return (
         <>
             <div className="welcomesection position-relative">
                 <div className='bg-welcome d-flex justify-content-between align-items-center'>
                     <div>
-                        <h1>Welcome Dr. Mihir!</h1>
-                        <p>Your Appointments</p>
+                        <h1>{title}</h1>
+                        {/* {subTitle && <p>{subTitle}</p>} */}
+                        <p>{subTitle ? subTitle : ''}</p>
                     </div>
                     <div>
                         <div className='d-lg-flex d-block'>
-                            <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2"> <i className="icon-Add me-2"></i> Add New Appointment</Button>{' '}
-                            <Button variant="primary">Star Walk-In Consultation</Button>{' '}
+                            <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => navigate(firstButtonPath)}> <i className={buttonIcon}></i> {firstButtonName}</Button>
+                            <Button variant="primary" onClick={() => secondButtonPath ? navigate(secondButtonPath) : onClick(1)}>{secondButtonName}</Button>
                         </div>
                     </div>
                 </div>

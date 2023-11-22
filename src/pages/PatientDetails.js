@@ -24,7 +24,7 @@ function PatientDetails() {
             <Layout>
                 <Sider trigger={null} collapsible collapsed={collapsed} className={collapsed ? 'ant-layout-sider1' : 'ant-layout-sider'}>
                     <div className='d-flex align-items-center justify-content-between'>
-                        <button type='button' className='btn btn-action d-flex align-items-center' onClick={()=>navigate(-1)}>
+                        <button type='button' className='btn btn-action d-flex align-items-center' onClick={() => navigate(-1)}>
                             <i className="icon-right" style={{ color: !collapsed && variables.grayColor }}></i> <div className="backbar">{!collapsed && '\u00A0Back'}</div>
                         </button>
                         {/* <Link to="/" className='btn btn-action d-flex align-items-center'>
@@ -37,7 +37,15 @@ function PatientDetails() {
 
                 <Content>
                     <div className='w-100 vh-100 overflow-y-auto'>
-                        <Welcome />
+                        <Welcome
+                            title={'Patient Details'}
+                            subTitle={'\u00A0'}
+                            backVisible={false}
+                            buttonIcon={'icon-reload me-2'}
+                            firstButtonName={'Repeat 10th Oct Rx'}
+                            firstButtonPath={'/'}
+                            secondButtonName={'Start New Visit'}
+                            secondButtonPath={'/'} />
                         <div className="appointment-wrap PatientDetailswrap">
                             <div className='row'>
                                 <div className='col-lg-5 col-md-12 col-12'>

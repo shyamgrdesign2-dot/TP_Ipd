@@ -14,8 +14,6 @@ function App() {
           <Route path="patient_details" element={<PatientDetails />} />
         </Routes>
       </BrowserRouter>
-
-
       {/*  */}
     </>
   );

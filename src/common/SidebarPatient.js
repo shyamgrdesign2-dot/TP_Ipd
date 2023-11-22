@@ -28,7 +28,7 @@ function SidebarPatient({ collapsed }) {
             <hr />
             {menu.map((item, index) => {
                 return (
-                    <div>
+                    <div key={index}>
                         <Nav.Item className={collapsed && 'text-center'}>
                             <Nav.Link href="/" className={`${index == 0 && 'active'} ${!collapsed && 'd-flex align-items-center'}`}>
                                 <i className={item.icon_name}></i>
