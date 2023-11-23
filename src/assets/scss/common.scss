@@ -1,3 +1,19 @@
+* {
+    scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+    width: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: #eee;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #b0aef7;
+    border-radius: 20px;
+}
 body {
     font-family: 'Poppins' !important;
     color: $maincolor;
@@ -48,20 +64,13 @@ body {
     .rounded-10px {
         border-radius: 10px;
     }
-}
-* {
-    scrollbar-width: thin;
-}
-
-*::-webkit-scrollbar {
-    width: 6px;
-}
-
-*::-webkit-scrollbar-track {
-    background: #eee;
-}
-
-*::-webkit-scrollbar-thumb {
-    background-color: #b0aef7;
-    border-radius: 20px;
+    .ant-select-dropdown {
+        padding: 15px;
+        .ant-select-item {
+            padding: 0px;
+            &:hover {
+                background-color: $white;
+            }
+        }
+    }
 }

@@ -6,7 +6,7 @@ function Welcome(props) {
 
     const navigate = useNavigate();
 
-    const { title, subTitle, backVisible, buttonIcon, firstButtonName, firstButtonPath, secondButtonName, secondButtonPath, onClick } = props
+    const { title, subTitle, backVisible, buttonIcon, firstButtonName, firstButtonPath, secondButtonName, secondButtonPath } = props
 
     return (
         <>
@@ -20,7 +20,7 @@ function Welcome(props) {
                     <div>
                         <div className='d-lg-flex d-block'>
                             <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => navigate(firstButtonPath)}> <i className={buttonIcon}></i> {firstButtonName}</Button>
-                            <Button variant="primary" onClick={() => secondButtonPath ? navigate(secondButtonPath) : onClick(1)}>{secondButtonName}</Button>
+                            <Button variant="primary" onClick={() => navigate(secondButtonPath)}>{secondButtonName}</Button>
                         </div>
                     </div>
                 </div>

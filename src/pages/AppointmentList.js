@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Routes, Route } from 'react-router-dom';
 
 import Header from '../common/Header';
 import SidebarDoctor from '../common/SidebarDoctor'
@@ -24,13 +25,11 @@ function AppointmentList() {
                         firstButtonName={'Add New Appointment'}
                         firstButtonPath={'/'}
                         secondButtonName={'Star Walk-In Consultation'}
-                        secondButtonPath={null}
-                        onClick={(e) => setFlag(e)} />
-                    {flag == 0 ?
-                        <Appointment />
-                        : <WalkInConsultation />
-                    }
-
+                        secondButtonPath={'/walk_in_consultation'}/>
+                    <Routes>
+                        <Route path="/" element={<Appointment />} />
+                        <Route path="walk_in_consultation" element={<WalkInConsultation />} />
+                    </Routes>
                 </div>
             </div>
         </>

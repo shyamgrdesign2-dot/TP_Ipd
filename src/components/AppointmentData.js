@@ -9,8 +9,8 @@ function AppointmentData() {
     const navigate = useNavigate();
 
     const calanderList = [
-        { value: 'Clinic1', label: 'Clinic 1' },
-        { value: 'Clinic2', label: 'Clinic 2' },
+        { value: 'Today', label: 'Today' },
+        { value: 'Yesterday', label: 'Yesterday' },
     ];
 
     const segmentedList = [
@@ -265,7 +265,7 @@ function AppointmentData() {
                             </Button>
                             <Button variant="outline-light" className='dateoutline'><RightOutlined /></Button>
                         </ButtonGroup>
-                        <Select placeholder="Clinic Name" className='ms-3 appointmentselect' options={calanderList} />
+                        <Select placeholder="Today" className='ms-3 appointmentselect' options={calanderList} />
                         <Segmented className='ms-3'
                             defaultValue={1}
                             options={segmentedList}

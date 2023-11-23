@@ -7,7 +7,7 @@ import profile from '../assets/images/profile.svg';
 function Header() {
     
     return (
-        <Navbar className="justify-content-between">
+        <Navbar className="justify-content-between portal-header">
             <Container fluid>
                 <Navbar.Brand href="/">
                     <img src={require("../assets/images/logo.png")} className="d-inline-block align-top" alt="Logo" />

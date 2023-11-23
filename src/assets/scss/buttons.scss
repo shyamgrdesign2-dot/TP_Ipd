@@ -39,6 +39,68 @@ body{
             font-weight: 600;
             height: 38px;
         }
+        &.btn-primary1 {
+            border-radius: 10px;
+            border: 1px solid $theme !important;
+            span {
+                color: $theme !important;
+                font-size: 14px;
+                font-weight: 500;
+            }
+            &:hover {
+                background-color: $theme !important;
+                span {
+                    color: $white !important;
+                }
+            }
+        }
+        &.btn-primary2 {
+            border-radius: 10px;
+            border: 1px solid $bordercolor !important;
+            height: 33px;
+            .ant-btn-icon {
+                line-height: 1;
+            }
+            span {
+                font-family: 'Poppins';
+                font-style: normal;
+                line-height: normal;
+                letter-spacing: 0.1px;
+                color: $theme !important;
+                font-size: 14px;
+                font-weight: 500;
+            }
+            &:hover {
+                background-color: $theme !important;
+                border-color: $theme !important;
+                span {
+                    color: $white !important;
+                }
+            }
+        }
+        &.btn-primary3 {
+            border-radius: 10px;
+            background-color: $theme;
+            height: 33px;
+            .ant-btn-icon {
+                line-height: 1;
+            }
+            span {
+                font-family: 'Poppins';
+                font-style: normal;
+                line-height: normal;
+                letter-spacing: 0.1px;
+                color: $white !important;
+                font-size: 14px;
+                font-weight: 500;
+            }
+            &:hover, &:focus, &:active {
+                background-color: $themehover !important;
+            }
+        }
+        &.btn-41 {
+            height: 41px;
+        }
     }
     .btn-group {
         .btn {

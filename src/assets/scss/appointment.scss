@@ -121,7 +121,7 @@
     .ant-segmented-item {
         background-color: $white;
         border-radius: 10px;
-        &.ant-segmented-item-selected, &:focus, &:active, &:hover {
+        &.ant-segmented-item-selected, &:hover {
             background-color: $theme;
             &:first-child{
                 border-bottom-right-radius: 0;

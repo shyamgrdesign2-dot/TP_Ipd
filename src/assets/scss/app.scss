@@ -9,8 +9,9 @@
 @import 'common.scss';
 @import 'table.scss';
 @import 'cards.scss';
+@import 'walkinConsultant.scss';
 
 .wrapper {
     height: calc(100vh - 56px);
-    overflow-y: scroll;
+    overflow-y: auto;
 }
