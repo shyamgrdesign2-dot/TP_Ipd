@@ -70,10 +70,16 @@ body{
                 font-size: 14px;
                 font-weight: 500;
             }
+            i {
+                color: $theme !important;
+            }
             &:hover {
                 background-color: $theme !important;
                 border-color: $theme !important;
                 span {
+                    color: $white !important;
+                }
+                i {
                     color: $white !important;
                 }
             }
@@ -94,12 +100,25 @@ body{
                 font-size: 14px;
                 font-weight: 500;
             }
+            i {
+                color: $white !important;
+            }
             &:hover, &:focus, &:active {
                 background-color: $themehover !important;
             }
         }
         &.btn-41 {
             height: 41px;
+        }
+        &.btnclose {
+            i {
+                color: $grayColor;
+            }
+            &:hover {
+                i {
+                    color: $welcomecolor;
+                }
+            }
         }
     }
     .btn-group {

@@ -1,15 +1,12 @@
 * {
     scrollbar-width: thin;
 }
-
 *::-webkit-scrollbar {
     width: 6px;
 }
-
 *::-webkit-scrollbar-track {
     background: #eee;
 }
-
 *::-webkit-scrollbar-thumb {
     background-color: #b0aef7;
     border-radius: 20px;
@@ -17,9 +14,17 @@
 body {
     font-family: 'Poppins' !important;
     color: $maincolor;
+    .title-common {
+        font-family: 'Poppins' !important;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        letter-spacing: 0.1px;
+    }
     .title {
         color: $welcomecolor !important;
-        font-family: 'popins';
+        font-family: 'popins' !important;
         font-weight: 500;
     } 
     .text-primary {
@@ -68,9 +73,16 @@ body {
         padding: 15px;
         .ant-select-item {
             padding: 0px;
-            &:hover {
-                background-color: $white;
-            }
+        }
+    }
+    .patient-details {
+        span {
+            font-family: "Roboto" !important;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 26px;
+            letter-spacing: 0.1px;
         }
     }
 }
