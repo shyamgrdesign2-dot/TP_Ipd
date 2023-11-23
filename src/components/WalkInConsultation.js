@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import { AutoComplete, Input } from 'antd';
-
-import { PlusOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
+import { AutoComplete, Input, Button } from 'antd';
 
 function WalkInConsultation() {
     const [value, setValue] = useState('');
