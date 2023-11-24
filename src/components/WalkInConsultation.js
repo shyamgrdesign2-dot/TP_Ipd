@@ -19,9 +19,9 @@ function WalkInConsultation() {
         console.log('onSearch', data);
         if (data.length > 0) {
             const array = [
-                { id: 1, name: 'kishan', ph_no: '8155559482', p_id: 'PI202306001', },
-                { id: 2, name: 'Mehul', ph_no: '61555559482', p_id: 'PI202306002' },
-                { id: 3, name: 'Ajeet', ph_no: '81559482', p_id: 'PI202306003' },
+                { id: 1, name: 'kishan', ph_no: '8155559482', p_id: 'PI202306001', age: '25Y', gender: 'Male' },
+                { id: 2, name: 'Mehul', ph_no: '61555559482', p_id: 'PI202306002', age: '26Y', gender: 'Female' },
+                { id: 3, name: 'Ajeet', ph_no: '81559482', p_id: 'PI202306003', age: '27Y', gender: 'Male' },
                 { id: -1 }
             ]
             array.map(e => {
@@ -32,7 +32,7 @@ function WalkInConsultation() {
                             <>
                                 <div className='d-flex align-items-center justify-content-between py-3 border-bottom' onClick={setIsModalOpen}>
                                     <div className='d-flex align-items-center'>
-                                        <div className='list-patientName d-flex align-items-center me-4'><i className='icon-patients backbar me-2'></i> <span>{e.name}</span></div>
+                                        <div className='list-patientName d-flex align-items-center me-4'><i className='icon-patients backbar me-2'></i> <span>{e.name} ({e.gender}, {e.age})</span></div>
                                         <div className='list-patientName d-flex align-items-center me-4'><i className='icon-phone backbar me-2'></i><span>{e.ph_no}</span></div>
                                         <div className='list-patientName d-flex align-items-center me-4'><i className='icon-Id backbar me-2'></i><span>{e.p_id}</span></div>
                                     </div>
