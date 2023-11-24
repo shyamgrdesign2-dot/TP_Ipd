@@ -1,56 +1,56 @@
-.SidebarDoctor {
-    box-shadow: $boxshadowsidebar;
-    width: 110px;
-    min-width: 110px;
-    height: calc(100vh - 56px);
-    .nav-item {
-        padding: 18px 0;
-        text-align: center;
-        a {
-            font-size: 12px;
-            font-style: normal;
-            font-weight: 500;
-            position: relative;
-            @media only screen and (max-width: 1300px) {
-                font-size: 11px;
-            }
-            i {
-                font-size: 25px;
-                fill: #A2A2A8;
-            }
-            &:after{
-                height: 100%;
-                width: 4px;
-                position: absolute;
-                left: 0;
-                top: 0;
-                content: "";
-                background-color: transparent;
-                border-top-right-radius: 50px;
-                border-bottom-right-radius: 50px;
-            }
-            &:hover, &:focus, &:active, &.active {
-                color: $theme;
-                &:after{
-                    background-color: $theme;
-                }
-                div {
-                    color: $theme !important;
+body {
+    .SidebarDoctor {
+        box-shadow: $boxshadowsidebar;
+        width: 110px;
+        min-width: 110px;
+        height: calc(100vh - 56px);
+        .nav-item {
+            padding: 18px 0;
+            text-align: center;
+            a {
+                font-size: 12px;
+                font-style: normal;
+                font-weight: 500;
+                position: relative;
+                @media only screen and (max-width: 1300px) {
+                    font-size: 11px;
                 }
                 i {
-                    &:before{
+                    font-size: 25px;
+                    fill: #A2A2A8;
+                }
+                &:after{
+                    height: 100%;
+                    width: 4px;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    content: "";
+                    background-color: transparent;
+                    border-top-right-radius: 50px;
+                    border-bottom-right-radius: 50px;
+                }
+                &:hover, &:focus, &:active, &.active {
+                    color: $theme;
+                    &:after{
+                        background-color: $theme;
+                    }
+                    div {
                         color: $theme !important;
-                    }   
+                    }
+                    i {
+                        &:before{
+                            color: $theme !important;
+                        }   
+                    }
                 }
             }
-        }
-        svg {
-            width: 24px;
-            height: 24px;
+            svg {
+                width: 24px;
+                height: 24px;
+            }
         }
     }
-}
-body {
     .ant-layout-sider {
         box-shadow: $boxshadowsidebar;
         flex: 0 0 253px !important;

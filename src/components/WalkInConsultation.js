@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { AutoComplete, Input, Button } from 'antd';
+import { AutoComplete, Input, Button, Modal } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import CommonModal from '../common/CommonModal';
 
 function WalkInConsultation() {
+    const navigate = useNavigate();
     const [value, setValue] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState('');
     const [options, setOptions] = useState([{
         label: (
             <Button type="text" className='btn btn-primary1 btn-41 align-items-center d-flex' icon={<i className='icon-Add'></i>}>
@@ -26,19 +30,23 @@ function WalkInConsultation() {
                         value: e.name,
                         label: (
                             <>
-                                <div className='d-flex align-items-center justify-content-between py-3 border-bottom'>
+                                <div className='d-flex align-items-center justify-content-between py-3 border-bottom' onClick={setIsModalOpen}>
                                     <div className='d-flex align-items-center'>
                                         <div className='list-patientName d-flex align-items-center me-4'><i className='icon-patients backbar me-2'></i> <span>{e.name}</span></div>
                                         <div className='list-patientName d-flex align-items-center me-4'><i className='icon-phone backbar me-2'></i><span>{e.ph_no}</span></div>
                                         <div className='list-patientName d-flex align-items-center me-4'><i className='icon-Id backbar me-2'></i><span>{e.p_id}</span></div>
                                     </div>
                                     <div className='d-flex align-items-center'>
-                                        <Button type="text" className='btn btn-primary2 me-4 align-items-center d-flex' icon={<i className='icon-Preview'></i>}>
-                                            Patient Details
-                                        </Button>
-                                        <Button type="text" className='btn btn-primary3 align-items-center d-flex' icon={<i className='icon-Consult'></i>}>
-                                            Start Consult
-                                        </Button>
+                                        <Link to='/patient_details'>
+                                            <Button type="text" className='btn btn-primary2 me-4 align-items-center d-flex' icon={<i className='icon-Preview'></i>}>
+                                                Patient Details
+                                            </Button>
+                                        </Link>
+                                        <Link to='/Prescription'>
+                                            <Button type="text" className='btn btn-primary3 align-items-center d-flex' icon={<i className='icon-Consult'></i>}>
+                                                Start Consult
+                                            </Button>
+                                        </Link>
                                     </div>
                                 </div>
                             </>
@@ -91,6 +99,44 @@ function WalkInConsultation() {
                     />
                 </AutoComplete>
             </div>
+
+            <CommonModal
+                isModalOpen={isModalOpen}
+                modalWidth={610}
+                title={"Patient Selected"}
+                modalBody=
+                {
+                    <>
+                        <div className='border bg-body rounded-10px p-2 patient-details'>
+                            <div className='d-flex align-items-center'>
+                                <i className='icon-patients me-2'></i>
+                                <span>Rahul Sharma (Male, 26y)</span>
+                            </div>
+                            <div className='mt-2 d-flex align-items-center'>
+                                <i className='icon-phone me-2'></i> <span>7894561230</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <i className='icon-Id me-2'></i> <span>PI202306001</span>
+                            </div>
+                        </div>
+                        <div className='mt-4'>
+                            <span className='title-common'>
+                                Choose Action
+                            </span>
+                            <div className='d-flex align-items-center mt-2'>
+                                <Link to='/patient_details' className='me-4 w-50'>
+                                    <Button type="text" className='btn btn-primary2 align-items-center d-flex btn-41 w-100' icon={<i className='icon-Preview'></i>}>
+                                        View Patient Details <i className='icon-right iconrotate90 ms-auto'></i>
+                                    </Button>
+                                </Link>
+                                <Link to='/Prescription' className='w-50'>
+                                    <Button type="text" className='btn btn-primary3 align-items-center d-flex btn-41 w-100' icon={<i className='icon-Consult'></i>}>
+                                        Start Consult <i className='icon-right iconrotate90 ms-auto'></i>
+                                    </Button>
+                                </Link>
+                            </div>
+                        </div>
+                    </>
+                }
+            />
         </div>
     )
 }

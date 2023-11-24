@@ -58,6 +58,7 @@ body{
             border-radius: 10px;
             border: 1px solid $bordercolor !important;
             height: 33px;
+            background-color: $white;
             .ant-btn-icon {
                 line-height: 1;
             }
@@ -98,8 +99,34 @@ body{
                 background-color: $themehover !important;
             }
         }
+        &.btn-text {
+            span {
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
+                text-decoration-line: underline;
+            }
+            &:hover {
+                color: $theme;
+                span {
+                    color: $theme !important;
+                }        
+            }
+        }
         &.btn-41 {
             height: 41px;
+        }
+        &.btnclose {
+            i {
+                color: $grayColor;
+                font-size: 24px;
+            }
+            &:hover {
+                i {
+                    color: $welcomecolor;
+                }
+            }
         }
     }
     .btn-group {
@@ -129,5 +156,20 @@ body{
     }
     .btn-check:checked+.btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active {
         border-color: transparent;
+    }
+    .btn-parameters {
+        color: $theme;
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: 0.1px;
+        border: 1px solid $bordercolor;
+        border-radius: 20px;
+        background-color: $white;
+        padding: 14px;
+        &:hover, &:focus {
+            background-color: $theme !important;
+            color: $white !important;
+            border-color: $bordercolor;
+        }
     }
 }
