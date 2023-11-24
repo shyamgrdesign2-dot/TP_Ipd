@@ -128,7 +128,10 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  
+  .iconrotate90 {
+    transform: rotate(180deg);
+  }
+
   .icon-analytics:before {
     content: "\e902";
   }
