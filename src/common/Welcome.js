@@ -12,9 +12,12 @@ function Welcome(props) {
         <>
             <div className="welcomesection position-relative">
                 <div className='bg-welcome d-flex justify-content-between align-items-center'>
-                    <div>
-                        <h1>{title}</h1>
-                        <p>{subTitle ? subTitle : ''}</p>
+                    <div className='d-flex align-items-center'>
+                        <div>
+                            <h1>{title}</h1>
+                            <p>{subTitle ? subTitle : ''}</p>
+                        </div>
+                        <img src={require("../assets/images/bg-welcome.png")} className="welcomeig d-inline-block align-top" alt="Welcome" />
                     </div>
                     <div>
                         <div className='d-lg-flex d-block'>
