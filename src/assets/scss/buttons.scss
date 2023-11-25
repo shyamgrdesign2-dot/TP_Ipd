@@ -13,6 +13,9 @@ body{
             border-radius: 10px;
             background-color: $theme;
             border: $theme;
+            i {
+                font-size: 19px;
+            }
             &:hover, &:focus, &:active {
                 background-color: $themehover !important;
             }
@@ -22,6 +25,9 @@ body{
             background-color: rgba($color: #FFE8AE, $alpha: 5.0);
             border-color: $theme;
             color: $theme;
+            i {
+                font-size: 19px;
+            }
             &:hover, &:focus, &:active {
                 background-color: $theme !important;
                 color: $white;
@@ -30,6 +36,9 @@ body{
             &.btn-consult {
                 background-color: transparent;
                 border-radius: 10px;
+                i {
+                    font-size: 19px;
+                }
             }
         }
         &.load-more {
@@ -38,10 +47,16 @@ body{
             font-style: normal;
             font-weight: 600;
             height: 38px;
+            i {
+                font-size: 19px;
+            }
         }
         &.btn-primary1 {
             border-radius: 10px;
             border: 1px solid $theme !important;
+            i {
+                font-size: 19px;
+            }
             span {
                 color: $theme !important;
                 font-size: 14px;
@@ -59,6 +74,9 @@ body{
             border: 1px solid $bordercolor !important;
             height: 33px;
             background-color: $white;
+            i {
+                font-size: 19px;
+            }
             .ant-btn-icon {
                 line-height: 1;
             }
@@ -89,6 +107,9 @@ body{
             border-radius: 10px;
             background-color: $theme;
             height: 33px;
+            i {
+                font-size: 19px;
+            }
             .ant-btn-icon {
                 line-height: 1;
             }
@@ -129,7 +150,6 @@ body{
         &.btnclose {
             i {
                 color: $grayColor;
-                font-size: 24px;
             }
             &:hover {
                 i {
@@ -179,6 +199,32 @@ body{
             background-color: $theme !important;
             color: $white !important;
             border-color: $bordercolor;
+            div {
+                color: $white !important;
+            }
+        }
+    }
+    .btn-headerback {
+        width: 50px;
+        color: $maincolor;
+        &:hover {
+            color: $theme;
+        }
+    }
+    .ant-btn-primary {
+        border-radius: 10px;
+        background-color: $theme;
+        border: $theme;
+        color: $white;
+        span {
+            color: $white !important;
+            font-weight: 600;
+        }
+        i {
+            font-size: 19px;
+        }
+        &:hover, &:focus, &:active {
+            background-color: $themehover !important;
         }
     }
 }

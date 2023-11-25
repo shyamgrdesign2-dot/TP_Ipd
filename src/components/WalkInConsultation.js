@@ -90,7 +90,10 @@ function WalkInConsultation() {
                     }}
                     onSelect={onSelect}
                     onSearch={onSearch}
+                    defaultOpen
+                    autoFocus
                     className='autocomplete-custom'
+                    popupClassName='autocompletepopup'
                 >
                     <Input
                         placeholder="Search by Patient’s Name, Phone number or Id"

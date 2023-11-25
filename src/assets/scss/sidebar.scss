@@ -106,23 +106,6 @@ body {
         hr {
             border-color: #ababab;
         }
-        .patientProfile {
-            background-color: #A2A2A8;
-            width: 40px;
-            min-width: 40px;
-            height: 40px;
-            min-height: 40px;
-            color: $white !important;
-            align-items: center;
-            display: flex;
-            justify-content: center;
-        }
-        .patientName {
-            color: $welcomecolor !important;
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 600;
-        }
         p {
             font-size: 12px;
             font-style: normal;
@@ -186,23 +169,6 @@ body {
         hr {
             border-color: #ababab;
         }
-        .patientProfile {
-            background-color: #A2A2A8;
-            width: 40px;
-            min-width: 40px;
-            height: 40px;
-            min-height: 40px;
-            color: $white !important;
-            align-items: center;
-            display: flex;
-            justify-content: center;
-        }
-        .patientName {
-            color: $welcomecolor !important;
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 600;
-        }
         p {
             font-size: 12px;
             font-style: normal;
@@ -223,5 +189,22 @@ body {
             top: -1px;
             z-index: -1;
         } 
+    }
+    .patientProfile {
+        background-color: #A2A2A8;
+        width: 40px;
+        min-width: 40px;
+        height: 40px;
+        min-height: 40px;
+        color: $white !important;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+    }
+    .patientName {
+        color: $welcomecolor !important;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 600;
     }
 }

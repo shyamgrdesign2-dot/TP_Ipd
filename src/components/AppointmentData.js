@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Table, Select, Segmented, DatePicker, Dropdown } from 'antd';
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Form, Row, Col, Button, ButtonGroup } from 'react-bootstrap';
 
 function AppointmentData() {
@@ -259,11 +258,11 @@ function AppointmentData() {
                 <Col md="auto">
                     <div className='d-flex align-items-center'>
                         <ButtonGroup aria-label="Basic example">
-                            <Button variant="outline-light" className='dateoutline'><LeftOutlined /></Button>
+                            <Button variant="outline-light" className='dateoutline'><i className='icon-right d-block text-main'></i></Button>
                             <Button variant="outline-light" className='p-0'>
                                 <DatePicker onChange={dateChange} />
                             </Button>
-                            <Button variant="outline-light" className='dateoutline'><RightOutlined /></Button>
+                            <Button variant="outline-light" className='dateoutline'><i className='icon-right text-main d-block iconrotate90'></i></Button>
                         </ButtonGroup>
                         <Select placeholder="Today" className='ms-3 appointmentselect' options={calanderList} />
                         <Segmented className='ms-3'

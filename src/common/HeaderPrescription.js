@@ -1,71 +1,52 @@
 import React from 'react';
-import { Container, Navbar, Nav, Dropdown } from 'react-bootstrap';
-import { Select } from 'antd';
-
-import profile from '../assets/images/profile.svg';
+import { Container, Navbar, Row, Col } from 'react-bootstrap';
+import { Button } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
 
 function HeaderPrescription() {
-    
+    const navigate = useNavigate();
     return (
-        <Navbar className="justify-content-between portal-header">
-            <Container fluid>
-                <Navbar.Brand href="/">
-                    <img src={require("../assets/images/logo.png")} className="d-inline-block align-top" alt="Logo" />
-                </Navbar.Brand>
-                <Nav className="ms-auto">
-                    <Select placeholder="Clinic Name" className='me-2'
-                        options={[
-                            {
-                                value: 'Clinic1',
-                                label: 'Clinic 1',
-                            },
-                            {
-                                value: 'Clinic2',
-                                label: 'Clinic 2',
-                            },
-                        ]}
-                    />
-                    <Dropdown className='dropdown-profile nav-link-profile mx-1 pt-1 align-items-center'>
-                        <Dropdown.Toggle id="navbarDropdown" variant="" className='py-0 border-0 nav-link'>
-                            <i className='icon-notification active-notification'></i>
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu className='dropdown-menu-end'>
-                            <Dropdown.Item>
-                                <span>Profile</span>
-                            </Dropdown.Item>
-                            <Dropdown.Item>
-                                <span>Logout</span>
-                            </Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                    <Dropdown className='dropdown-profile nav-link-profile mx-1 pt-1'>
-                        <Dropdown.Toggle id="navbarDropdown" variant="" className='py-0 border-0 nav-link'>
-                            <i className='icon-setting'></i>
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu className='dropdown-menu-end'>
-                            <Dropdown.Item>
-                                <span>Profile</span>
-                            </Dropdown.Item>
-                            <Dropdown.Item>
-                                <span>Logout</span>
-                            </Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                    <Dropdown className='dropdown-profile nav-link-profile mx-1'>
-                        <Dropdown.Toggle id="navbarDropdown" variant="" className='py-0 border-0 nav-link'>
-                            {/* <i className='icon-patients'></i> */}
-                            <img src={profile} alt="Logo" />
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu className='dropdown-menu-end'>
-                            <Dropdown.Item>
-                                <span>Profile</span>
-                            </Dropdown.Item>
-                            <Dropdown.Item>
-                                <span>Logout</span>
-                            </Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                </Nav>
+        <Navbar className="justify-content-between headerprescription p-0">
+            <Container fluid className='h-100 gx-0 w-100'>
+                <Row className='h-100 align-items-center w-100 justify-content-between'>
+                    <Col lg="auto" className='h-100'>
+                        <div className='align-items-center d-flex h-100'>
+                            <div className='border-end h-100 text-center me-3'>
+                                <Link to='/walk_in_consultation' className='btn-headerback align-items-center d-flex h-100 justify-content-around'>
+                                    <i className='icon-right'></i>
+                                </Link>
+                            </div>
+                            <div className='rounded-pill patientProfile border me-3'>
+                                AP
+                            </div>
+                            <div className='patientName'> Ashish Patel,</div>
+                            <div className='text-2 me-30'>&nbsp;M, 28y, +91-7894561230</div>
+                            <div className='fontroboto text14 d-flex align-items-center'> <i className='icon-calendar me-2'></i> 9-10-2023</div>
+                        </div>
+                    </Col>
+                    <Col lg="auto">
+                        <div className='align-items-center d-flex h-100'>
+                            <Link to='/' className='text-main align-items-center d-flex fw-medium text14 me-30'>
+                                <i className='icon-template me-2'></i> <span className='text-decoration-underline'>Templates</span>
+                            </Link>
+                            <Link to='/' className='text-main align-items-center d-flex fw-medium text14 me-30'>
+                                <i className='icon-setting me-2'></i> <span className='text-decoration-underline'>Customize Your Pad</span>
+                            </Link>
+                            <Button type="link" className='p-0 me-30'>
+                                <i className='icon-Preview text-main'></i>
+                            </Button>
+                            <Button type="link" className='p-0 me-30'>
+                                <i className='icon-Print text-main'></i>
+                            </Button>
+                            <Button type='primary' className='btn btn-41 me-30'>
+                                Finish Prescription
+                            </Button>
+                            <Button type="link" className='p-0'>
+                                <i className='icon-More text-main'></i>
+                            </Button>
+                        </div>
+                    </Col>
+                </Row>
             </Container>
         </Navbar>
     );

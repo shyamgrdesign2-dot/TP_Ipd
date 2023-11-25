@@ -16,14 +16,6 @@ body{
             &.ant-select-single {
                 height: 38px;
             }
-            .ant-select-selector {
-                border-color: $bordercolor !important;
-                border-radius: 10px;
-            }
-            .ant-select-selection-placeholder, .ant-select-arrow .anticon >svg {
-                color: $maincolor !important;
-                font-family: 'Roboto', sans-serif !important;
-            }
         }
         .active-notification {
             position: relative;
@@ -39,9 +31,7 @@ body{
             }
         }
     }
-    .ant-select {
-        &.appointmentselect {
-            min-width: 150px;
-        }
+    .headerprescription {
+        height: 60px;
     }
 }

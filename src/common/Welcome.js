@@ -14,7 +14,6 @@ function Welcome(props) {
                 <div className='bg-welcome d-flex justify-content-between align-items-center'>
                     <div>
                         <h1>{title}</h1>
-                        {/* {subTitle && <p>{subTitle}</p>} */}
                         <p>{subTitle ? subTitle : ''}</p>
                     </div>
                     <div>

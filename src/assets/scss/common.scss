@@ -51,6 +51,9 @@ body {
         color: $grayColor !important;
         font-weight: 500;
     }
+    .text-main {
+        color: $maincolor;
+    }
     .highlighted {
         color: #FF974A !important;
         font-size: 14px;
@@ -61,6 +64,19 @@ body {
     table, p, div, span, tr, th, td{
         font-family: 'Poppins' !important;
         color: $maincolor !important;
+    }
+    .form-control {
+        border-radius: 10px;
+        &:focus {
+            box-shadow: none;
+            border-color: $theme;
+        }
+        &::-webkit-input-placeholder {
+            color: #A2A2A8;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+        }
     }
     .bg-body {
         background-color: $bgbody !important;
@@ -74,6 +90,9 @@ body {
     input {
         font-family: 'Roboto', sans-serif !important;
     }
+    .me-30 {
+        margin-right: 30px;
+    }
    .pt-2px {
         padding-top: 2px;
     }
@@ -83,12 +102,57 @@ body {
     .rounded-20px {
         border-radius: 20px;
     }
+    .fontroboto {
+        font-family: 'Roboto' !important;
+    }
+    .fontpoppins {
+        font-family: 'Poppins' !important;
+    }
+    .text-2 {
+        font-family: 'Roboto' !important;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 18px;
+        letter-spacing: 0.1px;
+    }
+    .text14 {
+        font-size: 14px;
+    }
     // Library common scss
     .ant-select-dropdown {
-        padding: 15px;
-        .ant-select-item {
-            padding: 0px;
+        &.autocompletepopup {
+            padding: 15px;
+            .ant-select-item {
+                padding: 0px;
+            }
         }
+    }
+    .ant-select {
+        &.appointmentselect {
+            min-width: 150px;
+            height: 38px;
+        }
+        .ant-select-selection-placeholder {
+            color: $maincolor !important;
+            font-family: 'Roboto', sans-serif !important;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .ant-select-arrow .anticon {
+            svg {
+                display: none;
+            }
+            &:after {
+                content: "\e914";
+                font-family: "icomoon" !important;
+                transform: rotate(-90deg);
+                font-size: 20px;
+            }
+        }
+    }
+    .ant-select .ant-select-selector {
+        border-color: $bordercolor !important;
+        border-radius: 10px;
     }
     .ant-segmented { border-radius: 10px;
         .ant-segmented-item {
@@ -112,7 +176,6 @@ body {
         .ant-segmented-item-label {
             .ant-segmented-item-icon {
                 i {
-                    font-size: 20px;
                     line-height: 1.6;
                 }
             }
