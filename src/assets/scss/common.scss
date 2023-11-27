@@ -17,6 +17,9 @@ body {
     a {
         text-decoration: none;
     }
+    hr {
+        border-color: $bordercolor;
+    }
     .wrapper {
         height: calc(100vh - 56px);
         overflow-y: auto;
@@ -92,6 +95,9 @@ body {
     }
     .me-30 {
         margin-right: 30px;
+    }
+    .p-30 {
+        padding: 30px;
     }
    .pt-2px {
         padding-top: 2px;

@@ -1,85 +1,109 @@
-body{
-    .btn { 
+body {
+    .btn {
         font-family: "Poppins" !important;
         font-size: 14px;
         font-style: normal;
         font-weight: 600;
+
         &.btn-icon {
             border-radius: 10px;
             width: 24px;
             height: 24px;
         }
+
         &.btn-primary {
             border-radius: 10px;
             background-color: $theme;
             border: $theme;
+
             i {
                 font-size: 19px;
             }
-            &:hover, &:focus, &:active {
+
+            &:hover,
+            &:focus,
+            &:active {
                 background-color: $themehover !important;
             }
         }
+
         &.btn-outline-primary {
             border-radius: 10px;
             background-color: rgba($color: #FFE8AE, $alpha: 5.0);
             border-color: $theme;
             color: $theme;
+
             i {
                 font-size: 19px;
             }
-            &:hover, &:focus, &:active {
+
+            &:hover,
+            &:focus,
+            &:active {
                 background-color: $theme !important;
                 color: $white;
                 border-color: $theme;
             }
+
             &.btn-consult {
                 background-color: transparent;
                 border-radius: 10px;
+
                 i {
                     font-size: 19px;
                 }
             }
         }
+
         &.load-more {
             border-radius: 10px;
             font-size: 12px;
             font-style: normal;
             font-weight: 600;
             height: 38px;
+
             i {
                 font-size: 19px;
             }
         }
+
         &.btn-primary1 {
             border-radius: 10px;
             border: 1px solid $theme !important;
+
             i {
                 font-size: 19px;
             }
+
             span {
                 color: $theme !important;
                 font-size: 14px;
                 font-weight: 500;
             }
+
             &:hover {
                 background-color: $theme !important;
+
                 span {
                     color: $white !important;
                 }
             }
         }
+
         &.btn-primary2 {
             border-radius: 10px;
             border: 1px solid $bordercolor !important;
             height: 33px;
             background-color: $white;
+
             i {
                 font-size: 19px;
             }
+
             .ant-btn-icon {
                 line-height: 1;
             }
+
             span {
                 font-family: 'Poppins';
                 font-style: normal;
@@ -89,30 +113,38 @@ body{
                 font-size: 14px;
                 font-weight: 500;
             }
+
             i {
                 color: $theme !important;
             }
+
             &:hover {
                 background-color: $theme !important;
                 border-color: $theme !important;
+
                 span {
                     color: $white !important;
                 }
+
                 i {
                     color: $white !important;
                 }
             }
         }
+
         &.btn-primary3 {
             border-radius: 10px;
             background-color: $theme;
             height: 33px;
+
             i {
                 font-size: 19px;
             }
+
             .ant-btn-icon {
                 line-height: 1;
             }
+
             span {
                 font-family: 'Poppins';
                 font-style: normal;
@@ -122,13 +154,53 @@ body{
                 font-size: 14px;
                 font-weight: 500;
             }
+
             i {
                 color: $white !important;
             }
-            &:hover, &:focus, &:active {
+
+            &:hover,
+            &:focus,
+            &:active {
                 background-color: $themehover !important;
             }
         }
+
+        &.btn-input {
+            border-radius: 10px;
+            border: 1px solid $theme !important;
+            position: relative;
+            overflow: hidden;
+            input {
+                position: absolute;
+                opacity: 0;
+                left: 0;
+                top: 0;
+                right: 0;
+                bottom: 0;
+            }
+
+            i {
+                font-size: 19px;
+                color: $theme !important;
+            }
+
+            span {
+                color: $theme !important;
+                font-size: 14px;
+                font-weight: 500;
+            }
+
+            &:hover {
+                background-color: $theme !important;
+
+                span,
+                i {
+                    color: $white !important;
+                }
+            }
+        }
+
         &.btn-text {
             span {
                 font-size: 14px;
@@ -137,20 +209,25 @@ body{
                 line-height: normal;
                 text-decoration-line: underline;
             }
+
             &:hover {
                 color: $theme;
+
                 span {
                     color: $theme !important;
-                }        
+                }
             }
         }
+
         &.btn-41 {
             height: 41px;
         }
+
         &.btnclose {
             i {
                 color: $grayColor;
             }
+
             &:hover {
                 i {
                     color: $welcomecolor;
@@ -158,16 +235,19 @@ body{
             }
         }
     }
+
     .btn-group {
         .btn {
             &.btn-outline-light {
                 border-color: $bordercolor;
+
                 &.dateoutline {
-                    &:first-child{
+                    &:first-child {
                         border-top-left-radius: 10px;
                         border-bottom-left-radius: 10px;
                     }
-                    &:last-child{
+
+                    &:last-child {
                         border-top-right-radius: 10px;
                         border-bottom-right-radius: 10px;
                     }
@@ -175,17 +255,28 @@ body{
             }
         }
     }
+
     .ant-btn {
         padding: 5px 15px;
     }
+
     .ant-dropdown-trigger {
-        &:focus, &:active, &:hover {
+
+        &:focus,
+        &:active,
+        &:hover {
             border-color: transparent !important;
         }
     }
-    .btn-check:checked+.btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active {
+
+    .btn-check:checked+.btn,
+    .btn.active,
+    .btn.show,
+    .btn:first-child:active,
+    :not(.btn-check)+.btn:active {
         border-color: transparent;
     }
+
     .btn-parameters {
         color: $theme;
         font-size: 16px;
@@ -195,35 +286,46 @@ body{
         border-radius: 20px;
         background-color: $white;
         padding: 14px;
-        &:hover, &:focus {
+
+        &:hover,
+        &:focus {
             background-color: $theme !important;
             color: $white !important;
             border-color: $bordercolor;
+
             div {
                 color: $white !important;
             }
         }
     }
+
     .btn-headerback {
         width: 50px;
         color: $maincolor;
+
         &:hover {
             color: $theme;
         }
     }
+
     .ant-btn-primary {
         border-radius: 10px;
         background-color: $theme;
         border: $theme;
         color: $white;
+
         span {
             color: $white !important;
             font-weight: 600;
         }
+
         i {
             font-size: 19px;
         }
-        &:hover, &:focus, &:active {
+
+        &:hover,
+        &:focus,
+        &:active {
             background-color: $themehover !important;
         }
     }
