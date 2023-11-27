@@ -3,20 +3,22 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import HeaderPrescription from "../common/HeaderPrescription";
-import { addRecord, updateRecord } from "../redux/recordsSlice";
+import { addRecord, updateRecord, createNewRecord } from "../redux/recordsSlice";
 
 function Testing() {
   const navigate = useNavigate();
   const records = useSelector((state) => state.records.records);
+  const loading = useSelector((state) => state.records.loading);
   const dispatch = useDispatch();
   console.log("redocds: ", records);
+  console.log("loading: ", loading);
 
   return (
     <>
       <HeaderPrescription />
       <div className="w-100 bg-body wrapper2 custom-scroll prescription-wrapper">
         Hello testing
-        <button onClick={() => dispatch(addRecord())}>Add Record</button>
+        <button onClick={() => dispatch(createNewRecord())}>Add Record</button>
         {records.map((record) => {
           return (
             <>
