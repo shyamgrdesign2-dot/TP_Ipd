@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AutoComplete, Input, Button, Modal } from 'antd';
+import { AutoComplete, Input, Button } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import CommonModal from '../common/CommonModal';
 
@@ -9,9 +9,11 @@ function WalkInConsultation() {
     const [isModalOpen, setIsModalOpen] = useState('');
     const [options, setOptions] = useState([{
         label: (
-            <Button type="text" className='btn btn-primary1 btn-41 align-items-center d-flex' icon={<i className='icon-Add'></i>}>
-                Add New Patient
-            </Button>
+            <Link to='/AddNew_Patient'>
+                <Button type="text" className='btn btn-primary1 btn-41 align-items-center d-flex' icon={<i className='icon-Add'></i>}>
+                    Add New Patient
+                </Button>
+            </Link>
         )
     }]);
     const onSearch = (data) => {
@@ -55,9 +57,11 @@ function WalkInConsultation() {
                 } else {
                     options.push({
                         label: (
-                            <Button type="text" className='btn btn-primary1 btn-41 align-items-center d-flex mt-3' icon={<i className='icon-Add'></i>}>
-                                Add New Patient
-                            </Button>
+                            <Link to='/AddNew_Patient'>
+                                <Button type="text" className='btn btn-primary1 btn-41 align-items-center d-flex mt-3' icon={<i className='icon-Add'></i>}>
+                                    Add New Patient
+                                </Button>
+                            </Link>
                         )
                     })
                 }
@@ -66,9 +70,11 @@ function WalkInConsultation() {
         } else {
             setOptions([{
                 label: (
-                    <Button type="text" className='btn btn-primary1 btn-41 align-items-center d-flex' icon={<i className='icon-Add'></i>}>
-                        Add New Patient
-                    </Button>
+                    <Link to='/AddNew_Patient'>
+                        <Button type="text" className='btn btn-primary1 btn-41 align-items-center d-flex' icon={<i className='icon-Add'></i>}>
+                            Add New Patient
+                        </Button>
+                    </Link>
                 )
             }])
         }
