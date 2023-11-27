@@ -21,7 +21,7 @@ function PersonalDetails() {
             </div>
 
             <Form name="basic" initialValues={{ remember: true }} onFinish={onFinish} onFinishFailed={onFinishFailed} autoComplete="off" layout="inline">
-                <Form.Item label="Salutation" name="fullname" rules={[{ required: true }]}>
+                <Form.Item label="Salutation" name="fullname" rules={[{ required: true, message: false }]}>
                     <Select style={{ width: 100}} placeholder="Mr.">
                         <Option value="mr">Mr.</Option>
                         <Option value="mrs">Mrs.</Option>
