@@ -30,9 +30,9 @@ function AddNewPatient() {
                         <Route path="/" element={
                             <div className="border rounded-4 appointment-wrap p-30">
                                 <Row className='justify-content-between'>
-                                    <Col lg={9} md={12}>
+                                    <Col lg={8} md={12}>
                                         <PersonalDetails />
-                                        <hr />
+                                        <hr className="my-3" />
                                         <AddressDetails />
                                     </Col>
                                     <Col lg={'auto'} md={12}>

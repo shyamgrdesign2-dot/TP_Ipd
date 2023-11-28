@@ -19,6 +19,7 @@ body {
     }
     hr {
         border-color: $bordercolor;
+        opacity: 1;
     }
     .wrapper {
         height: calc(100vh - 56px);
@@ -75,7 +76,7 @@ body {
             border-color: $theme;
         }
         &::-webkit-input-placeholder {
-            color: #A2A2A8;
+            color: $grayColor;
             font-size: 14px;
             font-style: normal;
             font-weight: 400;
@@ -92,6 +93,9 @@ body {
     }
     input {
         font-family: 'Roboto', sans-serif !important;
+    }
+    .w-48 {
+        width: 48%;
     }
     .me-30 {
         margin-right: 30px;

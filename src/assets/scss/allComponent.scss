@@ -6,8 +6,12 @@
     &.PatientDetailswrap {
         background-color: transparent;
     }
+    &.dateborder {
+        .ant-picker {
+            border-color : transparent; 
+        }    
+    }
     .ant-picker {
-        border-color : transparent; 
         .ant-picker-input {
             input::placeholder {
                 color: $maincolor;

@@ -42,7 +42,7 @@ function Appointment() {
     }, [tabChange]);
 
     return (
-        <div className="border rounded-4 appointment-wrap">
+        <div className="border rounded-4 appointment-wrap dateborder">
             <Tabs
                 defaultActiveKey="1"
                 items={items}
