@@ -24,8 +24,12 @@ body {
             font-weight: 500;
             line-height: 26px;
             letter-spacing: 0.1px;
-            &:hover, &:focus, &:focus-within {
-                border-color: $theme;
+            border-color: $bordercolor !important;
+            &:hover {
+                box-shadow: 0 0 0 2px rgba(74, 74, 212, 0.1);
+            }
+            &:focus, &:focus-within {
+                border-color: $theme !important;
                 box-shadow: 0 0 0 2px rgba(74, 74, 212, 0.1);
             }
             &::-webkit-input-placeholder {
@@ -71,8 +75,13 @@ body {
             height: 38px;
             border-radius: 10px;
             width: 100%;
-            &:hover, &:focus, &:focus-within {
-                border-color: $theme;
+            border-color: $bordercolor !important;
+            &:hover {
+                box-shadow: 0 0 0 2px rgba(74, 74, 212, 0.1);
+            }
+            &:focus, &:focus-within {
+                border-color: $theme !important;
+                box-shadow: 0 0 0 2px rgba(74, 74, 212, 0.1);
             }
         }
         .or {

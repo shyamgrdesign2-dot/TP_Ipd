@@ -104,7 +104,8 @@ body {
             }
         }
         hr {
-            border-color: #ababab;
+            border-color: $bordercolor;
+            opacity: 1;
         }
         p {
             font-size: 12px;
@@ -167,7 +168,8 @@ body {
             }
         }
         hr {
-            border-color: #ababab;
+            border-color: $bordercolor;
+            opacity: 1;
         }
         p {
             font-size: 12px;
