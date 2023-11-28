@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
-import { Form} from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
+import { AutoComplete, Input, Button } from 'antd';
 
 import vitals from '../assets/images/Vitals.svg';
 import HeaderPrescription from "../common/HeaderPrescription";
@@ -15,7 +16,51 @@ import Diagnosisicon from '../assets/images/Diagnosis.svg';
 import Medicationicon from '../assets/images/Medication.svg';
 import hey from '../assets/images/bg-hey.png';
 
+const mockVal = (str, repeat = 1) => ({
+    value: str.repeat(repeat),
+});
+
 function Prescription() {
+    // For Symptoms Autocomplete
+    const onSelect = (data) => {
+        console.log('onSelect', data);
+    };
+    const [value, setValue] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState('');
+    const [options, setOptions] = useState([{
+        label: (
+            'FREQUENTLY USED'
+        )
+    }]);
+    const onSearch = (data) => {
+        setValue(data);
+        console.log('onSearch', data);
+        if (data.length > 0) {
+            const array = [
+                { id: 1, name: 'Chest Pain' },
+                { id: 2, name: 'Chest Discomfort'},
+                { id: 3, name: 'Snoring'},
+                { id: 4, name: 'Anxiety'},
+                { id: 5, name: 'High blood pressure'},
+                { id: 6, name: 'Heartburn'},
+                { id: -1 }
+            ]
+            array.map(e => {
+                if (e.id != -1) {
+                    options.push({
+                        value: e.name,
+                        label: (
+                            <>
+                                {e.name}
+                            </>
+                        )
+                    })
+                } 
+            })
+        } 
+        setOptions(prev => [...prev])
+    };
+
     const navigate = useNavigate();
     return (
         <>
@@ -33,7 +78,7 @@ function Prescription() {
                                 <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-Add me-1 fs-5"></i> <span>Add</span></button></Link>
                             </div>
                         </div>
-                        <div className="prescription-box-sm">
+                        {/* <div className="prescription-box-sm">
                             <div className="d-flex align-items-center justify-content-between">
                                 <div className="d-flex align-items-center">
                                     <img src={MedicalHistoryicon} alt="Medical History" className='me-3' />
@@ -77,9 +122,9 @@ function Prescription() {
                                 </div>
                                 <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-Add me-1 fs-5"></i> <span>Add</span></button></Link>
                             </div>
-                        </div>
+                        </div> */}
                         <div>
-                            <button className='btn btn-parameters mx-auto w-100'> 
+                            <button className='btn btn-parameters mx-auto w-100'>
                                 <div className="align-items-center d-flex justify-content-center"><i className="icon-Add me-2"></i> Add More Parameters</div>
                             </button>
                         </div>
@@ -98,14 +143,25 @@ function Prescription() {
                             </div>
                             <Form className="mt-2">
                                 <Form.Group controlId="exampleForm.ControlInput1">
-                                    <Form.Control type="email" placeholder="Search by patient name" />
+                                    <AutoComplete
+                                        options={options}
+                                        className='autocomplete-custom w-100'
+                                        onSelect={onSelect}
+                                        onSearch={onSearch}
+                                    >
+                                     <Input
+                                        placeholder="Search by Patient’s Name, Phone number or Id"
+                                        prefix={<i className='icon-search'></i>}
+                                        suffix={value.length > 0 && <i className='icon-Cross' onClick={() => setValue('')}></i>}
+                                    />
+                                    </AutoComplete>
                                 </Form.Group>
                             </Form>
                         </div>
-                        <div className="prescription-box-sm">
+                        {/* <div className="prescription-box-sm">
                             <div className="d-flex align-items-center justify-content-between">
                                 <div className="d-flex align-items-center">
-                                <img className='me-2' src={Examinationsicon} alt="Examinations" />
+                                    <img className='me-2' src={Examinationsicon} alt="Examinations" />
                                     <div className="title-common">Examinations</div>
                                 </div>
                                 <div className="d-flex align-items-center">
@@ -153,7 +209,7 @@ function Prescription() {
                                     <Form.Control type="email" placeholder="Search by patient name" />
                                 </Form.Group>
                             </Form>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>

@@ -101,6 +101,14 @@
         .ant-select-selection-search-input {
             height: 38px;
         }
+        .ant-select-selection-placeholder {
+            color: $grayColor !important;
+            font-family: 'Roboto';
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 26px;
+            letter-spacing: 0.1px;
+        }
     }
 }
 .list-patientName {
