@@ -1,0 +1,23 @@
+import PlaceholderApiProvider from "../serviceProviders/PlaceholderApiProvider";
+
+class StoresService extends PlaceholderApiProvider {
+  async getAll() {
+    return this.api.post(
+      `/api/v1/appointment/listAppointment`,
+      {
+        startDate: "2023-08-17",
+        endDate: "2023-08-17",
+        apStatue: 0,
+        filterVisitType: "14",
+        page: 0,
+      }
+    );
+  }
+
+  async getById(id) {
+    return this.api.get(`/${id}`);
+  }
+}
+
+const storesService = new StoresService();
+export default storesService;
