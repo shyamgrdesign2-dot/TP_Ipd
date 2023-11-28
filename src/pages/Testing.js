@@ -10,8 +10,6 @@ function Testing() {
   const records = useSelector((state) => state.records.records);
   const loading = useSelector((state) => state.records.loading);
   const dispatch = useDispatch();
-  console.log("redocds: ", records);
-  console.log("loading: ", loading);
 
   return (
     <>
