@@ -1,31 +1,16 @@
 import React from 'react';
-import { Button, Form, Input, Select, DatePicker, Radio, Row, Col } from 'antd';
+import { Button, Form, Input, Select, Row, Col } from 'antd';
 
 function AddressDetails() {
 
-    // Select for Salutation
+    // Select for Address State List 
     const stateList = [
         { value: 'AN', label: 'Andaman and Nicobar Islands' },
         { value: 'AP', label: 'Andhra Pradesh' },
         { value: 'AR', label: 'Arunachal Pradesh' },
         { value: 'AS', label: 'Assam' },
     ];
-    
-    // DatePicker for Date of Birth
-    const dateofbirth = (date, dateString) => {
-        console.log(date, dateString);
-    };
-
-    // Form Rules
-    const rules = {
-        mobilenumber: [
-            {
-                required: true,
-                message: 'Enter a valid mobile number',
-            }
-        ],
-    }
-    return (
+     return (
         <>
             <div className="d-flex justify-content-between">
                 <div className='title'>Address Details</div>
@@ -33,7 +18,6 @@ function AddressDetails() {
                     <div className='title align-items-center d-flex'> <i className='icon-Add me-2'></i> Add Details</div>
                 </Button>
             </div>
-
             <Form
                 layout="vertical"
                 name="advanced_search"

@@ -18,27 +18,34 @@ function AddNewPatient() {
                 <SidebarDoctor />
                 <div className='w-100 bg-body wrapper custom-scroll'>
                     <Welcome
-                        title={'Welcome Dr. Mihir!'} 
+                        title={'Welcome Dr. Mihir!'}
                         subTitle={'Your Appointments'}
                         backVisible={false}
                         buttonIcon={'icon-Add me-2'}
                         firstButtonName={'Add New Appointment'}
                         firstButtonPath={'/'}
                         secondButtonName={'Star Walk-In Consultation'}
-                        secondButtonPath={'/walk_in_consultation'}/>
+                        secondButtonPath={'/walk_in_consultation'} />
                     <Routes>
                         <Route path="/" element={
-                            <div className="border rounded-4 appointment-wrap p-30">
-                                <Row className='justify-content-between'>
-                                    <Col lg={8} md={12}>
-                                        <PersonalDetails />
-                                        <hr className="my-3" />
-                                        <AddressDetails />
-                                    </Col>
-                                    <Col lg={'auto'} md={12}>
-                                        <UploadProfile />
-                                    </Col>
-                                </Row>
+                            <div className="border rounded-4 appointment-wrap">
+                                <div className="p-30">
+                                    <Row className='justify-content-between'>
+                                        <Col lg={8} md={12}>
+                                            <PersonalDetails />
+                                            <hr className="my-3" />
+                                            <AddressDetails />
+                                        </Col>
+                                        <Col lg={'auto'} md={12}>
+                                            <UploadProfile />
+                                        </Col>
+                                    </Row>
+                                </div>
+                                <hr className="my-0" />
+                                <div className="text-end p-20">
+                                    <button className="btn btn-text text-decoration-underline me-3">Cancel</button>
+                                    <button className="btn btn-primary btn-41" disabled>Add Patient to Consult</button>
+                                </div>
                             </div>
                         } />
                         <Route path="walk_in_consultation" element={<WalkInConsultation />} />
@@ -46,7 +53,7 @@ function AddNewPatient() {
                 </div>
             </div>
         </>
-        
+
     )
 }
 export default React.memo(AddNewPatient)
