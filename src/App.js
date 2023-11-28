@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Routes, Route, useSearchParams } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 
@@ -9,8 +9,26 @@ import Prescription from "./pages/Prescription";
 import AddNewPatient from "./pages/AddNewPatient";
 import Testing from "./pages/Testing";
 import { store, persistor } from "./redux/store";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
+import { clearLocalStorage, useLocalStorage } from "./utils/localStorage";
 
 function App() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  // this param needs to be changed as needed
+  const authToken = searchParams.get("authToken");
+
+  const [getToken, setToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_AUTH_TOKEN
+  );
+
+  useEffect(() => {
+    const pathname = window.location.pathname;
+    console.log('pathname: ', pathname);    
+    if(pathname === '/testing' && authToken) {
+      setToken(authToken);
+    }
+  }, [window.location.pathname, authToken]);
+
   return (
     <>
       <Provider store={store}>
