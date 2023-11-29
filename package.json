@@ -22,7 +22,8 @@
     "sass": "^1.69.5",
     "uuid": "^9.0.1",
     "web-vitals": "^2.1.4",
-    "axios": "^1.6.0"
+    "axios": "^1.6.0",
+    "moment": "^2.29.4"
   },
   "scripts": {
     "start": "react-scripts start",

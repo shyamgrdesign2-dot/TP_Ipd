@@ -25,7 +25,7 @@ function Testing() {
             error ? <div>{error.message}</div> : records?.app_data?.map((record) => {
                 return (
                 <>
-                    <div key={record?.uuid}>xx</div>
+                    <div key={record?.uuid}>{record?.pm_first_name}</div>
                 </>
                 );
             })

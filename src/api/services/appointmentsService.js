@@ -1,12 +1,12 @@
 import PlaceholderApiProvider from "../serviceProviders/PlaceholderApiProvider";
 
 class AppointmentsService extends PlaceholderApiProvider {
-  async getAll() {
+  async getAll(startDate, endDate) {
     return this.api.post(
       `/api/v1/appointment/listAppointment`,
       {
-        startDate: "2023-08-17",
-        endDate: "2023-08-17",
+        startDate,
+        endDate,
         apStatue: 0,
         filterVisitType: "14",
         page: 0,

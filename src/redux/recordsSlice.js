@@ -35,11 +35,13 @@ export const createNewRecord = createAsyncThunk(
 
 export const getAllRecords = createAsyncThunk(
   "records/getAllRecords",
-  async (data) => {
-    let result = {};
+  async ({
+    startDate,
+    endDate
+}) => {
     try {
-      result = await appointmentsService.getAll();
-      console.log("results: ", result);  
+      const result = await appointmentsService.getAll(startDate, endDate);
+      console.log("results: ", result);
       if (result.status) {
         return result.data;
       }
@@ -105,6 +107,7 @@ const recordsSlice = createSlice({
       })
       .addCase(getAllRecords.rejected, (state, action) => {
         state.loading = false;
+        state.records = null;
         state.error = action.error;
       });
   },
