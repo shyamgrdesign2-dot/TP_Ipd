@@ -1,6 +1,6 @@
 import PlaceholderApiProvider from "../serviceProviders/PlaceholderApiProvider";
 
-class StoresService extends PlaceholderApiProvider {
+class AppointmentsService extends PlaceholderApiProvider {
   async getAll() {
     return this.api.post(
       `/api/v1/appointment/listAppointment`,
@@ -19,5 +19,5 @@ class StoresService extends PlaceholderApiProvider {
   }
 }
 
-const storesService = new StoresService();
-export default storesService;
+const appointmentsService = new AppointmentsService();
+export default appointmentsService;

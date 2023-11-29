@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
-import storesService from "../api/services/storesService";
+import appointmentsService from "../api/services/appointmentsService";
 import { Exception } from "sass";
 import { parseApiError } from "../utils/utils";
 
@@ -36,17 +36,22 @@ export const createNewRecord = createAsyncThunk(
 export const getAllRecords = createAsyncThunk(
   "records/getAllRecords",
   async (data) => {
-    // Simulates a long running operation like an API call here
-    const result = await storesService.getAll();
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("results: ", result);
-
-    // API call success
-    if (result.status) {
-      return result.data;
-    } else {
-      // API failed, return some meaningful error
-      throw parseApiError(result);
+    let result = {};
+    try {
+      result = await appointmentsService.getAll();
+      console.log("results: ", result);  
+      if (result.status) {
+        return result.data;
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      if(error.response.status === 401) {
+        // redirect here
+        throw parseApiError(error);
+      } else {
+        // API failed, return some meaningful error
+        throw parseApiError(error);
+      }
     }
   }
 );
@@ -96,7 +101,7 @@ const recordsSlice = createSlice({
       .addCase(getAllRecords.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.records.push(action.payload);
+        state.records = action.payload;
       })
       .addCase(getAllRecords.rejected, (state, action) => {
         state.loading = false;

@@ -11,7 +11,7 @@ function Testing() {
   const loading = useSelector((state) => state.records.loading);
   const error = useSelector((state) => state.records.error);
   const dispatch = useDispatch();
-  console.log('error: ', error);
+  console.log('records: ', records);
 
   useEffect(() => {
     dispatch(getAllRecords());
@@ -22,10 +22,10 @@ function Testing() {
       <HeaderPrescription />
       <div className="w-100 bg-body wrapper2 custom-scroll prescription-wrapper">
         {loading ? <div>Loading...</div> : 
-            error ? <div>{error.message}</div> : records.map((record) => {
+            error ? <div>{error.message}</div> : records?.app_data?.map((record) => {
                 return (
                 <>
-                    <div key={record.uuid}>{record.pm_first_name}</div>
+                    <div key={record?.uuid}>xx</div>
                 </>
                 );
             })

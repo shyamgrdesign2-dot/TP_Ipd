@@ -27,13 +27,18 @@ export const isLocalDev = () => {
 };
 
 export const parseApiError = (errorResponse) => {
+  console.log("errorResponse: ", errorResponse);
   if(!errorResponse) {
     return "Something went wrong!";
   }
 
-  if(errorResponse.error) {
-    return errorResponse.error;
-  } 
+  if(errorResponse.response?.data?.error) {
+    return errorResponse.response?.data?.error;
+  }
+
+  if(errorResponse.message) {
+    return errorResponse.message;
+  }
   
   if(errorResponse.data && Array.isArray(errorResponse.data)) {
     const errorArray = errorResponse.data;
