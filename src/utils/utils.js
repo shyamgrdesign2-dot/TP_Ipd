@@ -33,7 +33,7 @@ export const getFormattedDate = (date) => {
     return "";
   }
   const dateObj = new Date(date+" UTC");
-  return moment(dateObj).format('DD/MM/YY');
+  return moment(dateObj).format('YYYY-MM-DD');
 };
 
 const getTime = (date) => {

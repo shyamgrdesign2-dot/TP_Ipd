@@ -1,23 +1,31 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import dayjs from "dayjs";
 import { Link, useNavigate } from "react-router-dom";
 import { Table, Select, Segmented, DatePicker, Dropdown } from "antd";
 import { Form, Row, Col, Button, ButtonGroup } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 
-import {
-  addRecord,
-  updateRecord,
-  createNewRecord,
-  getAllRecords,
-} from "../redux/recordsSlice";
+import { getAllRecords } from "../redux/recordsSlice";
+import { getFormattedDate } from "../utils/utils";
 
 function AppointmentData() {
   const navigate = useNavigate();
   /* const startDate = "2023-08-17";
     const endDate = "2023-08-17"; */
-  const todaysDate = new Date().toLocaleDateString().replaceAll("/", "-");
+  const defaultDate = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterDate = getFormattedDate(yesterday);
+  const todaysDate = getFormattedDate(new Date());
+  console.log("todaysDate: ", todaysDate);
+  console.log("yesterDate: ", yesterDate);
   const [startDate, setStartDate] = useState("2023-08-17");
   const [endDate, setEndDate] = useState("2023-08-17");
+  const initialDate = {
+    startDate: "2023-08-17",
+    endDate: "2023-08-17",
+  };
+  const [date, setDate] = useState(initialDate);
   const records = useSelector((state) => state.records.records);
   const loading = useSelector((state) => state.records.loading);
   const error = useSelector((state) => state.records.error);
@@ -27,15 +35,16 @@ function AppointmentData() {
   useEffect(() => {
     dispatch(
       getAllRecords({
-        startDate,
-        endDate,
+        startDate: date.startDate,
+        endDate: date.endDate,
       })
     );
-  }, [getAllRecords, startDate, endDate]);
+  }, [getAllRecords, date]);
 
   const calanderList = [
-    { value: "Today", label: "Today" },
-    { value: "Yesterday", label: "Yesterday" },
+    { value: todaysDate, label: "Today" },
+    { value: yesterDate, label: "Yesterday" },
+    { value: "week", label: "Week" },
   ];
 
   const segmentedList = [
@@ -55,8 +64,8 @@ function AppointmentData() {
   );
 
   // transform the data
-  const [data, setData] = useState(
-    records?.app_data.map(
+  const data = useMemo(() => {
+    return records?.app_data?.map(
       ({
         pm_first_name,
         pm_last_name,
@@ -66,6 +75,7 @@ function AppointmentData() {
         apTime,
         apDate,
         pm_gender,
+        toct_type
       }) => {
         return {
           key: Math.random(),
@@ -76,10 +86,13 @@ function AppointmentData() {
           apTime,
           apDate,
           pm_gender,
+          toct_type
         };
       }
-    )
-  );
+    );
+  }, [records]);
+
+  console.log("data: ", data);
 
   const handleChange = (pagination, filters, sorter) => {
     console.log("Various parameters", pagination, filters, sorter);
@@ -132,7 +145,7 @@ function AppointmentData() {
     },
     {
       title: "Visit Type",
-      dataIndex: "visittype",
+      dataIndex: "toct_type",
       key: "visittype",
       sorter: (a, b) => a.visittype.length - b.visittype.length,
       sortOrder: sortedInfo.columnKey === "visittype" ? sortedInfo.order : null,
@@ -181,6 +194,10 @@ function AppointmentData() {
 
   const dateChange = (date, dateString) => {
     console.log(date, dateString);
+    setDate({
+      startDate: dateString,
+      endDate: dateString,
+    });
   };
 
   const loadMoreData = () => {
@@ -188,7 +205,7 @@ function AppointmentData() {
     data.map((e, i) => {
       dummyData.push({ ...e, key: Math.random() });
     });
-    setData([...data, ...dummyData]);
+    // setData([...data, ...dummyData]);
   };
 
   const items = [
@@ -206,6 +223,36 @@ function AppointmentData() {
     },
   ];
 
+  const onDateChanged = (selectedValue) => {
+    console.log("selectedValue: ", selectedValue);
+    if (selectedValue === "week") {
+      const date = new Date();
+      date.setDate(date.getDate() - 7);
+      const aweekBackDate = date.toLocaleDateString().replaceAll("/", "-");
+      setDate({
+        startDate: aweekBackDate,
+        endDate: todaysDate,
+      });
+    } else {
+      setDate({
+        startDate: selectedValue,
+        endDate: selectedValue,
+      });
+    }
+  };
+
+  const stepDate = (forward) => {
+    const currentDate = date.startDate ? new Date(date.startDate) : new Date();
+    currentDate.setDate(
+      forward ? currentDate.getDate() + 1 : currentDate.getDate() - 1
+    );
+    console.log("currentDate: ", currentDate);
+    setDate({
+      startDate: getFormattedDate(currentDate),
+      endDate: getFormattedDate(currentDate),
+    });
+  };
+
   return (
     <div className="p-4 appointment-data">
       <Row className="justify-content-between">
@@ -219,13 +266,40 @@ function AppointmentData() {
         <Col md="auto">
           <div className="d-flex align-items-center">
             <ButtonGroup aria-label="Basic example">
-              <Button variant="outline-light" className="dateoutline">
+              <Button
+                variant="outline-light"
+                className="dateoutline"
+                disabled={date.startDate !== date.endDate}
+                onClick={() => {
+                  stepDate(false);
+                }}
+              >
                 <i className="icon-right d-block text-main"></i>
               </Button>
               <Button variant="outline-light" className="p-0">
-                <DatePicker onChange={dateChange} />
+                <DatePicker
+                  onChange={dateChange}
+                  value={
+                    date.startDate === date.endDate
+                      ? dayjs(getFormattedDate(date.startDate), "YYYY-MM-DD")
+                      : ""
+                  }
+                  defaultValue={dayjs(
+                    getFormattedDate(date.startDate),
+                    "YYYY-MM-DD"
+                  )}
+                  format="YYYY-MM-DD"
+                  disabled={date.startDate !== date.endDate}
+                />
               </Button>
-              <Button variant="outline-light" className="dateoutline">
+              <Button
+                variant="outline-light"
+                className="dateoutline"
+                disabled={date.startDate !== date.endDate}
+                onClick={() => {
+                  stepDate(true);
+                }}
+              >
                 <i className="icon-right text-main d-block iconrotate90"></i>
               </Button>
             </ButtonGroup>
@@ -233,6 +307,7 @@ function AppointmentData() {
               placeholder="Today"
               className="ms-3 appointmentselect"
               options={calanderList}
+              onChange={onDateChanged}
             />
             <Segmented
               className="ms-3"
@@ -245,22 +320,25 @@ function AppointmentData() {
       </Row>
       {segmented == 1 ? (
         <div>
-            {error ? <div>{error.message}</div> : (
-            <Table
-              columns={columns}
-              dataSource={data}
-              onChange={handleChange}
-              pagination={false}
-              loading={loading}
-            />
-          )
-        }
-          <button
-            className="btn btn-light w-100 mt-3 load-more"
-            onClick={loadMoreData}
-          >
-            Show All (10)
-          </button>
+          {error ? (
+            <div>{error.message}</div>
+          ) : (
+            <>
+              <Table
+                columns={columns}
+                dataSource={data}
+                onChange={handleChange}
+                pagination={false}
+                loading={loading}
+              />
+              <button
+                className="btn btn-light w-100 mt-3 load-more"
+                onClick={loadMoreData}
+              >
+                Show All (10)
+              </button>
+            </>
+          )}
         </div>
       ) : (
         <h1>Grid View</h1>

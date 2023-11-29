@@ -1,11 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import { Tabs } from 'antd';
+import { useSelector } from "react-redux";
 
 import AppointmentData from '../components/AppointmentData'
 
 function Appointment() {
 
-    const [tabChange, setTabChange] = useState('1')
+    const [tabChange, setTabChange] = useState('1');
+    const queueCount = useSelector((state) => state.records.queueCount);
 
     const items = [
         {
@@ -13,7 +15,7 @@ function Appointment() {
             label: (
                 <div className='d-flex'>
                     <i className='icon-Queue'></i>
-                    Queue (20)
+                    Queue ({queueCount ?? 0})
                 </div>
             )
         },
