@@ -7,7 +7,6 @@ const defaultOptions = {};
 function axiosProvider(baseUrl, options) {
   console.log('creating axios instance');
   const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN) == null ? null: JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN));
-  console.log('getToken: ', token);
   const api = axios.create({
     baseURL: baseUrl,
     ...defaultOptions,

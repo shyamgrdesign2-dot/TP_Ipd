@@ -2,7 +2,7 @@ import config from '../config';
 import axiosProvider from './axiosProvider';
 
 class CoreApi {
-  constructor(slug = '', accessToken) {
+  constructor(slug = '') {
     this.slug = slug;
     this.api = axiosProvider(`${config.placeholderApiUrl}${this.slug}`); 
     this.setInterceptors({
