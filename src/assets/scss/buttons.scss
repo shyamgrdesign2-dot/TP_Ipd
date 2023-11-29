@@ -329,4 +329,13 @@ body {
             background-color: $themehover !important;
         }
     }
+    .btn-delete-prescription {
+        box-shadow: none;
+        &:hover {
+            border-color: transparent !important;
+            i {
+                color: $theme;
+            }
+        }
+    }
 }

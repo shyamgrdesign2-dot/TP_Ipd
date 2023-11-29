@@ -121,4 +121,34 @@ body {
         line-height: 26px;
         letter-spacing: 0.1px;
     }
+    .ant-input {
+        &.notesinput{
+            height: 38px;
+            border-radius: 10px;
+            font-family: 'Roboto';
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 26px;
+            letter-spacing: 0.1px;
+            border-color: $bordercolor !important;
+            border-radius: 0;
+            &:focus, &:focus-within {
+                box-shadow: 0 0 0 2px rgba(74, 74, 212, 0.1) !important;
+            }
+            &::-webkit-input-placeholder {
+                color: $grayColor;
+                font-size: 14px;
+                font-weight: 400;
+            }
+        }
+    }
+    .inputborder {
+        .ant-select-selector {
+            border: 0 !important;
+            border-radius: 0;
+            &:focus, &:focus-within {
+                box-shadow: 0 0 0 2px rgba(74, 74, 212, 0.1) !important;
+            }
+        }
+    }
 }

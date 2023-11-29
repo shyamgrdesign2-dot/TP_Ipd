@@ -100,6 +100,16 @@ body {
     .me-30 {
         margin-right: 30px;
     }
+    .mt-14 {
+        margin-top: 14px;
+    }
+    .p-14 {
+        padding: 14px;
+    }
+    .p-14-pb0 {
+        padding: 14px;
+        padding-bottom: 0;
+    }
     .p-20 {
         padding: 20px;
     }
@@ -195,6 +205,30 @@ body {
                     line-height: 1.6;
                 }
             }
+        }
+    }
+    .medicine-templates {
+        padding: 10px 17px;
+        &:hover {
+            background-color: #F1F1F5;
+        }
+        &:last-child {
+            &:hover{
+                border-bottom-left-radius: 20px;
+                border-bottom-right-radius: 20px;
+            }
+        }
+        .round-box {
+            width: 37px;
+            height: 37px;
+            min-width: 37px;
+            min-height: 37px;
+            background-color: #fff;
+            border-radius: 100%;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            margin-right: 15px;
         }
     }
 }

@@ -1,10 +1,22 @@
 import React from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
-import { Button } from 'antd';
+import { Button, Dropdown } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 
 function HeaderPrescription() {
     const navigate = useNavigate();
+
+    const items = [
+        {
+            label: 'Print Rx',
+            key: 'printrx',
+        },
+        {
+            label: 'Clear',
+            key: 'clear',
+        }
+    ];
+
     return (
         <Navbar className="justify-content-between headerprescription p-0">
             <Container fluid className='h-100 gx-0 w-100'>
@@ -41,9 +53,11 @@ function HeaderPrescription() {
                             <Button type='primary' className='btn btn-41 me-30'>
                                 Finish Prescription
                             </Button>
-                            <Button type="link" className='p-0'>
-                                <i className='icon-More text-main'></i>
-                            </Button>
+                            <Dropdown className='btn btn-outline btn-more me-2 p-0' menu={{ items, }} trigger={['click']}>
+                                <a onClick={(e) => e.preventDefault()}>
+                                    <i className='icon-More'></i>
+                                </a>
+                            </Dropdown>
                         </div>
                     </Col>
                 </Row>

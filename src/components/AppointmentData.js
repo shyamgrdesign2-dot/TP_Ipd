@@ -8,8 +8,10 @@ function AppointmentData() {
     const navigate = useNavigate();
 
     const calanderList = [
-        { value: 'Today', label: 'Today' },
-        { value: 'Yesterday', label: 'Yesterday' },
+        { value: 'today', label: 'Today' },
+        { value: 'next7days', label: 'Next 7 Days' },
+        { value: 'next30days', label: 'Next 30 Days' },
+        { value: 'all', label: 'All' },
     ];
 
     const segmentedList = [
@@ -232,16 +234,16 @@ function AppointmentData() {
 
     const items = [
         {
-            label: '1st menu item',
-            key: '0',
+            label: 'Patient Details',
+            key: 'patientdetails',
         },
         {
-            label: '2nd menu item',
-            key: '1',
+            label: 'Cancel Appt.',
+            key: 'cancelappt',
         },
         {
-            label: '3rd menu item',
-            key: '3',
+            label: 'End Visit',
+            key: 'endvisit',
         },
     ];
 

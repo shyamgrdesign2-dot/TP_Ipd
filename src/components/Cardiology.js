@@ -59,17 +59,13 @@ function Cardiology() {
 
     const items = [
         {
-            label: 'Cardiology 1',
-            key: '0',
+            label: 'Print Rx',
+            key: 'printrx',
         },
         {
-            label: 'Cardiology 2',
-            key: '1',
-        },
-        {
-            label: 'Cardiology 3',
-            key: '3',
-        },
+            label: 'Saved as a Template',
+            key: 'SavedasTemplate',
+        }
     ];
 
     const handleChange = (pagination, filters, sorter) => {
