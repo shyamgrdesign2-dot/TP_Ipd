@@ -140,6 +140,9 @@ body {
             }
         }
     }
+    .ant-input-affix-wrapper {
+        border-radius: 10px;
+    }
     .ant-select {
         &.appointmentselect {
             min-width: 150px;

@@ -33,7 +33,7 @@ function AddNewPatient() {
                                     <Row className='justify-content-between'>
                                         <Col lg={8} md={12}>
                                             <PersonalDetails />
-                                            <hr className="my-3" />
+                                            <hr className="mb-3 mt-1" />
                                             <AddressDetails />
                                         </Col>
                                         <Col lg={'auto'} md={12}>
