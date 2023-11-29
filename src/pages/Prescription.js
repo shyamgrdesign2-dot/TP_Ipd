@@ -204,7 +204,9 @@ function Prescription() {
                                     <Popover content={content} trigger="click" overlayClassName="pop-350 pp-0" placement="bottom">
                                         <button className='btn d-flex align-items-center btn-text'> <i className="icon-template me-2"></i> <span>Templates</span></button>
                                     </Popover>
-                                    <button className='btn d-flex align-items-center btn-text'> <i className="icon-save me-2"></i> <span>Save</span></button>
+                                    <Popover content={content} trigger="click" overlayClassName="pop-350 pp-0" placement="bottom">
+                                        <button className='btn d-flex align-items-center btn-text'> <i className="icon-save me-2"></i> <span>Save</span></button>
+                                    </Popover>
                                 </div>
                             </div>
                             <Row gutter={[0]} className="align-items-center border-bottom border-top mt-14">
