@@ -108,6 +108,7 @@ const recordsSlice = createSlice({
       })
       .addCase(getAllRecords.rejected, (state, action) => {
         state.loading = false;
+        state.records = null;
         state.error = action.error;
       });
   },

@@ -1,5 +1,6 @@
+import moment from 'moment';
+
 import config from "../config";
-import moment from "moment";
 
 export const validateEmail = (email) => {
   return String(email)
