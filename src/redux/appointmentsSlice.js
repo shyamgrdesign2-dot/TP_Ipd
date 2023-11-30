@@ -81,7 +81,7 @@ export const searchAppointments = createAsyncThunk(
   }
 );
 
-const recordsSlice = createSlice({
+const appointmentsSlice = createSlice({
   name: "records",
   initialState,
   reducers: {
@@ -149,5 +149,5 @@ const recordsSlice = createSlice({
   },
 });
 
-export const { addRecord, updateRecord, deleteRecord } = recordsSlice.actions;
-export default recordsSlice.reducer;
+export const { addRecord, updateRecord, deleteRecord } = appointmentsSlice.actions;
+export default appointmentsSlice.reducer;

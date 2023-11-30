@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import HeaderPrescription from "../common/HeaderPrescription";
-import { addRecord, updateRecord, createNewRecord, getAllRecords } from "../redux/recordsSlice";
+import { addRecord, updateRecord, createNewRecord, getAllRecords } from "../redux/appointmentsSlice";
 
 function Testing() {
   const navigate = useNavigate();

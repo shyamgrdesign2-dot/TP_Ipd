@@ -5,7 +5,7 @@ import { Form, Row, Col, Button, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 import { useSelector, useDispatch } from "react-redux";
 
-import { getAllRecords, searchAppointments } from "../redux/recordsSlice";
+import { getAllRecords, searchAppointments } from "../redux/appointmentsSlice";
 import { getFormattedDate } from "../utils/utils";
 
 function AppointmentData() {
