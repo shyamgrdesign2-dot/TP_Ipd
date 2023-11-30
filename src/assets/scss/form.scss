@@ -151,4 +151,21 @@ body {
             }
         }
     }
+    .popinput {
+        height: 38px;
+        border-radius: 10px;
+        font-family: 'Roboto';
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 26px;
+        letter-spacing: 0.1px;
+        border-color: $bordercolor !important;
+        &:focus, &:focus-within {
+            box-shadow: 0 0 0 2px rgba(74, 74, 212, 0.1) !important;
+            border-color: $theme !important;
+        }
+        &.inputheight41 {
+            height: 41px;
+        }
+    }
 }

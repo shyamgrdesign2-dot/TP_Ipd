@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import { Form } from 'react-bootstrap';
-import { AutoComplete, Input, Button, Row, Col, Select, Popover, Space } from 'antd';
+import { AutoComplete, Input, Button, Row, Col, Select, Popover, Space, Tabs } from 'antd';
 
 import vitals from '../assets/images/Vitals.svg';
 import HeaderPrescription from "../common/HeaderPrescription";
@@ -16,80 +16,17 @@ import Diagnosisicon from '../assets/images/Diagnosis.svg';
 import Medicationicon from '../assets/images/Medication.svg';
 import hey from '../assets/images/bg-hey.png';
 
-const mockVal = (str, repeat = 1) => ({
-    value: str.repeat(repeat),
-});
 
-const onChange = (value) => {
-    console.log(`selected ${value}`);
-};
-const onSearch = (value) => {
-    console.log('search:', value);
-};
-const severityList = [
-    { value: 'severe', label: 'Severe' },
-    { value: 'moderate', label: 'Moderate' },
-    { value: 'mild', label: 'Mild' },
-];
-
-const content = (
-    <>
-        <div className="align-items-center d-flex justify-content-between pop-header border-bottom">
-            <div className="title-common">Medicine Templates</div>
-            <Button className="btn btn-delete-prescription p-0"><i className="icon-Cross"></i></Button>
-        </div>
-        <div className="pop-body">
-            <div className="align-items-center d-flex justify-content-between medicine-templates">
-                <div className="round-box"><i className="icon-template"></i></div>
-                <div className="text-truncate">
-                    <div className="title">Template name</div>
-                    <div className="text-truncate">Pan 40 Tablet, Telma20 Tablet, Pan 40 Tablet</div>
-                </div>
-                <Button className="btn btn-delete-prescription p-0 ms-3"><i className="icon-delete"></i></Button>
-            </div>
-            <div className="align-items-center d-flex justify-content-between medicine-templates">
-                <div className="round-box"><i className="icon-template"></i></div>
-                <div className="text-truncate">
-                    <div className="title">Template name</div>
-                    <div className="text-truncate">Pan 40 Tablet, Telma20 Tablet, Pan 40 Tablet</div>
-                </div>
-                <Button className="btn btn-delete-prescription p-0 ms-3"><i className="icon-delete"></i></Button>
-            </div>
-            <div className="align-items-center d-flex justify-content-between medicine-templates">
-                <div className="round-box"><i className="icon-template"></i></div>
-                <div className="text-truncate">
-                    <div className="title">Template name</div>
-                    <div className="text-truncate">Pan 40 Tablet, Telma20 Tablet, Pan 40 Tablet</div>
-                </div>
-                <Button className="btn btn-delete-prescription p-0 ms-3"><i className="icon-delete"></i></Button>
-            </div>
-            <div className="align-items-center d-flex justify-content-between medicine-templates">
-                <div className="round-box"><i className="icon-template"></i></div>
-                <div className="text-truncate">
-                    <div className="title">Template name</div>
-                    <div className="text-truncate">Pan 40 Tablet, Telma20 Tablet, Pan 40 Tablet</div>
-                </div>
-                <Button className="btn btn-delete-prescription p-0 ms-3"><i className="icon-delete"></i></Button>
-            </div>
-            <div className="align-items-center d-flex justify-content-between medicine-templates">
-                <div className="round-box"><i className="icon-template"></i></div>
-                <div className="text-truncate">
-                    <div className="title">Template name</div>
-                    <div className="text-truncate">Pan 40 Tablet, Telma20 Tablet, Pan 40 Tablet</div>
-                </div>
-                <Button className="btn btn-delete-prescription p-0 ms-3"><i className="icon-delete"></i></Button>
-            </div>
-        </div>
-    </>
-);
 
 function Prescription() {
     // For Symptoms Autocomplete
-    const onSelect = (data) => {
-        console.log('onSelect', data);
-    };
+
     const [value, setValue] = useState('');
     const [isModalOpen, setIsModalOpen] = useState('');
+    const [popOver1, setPopOver1] = useState(false);
+    const [popOver2, setPopOver2] = useState(false);
+    const [tabChange, setTabChange] = useState('1');
+    
     const [options, setOptions] = useState([{
         label: (
             'FREQUENTLY USED'
@@ -123,6 +60,144 @@ function Prescription() {
         }
         setOptions(prev => [...prev])
     };
+
+    const mockVal = (str, repeat = 1) => ({
+        value: str.repeat(repeat),
+    });
+
+    const onSelectSearch = (data) => {
+        console.log('onSelectSearch', data);
+    };
+    const onSelectChange = (value) => {
+        console.log(`onSelectChange ${value}`);
+    };
+
+    const severityList = [
+        { value: 'severe', label: 'Severe' },
+        { value: 'moderate', label: 'Moderate' },
+        { value: 'mild', label: 'Mild' },
+    ];
+
+    const saveitems = [
+        // {
+        //     key: '1',
+        //     label: 'New Template',
+        //     children: (
+        //         <>
+        //             <div className="pop-header">
+
+        //                 <Button className="btn btn-delete-prescription p-0"><i className="icon-Cross"></i></Button>
+
+        //                 <div className="mt-3">
+        //                     <Input className="popinput" prefix={<i className='icon-search me-2'></i>} />
+        //                 </div>
+        //             </div>
+        //         </>
+        //     ),
+        // },
+        {
+            key: '1',
+            label: 'New Template'
+        },
+        {
+            key: '2',
+            label: 'Update Template'
+        },
+    ];
+    const onTabChange = (key) => {
+        setTabChange(key)
+        console.log(`onSelectChange ${key}`);
+    };
+    const showHidePopOver1 = () => {
+        setPopOver1(!popOver1);
+    };
+
+    
+    const showHidePopOver2 = () => {
+        setPopOver2(!popOver2);
+    };
+    const saveContent = (
+        <>
+            <div className="d-flex justify-content-between align-items-center border-bottom templatepopover">
+                <Tabs defaultActiveKey="1" items={saveitems} onChange={onTabChange} className="w-100" />
+                <Button className="btn btn-delete-prescription" onClick={showHidePopOver2}><i className="icon-Cross"></i></Button>
+            </div>
+            {tabChange == 1 ? (
+                <div className="pop-header d-flex">
+                    <Input className="popinput inputheight41" placeholder="Template Name" />
+                    <Button className="btn btn-primary3 btn-41 ms-3"> Save </Button>
+                </div>
+            ) : (
+                <div className="pop-header d-flex">
+                    <Select
+                        showSearch
+                        className='autocomplete-custom w-100 popinput inputheight41'
+                        placeholder="Select Template"
+                        onChange={onSelectChange}
+                        onSearch={onSelectSearch}
+                        options={severityList}
+                    />
+                    <Button className="btn btn-primary3 btn-41 ms-3"> Update </Button>
+                </div>
+            )}
+        </>
+    )
+
+    const content = (
+        <>
+            <div className="pop-header">
+                <div className="align-items-center d-flex justify-content-between">
+                    <div className="title-common">Medicine Templates</div>
+                    <Button className="btn btn-delete-prescription p-0" onClick={showHidePopOver1}><i className="icon-Cross"></i></Button>
+                </div>
+                <div className="mt-3">
+                    <Input className="popinput" prefix={<i className='icon-search me-2'></i>} />
+                </div>
+            </div>
+            <div className="pop-body">
+                <div className="align-items-center d-flex justify-content-between medicine-templates">
+                    <div className="round-box"><i className="icon-template"></i></div>
+                    <div className="text-truncate">
+                        <div className="title">Template name</div>
+                        <div className="text-truncate">Pan 40 Tablet, Telma20 Tablet, Pan 40 Tablet</div>
+                    </div>
+                    <Button className="btn btn-delete-prescription p-0 ms-3"><i className="icon-delete"></i></Button>
+                </div>
+                <div className="align-items-center d-flex justify-content-between medicine-templates">
+                    <div className="round-box"><i className="icon-template"></i></div>
+                    <div className="text-truncate">
+                        <div className="title">Template name</div>
+                        <div className="text-truncate">Pan 40 Tablet, Telma20 Tablet, Pan 40 Tablet</div>
+                    </div>
+                    <Button className="btn btn-delete-prescription p-0 ms-3"><i className="icon-delete"></i></Button>
+                </div>
+                <div className="align-items-center d-flex justify-content-between medicine-templates">
+                    <div className="round-box"><i className="icon-template"></i></div>
+                    <div className="text-truncate">
+                        <div className="title">Template name</div>
+                        <div className="text-truncate">Pan 40 Tablet, Telma20 Tablet, Pan 40 Tablet</div>
+                    </div>
+                    <Button className="btn btn-delete-prescription p-0 ms-3"><i className="icon-delete"></i></Button>
+                </div>
+                <div className="align-items-center d-flex justify-content-between medicine-templates">
+                    <div className="round-box"><i className="icon-template"></i></div>
+                    <div className="text-truncate">
+                        <div className="title">Template name</div>
+                        <div className="text-truncate">Pan 40 Tablet, Telma20 Tablet, Pan 40 Tablet</div>
+                    </div>
+                    <Button className="btn btn-delete-prescription p-0 ms-3"><i className="icon-delete"></i></Button>
+                </div>
+                <div className="align-items-center d-flex justify-content-between medicine-templates">
+                    <div className="round-box"><i className="icon-template"></i></div>
+                    <div className="text-truncate">
+                        <div className="title">Template name</div>
+                        <div className="text-truncate">Pan 40 Tablet, Telma20 Tablet, Pan 40 Tablet</div>
+                    </div>
+                    <Button className="btn btn-delete-prescription p-0 ms-3"><i className="icon-delete"></i></Button>
+                </div>
+            </div>
+        </>
+    );
 
     const navigate = useNavigate();
     return (
@@ -201,10 +276,10 @@ function Prescription() {
                                 </div>
                                 <div className="d-flex align-items-center">
                                     <button className='btn d-flex align-items-center btn-text'> <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span></button>
-                                    <Popover content={content} trigger="click" overlayClassName="pop-350 pp-0" placement="bottom">
+                                    <Popover open={popOver1} onOpenChange={showHidePopOver1} content={content} trigger="click" overlayClassName="pop-350 pp-0" placement="bottom">
                                         <button className='btn d-flex align-items-center btn-text'> <i className="icon-template me-2"></i> <span>Templates</span></button>
                                     </Popover>
-                                    <Popover content={content} trigger="click" overlayClassName="pop-350 pp-0" placement="bottom">
+                                    <Popover open={popOver2} onOpenChange={showHidePopOver2} content={saveContent} trigger="click" overlayClassName="pop-450 pp-0" placement="bottom">
                                         <button className='btn d-flex align-items-center btn-text'> <i className="icon-save me-2"></i> <span>Save</span></button>
                                     </Popover>
                                 </div>
@@ -217,7 +292,7 @@ function Prescription() {
                                     <AutoComplete
                                         options={options}
                                         className='autocomplete-custom w-100 inputborder'
-                                        onSelect={onSelect}
+                                        // onSelect={onSelect}
                                         onSearch={onSearch}
                                         bordered={false}
                                         placeholder="Since"
@@ -229,8 +304,8 @@ function Prescription() {
                                         showSearch
                                         className='autocomplete-custom w-100 inputborder'
                                         placeholder="Severity"
-                                        onChange={onChange}
-                                        onSearch={onSearch}
+                                        onChange={onSelectChange}
+                                        onSearch={onSelectSearch}
                                         options={severityList}
                                     />
                                 </Col>
@@ -249,7 +324,7 @@ function Prescription() {
                                     <AutoComplete
                                         options={options}
                                         className='autocomplete-custom w-100'
-                                        onSelect={onSelect}
+                                        // onSelect={onSelect}
                                         onSearch={onSearch}
                                     >
                                         <Input
