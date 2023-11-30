@@ -8,6 +8,7 @@ const initialState = {
   records: [],
   loading: false,
   error: null,
+  queueCount: 0,
 };
 
 export const createNewRecord = createAsyncThunk(
@@ -102,6 +103,8 @@ const recordsSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.records = action.payload;
+        console.log('action.payload: ', action.payload);
+        state.queueCount = action.payload?.queue_count ?? 0;
       })
       .addCase(getAllRecords.rejected, (state, action) => {
         state.loading = false;

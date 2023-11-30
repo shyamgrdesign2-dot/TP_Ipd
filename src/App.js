@@ -23,7 +23,7 @@ function App() {
 
   useEffect(() => {
     const pathname = window.location.pathname;
-    if(pathname === '/testing' && authToken) {
+    if(pathname === '/' && authToken) {
       setToken(authToken);
     }
   }, [window.location.pathname, authToken]);

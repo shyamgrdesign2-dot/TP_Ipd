@@ -1,4 +1,5 @@
 import config from "../config";
+import moment from "moment";
 
 export const validateEmail = (email) => {
   return String(email)
@@ -24,6 +25,18 @@ export const isLocalDev = () => {
     return true;
   }
   return false;
+};
+
+export const getFormattedDate = (date) => {
+  if(!date) {
+    return "";
+  }
+  const dateObj = new Date(date+" UTC");
+  return moment(dateObj).format('YYYY-MM-DD');
+};
+
+const getTime = (date) => {
+  return date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
 };
 
 export const parseApiError = (errorResponse) => {
