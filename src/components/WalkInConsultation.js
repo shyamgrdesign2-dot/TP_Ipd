@@ -1,32 +1,135 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AutoComplete, Input, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+
 import CommonModal from "../common/CommonModal";
+import { searchAppointments } from "../redux/appointmentsSlice";
+
+const AddPatientPlank = () => {
+  return (
+    <Link to="/AddNew_Patient">
+      <Button
+        type="text"
+        className="btn btn-primary1 btn-41 align-items-center d-flex"
+        icon={<i className="icon-Add"></i>}
+      >
+        Add New Patient
+      </Button>
+    </Link>
+  );
+};
+
+const PatientPlank = ({patient, setClickedPatient, setIsModalOpen}) => {
+    return (
+      <>
+        <div
+          className="d-flex align-items-center justify-content-between py-3 border-bottom"
+          onClick={() => {
+            setIsModalOpen();
+            setClickedPatient(patient);
+          }}
+        >
+          <div className="d-flex align-items-center">
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-patients backbar me-2"></i>{" "}
+              <span>
+                {patient.pm_salutation ? patient.pm_salutation : "Mr./Mrs./Miss."} {patient.pm_first_name} {patient.pm_last_name} ({patient.pm_gender}, {patient.pm_age})
+              </span>
+            </div>
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-phone backbar me-2"></i>
+              <span>{patient.pm_contact_no}</span>
+            </div>
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-Id backbar me-2"></i>
+              <span>{patient.patient_unique_id}</span>
+            </div>
+          </div>
+          <div className="d-flex align-items-center">
+            <Link to="/patient_details">
+              <Button
+                type="text"
+                className="btn btn-primary2 me-4 align-items-center d-flex"
+                icon={<i className="icon-Preview"></i>}
+              >
+                Patient Details
+              </Button>
+            </Link>
+            <Link to="/Prescription">
+              <Button
+                type="text"
+                className="btn btn-primary3 align-items-center d-flex"
+                icon={<i className="icon-Consult"></i>}
+              >
+                Start Consult
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </>
+    );
+  };
 
 function WalkInConsultation() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [value, setValue] = useState("");
+  const [searchQuery, setSearchQuery] = useState(null);
+  const [clickedPatient, setClickedPatient] = useState(null);
+  const patients = useSelector((state) => state.records.patients);
   const [isModalOpen, setIsModalOpen] = useState("");
   const [options, setOptions] = useState([
     {
-      label: (
-        <Link to="/AddNew_Patient">
-          <Button
-            type="text"
-            className="btn btn-primary1 btn-41 align-items-center d-flex"
-            icon={<i className="icon-Add"></i>}
-          >
-            Add New Patient
-          </Button>
-        </Link>
-      ),
+      label: <AddPatientPlank />,
     },
   ]);
-  
-  const onSearch = (data) => {
-    setValue(data);
-    console.log("onSearch", data);
-    if (data.length > 0) {
+
+  const addAddPatientPlank = () => {
+    const data = [];
+    data.push({
+        label: <AddPatientPlank />,
+    });
+    setOptions(data);
+  };
+  console.log('patients: ', patients);
+
+  useEffect(() => {
+    if(!searchQuery) {
+      addAddPatientPlank();
+    } else if (searchQuery && searchQuery.length >= 3) {
+      dispatch(searchAppointments(searchQuery));
+    } else {
+        
+    }
+  }, [dispatch, searchQuery]);
+
+  useEffect(() => {
+    
+    const data = [];
+    patients?.map((patient) => {
+        return data.push({
+            value: patient.patient_unique_id,
+            label: (<>
+                <PatientPlank patient={patient} setClickedPatient={setClickedPatient} setIsModalOpen={setIsModalOpen} />
+            </>)
+        });
+    });
+    data.push({
+        label: <AddPatientPlank />,
+    });
+    setOptions(data);
+  }, [patients]);
+
+  const onSearch = (query) => {
+    setValue(query);
+    let id = 0;
+    id = setTimeout(() => {
+      setSearchQuery(query);
+      clearTimeout(id);
+    }, 500);
+
+    /* if (data.length > 0) {
       const array = [
         {
           id: 1,
@@ -136,9 +239,10 @@ function WalkInConsultation() {
           ),
         },
       ]);
-    }
-    setOptions((prev) => [...prev]);
+    } */
+    // setOptions((prev) => [...prev]);
   };
+
   const onSelect = (data) => {
     console.log("onSelect", data);
   };
@@ -173,20 +277,23 @@ function WalkInConsultation() {
         </AutoComplete>
       </div>
       <CommonModal
-        isModalOpen={isModalOpen}
+        isModalOpen={clickedPatient != null}
         modalWidth={610}
         title={"Patient Selected"}
+        onCancel={() => {
+            setClickedPatient(null);
+        }}
         modalBody={
           <>
             <div className="border bg-body rounded-10px p-2 patient-details">
               <div className="d-flex align-items-center">
                 <i className="icon-patients me-2"></i>
-                <span>Rahul Sharma (Male, 26y)</span>
+                <span>{clickedPatient?.pm_salutation ? clickedPatient?.pm_salutation : "Mr./Mrs./Miss."} {clickedPatient?.pm_first_name} {clickedPatient?.pm_last_name} ({clickedPatient?.pm_gender}, {clickedPatient?.pm_age})</span>
               </div>
               <div className="mt-2 d-flex align-items-center">
-                <i className="icon-phone me-2"></i> <span>7894561230</span>
+                <i className="icon-phone me-2"></i> <span>{clickedPatient?.pm_contact_no}</span>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <i className="icon-Id me-2"></i> <span>PI202306001</span>
+                <i className="icon-Id me-2"></i> <span>{clickedPatient?.patient_unique_id}</span>
               </div>
             </div>
             <div className="mt-4">

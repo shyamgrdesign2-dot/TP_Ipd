@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
 import appointmentsService from "../api/services/appointmentsService";
-import { Exception } from "sass";
 import { parseApiError } from "../utils/utils";
 
 const initialState = {
@@ -9,6 +8,7 @@ const initialState = {
   loading: false,
   error: null,
   queueCount: 0,
+  patients: [],
 };
 
 export const createNewRecord = createAsyncThunk(
@@ -60,7 +60,6 @@ export const getAllRecords = createAsyncThunk(
 export const searchAppointments = createAsyncThunk(
   "records/searchAppointments",
   async (query) => {
-    console.log("calling search");  
     let result = {};
     try {
       result = await appointmentsService.search(query);
@@ -140,6 +139,7 @@ const appointmentsSlice = createSlice({
         state.records = {
           app_data: action.payload
         };
+        state.patients = action.payload;
         state.queueCount = action.payload?.queue_count ?? 0;
       })
       .addCase(searchAppointments.rejected, (state, action) => {

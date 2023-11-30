@@ -44,7 +44,7 @@ function AppointmentData() {
         })
       );
     }
-  }, [getAllRecords, pageNo, date, searchQuery]);
+  }, [pageNo, date, searchQuery, dispatch]);
 
   const calanderList = [
     { value: todaysDate, label: "Today" },
