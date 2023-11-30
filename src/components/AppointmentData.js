@@ -25,9 +25,11 @@ function AppointmentData() {
     endDate: "2023-08-17",
   };
   const [date, setDate] = useState(initialDate);
+  const [pageNo, setPageNo] = useState(0);
   const records = useSelector((state) => state.records.records);
   const loading = useSelector((state) => state.records.loading);
   const error = useSelector((state) => state.records.error);
+  const queueCount = useSelector((state) => state.records.queueCount);
   const dispatch = useDispatch();
   console.log("records: ", records);
 
@@ -36,22 +38,17 @@ function AppointmentData() {
       getAllRecords({
         startDate: date.startDate,
         endDate: date.endDate,
+        pageNo
       })
     );
-  }, [getAllRecords, date]);
+  }, [getAllRecords, pageNo, date]);
 
   const calanderList = [
     { value: todaysDate, label: "Today" },
-    { value: yesterDate, label: "Yesterday" },
-    { value: "week", label: "Week" },
-  ];
-
-  /*   const calanderList = [
-    { value: 'today', label: 'Today' },
     { value: 'next7days', label: 'Next 7 Days' },
     { value: 'next30days', label: 'Next 30 Days' },
-    { value: 'all', label: 'All' },
-]; */
+    { value: 'alltime', label: 'All' }
+  ];
 
   const segmentedList = [
     { value: 1, icon: <i className="icon-List"></i> },
@@ -201,8 +198,8 @@ function AppointmentData() {
   const dateChange = (date, dateString) => {
     console.log(date, dateString);
     setDate({
-      startDate: dateString,
-      endDate: dateString,
+      startDate: getFormattedDate(dateString),
+      endDate: getFormattedDate(dateString),
     });
   };
 
@@ -222,11 +219,7 @@ function AppointmentData() {
   ];
 
   const loadMoreData = () => {
-    var dummyData = [];
-    data.map((e, i) => {
-      dummyData.push({ ...e, key: Math.random() });
-    });
-    // setData([...data, ...dummyData]);
+    setPageNo(pageNo+1);
   };
 
   const onDateChanged = (selectedValue) => {
@@ -234,7 +227,8 @@ function AppointmentData() {
     if (selectedValue === "week") {
       const date = new Date();
       date.setDate(date.getDate() - 7);
-      const aweekBackDate = date.toLocaleDateString().replaceAll("/", "-");
+      const aweekBackDate = getFormattedDate(date);
+      console.log("aweekBackDate: ", aweekBackDate);
       setDate({
         startDate: aweekBackDate,
         endDate: todaysDate,
@@ -337,12 +331,14 @@ function AppointmentData() {
                 pagination={false}
                 loading={loading}
               />
-              <button
-                className="btn btn-light w-100 mt-3 load-more"
-                onClick={loadMoreData}
-              >
-                Show All (10)
-              </button>
+              {queueCount > 10 && (
+                <button
+                  className="btn btn-light w-100 mt-3 load-more"
+                  onClick={loadMoreData}
+                >
+                  Show All (10)
+                </button>
+              )}
             </>
           )}
         </div>

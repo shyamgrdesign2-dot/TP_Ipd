@@ -36,10 +36,10 @@ export const createNewRecord = createAsyncThunk(
 
 export const getAllRecords = createAsyncThunk(
   "records/getAllRecords",
-  async (data) => {
+  async ({startDate, endDate, pageNo}) => {
     let result = {};
     try {
-      result = await appointmentsService.getAll();
+      result = await appointmentsService.getAll(startDate, endDate, pageNo);
       console.log("results: ", result);  
       if (result.status) {
         return result.data;
