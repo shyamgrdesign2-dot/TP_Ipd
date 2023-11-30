@@ -5,26 +5,25 @@ import { Form, Row, Col, Button, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 import { useSelector, useDispatch } from "react-redux";
 
-import { getAllRecords } from "../redux/recordsSlice";
+import { getAllRecords, searchAppointments } from "../redux/recordsSlice";
 import { getFormattedDate } from "../utils/utils";
 
 function AppointmentData() {
   const navigate = useNavigate();
-  /* const startDate = "2023-08-17";
-    const endDate = "2023-08-17"; */
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterDate = getFormattedDate(yesterday);
   const todaysDate = getFormattedDate(new Date());
   console.log("todaysDate: ", todaysDate);
   console.log("yesterDate: ", yesterDate);
-  const [startDate, setStartDate] = useState("2023-08-17");
-  const [endDate, setEndDate] = useState("2023-08-17");
+  const startDate = "2023-08-17";
+  const endDate = "2023-08-17";
   const initialDate = {
-    startDate: "2023-08-17",
-    endDate: "2023-08-17",
+    startDate,
+    endDate,
   };
   const [date, setDate] = useState(initialDate);
+  const [searchQuery, setSearchQuery] = useState(null);
   const [pageNo, setPageNo] = useState(0);
   const records = useSelector((state) => state.records.records);
   const loading = useSelector((state) => state.records.loading);
@@ -34,20 +33,24 @@ function AppointmentData() {
   console.log("records: ", records);
 
   useEffect(() => {
-    dispatch(
-      getAllRecords({
-        startDate: date.startDate,
-        endDate: date.endDate,
-        pageNo
-      })
-    );
-  }, [getAllRecords, pageNo, date]);
+    if (searchQuery && searchQuery.length >= 3) {
+      dispatch(searchAppointments(searchQuery));
+    } else {
+      dispatch(
+        getAllRecords({
+          startDate: date.startDate,
+          endDate: date.endDate,
+          pageNo,
+        })
+      );
+    }
+  }, [getAllRecords, pageNo, date, searchQuery]);
 
   const calanderList = [
     { value: todaysDate, label: "Today" },
-    { value: 'next7days', label: 'Next 7 Days' },
-    { value: 'next30days', label: 'Next 30 Days' },
-    { value: 'alltime', label: 'All' }
+    { value: "next7days", label: "Next 7 Days" },
+    { value: "next30days", label: "Next 30 Days" },
+    { value: "alltime", label: "All" },
   ];
 
   const segmentedList = [
@@ -219,19 +222,40 @@ function AppointmentData() {
   ];
 
   const loadMoreData = () => {
-    setPageNo(pageNo+1);
+    setPageNo(pageNo + 1);
   };
 
   const onDateChanged = (selectedValue) => {
     console.log("selectedValue: ", selectedValue);
-    if (selectedValue === "week") {
+    if (selectedValue === "next7days") {
       const date = new Date();
-      date.setDate(date.getDate() - 7);
-      const aweekBackDate = getFormattedDate(date);
-      console.log("aweekBackDate: ", aweekBackDate);
+      date.setDate(date.getDate() + 7);
+      const forwardDate = getFormattedDate(date);
+      console.log("forwardDate7: ", forwardDate);
       setDate({
-        startDate: aweekBackDate,
-        endDate: todaysDate,
+        startDate: todaysDate,
+        endDate: forwardDate,
+      });
+    } else if (selectedValue === "next30days") {
+      const date = new Date();
+      date.setDate(date.getDate() + 30);
+      const forwardDate = getFormattedDate(date);
+      console.log("forwardDate30: ", forwardDate);
+      setDate({
+        startDate: todaysDate,
+        endDate: forwardDate,
+      });
+    } else if (selectedValue === "alltime") {
+      const todayDateStart = new Date();
+      todayDateStart.setDate(todayDateStart.getDate() - 365);
+      const startDate = getFormattedDate(todayDateStart);
+      const todayDateEnd = new Date();
+      todayDateEnd.setDate(todayDateEnd.getDate() + 365);
+      const endDate = getFormattedDate(todayDateEnd);
+      console.log("endDate: ", endDate);
+      setDate({
+        startDate: startDate,
+        endDate: endDate,
       });
     } else {
       setDate({
@@ -253,13 +277,28 @@ function AppointmentData() {
     });
   };
 
+  const onSearch = (e) => {
+    let id = 0;
+    id = setTimeout(() => {
+      const query = e.target.value;
+      console.log("value: ", query);
+      setSearchQuery(query);
+
+      clearTimeout(id);
+    }, 500);
+  };
+
   return (
     <div className="p-4 appointment-data">
       <Row className="justify-content-between">
         <Col md={3}>
           <Form>
             <Form.Group className="mb-4" controlId="exampleForm.ControlInput1">
-              <Form.Control type="email" placeholder="Search by patient name" />
+              <Form.Control
+                type="text"
+                placeholder="Search by patient name"
+                onChange={onSearch}
+              />
             </Form.Group>
           </Form>
         </Col>

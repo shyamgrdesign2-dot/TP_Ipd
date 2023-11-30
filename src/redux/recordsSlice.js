@@ -57,6 +57,30 @@ export const getAllRecords = createAsyncThunk(
   }
 );
 
+export const searchAppointments = createAsyncThunk(
+  "records/searchAppointments",
+  async (query) => {
+    console.log("calling search");  
+    let result = {};
+    try {
+      result = await appointmentsService.search(query);
+      console.log("results: ", result);  
+      if (result.status) {
+        return result.data;
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      if(error.response.status === 401) {
+        // redirect here
+        throw parseApiError(error);
+      } else {
+        // API failed, return some meaningful error
+        throw parseApiError(error);
+      }
+    }
+  }
+);
+
 const recordsSlice = createSlice({
   name: "records",
   initialState,
@@ -103,11 +127,22 @@ const recordsSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.records = action.payload;
-        console.log('action.payload: ', action.payload);
         state.queueCount = action.payload?.queue_count ?? 0;
       })
       .addCase(getAllRecords.rejected, (state, action) => {
         state.loading = false;
+        state.records = null;
+        state.error = action.error;
+      })
+      .addCase(searchAppointments.fulfilled, (state, action) => {
+        state.error = null;
+        console.log('search.action.payload: ', action.payload);
+        state.records = {
+          app_data: action.payload
+        };
+        state.queueCount = action.payload?.queue_count ?? 0;
+      })
+      .addCase(searchAppointments.rejected, (state, action) => {
         state.records = null;
         state.error = action.error;
       });

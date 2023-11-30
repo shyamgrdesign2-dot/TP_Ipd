@@ -14,6 +14,15 @@ class AppointmentsService extends PlaceholderApiProvider {
     );
   }
 
+  async search(query) {
+    return this.api.post(
+      `/api/v1/appointment/searchPatient`,
+      {
+        search: query,
+      }
+    );
+  }
+
   async getById(id) {
     return this.api.get(`/${id}`);
   }
