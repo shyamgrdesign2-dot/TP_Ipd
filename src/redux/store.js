@@ -4,7 +4,6 @@ import { combineReducers } from 'redux';
 import storage from 'redux-persist/lib/storage';
 
 import appointmentsSlice from './appointmentsSlice';
-import patientsSlice from './patientsSlice';
 import doctorsSlice from './doctorsSlice';
 
 const persistConfig = {

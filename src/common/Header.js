@@ -7,6 +7,7 @@ import { getProfile } from "../redux/doctorsSlice";
 
 function Header() {
   const [clinicOptions, setClinicOptions] = useState(null);
+  const [selectedHospital, setSelectedHospital] = useState(null);
   const [profile, setProfile] = useState(null);
   const profiles = useSelector((state) => state.records.doctorsSlice.profile);
   const dispatch = useDispatch();
@@ -17,21 +18,23 @@ function Header() {
   }, [dispatch]);
 
   useEffect(() => {
-    if(profiles && profiles.length > 0) {
-        const firstProfile = profiles[0];
-        if(firstProfile) {
-            setProfile(firstProfile);
-            const hospitals = firstProfile.hospital_data?.map((hospital) => {
-                return {
-                    value: hospital.hm_id,
-                    label: hospital.hm_name, 
-                };
-            });
+    if (profiles && profiles.length > 0) {
+      const firstProfile = profiles[0];
+      if (firstProfile) {
+        setProfile(firstProfile);
+        const hospitals = firstProfile.hospital_data?.map((hospital) => {
+          return {
+            value: hospital.hm_id,
+            label: hospital.hm_name,
+          };
+        });
 
-            if(hospitals.length > 0) {
-                setClinicOptions(hospitals);
-            }
+        if (hospitals.length > 0) {
+          const firstClinic = hospitals[0];
+          setClinicOptions(hospitals);
+          setSelectedHospital(firstClinic);
         }
+      }
     }
   }, [profiles]);
 
@@ -49,7 +52,10 @@ function Header() {
           <Select
             placeholder="Your Clinics"
             className="me-2"
-            value={clinicOptions?.length > 0 ? clinicOptions[0] : "Add a clinic"}
+            value={selectedHospital ? selectedHospital : "Add a clinic"}
+            onChange={(hospital) => {
+              setSelectedHospital(hospital);
+            }}
             options={clinicOptions}
           />
           <Dropdown className="dropdown-profile nav-link-profile mx-1 pt-1 align-items-center">
