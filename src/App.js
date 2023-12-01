@@ -10,7 +10,7 @@ import AddNewPatient from "./pages/AddNewPatient";
 import Testing from "./pages/Testing";
 import { store, persistor } from "./redux/store";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
-import { clearLocalStorage, useLocalStorage } from "./utils/localStorage";
+import { useLocalStorage } from "./utils/localStorage";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();

@@ -25,7 +25,7 @@ function AppointmentData() {
   const [date, setDate] = useState(initialDate);
   const [searchQuery, setSearchQuery] = useState(null);
   const [pageNo, setPageNo] = useState(0);
-  const records = useSelector((state) => state.records.records);
+  const records = useSelector((state) => state.records.appointmentsSlice.records);
   const loading = useSelector((state) => state.records.loading);
   const error = useSelector((state) => state.records.error);
   const queueCount = useSelector((state) => state.records.queueCount);

@@ -125,6 +125,7 @@ const appointmentsSlice = createSlice({
       .addCase(getAllRecords.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
+        console.log('getAllRecords.action.payload: ', action.payload);
         state.records = action.payload;
         state.queueCount = action.payload?.queue_count ?? 0;
       })

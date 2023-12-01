@@ -23,8 +23,8 @@ class AppointmentsService extends PlaceholderApiProvider {
     );
   }
 
-  async getById(id) {
-    return this.api.get(`/${id}`);
+  async getProfile() {
+    return this.api.get(`/api/v1/appointment/showProfile`,);
   }
 }
 
