@@ -11,6 +11,7 @@ import Testing from "./pages/Testing";
 import { store, persistor } from "./redux/store";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
 import { useLocalStorage } from "./utils/localStorage";
+import PrescriptionPrintView from "./pages/PrescriptionPrintView";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,6 +37,7 @@ function App() {
             <Route path="/*" element={<AppointmentList />} />
             <Route path="patient_details" element={<PatientDetails />} />
             <Route path="Prescription" element={<Prescription />} />
+            <Route path="prescription_print_view" element={<PrescriptionPrintView />} />
             <Route path="testing" element={<Testing />} />
             <Route path="AddNew_Patient" element={<AddNewPatient />} />
           </Routes>
