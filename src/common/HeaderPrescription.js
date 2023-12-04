@@ -50,9 +50,11 @@ function HeaderPrescription() {
                             <Button type="link" className='p-0 me-30'>
                                 <i className='icon-Print text-main'></i>
                             </Button>
-                            <Button type='primary' className='btn btn-41 me-30'>
-                                Finish Prescription
-                            </Button>
+                            <Link to='/prescription_print_view'>
+                                <Button type='primary' className='btn btn-41 me-30'>
+                                    Finish Prescription
+                                </Button>
+                            </Link>
                             <Dropdown className='btn btn-outline btn-more me-2 p-0' menu={{ items, }} trigger={['click']}>
                                 <a onClick={(e) => e.preventDefault()}>
                                     <i className='icon-More'></i>
