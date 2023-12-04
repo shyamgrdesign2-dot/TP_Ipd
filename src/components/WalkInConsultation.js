@@ -34,7 +34,7 @@ const PatientPlank = ({patient, setClickedPatient, setIsModalOpen}) => {
             <div className="list-patientName d-flex align-items-center me-4">
               <i className="icon-patients backbar me-2"></i>{" "}
               <span>
-                {patient.pm_salutation ? patient.pm_salutation : "Mr./Mrs./Miss."} {patient.pm_first_name} {patient.pm_last_name} ({patient.pm_gender}, {patient.pm_age})
+                {patient.pm_salutation ? patient.pm_salutation : "Mr./Mrs./Miss."} {patient.pm_first_name} {patient.pm_last_name} ({patient.pm_gender}, {patient.ageYears})
               </span>
             </div>
             <div className="list-patientName d-flex align-items-center me-4">
@@ -288,7 +288,7 @@ function WalkInConsultation() {
             <div className="border bg-body rounded-10px p-2 patient-details">
               <div className="d-flex align-items-center">
                 <i className="icon-patients me-2"></i>
-                <span>{clickedPatient?.pm_salutation ? clickedPatient?.pm_salutation : "Mr./Mrs./Miss."} {clickedPatient?.pm_first_name} {clickedPatient?.pm_last_name} ({clickedPatient?.pm_gender}, {clickedPatient?.pm_age})</span>
+                <span>{clickedPatient?.pm_salutation ? clickedPatient?.pm_salutation : "Mr./Mrs./Miss."} {clickedPatient?.pm_first_name} {clickedPatient?.pm_last_name} ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears})</span>
               </div>
               <div className="mt-2 d-flex align-items-center">
                 <i className="icon-phone me-2"></i> <span>{clickedPatient?.pm_contact_no}</span>
