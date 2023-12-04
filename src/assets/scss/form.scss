@@ -111,6 +111,13 @@ body {
                 font-size: 14px;
             }
         }
+        .ant-picker-today-btn {
+            color: $theme;
+            font-weight: 500;
+            &:hover {
+                color: $theme;
+            }
+        }
     }
     .ant-picker .ant-picker-input >input {
         color: $maincolor;
