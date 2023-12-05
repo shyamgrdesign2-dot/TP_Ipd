@@ -6,7 +6,7 @@ import AppointmentData from "../components/AppointmentData";
 
 function Appointment() {
   const [tabChange, setTabChange] = useState("1");
-  const queueCount = useSelector((state) => state.records.appointmentsSlice.queueCount);
+  const queueCount = useSelector((state) => state.records.queueCount);
 
   const items = [
     {

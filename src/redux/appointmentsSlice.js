@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
 import appointmentsService from "../api/services/appointmentsService";
 import { parseApiError } from "../utils/utils";
+import ApiAppointments from '../api/services/ApiAppointments';
 
 const initialState = {
   records: [],
@@ -36,17 +37,25 @@ export const createNewRecord = createAsyncThunk(
 
 export const getAllRecords = createAsyncThunk(
   "records/getAllRecords",
-  async ({startDate, endDate, pageNo}) => {
+  async ({ startDate, endDate, pageNo }) => {
     let result = {};
     try {
-      result = await appointmentsService.getAll(startDate, endDate, pageNo);
-      console.log("results: ", result);  
+      // result = await appointmentsService.getAll(startDate, endDate, pageNo);
+      var sendData = {
+        startDate: startDate,
+        endDate: endDate,
+        apStatue: 0,
+        filterVisitType: "14",
+        page: pageNo,
+      }
+      result = await ApiAppointments.getAll(sendData);
+      console.log("results: ", result);
       if (result.status) {
         return result.data;
       }
     } catch (error) {
       console.log("error: ", error);
-      if(error.response.status === 401) {
+      if (error.response.status === 401) {
         // redirect here
         throw parseApiError(error);
       } else {
@@ -63,13 +72,13 @@ export const searchAppointments = createAsyncThunk(
     let result = {};
     try {
       result = await appointmentsService.search(query);
-      console.log("results: ", result);  
+      console.log("results: ", result);
       if (result.status) {
         return result.data;
       }
     } catch (error) {
       console.log("error: ", error);
-      if(error.response.status === 401) {
+      if (error.response.status === 401) {
         // redirect here
         throw parseApiError(error);
       } else {

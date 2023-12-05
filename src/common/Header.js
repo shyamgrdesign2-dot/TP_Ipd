@@ -9,7 +9,7 @@ function Header() {
   const [clinicOptions, setClinicOptions] = useState(null);
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [profile, setProfile] = useState(null);
-  const profiles = useSelector((state) => state.records.doctorsSlice.profile);
+  const profiles = useSelector((state) => state.doctors.profile);
   const dispatch = useDispatch();
   console.log("profile: ", profiles);
 

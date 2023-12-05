@@ -9,19 +9,22 @@ import doctorsSlice from './doctorsSlice';
 const persistConfig = {
   key: 'root',
   storage,
+  whitelist: ['doctors']
 };
 
 const rootReducer = combineReducers({
-  appointmentsSlice,
-  doctorsSlice,
+  records: appointmentsSlice,
+  doctors: doctorsSlice,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore({
-  reducer: {
-    records: persistedReducer,
-  },
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+    immutableCheck: false,
+    serializableCheck: false,
+  })
 });
 
 const persistor = persistStore(store);
