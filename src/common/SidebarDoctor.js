@@ -9,25 +9,25 @@ function SidebarDoctor() {
                 <Nav.Item>
                     <Nav.Link href="/" className='active'>
                         <i className='icon-calendar'></i>
-                        <div className='mt-1'>Appointment</div>
+                        <div className='mt-1 text-truncate px-2'>Appointment</div>
                     </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
                     <Nav.Link href="/">
                         <i className='icon-patients'></i>
-                        <div className='mt-1'>All Patients</div>
+                        <div className='mt-1 text-truncate px-2'>All Patients</div>
                     </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
                     <Nav.Link href="/">
                         <i className='icon-analytics'></i>
-                        <div className='mt-1'>Analytics</div>
+                        <div className='mt-1 text-truncate px-2'>Analytics</div>
                     </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
                     <Nav.Link href="/">
                     <i className='icon-billings'></i>
-                        <div className='mt-1'>Billings</div>
+                        <div className='mt-1 text-truncate px-2'>Billings</div>
                     </Nav.Link>
                 </Nav.Item>
             </div>
