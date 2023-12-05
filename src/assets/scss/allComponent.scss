@@ -189,3 +189,7 @@
     width: 185px;
     border-radius: 100%;
 }
+.printheight {
+    overflow-y: scroll; 
+    height: calc(100vh - 225px);
+}

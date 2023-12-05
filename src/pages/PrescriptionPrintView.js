@@ -97,7 +97,7 @@ function PrescriptionPrintView() {
                             </div>
                         </Col>
                         <Col xs={24} sm={24} md={17} lg={17}>
-                            <div className="border rounded-20px p-20 bg-white mt-20">
+                            <div className="border rounded-20px p-20 pe-1 bg-white mt-20">
                                 <CareClinicPrint />
                             </div>
                         </Col>
