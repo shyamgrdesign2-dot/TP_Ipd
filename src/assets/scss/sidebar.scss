@@ -51,6 +51,7 @@ body {
             }
         }
     }
+    
     .ant-layout-sider {
         box-shadow: $boxshadowsidebar;
         flex: 0 0 253px !important;
@@ -59,6 +60,12 @@ body {
         width: 253px !important;
         background: $white !important;
         padding: 10px 0;
+        &.tabsider {
+            flex: 0 0 0 !important;
+            max-width: 0px !important;
+            min-width: 0px !important;
+            width: 0px !important;
+        }
         .nav-item {
             padding: 0;
             a {
@@ -123,6 +130,12 @@ body {
         min-width: 80px !important;
         width: 80px !important;
         background: $white !important;
+        &.tabsider1 {
+            flex: 0 0 230px !important;
+            max-width: 230px !important;
+            min-width: 230px !important;
+            width: 230px !important;
+        }
         .nav-item {
             padding: 0;
             a {
@@ -208,5 +221,27 @@ body {
         font-size: 14px;
         font-style: normal;
         font-weight: 600;
+    }
+    .prescription-sidebar {
+        height: calc(100vh - 60px); 
+        background-color: $themesecondary;
+        width: 64px;
+        padding: 20px 0;
+        .prescription-tab-button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+        }
+        label {
+            font-family: 'Roboto';
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 18px;
+            letter-spacing: 0.1px;
+        }
     }
 }
