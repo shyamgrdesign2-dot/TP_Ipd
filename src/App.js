@@ -7,7 +7,6 @@ import AppointmentList from "./pages/AppointmentList";
 import PatientDetails from "./pages/PatientDetails";
 import Prescription from "./pages/Prescription";
 import AddNewPatient from "./pages/AddNewPatient";
-import Testing from "./pages/Testing";
 import { store, persistor } from "./redux/store";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
 import { useLocalStorage } from "./utils/localStorage";
@@ -38,7 +37,6 @@ function App() {
             <Route path="patient_details" element={<PatientDetails />} />
             <Route path="Prescription" element={<Prescription />} />
             <Route path="prescription_print_view" element={<PrescriptionPrintView />} />
-            <Route path="testing" element={<Testing />} />
             <Route path="AddNew_Patient" element={<AddNewPatient />} />
           </Routes>
         </PersistGate>

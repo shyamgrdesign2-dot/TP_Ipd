@@ -11,29 +11,6 @@ const initialState = {
   patients: [],
 };
 
-export const createNewRecord = createAsyncThunk(
-  "records/createNewRecord",
-  async (data) => {
-    // Simulates a long running operation like an API call here
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const uuid = uuidv4();
-    const newRecord = {
-      uuid,
-    };
-
-    // API call success
-    if (newRecord.uuid) {
-      console.log("returning record", newRecord.uuid);
-      return newRecord;
-    } else {
-      // API failed, return some meaningful error
-      return {
-        errMsg: "Network error",
-      };
-    }
-  }
-);
-
 export const getAllRecords = createAsyncThunk(
   "records/getAllRecords",
   async ({ startDate, endDate, pageNo }) => {
@@ -115,17 +92,6 @@ const appointmentsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(createNewRecord.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(createNewRecord.fulfilled, (state, action) => {
-        state.loading = false;
-        state.records.push(action.payload);
-      })
-      .addCase(createNewRecord.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
       .addCase(getAllRecords.pending, (state) => {
         state.loading = true;
       })
