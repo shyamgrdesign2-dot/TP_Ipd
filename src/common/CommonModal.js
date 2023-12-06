@@ -16,7 +16,7 @@ function CommonModal({ isModalOpen, title, modalBody, modalWidth, onCancel }) {
       <Card
         title={title}
         extra={
-          <button className="btn p-1 lh-1 btnclose closeButton">
+          <button className="btn p-1 lh-1 btnclose closeButton" onClick={onCancel}>
             <i className="icon-Cross"></i>
           </button>
         }

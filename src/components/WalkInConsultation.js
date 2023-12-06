@@ -77,7 +77,7 @@ function WalkInConsultation() {
   const [value, setValue] = useState("");
   const [searchQuery, setSearchQuery] = useState(null);
   const [clickedPatient, setClickedPatient] = useState(null);
-  const patients = useSelector((state) => state.records.appointmentsSlice.patients);
+  const patients = useSelector((state) => state.records.patients);
   const [isModalOpen, setIsModalOpen] = useState("");
   const [options, setOptions] = useState([
     {
