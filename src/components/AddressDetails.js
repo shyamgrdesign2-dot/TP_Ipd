@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Button, Form, Input, Select, Row, Col } from "antd";
+import { notification } from "antd";
 import { useDispatch, useSelector } from "react-redux";
+
 import { searchPincode } from "../redux/appointmentsSlice";
 
 function AddressDetails({ patientInfo, setPatientInfo }) {
   const dispatch = useDispatch();
-  let { pincodeInfo } = useSelector((state) => state.records);
+  let { pincodeInfo, error } = useSelector((state) => state.records);
 
   console.log("pincodeInfo: ", pincodeInfo);
+  console.log("error: ", error);
 
   useEffect(() => {
     if (pincodeInfo && Object.keys(pincodeInfo).length > 0) {
@@ -18,14 +21,23 @@ function AddressDetails({ patientInfo, setPatientInfo }) {
         pm_state: pincodeInfo?.state,
       });
     }
-  }, [pincodeInfo]);
+
+    if (error) {
+      notification.error({
+        message: error.message,
+      });
+    }
+  }, [pincodeInfo, error]);
 
   const onSearch = (event) => {
     const searchQuery = event.target.value;
     console.log("searchQuery: ", searchQuery);
     let id = 0;
     id = setTimeout(() => {
-      dispatch(searchPincode(searchQuery));
+      if (searchQuery?.length > 3) {
+        dispatch(searchPincode(searchQuery));
+      }
+
       clearTimeout(id);
     }, 500);
   };
@@ -58,7 +70,7 @@ function AddressDetails({ patientInfo, setPatientInfo }) {
         <Row className="mt-3" gutter={{ xs: 8, sm: 18, md: 40, lg: 94 }}>
           <Col xs={24} sm={24} md={12} lg={12}>
             <Form.Item name="Pincode" label="Pincode">
-              <Input placeholder="Enter Pin Code" onChange={onSearch} />
+              <Input placeholder="Enter Pin Code" type="number" maxLength={6} onChange={onSearch} />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12} lg={12}>
@@ -78,8 +90,11 @@ function AddressDetails({ patientInfo, setPatientInfo }) {
           </Col>
           <Col xs={24} sm={24} md={12} lg={12}>
             <Form.Item name="streetaddress" label="Street Address">
-              <Input placeholder="Address" id="pm_address"
-                onChange={onFieldChanged} />
+              <Input
+                placeholder="Address"
+                id="pm_address"
+                onChange={onFieldChanged}
+              />
             </Form.Item>
           </Col>
         </Row>

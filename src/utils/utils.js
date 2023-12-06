@@ -65,3 +65,29 @@ export const parseApiError = (errorResponse) => {
     }
   }
 };
+
+export function calculateAge(birthdate) {
+  // Parse the birthdate string into a Date object
+  const birthdateDate = new Date(birthdate);
+
+  // Get the current date
+  const currentDate = new Date();
+
+  // Calculate the difference in years and months
+  let yearsDiff = currentDate.getFullYear() - birthdateDate.getFullYear();
+  const monthsDiff = currentDate.getMonth() - birthdateDate.getMonth();
+
+  // Adjust the age if the birthdate month is later than the current month
+  if (monthsDiff < 0 || (monthsDiff === 0 && currentDate.getDate() < birthdateDate.getDate())) {
+    yearsDiff--;
+  }
+
+  // Calculate the remaining months
+  const remainingMonths = (12 + monthsDiff) % 12;
+
+  // Return the age in years and months
+  return {
+    years: yearsDiff,
+    months: remainingMonths
+  };
+}

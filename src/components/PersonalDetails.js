@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
+
 import { Button, Form, Input, Select, DatePicker, Radio, Row, Col } from "antd";
-import { getFormattedDate } from "../utils/utils";
+import { calculateAge, getFormattedDate } from "../utils/utils";
 
 function PersonalDetails({ patientInfo, setPatientInfo }) {
+
+    const [ageYearsMonths, setAgeYearsMonths] = useState(null);
+
   // Select for Salutation
   const salutationOption = [
     { value: "Mr", label: "Mr." },
@@ -27,6 +31,9 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
 
   const onBirthDateChanged = (date, dateString) => {
     console.log(date, dateString);
+    const age = calculateAge(getFormattedDate(dateString));
+    setAgeYearsMonths(age);
+    console.log(`Age: ${age.years} years and ${age.months} months`);
     setPatientInfo({
       ...patientInfo,
       pm_dob: getFormattedDate(dateString),
@@ -116,6 +123,7 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
               <Input
                 placeholder="Enter 10 digit number"
                 id="pm_contact_no"
+                type="number"
                 onChange={onFieldChanged}
               />
             </Form.Item>
@@ -138,8 +146,8 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
               rules={rules.ageyearsmonths}
             >
               <div className="justify-content-between d-flex">
-                <Input className="w-48" />
-                <Input className="w-48" />
+                <Input className="w-48" type="number" value={ageYearsMonths?.years} />
+                <Input className="w-48" type="number" maxLength={2} value={ageYearsMonths?.months} />
               </div>
             </Form.Item>
           </Col>

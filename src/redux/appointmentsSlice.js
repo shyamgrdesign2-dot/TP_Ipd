@@ -78,17 +78,11 @@ export const searchPincode = createAsyncThunk(
         console.log("pincode: ", result.data.pincode);
         return result.data;
       } else {
-        return null;
+        throw Error(result.error);
       }
     } catch (error) {
       console.log("error: ", error);
-      if (error.response.status === 401) {
-        // redirect here
-        throw parseApiError(error);
-      } else {
-        // API failed, return some meaningful error
-        throw parseApiError(error);
-      }
+      throw Error(error);
     }
   }
 );
@@ -153,9 +147,11 @@ const appointmentsSlice = createSlice({
         state.error = null;
         console.log('searchPincode.action.payload: ', action);
         state.pincodeInfo = action.payload;
+        state.error = action.error;
       })
       .addCase(searchPincode.rejected, (state, action) => {
         state.pincodeInfo = null;
+        console.log('searchPincode.rejected.payload: ', action);
         state.error = action.error;
       });
   },
