@@ -9,6 +9,7 @@ const initialState = {
   error: null,
   queueCount: 0,
   patients: [],
+  pincodeInfo: {}
 };
 
 export const getAllRecords = createAsyncThunk(
@@ -16,7 +17,7 @@ export const getAllRecords = createAsyncThunk(
   async ({ startDate, endDate, pageNo }) => {
     let result = {};
     try {
-      var sendData = {
+      const sendData = {
         startDate: startDate,
         endDate: endDate,
         apStatue: 0,
@@ -50,6 +51,34 @@ export const searchAppointments = createAsyncThunk(
       console.log("results: ", result);
       if (result.status) {
         return result.data;
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      if (error.response.status === 401) {
+        // redirect here
+        throw parseApiError(error);
+      } else {
+        // API failed, return some meaningful error
+        throw parseApiError(error);
+      }
+    }
+  }
+);
+
+export const searchPincode = createAsyncThunk(
+  "records/searchPincode",
+  async (pincode) => {
+    const body = {
+      searchPincode: pincode,
+    }
+    try {
+      const result = await ApiAppointments.searchPincode(body);
+      console.log("results: ", result);
+      if (result.status && result.data.pincode == pincode) {
+        console.log("pincode: ", result.data.pincode);
+        return result.data;
+      } else {
+        return null;
       }
     } catch (error) {
       console.log("error: ", error);
@@ -118,6 +147,15 @@ const appointmentsSlice = createSlice({
       })
       .addCase(searchAppointments.rejected, (state, action) => {
         state.records = null;
+        state.error = action.error;
+      })
+      .addCase(searchPincode.fulfilled, (state, action) => {
+        state.error = null;
+        console.log('searchPincode.action.payload: ', action);
+        state.pincodeInfo = action.payload;
+      })
+      .addCase(searchPincode.rejected, (state, action) => {
+        state.pincodeInfo = null;
         state.error = action.error;
       });
   },

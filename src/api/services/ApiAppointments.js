@@ -15,7 +15,11 @@ ApiAppointments.search = function (query) {
 };
 
 ApiAppointments.getProfile = function () {
-    return api.get(`/api/v1/appointment/showProfile`,);
-  };
+  return api.get(`/api/v1/appointment/showProfile`);
+};
+
+ApiAppointments.searchPincode = function (body) {
+  return api.post(`/api/v1/appointment/searchPincode`, body);
+};
 
 export default ApiAppointments;
