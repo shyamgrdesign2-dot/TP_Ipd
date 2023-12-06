@@ -5,18 +5,16 @@ import { searchPincode } from "../redux/appointmentsSlice";
 
 function AddressDetails() {
   const dispatch = useDispatch();
-  let { pincodeInfo } = useSelector(
-    (state) => state.records
-  );
+  let { pincodeInfo } = useSelector((state) => state.records);
 
-  console.log('pincodeInfo: ', pincodeInfo);
+  console.log("pincodeInfo: ", pincodeInfo);
 
   const onSearch = (event) => {
     const searchQuery = event.target.value;
     console.log("searchQuery: ", searchQuery);
     let id = 0;
     id = setTimeout(() => {
-        dispatch(searchPincode(searchQuery));
+      dispatch(searchPincode(searchQuery));
       clearTimeout(id);
     }, 500);
   };
