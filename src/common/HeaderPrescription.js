@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
-import { Button, Dropdown } from 'antd';
+import { Button, Dropdown, Popover } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 
 function HeaderPrescription() {
@@ -17,23 +17,55 @@ function HeaderPrescription() {
         }
     ];
 
+    const [open, setOpen] = useState(false);
+
+    const handleOpenChange = (newOpen) => {
+        setOpen(newOpen);
+    };
+
+    const content = (
+        <div className='pop-body'>
+            <div className="align-items-center d-flex justify-content-between medicine-templates without-hover">
+                <div className="round-box"><i className="icon-template"></i></div>
+                <div className="text-truncate">
+                    <div className="title">Template name</div>
+                    <div className="text-truncate">Pan 40 Tablet, Telma20 Tablet, Pan 40 Tablet</div>
+                </div>
+            </div>
+        </div>
+    )
+
     return (
         <Navbar className="justify-content-between headerprescription p-0">
             <Container fluid className='h-100 gx-0 w-100'>
                 <Row className='h-100 align-items-center w-100 justify-content-between'>
                     <Col lg="auto" className='h-100'>
                         <div className='align-items-center d-flex h-100'>
-                            <div className='border-end h-100 text-center me-3'>
+                            <div className='border-end h-100 text-center'>
                                 <Link to='/walk_in_consultation' className='btn-headerback align-items-center d-flex h-100 justify-content-around'>
                                     <i className='icon-right'></i>
                                 </Link>
                             </div>
-                            <div className='rounded-pill patientProfile border me-3'>
-                                AP
-                            </div>
-                            <div className='patientName'> Ashish Patel,</div>
-                            <div className='text-2 me-30'>&nbsp;M, 28y, +91-7894561230</div>
-                            <div className='fontroboto text14 d-flex align-items-center'> <i className='icon-calendar me-2'></i> 9-10-2023</div>
+                            <Popover
+                                content={content}
+                                trigger="click"
+                                open={open}
+                                onOpenChange={handleOpenChange}
+                                className='cursor-pointer'
+                            >
+                                <div className='align-items-center d-flex h-100 ps-3'>
+                                    <div className='rounded-pill patientProfile border me-3'>
+                                        AP
+                                    </div>
+                                    <div>
+                                        <div className='patientName'> Ashish Patel</div>
+                                        <div className='text-2 me-30'>M, 28y</div>
+                                    </div>
+                                    <div className='iconrotate270 align-self-start'>
+                                        <i className='icon-right me-3'></i>
+                                    </div>
+                                </div>
+                            </Popover>
                         </div>
                     </Col>
                     <Col lg="auto">

@@ -12,7 +12,7 @@ function Appointment() {
     {
       key: "1",
       label: (
-        <div className="d-flex">
+        <div className="d-flex align-items-baseline">
           <i className="icon-Queue"></i>
           Queue ({queueCount ?? 0})
         </div>
@@ -21,7 +21,7 @@ function Appointment() {
     {
       key: "2",
       label: (
-        <div className="d-flex">
+        <div className="d-flex align-items-baseline">
           <i className="icon-Finished"></i>
           Finished (0)
         </div>
@@ -30,7 +30,7 @@ function Appointment() {
     {
       key: "3",
       label: (
-        <div className="d-flex">
+        <div className="d-flex align-items-baseline">
           <i className="icon-Cancelled"></i>
           Cancelled (0)
         </div>

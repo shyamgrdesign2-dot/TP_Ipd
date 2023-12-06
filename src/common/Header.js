@@ -99,7 +99,7 @@ function Header() {
               className="py-0 border-0 nav-link"
             >
               {/* <i className='icon-patients'></i> */}
-              <img src={profile?.um_image} alt="Logo" />
+              <img src={profile?.um_image} alt="Profile" />
             </Dropdown.Toggle>
             <Dropdown.Menu className="dropdown-menu-end">
               <Dropdown.Item>

@@ -142,6 +142,9 @@ body {
     .fontpoppins {
         font-family: 'Poppins' !important;
     }
+    .cursor-pointer {
+        cursor: pointer;
+    }
     .text-2 {
         font-family: 'Roboto' !important;
         font-size: 12px;
@@ -229,6 +232,16 @@ body {
             &:hover{
                 border-bottom-left-radius: 20px;
                 border-bottom-right-radius: 20px;
+            }
+        }
+        &.without-hover {
+            &:hover {
+                background-color: transparent;
+            }
+            &:last-child {
+                &:hover{
+                    border-radius: 0;
+                }
             }
         }
         .round-box {

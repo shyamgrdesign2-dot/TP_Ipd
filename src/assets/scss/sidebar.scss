@@ -1,9 +1,12 @@
 body {
     .SidebarDoctor {
         box-shadow: $boxshadowsidebar;
-        width: 110px;
-        min-width: 110px;
+        width: 100%;
+        max-width: 110px;
         height: calc(100vh - 56px);
+        @media only screen and (max-width: 1400px) {
+            max-width: 80px;
+        }
         .nav-item {
             padding: 18px 0;
             text-align: center;
@@ -12,9 +15,6 @@ body {
                 font-style: normal;
                 font-weight: 500;
                 position: relative;
-                @media only screen and (max-width: 1300px) {
-                    font-size: 11px;
-                }
                 i {
                     font-size: 25px;
                     fill: #A2A2A8;
