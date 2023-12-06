@@ -13,11 +13,8 @@ body {
             a {
                 font-size: 12px;
                 font-style: normal;
-                font-weight: 600;
+                font-weight: 500;
                 position: relative;
-                @media only screen and (max-width: 1300px) {
-                    font-size: 11px;
-                }
                 i {
                     font-size: 25px;
                     fill: #A2A2A8;
