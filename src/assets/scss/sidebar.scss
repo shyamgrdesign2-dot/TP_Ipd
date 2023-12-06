@@ -59,6 +59,22 @@ body {
         width: 253px !important;
         background: $white !important;
         padding: 10px 0;
+        &.tabsider {
+            flex: 0 0 230px !important;
+            max-width: 230px !important;
+            min-width: 230px !important;
+            width: 230px !important;
+            background-color: $white !important;
+            padding: 0;
+        }
+        &.tabsider1 {
+            flex: 0 !important;
+            max-width: 0 !important;
+            min-width: 0 !important;
+            width: 0 !important;
+            background-color: transparent !important;
+            padding: 0;
+        }
         .nav-item {
             padding: 0;
             a {
@@ -208,5 +224,28 @@ body {
         font-size: 14px;
         font-style: normal;
         font-weight: 600;
+    }
+    .prescription-sidebar {
+        height: calc(100vh - 60px); 
+        background-color: $themesecondary;
+        width: 64px;
+        min-width: 64px;
+        padding: 20px 0;
+        .prescription-tab-button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+        }
+        label {
+            font-family: 'Roboto';
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 18px;
+            letter-spacing: 0.1px;
+        }
     }
 }

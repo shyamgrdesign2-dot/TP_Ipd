@@ -1,5 +1,13 @@
 body {
     .ant-popover {
+        &.pop-260 {
+            max-width: 260px;
+            width: 100%;
+        }
+        &.pop-300 {
+            max-width: 300px;
+            width: 100%;
+        }
         &.pop-350 {
             max-width: 350px;
             width: 100%;
@@ -23,6 +31,11 @@ body {
         &.pp-0 {
             .ant-popover-inner {
                 padding: 0;
+            }
+        }
+        &.pp-20 {
+            .ant-popover-inner {
+                padding: 20px;
             }
         }
         .ant-popover-arrow{

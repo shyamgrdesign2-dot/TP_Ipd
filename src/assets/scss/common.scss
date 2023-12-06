@@ -29,6 +29,9 @@ body {
         height: calc(100vh - 60px);
         overflow-y: auto;
     }
+    .letterspacing {
+        letter-spacing: 0.1px;
+    }
     .title-common {
         font-family: 'Poppins' !important;
         font-size: 16px;
@@ -53,8 +56,11 @@ body {
     .text-primary {
         color: $theme !important;
     }
+    .bg-secondary-light {
+        background-color: $themesecondarylight;
+    }
     .fs-21 {
-        font-size: 21px;
+        font-size: 21px !important;
     }
     .small, small {
         font-size: .800em;
@@ -113,6 +119,9 @@ body {
     }
     .mt-20 {
         margin-top: 20px;
+    }
+    .mb-20 {
+        margin-bottom: 20px;
     }
     .p-14 {
         padding: 14px;
