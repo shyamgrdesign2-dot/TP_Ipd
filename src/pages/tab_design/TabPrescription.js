@@ -188,14 +188,12 @@ function TabPrescription() {
                 <Layout>
 
                     <div className="prescription-sidebar">
-                        <Sider trigger={null} collapsible collapsed={collapsed} className={collapsed ? 'tabsider1' : 'tabsider'}>
-                            <button type='button' className="mb-20 text-center btn btn-action" onClick={() => navigate(-1)}>
+                            <button type='button' className="mb-20 text-center btn btn-action" onClick={() => setCollapsed(!collapsed)}>
                                 <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                     <img src={vitalsWhite} alt="Vitals" />
                                 </div>
                                 <label className="text-white mt-1">Vitals</label>
                             </button>
-                        </Sider>
                             {/* <div className="mb-20 text-center">
                                 <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                     <img src={medicalHistoryWhite} alt="History" />
@@ -228,6 +226,9 @@ function TabPrescription() {
                             </div> */}
                         
                     </div>
+                    <Sider trigger={null} collapsible collapsed={collapsed} className={collapsed ? 'tabsider' : 'tabsider1'}>
+                        Ajeet
+                    </Sider>
 
                     <div className="p-20 ms-3 w-100">
                         <Content>
