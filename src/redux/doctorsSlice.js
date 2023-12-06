@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import appointmentsService from "../api/services/appointmentsService";
 import { parseApiError } from "../utils/utils";
+import ApiAppointments from "../api/services/ApiAppointments";
 
 const initialState = {
   profile: {},
@@ -13,7 +13,7 @@ export const getProfile = createAsyncThunk(
   async () => {
     let result = {};
     try {
-      result = await appointmentsService.getProfile();
+      result = await ApiAppointments.getProfile();
       console.log("getProfile.results: ", result);
       if (result.status) {
         return result.data;

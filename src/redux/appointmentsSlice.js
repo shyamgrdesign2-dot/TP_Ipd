@@ -40,7 +40,6 @@ export const getAllRecords = createAsyncThunk(
   async ({ startDate, endDate, pageNo }) => {
     let result = {};
     try {
-      // result = await appointmentsService.getAll(startDate, endDate, pageNo);
       var sendData = {
         startDate: startDate,
         endDate: endDate,
@@ -71,7 +70,7 @@ export const searchAppointments = createAsyncThunk(
   async (query) => {
     let result = {};
     try {
-      result = await appointmentsService.search(query);
+      result = await ApiAppointments.search(query);
       console.log("results: ", result);
       if (result.status) {
         return result.data;
