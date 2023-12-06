@@ -111,11 +111,13 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
             <Form.Item
               name="mobilenumber"
               label="Mobile Number"
-              id="pm_contact_no"
-              onChange={onFieldChanged}
               rules={rules.mobilenumber}
             >
-              <Input placeholder="Enter 10 digit number" />
+              <Input
+                placeholder="Enter 10 digit number"
+                id="pm_contact_no"
+                onChange={onFieldChanged}
+              />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12} lg={12}>

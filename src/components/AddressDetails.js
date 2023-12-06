@@ -1,13 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Form, Input, Select, Row, Col } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { searchPincode } from "../redux/appointmentsSlice";
 
-function AddressDetails() {
+function AddressDetails({ patientInfo, setPatientInfo }) {
   const dispatch = useDispatch();
   let { pincodeInfo } = useSelector((state) => state.records);
 
   console.log("pincodeInfo: ", pincodeInfo);
+
+  useEffect(() => {
+    if (pincodeInfo && Object.keys(pincodeInfo).length > 0) {
+      setPatientInfo({
+        ...patientInfo,
+        pm_pincode: pincodeInfo?.pincode,
+        pm_city: pincodeInfo?.city,
+        pm_state: pincodeInfo?.state,
+      });
+    }
+  }, [pincodeInfo]);
 
   const onSearch = (event) => {
     const searchQuery = event.target.value;
@@ -17,6 +28,15 @@ function AddressDetails() {
       dispatch(searchPincode(searchQuery));
       clearTimeout(id);
     }, 500);
+  };
+
+  const onFieldChanged = (event) => {
+    console.log("id: ", event.target.id);
+    const value = event.target.value;
+    setPatientInfo({
+      ...patientInfo,
+      [event.target.id]: value,
+    });
   };
 
   return (
@@ -58,7 +78,8 @@ function AddressDetails() {
           </Col>
           <Col xs={24} sm={24} md={12} lg={12}>
             <Form.Item name="streetaddress" label="Street Address">
-              <Input placeholder="Address" />
+              <Input placeholder="Address" id="pm_address"
+                onChange={onFieldChanged} />
             </Form.Item>
           </Col>
         </Row>
