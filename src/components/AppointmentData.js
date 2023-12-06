@@ -49,7 +49,6 @@ function AppointmentData() {
     { value: todaysDate, label: "Today" },
     { value: "next7days", label: "Next 7 Days" },
     { value: "next30days", label: "Next 30 Days" },
-    { value: "alltime", label: "All" },
   ];
 
   const segmentedList = [
