@@ -7,4 +7,4 @@ ApiAppointments.getAll = function (params) {
     return api.post(`/api/v1/appointment/listAppointment`, params)
 }
 
-export default ApiAppointments
+export default ApiAppointments;
