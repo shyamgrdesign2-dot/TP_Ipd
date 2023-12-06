@@ -289,7 +289,7 @@ function AppointmentData() {
   return (
     <div className="p-4 appointment-data">
       <Row className="justify-content-between">
-        <Col md={3}>
+        <Col xl={3} lg={4}>
           <Form>
             <Form.Group className="mb-4" controlId="exampleForm.ControlInput1">
               <Form.Control

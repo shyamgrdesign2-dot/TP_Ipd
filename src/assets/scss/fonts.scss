@@ -130,6 +130,9 @@
   .iconrotate90 {
     transform: rotate(180deg);
   }
+  .iconrotate270 {
+    transform: rotate(270deg);
+  }
 
   .icon-analytics:before {
     content: "\e902";
