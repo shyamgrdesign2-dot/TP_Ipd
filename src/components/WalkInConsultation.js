@@ -99,8 +99,6 @@ function WalkInConsultation() {
       addAddPatientPlank();
     } else if (searchQuery && searchQuery.length >= 3) {
       dispatch(searchAppointments(searchQuery));
-    } else {
-        
     }
   }, [dispatch, searchQuery]);
 
@@ -282,6 +280,7 @@ function WalkInConsultation() {
         title={"Patient Selected"}
         onCancel={() => {
             setClickedPatient(null);
+
         }}
         modalBody={
           <>

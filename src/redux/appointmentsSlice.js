@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
-import appointmentsService from "../api/services/appointmentsService";
 import { parseApiError } from "../utils/utils";
 import ApiAppointments from '../api/services/ApiAppointments';
 
