@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import { Routes, Route } from "react-router-dom";
 
@@ -11,6 +11,19 @@ import AddressDetails from "../components/AddressDetails";
 import UploadProfile from "../components/UploadProfile";
 
 function AddNewPatient() {
+
+  const [patientInfo, setPatientInfo] = useState({});
+  const [isFormValid, setFormValid] = useState(false);
+
+  useEffect(()=> {
+    console.log('patientInfo: ', patientInfo);
+    if(patientInfo.pm_fullname) {
+      setFormValid(true);
+    } else {
+      setFormValid(false);
+    }
+  }, [patientInfo])
+
   return (
     <>
       <Header />
@@ -35,9 +48,9 @@ function AddNewPatient() {
                   <div className="p-30">
                     <Row className="justify-content-between">
                       <Col lg={8} md={12}>
-                        <PersonalDetails />
+                        <PersonalDetails patientInfo={patientInfo} setPatientInfo={setPatientInfo} />
                         <hr className="mb-3 mt-1" />
-                        <AddressDetails />
+                        <AddressDetails patientInfo={patientInfo} setPatientInfo={setPatientInfo} />
                       </Col>
                       <Col lg={"auto"} md={12}>
                         <UploadProfile />
@@ -49,7 +62,7 @@ function AddNewPatient() {
                     <button className="btn btn-text text-decoration-underline me-3">
                       Cancel
                     </button>
-                    <button className="btn btn-primary btn-41" disabled>
+                    <button className="btn btn-primary btn-41" disabled={!isFormValid}>
                       Add Patient to Consult
                     </button>
                   </div>

@@ -53,7 +53,7 @@ function AddressDetails() {
               <Select
                 placeholder={pincodeInfo?.state ?? "Select state"}
                 disabled
-              ></Select>
+              />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12} lg={12}>
