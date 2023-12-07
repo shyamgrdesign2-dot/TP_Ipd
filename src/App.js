@@ -6,7 +6,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import AppointmentList from "./pages/AppointmentList";
 import PatientDetails from "./pages/PatientDetails";
 import Prescription from "./pages/Prescription";
-import AddNewPatient from "./pages/AddNewPatient";
+
 import { store, persistor } from "./redux/store";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
 import { useLocalStorage } from "./utils/localStorage";
@@ -39,7 +39,6 @@ function App() {
             <Route path="Prescription" element={<Prescription />} />
             <Route path="tab_prescription" element={<TabPrescription />} />
             <Route path="prescription_print_view" element={<PrescriptionPrintView />} />
-            <Route path="AddNew_Patient" element={<AddNewPatient />} />
           </Routes>
         </PersistGate>
       </Provider>

@@ -4,51 +4,52 @@ body {
         width: 100%;
         max-width: 110px;
         height: calc(100vh - 56px);
+        padding: 20px 0;
         @media only screen and (max-width: 1400px) {
             max-width: 80px;
         }
-        .nav-item {
-            padding: 18px 0;
+        a {
+            display: block;
+            padding: 4px 0;
+            margin: 0 0 30px 0;
             text-align: center;
-            a {
-                font-size: 12px;
-                font-style: normal;
-                font-weight: 500;
-                position: relative;
-                i {
-                    font-size: 25px;
-                    fill: #A2A2A8;
-                }
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 500;
+            position: relative;
+            i {
+                font-size: 25px;
+                color: $grayColor;
+            }
+            &:after{
+                height: 100%;
+                width: 4px;
+                position: absolute;
+                left: 0;
+                top: 0;
+                content: "";
+                background-color: transparent;
+                border-top-right-radius: 50px;
+                border-bottom-right-radius: 50px;
+            }
+            &:hover, &:focus, &:active, &.active {
+                color: $theme;
                 &:after{
-                    height: 100%;
-                    width: 4px;
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    content: "";
-                    background-color: transparent;
-                    border-top-right-radius: 50px;
-                    border-bottom-right-radius: 50px;
+                    background-color: $theme;
                 }
-                &:hover, &:focus, &:active, &.active {
-                    color: $theme;
-                    &:after{
-                        background-color: $theme;
-                    }
-                    div {
+                div {
+                    color: $theme !important;
+                }
+                i {
+                    &:before{
                         color: $theme !important;
-                    }
-                    i {
-                        &:before{
-                            color: $theme !important;
-                        }   
-                    }
+                    }   
                 }
             }
-            svg {
-                width: 24px;
-                height: 24px;
-            }
+        }
+        svg {
+            width: 24px;
+            height: 24px;
         }
     }
     .ant-layout-sider {
@@ -74,6 +75,7 @@ body {
             width: 0 !important;
             background-color: transparent !important;
             padding: 0;
+            display: none;
         }
         .nav-item {
             padding: 0;

@@ -56,6 +56,9 @@ body {
     .text-primary {
         color: $theme !important;
     }
+    .bg-secondary {
+        background-color: $themesecondary !important;
+    }
     .bg-secondary-light {
         background-color: $themesecondarylight;
     }

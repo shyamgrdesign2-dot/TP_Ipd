@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Layout, Button } from "antd";
 
 import SidebarPatient from '../common/SidebarPatient'
-import Welcome from '../common/Welcome'
+import Welcome1 from '../common/Welcome1'
 import VitalsBodyComposition from '../components/VitalsBodyComposition';
 import LabParameters from '../components/LabParameters';
 import MedicalHistory from '../components/MedicalHistory';
@@ -37,15 +37,7 @@ function PatientDetails() {
 
                 <Content>
                     <div className='w-100 vh-100 overflow-y-auto'>
-                        <Welcome
-                            title={'Patient Details'}
-                            subTitle={'\u00A0'}
-                            backVisible={false}
-                            buttonIcon={'icon-reload me-2'}
-                            firstButtonName={'Repeat 10th Oct Rx'}
-                            firstButtonPath={'/'}
-                            secondButtonName={'Start New Visit'}
-                            secondButtonPath={'/'} />
+                        <Welcome1 />
                         <div className="appointment-wrap PatientDetailswrap">
                             <div className='row'>
                                 <div className='col-lg-5 col-md-12 col-12'>

@@ -227,7 +227,12 @@ function TabPrescription() {
                         
                     </div>
                     <Sider trigger={null} collapsible collapsed={collapsed} className={collapsed ? 'tabsider' : 'tabsider1'}>
-                        Ajeet
+                        <>
+                            <div className="text-white align-items-center bg-secondary d-flex justify-content-between lh-lg px-2 py-2">
+                                Vitals
+                                <i className="icon-Contract"></i>
+                            </div>
+                        </>
                     </Sider>
 
                     <div className="p-20 ms-3 w-100">

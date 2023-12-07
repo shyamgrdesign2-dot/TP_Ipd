@@ -8,7 +8,7 @@ import { searchAppointments } from "../redux/appointmentsSlice";
 
 const AddPatientPlank = () => {
   return (
-    <Link to="/AddNew_Patient">
+    <Link to="/add_new_patient">
       <Button
         type="text"
         className="btn btn-primary1 btn-41 align-items-center d-flex"
