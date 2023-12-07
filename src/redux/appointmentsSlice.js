@@ -8,8 +8,9 @@ const initialState = {
   loading: false,
   error: null,
   queueCount: 0,
-  patients: [],
-  pincodeInfo: {}
+  patients: null,
+  pincodeInfo: {},
+  patientDetals: {}
 };
 
 export const getAllRecords = createAsyncThunk(
@@ -46,22 +47,20 @@ export const searchAppointments = createAsyncThunk(
   "records/searchAppointments",
   async (query) => {
     let result = {};
-    try {
-      result = await ApiAppointments.search(query);
-      console.log("results: ", result);
-      if (result.status) {
-        return result.data;
-      }
-    } catch (error) {
-      console.log("error: ", error);
-      if (error.response.status === 401) {
-        // redirect here
-        throw parseApiError(error);
-      } else {
-        // API failed, return some meaningful error
-        throw parseApiError(error);
-      }
+    result = await ApiAppointments.search(query);
+    console.log("results: ", result);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
     }
+  }
+);
+
+export const clearSearch = createAsyncThunk(
+  "records/clearSearch",
+  async () => {
+    return null;
   }
 );
 
@@ -83,6 +82,34 @@ export const searchPincode = createAsyncThunk(
     } catch (error) {
       console.log("error: ", error);
       throw Error(error);
+    }
+  }
+);
+
+export const addPatient = createAsyncThunk(
+  "records/addPatient",
+  async (patientInfo) => {
+
+    const formData = new FormData();
+    Object.keys(patientInfo).forEach((key) => {
+      formData.append(key, patientInfo[key]);
+    });
+
+    try {
+      const result = await ApiAppointments.addPatient(formData);
+      console.log("results: ", result);
+      if (result.status) {
+        return result.data;
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      if (error.response.status === 401) {
+        // redirect here
+        throw parseApiError(error);
+      } else {
+        // API failed, return some meaningful error
+        throw parseApiError(error);
+      }
     }
   }
 );
@@ -140,8 +167,10 @@ const appointmentsSlice = createSlice({
         state.queueCount = action.payload?.queue_count ?? 0;
       })
       .addCase(searchAppointments.rejected, (state, action) => {
+        console.log('search.rejected.action.payload: ', action);
         state.records = null;
-        state.error = action.error;
+        state.patients = [];
+        state.error = action.error.message;
       })
       .addCase(searchPincode.fulfilled, (state, action) => {
         state.error = null;
@@ -153,6 +182,26 @@ const appointmentsSlice = createSlice({
         state.pincodeInfo = null;
         console.log('searchPincode.rejected.payload: ', action);
         state.error = action.error;
+      })
+      .addCase(addPatient.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addPatient.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        console.log('addPatient.action.payload: ', action.payload);
+        state.patientDetals = action.payload;
+      })
+      .addCase(addPatient.rejected, (state, action) => {
+        state.loading = false;
+        state.patientDetals = null;
+        state.error = action.error;
+      })
+      .addCase(clearSearch.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        console.log('clearSearch.fulfilled: ', action.payload);
+        state.patients = null;
       });
   },
 });

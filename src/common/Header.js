@@ -11,7 +11,6 @@ function Header() {
   const [profile, setProfile] = useState(null);
   const profiles = useSelector((state) => state.doctors.profile);
   const dispatch = useDispatch();
-  console.log("profile: ", profiles);
 
   useEffect(() => {
     dispatch(getProfile());
@@ -99,7 +98,7 @@ function Header() {
               className="py-0 border-0 nav-link"
             >
               {/* <i className='icon-patients'></i> */}
-              <img src={profile?.um_image} alt="Profile" />
+              <img src={profile?.um_image} alt="Profile" style={{width: '30px'}} />
             </Dropdown.Toggle>
             <Dropdown.Menu className="dropdown-menu-end">
               <Dropdown.Item>

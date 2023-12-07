@@ -79,7 +79,7 @@ export function calculateAge(birthdate) {
 
   // Adjust the age if the birthdate month is later than the current month
   if (monthsDiff < 0 || (monthsDiff === 0 && currentDate.getDate() < birthdateDate.getDate())) {
-    yearsDiff--;
+    yearsDiff = yearsDiff > 0 ? yearsDiff-- : 0;
   }
 
   // Calculate the remaining months
@@ -91,3 +91,25 @@ export function calculateAge(birthdate) {
     months: remainingMonths
   };
 }
+
+export function calculateBirthdateFromAge(age) {
+  // Get the current date
+  const currentDate = new Date();
+
+  // Calculate birthdate year
+  const birthYear = currentDate.getFullYear() - age.years;
+
+  // Calculate birthdate month
+  let birthMonth = currentDate.getMonth() - age.months;
+
+  // Adjust the month and year if necessary
+  if (birthMonth < 0) {
+    birthMonth = 12 + birthMonth;
+    birthYear--;
+  }
+
+  // Set the day to 1 for simplicity
+  const birthDate = new Date(birthYear, birthMonth, 1);
+
+  return birthDate;
+};

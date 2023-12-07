@@ -14,7 +14,6 @@ export const getProfile = createAsyncThunk(
     let result = {};
     try {
       result = await ApiAppointments.getProfile();
-      console.log("getProfile.results: ", result);
       if (result.status) {
         return result.data;
       }

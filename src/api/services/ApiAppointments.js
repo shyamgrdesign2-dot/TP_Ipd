@@ -22,4 +22,8 @@ ApiAppointments.searchPincode = function (body) {
   return api.post(`/api/v1/appointment/searchPincode`, body);
 };
 
+ApiAppointments.addPatient = function (formData) {
+  return api.post(`/api/v1/appointment/addPatient`, formData);
+};
+
 export default ApiAppointments;

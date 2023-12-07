@@ -54,6 +54,10 @@ instance.interceptors.response.use(
             notificationParam.message = 'Internal Server Error'
         }
 
+        if (error.response.status === 502) {
+            notificationParam.message = 'Bad Gateway'
+        }
+
         if (error.response.status === 508) {
             notificationParam.message = 'Time Out'
         }

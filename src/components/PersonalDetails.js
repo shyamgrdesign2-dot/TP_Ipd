@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Button, Form, Input, Select, DatePicker, Radio, Row, Col } from "antd";
-import { calculateAge, getFormattedDate } from "../utils/utils";
+import { calculateAge, calculateBirthdateFromAge, getFormattedDate } from "../utils/utils";
+import dayjs from "dayjs";
 
 function PersonalDetails({ patientInfo, setPatientInfo }) {
 
     const [ageYearsMonths, setAgeYearsMonths] = useState(null);
+    const [birthDate, setBirthDate] = useState(null);
 
   // Select for Salutation
   const salutationOption = [
@@ -30,15 +32,27 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
   };
 
   const onBirthDateChanged = (date, dateString) => {
+    console.log('onBirthDateChanged triggred: ');
     console.log(date, dateString);
     const age = calculateAge(getFormattedDate(dateString));
     setAgeYearsMonths(age);
-    console.log(`Age: ${age.years} years and ${age.months} months`);
     setPatientInfo({
       ...patientInfo,
       pm_dob: getFormattedDate(dateString),
     });
   };
+
+  useEffect(() => {
+    if(ageYearsMonths?.years && ageYearsMonths?.months) {
+      const birthDate = calculateBirthdateFromAge(ageYearsMonths);
+      console.log('ageYearsMonths: mutated birthDate: ', birthDate);
+      setBirthDate(birthDate);
+      setPatientInfo({
+        ...patientInfo,
+        pm_dob: getFormattedDate(birthDate),
+      });
+    }
+  }, [ageYearsMonths]);
 
   const onFieldChanged = (event) => {
     console.log("id: ", event.target.id);
@@ -123,7 +137,8 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
               <Input
                 placeholder="Enter 10 digit number"
                 id="pm_contact_no"
-                type="number"
+                type="tel"
+                maxLength={10}
                 onChange={onFieldChanged}
               />
             </Form.Item>
@@ -146,8 +161,18 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
               rules={rules.ageyearsmonths}
             >
               <div className="justify-content-between d-flex">
-                <Input className="w-48" type="number" value={ageYearsMonths?.years} />
-                <Input className="w-48" type="number" maxLength={2} value={ageYearsMonths?.months} />
+                <Input className="w-48" type="number" placeholder="Years" value={ageYearsMonths?.years} onChange={(e) => {
+                  setAgeYearsMonths({
+                    ...ageYearsMonths,
+                    years: e.target.value
+                  });
+                }} />
+                <Input className="w-48" type="number" placeholder="Months" maxLength={2} value={ageYearsMonths?.months} onChange={(e) => {
+                  setAgeYearsMonths({
+                    ...ageYearsMonths,
+                    months: e.target.value
+                  });
+                }} />
               </div>
             </Form.Item>
           </Col>
@@ -156,7 +181,8 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
           </Col>
           <Col xs={24} sm={24} md={11} lg={11}>
             <Form.Item name="dateofbirth" label="Date of Birth">
-              <DatePicker onChange={onBirthDateChanged} />
+              <DatePicker onChange={onBirthDateChanged} value={birthDate ? dayjs(getFormattedDate(birthDate), 'YYYY-MM-DD') : null} />
+              {/* <DatePicker onChange={onBirthDateChanged} value={dayjs('1990-05-05', 'YYYY-MM-DD')} format = {'YYYY-MM-DD'} /> */}
             </Form.Item>
           </Col>
         </Row>
