@@ -47,6 +47,11 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
     });
   };
 
+  const disabledDate = (current) => {
+    // Can not select days before today and today
+    return current && current > dayjs().endOf('day');
+  };
+
   useEffect(() => {
     if (ageYearsMonths) {
       let dateObj = new Date();
@@ -72,6 +77,7 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
       let day = dateObj.getUTCDate() - 0;
       let newdate = year + "-" + month + "-" + day;
       console.log("newdate", newdate);
+      setBirthDate(newdate);
       setPatientInfo({
         ...patientInfo,
         pm_dob: getFormattedDate(newdate),
@@ -243,6 +249,7 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
               <Form.Item name="dateofbirth" label="Date of Birth">
                 <DatePicker
                   onChange={onBirthDateChanged}
+                  disabledDate={disabledDate}
                   value={
                     birthDate
                       ? dayjs(getFormattedDate(birthDate), "YYYY-MM-DD")

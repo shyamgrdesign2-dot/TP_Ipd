@@ -8,7 +8,7 @@ import { clearSearch, searchAppointments } from "../redux/appointmentsSlice";
 
 const AddPatientPlank = () => {
   return (
-    <Link to="/AddNew_Patient">
+    <Link to="/add_new_patient">
       <Button
         type="text"
         className="btn btn-primary1 btn-41 align-items-center d-flex"
@@ -104,6 +104,7 @@ function WalkInConsultation() {
 
   useEffect(() => {
     if (!searchQuery) {
+      dispatch(clearSearch());
       addAddPatientPlank();
     } else if (searchQuery && searchQuery.length >= 3) {
       dispatch(searchAppointments(searchQuery));
@@ -184,7 +185,7 @@ function WalkInConsultation() {
             suffix={
               value.length > 0 && (
                 <i className="icon-Cross" onClick={() =>{
-                  dispatch(clearSearch()) ;
+                  onSearch(null);
                   setValue("");
                 }}></i>
               )

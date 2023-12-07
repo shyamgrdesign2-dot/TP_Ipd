@@ -4,6 +4,7 @@ import { Select } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 
 import { getProfile } from "../redux/doctorsSlice";
+import defaultprofile from "../assets/images/default-profile.svg";
 
 function Header() {
   const [clinicOptions, setClinicOptions] = useState(null);
@@ -98,7 +99,7 @@ function Header() {
               className="py-0 border-0 nav-link"
             >
               {/* <i className='icon-patients'></i> */}
-              <img src={profile?.um_image} alt="Profile" style={{width: '30px'}} />
+              <img src={profile?.um_image ?? defaultprofile} alt="Profile" style={{width: '30px'}} />
             </Dropdown.Toggle>
             <Dropdown.Menu className="dropdown-menu-end">
               <Dropdown.Item>
