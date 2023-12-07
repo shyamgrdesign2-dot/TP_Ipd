@@ -5,7 +5,7 @@ import { calculateAge, calculateBirthdateFromAge, getFormattedDate } from "../ut
 import dayjs from "dayjs";
 
 function PersonalDetails({ patientInfo, setPatientInfo }) {
-
+  const [form] = Form.useForm();
     const [ageYearsMonths, setAgeYearsMonths] = useState(null);
     const [birthDate, setBirthDate] = useState(null);
 
@@ -42,7 +42,7 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
     });
   };
 
-  useEffect(() => {
+/*   useEffect(() => {
     if(ageYearsMonths?.years && ageYearsMonths?.months) {
       const birthDate = calculateBirthdateFromAge(ageYearsMonths);
       console.log('ageYearsMonths: mutated birthDate: ', birthDate);
@@ -50,6 +50,24 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
       setPatientInfo({
         ...patientInfo,
         pm_dob: getFormattedDate(birthDate),
+      });
+    }
+  }, [ageYearsMonths]); */
+
+  useEffect(() => {
+    if (ageYearsMonths) {
+      let dateObj = new Date();
+      let year = (dateObj.getUTCFullYear()) - parseInt(ageYearsMonths.hasOwnProperty('years') ? ageYearsMonths.years != '' ? ageYearsMonths.years : 0 : 0);
+      let month = (dateObj.getUTCMonth() + 1) - parseInt(ageYearsMonths.hasOwnProperty('months') ? ageYearsMonths.months != '' ? ageYearsMonths.months : 0 : 0); //months from 1-12
+      let day = (dateObj.getUTCDate()) - 0;
+      let newdate = year + "-" + month + "-" + day;
+      console.log('newdate', newdate)
+      setPatientInfo({
+        ...patientInfo,
+        pm_dob: getFormattedDate(newdate),
+      });
+      form.setFieldsValue({
+        dateofbirth: dayjs(getFormattedDate(newdate), "YYYY-MM-DD")
       });
     }
   }, [ageYearsMonths]);
@@ -103,6 +121,7 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
       </div>
 
       <Form
+        form={form}
         layout="vertical"
         name="advanced_search"
         className="form_addnewpatient"
