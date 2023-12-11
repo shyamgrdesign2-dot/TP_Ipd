@@ -23,25 +23,30 @@ import {
 } from "../redux/diagnosisSlice";
 import { EmptyPlank } from "./WalkInConsultation";
 
+const TAB_ADD_TEMPLATE = 1;
+const TAB_UPDATE_TEMPLATE = 2;
+
 const SEVERITY_LIST = [
   { value: "severe", label: "Severe" },
   { value: "moderate", label: "Moderate" },
   { value: "mild", label: "Mild" },
 ];
 
+const SINCE_OPTIONS = ["Hour", "Day", "Week", "Month", "Year"];
+
 const ADD_EDIT_TEMPLATE_TABS = [
   {
-    key: "1",
+    key: TAB_ADD_TEMPLATE,
     label: "New Template",
   },
   {
-    key: "2",
+    key: TAB_UPDATE_TEMPLATE,
     label: "Update Template",
   },
 ];
 
 const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
-  console.log('TemplatesList: ', templates);
+  console.log("TemplatesList: ", templates);
   const [matchedTemplates, setMatchedTemplates] = useState(templates);
   const dispatch = useDispatch();
 
@@ -109,7 +114,11 @@ const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
                 <div className="title">{template.tdt_template_name}</div>
                 <div className="text-truncate">
                   {template.diagnosis.map((diagnosis) => {
-                    return <> {diagnosis.tds_name},</>;
+                    return (
+                      <>
+                        <div key={diagnosis.tds_id}>{diagnosis.tds_name} {" "}</div>
+                      </>
+                    );
                   })}
                 </div>
               </div>
@@ -136,6 +145,14 @@ const DiagnosisPanel = () => {
   const [template, setTemplate] = useState(null);
   const [selectedDiagnosises, setSelectedDiagnosises] = useState([]);
   const [allTemplates, setAllTemplates] = useState([]);
+  const [sinceOptions, setSinceOptions] = useState([]);
+  const [diagnosisSearchOptions, setDiagnosisSearchOptions] = useState([
+    {
+      label: "FREQUENTLY USED",
+    },
+  ]);
+  const [isPartialDiagnosisSearch, setPartialDiagnosisSearch] = useState(false);
+
   const [popOver1, setPopOver1] = useState(false);
   const [popOver2, setPopOver2] = useState(false);
   const [value, setValue] = useState("");
@@ -159,6 +176,21 @@ const DiagnosisPanel = () => {
     }
   }, [templates, resultantTemplate]);
 
+  const onSinceSearch = (searchQuery) => {
+    if (searchQuery) {
+      const options = SINCE_OPTIONS.map((option) => {
+        return {
+          value: `${searchQuery} ${option}`,
+          label: <>{`${searchQuery} ${option}`}</>,
+        };
+      });
+
+      setSinceOptions(options);
+    } else {
+      setSinceOptions(null);
+    }
+  };
+
   const addCustomDiagnosisQueryPlank = () => {
     const data = [];
     data.push({
@@ -168,7 +200,7 @@ const DiagnosisPanel = () => {
         </>
       ),
     });
-    setOptions(data);
+    setDiagnosisSearchOptions(data);
   };
 
   useEffect(() => {
@@ -193,6 +225,7 @@ const DiagnosisPanel = () => {
                 <div
                   onClick={() => {
                     setIsModalOpen();
+                    setValue(null);
                     onSelect(diagnosis);
                   }}
                 >
@@ -211,6 +244,7 @@ const DiagnosisPanel = () => {
           <div
             onClick={() => {
               setIsModalOpen();
+              setValue(null);
               onSelect({
                 tds_name: searchQuery, // Diagnosis Name
                 tds_id: 0, // Diagnosis id 0 when add new diagnosis
@@ -223,7 +257,7 @@ const DiagnosisPanel = () => {
         </>
       ),
     });
-    setOptions(data);
+    setDiagnosisSearchOptions(data);
   }, [diagnosis]);
 
   useEffect(() => {
@@ -234,7 +268,8 @@ const DiagnosisPanel = () => {
     }
   }, [dispatch, searchQuery]);
 
-  const onSearch = (query) => {
+  const onDiagnosisSearch = (query) => {
+    console.log("calling....");
     setValue(query);
     let id = setTimeout(() => {
       setSearchQuery(query);
@@ -248,31 +283,6 @@ const DiagnosisPanel = () => {
     setSelectedDiagnosises([...selectedDiagnosises, diagnosis]);
     dispatch(clearDiagnosisSearch());
   };
-
-  /* const onSearch = (data) => {
-    setValue(data);
-    console.log("onSearch", data);
-    if (data.length > 0) {
-      const array = [
-        { id: 1, name: "Chest Pain" },
-        { id: 2, name: "Chest Discomfort" },
-        { id: 3, name: "Snoring" },
-        { id: 4, name: "Anxiety" },
-        { id: 5, name: "High blood pressure" },
-        { id: 6, name: "Heartburn" },
-        { id: -1 },
-      ];
-      array.map((e) => {
-        if (e.id != -1) {
-          options.push({
-            value: e.name,
-            label: <>{e.name}</>,
-          });
-        }
-      });
-    }
-    setOptions((prev) => [...prev]);
-  }; */
 
   const onSelectSearch = (data) => {
     console.log("onSelectSearch", data);
@@ -290,12 +300,6 @@ const DiagnosisPanel = () => {
   const showHidePopOver2 = () => {
     setPopOver2(!popOver2);
   };
-
-  const [options, setOptions] = useState([
-    {
-      label: "FREQUENTLY USED",
-    },
-  ]);
 
   const onTemplateSelected = (template) => {
     setSelectedDiagnosises([...selectedDiagnosises, ...template.diagnosis]);
@@ -348,7 +352,7 @@ const DiagnosisPanel = () => {
     <>
       <div className="d-flex justify-content-between align-items-center border-bottom templatepopover">
         <Tabs
-          defaultActiveKey="1"
+          defaultActiveKey={TAB_ADD_TEMPLATE}
           items={ADD_EDIT_TEMPLATE_TABS}
           onChange={onTabChange}
           className="w-100"
@@ -360,7 +364,7 @@ const DiagnosisPanel = () => {
           <i className="icon-Cross"></i>
         </Button>
       </div>
-      {tabChange == 1 ? (
+      {tabChange == TAB_ADD_TEMPLATE ? (
         <div className="pop-header d-flex">
           <Input
             className="popinput inputheight41"
@@ -386,6 +390,7 @@ const DiagnosisPanel = () => {
             placeholder="Select Template"
             options={allTemplates.map((template) => {
               return {
+                key: template.tdt_id,
                 value: template.tdt_template_name,
                 label: (
                   <div
@@ -474,18 +479,36 @@ const DiagnosisPanel = () => {
             >
               <Col lg={7} md={7} sm={7} xs={7} className="border-end">
                 <div className="p-2 fontroboto fw-medium">
-                  {diagnosis.tds_name}
+                  <AutoComplete
+                    defaultValue={diagnosis.tds_name}
+                    options={
+                      isPartialDiagnosisSearch ? diagnosisSearchOptions : null
+                    }
+                    className="autocomplete-custom w-100 inputborder"
+                    onSearch={() => {
+                      onDiagnosisSearch(diagnosis.tds_name);
+                    }}
+                    onFocus={() => {
+                      setPartialDiagnosisSearch(true);
+                      onDiagnosisSearch(diagnosis.tds_name);
+                    }}
+                    bordered={false}
+                    defaultOpen={false}
+                  />
                 </div>
               </Col>
               <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                 <AutoComplete
-                  options={options}
+                  options={sinceOptions}
                   className="autocomplete-custom w-100 inputborder"
-                  // onSelect={onSelect}
-                  // onSearch={onSearch}
+                  onChange={onSinceSearch}
+                  onSelect={() => {
+                    setSinceOptions(null);
+                  }}
                   bordered={false}
+                  defaultOpen={false}
                   placeholder="Since"
-                ></AutoComplete>
+                />
               </Col>
               <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                 <Select
@@ -517,9 +540,13 @@ const DiagnosisPanel = () => {
           <Form.Group controlId="exampleForm.ControlInput1">
             <AutoComplete
               value={value}
-              options={options}
+              options={isPartialDiagnosisSearch ? null : diagnosisSearchOptions}
               className="autocomplete-custom w-100"
-              onSearch={onSearch}
+              onSearch={onDiagnosisSearch}
+              onFocus={() => {
+                console.log("diagnosis search...focused");
+                setPartialDiagnosisSearch(false);
+              }}
             >
               <Input
                 placeholder="Search by Patient’s Name, Phone number or Id"
@@ -533,7 +560,7 @@ const DiagnosisPanel = () => {
                         setSearchQuery(null);
                         setValue("");
                       }}
-                    ></i>
+                    />
                   )
                 }
               />
@@ -542,56 +569,56 @@ const DiagnosisPanel = () => {
         </Form>
       </div>
       {/* <div className="prescription-box-sm">
-                              <div className="d-flex align-items-center justify-content-between">
-                                  <div className="d-flex align-items-center">
-                                      <img className='me-2' src={Examinationsicon} alt="Examinations" />
-                                      <div className="title-common">Examinations</div>
-                                  </div>
-                                  <div className="d-flex align-items-center">
-                                      <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-template me-2"></i> <span>Templates</span></button></Link>
-                                      <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-save me-2"></i> <span>Save</span></button></Link>
-                                  </div>
-                              </div>
-                              <Form className="mt-2">
-                                  <Form.Group controlId="exampleForm.ControlInput1">
-                                      <Form.Control type="email" placeholder="Search by patient name" />
-                                  </Form.Group>
-                              </Form>
-                          </div>
-                          <div className="prescription-box-sm">
-                              <div className="d-flex align-items-center justify-content-between">
-                                  <div className="d-flex align-items-center">
-                                      <img className='me-2' src={Diagnosisicon} alt="Diagnosis" />
-                                      <div className="title-common">Diagnosis</div>
-                                  </div>
-                                  <div className="d-flex align-items-center">
-                                      <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-template me-2"></i> <span>Templates</span></button></Link>
-                                      <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-save me-2"></i> <span>Save</span></button></Link>
-                                  </div>
-                              </div>
-                              <Form className="mt-2">
-                                  <Form.Group controlId="exampleForm.ControlInput1">
-                                      <Form.Control type="email" placeholder="Search by patient name" />
-                                  </Form.Group>
-                              </Form>
-                          </div>
-                          <div className="prescription-box-sm">
-                              <div className="d-flex align-items-center justify-content-between">
-                                  <div className="d-flex align-items-center">
-                                      <img className='me-2' src={Medicationicon} alt="Medication" />
-                                      <div className="title-common">Medication (Rx)</div>
-                                  </div>
-                                  <div className="d-flex align-items-center">
-                                      <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-template me-2"></i> <span>Templates</span></button></Link>
-                                      <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-save me-2"></i> <span>Save</span></button></Link>
-                                  </div>
-                              </div>
-                              <Form className="mt-2">
-                                  <Form.Group controlId="exampleForm.ControlInput1">
-                                      <Form.Control type="email" placeholder="Search by patient name" />
-                                  </Form.Group>
-                              </Form>
-                          </div> */}
+            <div className="d-flex align-items-center justify-content-between">
+                <div className="d-flex align-items-center">
+                    <img className='me-2' src={Examinationsicon} alt="Examinations" />
+                    <div className="title-common">Examinations</div>
+                </div>
+                <div className="d-flex align-items-center">
+                    <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-template me-2"></i> <span>Templates</span></button></Link>
+                    <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-save me-2"></i> <span>Save</span></button></Link>
+                </div>
+            </div>
+            <Form className="mt-2">
+                <Form.Group controlId="exampleForm.ControlInput1">
+                    <Form.Control type="email" placeholder="Search by patient name" />
+                </Form.Group>
+            </Form>
+        </div>
+        <div className="prescription-box-sm">
+            <div className="d-flex align-items-center justify-content-between">
+                <div className="d-flex align-items-center">
+                    <img className='me-2' src={Diagnosisicon} alt="Diagnosis" />
+                    <div className="title-common">Diagnosis</div>
+                </div>
+                <div className="d-flex align-items-center">
+                    <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-template me-2"></i> <span>Templates</span></button></Link>
+                    <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-save me-2"></i> <span>Save</span></button></Link>
+                </div>
+            </div>
+            <Form className="mt-2">
+                <Form.Group controlId="exampleForm.ControlInput1">
+                    <Form.Control type="email" placeholder="Search by patient name" />
+                </Form.Group>
+            </Form>
+        </div>
+        <div className="prescription-box-sm">
+            <div className="d-flex align-items-center justify-content-between">
+                <div className="d-flex align-items-center">
+                    <img className='me-2' src={Medicationicon} alt="Medication" />
+                    <div className="title-common">Medication (Rx)</div>
+                </div>
+                <div className="d-flex align-items-center">
+                    <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-template me-2"></i> <span>Templates</span></button></Link>
+                    <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-save me-2"></i> <span>Save</span></button></Link>
+                </div>
+            </div>
+            <Form className="mt-2">
+                <Form.Group controlId="exampleForm.ControlInput1">
+                    <Form.Control type="email" placeholder="Search by patient name" />
+                </Form.Group>
+            </Form>
+        </div> */}
     </div>
   );
 };
