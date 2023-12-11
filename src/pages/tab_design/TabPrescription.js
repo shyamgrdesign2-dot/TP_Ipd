@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Form } from 'react-bootstrap';
-import { AutoComplete, Input, Button, Layout, Collapse, Drawer, Tabs, Select } from 'antd';
+import { AutoComplete, Input, Button, Layout, Collapse, Drawer, Tabs, Select, Card, Row, Col } from 'antd';
 
 import HeaderPrescription from "../../common/HeaderPrescription";
 import Symptomsicon from '../../assets/images/Symptoms.svg';
@@ -12,6 +12,7 @@ import notesWhite from '../../assets/images/notes-white.svg';
 import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
 import { Content } from "antd/es/layout/layout";
+import TabSearch from "../../components/tab_design/TabSearch";
 
 function TabPrescription() {
     // For Symptoms Autocomplete
@@ -21,6 +22,7 @@ function TabPrescription() {
     const character = 'Frequent Urination Muscle'
     const [open, setDrawer] = useState(false);
     const [openSave, setSaveDrawer] = useState(false);
+    const [openSearch, setSearchDrawer] = useState(false);
     const [tabChange, setTabChange] = useState('1');
 
     // Chips buttons
@@ -41,6 +43,13 @@ function TabPrescription() {
     };
     const saveonClose = () => {
         setSaveDrawer(false);
+    };
+    // Drawer Search
+    const SearchDrawer = () => {
+        setSearchDrawer(true);
+    };
+    const searchonClose = () => {
+        setSearchDrawer(false);
     };
 
     // Drawer save Tabs 
@@ -345,6 +354,7 @@ function TabPrescription() {
                                     <Form.Group controlId="exampleForm.ControlInput1">
                                         <AutoComplete
                                             className='autocomplete-custom w-100'
+                                            onClick={SearchDrawer}
                                         >
                                             <Input
                                                 placeholder="Search Symptoms"
@@ -353,16 +363,19 @@ function TabPrescription() {
                                         </AutoComplete>
                                     </Form.Group>
                                 </Form>
+                                <Drawer closeIcon={false} placement="right" onClose={searchonClose} open={openSearch} width={'100%'} className="searchdrawer-content">
+                                    <TabSearch />
+                                </Drawer>
                                 <div className="d-flex flex-wrap p-14-pb0">
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14">Chest Pain</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14">Chest Discomfort</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14">High Blood Pressure</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14">Vomiting</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14">Diarrhea</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14">Joint Pain</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14">Muscle Aches</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14">Sore Throat</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14">Loss of Appetite</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Chest Pain</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Chest Discomfort</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>High Blood Pressure</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Vomiting</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Diarrhea</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Joint Pain</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Muscle Aches</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Sore Throat</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Loss of Appetite</Button>
                                     {/* <Button type="text" className="btn btn-primary2 chips-custom chips-custom-break mb-14 me-14">Frequent Urination Muscle Achesa Urination Diarrhea</Button> */}
                                     {buttonWidth > 150 ? (
                                         <Button ref={buttonRef} type="text" className={`btn btn-primary2 chips-custom chips-custom-break mb-14 me-14`}>{character}</Button>

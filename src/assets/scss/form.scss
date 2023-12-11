@@ -175,4 +175,13 @@ body {
             height: 41px;
         }
     }
+    .textareaPlaceholder {
+       &::placeholder {
+            font-family: 'Roboto' !important;
+            font-weight: 400;
+            line-height: 26px;
+            letter-spacing: 0.1px;
+       }
+       resize: none;
+    }
 }
