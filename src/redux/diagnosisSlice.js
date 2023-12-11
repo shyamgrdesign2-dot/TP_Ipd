@@ -24,6 +24,34 @@ export const addTemplate = createAsyncThunk(
   }
 );
 
+export const updateTemplate = createAsyncThunk(
+  "diagnosis/updateTemplate",
+  async (template) => {
+    console.log("template: ", template);
+    const result = await ApiAppointments.updateTemplate(template);
+    console.log("results: ", result);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const deleteTemplate = createAsyncThunk(
+  "diagnosis/deleteTemplate",
+  async (templateId) => {
+    console.log("templateId: ", templateId);
+    const result = await ApiAppointments.deleteTemplate(templateId);
+    console.log("results: ", result);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 export const getDiagnosisTemplates = createAsyncThunk(
   "diagnosis/getDiagnosisTemplates",
   async () => {
@@ -98,11 +126,37 @@ const diagnosisSlice = createSlice({
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.error = null;
         console.log("addTemplate.fulfilled.action.payload: ", action.payload);
-        state.resultantTemplate = action.payload;
+        //TODO: add in the data set
+        state.templates.push(action.payload);
       })
       .addCase(addTemplate.rejected, (state, action) => {
         console.log("addTemplate.rejected.action.payload: ", action);
-        state.templates = null;
+        state.error = action.error.message;
+      })
+      .addCase(updateTemplate.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateTemplate.fulfilled, (state, action) => {
+        state.error = null;
+        console.log("updateTemplate.fulfilled.action.payload: ", action.payload);
+        //TODO: update in the data set
+        state.resultantTemplate = action.payload;
+      })
+      .addCase(updateTemplate.rejected, (state, action) => {
+        console.log("updateTemplate.rejected.action.payload: ", action);
+        state.error = action.error.message;
+      })
+      .addCase(deleteTemplate.fulfilled, (state, action) => {
+        state.error = null;
+        console.log("deleteTemplate.fulfilled.action.payload: ", action.payload);
+        //TODO: remove from the data set
+        // state.resultantTemplate = action.payload;
+        const result = state.templates.filter((item) => item.tdt_id !== action.payload.tdt_id);
+        console.log('result1: ', result);
+        state.templates = result;
+      })
+      .addCase(deleteTemplate.rejected, (state, action) => {
+        console.log("deleteTemplate.rejected.action.payload: ", action);
         state.error = action.error.message;
       });
   },

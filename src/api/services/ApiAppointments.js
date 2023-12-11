@@ -27,6 +27,14 @@ ApiAppointments.addTemplate = function (template) {
   return api.post(`/api/v1/diagnosis/addTemplate`, template);
 };
 
+ApiAppointments.deleteTemplate = function (templateId) {
+  return api.get(`/api/v1/diagnosis/deleteTemplate/${templateId}`);
+};
+
+ApiAppointments.updateTemplate = function (template) {
+  return api.post(`/api/v1/diagnosis/editTemplate`, template);
+};
+
 ApiAppointments.getProfile = function () {
   return api.get(`/api/v1/appointment/showProfile`);
 };

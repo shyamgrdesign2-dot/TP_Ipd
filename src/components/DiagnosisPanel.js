@@ -16,10 +16,18 @@ import Diagnosisicon from "../assets/images/Diagnosis.svg";
 import {
   addTemplate,
   clearDiagnosisSearch,
+  deleteTemplate,
   getDiagnosisTemplates,
   searchDiagnosis,
+  updateTemplate,
 } from "../redux/diagnosisSlice";
 import { EmptyPlank } from "./WalkInConsultation";
+
+const SEVERITY_LIST = [
+  { value: "severe", label: "Severe" },
+  { value: "moderate", label: "Moderate" },
+  { value: "mild", label: "Mild" },
+];
 
 const ADD_EDIT_TEMPLATE_TABS = [
   {
@@ -33,7 +41,9 @@ const ADD_EDIT_TEMPLATE_TABS = [
 ];
 
 const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
+  console.log('TemplatesList: ', templates);
   const [matchedTemplates, setMatchedTemplates] = useState(templates);
+  const dispatch = useDispatch();
 
   const onSearch = (e) => {
     const searchQuery = e.target.value;
@@ -51,9 +61,13 @@ const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
     }
   };
 
+  const onDeleteTemplateClicked = (template) => {
+    dispatch(deleteTemplate(template.tdt_id));
+  };
+
   return (
     <>
-      <div className="pop-header">
+      <div className="pop-header" key="diagnosis-template">
         <div className="align-items-center d-flex justify-content-between">
           <div className="title-common">Diagnosis Templates</div>
           <Button
@@ -63,7 +77,7 @@ const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
             <i className="icon-Cross" />
           </Button>
         </div>
-        <div className="mt-3">
+        <div className="mt-3" key="diagnosis-template-search">
           <Input
             className="popinput"
             onChange={onSearch}
@@ -74,28 +88,40 @@ const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
       <div className="pop-body">
         {matchedTemplates?.map((template) => {
           return (
-            <>
+            <div
+              className="align-items-center d-flex justify-content-between medicine-templates"
+              key={template.tds_id}
+            >
               <div
-                className="align-items-center d-flex justify-content-between medicine-templates"
-                key={template.tds_id}
+                className="round-box"
                 onClick={() => {
                   onTemplateSelected(template);
                 }}
               >
-                <div className="round-box">
-                  <i className="icon-template"></i>
-                </div>
-                <div className="text-truncate">
-                  <div className="title">{template.tdt_template_name}</div>
-                  <div className="text-truncate">
-                    Pan 40 Tablet, Telma20 Tablet, Pan 40 Tablet
-                  </div>
-                </div>
-                <Button className="btn btn-delete-prescription p-0 ms-3">
-                  <i className="icon-delete"></i>
-                </Button>
+                <i className="icon-template"></i>
               </div>
-            </>
+              <div
+                className="text-truncate"
+                onClick={() => {
+                  onTemplateSelected(template);
+                }}
+              >
+                <div className="title">{template.tdt_template_name}</div>
+                <div className="text-truncate">
+                  {template.diagnosis.map((diagnosis) => {
+                    return <> {diagnosis.tds_name},</>;
+                  })}
+                </div>
+              </div>
+              <Button
+                className="btn btn-delete-prescription p-0 ms-3"
+                onClick={() => {
+                  onDeleteTemplateClicked(template);
+                }}
+              >
+                <i className="icon-delete"></i>
+              </Button>
+            </div>
           );
         })}
       </div>
@@ -107,7 +133,7 @@ const DiagnosisPanel = () => {
   const { diagnosis, templates, resultantTemplate, loading, error } =
     useSelector((state) => state.diagnosis);
   const [searchQuery, setSearchQuery] = useState(null);
-  const [templateName, setTemplateName] = useState(null);
+  const [template, setTemplate] = useState(null);
   const [selectedDiagnosises, setSelectedDiagnosises] = useState([]);
   const [allTemplates, setAllTemplates] = useState([]);
   const [popOver1, setPopOver1] = useState(false);
@@ -122,12 +148,13 @@ const DiagnosisPanel = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log('resultantTemplate: ', resultantTemplate);
-    if(resultantTemplate) {
+    console.log("templates: ", templates);
+    if (resultantTemplate) {
       setAllTemplates([...allTemplates, resultantTemplate]);
     }
 
     if (templates) {
+      console.log("updating setAllTemplates: ");
       setAllTemplates(templates);
     }
   }, [templates, resultantTemplate]);
@@ -251,8 +278,9 @@ const DiagnosisPanel = () => {
     console.log("onSelectSearch", data);
   };
 
-  const onTemplateToEditSelected = (value) => {
-    console.log("onTemplateToEditSelected:", value);
+  const onTemplateToEditSelected = (template) => {
+    console.log("onTemplateToEditSelected template:", template);
+    setTemplate(template);
   };
 
   const showHidePopOver1 = () => {
@@ -269,23 +297,18 @@ const DiagnosisPanel = () => {
     },
   ]);
 
-  const severityList = [
-    { value: "severe", label: "Severe" },
-    { value: "moderate", label: "Moderate" },
-    { value: "mild", label: "Mild" },
-  ];
-
   const onTemplateSelected = (template) => {
     setSelectedDiagnosises([...selectedDiagnosises, ...template.diagnosis]);
   };
 
   const onTabChange = (key) => {
     setTabChange(key);
+    setTemplate(null);
     console.log(`onSelectChange ${key}`);
   };
 
   const removeDiagnosis = (diagnosis) => {
-    var index = selectedDiagnosises.indexOf(diagnosis);
+    const index = selectedDiagnosises.indexOf(diagnosis);
     console.log("index:", index);
     if (index > -1) {
       selectedDiagnosises.splice(index, 1);
@@ -293,22 +316,32 @@ const DiagnosisPanel = () => {
     setSelectedDiagnosises([...selectedDiagnosises]);
   };
 
-  const onAddTemplateClick = () => {
+  const onAddTemplateClicked = () => {
     if (!selectedDiagnosises || selectedDiagnosises.length === 0) {
       return;
     }
 
-    const template = {
-      tdt_template_name: templateName,
+    const templateToAdd = {
+      ...template,
       diagnosis: selectedDiagnosises,
     };
 
-    console.log("templateToAdd: ", template);
-    dispatch(addTemplate(template));
+    console.log("templateToAdd: ", templateToAdd);
+    dispatch(addTemplate(templateToAdd));
   };
 
-  const onEditTemplateClick = () => {
-    console.log("onEditTemplateClick: ", onAddTemplateClick);
+  const onUpdateTemplateClicked = () => {
+    if (!selectedDiagnosises || selectedDiagnosises.length === 0) {
+      return;
+    }
+
+    const templateToUpdate = {
+      ...template,
+      diagnosis: selectedDiagnosises,
+    };
+
+    console.log("onUpdateTemplateClicked: ", templateToUpdate);
+    dispatch(updateTemplate(templateToUpdate));
   };
 
   const saveContent = (
@@ -333,13 +366,13 @@ const DiagnosisPanel = () => {
             className="popinput inputheight41"
             placeholder="Template Name"
             onChange={(e) => {
-              setTemplateName(e.target.value);
+              setTemplate({ ...template, tdt_template_name: e.target.value });
             }}
           />
           <Button
             className="btn btn-primary3 btn-41 ms-3"
-            disabled={!templateName}
-            onClick={onAddTemplateClick}
+            disabled={!template?.tdt_template_name}
+            onClick={onAddTemplateClicked}
           >
             {" "}
             Save{" "}
@@ -351,13 +384,12 @@ const DiagnosisPanel = () => {
             showSearch
             className="autocomplete-custom w-100 popinput inputheight41"
             placeholder="Select Template"
-            // onChange={onTemplateToEditSelected}
-            // onSearch={onSelectSearch}
             options={allTemplates.map((template) => {
               return {
                 value: template.tdt_template_name,
                 label: (
                   <div
+                    key={template.tdt_id}
                     onClick={() => {
                       onTemplateToEditSelected(template);
                     }}
@@ -370,7 +402,8 @@ const DiagnosisPanel = () => {
           />
           <Button
             className="btn btn-primary3 btn-41 ms-3"
-            onClick={onEditTemplateClick}
+            onClick={onUpdateTemplateClicked}
+            disabled={!template?.tdt_template_name}
           >
             {" "}
             Update{" "}
@@ -460,7 +493,7 @@ const DiagnosisPanel = () => {
                   className="autocomplete-custom w-100 inputborder"
                   placeholder="Severity"
                   onSearch={onSelectSearch}
-                  options={severityList}
+                  options={SEVERITY_LIST}
                 />
               </Col>
               <Col lg={8} md={8} sm={7} xs={7} className="border-end">
