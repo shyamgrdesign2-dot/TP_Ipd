@@ -21,6 +21,22 @@ import {
 import { EmptyPlank } from "./WalkInConsultation";
 
 const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
+  const [matchedTemplates, setMatchedTemplates] = useState(templates);
+
+  const onSearch = (e) => {
+    const searchQuery = e.target.value;
+
+    if (searchQuery) {
+      let filteredTemplates = templates.filter((template) => {
+        return template.tdt_template_name.toLowerCase().includes(searchQuery.toLowerCase());
+      });
+
+      setMatchedTemplates(filteredTemplates);
+    } else {
+      setMatchedTemplates(templates);
+    }
+  };
+
   return (
     <>
       <div className="pop-header">
@@ -30,18 +46,19 @@ const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
             className="btn btn-delete-prescription p-0"
             onClick={showHidePopOver1}
           >
-            <i className="icon-Cross"></i>
+            <i className="icon-Cross" />
           </Button>
         </div>
         <div className="mt-3">
           <Input
             className="popinput"
-            prefix={<i className="icon-search me-2"></i>}
+            onChange={onSearch}
+            prefix={<i className="icon-search me-2" />}
           />
         </div>
       </div>
       <div className="pop-body">
-        {templates?.map((template) => {
+        {matchedTemplates?.map((template) => {
           return (
             <>
               <div
@@ -329,12 +346,16 @@ const DiagnosisPanel = () => {
               open={popOver1}
               onOpenChange={showHidePopOver1}
               content={() => {
-                return (
+                return dianosisTemplates ? (
                   <TemplatesList
                     showHidePopOver1={showHidePopOver1}
                     templates={dianosisTemplates}
                     onTemplateSelected={onTemplateSelected}
                   />
+                ) : (
+                  <div className="align-items-center w-100 justify-content-between p-2">
+                    No templtes were found
+                  </div>
                 );
               }}
               trigger="click"
