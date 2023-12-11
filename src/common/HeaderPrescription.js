@@ -5,19 +5,29 @@ import { Link, useNavigate } from 'react-router-dom';
 
 function HeaderPrescription() {
     const navigate = useNavigate();
+    const [open, setOpen] = useState(false);
 
     const items = [
         {
-            label: 'Print Rx',
-            key: 'printrx',
-        },
-        {
             label: 'Clear',
             key: 'clear',
-        }
+        },
     ];
 
-    const [open, setOpen] = useState(false);
+    const languageItems = [
+        {
+            label: '1st menu item',
+            key: '0',
+        },
+        {
+            label: '2nd menu item',
+            key: '1',
+        },
+        {
+            label: '3rd menu item',
+            key: '3',
+        },
+    ];
 
     const handleOpenChange = (newOpen) => {
         setOpen(newOpen);
@@ -92,20 +102,38 @@ function HeaderPrescription() {
                                 <i className='icon-template me-2'></i> <span className='text-decoration-underline'>Templates</span>
                             </Link>
                             <Link to='/' className='text-main align-items-center d-flex fw-medium text14 me-30'>
-                                <i className='icon-setting me-2'></i> <span className='text-decoration-underline'>Customize Your Pad</span>
+                                <i className='icon-save me-2'></i> <span className='text-decoration-underline'>Save</span>
                             </Link>
-                            <Button type="link" className='p-0 me-30'>
-                                <i className='icon-Preview text-main'></i>
-                            </Button>
-                            <Button type="link" className='p-0 me-30'>
-                                <i className='icon-Print text-main'></i>
-                            </Button>
-                            <Link to='/prescription_print_view'>
-                                <Button type='primary' className='btn btn-41 me-30'>
-                                    Finish Prescription
+                            <Link to='/' className='text-main align-items-center d-flex fw-medium text14 me-30'>
+                                <i className='icon-setting me-2'></i> <span className='text-decoration-underline'>Customize</span>
+                            </Link>
+
+                            <Dropdown
+                                menu={{
+                                    languageItems,
+                                }}
+                                trigger={['click']}
+                            >
+                                <a onClick={(e) => e.preventDefault()} className='text-main align-items-center d-flex fw-medium text14 me-30'>
+                                    <i className='icon-language me-2'></i>
+                                    <span className='text-decoration-underline'>English</span>
+                                    <i className='icon-right iconrotate270 ms-1'></i>
+                                </a>
+                            </Dropdown>
+
+                            <Link to='/prescription_print_view' onClick={() => window.print()}>
+                                <Button className='btn align-items-center d-flex btn-41 btn-input me-20'>
+                                    <i className='icon-Print me-2'></i>
+                                    Print
                                 </Button>
                             </Link>
-                            <Dropdown className='btn btn-outline btn-more me-2 p-0' menu={{ items, }} trigger={['click']}>
+                            <Link to='/prescription_print_view'>
+                                <Button className='btn align-items-center d-flex btn-41 btn-primary3 me-20'>
+                                    <i className='icon-exit me-2'></i>
+                                    End Visit
+                                </Button>
+                            </Link>
+                            <Dropdown className='btn btn-outline btn-more p-0' menu={{ items }} trigger={['click']}>
                                 <a onClick={(e) => e.preventDefault()}>
                                     <i className='icon-More'></i>
                                 </a>

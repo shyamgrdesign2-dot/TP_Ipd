@@ -18,3 +18,39 @@
         }
     }
 }
+body {
+    .ant-drawer {
+        .ant-drawer-header {
+            padding: 12px 20px;
+            .ant-drawer-close {
+                margin-inline-end: 10px;
+                font-size: 20px;
+                padding: 0;
+            }
+            .ant-drawer-title {
+                font-size: 24px;
+                font-weight: 600;
+                line-height: 36px;
+                letter-spacing: 0.1px;
+            }
+        }
+        .ant-drawer-body {
+            padding: 0;
+            background-color: $bgbody;
+            .tab-template-height {
+                height: calc(100vh - 120px);
+                overflow-y: auto;
+            }
+            .medicine-templates {
+                &:hover {
+                    background-color: $white;
+                }
+            }
+        }
+        .ant-drawer-content{
+            &.tamplatemodal-width{
+                width: 563px !important;
+            }
+        }
+    }
+}

@@ -328,7 +328,7 @@ function Prescription() {
                                         onSearch={onSearch}
                                     >
                                         <Input
-                                            placeholder="Search by Patient’s Name, Phone number or Id"
+                                            placeholder="Search Symptoms"
                                             prefix={<i className='icon-search'></i>}
                                             suffix={value.length > 0 && <i className='icon-Cross' onClick={() => setValue('')}></i>}
                                         />
