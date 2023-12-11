@@ -45,7 +45,7 @@ const ADD_EDIT_TEMPLATE_TABS = [
   },
 ];
 
-const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
+const TemplatesList = ({ showHidePopover, templates, onTemplateSelected }) => {
   console.log("TemplatesList: ", templates);
   const [matchedTemplates, setMatchedTemplates] = useState(templates);
   const dispatch = useDispatch();
@@ -77,7 +77,7 @@ const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
           <div className="title-common">Diagnosis Templates</div>
           <Button
             className="btn btn-delete-prescription p-0"
-            onClick={showHidePopOver1}
+            onClick={showHidePopover}
           >
             <i className="icon-Cross" />
           </Button>
@@ -101,6 +101,7 @@ const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
                 className="round-box"
                 onClick={() => {
                   onTemplateSelected(template);
+                  showHidePopover();
                 }}
               >
                 <i className="icon-template"></i>
@@ -109,6 +110,7 @@ const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
                 className="text-truncate"
                 onClick={() => {
                   onTemplateSelected(template);
+                  showHidePopover();
                 }}
               >
                 <div className="title">{template.tdt_template_name}</div>
@@ -126,6 +128,7 @@ const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
                 className="btn btn-delete-prescription p-0 ms-3"
                 onClick={() => {
                   onDeleteTemplateClicked(template);
+                  showHidePopover();
                 }}
               >
                 <i className="icon-delete"></i>
@@ -146,19 +149,17 @@ const DiagnosisPanel = () => {
   const [selectedDiagnosises, setSelectedDiagnosises] = useState([]);
   const [allTemplates, setAllTemplates] = useState([]);
   const [sinceOptions, setSinceOptions] = useState([]);
-  const [diagnosisSearchOptions, setDiagnosisSearchOptions] = useState([
-    {
-      label: "FREQUENTLY USED",
-    },
-  ]);
+  const [diagnosisSearchOptions, setDiagnosisSearchOptions] = useState(null);
   const [isPartialDiagnosisSearch, setPartialDiagnosisSearch] = useState(false);
 
   const [popOver1, setPopOver1] = useState(false);
   const [popOver2, setPopOver2] = useState(false);
   const [value, setValue] = useState("");
   const [isModalOpen, setIsModalOpen] = useState("");
-  const [tabChange, setTabChange] = useState("1");
+  const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
   const dispatch = useDispatch();
+
+  console.log("diagnosisSearchOptions: ", diagnosisSearchOptions);
 
   useEffect(() => {
     dispatch(getDiagnosisTemplates());
@@ -238,31 +239,35 @@ const DiagnosisPanel = () => {
       }
     }
 
-    data.push({
-      label: (
-        <>
-          <div
-            onClick={() => {
-              setIsModalOpen();
-              setValue(null);
-              onSelect({
-                tds_name: searchQuery, // Diagnosis Name
-                tds_id: 0, // Diagnosis id 0 when add new diagnosis
-                pms_default: 0,
-              });
-            }}
-          >
-            {searchQuery}
-          </div>
-        </>
-      ),
-    });
+    if(searchQuery) {
+      data.push({
+        label: (
+          <>
+            <div
+              onClick={() => {
+                setIsModalOpen();
+                setValue(null);
+                onSelect({
+                  tds_name: searchQuery, // Diagnosis Name
+                  tds_id: 0, // Diagnosis id 0 when add new diagnosis
+                  pms_default: 0,
+                });
+              }}
+            >
+              {searchQuery}
+            </div>
+          </>
+        ),
+      });
+    }
+    
     setDiagnosisSearchOptions(data);
   }, [diagnosis]);
 
   useEffect(() => {
     if (!searchQuery) {
-      addCustomDiagnosisQueryPlank();
+      // addCustomDiagnosisQueryPlank();
+      dispatch(clearDiagnosisSearch());
     } else if (searchQuery && searchQuery.length >= 3) {
       dispatch(searchDiagnosis(searchQuery));
     }
@@ -293,11 +298,11 @@ const DiagnosisPanel = () => {
     setTemplate(template);
   };
 
-  const showHidePopOver1 = () => {
+  const showHideTemplatesListPopover = () => {
     setPopOver1(!popOver1);
   };
 
-  const showHidePopOver2 = () => {
+  const showHideSaveTemplatePopOver = () => {
     setPopOver2(!popOver2);
   };
 
@@ -332,6 +337,7 @@ const DiagnosisPanel = () => {
 
     console.log("templateToAdd: ", templateToAdd);
     dispatch(addTemplate(templateToAdd));
+    showHideSaveTemplatePopOver();
   };
 
   const onUpdateTemplateClicked = () => {
@@ -359,7 +365,7 @@ const DiagnosisPanel = () => {
         />
         <Button
           className="btn btn-delete-prescription"
-          onClick={showHidePopOver2}
+          onClick={showHideSaveTemplatePopOver}
         >
           <i className="icon-Cross"></i>
         </Button>
@@ -433,11 +439,11 @@ const DiagnosisPanel = () => {
             </button>
             <Popover
               open={popOver1}
-              onOpenChange={showHidePopOver1}
+              onOpenChange={showHideTemplatesListPopover}
               content={() => {
                 return allTemplates ? (
                   <TemplatesList
-                    showHidePopOver1={showHidePopOver1}
+                    showHidePopover={showHideTemplatesListPopover}
                     templates={allTemplates}
                     onTemplateSelected={onTemplateSelected}
                   />
@@ -458,7 +464,7 @@ const DiagnosisPanel = () => {
             </Popover>
             <Popover
               open={popOver2}
-              onOpenChange={showHidePopOver2}
+              onOpenChange={showHideSaveTemplatePopOver}
               content={saveContent}
               trigger="click"
               overlayClassName="pop-450 pp-0"
@@ -544,7 +550,6 @@ const DiagnosisPanel = () => {
               className="autocomplete-custom w-100"
               onSearch={onDiagnosisSearch}
               onFocus={() => {
-                console.log("diagnosis search...focused");
                 setPartialDiagnosisSearch(false);
               }}
             >

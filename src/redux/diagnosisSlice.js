@@ -41,7 +41,6 @@ export const updateTemplate = createAsyncThunk(
 export const deleteTemplate = createAsyncThunk(
   "diagnosis/deleteTemplate",
   async (templateId) => {
-    console.log("templateId: ", templateId);
     const result = await ApiAppointments.deleteTemplate(templateId);
     console.log("results: ", result);
     if (result.status) {
@@ -57,7 +56,6 @@ export const getDiagnosisTemplates = createAsyncThunk(
   async () => {
     let result = {};
     result = await ApiAppointments.getDiagnosisTemplates();
-    console.log("results: ", result);
     if (result.status) {
       return result.data;
     } else {
