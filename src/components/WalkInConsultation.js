@@ -20,7 +20,7 @@ const AddPatientPlank = () => {
   );
 };
 
-const EmptyPlank = ({ emptyMessage }) => {
+export const EmptyPlank = ({ emptyMessage }) => {
   return <div>{emptyMessage}</div>;
 };
 
@@ -150,15 +150,10 @@ function WalkInConsultation() {
 
   const onSearch = (query) => {
     setValue(query);
-    let id = 0;
-    id = setTimeout(() => {
+    let id = setTimeout(() => {
       setSearchQuery(query);
       clearTimeout(id);
     }, 500);
-  };
-
-  const onSelect = (data) => {
-    console.log("onSelect", data);
   };
 
   return (
@@ -172,7 +167,6 @@ function WalkInConsultation() {
           style={{
             width: "100%",
           }}
-          onSelect={onSelect}
           onSearch={onSearch}
           defaultOpen
           autoFocus

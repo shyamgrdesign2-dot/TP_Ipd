@@ -8,10 +8,19 @@ ApiAppointments.getAll = function (params) {
 };
 
 ApiAppointments.search = function (query) {
-  console.log(query);
   return api.post(`/api/v1/appointment/searchPatient`, {
     search: query,
   });
+};
+
+ApiAppointments.searchDiagnosis = function (query) {
+  return api.post(`/api/v1/diagnosis/searchDiagnosis`, {
+    search: query,
+  });
+};
+
+ApiAppointments.getDiagnosisTemplates = function (query) {
+  return api.get(`/api/v1/diagnosis/listTemplate`);
 };
 
 ApiAppointments.getProfile = function () {
