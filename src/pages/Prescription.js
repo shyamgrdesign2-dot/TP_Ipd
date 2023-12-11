@@ -40,51 +40,6 @@ function Prescription() {
                 </Link>
               </div>
             </div>
-            {/* <div className="prescription-box-sm p-14">
-                            <div className="d-flex align-items-center justify-content-between">
-                                <div className="d-flex align-items-center">
-                                    <img src={MedicalHistoryicon} alt="Medical History" className='me-3' />
-                                    <div className="title-common">Medical History</div>
-                                </div>
-                                <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-Add me-1 fs-5"></i> <span>Add</span></button></Link>
-                            </div>
-                        </div>
-                        <div className="prescription-box-sm p-14">
-                            <div className="d-flex align-items-center justify-content-between">
-                                <div className="d-flex align-items-center">
-                                    <img src={Lab} alt="Lab Results" className='me-3' />
-                                    <div className="title-common">Lab Results</div>
-                                </div>
-                                <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-Add me-1 fs-5"></i> <span>Add</span></button></Link>
-                            </div>
-                        </div>
-                        <div className="prescription-box-sm p-14">
-                            <div className="d-flex align-items-center justify-content-between">
-                                <div className="d-flex align-items-center">
-                                    <img src={VaccinationIcon} alt="Vaccination" className='me-3' />
-                                    <div className="title-common">Vaccination</div>
-                                </div>
-                                <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-Add me-1 fs-5"></i> <span>Add</span></button></Link>
-                            </div>
-                        </div>
-                        <div className="prescription-box-sm p-14">
-                            <div className="d-flex align-items-center justify-content-between">
-                                <div className="d-flex align-items-center">
-                                    <img src={notesicon} alt="Notes" className='me-3' />
-                                    <div className="title-common">Notes</div>
-                                </div>
-                                <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-Add me-1 fs-5"></i> <span>Add</span></button></Link>
-                            </div>
-                        </div>
-                        <div className="prescription-box-sm p-14">
-                            <div className="d-flex align-items-center justify-content-between">
-                                <div className="d-flex align-items-center">
-                                    <img src={DocumentIcon} alt="vitals" className='me-3' />
-                                    <div className="title-common">Document (0)</div>
-                                </div>
-                                <Link to='/'><button className='btn d-flex align-items-center btn-text'> <i className="icon-Add me-1 fs-5"></i> <span>Add</span></button></Link>
-                            </div>
-                        </div> */}
             <div>
               <button className="btn btn-parameters mx-auto w-100">
                 <div className="align-items-center d-flex justify-content-center">

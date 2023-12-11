@@ -45,6 +45,12 @@ body {
         font-family: 'Poppins' !important;
         font-weight: 500;
     } 
+    .title-sami {
+        color: $maincolor !important;
+        font-family: 'Poppins' !important;
+        font-weight: 600;
+        font-size: 12px;
+    } 
     .titleprint {
         font-size: 20px;
         font-style: normal;
@@ -114,8 +120,17 @@ body {
     .w-48 {
         width: 48%;
     }
+    .me-20 {
+        margin-right: 20px;
+    }
     .me-30 {
         margin-right: 30px;
+    }
+    .me-14 {
+        margin-right: 14px;
+    }
+    .mb-14 {
+        margin-bottom: 14px;
     }
     .mt-14 {
         margin-top: 14px;
@@ -123,8 +138,14 @@ body {
     .mt-20 {
         margin-top: 20px;
     }
+    .mb-12 {
+        margin-bottom: 12px;
+    }
     .mb-20 {
         margin-bottom: 20px;
+    }
+    .p-10 {
+        padding: 10px;
     }
     .p-14 {
         padding: 14px;

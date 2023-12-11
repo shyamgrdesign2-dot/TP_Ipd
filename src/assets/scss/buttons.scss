@@ -239,6 +239,31 @@ body {
                 }
             }
         }
+        &.chips-custom {
+            height: 36px !important;
+            padding: 5px 10px !important;
+            // max-width: 160px;
+
+            span {
+                font-family: 'roboto' !important;
+                font-weight: 400 !important;
+                line-height: 26px !important;
+            }
+
+            &.chips-custom-break {
+                max-width: 160px;
+                span {
+                    font-size: 12px !important;
+                    line-height: 13px !important;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    text-align: left;
+                    white-space: initial;
+                }
+            }
+        }
     }
 
     .btn-group {
