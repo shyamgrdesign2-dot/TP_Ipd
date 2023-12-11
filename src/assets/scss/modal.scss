@@ -52,5 +52,38 @@ body {
                 width: 563px !important;
             }
         }
+        .ant-card{
+            &.search-modalCard {
+                border-radius: 0;
+                box-shadow: none;
+                .ant-card-body {
+                    padding: 0;
+                    height: 100%;
+                }
+                .modalCard-header {
+                    height: 74px;
+                    border-bottom: 1px solid $bordercolor;
+                    background-color: $white;
+                }
+                .modalcard-body {
+                    height: calc(100vh - 74px);
+                    overflow-y: auto;
+                    .selectedchip-header {
+                        height: 60px;
+                        background-color: $drawerHeaderColor;
+                        font-size: 24px;
+                        font-weight: 600;
+                        line-height: 36px;
+                        letter-spacing: 0.1px;
+                        color: $maincolor !important;
+                    }
+                }
+            }
+        } 
+        .searchdrawer-content {
+            .ant-card {
+                background: $bgbody !important;
+            }
+        }
     }
 }

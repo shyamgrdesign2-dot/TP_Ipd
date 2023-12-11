@@ -347,7 +347,7 @@ function AppointmentData() {
               onChange={onDateChanged}
             />
             <Segmented
-              className="ms-3"
+              className="ms-3 appointment-segment"
               defaultValue={1}
               options={segmentedList}
               onChange={segmentedChange}
