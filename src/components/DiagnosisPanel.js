@@ -14,11 +14,23 @@ import {
 
 import Diagnosisicon from "../assets/images/Diagnosis.svg";
 import {
+  addTemplate,
   clearDiagnosisSearch,
   getDiagnosisTemplates,
   searchDiagnosis,
 } from "../redux/diagnosisSlice";
 import { EmptyPlank } from "./WalkInConsultation";
+
+const ADD_EDIT_TEMPLATE_TABS = [
+  {
+    key: "1",
+    label: "New Template",
+  },
+  {
+    key: "2",
+    label: "Update Template",
+  },
+];
 
 const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
   const [matchedTemplates, setMatchedTemplates] = useState(templates);
@@ -28,7 +40,9 @@ const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
 
     if (searchQuery) {
       let filteredTemplates = templates.filter((template) => {
-        return template.tdt_template_name.toLowerCase().includes(searchQuery.toLowerCase());
+        return template.tdt_template_name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
       });
 
       setMatchedTemplates(filteredTemplates);
@@ -90,12 +104,12 @@ const TemplatesList = ({ showHidePopOver1, templates, onTemplateSelected }) => {
 };
 
 const DiagnosisPanel = () => {
-  const { diagnosis, templates, loading, error } = useSelector(
-    (state) => state.diagnosis
-  );
+  const { diagnosis, templates, resultantTemplate, loading, error } =
+    useSelector((state) => state.diagnosis);
   const [searchQuery, setSearchQuery] = useState(null);
-  const [selectedDianosises, setSelectedDianosises] = useState([]);
-  const [dianosisTemplates, setDianosisTemplates] = useState([]);
+  const [templateName, setTemplateName] = useState(null);
+  const [selectedDiagnosises, setSelectedDiagnosises] = useState([]);
+  const [allTemplates, setAllTemplates] = useState([]);
   const [popOver1, setPopOver1] = useState(false);
   const [popOver2, setPopOver2] = useState(false);
   const [value, setValue] = useState("");
@@ -108,10 +122,17 @@ const DiagnosisPanel = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    setDianosisTemplates(templates);
-  }, [templates]);
+    console.log('resultantTemplate: ', resultantTemplate);
+    if(resultantTemplate) {
+      setAllTemplates([...allTemplates, resultantTemplate]);
+    }
 
-  const addAddPatientPlank = () => {
+    if (templates) {
+      setAllTemplates(templates);
+    }
+  }, [templates, resultantTemplate]);
+
+  const addCustomDiagnosisQueryPlank = () => {
     const data = [];
     data.push({
       label: (
@@ -160,7 +181,18 @@ const DiagnosisPanel = () => {
     data.push({
       label: (
         <>
-          <div>{searchQuery}</div>
+          <div
+            onClick={() => {
+              setIsModalOpen();
+              onSelect({
+                tds_name: searchQuery, // Diagnosis Name
+                tds_id: 0, // Diagnosis id 0 when add new diagnosis
+                pms_default: 0,
+              });
+            }}
+          >
+            {searchQuery}
+          </div>
         </>
       ),
     });
@@ -169,8 +201,7 @@ const DiagnosisPanel = () => {
 
   useEffect(() => {
     if (!searchQuery) {
-      // dispatch(clearSearch());
-      addAddPatientPlank();
+      addCustomDiagnosisQueryPlank();
     } else if (searchQuery && searchQuery.length >= 3) {
       dispatch(searchDiagnosis(searchQuery));
     }
@@ -187,7 +218,7 @@ const DiagnosisPanel = () => {
   const onSelect = (diagnosis) => {
     console.log("diagnosis: ", diagnosis);
     setSearchQuery("");
-    setSelectedDianosises([...selectedDianosises, diagnosis]);
+    setSelectedDiagnosises([...selectedDiagnosises, diagnosis]);
     dispatch(clearDiagnosisSearch());
   };
 
@@ -219,8 +250,9 @@ const DiagnosisPanel = () => {
   const onSelectSearch = (data) => {
     console.log("onSelectSearch", data);
   };
-  const onSelectChange = (value) => {
-    console.log(`onSelectChange ${value}`);
+
+  const onTemplateToEditSelected = (value) => {
+    console.log("onTemplateToEditSelected:", value);
   };
 
   const showHidePopOver1 = () => {
@@ -243,36 +275,8 @@ const DiagnosisPanel = () => {
     { value: "mild", label: "Mild" },
   ];
 
-  const saveitems = [
-    /*  */
-    // {
-    //     key: '1',
-    //     label: 'New Template',
-    //     children: (
-    //         <>
-    //             <div className="pop-header">
-
-    //                 <Button className="btn btn-delete-prescription p-0"><i className="icon-Cross"></i></Button>
-
-    //                 <div className="mt-3">
-    //                     <Input className="popinput" prefix={<i className='icon-search me-2'></i>} />
-    //                 </div>
-    //             </div>
-    //         </>
-    //     ),
-    // },
-    {
-      key: "1",
-      label: "New Template",
-    },
-    {
-      key: "2",
-      label: "Update Template",
-    },
-  ];
-
   const onTemplateSelected = (template) => {
-    setSelectedDianosises([...selectedDianosises, ...template.diagnosis]);
+    setSelectedDiagnosises([...selectedDiagnosises, ...template.diagnosis]);
   };
 
   const onTabChange = (key) => {
@@ -281,12 +285,30 @@ const DiagnosisPanel = () => {
   };
 
   const removeDiagnosis = (diagnosis) => {
-    var index = selectedDianosises.indexOf(diagnosis);
+    var index = selectedDiagnosises.indexOf(diagnosis);
     console.log("index:", index);
     if (index > -1) {
-      selectedDianosises.splice(index, 1);
+      selectedDiagnosises.splice(index, 1);
     }
-    setSelectedDianosises([...selectedDianosises]);
+    setSelectedDiagnosises([...selectedDiagnosises]);
+  };
+
+  const onAddTemplateClick = () => {
+    if (!selectedDiagnosises || selectedDiagnosises.length === 0) {
+      return;
+    }
+
+    const template = {
+      tdt_template_name: templateName,
+      diagnosis: selectedDiagnosises,
+    };
+
+    console.log("templateToAdd: ", template);
+    dispatch(addTemplate(template));
+  };
+
+  const onEditTemplateClick = () => {
+    console.log("onEditTemplateClick: ", onAddTemplateClick);
   };
 
   const saveContent = (
@@ -294,7 +316,7 @@ const DiagnosisPanel = () => {
       <div className="d-flex justify-content-between align-items-center border-bottom templatepopover">
         <Tabs
           defaultActiveKey="1"
-          items={saveitems}
+          items={ADD_EDIT_TEMPLATE_TABS}
           onChange={onTabChange}
           className="w-100"
         />
@@ -310,8 +332,18 @@ const DiagnosisPanel = () => {
           <Input
             className="popinput inputheight41"
             placeholder="Template Name"
+            onChange={(e) => {
+              setTemplateName(e.target.value);
+            }}
           />
-          <Button className="btn btn-primary3 btn-41 ms-3"> Save </Button>
+          <Button
+            className="btn btn-primary3 btn-41 ms-3"
+            disabled={!templateName}
+            onClick={onAddTemplateClick}
+          >
+            {" "}
+            Save{" "}
+          </Button>
         </div>
       ) : (
         <div className="pop-header d-flex">
@@ -319,11 +351,30 @@ const DiagnosisPanel = () => {
             showSearch
             className="autocomplete-custom w-100 popinput inputheight41"
             placeholder="Select Template"
-            onChange={onSelectChange}
-            onSearch={onSelectSearch}
-            options={severityList}
+            // onChange={onTemplateToEditSelected}
+            // onSearch={onSelectSearch}
+            options={allTemplates.map((template) => {
+              return {
+                value: template.tdt_template_name,
+                label: (
+                  <div
+                    onClick={() => {
+                      onTemplateToEditSelected(template);
+                    }}
+                  >
+                    {template.tdt_template_name}
+                  </div>
+                ),
+              };
+            })}
           />
-          <Button className="btn btn-primary3 btn-41 ms-3"> Update </Button>
+          <Button
+            className="btn btn-primary3 btn-41 ms-3"
+            onClick={onEditTemplateClick}
+          >
+            {" "}
+            Update{" "}
+          </Button>
         </div>
       )}
     </>
@@ -346,10 +397,10 @@ const DiagnosisPanel = () => {
               open={popOver1}
               onOpenChange={showHidePopOver1}
               content={() => {
-                return dianosisTemplates ? (
+                return allTemplates ? (
                   <TemplatesList
                     showHidePopOver1={showHidePopOver1}
-                    templates={dianosisTemplates}
+                    templates={allTemplates}
                     onTemplateSelected={onTemplateSelected}
                   />
                 ) : (
@@ -382,7 +433,7 @@ const DiagnosisPanel = () => {
             </Popover>
           </div>
         </div>
-        {selectedDianosises?.map((diagnosis) => {
+        {selectedDiagnosises?.map((diagnosis) => {
           return (
             <Row
               gutter={[0]}
@@ -408,7 +459,6 @@ const DiagnosisPanel = () => {
                   showSearch
                   className="autocomplete-custom w-100 inputborder"
                   placeholder="Severity"
-                  onChange={onSelectChange}
                   onSearch={onSelectSearch}
                   options={severityList}
                 />

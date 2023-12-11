@@ -23,6 +23,10 @@ ApiAppointments.getDiagnosisTemplates = function (query) {
   return api.get(`/api/v1/diagnosis/listTemplate`);
 };
 
+ApiAppointments.addTemplate = function (template) {
+  return api.post(`/api/v1/diagnosis/addTemplate`, template);
+};
+
 ApiAppointments.getProfile = function () {
   return api.get(`/api/v1/appointment/showProfile`);
 };

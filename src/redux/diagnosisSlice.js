@@ -5,9 +5,24 @@ import ApiAppointments from "../api/services/ApiAppointments";
 const initialState = {
   diagnosis: [],
   templates: [],
+  resultantTemplate: null,
   loading: false,
   error: null,
 };
+
+export const addTemplate = createAsyncThunk(
+  "diagnosis/addTemplate",
+  async (template) => {
+    let result = {};
+    result = await ApiAppointments.addTemplate(template);
+    console.log("results: ", result);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
 
 export const getDiagnosisTemplates = createAsyncThunk(
   "diagnosis/getDiagnosisTemplates",
@@ -74,6 +89,19 @@ const diagnosisSlice = createSlice({
       })
       .addCase(getDiagnosisTemplates.rejected, (state, action) => {
         console.log("getDiagnosisTemplates.rejected.action.payload: ", action);
+        state.templates = null;
+        state.error = action.error.message;
+      })
+      .addCase(addTemplate.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addTemplate.fulfilled, (state, action) => {
+        state.error = null;
+        console.log("addTemplate.fulfilled.action.payload: ", action.payload);
+        state.resultantTemplate = action.payload;
+      })
+      .addCase(addTemplate.rejected, (state, action) => {
+        console.log("addTemplate.rejected.action.payload: ", action);
         state.templates = null;
         state.error = action.error.message;
       });
