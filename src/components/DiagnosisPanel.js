@@ -23,6 +23,7 @@ import {
   updateTemplate,
 } from "../redux/diagnosisSlice";
 import { EmptyPlank } from "./WalkInConsultation";
+import { generateTempId } from "../utils/utils";
 
 const TAB_ADD_TEMPLATE = 1;
 const TAB_UPDATE_TEMPLATE = 2;
@@ -143,14 +144,8 @@ const TemplatesList = ({ showHidePopover, templates, onTemplateSelected }) => {
 };
 
 const DiagnosisPanel = () => {
-  const {
-    diagnosis,
-    templates,
-    resultantTemplate,
-    frequentDiagnosis,
-    loading,
-    error,
-  } = useSelector((state) => state.diagnosis);
+  const { diagnosis, templates, frequentDiagnosis, loading, error } =
+    useSelector((state) => state.diagnosis);
   const [searchQuery, setSearchQuery] = useState(null);
   const [frequentlySearchedDiagnosis, setFrequentlySearchedDiagnosis] =
     useState(null);
@@ -176,20 +171,15 @@ const DiagnosisPanel = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log("templates: ", templates);
-    if (resultantTemplate) {
-      setAllTemplates([...allTemplates, resultantTemplate]);
-    }
-
     if (templates) {
-      console.log("updating setAllTemplates: ");
-      setAllTemplates(templates);
+      console.log("updating setAllTemplates: ", [...templates]);
+      setAllTemplates([...templates]);
     }
 
     if (frequentDiagnosis.length > 0) {
       setFrequentlySearchedDiagnosis(frequentDiagnosis);
     }
-  }, [templates, resultantTemplate, frequentDiagnosis]);
+  }, [templates, frequentDiagnosis]);
 
   const onSinceSearch = (searchQuery) => {
     if (searchQuery) {
@@ -206,31 +196,12 @@ const DiagnosisPanel = () => {
     }
   };
 
-  /*   useEffect(() => {
-    const temporaryStructure = [...selectedDiagnosises];
-
-    selectedDiagnosises.map((selectedDiagnosis) => {
-      return temporaryStructure.since: selectedDiagnosis.
-    });
-
-  }, [selectedDiagnosises]);
- */
   useEffect(() => {
     const data = [];
 
     console.log("diagnosis:", diagnosis);
     if (diagnosis) {
-      if (diagnosis.length === 0) {
-        data.push({
-          key: -1,
-          value: -1,
-          label: (
-            <>
-              <EmptyPlank emptyMessage={error} />
-            </>
-          ),
-        });
-      } else {
+      if (diagnosis.length > 0) {
         diagnosis.map((diagnosis) => {
           return data.push({
             key: diagnosis.tds_id,
@@ -251,17 +222,17 @@ const DiagnosisPanel = () => {
       }
     }
 
-    if (searchQuery && !isPartialDiagnosisSearch) {
+    if (searchQuery) {
       data.push({
         key: "search-query",
-        value: "search-query",
+        value: searchQuery,
         label: (
           <>
             <div
               onClick={() => {
                 onSelect({
                   tds_name: searchQuery, // Diagnosis Name
-                  tds_id: 0, // Diagnosis id 0 when add new diagnosis
+                  tds_id: generateTempId(), // Diagnosis id 0 when add new diagnosis
                   pms_default: 0,
                 });
               }}
@@ -277,12 +248,10 @@ const DiagnosisPanel = () => {
   }, [diagnosis]);
 
   useEffect(() => {
-    console.log("before calling API searchQuery: ", searchQuery);
     if (!searchQuery) {
       // dispatch(clearDiagnosisSearch());
       populateFrequentlyUsed();
     } else if (searchQuery && searchQuery.length >= 3) {
-      console.log("calling API");
       dispatch(searchDiagnosis(searchQuery));
     }
   }, [dispatch, searchQuery]);
@@ -324,13 +293,29 @@ const DiagnosisPanel = () => {
   };
 
   const onDiagnosisSearch = (query) => {
+    console.log("search query set....", query);
     if (!isPartialDiagnosisSearch) {
       setValue(query);
-    }
+    } /* else {
+      const index = selectedDiagnosises.indexOf(partialDiagnosis);
+      const updatedObject = { ...partialDiagnosis, tds_name: query };
+      console.log("index:", index);
+      console.log("partial.tds_name:", partialDiagnosis.tds_name);
+      if (index > -1) {
+        selectedDiagnosises.splice(index, 1, updatedObject);
+      }
 
+      console.log(
+        "onDiagnosisSearch selectedDiagnosises: ",
+        selectedDiagnosises
+      );
+      setSelectedDiagnosises(selectedDiagnosises);
+      setPartialDiagnosis(updatedObject);
+    }
+ */
     let id = setTimeout(() => {
       setSearchQuery(query);
-      console.log("search query set....", query);
+
       clearTimeout(id);
     }, 500);
   };
@@ -346,11 +331,11 @@ const DiagnosisPanel = () => {
       console.log("index:", index);
       if (index > -1) {
         selectedDiagnosises.splice(index, 1, diagnosis);
+        console.log("selectedDiagnosises: ", selectedDiagnosises);
+
+        setSelectedDiagnosises(selectedDiagnosises);
+        setPartialDiagnosis(diagnosis);
       }
-
-      console.log("selectedDiagnosises: ", selectedDiagnosises);
-
-      setSelectedDiagnosises(selectedDiagnosises);
     } else {
       setSelectedDiagnosises([...selectedDiagnosises, diagnosis]);
     }
@@ -397,14 +382,26 @@ const DiagnosisPanel = () => {
       return;
     }
 
+    const idFixedDiagnosis = selectedDiagnosises.map((diagnosis) => {
+      if (diagnosis?.tds_id.toString().includes("temp-id-")) {
+        return {
+          ...diagnosis,
+          tds_id: 0,
+        };
+      } else {
+        return diagnosis;
+      }
+    });
+
+    console.log("idFixedDiagnosis: ", idFixedDiagnosis);
+
     const templateToAdd = {
       ...template,
-      diagnosis: selectedDiagnosises,
+      diagnosis: idFixedDiagnosis,
     };
 
     console.log("templateToAdd: ", templateToAdd);
     dispatch(addTemplate(templateToAdd));
-    showHideSaveTemplatePopOver();
   };
 
   const onUpdateTemplateClicked = () => {
@@ -412,9 +409,22 @@ const DiagnosisPanel = () => {
       return;
     }
 
+    const idFixedDiagnosis = selectedDiagnosises.map((diagnosis) => {
+      if (diagnosis?.tds_id.toString().includes("temp-id-")) {
+        return {
+          ...diagnosis,
+          tds_id: 0,
+        };
+      } else {
+        return diagnosis;
+      }
+    });
+
+    console.log("idFixedDiagnosis: ", idFixedDiagnosis);
+
     const templateToUpdate = {
       ...template,
-      diagnosis: selectedDiagnosises,
+      diagnosis: idFixedDiagnosis,
     };
 
     console.log("onUpdateTemplateClicked: ", templateToUpdate);
@@ -437,11 +447,11 @@ const DiagnosisPanel = () => {
     const finalData = {};
     selectedDiagnosises.map((diagnosis) => {
       const data = otherData[diagnosis.tds_id];
-      console.log('data ', data);
+      console.log("data ", data);
       if (data) {
         const updatedData = {
           ...data,
-          tds_name: diagnosis.tds_name
+          tds_name: diagnosis.tds_name,
         };
         finalData[diagnosis.tds_id] = updatedData;
         return updatedData;
@@ -449,7 +459,7 @@ const DiagnosisPanel = () => {
         const newData = {
           tds_name: diagnosis.tds_name,
           tds_id: diagnosis.tds_id,
-        }
+        };
         finalData[diagnosis.tds_id] = newData;
         return newData;
       }
@@ -570,13 +580,13 @@ const DiagnosisPanel = () => {
               {" "}
               <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span>
             </button>
-            <button
+            {/* <button
               className="btn d-flex align-items-center btn-text"
               onClick={finalizeData}
             >
               {" "}
-              <i className="icon-reload me-2"></i> <span>Finalize </span>
-            </button>
+              <i className="icon-reload me-2"></i> <span>Test DataStructure </span>
+            </button> */}
             <Popover
               open={popOver1}
               onOpenChange={showHideTemplatesListPopover}
@@ -693,6 +703,12 @@ const DiagnosisPanel = () => {
             </Row>
           );
         })}
+
+        {/*         {allTemplates?.map((template) => {
+          return (
+            <div>{template.tdt_template_name}</div>
+          );
+        })} */}
 
         <Form className="p-14">
           <Form.Group controlId="exampleForm.ControlInput1">

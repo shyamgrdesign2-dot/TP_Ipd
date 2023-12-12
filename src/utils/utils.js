@@ -113,3 +113,7 @@ export function calculateBirthdateFromAge(age) {
 
   return birthDate;
 };
+
+export const generateTempId = () => {
+  return "temp-id-" + Math.floor(Math.random()*90000) + 10000;
+}

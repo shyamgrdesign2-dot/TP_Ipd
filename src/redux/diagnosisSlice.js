@@ -6,7 +6,6 @@ const initialState = {
   diagnosis: [],
   frequentDiagnosis: [],
   templates: [],
-  resultantTemplate: null,
   loading: false,
   error: null,
 };
@@ -143,7 +142,6 @@ const diagnosisSlice = createSlice({
         state.error = null;
         state.loading = false;
         console.log("addTemplate.fulfilled.action.payload: ", action.payload);
-        //TODO: add in the data set
         state.templates.push(action.payload);
       })
       .addCase(addTemplate.rejected, (state, action) => {
@@ -158,7 +156,7 @@ const diagnosisSlice = createSlice({
         state.error = null;
         console.log("updateTemplate.fulfilled.action.payload: ", action.payload);
         state.loading = false;
-        state.resultantTemplate = action.payload;
+        state.templates.push(action.payload);
       })
       .addCase(updateTemplate.rejected, (state, action) => {
         console.log("updateTemplate.rejected.action.payload: ", action);
@@ -168,10 +166,8 @@ const diagnosisSlice = createSlice({
       .addCase(deleteTemplate.fulfilled, (state, action) => {
         state.error = null;
         console.log("deleteTemplate.fulfilled.action.payload: ", action.payload);
-        //TODO: remove from the data set
         const result = state.templates.filter((item) => item.tdt_id !== action.payload.tdt_id);
-        console.log('result1: ', result);
-        state.templates = result;
+        state.templates = [...result];
       })
       .addCase(deleteTemplate.rejected, (state, action) => {
         console.log("deleteTemplate.rejected.action.payload: ", action);
