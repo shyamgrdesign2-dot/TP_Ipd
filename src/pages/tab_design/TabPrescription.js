@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Form } from 'react-bootstrap';
-import { AutoComplete, Input, Button, Layout, Collapse, Drawer, Tabs, Select, Card, Row, Col } from 'antd';
+import { AutoComplete, Input, Button, Layout, Collapse, Drawer, Tabs, Select, Card, Row, Col, DatePicker } from 'antd';
 
 import HeaderPrescription from "../../common/HeaderPrescription";
 import Symptomsicon from '../../assets/images/Symptoms.svg';
@@ -13,6 +13,8 @@ import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
 import { Content } from "antd/es/layout/layout";
 import TabSearch from "../../components/tab_design/TabSearch";
+import TabSearchDetails from "../../components/tab_design/TabSearchDetails";
+import TabSelectedAdvise from "../../components/tab_design/TabSelectedAdvise";
 
 function TabPrescription() {
     // For Symptoms Autocomplete
@@ -23,6 +25,7 @@ function TabPrescription() {
     const [open, setDrawer] = useState(false);
     const [openSave, setSaveDrawer] = useState(false);
     const [openSearch, setSearchDrawer] = useState(false);
+    const [openClosableChips, setClosableChipsDrawer] = useState(false);
     const [tabChange, setTabChange] = useState('1');
 
     // Chips buttons
@@ -50,6 +53,13 @@ function TabPrescription() {
     };
     const searchonClose = () => {
         setSearchDrawer(false);
+    };
+    // Closable Chips Search
+    const ClosableChipsDrawer = () => {
+        setClosableChipsDrawer(true);
+    };
+    const ClosableChipsonClose = () => {
+        setClosableChipsDrawer(false);
     };
 
     // Drawer save Tabs 
@@ -236,8 +246,9 @@ function TabPrescription() {
                             </div>
                         </>
                     </Sider>
-                    <div className="p-20 w-100">
+                    <div className="p-20 w-100 overflow-y-auto" style={{height : 'calc(100vh - 60px)'}}>
                         <Content>
+                            {/* Symptoms Box */}
                             <div className="prescription-box-sm p-20px">
                                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                                     <div className="d-flex align-items-center">
@@ -340,7 +351,7 @@ function TabPrescription() {
                                 </div>
                                 <div className="d-flex flex-wrap p-14-pb0">
                                     <div style={{ width: character.length > 12 && character.length < 24 ? `${character.length * 10.5}px` : character.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
-                                        <div className="text-truncate p-2">
+                                        <div className="text-truncate p-2" onClick={ClosableChipsDrawer}>
                                             <div className="text-truncate">{character}
                                                 <div className="text-truncate small">Pan 40 Tablet, Telma20 Tablet, Pan 40 Tablet</div>
                                             </div>
@@ -349,6 +360,24 @@ function TabPrescription() {
                                             <i className="icon-Cross"></i>
                                         </Button>
                                     </div>
+                                    <Drawer closeIcon={false} placement="right" onClose={ClosableChipsonClose} open={openClosableChips} className="tamplatemodal-width" width="auto">
+                                        <>
+                                            <Card bordered={false} className="search-modalCard">
+                                                <div className='modalCard-header align-items-center justify-content-between d-flex'>
+                                                    <div className='align-items-center d-flex'>
+                                                        <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100'>
+                                                            <i className='icon-Cross fs-3'></i>
+                                                        </Button>
+                                                        <div className="modal-title">Chest Pain</div>
+                                                    </div>
+                                                    <Button disabled className='btn btn-primary3 btn-41 px-4 me-20'>
+                                                        Done
+                                                    </Button>
+                                                </div>
+                                            </Card>
+                                            <TabSearchDetails />
+                                        </>
+                                    </Drawer>
                                 </div>
                                 <Form className="p-14 py-0">
                                     <Form.Group controlId="exampleForm.ControlInput1">
@@ -376,13 +405,96 @@ function TabPrescription() {
                                     <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Muscle Aches</Button>
                                     <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Sore Throat</Button>
                                     <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Loss of Appetite</Button>
-                                    {/* <Button type="text" className="btn btn-primary2 chips-custom chips-custom-break mb-14 me-14">Frequent Urination Muscle Achesa Urination Diarrhea</Button> */}
                                     {buttonWidth > 150 ? (
                                         <Button ref={buttonRef} type="text" className={`btn btn-primary2 chips-custom chips-custom-break mb-14 me-14`}>{character}</Button>
                                     ) : (
                                         <Button ref={buttonRef} type="text" className={`btn btn-primary2 chips-custom mb-14 me-14`}>{character}</Button>
                                     )}
+                                </div>
+                            </div>
 
+                            {/* Advice Box */}
+                            <div className="prescription-box-sm p-20px">
+                                <div className="d-flex align-items-center justify-content-between p-14-pb0">
+                                    <div className="d-flex align-items-center">
+                                        <img className='me-2' src={Symptomsicon} alt="Symptoms" />
+                                        <div className="title-common">Advise</div>
+                                    </div>
+
+                                    <div className="d-flex align-items-center">
+                                        <button className='btn d-flex align-items-center btn-text' onClick={templateDrawer}> <i className="icon-template me-2"></i> <span>Templates</span></button>
+                                        <button className='btn d-flex align-items-center btn-text' onClick={saveDrawer}> <i className="icon-save me-2"></i> <span>Save</span></button>
+                                    </div>
+                                </div>
+                                <div className="p-14-pb0">
+                                    <div className="mb-3 overflow-y-auto" style={{ height: "150px" }}>
+                                        <TabSelectedAdvise />
+                                    </div>
+                                    <Form className="py-0">
+                                        <Form.Group controlId="exampleForm.ControlInput1">
+                                            <AutoComplete
+                                                className='autocomplete-custom w-100'
+                                            >
+                                                <Input
+                                                    placeholder="Search Symptoms"
+                                                    prefix={<i className='icon-search'></i>}
+                                                />
+                                            </AutoComplete>
+                                        </Form.Group>
+                                    </Form>
+                                </div>
+                                <div className="d-flex flex-wrap p-14-pb0">
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Chest Pain</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Chest Discomfort</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>High Blood Pressure</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Vomiting</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Diarrhea</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Joint Pain</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Muscle Aches</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Sore Throat</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Loss of Appetite</Button>
+                                    {buttonWidth > 150 ? (
+                                        <Button ref={buttonRef} type="text" className={`btn btn-primary2 chips-custom chips-custom-break mb-14 me-14`}>{character}</Button>
+                                    ) : (
+                                        <Button ref={buttonRef} type="text" className={`btn btn-primary2 chips-custom mb-14 me-14`}>{character}</Button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Follow-up Box */}
+                            <div className="prescription-box-sm p-20px">
+                                <div className="p-14-pb0">
+                                    <Row gutter={30}>
+                                        <Col md={7}>
+                                            <div className="d-flex align-items-center mb-14">
+                                                <img className='me-2' src={Symptomsicon} alt="Symptoms" />
+                                                <div className="title-common">Follow-up</div>
+                                            </div>
+                                            <DatePicker className="w-100" onChange={onChange} />
+                                            {/* Open Below code after date selection  */}
+                                            {/* <div className="title fontroboto mt-2">
+                                                Saturday, 16th October 2023
+                                            </div> */}
+                                            <div className="d-flex flex-wrap mt-14">
+                                                <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14">2 Days</Button>
+                                                <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14">5 Days</Button>
+                                                <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14">1 Week</Button>
+                                            </div>
+                                        </Col>
+                                        <Col md={17}>
+                                            <div className="d-flex align-items-center mb-14">
+                                                <img className='me-2' src={Symptomsicon} alt="Symptoms" />
+                                                <div className="title-common">Additional Notes</div>
+                                            </div>
+                                            <div className="textarea-save">
+                                                <Input.TextArea placeholder="Enter any specific note here" className="textareaPlaceholder fontroboto text-main" rows={3} />
+                                                <Button className="d-flex align-items-center textarea-save-btn">
+                                                    <i className="icon-check"></i>
+                                                    <a className="text-decoration-underline">Save</a>
+                                                </Button>
+                                            </div>
+                                        </Col>
+                                    </Row>
                                 </div>
                             </div>
                         </Content>

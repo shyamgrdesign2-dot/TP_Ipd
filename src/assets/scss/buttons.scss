@@ -4,13 +4,16 @@ body {
         font-size: 14px;
         font-style: normal;
         font-weight: 600;
-
         &.btn-icon {
             border-radius: 10px;
             width: 24px;
             height: 24px;
         }
-
+        &.focus-none {
+            &:focus{
+                background-color: transparent !important;
+            }
+        }
         &.btn-primary {
             border-radius: 10px;
             background-color: $theme;
