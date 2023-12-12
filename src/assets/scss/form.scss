@@ -129,6 +129,9 @@ body {
         letter-spacing: 0.1px;
     }
     .ant-input {
+        &:hover {
+            border-color: $theme;
+        }
         &.notesinput{
             height: 38px;
             border-radius: 10px;
@@ -183,5 +186,32 @@ body {
             letter-spacing: 0.1px;
        }
        resize: none;
+    }
+    .ant-checkbox-wrapper {
+        .ant-checkbox-checked {
+            .ant-checkbox-inner {
+                background-color: $theme !important;   
+                border-color: $theme;
+            }
+        }
+        &:hover {
+            .ant-checkbox-inner {
+                border-color: $theme !important;
+            }
+        }
+        
+    }
+    .textarea-save {
+        position: relative;
+        .textarea-save-btn {
+            position: absolute;
+            bottom: 1px;
+            right: 10px;
+            padding: 0;
+            border: none;
+            &:focus, &:focus-visible, &:active, &:hover {
+                color: $theme !important;
+            }
+        }
     }
 }

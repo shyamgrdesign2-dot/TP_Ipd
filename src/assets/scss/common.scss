@@ -2,7 +2,7 @@
     scrollbar-width: thin;
 }
 *::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
 }
 *::-webkit-scrollbar-track {
     background: #eee;
@@ -263,5 +263,11 @@ body {
             justify-content: center;
             margin-right: 15px;
         }
+    }
+    .text-truncate-twolines {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 }
