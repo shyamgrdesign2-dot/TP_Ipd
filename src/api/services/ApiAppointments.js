@@ -19,6 +19,12 @@ ApiAppointments.searchDiagnosis = function (query) {
   });
 };
 
+ApiAppointments.getFrequentlySearchedDiagnosis = function () {
+  return api.post(`/api/v1/diagnosis/searchDiagnosis`, {
+    search: "ches",
+  });
+};
+
 ApiAppointments.getDiagnosisTemplates = function (query) {
   return api.get(`/api/v1/diagnosis/listTemplate`);
 };

@@ -18,6 +18,7 @@ import {
   clearDiagnosisSearch,
   deleteTemplate,
   getDiagnosisTemplates,
+  getFrequentlySearchedDiagnosis,
   searchDiagnosis,
   updateTemplate,
 } from "../redux/diagnosisSlice";
@@ -142,9 +143,10 @@ const TemplatesList = ({ showHidePopover, templates, onTemplateSelected }) => {
 };
 
 const DiagnosisPanel = () => {
-  const { diagnosis, templates, resultantTemplate, loading, error } =
+  const { diagnosis, templates, resultantTemplate, frequentDiagnosis, loading, error } =
     useSelector((state) => state.diagnosis);
   const [searchQuery, setSearchQuery] = useState(null);
+  const [frequentlySearchedDiagnosis, setFrequentlySearchedDiagnosis] = useState(null);
   const [template, setTemplate] = useState(null);
   const [selectedDiagnosises, setSelectedDiagnosises] = useState([]);
   const [allTemplates, setAllTemplates] = useState([]);
@@ -163,6 +165,7 @@ const DiagnosisPanel = () => {
 
   useEffect(() => {
     dispatch(getDiagnosisTemplates());
+    dispatch(getFrequentlySearchedDiagnosis());
   }, [dispatch]);
 
   useEffect(() => {
@@ -175,7 +178,11 @@ const DiagnosisPanel = () => {
       console.log("updating setAllTemplates: ");
       setAllTemplates(templates);
     }
-  }, [templates, resultantTemplate]);
+
+    if(frequentDiagnosis.length > 0) {
+      setFrequentlySearchedDiagnosis(frequentDiagnosis);
+    }
+  }, [templates, resultantTemplate, frequentDiagnosis]);
 
   const onSinceSearch = (searchQuery) => {
     if (searchQuery) {
@@ -192,20 +199,9 @@ const DiagnosisPanel = () => {
     }
   };
 
-  const addCustomDiagnosisQueryPlank = () => {
-    const data = [];
-    data.push({
-      label: (
-        <>
-          <div>{searchQuery}</div>
-        </>
-      ),
-    });
-    setDiagnosisSearchOptions(data);
-  };
-
   useEffect(() => {
     const data = [];
+
     console.log("diagnosis:", diagnosis);
     if (diagnosis) {
       if (diagnosis.length === 0) {
@@ -226,7 +222,6 @@ const DiagnosisPanel = () => {
                 <div
                   onClick={() => {
                     setIsModalOpen();
-                    setValue(null);
                     onSelect(diagnosis);
                   }}
                 >
@@ -246,7 +241,6 @@ const DiagnosisPanel = () => {
             <div
               onClick={() => {
                 setIsModalOpen();
-                setValue(null);
                 onSelect({
                   tds_name: searchQuery, // Diagnosis Name
                   tds_id: 0, // Diagnosis id 0 when add new diagnosis
@@ -262,16 +256,49 @@ const DiagnosisPanel = () => {
     }
     
     setDiagnosisSearchOptions(data);
-  }, [diagnosis]);
+  }, [diagnosis, frequentlySearchedDiagnosis]);
 
   useEffect(() => {
     if (!searchQuery) {
-      // addCustomDiagnosisQueryPlank();
-      dispatch(clearDiagnosisSearch());
+      // dispatch(clearDiagnosisSearch());
+      populateFrequentlyUsed();
     } else if (searchQuery && searchQuery.length >= 3) {
       dispatch(searchDiagnosis(searchQuery));
     }
   }, [dispatch, searchQuery]);
+
+  const populateFrequentlyUsed = () => {
+    const data = [];
+    data.push({
+      label: (
+        <>
+          <div>
+            FREQUENTLY USED
+          </div>
+        </>
+      ),
+    });
+
+    frequentDiagnosis.map((diagnosis) => {
+      return data.push({
+        value: diagnosis.tds_name,
+        label: (
+          <>
+            <div
+              onClick={() => {
+                setIsModalOpen();
+                onSelect(diagnosis);
+              }}
+            >
+              {diagnosis.tds_name}
+            </div>
+          </>
+        ),
+      });
+    });
+
+    setDiagnosisSearchOptions(data);
+  };
 
   const onDiagnosisSearch = (query) => {
     console.log("calling....");
@@ -284,9 +311,10 @@ const DiagnosisPanel = () => {
 
   const onSelect = (diagnosis) => {
     console.log("diagnosis: ", diagnosis);
-    setSearchQuery("");
+    setSearchQuery(null);
+    setValue(null);
     setSelectedDiagnosises([...selectedDiagnosises, diagnosis]);
-    dispatch(clearDiagnosisSearch());
+    // dispatch(clearDiagnosisSearch());
   };
 
   const onSelectSearch = (data) => {
@@ -551,6 +579,7 @@ const DiagnosisPanel = () => {
               onSearch={onDiagnosisSearch}
               onFocus={() => {
                 setPartialDiagnosisSearch(false);
+                populateFrequentlyUsed();
               }}
             >
               <Input

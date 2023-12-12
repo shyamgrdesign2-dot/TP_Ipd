@@ -4,6 +4,7 @@ import ApiAppointments from "../api/services/ApiAppointments";
 
 const initialState = {
   diagnosis: [],
+  frequentDiagnosis: [],
   templates: [],
   resultantTemplate: null,
   loading: false,
@@ -81,6 +82,19 @@ export const clearDiagnosisSearch = createAsyncThunk("diagnosis/clearDiagnosisSe
   return null;
 });
 
+export const getFrequentlySearchedDiagnosis = createAsyncThunk(
+  "diagnosis/getFrequentlySearchedDiagnosis",
+  async () => {
+    let result = {};
+    result = await ApiAppointments.getFrequentlySearchedDiagnosis();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 const diagnosisSlice = createSlice({
   name: "diagnosis",
   initialState,
@@ -148,13 +162,21 @@ const diagnosisSlice = createSlice({
         state.error = null;
         console.log("deleteTemplate.fulfilled.action.payload: ", action.payload);
         //TODO: remove from the data set
-        // state.resultantTemplate = action.payload;
         const result = state.templates.filter((item) => item.tdt_id !== action.payload.tdt_id);
         console.log('result1: ', result);
         state.templates = result;
       })
       .addCase(deleteTemplate.rejected, (state, action) => {
         console.log("deleteTemplate.rejected.action.payload: ", action);
+        state.error = action.error.message;
+      })
+      .addCase(getFrequentlySearchedDiagnosis.fulfilled, (state, action) => {
+        state.error = null;
+        console.log("getFrequentlySearchedDiagnosis.fulfilled.action.payload: ", action.payload);
+        state.frequentDiagnosis = action.payload;
+      })
+      .addCase(getFrequentlySearchedDiagnosis.rejected, (state, action) => {
+        console.log("getFrequentlySearchedDiagnosis.rejected.action.payload: ", action);
         state.error = action.error.message;
       });
   },
