@@ -119,7 +119,7 @@ const TemplatesList = ({ showHidePopover, templates, onTemplateSelected }) => {
                   {template.diagnosis.map((diagnosis) => {
                     return (
                       <>
-                        <div key={diagnosis.tds_id}>{diagnosis.tds_name} {" "}</div>
+                        <div key={diagnosis.tds_id}>{diagnosis.tds_name} </div>
                       </>
                     );
                   })}
@@ -143,18 +143,25 @@ const TemplatesList = ({ showHidePopover, templates, onTemplateSelected }) => {
 };
 
 const DiagnosisPanel = () => {
-  const { diagnosis, templates, resultantTemplate, frequentDiagnosis, loading, error } =
-    useSelector((state) => state.diagnosis);
+  const {
+    diagnosis,
+    templates,
+    resultantTemplate,
+    frequentDiagnosis,
+    loading,
+    error,
+  } = useSelector((state) => state.diagnosis);
   const [searchQuery, setSearchQuery] = useState(null);
-  const [frequentlySearchedDiagnosis, setFrequentlySearchedDiagnosis] = useState(null);
+  const [frequentlySearchedDiagnosis, setFrequentlySearchedDiagnosis] =
+    useState(null);
   const [template, setTemplate] = useState(null);
   const [selectedDiagnosises, setSelectedDiagnosises] = useState([]);
+  const [otherData, setOtherData] = useState({});
   const [allTemplates, setAllTemplates] = useState([]);
   const [sinceOptions, setSinceOptions] = useState([]);
   const [diagnosisSearchOptions, setDiagnosisSearchOptions] = useState(null);
-  /* const [partialSearchQuery, setPartialSearchQuery] = useState(null);
-  const [partialDiagnosisSearchOptions, setPartialDiagnosisSearchOptions] = useState(null); */
   const [isPartialDiagnosisSearch, setPartialDiagnosisSearch] = useState(false);
+  const [partialDiagnosis, setPartialDiagnosis] = useState(null);
 
   const [popOver1, setPopOver1] = useState(false);
   const [popOver2, setPopOver2] = useState(false);
@@ -162,8 +169,6 @@ const DiagnosisPanel = () => {
   const [isModalOpen, setIsModalOpen] = useState("");
   const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
   const dispatch = useDispatch();
-
-  console.log("diagnosisSearchOptions: ", diagnosisSearchOptions);
 
   useEffect(() => {
     dispatch(getDiagnosisTemplates());
@@ -181,7 +186,7 @@ const DiagnosisPanel = () => {
       setAllTemplates(templates);
     }
 
-    if(frequentDiagnosis.length > 0) {
+    if (frequentDiagnosis.length > 0) {
       setFrequentlySearchedDiagnosis(frequentDiagnosis);
     }
   }, [templates, resultantTemplate, frequentDiagnosis]);
@@ -201,6 +206,15 @@ const DiagnosisPanel = () => {
     }
   };
 
+  /*   useEffect(() => {
+    const temporaryStructure = [...selectedDiagnosises];
+
+    selectedDiagnosises.map((selectedDiagnosis) => {
+      return temporaryStructure.since: selectedDiagnosis.
+    });
+
+  }, [selectedDiagnosises]);
+ */
   useEffect(() => {
     const data = [];
 
@@ -208,6 +222,7 @@ const DiagnosisPanel = () => {
     if (diagnosis) {
       if (diagnosis.length === 0) {
         data.push({
+          key: -1,
           value: -1,
           label: (
             <>
@@ -218,14 +233,13 @@ const DiagnosisPanel = () => {
       } else {
         diagnosis.map((diagnosis) => {
           return data.push({
+            key: diagnosis.tds_id,
             value: diagnosis.tds_name,
             label: (
               <>
                 <div
                   onClick={() => {
-                    if(!isPartialDiagnosisSearch) {
-                      onSelect(diagnosis);
-                    }
+                    onSelect(diagnosis);
                   }}
                 >
                   {diagnosis.tds_name}
@@ -237,8 +251,10 @@ const DiagnosisPanel = () => {
       }
     }
 
-    if(searchQuery && !isPartialDiagnosisSearch) {
+    if (searchQuery && !isPartialDiagnosisSearch) {
       data.push({
+        key: "search-query",
+        value: "search-query",
         label: (
           <>
             <div
@@ -256,41 +272,44 @@ const DiagnosisPanel = () => {
         ),
       });
     }
-    
+
     setDiagnosisSearchOptions(data);
-  }, [diagnosis, frequentlySearchedDiagnosis]);
+  }, [diagnosis]);
 
   useEffect(() => {
-    console.log('before calling API searchQuery: ', searchQuery);
+    console.log("before calling API searchQuery: ", searchQuery);
     if (!searchQuery) {
       // dispatch(clearDiagnosisSearch());
       populateFrequentlyUsed();
     } else if (searchQuery && searchQuery.length >= 3) {
-      console.log('calling API');
+      console.log("calling API");
       dispatch(searchDiagnosis(searchQuery));
     }
   }, [dispatch, searchQuery]);
 
   const populateFrequentlyUsed = () => {
+    if (isPartialDiagnosisSearch) {
+      return;
+    }
+
     const data = [];
     data.push({
+      key: "freq-used",
       label: (
         <>
-          <div>
-            FREQUENTLY USED
-          </div>
+          <div>FREQUENTLY USED</div>
         </>
       ),
     });
 
     frequentDiagnosis.map((diagnosis) => {
       return data.push({
+        key: diagnosis.tds_id,
         value: diagnosis.tds_name,
         label: (
           <>
             <div
               onClick={() => {
-                setIsModalOpen();
                 onSelect(diagnosis);
               }}
             >
@@ -305,10 +324,10 @@ const DiagnosisPanel = () => {
   };
 
   const onDiagnosisSearch = (query) => {
-    if(!isPartialDiagnosisSearch) {
+    if (!isPartialDiagnosisSearch) {
       setValue(query);
     }
-    
+
     let id = setTimeout(() => {
       setSearchQuery(query);
       console.log("search query set....", query);
@@ -320,8 +339,21 @@ const DiagnosisPanel = () => {
     console.log("diagnosis: ", diagnosis);
     setSearchQuery(null);
     setValue(null);
-    setSelectedDiagnosises([...selectedDiagnosises, diagnosis]);
-    // dispatch(clearDiagnosisSearch());
+    dispatch(clearDiagnosisSearch());
+
+    if (isPartialDiagnosisSearch) {
+      const index = selectedDiagnosises.indexOf(partialDiagnosis);
+      console.log("index:", index);
+      if (index > -1) {
+        selectedDiagnosises.splice(index, 1, diagnosis);
+      }
+
+      console.log("selectedDiagnosises: ", selectedDiagnosises);
+
+      setSelectedDiagnosises(selectedDiagnosises);
+    } else {
+      setSelectedDiagnosises([...selectedDiagnosises, diagnosis]);
+    }
   };
 
   const onSelectSearch = (data) => {
@@ -389,6 +421,70 @@ const DiagnosisPanel = () => {
     dispatch(updateTemplate(templateToUpdate));
   };
 
+  const accumulateOtherData = (diagnosis, field, value) => {
+    setOtherData({
+      ...otherData,
+      [diagnosis.tds_id]: {
+        ...otherData[diagnosis.tds_id],
+        tds_name: diagnosis.tds_name,
+        tds_id: diagnosis.tds_id,
+        [field]: value,
+      },
+    });
+  };
+
+  const finalizeData = () => {
+    const finalData = {};
+    selectedDiagnosises.map((diagnosis) => {
+      const data = otherData[diagnosis.tds_id];
+      console.log('data ', data);
+      if (data) {
+        const updatedData = {
+          ...data,
+          tds_name: diagnosis.tds_name
+        };
+        finalData[diagnosis.tds_id] = updatedData;
+        return updatedData;
+      } else {
+        const newData = {
+          tds_name: diagnosis.tds_name,
+          tds_id: diagnosis.tds_id,
+        }
+        finalData[diagnosis.tds_id] = newData;
+        return newData;
+      }
+    });
+
+    setOtherData(finalData);
+  };
+
+  /*  useEffect(() => {
+
+    const temporaryStructure  = [];
+
+    if(selectedDiagnosises && selectedDiagnosises.length > 0) {
+      selectedDiagnosises.map((selectedDiagnosis) => {
+        return temporaryStructure.push(
+          {
+            ...otherData,
+            [diagnosis.tds_id]: {
+              ...otherData[selectedDiagnosis.tds_id],
+              tds_name: selectedDiagnosis.tds_name,
+              tds_id: selectedDiagnosis.tds_id,
+              [field]: value,
+            },
+          }
+        );
+      });
+    }
+
+    setOtherData();
+  }, [selectedDiagnosises]); */
+
+  useEffect(() => {
+    console.log("otherData: ", otherData);
+  }, [otherData]);
+
   const saveContent = (
     <>
       <div className="d-flex justify-content-between align-items-center border-bottom templatepopover">
@@ -418,6 +514,7 @@ const DiagnosisPanel = () => {
             className="btn btn-primary3 btn-41 ms-3"
             disabled={!template?.tdt_template_name}
             onClick={onAddTemplateClicked}
+            loading={loading}
           >
             {" "}
             Save{" "}
@@ -450,6 +547,7 @@ const DiagnosisPanel = () => {
             className="btn btn-primary3 btn-41 ms-3"
             onClick={onUpdateTemplateClicked}
             disabled={!template?.tdt_template_name}
+            loading={loading}
           >
             {" "}
             Update{" "}
@@ -471,6 +569,13 @@ const DiagnosisPanel = () => {
             <button className="btn d-flex align-items-center btn-text">
               {" "}
               <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span>
+            </button>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={finalizeData}
+            >
+              {" "}
+              <i className="icon-reload me-2"></i> <span>Finalize </span>
             </button>
             <Popover
               open={popOver1}
@@ -529,6 +634,7 @@ const DiagnosisPanel = () => {
                     onSearch={onDiagnosisSearch}
                     onFocus={() => {
                       setPartialDiagnosisSearch(true);
+                      setPartialDiagnosis(diagnosis);
                       setDiagnosisSearchOptions(null);
                       onDiagnosisSearch(diagnosis.tds_name);
                     }}
@@ -542,8 +648,10 @@ const DiagnosisPanel = () => {
                   options={sinceOptions}
                   className="autocomplete-custom w-100 inputborder"
                   onChange={onSinceSearch}
-                  onSelect={() => {
+                  onSelect={(value) => {
                     setSinceOptions(null);
+                    console.log("valie: ", value);
+                    accumulateOtherData(diagnosis, "since", value);
                   }}
                   bordered={false}
                   defaultOpen={false}
@@ -555,12 +663,22 @@ const DiagnosisPanel = () => {
                   showSearch
                   className="autocomplete-custom w-100 inputborder"
                   placeholder="Severity"
-                  onSearch={onSelectSearch}
+                  onSelect={(value) => {
+                    accumulateOtherData(diagnosis, "severity", value);
+                  }}
                   options={SEVERITY_LIST}
                 />
               </Col>
               <Col lg={8} md={8} sm={7} xs={7} className="border-end">
-                <Input className="notesinput border-0" placeholder="Notes" />
+                <Input
+                  className="notesinput border-0"
+                  placeholder="Notes"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    console.log("onChange: ", value);
+                    accumulateOtherData(diagnosis, "note", value);
+                  }}
+                />
               </Col>
               <Col lg={1} md={1} sm={2} xs={2} className="text-center">
                 <Button
@@ -585,6 +703,7 @@ const DiagnosisPanel = () => {
               onSearch={onDiagnosisSearch}
               onFocus={() => {
                 setPartialDiagnosisSearch(false);
+                setPartialDiagnosis(null);
                 populateFrequentlyUsed();
               }}
             >

@@ -105,12 +105,14 @@ const diagnosisSlice = createSlice({
       })
       .addCase(searchDiagnosis.fulfilled, (state, action) => {
         state.error = null;
+        state.loading = false;
         console.log("searchDiagnosis.action.payload: ", action.payload);
         state.diagnosis = action.payload;
       })
       .addCase(searchDiagnosis.rejected, (state, action) => {
         console.log("searchDiagnosis.rejected.action.payload: ", action);
         state.diagnosis = [];
+        state.loading = false;
         state.error = action.error.message;
       })
       .addCase(clearDiagnosisSearch.fulfilled, (state, action) => {
@@ -124,12 +126,14 @@ const diagnosisSlice = createSlice({
       })
       .addCase(getDiagnosisTemplates.fulfilled, (state, action) => {
         state.error = null;
+        state.loading = false;
         console.log("getDiagnosisTemplates.fulfilled.action.payload: ", action.payload);
         state.templates = action.payload;
       })
       .addCase(getDiagnosisTemplates.rejected, (state, action) => {
         console.log("getDiagnosisTemplates.rejected.action.payload: ", action);
         state.templates = null;
+        state.loading = false;
         state.error = action.error.message;
       })
       .addCase(addTemplate.pending, (state) => {
@@ -137,6 +141,7 @@ const diagnosisSlice = createSlice({
       })
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.error = null;
+        state.loading = false;
         console.log("addTemplate.fulfilled.action.payload: ", action.payload);
         //TODO: add in the data set
         state.templates.push(action.payload);
@@ -144,6 +149,7 @@ const diagnosisSlice = createSlice({
       .addCase(addTemplate.rejected, (state, action) => {
         console.log("addTemplate.rejected.action.payload: ", action);
         state.error = action.error.message;
+        state.loading = false;
       })
       .addCase(updateTemplate.pending, (state) => {
         state.loading = true;
@@ -151,11 +157,12 @@ const diagnosisSlice = createSlice({
       .addCase(updateTemplate.fulfilled, (state, action) => {
         state.error = null;
         console.log("updateTemplate.fulfilled.action.payload: ", action.payload);
-        //TODO: update in the data set
+        state.loading = false;
         state.resultantTemplate = action.payload;
       })
       .addCase(updateTemplate.rejected, (state, action) => {
         console.log("updateTemplate.rejected.action.payload: ", action);
+        state.loading = false;
         state.error = action.error.message;
       })
       .addCase(deleteTemplate.fulfilled, (state, action) => {
