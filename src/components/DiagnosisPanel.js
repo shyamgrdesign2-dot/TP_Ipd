@@ -152,6 +152,8 @@ const DiagnosisPanel = () => {
   const [allTemplates, setAllTemplates] = useState([]);
   const [sinceOptions, setSinceOptions] = useState([]);
   const [diagnosisSearchOptions, setDiagnosisSearchOptions] = useState(null);
+  /* const [partialSearchQuery, setPartialSearchQuery] = useState(null);
+  const [partialDiagnosisSearchOptions, setPartialDiagnosisSearchOptions] = useState(null); */
   const [isPartialDiagnosisSearch, setPartialDiagnosisSearch] = useState(false);
 
   const [popOver1, setPopOver1] = useState(false);
@@ -221,8 +223,9 @@ const DiagnosisPanel = () => {
               <>
                 <div
                   onClick={() => {
-                    setIsModalOpen();
-                    onSelect(diagnosis);
+                    if(!isPartialDiagnosisSearch) {
+                      onSelect(diagnosis);
+                    }
                   }}
                 >
                   {diagnosis.tds_name}
@@ -234,13 +237,12 @@ const DiagnosisPanel = () => {
       }
     }
 
-    if(searchQuery) {
+    if(searchQuery && !isPartialDiagnosisSearch) {
       data.push({
         label: (
           <>
             <div
               onClick={() => {
-                setIsModalOpen();
                 onSelect({
                   tds_name: searchQuery, // Diagnosis Name
                   tds_id: 0, // Diagnosis id 0 when add new diagnosis
@@ -259,10 +261,12 @@ const DiagnosisPanel = () => {
   }, [diagnosis, frequentlySearchedDiagnosis]);
 
   useEffect(() => {
+    console.log('before calling API searchQuery: ', searchQuery);
     if (!searchQuery) {
       // dispatch(clearDiagnosisSearch());
       populateFrequentlyUsed();
     } else if (searchQuery && searchQuery.length >= 3) {
+      console.log('calling API');
       dispatch(searchDiagnosis(searchQuery));
     }
   }, [dispatch, searchQuery]);
@@ -301,10 +305,13 @@ const DiagnosisPanel = () => {
   };
 
   const onDiagnosisSearch = (query) => {
-    console.log("calling....");
-    setValue(query);
+    if(!isPartialDiagnosisSearch) {
+      setValue(query);
+    }
+    
     let id = setTimeout(() => {
       setSearchQuery(query);
+      console.log("search query set....", query);
       clearTimeout(id);
     }, 500);
   };
@@ -519,11 +526,10 @@ const DiagnosisPanel = () => {
                       isPartialDiagnosisSearch ? diagnosisSearchOptions : null
                     }
                     className="autocomplete-custom w-100 inputborder"
-                    onSearch={() => {
-                      onDiagnosisSearch(diagnosis.tds_name);
-                    }}
+                    onSearch={onDiagnosisSearch}
                     onFocus={() => {
                       setPartialDiagnosisSearch(true);
+                      setDiagnosisSearchOptions(null);
                       onDiagnosisSearch(diagnosis.tds_name);
                     }}
                     bordered={false}
@@ -573,7 +579,7 @@ const DiagnosisPanel = () => {
         <Form className="p-14">
           <Form.Group controlId="exampleForm.ControlInput1">
             <AutoComplete
-              value={value}
+              value={!isPartialDiagnosisSearch ? value : null}
               options={isPartialDiagnosisSearch ? null : diagnosisSearchOptions}
               className="autocomplete-custom w-100"
               onSearch={onDiagnosisSearch}
