@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button, Card, Row, Col} from 'antd';
-import TabSearchDetails from "./TabSearchDetails";
+import { Button, Card, Row, Col } from 'antd';
 import TabSelectedAdvise from "./TabSelectedAdvise";
 import TabSearchHeader from "./TabSearchHeader";
+import TabSearchMedicationDetails from "./TabSearchMedicationDetails";
+import TabSearchSymptomsDetails from "./TabSearchSymptomsDetails";
 
 function TabSearch() {
     const buttonRef = useRef(null);
@@ -13,6 +14,8 @@ function TabSearch() {
     useEffect(() => {
         setButtonWidth(buttonRef.current.offsetWidth);
     }, [buttonRef]);
+
+    
 
     return (
         <>
@@ -106,10 +109,15 @@ function TabSearch() {
                         </Col>
                         <Col md={10}>
                             <div className="h-100">
-                                <div className="selectedchip-header title align-items-center d-flex px-20">
-                                    Chest Pain
+                                {/* <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
+                                    <span> Chest Pain</span>
                                 </div>
-                                <TabSearchDetails />
+                                <TabSearchSymptomsDetails /> */}
+                                <div className="selectedchip-header d-flex flex-column justify-content-center px-20">
+                                    <div className="fontroboto title-common">Dolo (650mg) </div>
+                                    <div className="fontroboto mt-1">Paracetamol (650 mg)</div>
+                                </div>
+                                <TabSearchMedicationDetails />
                             </div>
                         </Col>
                     </Row>

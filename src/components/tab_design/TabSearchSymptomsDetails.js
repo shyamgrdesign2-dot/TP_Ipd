@@ -1,7 +1,7 @@
 import React from "react";
 import { Input, Segmented } from 'antd';
 
-function TabSearchDetails() {
+function TabSearchSymptomsDetails() {
     // Segnment
     const segmentedList = [
         { value: 1, label: 1 },
@@ -60,4 +60,4 @@ function TabSearchDetails() {
     );
 }
 
-export default TabSearchDetails;
+export default TabSearchSymptomsDetails;
