@@ -185,6 +185,7 @@ const DiagnosisPanel = () => {
     if (searchQuery) {
       const options = SINCE_OPTIONS.map((option) => {
         return {
+          key: option,
           value: `${searchQuery} ${option}`,
           label: <>{`${searchQuery} ${option}`}</>,
         };
@@ -199,7 +200,6 @@ const DiagnosisPanel = () => {
   useEffect(() => {
     const data = [];
 
-    console.log("diagnosis:", diagnosis);
     if (diagnosis) {
       if (diagnosis.length > 0) {
         diagnosis.map((diagnosis) => {
@@ -632,6 +632,7 @@ const DiagnosisPanel = () => {
             <Row
               gutter={[0]}
               className="align-items-center border-bottom border-top mt-14"
+              key={diagnosis.tds_id}
             >
               <Col lg={7} md={7} sm={7} xs={7} className="border-end">
                 <div className="p-2 fontroboto fw-medium">

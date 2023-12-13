@@ -105,11 +105,9 @@ const diagnosisSlice = createSlice({
       .addCase(searchDiagnosis.fulfilled, (state, action) => {
         state.error = null;
         state.loading = false;
-        console.log("searchDiagnosis.action.payload: ", action.payload);
         state.diagnosis = action.payload;
       })
       .addCase(searchDiagnosis.rejected, (state, action) => {
-        console.log("searchDiagnosis.rejected.action.payload: ", action);
         state.diagnosis = [];
         state.loading = false;
         state.error = action.error.message;
@@ -118,7 +116,6 @@ const diagnosisSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.diagnosis = action.payload;
-        console.log("clearDiagnosisSearch.fulfilled: ", action.payload);
       })
       .addCase(getDiagnosisTemplates.pending, (state) => {
         state.loading = true;
@@ -126,11 +123,9 @@ const diagnosisSlice = createSlice({
       .addCase(getDiagnosisTemplates.fulfilled, (state, action) => {
         state.error = null;
         state.loading = false;
-        console.log("getDiagnosisTemplates.fulfilled.action.payload: ", action.payload);
         state.templates = action.payload;
       })
       .addCase(getDiagnosisTemplates.rejected, (state, action) => {
-        console.log("getDiagnosisTemplates.rejected.action.payload: ", action);
         state.templates = null;
         state.loading = false;
         state.error = action.error.message;
