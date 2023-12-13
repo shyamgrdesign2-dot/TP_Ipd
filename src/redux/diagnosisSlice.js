@@ -7,6 +7,7 @@ const initialState = {
   frequentDiagnosis: [],
   templates: [],
   loading: false,
+  isAddingUpdatingTemplate: false,
   error: null,
 };
 
@@ -136,31 +137,31 @@ const diagnosisSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(addTemplate.pending, (state) => {
-        state.loading = true;
+        state.isAddingUpdatingTemplate = true;
       })
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.error = null;
-        state.loading = false;
+        state.isAddingUpdatingTemplate = false;
         console.log("addTemplate.fulfilled.action.payload: ", action.payload);
         state.templates.push(action.payload);
       })
       .addCase(addTemplate.rejected, (state, action) => {
         console.log("addTemplate.rejected.action.payload: ", action);
         state.error = action.error.message;
-        state.loading = false;
+        state.isAddingUpdatingTemplate = false;
       })
       .addCase(updateTemplate.pending, (state) => {
-        state.loading = true;
+        state.isAddingUpdatingTemplate = true;
       })
       .addCase(updateTemplate.fulfilled, (state, action) => {
         state.error = null;
         console.log("updateTemplate.fulfilled.action.payload: ", action.payload);
-        state.loading = false;
+        state.isAddingUpdatingTemplate = false;
         state.templates.push(action.payload);
       })
       .addCase(updateTemplate.rejected, (state, action) => {
         console.log("updateTemplate.rejected.action.payload: ", action);
-        state.loading = false;
+        state.isAddingUpdatingTemplate = false;
         state.error = action.error.message;
       })
       .addCase(deleteTemplate.fulfilled, (state, action) => {
@@ -175,11 +176,11 @@ const diagnosisSlice = createSlice({
       })
       .addCase(getFrequentlySearchedDiagnosis.fulfilled, (state, action) => {
         state.error = null;
-        console.log("getFrequentlySearchedDiagnosis.fulfilled.action.payload: ", action.payload);
+        // console.log("getFrequentlySearchedDiagnosis.fulfilled.action.payload: ", action.payload);
         state.frequentDiagnosis = action.payload;
       })
       .addCase(getFrequentlySearchedDiagnosis.rejected, (state, action) => {
-        console.log("getFrequentlySearchedDiagnosis.rejected.action.payload: ", action);
+        // console.log("getFrequentlySearchedDiagnosis.rejected.action.payload: ", action);
         state.error = action.error.message;
       });
   },
