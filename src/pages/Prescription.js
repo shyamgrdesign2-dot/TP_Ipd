@@ -16,7 +16,7 @@ import vitals from "../assets/images/Vitals.svg";
 import HeaderPrescription from "../common/HeaderPrescription";
 import Symptomsicon from "../assets/images/Symptoms.svg";
 import hey from "../assets/images/bg-hey.png";
-import DiagnosisPanel from "../components/DiagnosisPanel";
+import DiagnosisBox from "../components/DiagnosisBox";
 
 function Prescription() {
   return (
@@ -48,7 +48,8 @@ function Prescription() {
               </button>
             </div>
           </div>
-          <DiagnosisPanel />
+          {/* <DiagnosisPanel /> */}
+          <DiagnosisBox />
         </div>
       </div>
     </>

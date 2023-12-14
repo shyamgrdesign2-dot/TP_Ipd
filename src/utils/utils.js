@@ -10,6 +10,10 @@ export const validateEmail = (email) => {
     );
 };
 
+export const onlyNumberFormat = (text) => {
+  return text.replace(/[^0-9]/g, '')
+};
+
 export const trimEllip = (source, length) => {
   if(source == null) {
     return "";

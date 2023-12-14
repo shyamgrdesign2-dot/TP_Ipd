@@ -3,8 +3,9 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import ApiAppointments from "../api/services/ApiAppointments";
 
 const initialState = {
-  diagnosis: [],
-  frequentDiagnosis: [],
+  selectedDiagnosisList: [],
+  parentOptionsList: [],
+  childOptionsList: [],
   templates: [],
   loading: false,
   error: null,
@@ -15,7 +16,6 @@ export const addTemplate = createAsyncThunk(
   async (template) => {
     let result = {};
     result = await ApiAppointments.addTemplate(template);
-    console.log("results: ", result);
     if (result.status) {
       return result.data;
     } else {
@@ -27,9 +27,7 @@ export const addTemplate = createAsyncThunk(
 export const updateTemplate = createAsyncThunk(
   "diagnosis/updateTemplate",
   async (template) => {
-    console.log("template: ", template);
     const result = await ApiAppointments.updateTemplate(template);
-    console.log("results: ", result);
     if (result.status) {
       return result.data;
     } else {
@@ -42,7 +40,6 @@ export const deleteTemplate = createAsyncThunk(
   "diagnosis/deleteTemplate",
   async (templateId) => {
     const result = await ApiAppointments.deleteTemplate(templateId);
-    console.log("results: ", result);
     if (result.status) {
       return result.data;
     } else {
@@ -64,23 +61,6 @@ export const getDiagnosisTemplates = createAsyncThunk(
   }
 );
 
-export const searchDiagnosis = createAsyncThunk(
-  "diagnosis/searchDiagnosis",
-  async (query) => {
-    let result = {};
-    result = await ApiAppointments.searchDiagnosis(query);
-    if (result.status) {
-      return result.data;
-    } else {
-      throw Error(result.error);
-    }
-  }
-);
-
-export const clearDiagnosisSearch = createAsyncThunk("diagnosis/clearDiagnosisSearch", async () => {
-  return null;
-});
-
 export const getFrequentlySearchedDiagnosis = createAsyncThunk(
   "diagnosis/getFrequentlySearchedDiagnosis",
   async () => {
@@ -94,94 +74,103 @@ export const getFrequentlySearchedDiagnosis = createAsyncThunk(
   }
 );
 
+export const searchDiagnosis = createAsyncThunk(
+  "diagnosis/searchDiagnosis",
+  async (data) => {
+    let result = {};
+    result = await ApiAppointments.searchDiagnosis(data.searchQuery);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+// export const clearDiagnosisSearch = createAsyncThunk("diagnosis/clearDiagnosisSearch", async () => {
+//   return null;
+// });
+
+
 const diagnosisSlice = createSlice({
   name: "diagnosis",
   initialState,
   extraReducers: (builder) => {
     builder
-      .addCase(searchDiagnosis.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(searchDiagnosis.fulfilled, (state, action) => {
-        state.error = null;
-        state.loading = false;
-        console.log("searchDiagnosis.action.payload: ", action.payload);
-        state.diagnosis = action.payload;
-      })
-      .addCase(searchDiagnosis.rejected, (state, action) => {
-        console.log("searchDiagnosis.rejected.action.payload: ", action);
-        state.diagnosis = [];
-        state.loading = false;
-        state.error = action.error.message;
-      })
-      .addCase(clearDiagnosisSearch.fulfilled, (state, action) => {
-        state.loading = false;
-        state.error = null;
-        state.diagnosis = action.payload;
-        console.log("clearDiagnosisSearch.fulfilled: ", action.payload);
-      })
-      .addCase(getDiagnosisTemplates.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(getDiagnosisTemplates.fulfilled, (state, action) => {
-        state.error = null;
-        state.loading = false;
-        console.log("getDiagnosisTemplates.fulfilled.action.payload: ", action.payload);
-        state.templates = action.payload;
-      })
-      .addCase(getDiagnosisTemplates.rejected, (state, action) => {
-        console.log("getDiagnosisTemplates.rejected.action.payload: ", action);
-        state.templates = null;
-        state.loading = false;
-        state.error = action.error.message;
-      })
       .addCase(addTemplate.pending, (state) => {
         state.loading = true;
       })
       .addCase(addTemplate.fulfilled, (state, action) => {
-        state.error = null;
         state.loading = false;
-        console.log("addTemplate.fulfilled.action.payload: ", action.payload);
-        state.templates.push(action.payload);
+        state.selectedDiagnosisList = action.payload.diagnosis
+        state.templates.unshift(action.payload);
       })
       .addCase(addTemplate.rejected, (state, action) => {
-        console.log("addTemplate.rejected.action.payload: ", action);
-        state.error = action.error.message;
         state.loading = false;
+        state.selectedDiagnosisList = []
       })
       .addCase(updateTemplate.pending, (state) => {
         state.loading = true;
       })
       .addCase(updateTemplate.fulfilled, (state, action) => {
-        state.error = null;
-        console.log("updateTemplate.fulfilled.action.payload: ", action.payload);
         state.loading = false;
-        state.templates.push(action.payload);
+        state.selectedDiagnosisList = action.payload.diagnosis
+        const index = state.templates.findIndex(e => e.tdt_id == action.payload.tdt_id)
+        if (index != -1) {
+          state.templates[index] = action.payload
+        }
       })
       .addCase(updateTemplate.rejected, (state, action) => {
-        console.log("updateTemplate.rejected.action.payload: ", action);
         state.loading = false;
-        state.error = action.error.message;
+        state.selectedDiagnosisList = []
+      })
+      .addCase(deleteTemplate.pending, (state, action) => {
+        const updatedData = state.templates.map(e => e.tdt_id == action.meta.arg ? { ...e, loading: true } : e)
+        state.templates = [...updatedData];
       })
       .addCase(deleteTemplate.fulfilled, (state, action) => {
-        state.error = null;
-        console.log("deleteTemplate.fulfilled.action.payload: ", action.payload);
         const result = state.templates.filter((item) => item.tdt_id !== action.payload.tdt_id);
         state.templates = [...result];
       })
       .addCase(deleteTemplate.rejected, (state, action) => {
-        console.log("deleteTemplate.rejected.action.payload: ", action);
-        state.error = action.error.message;
+        const updatedData = state.templates.map(e => e.tdt_id == action.meta.arg ? { ...e, loading: false } : e)
+        state.templates = [...updatedData];
+
+      })
+      .addCase(getDiagnosisTemplates.fulfilled, (state, action) => {
+        state.templates = action.payload;
+      })
+      .addCase(getDiagnosisTemplates.rejected, (state, action) => {
+        state.templates = [];
       })
       .addCase(getFrequentlySearchedDiagnosis.fulfilled, (state, action) => {
-        state.error = null;
-        console.log("getFrequentlySearchedDiagnosis.fulfilled.action.payload: ", action.payload);
-        state.frequentDiagnosis = action.payload;
+        state.parentOptionsList = action.payload;
       })
       .addCase(getFrequentlySearchedDiagnosis.rejected, (state, action) => {
-        console.log("getFrequentlySearchedDiagnosis.rejected.action.payload: ", action);
-        state.error = action.error.message;
-      });
+        state.parentOptionsList = [];
+      })
+      .addCase(searchDiagnosis.pending, (state) => {
+      })
+      .addCase(searchDiagnosis.fulfilled, (state, action) => {
+        if (action.meta.arg.type == 'parent') {
+          state.parentOptionsList = action.payload;
+        } else {
+          state.childOptionsList = action.payload;
+        }
+      })
+      .addCase(searchDiagnosis.rejected, (state, action) => {
+        if (action.meta.arg.type == 'parent') {
+          state.parentOptionsList = [];
+        } else {
+          state.childOptionsList = [];
+        }
+      })
+      // .addCase(clearDiagnosisSearch.fulfilled, (state, action) => {
+      //   state.loading = false;
+      //   state.error = null;
+      //   state.diagnosis = action.payload;
+      //   console.log("clearDiagnosisSearch.fulfilled: ", action.payload);
+      // })
   },
 });
 
