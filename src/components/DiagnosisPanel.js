@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { Form } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -48,9 +48,12 @@ const ADD_EDIT_TEMPLATE_TABS = [
 ];
 
 const TemplatesList = ({ showHidePopover, templates, onTemplateSelected }) => {
-  console.log("TemplatesList: ", templates);
   const [matchedTemplates, setMatchedTemplates] = useState(templates);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    setMatchedTemplates(templates);
+  }, [templates])
 
   const onSearch = (e) => {
     const searchQuery = e.target.value;
@@ -79,7 +82,9 @@ const TemplatesList = ({ showHidePopover, templates, onTemplateSelected }) => {
           <div className="title-common">Diagnosis Templates</div>
           <Button
             className="btn btn-delete-prescription p-0"
-            onClick={showHidePopover}
+            onClick={() => {
+              showHidePopover();
+            }}
           >
             <i className="icon-Cross" />
           </Button>
@@ -130,7 +135,6 @@ const TemplatesList = ({ showHidePopover, templates, onTemplateSelected }) => {
                 className="btn btn-delete-prescription p-0 ms-3"
                 onClick={() => {
                   onDeleteTemplateClicked(template);
-                  showHidePopover();
                 }}
               >
                 <i className="icon-delete"></i>
@@ -144,7 +148,7 @@ const TemplatesList = ({ showHidePopover, templates, onTemplateSelected }) => {
 };
 
 const DiagnosisPanel = () => {
-  const { diagnosis, templates, frequentDiagnosis, loading, error } =
+  const { diagnosis, templates, frequentDiagnosis, loading, isAddingUpdatingTemplate, error } =
     useSelector((state) => state.diagnosis);
   const [searchQuery, setSearchQuery] = useState(null);
   const [frequentlySearchedDiagnosis, setFrequentlySearchedDiagnosis] =
@@ -155,13 +159,10 @@ const DiagnosisPanel = () => {
   const [allTemplates, setAllTemplates] = useState([]);
   const [sinceOptions, setSinceOptions] = useState([]);
   const [diagnosisSearchOptions, setDiagnosisSearchOptions] = useState(null);
-  const [isPartialDiagnosisSearch, setPartialDiagnosisSearch] = useState(false);
-  const [partialDiagnosis, setPartialDiagnosis] = useState(null);
 
   const [popOver1, setPopOver1] = useState(false);
   const [popOver2, setPopOver2] = useState(false);
   const [value, setValue] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState("");
   const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
   const dispatch = useDispatch();
 
@@ -172,14 +173,17 @@ const DiagnosisPanel = () => {
 
   useEffect(() => {
     if (templates) {
-      console.log("updating setAllTemplates: ", [...templates]);
       setAllTemplates([...templates]);
     }
 
     if (frequentDiagnosis.length > 0) {
       setFrequentlySearchedDiagnosis(frequentDiagnosis);
     }
-  }, [templates, frequentDiagnosis]);
+
+    if(!isAddingUpdatingTemplate) {
+      setPopOver2(false);
+    }
+  }, [templates, frequentDiagnosis, isAddingUpdatingTemplate]);
 
   const onSinceSearch = (searchQuery) => {
     if (searchQuery) {
@@ -257,10 +261,6 @@ const DiagnosisPanel = () => {
   }, [dispatch, searchQuery]);
 
   const populateFrequentlyUsed = () => {
-    if (isPartialDiagnosisSearch) {
-      return;
-    }
-
     const data = [];
     data.push({
       key: "freq-used",
@@ -293,57 +293,25 @@ const DiagnosisPanel = () => {
   };
 
   const onDiagnosisSearch = (query) => {
-    console.log("search query set....", query);
-    if (!isPartialDiagnosisSearch) {
-      setValue(query);
-    } /* else {
-      const index = selectedDiagnosises.indexOf(partialDiagnosis);
-      const updatedObject = { ...partialDiagnosis, tds_name: query };
-      console.log("index:", index);
-      console.log("partial.tds_name:", partialDiagnosis.tds_name);
-      if (index > -1) {
-        selectedDiagnosises.splice(index, 1, updatedObject);
-      }
+    setValue(query);
 
-      console.log(
-        "onDiagnosisSearch selectedDiagnosises: ",
-        selectedDiagnosises
-      );
-      setSelectedDiagnosises(selectedDiagnosises);
-      setPartialDiagnosis(updatedObject);
-    }
- */
-    let id = setTimeout(() => {
+    let timerId = setTimeout(() => {
       setSearchQuery(query);
-
-      clearTimeout(id);
+      clearTimeout(timerId);
     }, 500);
   };
 
   const onSelect = (diagnosis) => {
-    console.log("diagnosis: ", diagnosis);
     setSearchQuery(null);
     setValue(null);
     dispatch(clearDiagnosisSearch());
 
-    if (isPartialDiagnosisSearch) {
-      const index = selectedDiagnosises.indexOf(partialDiagnosis);
-      console.log("index:", index);
-      if (index > -1) {
-        selectedDiagnosises.splice(index, 1, diagnosis);
-        console.log("selectedDiagnosises: ", selectedDiagnosises);
-
-        setSelectedDiagnosises(selectedDiagnosises);
-        setPartialDiagnosis(diagnosis);
-      }
-    } else {
-      setSelectedDiagnosises([...selectedDiagnosises, diagnosis]);
-    }
+    setSelectedDiagnosises([...selectedDiagnosises, diagnosis]);
   };
 
-  const onSelectSearch = (data) => {
-    console.log("onSelectSearch", data);
-  };
+  useEffect(() => {
+    console.log('selectedDiagnosises: ', selectedDiagnosises);
+  }, [selectedDiagnosises])
 
   const onTemplateToEditSelected = (template) => {
     console.log("onTemplateToEditSelected template:", template);
@@ -373,8 +341,25 @@ const DiagnosisPanel = () => {
     console.log("index:", index);
     if (index > -1) {
       selectedDiagnosises.splice(index, 1);
+      setSelectedDiagnosises([...selectedDiagnosises]);
+    } else {
+      console.log('Not found diagnosis: ', diagnosis.tds_name);
     }
-    setSelectedDiagnosises([...selectedDiagnosises]);
+  };
+
+  const cleanTemplateData = () => {
+    const idFixedDiagnosis = selectedDiagnosises.map((diagnosis) => {
+      if (diagnosis?.tds_id.toString().includes("temp-id-")) {
+        return {
+          ...diagnosis,
+          tds_id: 0,  // update the id
+        };
+      } else {
+        return diagnosis
+      }
+    });
+
+    return idFixedDiagnosis;
   };
 
   const onAddTemplateClicked = () => {
@@ -382,22 +367,13 @@ const DiagnosisPanel = () => {
       return;
     }
 
-    const idFixedDiagnosis = selectedDiagnosises.map((diagnosis) => {
-      if (diagnosis?.tds_id.toString().includes("temp-id-")) {
-        return {
-          ...diagnosis,
-          tds_id: 0,
-        };
-      } else {
-        return diagnosis;
-      }
-    });
+    const cleanedDiagnosis = cleanTemplateData();
 
-    console.log("idFixedDiagnosis: ", idFixedDiagnosis);
+    console.log("cleanedDiagnosis: ", cleanedDiagnosis);
 
     const templateToAdd = {
       ...template,
-      diagnosis: idFixedDiagnosis,
+      diagnosis: cleanedDiagnosis,
     };
 
     console.log("templateToAdd: ", templateToAdd);
@@ -409,22 +385,12 @@ const DiagnosisPanel = () => {
       return;
     }
 
-    const idFixedDiagnosis = selectedDiagnosises.map((diagnosis) => {
-      if (diagnosis?.tds_id.toString().includes("temp-id-")) {
-        return {
-          ...diagnosis,
-          tds_id: 0,
-        };
-      } else {
-        return diagnosis;
-      }
-    });
-
-    console.log("idFixedDiagnosis: ", idFixedDiagnosis);
+    const cleanedDiagnosis = cleanTemplateData();
+    console.log("cleanedDiagnosis: ", cleanedDiagnosis);
 
     const templateToUpdate = {
       ...template,
-      diagnosis: idFixedDiagnosis,
+      diagnosis: cleanedDiagnosis,
     };
 
     console.log("onUpdateTemplateClicked: ", templateToUpdate);
@@ -524,7 +490,7 @@ const DiagnosisPanel = () => {
             className="btn btn-primary3 btn-41 ms-3"
             disabled={!template?.tdt_template_name}
             onClick={onAddTemplateClicked}
-            loading={loading}
+            loading={isAddingUpdatingTemplate}
           >
             {" "}
             Save{" "}
@@ -557,7 +523,7 @@ const DiagnosisPanel = () => {
             className="btn btn-primary3 btn-41 ms-3"
             onClick={onUpdateTemplateClicked}
             disabled={!template?.tdt_template_name}
-            loading={loading}
+            loading={isAddingUpdatingTemplate}
           >
             {" "}
             Update{" "}
@@ -580,13 +546,13 @@ const DiagnosisPanel = () => {
               {" "}
               <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span>
             </button>
-            {/* <button
+            <button
               className="btn d-flex align-items-center btn-text"
               onClick={finalizeData}
             >
               {" "}
               <i className="icon-reload me-2"></i> <span>Test DataStructure </span>
-            </button> */}
+            </button>
             <Popover
               open={popOver1}
               onOpenChange={showHideTemplatesListPopover}
@@ -636,22 +602,29 @@ const DiagnosisPanel = () => {
             >
               <Col lg={7} md={7} sm={7} xs={7} className="border-end">
                 <div className="p-2 fontroboto fw-medium">
-                  <AutoComplete
+                  {/* <AutoComplete
+                    id={diagnosis.tds_id}
                     defaultValue={diagnosis.tds_name}
                     options={
                       isPartialDiagnosisSearch ? diagnosisSearchOptions : null
                     }
                     className="autocomplete-custom w-100 inputborder"
                     onSearch={onDiagnosisSearch}
-                    onFocus={() => {
+                    onFocus={(e) => {
+                      const fieldId = e.target.id;
+                      const fieldValue = e.target.value;
+                      console.log('fieldValue : ', fieldValue );
                       setPartialDiagnosisSearch(true);
                       setPartialDiagnosis(diagnosis);
+                      setPartialDiagnosisFieldId(fieldId);
+
                       setDiagnosisSearchOptions(null);
-                      onDiagnosisSearch(diagnosis.tds_name);
+                      onDiagnosisSearch(fieldValue);
                     }}
                     bordered={false}
                     defaultOpen={false}
-                  />
+                  /> */}
+                  {diagnosis.tds_name}
                 </div>
               </Col>
               <Col lg={4} md={4} sm={4} xs={4} className="border-end">
@@ -705,7 +678,7 @@ const DiagnosisPanel = () => {
           );
         })}
 
-        {/*         {allTemplates?.map((template) => {
+        {/*{allTemplates?.map((template) => {
           return (
             <div>{template.tdt_template_name}</div>
           );
@@ -714,13 +687,11 @@ const DiagnosisPanel = () => {
         <Form className="p-14">
           <Form.Group controlId="exampleForm.ControlInput1">
             <AutoComplete
-              value={!isPartialDiagnosisSearch ? value : null}
-              options={isPartialDiagnosisSearch ? null : diagnosisSearchOptions}
+              value={value}
+              options={diagnosisSearchOptions}
               className="autocomplete-custom w-100"
               onSearch={onDiagnosisSearch}
               onFocus={() => {
-                setPartialDiagnosisSearch(false);
-                setPartialDiagnosis(null);
                 populateFrequentlyUsed();
               }}
             >
