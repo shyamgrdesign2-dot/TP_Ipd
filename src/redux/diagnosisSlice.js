@@ -91,7 +91,6 @@ export const searchDiagnosis = createAsyncThunk(
 //   return null;
 // });
 
-
 const diagnosisSlice = createSlice({
   name: "diagnosis",
   initialState,
@@ -102,40 +101,47 @@ const diagnosisSlice = createSlice({
       })
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedDiagnosisList = action.payload.diagnosis
+        state.selectedDiagnosisList = action.payload.diagnosis;
         state.templates.unshift(action.payload);
       })
       .addCase(addTemplate.rejected, (state, action) => {
         state.loading = false;
-        state.selectedDiagnosisList = []
+        state.selectedDiagnosisList = [];
       })
       .addCase(updateTemplate.pending, (state) => {
         state.loading = true;
       })
       .addCase(updateTemplate.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedDiagnosisList = action.payload.diagnosis
-        const index = state.templates.findIndex(e => e.tdt_id == action.payload.tdt_id)
+        state.selectedDiagnosisList = action.payload.diagnosis;
+        const index = state.templates.findIndex(
+          (e) => e.tdt_id == action.payload.tdt_id
+        );
         if (index != -1) {
-          state.templates[index] = action.payload
+          state.templates[index] = action.payload;
         }
       })
       .addCase(updateTemplate.rejected, (state, action) => {
         state.loading = false;
-        state.selectedDiagnosisList = []
+        state.selectedDiagnosisList = [];
       })
       .addCase(deleteTemplate.pending, (state, action) => {
-        const updatedData = state.templates.map(e => e.tdt_id == action.meta.arg ? { ...e, loading: true } : e)
+        const updatedData = state.templates.map((e) =>
+          e.tdt_id == action.meta.arg ? { ...e, loading: true } : e
+        );
         state.templates = [...updatedData];
       })
       .addCase(deleteTemplate.fulfilled, (state, action) => {
-        const result = state.templates.filter((item) => item.tdt_id !== action.payload.tdt_id);
+        const result = state.templates.filter(
+          (item) => item.tdt_id !== action.payload.tdt_id
+        );
         state.templates = [...result];
       })
       .addCase(deleteTemplate.rejected, (state, action) => {
-        const updatedData = state.templates.map(e => e.tdt_id == action.meta.arg ? { ...e, loading: false } : e)
+        const updatedData = state.templates.map((e) =>
+          e.tdt_id == action.meta.arg ? { ...e, loading: false } : e
+        );
         state.templates = [...updatedData];
-
       })
       .addCase(getDiagnosisTemplates.fulfilled, (state, action) => {
         state.templates = action.payload;
@@ -149,28 +155,27 @@ const diagnosisSlice = createSlice({
       .addCase(getFrequentlySearchedDiagnosis.rejected, (state, action) => {
         state.parentOptionsList = [];
       })
-      .addCase(searchDiagnosis.pending, (state) => {
-      })
+      .addCase(searchDiagnosis.pending, (state) => {})
       .addCase(searchDiagnosis.fulfilled, (state, action) => {
-        if (action.meta.arg.type == 'parent') {
+        if (action.meta.arg.type == "parent") {
           state.parentOptionsList = action.payload;
         } else {
           state.childOptionsList = action.payload;
         }
       })
       .addCase(searchDiagnosis.rejected, (state, action) => {
-        if (action.meta.arg.type == 'parent') {
+        if (action.meta.arg.type == "parent") {
           state.parentOptionsList = [];
         } else {
           state.childOptionsList = [];
         }
-      })
-      // .addCase(clearDiagnosisSearch.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.error = null;
-      //   state.diagnosis = action.payload;
-      //   console.log("clearDiagnosisSearch.fulfilled: ", action.payload);
-      // })
+      });
+    // .addCase(clearDiagnosisSearch.fulfilled, (state, action) => {
+    //   state.loading = false;
+    //   state.error = null;
+    //   state.diagnosis = action.payload;
+    //   console.log("clearDiagnosisSearch.fulfilled: ", action.payload);
+    // })
   },
 });
 
