@@ -71,11 +71,12 @@ body {
                     .selectedchip-header {
                         height: 60px;
                         background-color: $drawerHeaderColor;
-                        font-size: 24px;
-                        font-weight: 600;
-                        line-height: 36px;
-                        letter-spacing: 0.1px;
-                        color: $maincolor !important;
+                        span {
+                            font-size: 24px;
+                            font-weight: 600;
+                            letter-spacing: 0.1px;
+                            color: $maincolor !important;
+                        }
                     }
                 }
             }

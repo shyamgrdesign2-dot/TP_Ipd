@@ -13,7 +13,7 @@ import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
 import { Content } from "antd/es/layout/layout";
 import TabSearch from "../../components/tab_design/TabSearch";
-import TabSearchDetails from "../../components/tab_design/TabSearchDetails";
+import TabSearchDetails from "../../components/tab_design/TabSearchSymptomsDetails";
 import TabSelectedAdvise from "../../components/tab_design/TabSelectedAdvise";
 
 function TabPrescription() {
@@ -413,6 +413,41 @@ function TabPrescription() {
                                 </div>
                             </div>
 
+                             {/* Medication Box */}
+                            <div className="prescription-box-sm p-20px">
+                                <div className="d-flex align-items-center justify-content-between p-14-pb0">
+                                    <div className="d-flex align-items-center">
+                                        <img className='me-2' src={Symptomsicon} alt="Symptoms" />
+                                        <div className="title-common">Medication (Rx)</div>
+                                    </div>
+
+                                    <div className="d-flex align-items-center">
+                                        <button className='btn d-flex align-items-center btn-text' onClick={templateDrawer}> <i className="icon-template me-2"></i> <span>Templates</span></button>
+                                        <button className='btn d-flex align-items-center btn-text' onClick={saveDrawer}> <i className="icon-save me-2"></i> <span>Save</span></button>
+                                    </div>
+                                </div>
+                                <div className="p-14-pb0">
+                                    <Form className="py-0">
+                                        <Form.Group controlId="exampleForm.ControlInput1">
+                                            <AutoComplete
+                                                className='autocomplete-custom w-100'
+                                            >
+                                                <Input
+                                                    placeholder="Search Symptoms"
+                                                    prefix={<i className='icon-search'></i>}
+                                                />
+                                            </AutoComplete>
+                                        </Form.Group>
+                                    </Form>
+                                   <Drawer closeIcon={false} placement="right" onClose={searchonClose} open={openSearch} width={'100%'} className="searchdrawer-content">
+                                        <TabSearch />
+                                    </Drawer>
+                                </div>
+                                <div className="d-flex flex-wrap p-14-pb0">
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Dolo (650mg)</Button>
+                                </div>
+                            </div>
+
                             {/* Advice Box */}
                             <div className="prescription-box-sm p-20px">
                                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
@@ -497,6 +532,7 @@ function TabPrescription() {
                                     </Row>
                                 </div>
                             </div>
+                        
                         </Content>
                     </div>
                 </Layout>
