@@ -70,6 +70,12 @@ body {
                     border-end-end-radius: 10px;
                 }
             }
+            &.ant-radio-group-small {
+                .ant-radio-button-wrapper{
+                    height: 30px;
+                    line-height: 28px;
+                }
+            }
         }
         .ant-picker {
             height: 38px;
@@ -177,6 +183,12 @@ body {
         &.inputheight41 {
             height: 41px;
         }
+    }
+    .inputheight38 {
+        height: 41px;
+    }
+    .inputheight45 {
+        height: 45px;
     }
     .textareaPlaceholder {
        &::placeholder {

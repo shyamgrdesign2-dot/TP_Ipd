@@ -114,10 +114,9 @@ export function calculateBirthdateFromAge(age) {
 
   // Set the day to 1 for simplicity
   const birthDate = new Date(birthYear, birthMonth, 1);
-
   return birthDate;
 };
 
 export const generateTempId = () => {
-  return "temp-id-" + Math.floor(Math.random()*90000) + 10000;
+  return "temp-id-" + Math.floor(Math.random()*90) + 1000;
 }

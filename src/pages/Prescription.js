@@ -50,8 +50,8 @@ function Prescription() {
             </div>
           </div>
           {/* <DiagnosisPanel /> */}
-          {/* <DiagnosisBox /> */}
-          <SymptomsBox />
+          <DiagnosisBox />
+          {/* <SymptomsBox /> */}
         </div>
       </div>
     </>

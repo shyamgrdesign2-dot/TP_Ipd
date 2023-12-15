@@ -8,6 +8,7 @@ const initialState = {
   childOptionsList: [],
   templates: [],
   loading: false,
+  isAddingUpdatingTemplate: false,
   error: null,
 };
 
@@ -97,7 +98,7 @@ const diagnosisSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(addTemplate.pending, (state) => {
-        state.loading = true;
+        state.isAddingUpdatingTemplate = true;
       })
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.loading = false;
@@ -109,7 +110,7 @@ const diagnosisSlice = createSlice({
         state.selectedDiagnosisList = [];
       })
       .addCase(updateTemplate.pending, (state) => {
-        state.loading = true;
+        state.isAddingUpdatingTemplate = true;
       })
       .addCase(updateTemplate.fulfilled, (state, action) => {
         state.loading = false;
@@ -170,12 +171,6 @@ const diagnosisSlice = createSlice({
           state.childOptionsList = [];
         }
       });
-    // .addCase(clearDiagnosisSearch.fulfilled, (state, action) => {
-    //   state.loading = false;
-    //   state.error = null;
-    //   state.diagnosis = action.payload;
-    //   console.log("clearDiagnosisSearch.fulfilled: ", action.payload);
-    // })
   },
 });
 

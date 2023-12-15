@@ -1,6 +1,7 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
+import ProfilePopover from './ProfilePopover';
 
 function Welcome(props) {
 
@@ -13,7 +14,7 @@ function Welcome(props) {
                     <div className='d-flex align-items-center'>
                         <div>
                             <h1>{'Patient Details'}</h1>
-                            <p>{'\u00A0'}</p>
+                            <ProfilePopover />
                         </div>
                         <img src={require("../assets/images/bg-welcome.png")} className="welcomeig d-inline-block align-top" alt="Welcome" />
                     </div>
