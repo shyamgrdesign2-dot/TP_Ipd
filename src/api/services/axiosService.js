@@ -4,7 +4,7 @@ import config from '../../config';
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from '../../utils/constants';
 
 const instance = axios.create({
-    baseURL: config.placeholderApiUrl, // Replace with your API base URL
+    // baseURL: config.appointment_api_url, // Replace with your API base URL
     timeout: 10000, // Set the timeout for requests
 });
 
@@ -12,6 +12,9 @@ const instance = axios.create({
 instance.interceptors.request.use(
     (config) => {
         // You can modify the request config here (e.g., add headers)
+        if (config.customBaseUrl) {
+            config.baseURL = config.customBaseUrl;
+        }
         const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN) == null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN));
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;

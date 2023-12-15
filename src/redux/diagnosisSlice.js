@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import ApiAppointments from "../api/services/ApiAppointments";
+import ApiDiagnosis from "../api/services/ApiDiagnosis";
 
 const initialState = {
   selectedDiagnosisList: [],
@@ -16,7 +16,7 @@ export const addTemplate = createAsyncThunk(
   "diagnosis/addTemplate",
   async (template) => {
     let result = {};
-    result = await ApiAppointments.addTemplate(template);
+    result = await ApiDiagnosis.addTemplate(template);
     if (result.status) {
       return result.data;
     } else {
@@ -28,7 +28,7 @@ export const addTemplate = createAsyncThunk(
 export const updateTemplate = createAsyncThunk(
   "diagnosis/updateTemplate",
   async (template) => {
-    const result = await ApiAppointments.updateTemplate(template);
+    const result = await ApiDiagnosis.updateTemplate(template);
     if (result.status) {
       return result.data;
     } else {
@@ -40,7 +40,7 @@ export const updateTemplate = createAsyncThunk(
 export const deleteTemplate = createAsyncThunk(
   "diagnosis/deleteTemplate",
   async (templateId) => {
-    const result = await ApiAppointments.deleteTemplate(templateId);
+    const result = await ApiDiagnosis.deleteTemplate(templateId);
     if (result.status) {
       return result.data;
     } else {
@@ -53,7 +53,7 @@ export const getDiagnosisTemplates = createAsyncThunk(
   "diagnosis/getDiagnosisTemplates",
   async () => {
     let result = {};
-    result = await ApiAppointments.getDiagnosisTemplates();
+    result = await ApiDiagnosis.getDiagnosisTemplates();
     if (result.status) {
       return result.data;
     } else {
@@ -66,7 +66,7 @@ export const getFrequentlySearchedDiagnosis = createAsyncThunk(
   "diagnosis/getFrequentlySearchedDiagnosis",
   async () => {
     let result = {};
-    result = await ApiAppointments.getFrequentlySearchedDiagnosis();
+    result = await ApiDiagnosis.getFrequentlySearchedDiagnosis();
     if (result.status) {
       return result.data;
     } else {
@@ -79,7 +79,7 @@ export const searchDiagnosis = createAsyncThunk(
   "diagnosis/searchDiagnosis",
   async (data) => {
     let result = {};
-    result = await ApiAppointments.searchDiagnosis(data.searchQuery);
+    result = await ApiDiagnosis.searchDiagnosis(data.searchQuery);
     if (result.status) {
       return result.data;
     } else {
