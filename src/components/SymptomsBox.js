@@ -14,7 +14,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 
 import { onlyNumberFormat } from "../utils/utils";
-import Diagnosisicon from "../assets/images/Diagnosis.svg";
+import Diagnosisicon from "../assets/images/Symptoms.svg";
 import {
   addTemplate,
   updateTemplate,
@@ -23,15 +23,16 @@ import {
   getFrequentlySearchedDiagnosis,
   searchDiagnosis,
 } from "../redux/diagnosisSlice";
+import { getTemplates } from "../redux/symptomsSlice";
 
-function DiagnosisBox() {
+function SymptomsBox() {
   const {
     selectedDiagnosisList,
     parentOptionsList,
     childOptionsList,
     templates,
     loading,
-  } = useSelector((state) => state.diagnosis);
+  } = useSelector((state) => state.symptoms);
   const dispatch = useDispatch();
 
   const [selectedData, setSelectedData] = useState([]);
@@ -56,6 +57,7 @@ function DiagnosisBox() {
   //PopOver2
   const [popOver2, setPopOver2] = useState(false);
   const [tdtTemplateName, setTdtTemplateName] = useState(null);
+
   const TAB_ADD_TEMPLATE = 1;
   const TAB_UPDATE_TEMPLATE = 2;
   const ADD_EDIT_TEMPLATE_TABS = [
@@ -74,7 +76,7 @@ function DiagnosisBox() {
   }, [selectedDiagnosisList]);
 
   useEffect(() => {
-    dispatch(getDiagnosisTemplates());
+    dispatch(getTemplates());
   }, []);
 
   useEffect(() => {
@@ -482,11 +484,12 @@ function DiagnosisBox() {
 
   //Template Componet
   const TEMPLATE_CONTENT = useCallback(() => {
+    console.log('matchedTemplate', matchedTemplates);
     return (
       <>
         <div className="pop-header" key="diagnosis-template">
           <div className="align-items-center d-flex justify-content-between">
-            <div className="title-common">Diagnosis Templates</div>
+            <div className="title-common">Symptoms Templates</div>
             <Button
               className="btn btn-delete-prescription p-0"
               onClick={showHideTemplatesListPopover}
@@ -520,12 +523,12 @@ function DiagnosisBox() {
                     className="text-truncate w-100"
                     onClick={() => onTemplateSelected(template)}
                   >
-                    <div className="title">{template.tdt_template_name}</div>
+                    <div className="title">{template.tst_template_name}</div>
                     <div className="text-truncate">
-                      {template.diagnosis.map((item, ii) => {
+                      {template.symptoms.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.tds_name}${
-                            template.diagnosis.length - 1 != ii ? ", " : ""
+                          <span key={ii}>{`${item.symptom_name}${
+                            template.symptoms.length - 1 != ii ? ", " : ""
                           }`}</span>
                         );
                       })}
@@ -533,7 +536,7 @@ function DiagnosisBox() {
                   </div>
                   <Button
                     className="btn btn-delete-prescription p-0 ms-2"
-                    onClick={() => onDeleteTemplateClicked(template.tdt_id)}
+                    onClick={() => onDeleteTemplateClicked(template.tst_id)}
                   >
                     {template.loading ? (
                       <Spin
@@ -598,10 +601,10 @@ function DiagnosisBox() {
               options={allTemplates.map((template) => {
                 return {
                   key: JSON.stringify(template),
-                  value: template.tdt_template_name,
+                  value: template.tst_template_name,
                   label: (
-                    <div key={template.tdt_id}>
-                      {template.tdt_template_name}
+                    <div key={template.tst_id}>
+                      {template.tst_template_name}
                     </div>
                   ),
                 };
@@ -627,7 +630,7 @@ function DiagnosisBox() {
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Diagnosisicon} alt="Diagnosis" />
-            <div className="title-common">Diagnosis</div>
+            <div className="title-common">Symptoms</div>
           </div>
           <div className="d-flex align-items-center">
             <button className="btn d-flex align-items-center btn-text">
@@ -686,4 +689,4 @@ function DiagnosisBox() {
   );
 }
 
-export default React.memo(DiagnosisBox);
+export default React.memo(SymptomsBox);

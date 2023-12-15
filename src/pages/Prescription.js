@@ -17,6 +17,7 @@ import HeaderPrescription from "../common/HeaderPrescription";
 import Symptomsicon from "../assets/images/Symptoms.svg";
 import hey from "../assets/images/bg-hey.png";
 import DiagnosisBox from "../components/DiagnosisBox";
+import SymptomsBox from "../components/SymptomsBox";
 
 function Prescription() {
   return (
@@ -49,7 +50,8 @@ function Prescription() {
             </div>
           </div>
           {/* <DiagnosisPanel /> */}
-          <DiagnosisBox />
+          {/* <DiagnosisBox /> */}
+          <SymptomsBox />
         </div>
       </div>
     </>
