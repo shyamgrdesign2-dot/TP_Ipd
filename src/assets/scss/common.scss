@@ -179,6 +179,10 @@ body {
     .fontpoppins {
         font-family: 'Poppins' !important;
     }
+    .alert-warning {
+        background-color: hsl(35, 100%, 46%, 0.1);
+        color: $maincolor !important;
+    }
     .cursor-pointer {
         cursor: pointer;
     }
