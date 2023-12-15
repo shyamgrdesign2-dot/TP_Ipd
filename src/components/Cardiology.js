@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Card from 'react-bootstrap/Card';
-import { Table, Dropdown } from 'antd';
+import { Table, Dropdown, Button } from 'antd';
 
 import Symptomsicon from '../assets/images/Symptoms.svg';
 import Examinationsicon from '../assets/images/Examination.svg';
@@ -8,6 +8,7 @@ import Diagnosisicon from '../assets/images/Diagnosis.svg';
 import Medicationicon from '../assets/images/Medication.svg';
 import Frameicon from '../assets/images/Frame.svg';
 import notesicon from '../assets/images/notes.svg';
+import calenderBlank from '../assets/images/calenderBlank.svg';
 
 function Cardiology() {
 
@@ -121,52 +122,61 @@ function Cardiology() {
                     </div>
                 </Card.Header>
                 <Card.Body className='p-0 cardbody-data'>
-                    <div className='p-3'>
-                        <div className='d-flex align-items-start mb-4'>
-                            <img className='me-2' src={Symptomsicon} alt="Symptoms" />
-                            <div>
-                                <div className='title'>Symptoms</div>
-                                <span>Chest pain</span> - <label>2 Months, Mild, Lorem ispsum dolor sit amet</label> | <span>Cold </span> - <label>1 Month, Severe </label>
+                    {/* <div>
+                        <div className='p-3'>
+                            <div className='d-flex align-items-start mb-4'>
+                                <img className='me-2' src={Symptomsicon} alt="Symptoms" />
+                                <div>
+                                    <div className='title'>Symptoms</div>
+                                    <span>Chest pain</span> - <label>2 Months, Mild, Lorem ispsum dolor sit amet</label> | <span>Cold </span> - <label>1 Month, Severe </label>
+                                </div>
+                            </div>
+                            <div className='d-flex align-items-start mb-4'>
+                                <img className='me-2' src={Examinationsicon} alt="Examinations" />
+                                <div>
+                                    <div className='title'>Examinations</div>
+                                    <span>No dehydration</span> - <label>Lorem ispsum dolor sit amet, consectetur adipiscing elit</label> | <span>Chest congestion </span> : <label>lorem ipsum dolor sit </label>
+                                </div>
+                            </div>
+                            <div className='d-flex align-items-start mb-4'>
+                                <img className='me-2' src={Diagnosisicon} alt="Diagnosis" />
+                                <div>
+                                    <div className='title'>Diagnosis</div>
+                                    <span>Hypertension</span> - <label>1 month, suspected, Lorem ipsum dolor sit amet, consectetur adipiscing elit</label> | <span>Heaet failure </span> - <label>3 month, Confirmed </label>
+                                </div>
+                            </div>
+                            <div className='d-flex align-items-start'>
+                                <img className='me-2' src={Medicationicon} alt="Medication" />
+                                <div>
+                                    <div className='title'>Medication</div>
+                                </div>
                             </div>
                         </div>
-                        <div className='d-flex align-items-start mb-4'>
-                            <img className='me-2' src={Examinationsicon} alt="Examinations" />
-                            <div>
-                                <div className='title'>Examinations</div>
-                                <span>No dehydration</span> - <label>Lorem ispsum dolor sit amet, consectetur adipiscing elit</label> | <span>Chest congestion </span> : <label>lorem ipsum dolor sit </label>
+                        <div className='border-top border-bottom'>
+                            <Table className='table-border' columns={columns} dataSource={data} onChange={handleChange} pagination={false} />
+                        </div>
+                        <div className='p-3'>
+                            <div className='d-flex align-items-start mb-4'>
+                                <img className='me-2' src={Frameicon} alt="Advice" />
+                                <div>
+                                    <div className='title'>Advice</div>
+                                    <label>Avoid spicy food, No alcohol</label>
+                                </div>
+                            </div>
+                            <div className='d-flex align-items-start mb-4'>
+                                <img className='me-2' src={notesicon} alt="Doctor Note" />
+                                <div>
+                                    <div className='title'>Doctor Note</div>
+                                    <label>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt</label>
+                                </div>
                             </div>
                         </div>
-                        <div className='d-flex align-items-start mb-4'>
-                            <img className='me-2' src={Diagnosisicon} alt="Diagnosis" />
-                            <div>
-                                <div className='title'>Diagnosis</div>
-                                <span>Hypertension</span> - <label>1 month, suspected, Lorem ipsum dolor sit amet, consectetur adipiscing elit</label> | <span>Heaet failure </span> - <label>3 month, Confirmed </label>
-                            </div>
-                        </div>
-                        <div className='d-flex align-items-start'>
-                            <img className='me-2' src={Medicationicon} alt="Medication" />
-                            <div>
-                                <div className='title'>Medication</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className='border-top border-bottom'>
-                        <Table className='table-border' columns={columns} dataSource={data} onChange={handleChange} pagination={false} />
-                    </div>
-                    <div className='p-3'>
-                        <div className='d-flex align-items-start mb-4'>
-                            <img className='me-2' src={Frameicon} alt="Advice" />
-                            <div>
-                                <div className='title'>Advice</div>
-                                <label>Avoid spicy food, No alcohol</label>
-                            </div>
-                        </div>
-                        <div className='d-flex align-items-start mb-4'>
-                            <img className='me-2' src={notesicon} alt="Doctor Note" />
-                            <div>
-                                <div className='title'>Doctor Note</div>
-                                <label>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt</label>
-                            </div>
+                    </div> */}
+                    <div className='d-flex flex-column justify-content-center' style={{"height": "calc(100vh - 230px)"}}>
+                        <div className='align-items-center text-center'>
+                            <img src={calenderBlank} width={57} height={62} alt="No vital & body composition saved for the patient!" />
+                            <p className='mt-4 fontroboto'>No any visit found for this patient yet</p>
+                            <Button className="btn btn-primary3 btn-text-white px-5 btn-41">Start New Visit</Button>
                         </div>
                     </div>
                 </Card.Body>

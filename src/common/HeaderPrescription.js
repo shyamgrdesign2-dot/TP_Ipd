@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
-import { Button, Dropdown, Popover } from 'antd';
+import { Button, Dropdown } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
+import ProfilePopover from './ProfilePopover';
 
 function HeaderPrescription() {
     const navigate = useNavigate();
@@ -33,35 +34,6 @@ function HeaderPrescription() {
         setOpen(newOpen);
     };
 
-    const content = (
-        <>
-            <div className="align-items-center d-flex medicine-templates without-hover px-0 pt-0 pb-3">
-                <div className="round-box bg-body-secondary"><i className="icon-Id fs-21"></i></div>
-                <div className="text-truncate">
-                    <div className="fontroboto letterspacing">Patient Id</div>
-                    <div className="fontroboto letterspacing fw-medium">PI202306001</div>
-                </div>
-            </div>
-            <div className="align-items-center d-flex medicine-templates without-hover px-0 pt-0">
-                <div className="round-box bg-body-secondary"><i className="icon-phone fs-21"></i></div>
-                <div className="text-truncate">
-                    <div className="fontroboto letterspacing">Mobile Number</div>
-                    <div className="fontroboto letterspacing fw-medium">7894651230</div>
-                </div>
-            </div>
-            <div>
-                <Button className='btn btn-primary2 d-flex justify-content-center align-items-center w-100 mt-3 btn-41'>
-                    <i className='icon-Edit me-2 fs-21'></i>
-                    Edit Profile
-                </Button>
-                <Button className='btn btn-primary2 align-items-center d-flex justify-content-center w-100 mt-3 btn-41'>
-                    <i className='icon-Visit-Summary fs-21 me-2'></i>
-                    Visit Summary
-                </Button>
-            </div>
-        </>
-    )
-
     return (
         <Navbar className="justify-content-between headerprescription p-0">
             <Container fluid className='h-100 gx-0 w-100'>
@@ -73,27 +45,7 @@ function HeaderPrescription() {
                                     <i className='icon-right'></i>
                                 </Link>
                             </div>
-                            <Popover
-                                content={content}
-                                trigger="click"
-                                open={open}
-                                onOpenChange={handleOpenChange}
-                                className='cursor-pointer'
-                                overlayClassName="pop-260 pp-20"
-                            >
-                                <div className='align-items-center d-flex h-100 ps-3'>
-                                    <div className='rounded-pill patientProfile border me-3'>
-                                        AP
-                                    </div>
-                                    <div>
-                                        <div className='patientName'> Ashish Patel</div>
-                                        <div className='text-2 me-30'>M, 28y</div>
-                                    </div>
-                                    <div className='iconrotate270 align-self-start'>
-                                        <i className='icon-right me-3'></i>
-                                    </div>
-                                </div>
-                            </Popover>
+                            <ProfilePopover />
                         </div>
                     </Col>
                     <Col lg="auto">
