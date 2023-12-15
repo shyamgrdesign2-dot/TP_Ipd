@@ -11,6 +11,11 @@ const instance = axios.create({
 // Request interceptor
 instance.interceptors.request.use(
     (config) => {
+        if(!window.navigator.onLine) {
+            const error = 'Internet connection not available';
+            notification.error({ message: error })
+            return Promise.reject(new Error(error));
+        }
         // You can modify the request config here (e.g., add headers)
         const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN) == null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN));
         if (token) {
