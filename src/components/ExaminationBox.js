@@ -18,29 +18,29 @@ import { v4 as uuidv4 } from 'uuid';
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
 import { onlyNumberFormat } from "../utils/utils";
-import Symptomsicon from "../assets/images/Symptoms.svg";
+import Examinationicon from "../assets/images/Examination.svg";
 import {
   addTemplate,
   updateTemplate,
   deleteTemplate,
-  getSymptomsTemplates,
-  getFrequentlySearchedSymptoms,
-  searchSymptoms
-} from "../redux/symptomsSlice";
+  getExaminationTemplates,
+  getFrequentlySearchedExamination,
+  searchExamination
+} from "../redux/examinationSlice";
 
-function SymptomsBox() {
+function ExaminationBox() {
   const [messageApi, contextHolder] = message.useMessage();
   const {
-    selectedSymptomsList,
+    selectedExaminationList,
     parentOptionsList,
     childOptionsList,
     templates,
     loading,
-  } = useSelector((state) => state.symptoms);
+  } = useSelector((state) => state.examination);
   const dispatch = useDispatch();
 
-  const { symptomsData, setSymptomsData } = useContext(CashManagerContext);
-  // const [ symptomsData, setSymptomsData] = useState([]);
+  const { examinationData, setExaminationData } = useContext(CashManagerContext);
+  // const [ examinationData, setExaminationData] = useState([]);
 
   const SEVERITY_LIST = [
     { value: "severe", label: "Severe" },
@@ -72,16 +72,16 @@ function SymptomsBox() {
   const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
 
   useEffect(() => {
-    if (selectedSymptomsList.length > 0) {
-      const updatedData = symptomsData.map((e, i) => {
-        return { ...e, ...selectedSymptomsList[i] };
+    if (selectedExaminationList.length > 0) {
+      const updatedData = examinationData.map((e, i) => {
+        return { ...e, ...selectedExaminationList[i] };
       });
-      setSymptomsData(updatedData);
+      setExaminationData(updatedData);
     }
-  }, [selectedSymptomsList]);
+  }, [selectedExaminationList]);
 
   useEffect(() => {
-    dispatch(getSymptomsTemplates());
+    dispatch(getExaminationTemplates());
   }, []);
 
   useEffect(() => {
@@ -94,14 +94,14 @@ function SymptomsBox() {
     if (searchParentQuery) {
       const timeOutId = setTimeout(() => {
         dispatch(
-          searchSymptoms({ searchQuery: searchParentQuery, type: "parent" })
+          searchExamination({ searchQuery: searchParentQuery, type: "parent" })
         );
       }, 500);
       return () => {
         clearTimeout(timeOutId);
       };
     } else {
-      dispatch(getFrequentlySearchedSymptoms());
+      dispatch(getFrequentlySearchedExamination());
     }
   }, [searchParentQuery]);
 
@@ -110,8 +110,8 @@ function SymptomsBox() {
     parentOptionsList.map((e) => {
       return data.push({
         key: JSON.stringify({ ...e, unique_id: uuidv4() }),
-        value: e.symptom_name,
-        label: <div>{e.symptom_name}</div>,
+        value: e.examination_name,
+        label: <div>{e.examination_name}</div>,
       });
     });
     if (searchParentQuery.length == 0) {
@@ -129,7 +129,7 @@ function SymptomsBox() {
           key: JSON.stringify({
             unique_id: uuidv4(),
             change: 1,
-            symptom_name: searchParentQuery
+            examination_name: searchParentQuery
           }),
           value: searchParentQuery,
           label: (
@@ -151,16 +151,16 @@ function SymptomsBox() {
 
   const onSelectParent = useCallback(
     (data, e) => {
-      symptomsData.push({
+      examinationData.push({
         ...JSON.parse(e.key),
         since: "",
         severity: "",
         note: "",
       });
-      setSymptomsData((prev) => [...prev]);
+      setExaminationData((prev) => [...prev]);
       setSearchParentQuery("");
     },
-    [searchParentQuery, symptomsData]
+    [searchParentQuery, examinationData]
   );
 
   //Child AutoComplete
@@ -168,7 +168,7 @@ function SymptomsBox() {
     if (searchChildQuery) {
       const timeOutId = setTimeout(() => {
         dispatch(
-          searchSymptoms({
+          searchExamination({
             searchQuery: searchChildQuery.query,
             type: "child",
           })
@@ -185,17 +185,17 @@ function SymptomsBox() {
     childOptionsList.map((e) => {
       return data.push({
         key: JSON.stringify({ ...e, unique_id: uuidv4() }),
-        value: e.symptom_name,
-        label: <div>{e.symptom_name}</div>,
+        value: e.examination_name,
+        label: <div>{e.examination_name}</div>,
       });
     });
     if (searchChildQuery?.query) {
       data.push({
         key: JSON.stringify({
-          ...symptomsData[searchChildQuery.index],
+          ...examinationData[searchChildQuery.index],
           unique_id: uuidv4(),
           change: 1,
-          symptom_name: searchChildQuery.query
+          examination_name: searchChildQuery.query
         }),
         value: searchChildQuery.query,
         label: (
@@ -209,39 +209,39 @@ function SymptomsBox() {
   }, [childOptionsList]);
 
   const onFocusChid = (i) => {
-    setSearchChildQuery({ query: symptomsData[i].symptom_name, index: i });
+    setSearchChildQuery({ query: examinationData[i].examination_name, index: i });
     dispatch(
-      searchSymptoms({ searchQuery: symptomsData[i].symptom_name, type: "child" })
+      searchExamination({ searchQuery: examinationData[i].examination_name, type: "child" })
     );
   };
 
   const onSearchChild = useCallback(
     (query, i) => {
-      symptomsData[i] = {
-        ...symptomsData[i],
+      examinationData[i] = {
+        ...examinationData[i],
         change: 1,
-        symptom_name: query
+        examination_name: query
       };
-      setSymptomsData((prev) => [...prev]);
+      setExaminationData((prev) => [...prev]);
       setSearchChildQuery({ query: query, index: i });
     },
-    [searchChildQuery, symptomsData]
+    [searchChildQuery, examinationData]
   );
 
   const onSelectChild = useCallback(
     (data, e, i) => {
-      symptomsData[i] = { ...symptomsData[i], ...JSON.parse(e.key) };
-      setSymptomsData((prev) => [...prev]);
-      setSearchChildQuery({ query: JSON.parse(e.key).symptom_name, index: i });
+      examinationData[i] = { ...examinationData[i], ...JSON.parse(e.key) };
+      setExaminationData((prev) => [...prev]);
+      setSearchChildQuery({ query: JSON.parse(e.key).examination_name, index: i });
     },
-    [searchChildQuery, symptomsData]
+    [searchChildQuery, examinationData]
   );
 
   const onSearchSinceChid = useCallback(
     (query, i) => {
       const updateQuery = onlyNumberFormat(query);
-      symptomsData[i].since = updateQuery;
-      setSymptomsData((prev) => [...prev]);
+      examinationData[i].since = updateQuery;
+      setExaminationData((prev) => [...prev]);
       if (updateQuery) {
         const options = SINCE_OPTIONS.map((option) => {
           return {
@@ -255,37 +255,37 @@ function SymptomsBox() {
         setSinceOptions([]);
       }
     },
-    [sinceOptions, symptomsData]
+    [sinceOptions, examinationData]
   );
 
   const onSelectSinceChild = useCallback(
     (data, i) => {
       setSinceOptions([]);
-      symptomsData[i].since = data;
-      setSymptomsData((prev) => [...prev]);
+      examinationData[i].since = data;
+      setExaminationData((prev) => [...prev]);
     },
-    [sinceOptions, symptomsData]
+    [sinceOptions, examinationData]
   );
 
   const onSelectSeverityChild = useCallback(
     (data, i) => {
-      symptomsData[i].severity = data;
-      setSymptomsData((prev) => [...prev]);
+      examinationData[i].severity = data;
+      setExaminationData((prev) => [...prev]);
     },
-    [symptomsData]
+    [examinationData]
   );
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      symptomsData[i].note = e.target.value;
-      setSymptomsData((prev) => [...prev]);
+      examinationData[i].note = e.target.value;
+      setExaminationData((prev) => [...prev]);
     },
-    [symptomsData]
+    [examinationData]
   );
 
   const onRemoveRow = (index) => {
-    symptomsData.splice(index, 1);
-    setSymptomsData((prev) => [...prev]);
+    examinationData.splice(index, 1);
+    setExaminationData((prev) => [...prev]);
   };
 
   //PopOver1 function
@@ -297,7 +297,7 @@ function SymptomsBox() {
     const searchQuery = e.target.value;
     if (searchQuery) {
       let filteredTemplates = templates.filter((template) => {
-        return template.tst_template_name
+        return template.tet_template_name
           .toLowerCase()
           .includes(searchQuery.toLowerCase());
       });
@@ -308,12 +308,12 @@ function SymptomsBox() {
   };
 
   const onTemplateSelected = (template) => {
-    setSymptomsData([...symptomsData, ...template.symptoms]);
+    setExaminationData([...examinationData, ...template.examination]);
     showHideTemplatesListPopover();
   };
 
-  const onDeleteTemplateClicked = (tst_id) => {
-    dispatch(deleteTemplate(tst_id));
+  const onDeleteTemplateClicked = (tet_id) => {
+    dispatch(deleteTemplate(tet_id));
   };
 
   //PopOver2 function
@@ -338,24 +338,24 @@ function SymptomsBox() {
   );
 
   const onAddTemplateClicked = async () => {
-    if (symptomsData.length == 0) {
+    if (examinationData.length == 0) {
       messageApi.open({
         MESSAGE_KEY,
         type: 'warning',
-        content: 'At least 1 symptom added',
+        content: 'At least 1 examination added',
         duration: 2
       });
-    } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
+    } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
       messageApi.open({
         MESSAGE_KEY,
         type: 'warning',
-        content: 'Please fillup symptom name',
+        content: 'Please fillup examination name',
         duration: 2
       });
     } else {
       var sendData = {
-        tst_template_name: inputTemplateName,
-        symptoms: symptomsData,
+        tet_template_name: inputTemplateName,
+        examination: examinationData,
       };
       const action = await dispatch(addTemplate(sendData));
       if (action.meta.requestStatus == "fulfilled") {
@@ -377,26 +377,26 @@ function SymptomsBox() {
   );
 
   const onUpdateTemplateClicked = async () => {
-    if (symptomsData.length == 0) {
+    if (examinationData.length == 0) {
       messageApi.open({
         MESSAGE_KEY,
         type: 'warning',
-        content: 'At least 1 symptom added',
+        content: 'At least 1 examination added',
         duration: 2
       });
-    } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
+    } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
       messageApi.open({
         MESSAGE_KEY,
         type: 'warning',
-        content: 'Please fillup symptom name',
+        content: 'Please fillup examination name',
         duration: 2
       });
     } else {
       var data = JSON.parse(inputTemplateName);
       var sendData = {
-        tst_id: data.tst_id,
-        tst_template_name: data.tst_template_name,
-        symptoms: symptomsData,
+        tet_id: data.tet_id,
+        tet_template_name: data.tet_template_name,
+        examination: examinationData,
       };
       const action = await dispatch(updateTemplate(sendData));
       if (action.meta.requestStatus == "fulfilled") {
@@ -407,10 +407,10 @@ function SymptomsBox() {
   };
 
   //Child Componet
-  const TABLE_SYMPTOMS = useMemo(() => {
+  const TABLE_EXAMINATION = useMemo(() => {
     return (
-      symptomsData.length > 0 &&
-      symptomsData.map((item, index) => {
+      examinationData.length > 0 &&
+      examinationData.map((item, index) => {
         return (
           <Row
             key={index}
@@ -420,9 +420,9 @@ function SymptomsBox() {
             <Col lg={7} md={7} sm={7} xs={7} className="border-end">
               <div className="fontroboto fw-medium">
                 <AutoComplete
-                  defaultValue={item.symptom_name}
-                  // value={item.symptom_name}
-                  placeholder="Symptom Name"
+                  defaultValue={item.examination_name}
+                  // value={item.examination_name}
+                  placeholder="Examination Name"
                   bordered={false}
                   defaultOpen={false}
                   onSearch={(query) => onSearchChild(query, index)}
@@ -475,15 +475,15 @@ function SymptomsBox() {
         );
       })
     );
-  }, [symptomsData, childSearchOptions]);
+  }, [examinationData, childSearchOptions]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useCallback(() => {
     return (
       <>
-        <div className="pop-header" key="symptoms-template">
+        <div className="pop-header" key="examination-template">
           <div className="align-items-center d-flex justify-content-between">
-            <div className="title-common">Symptoms Templates</div>
+            <div className="title-common">Examination Templates</div>
             <Button
               className="btn btn-delete-prescription p-0"
               onClick={showHideTemplatesListPopover}
@@ -491,7 +491,7 @@ function SymptomsBox() {
               <i className="icon-Cross" />
             </Button>
           </div>
-          <div className="mt-3" key="symptoms-template-search">
+          <div className="mt-3" key="examination-template-search">
             <Input
               className="popinput"
               onChange={onSearch}
@@ -517,11 +517,11 @@ function SymptomsBox() {
                     className="text-truncate w-100"
                     onClick={() => onTemplateSelected(template)}
                   >
-                    <div className="title">{template.tst_template_name}</div>
+                    <div className="title">{template.tet_template_name}</div>
                     <div className="text-truncate">
-                      {template.symptoms.map((item, ii) => {
+                      {template.examination.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.symptom_name}${template.symptoms.length - 1 != ii ? ", " : ""
+                          <span key={ii}>{`${item.examination_name}${template.examination.length - 1 != ii ? ", " : ""
                             }`}</span>
                         );
                       })}
@@ -529,7 +529,7 @@ function SymptomsBox() {
                   </div>
                   <Button
                     className="btn btn-delete-prescription p-0 ms-2"
-                    onClick={() => onDeleteTemplateClicked(template.tst_id)}
+                    onClick={() => onDeleteTemplateClicked(template.tet_id)}
                   >
                     {template.loading ? (
                       <Spin
@@ -588,7 +588,7 @@ function SymptomsBox() {
           <div className="pop-header d-flex">
             <Select
               showSearch
-              value={inputTemplateName && inputTemplateName.tst_template_name}
+              value={inputTemplateName && inputTemplateName.tet_template_name}
               className="autocomplete-custom w-100 popinput inputheight41"
               placeholder="Select Template"
               onSearch={onSearchTemplate}
@@ -596,10 +596,10 @@ function SymptomsBox() {
               options={allTemplates.map((template) => {
                 return {
                   key: JSON.stringify(template),
-                  value: template.tst_template_name,
+                  value: template.tet_template_name,
                   label: (
-                    <div key={template.tst_id}>
-                      {template.tst_template_name}
+                    <div key={template.tet_id}>
+                      {template.tet_template_name}
                     </div>
                   ),
                 };
@@ -625,8 +625,8 @@ function SymptomsBox() {
       <div className="prescription-box-sm">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
-            <img className="me-2" src={Symptomsicon} alt="Symptoms" />
-            <div className="title-common">Symptoms</div>
+            <img className="me-2" src={Examinationicon} alt="Examination" />
+            <div className="title-common">Examination</div>
           </div>
           <div className="d-flex align-items-center">
             <button className="btn d-flex align-items-center btn-text">
@@ -662,7 +662,7 @@ function SymptomsBox() {
           </div>
         </div>
 
-        {TABLE_SYMPTOMS}
+        {TABLE_EXAMINATION}
 
         <div className="p-14">
           <AutoComplete
@@ -685,4 +685,4 @@ function SymptomsBox() {
   );
 }
 
-export default React.memo(SymptomsBox);
+export default React.memo(ExaminationBox);

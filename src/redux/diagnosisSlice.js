@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import ApiAppointments from "../api/services/ApiAppointments";
+import ApiDiagnosis from "../api/services/ApiDiagnosis";
 
 const initialState = {
   selectedDiagnosisList: [],
@@ -8,7 +8,6 @@ const initialState = {
   childOptionsList: [],
   templates: [],
   loading: false,
-  isAddingUpdatingTemplate: false,
   error: null,
 };
 
@@ -16,7 +15,7 @@ export const addTemplate = createAsyncThunk(
   "diagnosis/addTemplate",
   async (template) => {
     let result = {};
-    result = await ApiAppointments.addTemplate(template);
+    result = await ApiDiagnosis.addTemplate(template);
     if (result.status) {
       return result.data;
     } else {
@@ -28,7 +27,7 @@ export const addTemplate = createAsyncThunk(
 export const updateTemplate = createAsyncThunk(
   "diagnosis/updateTemplate",
   async (template) => {
-    const result = await ApiAppointments.updateTemplate(template);
+    const result = await ApiDiagnosis.updateTemplate(template);
     if (result.status) {
       return result.data;
     } else {
@@ -40,7 +39,7 @@ export const updateTemplate = createAsyncThunk(
 export const deleteTemplate = createAsyncThunk(
   "diagnosis/deleteTemplate",
   async (templateId) => {
-    const result = await ApiAppointments.deleteTemplate(templateId);
+    const result = await ApiDiagnosis.deleteTemplate(templateId);
     if (result.status) {
       return result.data;
     } else {
@@ -53,7 +52,7 @@ export const getDiagnosisTemplates = createAsyncThunk(
   "diagnosis/getDiagnosisTemplates",
   async () => {
     let result = {};
-    result = await ApiAppointments.getDiagnosisTemplates();
+    result = await ApiDiagnosis.getDiagnosisTemplates();
     if (result.status) {
       return result.data;
     } else {
@@ -66,7 +65,7 @@ export const getFrequentlySearchedDiagnosis = createAsyncThunk(
   "diagnosis/getFrequentlySearchedDiagnosis",
   async () => {
     let result = {};
-    result = await ApiAppointments.getFrequentlySearchedDiagnosis();
+    result = await ApiDiagnosis.getFrequentlySearchedDiagnosis();
     if (result.status) {
       return result.data;
     } else {
@@ -79,7 +78,7 @@ export const searchDiagnosis = createAsyncThunk(
   "diagnosis/searchDiagnosis",
   async (data) => {
     let result = {};
-    result = await ApiAppointments.searchDiagnosis(data.searchQuery);
+    result = await ApiDiagnosis.searchDiagnosis(data.searchQuery);
     if (result.status) {
       return result.data;
     } else {
@@ -88,17 +87,13 @@ export const searchDiagnosis = createAsyncThunk(
   }
 );
 
-// export const clearDiagnosisSearch = createAsyncThunk("diagnosis/clearDiagnosisSearch", async () => {
-//   return null;
-// });
-
 const diagnosisSlice = createSlice({
   name: "diagnosis",
   initialState,
   extraReducers: (builder) => {
     builder
       .addCase(addTemplate.pending, (state) => {
-        state.isAddingUpdatingTemplate = true;
+        state.loading = true;
       })
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.loading = false;
@@ -107,10 +102,9 @@ const diagnosisSlice = createSlice({
       })
       .addCase(addTemplate.rejected, (state, action) => {
         state.loading = false;
-        state.selectedDiagnosisList = [];
       })
       .addCase(updateTemplate.pending, (state) => {
-        state.isAddingUpdatingTemplate = true;
+        state.loading = true;
       })
       .addCase(updateTemplate.fulfilled, (state, action) => {
         state.loading = false;
@@ -124,7 +118,6 @@ const diagnosisSlice = createSlice({
       })
       .addCase(updateTemplate.rejected, (state, action) => {
         state.loading = false;
-        state.selectedDiagnosisList = [];
       })
       .addCase(deleteTemplate.pending, (state, action) => {
         const updatedData = state.templates.map((e) =>
@@ -156,7 +149,7 @@ const diagnosisSlice = createSlice({
       .addCase(getFrequentlySearchedDiagnosis.rejected, (state, action) => {
         state.parentOptionsList = [];
       })
-      .addCase(searchDiagnosis.pending, (state) => {})
+      .addCase(searchDiagnosis.pending, (state) => { })
       .addCase(searchDiagnosis.fulfilled, (state, action) => {
         if (action.meta.arg.type == "parent") {
           state.parentOptionsList = action.payload;

@@ -25,9 +25,12 @@ function TabPrescription() {
     const [open, setDrawer] = useState(false);
     const [openVital, setVitalDrawer] = useState(false);
     const [openSave, setSaveDrawer] = useState(false);
-    const [openSearch, setSearchDrawer] = useState(false);
+    const [drawerSymptom, setDrawerSymptom] = useState(false);
+    const [drawerMedication, setDrawerMedication] = useState(false);
     const [openClosableChips, setClosableChipsDrawer] = useState(false);
     const [tabChange, setTabChange] = useState('1');
+    const [drawerHandle, setDrawerHandle] = useState(null);
+
 
     // Chips buttons
     useEffect(() => {
@@ -57,11 +60,11 @@ function TabPrescription() {
         setSaveDrawer(false);
     };
     // Drawer Search
-    const SearchDrawer = () => {
-        setSearchDrawer(true);
+    const handleDrawerSymptom = () => {
+        setDrawerSymptom(!drawerSymptom);
     };
-    const searchonClose = () => {
-        setSearchDrawer(false);
+    const handleDrawerMedication = () => {
+        setDrawerMedication(!drawerMedication);
     };
     // Closable Chips Search
     const ClosableChipsDrawer = () => {
@@ -392,7 +395,7 @@ function TabPrescription() {
                                     <Form.Group controlId="exampleForm.ControlInput1">
                                         <AutoComplete
                                             className='autocomplete-custom w-100'
-                                            onClick={SearchDrawer}
+                                            onClick={handleDrawerSymptom}
                                         >
                                             <Input
                                                 placeholder="Search Symptoms"
@@ -401,19 +404,19 @@ function TabPrescription() {
                                         </AutoComplete>
                                     </Form.Group>
                                 </Form>
-                                <Drawer closeIcon={false} placement="right" onClose={searchonClose} open={openSearch} width={'100%'} className="searchdrawer-content">
-                                    <TabSearch />
+                                <Drawer closeIcon={false} placement="right" onClose={handleDrawerSymptom} open={drawerSymptom} width={'100%'} className="searchdrawer-content">
+                                    <TabSearch type={1}/>
                                 </Drawer>
                                 <div className="d-flex flex-wrap p-14-pb0">
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Chest Pain</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Chest Discomfort</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>High Blood Pressure</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Vomiting</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Diarrhea</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Joint Pain</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Muscle Aches</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Sore Throat</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Loss of Appetite</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Chest Pain</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Chest Discomfort</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>High Blood Pressure</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Vomiting</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Diarrhea</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Joint Pain</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Muscle Aches</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Sore Throat</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Loss of Appetite</Button>
                                     {buttonWidth > 150 ? (
                                         <Button ref={buttonRef} type="text" className={`btn btn-primary2 chips-custom chips-custom-break mb-14 me-14`}>{character}</Button>
                                     ) : (
@@ -448,12 +451,13 @@ function TabPrescription() {
                                             </AutoComplete>
                                         </Form.Group>
                                     </Form>
-                                    <Drawer closeIcon={false} placement="right" onClose={searchonClose} open={openSearch} width={'100%'} className="searchdrawer-content">
-                                        <TabSearch />
+
+                                   <Drawer closeIcon={false} placement="right" onClose={handleDrawerMedication} open={drawerMedication} width={'100%'} className="searchdrawer-content">
+                                        <TabSearch type={2}/>
                                     </Drawer>
                                 </div>
                                 <div className="d-flex flex-wrap p-14-pb0">
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Dolo (650mg)</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerMedication}>Dolo (650mg)</Button>
                                 </div>
                             </div>
 
@@ -488,15 +492,15 @@ function TabPrescription() {
                                     </Form>
                                 </div>
                                 <div className="d-flex flex-wrap p-14-pb0">
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Chest Pain</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Chest Discomfort</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>High Blood Pressure</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Vomiting</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Diarrhea</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Joint Pain</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Muscle Aches</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Sore Throat</Button>
-                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={SearchDrawer}>Loss of Appetite</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Chest Pain</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Chest Discomfort</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>High Blood Pressure</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Vomiting</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Diarrhea</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Joint Pain</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Muscle Aches</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Sore Throat</Button>
+                                    <Button type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={handleDrawerSymptom}>Loss of Appetite</Button>
                                     {buttonWidth > 150 ? (
                                         <Button ref={buttonRef} type="text" className={`btn btn-primary2 chips-custom chips-custom-break mb-14 me-14`}>{character}</Button>
                                     ) : (

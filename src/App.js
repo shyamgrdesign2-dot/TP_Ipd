@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route, useSearchParams } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
+import { isTablet } from 'react-device-detect';
 
 import AppointmentList from "./pages/AppointmentList";
 import PatientDetails from "./pages/PatientDetails";
@@ -24,7 +25,7 @@ function App() {
 
   useEffect(() => {
     const pathname = window.location.pathname;
-    if(pathname === '/' && authToken) {
+    if (pathname == '/tab_app/' && authToken) {
       setToken(authToken);
     }
   }, [window.location.pathname, authToken]);
@@ -36,8 +37,7 @@ function App() {
           <Routes>
             <Route path="/*" element={<AppointmentList />} />
             <Route path="patient_details" element={<PatientDetails />} />
-            <Route path="Prescription" element={<Prescription />} />
-            <Route path="tab_prescription" element={<TabPrescription />} />
+            <Route path="prescription" element={isTablet ? <TabPrescription /> : <Prescription />} />
             <Route path="prescription_print_view" element={<PrescriptionPrintView />} />
           </Routes>
         </PersistGate>

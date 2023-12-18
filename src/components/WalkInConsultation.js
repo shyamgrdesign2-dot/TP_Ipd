@@ -62,7 +62,7 @@ const PatientPlank = ({ patient, setClickedPatient, setIsModalOpen }) => {
               Patient Details
             </Button>
           </Link>
-          <Link to="/Prescription">
+          <Link to="/prescription">
             <Button
               type="text"
               className="btn btn-primary3 align-items-center d-flex"
@@ -228,7 +228,7 @@ function WalkInConsultation() {
                     <i className="icon-right iconrotate90 ms-auto"></i>
                   </Button>
                 </Link>
-                <Link to="/Prescription" className="w-50">
+                <Link to="/prescription" className="w-50">
                   <Button
                     type="text"
                     className="btn btn-primary3 align-items-center d-flex btn-41 w-100"
