@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useContext } from "react";
 import {
   AutoComplete,
   Input,
@@ -9,10 +9,14 @@ import {
   Popover,
   Tabs,
   Spin,
+  message
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
+import { v4 as uuidv4 } from 'uuid';
 
+import CashManagerContext from '../context/CashManagerContext';
+import { MESSAGE_KEY } from "../utils/constants";
 import { onlyNumberFormat } from "../utils/utils";
 import Diagnosisicon from "../assets/images/Diagnosis.svg";
 import {
@@ -21,10 +25,11 @@ import {
   deleteTemplate,
   getDiagnosisTemplates,
   getFrequentlySearchedDiagnosis,
-  searchDiagnosis,
+  searchDiagnosis
 } from "../redux/diagnosisSlice";
 
 function DiagnosisBox() {
+  const [messageApi, contextHolder] = message.useMessage();
   const {
     selectedDiagnosisList,
     parentOptionsList,
@@ -34,7 +39,9 @@ function DiagnosisBox() {
   } = useSelector((state) => state.diagnosis);
   const dispatch = useDispatch();
 
-  const [selectedData, setSelectedData] = useState([]);
+  const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
+  // const [diagnosisData, setDiagnosisData] = useState([]);
+
   const SEVERITY_LIST = [
     { value: "severe", label: "Severe" },
     { value: "moderate", label: "Moderate" },
@@ -55,7 +62,7 @@ function DiagnosisBox() {
 
   //PopOver2
   const [popOver2, setPopOver2] = useState(false);
-  const [tdtTemplateName, setTdtTemplateName] = useState(null);
+  const [inputTemplateName, setInputTemplateName] = useState(null);
   const TAB_ADD_TEMPLATE = 1;
   const TAB_UPDATE_TEMPLATE = 2;
   const ADD_EDIT_TEMPLATE_TABS = [
@@ -66,10 +73,10 @@ function DiagnosisBox() {
 
   useEffect(() => {
     if (selectedDiagnosisList.length > 0) {
-      const updatedData = selectedData.map((e, i) => {
+      const updatedData = diagnosisData.map((e, i) => {
         return { ...e, ...selectedDiagnosisList[i] };
       });
-      setSelectedData(updatedData);
+      setDiagnosisData(updatedData);
     }
   }, [selectedDiagnosisList]);
 
@@ -102,7 +109,7 @@ function DiagnosisBox() {
     const data = [];
     parentOptionsList.map((e) => {
       return data.push({
-        key: JSON.stringify(e),
+        key: JSON.stringify({ ...e, unique_id: uuidv4() }),
         value: e.tds_name,
         label: <div>{e.tds_name}</div>,
       });
@@ -120,6 +127,7 @@ function DiagnosisBox() {
       searchParentQuery &&
         data.push({
           key: JSON.stringify({
+            unique_id: uuidv4(),
             tds_id: 0,
             tds_name: searchParentQuery,
             pms_default: 0,
@@ -144,16 +152,16 @@ function DiagnosisBox() {
 
   const onSelectParent = useCallback(
     (data, e) => {
-      selectedData.push({
+      diagnosisData.push({
         ...JSON.parse(e.key),
         since: "",
         severity: "",
         note: "",
       });
-      setSelectedData((prev) => [...prev]);
+      setDiagnosisData((prev) => [...prev]);
       setSearchParentQuery("");
     },
-    [searchParentQuery, selectedData]
+    [searchParentQuery, diagnosisData]
   );
 
   //Child AutoComplete
@@ -177,7 +185,7 @@ function DiagnosisBox() {
     const data = [];
     childOptionsList.map((e) => {
       return data.push({
-        key: JSON.stringify(e),
+        key: JSON.stringify({ ...e, unique_id: uuidv4() }),
         value: e.tds_name,
         label: <div>{e.tds_name}</div>,
       });
@@ -185,7 +193,8 @@ function DiagnosisBox() {
     if (searchChildQuery?.query) {
       data.push({
         key: JSON.stringify({
-          ...selectedData[searchChildQuery.index],
+          ...diagnosisData[searchChildQuery.index],
+          unique_id: uuidv4(),
           tds_id: 0,
           tds_name: searchChildQuery.query,
           pms_default: 0,
@@ -202,40 +211,40 @@ function DiagnosisBox() {
   }, [childOptionsList]);
 
   const onFocusChid = (i) => {
-    setSearchChildQuery({ query: selectedData[i].tds_name, index: i });
+    setSearchChildQuery({ query: diagnosisData[i].tds_name, index: i });
     dispatch(
-      searchDiagnosis({ searchQuery: selectedData[i].tds_name, type: "child" })
+      searchDiagnosis({ searchQuery: diagnosisData[i].tds_name, type: "child" })
     );
   };
 
   const onSearchChild = useCallback(
     (query, i) => {
-      selectedData[i] = {
-        ...selectedData[i],
+      diagnosisData[i] = {
+        ...diagnosisData[i],
         tds_id: 0,
         tds_name: query,
         pms_default: 0,
       };
-      setSelectedData((prev) => [...prev]);
+      setDiagnosisData((prev) => [...prev]);
       setSearchChildQuery({ query: query, index: i });
     },
-    [searchChildQuery, selectedData]
+    [searchChildQuery, diagnosisData]
   );
 
   const onSelectChild = useCallback(
     (data, e, i) => {
-      selectedData[i] = { ...selectedData[i], ...JSON.parse(e.key) };
-      setSelectedData((prev) => [...prev]);
+      diagnosisData[i] = { ...diagnosisData[i], ...JSON.parse(e.key) };
+      setDiagnosisData((prev) => [...prev]);
       setSearchChildQuery({ query: JSON.parse(e.key).tds_name, index: i });
     },
-    [searchChildQuery, selectedData]
+    [searchChildQuery, diagnosisData]
   );
 
   const onSearchSinceChid = useCallback(
     (query, i) => {
       const updateQuery = onlyNumberFormat(query);
-      selectedData[i].since = updateQuery;
-      setSelectedData((prev) => [...prev]);
+      diagnosisData[i].since = updateQuery;
+      setDiagnosisData((prev) => [...prev]);
       if (updateQuery) {
         const options = SINCE_OPTIONS.map((option) => {
           return {
@@ -249,46 +258,37 @@ function DiagnosisBox() {
         setSinceOptions([]);
       }
     },
-    [sinceOptions, selectedData]
+    [sinceOptions, diagnosisData]
   );
 
   const onSelectSinceChild = useCallback(
     (data, i) => {
       setSinceOptions([]);
-      selectedData[i].since = data;
-      setSelectedData((prev) => [...prev]);
+      diagnosisData[i].since = data;
+      setDiagnosisData((prev) => [...prev]);
     },
-    [sinceOptions, selectedData]
-  );
-
-  const onBlurChild = useCallback(
-    (i) => {
-      // setSinceOptions([]);
-      // selectedData[i].since = ''
-      // setSelectedData(prev => [...prev])
-    },
-    [sinceOptions, selectedData]
+    [sinceOptions, diagnosisData]
   );
 
   const onSelectSeverityChild = useCallback(
     (data, i) => {
-      selectedData[i].severity = data;
-      setSelectedData((prev) => [...prev]);
+      diagnosisData[i].severity = data;
+      setDiagnosisData((prev) => [...prev]);
     },
-    [selectedData]
+    [diagnosisData]
   );
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      selectedData[i].note = e.target.value;
-      setSelectedData((prev) => [...prev]);
+      diagnosisData[i].note = e.target.value;
+      setDiagnosisData((prev) => [...prev]);
     },
-    [selectedData]
+    [diagnosisData]
   );
 
   const onRemoveRow = (index) => {
-    selectedData.splice(index, 1);
-    setSelectedData((prev) => [...prev]);
+    diagnosisData.splice(index, 1);
+    setDiagnosisData((prev) => [...prev]);
   };
 
   //PopOver1 function
@@ -311,7 +311,7 @@ function DiagnosisBox() {
   };
 
   const onTemplateSelected = (template) => {
-    setSelectedData([...selectedData, ...template.diagnosis]);
+    setDiagnosisData([...diagnosisData, ...template.diagnosis]);
     showHideTemplatesListPopover();
   };
 
@@ -321,13 +321,13 @@ function DiagnosisBox() {
 
   //PopOver2 function
   const showHideSaveTemplatePopOver = useCallback(() => {
-    setTdtTemplateName(null);
+    setInputTemplateName(null);
     setPopOver2(!popOver2);
   }, [popOver2]);
 
   const onTabChange = useCallback(
     (key) => {
-      setTdtTemplateName(null);
+      setInputTemplateName(null);
       setTabChange(key);
     },
     [tabChange]
@@ -335,65 +335,85 @@ function DiagnosisBox() {
 
   const onChangeSaveTemplate = useCallback(
     (e) => {
-      setTdtTemplateName(e.target.value);
+      setInputTemplateName(e.target.value);
     },
-    [tdtTemplateName]
+    [inputTemplateName]
   );
 
   const onAddTemplateClicked = async () => {
-    if (selectedData.length > 0) {
+    if (diagnosisData.length == 0) {
+      messageApi.open({
+        MESSAGE_KEY,
+        type: 'warning',
+        content: 'At least 1 diagnososes added',
+        duration: 2
+      });
+    } else if (diagnosisData.filter(e => e.tds_name == "").length > 0) {
+      messageApi.open({
+        MESSAGE_KEY,
+        type: 'warning',
+        content: 'Please fillup diagnosis name',
+        duration: 2
+      });
+    } else {
       var sendData = {
-        tdt_template_name: tdtTemplateName,
-        diagnosis: selectedData,
+        tdt_template_name: inputTemplateName,
+        diagnosis: diagnosisData,
       };
       const action = await dispatch(addTemplate(sendData));
       if (action.meta.requestStatus == "fulfilled") {
-        setTdtTemplateName(null);
+        setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
-    } else {
-      alert("At least 1 diagnososes added");
     }
   };
 
   const onSearchTemplate = useCallback(() => {
-    setTdtTemplateName(null);
-  }, [tdtTemplateName]);
+    setInputTemplateName(null);
+  }, [inputTemplateName]);
 
   const onSelectTemplate = useCallback(
     (data, e) => {
-      setTdtTemplateName(e.key);
+      setInputTemplateName(e.key);
     },
-    [tdtTemplateName]
+    [inputTemplateName]
   );
 
-  useEffect(() => {
-    console.log('selectedData: ', selectedData);
-  }, [selectedData]);
-
   const onUpdateTemplateClicked = async () => {
-    if (selectedData.length > 0) {
-      var data = JSON.parse(tdtTemplateName);
+    if (diagnosisData.length == 0) {
+      messageApi.open({
+        MESSAGE_KEY,
+        type: 'warning',
+        content: 'At least 1 diagnososes added',
+        duration: 2
+      });
+    } else if (diagnosisData.filter(e => e.tds_name == "").length > 0) {
+      messageApi.open({
+        MESSAGE_KEY,
+        type: 'warning',
+        content: 'Please fillup diagnosis name',
+        duration: 2
+      });
+    } else {
+      var data = JSON.parse(inputTemplateName);
       var sendData = {
         tdt_id: data.tdt_id,
         tdt_template_name: data.tdt_template_name,
-        diagnosis: selectedData,
+        diagnosis: diagnosisData,
       };
       const action = await dispatch(updateTemplate(sendData));
       if (action.meta.requestStatus == "fulfilled") {
-        setTdtTemplateName(null);
+        setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
-    } else {
-      alert("At least 1 diagnososes added");
     }
   };
 
   //Child Componet
   const TABLE_DIAGNOSISES = useMemo(() => {
     return (
-      selectedData.length > 0 &&
-      selectedData.map((item, index) => {
+      diagnosisData.length > 0 &&
+      diagnosisData.map((item, index) => {
         return (
           <Row
             key={index}
@@ -405,6 +425,7 @@ function DiagnosisBox() {
                 <AutoComplete
                   defaultValue={item.tds_name}
                   // value={item.tds_name}
+                  placeholder="Diagnosis Name"
                   bordered={false}
                   defaultOpen={false}
                   onSearch={(query) => onSearchChild(query, index)}
@@ -428,35 +449,14 @@ function DiagnosisBox() {
                 className="autocomplete-custom w-100 inputborder"
                 defaultActiveFirstOption={true}
                 onSelect={(data) => onSelectSinceChild(data, index)}
-                onBlur={() => onBlurChild(index)}
               />
             </Col>
             <Col lg={4} md={4} sm={4} xs={4} className="border-end">
               <Select
                 className="autocomplete-custom w-100 inputborder"
                 placeholder="Severity"
-                // onSelect={(value) => {
-                //     accumulateOtherData(item, "severity", value);
-                // }}
                 onSelect={(data) => onSelectSeverityChild(data, index)}
                 options={SEVERITY_LIST}
-
-                //     showSearch
-                // className="autocomplete-custom w-100 popinput inputheight41"
-                // placeholder="Select Template"
-                // onSearch={onSearchTemplate}
-                // onSelect={onSelectTemplate}
-                // options={allTemplates.map((template) => {
-                //     return {
-                //         key: JSON.stringify(template),
-                //         value: template.tdt_template_name,
-                //         label: (
-                //             <div key={template.tdt_id}>
-                //                 {template.tdt_template_name}
-                //             </div>
-                //         ),
-                //     };
-                // })}
               />
             </Col>
             <Col lg={8} md={8} sm={7} xs={7} className="border-end">
@@ -478,7 +478,7 @@ function DiagnosisBox() {
         );
       })
     );
-  }, [selectedData, childSearchOptions]);
+  }, [diagnosisData, childSearchOptions]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useCallback(() => {
@@ -524,9 +524,8 @@ function DiagnosisBox() {
                     <div className="text-truncate">
                       {template.diagnosis.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.tds_name}${
-                            template.diagnosis.length - 1 != ii ? ", " : ""
-                          }`}</span>
+                          <span key={ii}>{`${item.tds_name}${template.diagnosis.length - 1 != ii ? ", " : ""
+                            }`}</span>
                         );
                       })}
                     </div>
@@ -574,6 +573,7 @@ function DiagnosisBox() {
         {tabChange === TAB_ADD_TEMPLATE ? (
           <div className="pop-header d-flex">
             <Input
+              value={inputTemplateName && inputTemplateName}
               className="popinput inputheight41"
               placeholder="Template Name"
               onChange={onChangeSaveTemplate}
@@ -581,7 +581,7 @@ function DiagnosisBox() {
             <Button
               className="btn btn-primary3 btn-41 ms-3"
               loading={loading}
-              disabled={tdtTemplateName ? false : true}
+              disabled={inputTemplateName ? false : true}
               onClick={onAddTemplateClicked}
             >
               {" Save "}
@@ -591,6 +591,7 @@ function DiagnosisBox() {
           <div className="pop-header d-flex">
             <Select
               showSearch
+              value={inputTemplateName && inputTemplateName.tdt_template_name}
               className="autocomplete-custom w-100 popinput inputheight41"
               placeholder="Select Template"
               onSearch={onSearchTemplate}
@@ -610,7 +611,7 @@ function DiagnosisBox() {
             <Button
               className="btn btn-primary3 btn-41 ms-3"
               loading={loading}
-              disabled={tdtTemplateName ? false : true}
+              disabled={inputTemplateName ? false : true}
               onClick={onUpdateTemplateClicked}
             >
               {" Update "}
@@ -619,10 +620,11 @@ function DiagnosisBox() {
         )}
       </>
     );
-  }, [tabChange, popOver2, tdtTemplateName, loading, allTemplates]);
+  }, [tabChange, popOver2, inputTemplateName, loading, allTemplates]);
 
   return (
-    <div className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3">
+    <>
+      {contextHolder}
       <div className="prescription-box-sm">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
@@ -682,7 +684,7 @@ function DiagnosisBox() {
           </AutoComplete>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

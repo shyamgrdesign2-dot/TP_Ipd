@@ -1,10 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import ApiAppointments from "../api/services/ApiAppointments";
 import ApiSymptoms from "../api/services/ApiSymptoms";
 
 const initialState = {
-  selectedDiagnosisList: [],
+  selectedSymptomsList: [],
   parentOptionsList: [],
   childOptionsList: [],
   templates: [],
@@ -16,7 +15,7 @@ export const addTemplate = createAsyncThunk(
   "symptoms/addTemplate",
   async (template) => {
     let result = {};
-    result = await ApiAppointments.addTemplate(template);
+    result = await ApiSymptoms.addTemplate(template);
     if (result.status) {
       return result.data;
     } else {
@@ -28,7 +27,7 @@ export const addTemplate = createAsyncThunk(
 export const updateTemplate = createAsyncThunk(
   "symptoms/updateTemplate",
   async (template) => {
-    const result = await ApiAppointments.updateTemplate(template);
+    const result = await ApiSymptoms.updateTemplate(template);
     if (result.status) {
       return result.data;
     } else {
@@ -40,7 +39,7 @@ export const updateTemplate = createAsyncThunk(
 export const deleteTemplate = createAsyncThunk(
   "symptoms/deleteTemplate",
   async (templateId) => {
-    const result = await ApiAppointments.deleteTemplate(templateId);
+    const result = await ApiSymptoms.deleteTemplate(templateId);
     if (result.status) {
       return result.data;
     } else {
@@ -49,11 +48,11 @@ export const deleteTemplate = createAsyncThunk(
   }
 );
 
-export const getTemplates = createAsyncThunk(
-  "symptoms/getTemplates",
+export const getSymptomsTemplates = createAsyncThunk(
+  "symptoms/getSymptomsTemplates",
   async () => {
     let result = {};
-    result = await ApiSymptoms.getTemplates();
+    result = await ApiSymptoms.getSymptomsTemplates();
     if (result.status) {
       return result.data;
     } else {
@@ -62,11 +61,11 @@ export const getTemplates = createAsyncThunk(
   }
 );
 
-export const getFrequentlySearchedDiagnosis = createAsyncThunk(
-  "symptoms/getFrequentlySearchedDiagnosis",
+export const getFrequentlySearchedSymptoms = createAsyncThunk(
+  "symptoms/getFrequentlySearchedSymptoms",
   async () => {
     let result = {};
-    result = await ApiAppointments.getFrequentlySearchedDiagnosis();
+    result = await ApiSymptoms.getFrequentlySearchedSymptoms();
     if (result.status) {
       return result.data;
     } else {
@@ -75,11 +74,11 @@ export const getFrequentlySearchedDiagnosis = createAsyncThunk(
   }
 );
 
-export const searchDiagnosis = createAsyncThunk(
-  "symptoms/searchDiagnosis",
+export const searchSymptoms = createAsyncThunk(
+  "symptoms/searchSymptoms",
   async (data) => {
     let result = {};
-    result = await ApiAppointments.searchDiagnosis(data.searchQuery);
+    result = await ApiSymptoms.searchSymptoms(data.searchQuery);
     if (result.status) {
       return result.data;
     } else {
@@ -88,11 +87,7 @@ export const searchDiagnosis = createAsyncThunk(
   }
 );
 
-// export const clearDiagnosisSearch = createAsyncThunk("diagnosis/clearDiagnosisSearch", async () => {
-//   return null;
-// });
-
-const diagnosisSlice = createSlice({
+const symptomsSlice = createSlice({
   name: "symptoms",
   initialState,
   extraReducers: (builder) => {
@@ -102,21 +97,20 @@ const diagnosisSlice = createSlice({
       })
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedDiagnosisList = action.payload.diagnosis;
+        state.selectedSymptomsList = action.payload.symptoms;
         state.templates.unshift(action.payload);
       })
       .addCase(addTemplate.rejected, (state, action) => {
         state.loading = false;
-        state.selectedDiagnosisList = [];
       })
       .addCase(updateTemplate.pending, (state) => {
         state.loading = true;
       })
       .addCase(updateTemplate.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedDiagnosisList = action.payload.diagnosis;
+        state.selectedSymptomsList = action.payload.symptoms;
         const index = state.templates.findIndex(
-          (e) => e.tdt_id == action.payload.tdt_id
+          (e) => e.tst_id == action.payload.tst_id
         );
         if (index != -1) {
           state.templates[index] = action.payload;
@@ -124,60 +118,53 @@ const diagnosisSlice = createSlice({
       })
       .addCase(updateTemplate.rejected, (state, action) => {
         state.loading = false;
-        state.selectedDiagnosisList = [];
       })
       .addCase(deleteTemplate.pending, (state, action) => {
         const updatedData = state.templates.map((e) =>
-          e.tdt_id == action.meta.arg ? { ...e, loading: true } : e
+          e.tst_id == action.meta.arg ? { ...e, loading: true } : e
         );
         state.templates = [...updatedData];
       })
       .addCase(deleteTemplate.fulfilled, (state, action) => {
         const result = state.templates.filter(
-          (item) => item.tdt_id !== action.payload.tdt_id
+          (item) => item.tst_id !== action.payload.tst_id
         );
         state.templates = [...result];
       })
       .addCase(deleteTemplate.rejected, (state, action) => {
         const updatedData = state.templates.map((e) =>
-          e.tdt_id == action.meta.arg ? { ...e, loading: false } : e
+          e.tst_id == action.meta.arg ? { ...e, loading: false } : e
         );
         state.templates = [...updatedData];
       })
-      .addCase(getTemplates.fulfilled, (state, action) => {
+      .addCase(getSymptomsTemplates.fulfilled, (state, action) => {
         state.templates = action.payload;
       })
-      .addCase(getTemplates.rejected, (state, action) => {
+      .addCase(getSymptomsTemplates.rejected, (state, action) => {
         state.templates = [];
       })
-      .addCase(getFrequentlySearchedDiagnosis.fulfilled, (state, action) => {
+      .addCase(getFrequentlySearchedSymptoms.fulfilled, (state, action) => {
         state.parentOptionsList = action.payload;
       })
-      .addCase(getFrequentlySearchedDiagnosis.rejected, (state, action) => {
+      .addCase(getFrequentlySearchedSymptoms.rejected, (state, action) => {
         state.parentOptionsList = [];
       })
-      .addCase(searchDiagnosis.pending, (state) => {})
-      .addCase(searchDiagnosis.fulfilled, (state, action) => {
+      .addCase(searchSymptoms.pending, (state) => { })
+      .addCase(searchSymptoms.fulfilled, (state, action) => {
         if (action.meta.arg.type == "parent") {
           state.parentOptionsList = action.payload;
         } else {
           state.childOptionsList = action.payload;
         }
       })
-      .addCase(searchDiagnosis.rejected, (state, action) => {
+      .addCase(searchSymptoms.rejected, (state, action) => {
         if (action.meta.arg.type == "parent") {
           state.parentOptionsList = [];
         } else {
           state.childOptionsList = [];
         }
       });
-    // .addCase(clearDiagnosisSearch.fulfilled, (state, action) => {
-    //   state.loading = false;
-    //   state.error = null;
-    //   state.diagnosis = action.payload;
-    //   console.log("clearDiagnosisSearch.fulfilled: ", action.payload);
-    // })
   },
 });
 
-export default diagnosisSlice.reducer;
+export default symptomsSlice.reducer;

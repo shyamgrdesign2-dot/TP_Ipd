@@ -5,7 +5,7 @@ import TabSearchHeader from "./TabSearchHeader";
 import TabSearchMedicationDetails from "./TabSearchMedicationDetails";
 import TabSearchSymptomsDetails from "./TabSearchSymptomsDetails";
 
-function TabSearch() {
+function TabSearch({ type }) {
     const buttonRef = useRef(null);
     const [buttonWidth, setButtonWidth] = useState(0);
     const character = 'Frequent Urination Muscle'
@@ -15,7 +15,7 @@ function TabSearch() {
         setButtonWidth(buttonRef.current.offsetWidth);
     }, [buttonRef]);
 
-    
+
 
     return (
         <>
@@ -41,12 +41,12 @@ function TabSearch() {
                                     </div>
                                 </div>
                                 {/* For Advise box */}
-                                <div className="title2">
+                                {/* <div className="title2">
                                     Selected Advices
-                                </div>
-                                <div className="mt-3">
+                                </div> */}
+                                {/* <div className="mt-3">
                                     <TabSelectedAdvise />
-                                </div>
+                                </div> */}
                                 <div className="d-flex flex-wrap mt-3">
                                     <div className="title2">
                                         Frequently Used
@@ -108,16 +108,23 @@ function TabSearch() {
                             </div>
                         </Col>
                         <Col md={10}>
+
                             <div className="h-100">
-                                {/* <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
-                                    <span> Chest Pain</span>
+                                <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
+                                    {type === 1 ? (
+                                        <span> Chest Pain</span>
+                                    ) : (
+                                        <>
+                                            <div className="fontroboto title-common">Dolo (650mg) </div>
+                                            <div className="fontroboto mt-1">Paracetamol (650 mg)</div>
+                                        </>
+                                    )}
                                 </div>
-                                <TabSearchSymptomsDetails /> */}
-                                <div className="selectedchip-header d-flex flex-column justify-content-center px-20">
-                                    <div className="fontroboto title-common">Dolo (650mg) </div>
-                                    <div className="fontroboto mt-1">Paracetamol (650 mg)</div>
-                                </div>
-                                <TabSearchMedicationDetails />
+                                {type === 1 ? (
+                                    <TabSearchSymptomsDetails />
+                                ) : (
+                                    <TabSearchMedicationDetails />
+                                )}
                             </div>
                         </Col>
                     </Row>

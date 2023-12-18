@@ -47,10 +47,10 @@ function ProfilePopover() {
             className='cursor-pointer'
             overlayClassName="pop-260 pp-20"
         >
-            <div className={['align-items-center d-flex h-100', isTablet ? '' : 'ps-3']}>
-                {!isTablet ? <div className='rounded-pill patientProfile border me-3'>AP</div> : ''}
+            <div className={'align-items-center d-flex h-100 ps-3'}>
+                <div className='rounded-pill patientProfile border me-3'>AP</div>
                 <div>
-                    <div className='patientName'> Ashish Patel{isTablet ? <span className='text-2 text-black'>, M, 28y </span>: <div className='text-2'> M, 28y </div>} </div>
+                    <div className='patientName'> Ashish Pate<div className='text-2'> M, 28y </div></div>
                 </div>
                 <div className='iconrotate270 align-self-start ms-2 mt-1'>
                     <i className='icon-right'></i> 

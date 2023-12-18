@@ -8,7 +8,6 @@ const initialState = {
   childOptionsList: [],
   templates: [],
   loading: false,
-  isAddingUpdatingTemplate: false,
   error: null,
 };
 
@@ -88,17 +87,13 @@ export const searchDiagnosis = createAsyncThunk(
   }
 );
 
-// export const clearDiagnosisSearch = createAsyncThunk("diagnosis/clearDiagnosisSearch", async () => {
-//   return null;
-// });
-
 const diagnosisSlice = createSlice({
   name: "diagnosis",
   initialState,
   extraReducers: (builder) => {
     builder
       .addCase(addTemplate.pending, (state) => {
-        state.isAddingUpdatingTemplate = true;
+        state.loading = true;
       })
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.loading = false;
@@ -107,10 +102,9 @@ const diagnosisSlice = createSlice({
       })
       .addCase(addTemplate.rejected, (state, action) => {
         state.loading = false;
-        state.selectedDiagnosisList = [];
       })
       .addCase(updateTemplate.pending, (state) => {
-        state.isAddingUpdatingTemplate = true;
+        state.loading = true;
       })
       .addCase(updateTemplate.fulfilled, (state, action) => {
         state.loading = false;
@@ -124,7 +118,6 @@ const diagnosisSlice = createSlice({
       })
       .addCase(updateTemplate.rejected, (state, action) => {
         state.loading = false;
-        state.selectedDiagnosisList = [];
       })
       .addCase(deleteTemplate.pending, (state, action) => {
         const updatedData = state.templates.map((e) =>
@@ -156,7 +149,7 @@ const diagnosisSlice = createSlice({
       .addCase(getFrequentlySearchedDiagnosis.rejected, (state, action) => {
         state.parentOptionsList = [];
       })
-      .addCase(searchDiagnosis.pending, (state) => {})
+      .addCase(searchDiagnosis.pending, (state) => { })
       .addCase(searchDiagnosis.fulfilled, (state, action) => {
         if (action.meta.arg.type == "parent") {
           state.parentOptionsList = action.payload;

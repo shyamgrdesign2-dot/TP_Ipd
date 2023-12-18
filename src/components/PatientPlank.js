@@ -35,7 +35,7 @@ const PatientPlank = ({patient, isModalOpen, setIsModalOpen}) => {
               Patient Details
             </Button>
           </Link>
-          <Link to="/Prescription">
+          <Link to="/prescription">
             <Button
               type="text"
               className="btn btn-primary3 align-items-center d-flex"
