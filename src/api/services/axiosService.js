@@ -11,6 +11,11 @@ const instance = axios.create({
 // Request interceptor
 instance.interceptors.request.use(
     (config) => {
+        if(!window.navigator.onLine) {
+            const error = 'Internet connection not available';
+            notification.error({ message: error })
+            return Promise.reject(new Error(error));
+        }
         // You can modify the request config here (e.g., add headers)
         if (config.customBaseUrl) {
             config.baseURL = config.customBaseUrl;
