@@ -23,6 +23,7 @@ function TabPrescription() {
     const [buttonWidth, setButtonWidth] = useState(0);
     const character = 'Frequent Urination Muscle'
     const [open, setDrawer] = useState(false);
+    const [openVital, setVitalDrawer] = useState(false);
     const [openSave, setSaveDrawer] = useState(false);
     const [openSearch, setSearchDrawer] = useState(false);
     const [openClosableChips, setClosableChipsDrawer] = useState(false);
@@ -32,6 +33,14 @@ function TabPrescription() {
     useEffect(() => {
         setButtonWidth(buttonRef.current.offsetWidth);
     }, [buttonRef]);
+
+    // Drawer Vitals
+    const vitalsDrawer = () => {
+        setVitalDrawer(true);
+    };
+    const onVitalClose = () => {
+        setVitalDrawer(false);
+    };
 
     // Drawer Template
     const templateDrawer = () => {
@@ -165,37 +174,37 @@ function TabPrescription() {
             <div className='w-100 bg-body wrapper2 custom-scroll prescription-wrapper p-0'>
                 <Layout>
                     <div className="prescription-sidebar">
-                        <button type='button' className="mb-3 text-center btn btn-action" onClick={() => setCollapsed(!collapsed)}>
+                        <button type='button' className="mb-3 text-center btn btn-action" onClick={vitalsDrawer}>
                             <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                 <img src={vitalsWhite} alt="Vitals" />
                             </div>
                             <label className="text-white mt-1">Vitals</label>
                         </button>
-                        <button type='button' className="mb-3 text-center btn btn-action" onClick={() => setCollapsed(!collapsed)}>
+                        <button type='button' className="mb-3 text-center btn btn-action">
                             <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                 <img src={medicalHistoryWhite} alt="History" />
                             </div>
                             <label className="text-white mt-1">History</label>
                         </button>
-                        <button type='button' className="mb-3 text-center btn btn-action" onClick={() => setCollapsed(!collapsed)}>
+                        <button type='button' className="mb-3 text-center btn btn-action">
                             <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                 <img src={labParametersWhite} alt="Lab" />
                             </div>
                             <label className="text-white mt-1">Lab</label>
                         </button>
-                        <button type='button' className="mb-3 text-center btn btn-action" onClick={() => setCollapsed(!collapsed)}>
+                        <button type='button' className="mb-3 text-center btn btn-action">
                             <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                 <img src={vaccinationWhite} alt="Vaccine" />
                             </div>
                             <label className="text-white mt-1">Vaccine</label>
                         </button>
-                        <button type='button' className="mb-3 text-center btn btn-action" onClick={() => setCollapsed(!collapsed)}>
+                        <button type='button' className="mb-3 text-center btn btn-action">
                             <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                 <img src={notesWhite} alt="Notes" />
                             </div>
                             <label className="text-white mt-1">Notes</label>
                         </button>
-                        <button type='button' className="mb-3 text-center btn btn-action" onClick={() => setCollapsed(!collapsed)}>
+                        <button type='button' className="mb-3 text-center btn btn-action">
                             <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                 <img src={docsWhite} alt="Docs" />
                             </div>
@@ -246,7 +255,7 @@ function TabPrescription() {
                             </div>
                         </>
                     </Sider>
-                    <div className="p-20 w-100 overflow-y-auto" style={{height : 'calc(100vh - 60px)'}}>
+                    <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                         <Content>
                             {/* Symptoms Box */}
                             <div className="prescription-box-sm p-20px">
@@ -413,7 +422,7 @@ function TabPrescription() {
                                 </div>
                             </div>
 
-                             {/* Medication Box */}
+                            {/* Medication Box */}
                             <div className="prescription-box-sm p-20px">
                                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                                     <div className="d-flex align-items-center">
@@ -439,7 +448,7 @@ function TabPrescription() {
                                             </AutoComplete>
                                         </Form.Group>
                                     </Form>
-                                   <Drawer closeIcon={false} placement="right" onClose={searchonClose} open={openSearch} width={'100%'} className="searchdrawer-content">
+                                    <Drawer closeIcon={false} placement="right" onClose={searchonClose} open={openSearch} width={'100%'} className="searchdrawer-content">
                                         <TabSearch />
                                     </Drawer>
                                 </div>
@@ -532,13 +541,38 @@ function TabPrescription() {
                                     </Row>
                                 </div>
                             </div>
-                        
+
                         </Content>
                     </div>
                 </Layout>
             </div>
+            <Drawer closeIcon={false} placement="right" onClose={onVitalClose} open={openVital} className="tamplatemodal-width" width="auto">
+                <Card bordered={false} className="search-modalCard h-100">
+                    <div className='modalCard-header h-60 align-items-center justify-content-between d-flex'>
+                        <div className='align-items-center d-flex'>
+                            <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100'>
+                                <i className='icon-Cross fs-3'></i>
+                            </Button>
+                            <div className="modal-title">Vitals</div>
+                        </div>
+                        <Button onClick={() => setCollapsed(!collapsed)} className='btn btn-primary3 btn-41 px-4 me-20'>
+                            Done
+                        </Button>
+                    </div>
+                    <div className="align-items-center d-flex justify-content-between px-20 py-3">
+                        <Button className='btn btn-primary2 btn-41'>
+                            Add New Date
+                        </Button>
+                        <div className="float-end d-flex align-itms-center">
+                            <i className="icon-setting me-2"></i>
+                            <span className="text-decoration-underline fw-medium"> Add or Configure </span>
+                        </div>
+                    </div>
+                </Card>
+            </Drawer >
         </>
     );
 }
+
 
 export default TabPrescription;

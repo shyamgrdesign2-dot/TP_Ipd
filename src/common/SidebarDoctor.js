@@ -10,7 +10,7 @@ function SidebarDoctor() {
                     isPending ? "pending" : isActive ? "active" : ""
                 }>
                     <i className='icon-calendar'></i>
-                    <div className='mt-1 px-2'>{isTablet ? 'Appt' : 'Appointment'}</div>
+                    <div className='mt-1 px-2'>{isTablet ? 'Appt' : <div className='text-truncate'>Appointment</div>}</div>
                 </NavLink>
                 {/* <NavLink to="/" className={({ isActive, isPending }) =>
                     isPending ? "pending" : isActive ? "active" : ""

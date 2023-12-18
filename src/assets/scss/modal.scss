@@ -64,6 +64,9 @@ body {
                     height: 74px;
                     border-bottom: 1px solid $bordercolor;
                     background-color: $white;
+                    &.h-60 {
+                        height: 60px;
+                    }
                 }
                 .modalcard-body {
                     height: calc(100vh - 74px);
