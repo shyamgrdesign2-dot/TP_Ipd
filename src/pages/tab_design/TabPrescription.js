@@ -15,6 +15,7 @@ import { Content } from "antd/es/layout/layout";
 import TabSearch from "../../components/tab_design/TabSearch";
 import TabSearchDetails from "../../components/tab_design/TabSearchSymptomsDetails";
 import TabSelectedAdvise from "../../components/tab_design/TabSelectedAdvise";
+import VitalsDetails from "../../components/VitalsDetails";
 
 function TabPrescription() {
     // For Symptoms Autocomplete
@@ -273,7 +274,7 @@ function TabPrescription() {
                                         <button className='btn d-flex align-items-center btn-text' onClick={templateDrawer}> <i className="icon-template me-2"></i> <span>Templates</span></button>
                                         <button className='btn d-flex align-items-center btn-text' onClick={saveDrawer}> <i className="icon-save me-2"></i> <span>Save</span></button>
                                     </div>
-                                    <Drawer title="Symptoms Templates" placement="right" onClose={onClose} open={open} className="tamplatemodal-width" width="auto">
+                                    <Drawer title="Symptoms Templates" placement="right" onClose={onClose} open={open} className="modalWidth-563" width="auto">
                                         <>
                                             <div>
                                                 <div className="medicine-templates">
@@ -335,7 +336,7 @@ function TabPrescription() {
                                         </>
                                     </Drawer>
 
-                                    <Drawer title="Save Template" placement="right" onClose={saveonClose} open={openSave} className="tamplatemodal-width" width="auto">
+                                    <Drawer title="Save Template" placement="right" onClose={saveonClose} open={openSave} className="modalWidth-563" width="auto">
                                         <>
                                             <div className="d-flex justify-content-between align-items-center border-bottom templatepopover">
                                                 <Tabs defaultActiveKey="1" items={saveitems} onChange={onTabChange} className="w-100" />
@@ -372,7 +373,7 @@ function TabPrescription() {
                                             <i className="icon-Cross"></i>
                                         </Button>
                                     </div>
-                                    <Drawer closeIcon={false} placement="right" onClose={ClosableChipsonClose} open={openClosableChips} className="tamplatemodal-width" width="auto">
+                                    <Drawer closeIcon={false} placement="right" onClose={ClosableChipsonClose} open={openClosableChips} className="modalWidth-563" width="auto">
                                         <>
                                             <Card bordered={false} className="search-modalCard">
                                                 <div className='modalCard-header align-items-center justify-content-between d-flex'>
@@ -550,7 +551,7 @@ function TabPrescription() {
                     </div>
                 </Layout>
             </div>
-            <Drawer closeIcon={false} placement="right" onClose={onVitalClose} open={openVital} className="tamplatemodal-width" width="auto">
+            <Drawer closeIcon={false} placement="right" onClose={onVitalClose} open={openVital} className="modalWidth-645" width="auto">
                 <Card bordered={false} className="search-modalCard h-100">
                     <div className='modalCard-header h-60 align-items-center justify-content-between d-flex'>
                         <div className='align-items-center d-flex'>
@@ -572,6 +573,7 @@ function TabPrescription() {
                             <span className="text-decoration-underline fw-medium"> Add or Configure </span>
                         </div>
                     </div>
+                    <VitalsDetails />
                 </Card>
             </Drawer >
         </>
