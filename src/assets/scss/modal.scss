@@ -48,8 +48,11 @@ body {
             }
         }
         .ant-drawer-content{
-            &.tamplatemodal-width{
+            &.modalWidth-563{
                 width: 563px !important;
+            }
+            &.modalWidth-645 {
+                width: 645px;
             }
         }
         .ant-card{

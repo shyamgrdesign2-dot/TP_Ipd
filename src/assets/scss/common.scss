@@ -3,6 +3,7 @@
 }
 *::-webkit-scrollbar {
     width: 5px;
+    height: 5px;
 }
 *::-webkit-scrollbar-track {
     background: #eee;
@@ -14,6 +15,9 @@
 body {
     font-family: 'Poppins' !important;
     color: $maincolor;
+    &::selection {
+        background-color: $themesecondary;
+    }
     a {
         text-decoration: none;
     }
