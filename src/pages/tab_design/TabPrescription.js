@@ -553,7 +553,7 @@ function TabPrescription() {
             </div>
             <Drawer closeIcon={false} placement="right" onClose={onVitalClose} open={openVital} className="modalWidth-645" width="auto">
                 <Card bordered={false} className="search-modalCard h-100">
-                    <div className='modalCard-header h-60 align-items-center justify-content-between d-flex'>
+                    <div className='modalCard-header align-items-center justify-content-between d-flex'>
                         <div className='align-items-center d-flex'>
                             <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100'>
                                 <i className='icon-Cross fs-3'></i>
