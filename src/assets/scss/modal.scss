@@ -63,14 +63,6 @@ body {
                     padding: 0;
                     height: 100%;
                 }
-                .modalCard-header {
-                    height: 60px;
-                    border-bottom: 1px solid $bordercolor;
-                    background-color: $white;
-                    &.h-74 {
-                        height: 74px;
-                    }
-                }
                 .modalcard-body {
                     height: calc(100vh - 74px);
                     overflow-y: auto;
@@ -91,6 +83,14 @@ body {
             .ant-card {
                 background: $bgbody !important;
             }
+        }
+    }
+    .modalCard-header {
+        height: 60px;
+        border-bottom: 1px solid $bordercolor;
+        background-color: $white;
+        &.h-74 {
+            height: 74px;
         }
     }
     .modal-title {

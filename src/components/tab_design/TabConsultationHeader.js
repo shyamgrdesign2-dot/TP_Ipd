@@ -1,6 +1,7 @@
 import React from "react";
 import { Button} from 'antd';
 import { Link } from "react-router-dom";
+
 function TabConsultationHeader() {
     return (
         <div className='modalCard-header align-items-center d-flex'>
@@ -10,7 +11,7 @@ function TabConsultationHeader() {
                 </Button>
             </div>
             <div className="w-100 px-20 title-common">Star Walking Consultation</div>
-            <Link to='/patient_details'>
+            <Link to='/add_new_patient'>
                 <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center' icon={<i className="icon-Add"></i>}>
                     Add New Patient
                 </Button>
@@ -19,4 +20,4 @@ function TabConsultationHeader() {
     );
 }
 
-export default TabConsultationHeader;
+export default React.memo(TabConsultationHeader);
