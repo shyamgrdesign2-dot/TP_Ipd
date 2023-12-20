@@ -308,7 +308,10 @@ function ExaminationBox() {
   };
 
   const onTemplateSelected = (template) => {
-    setExaminationData([...examinationData, ...template.examination]);
+    const updatedData = template.examination.map(e => {
+      return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" }
+    })
+    setExaminationData([...examinationData, ...updatedData]);
     showHideTemplatesListPopover();
   };
 

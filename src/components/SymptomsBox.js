@@ -308,7 +308,10 @@ function SymptomsBox() {
   };
 
   const onTemplateSelected = (template) => {
-    setSymptomsData([...symptomsData, ...template.symptoms]);
+    const updatedData = template.symptoms.map(e => {
+      return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" }
+    })
+    setSymptomsData([...symptomsData, ...updatedData]);
     showHideTemplatesListPopover();
   };
 
