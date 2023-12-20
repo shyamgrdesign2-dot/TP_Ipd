@@ -348,7 +348,7 @@ function DiagnosisBox() {
       messageApi.open({
         MESSAGE_KEY,
         type: 'warning',
-        content: 'At least 1 diagnososes added',
+        content: 'At least 1 diagnosis added',
         duration: 2
       });
     } else if (diagnosisData.filter(e => e.tds_name == "").length > 0) {
@@ -387,7 +387,7 @@ function DiagnosisBox() {
       messageApi.open({
         MESSAGE_KEY,
         type: 'warning',
-        content: 'At least 1 diagnososes added',
+        content: 'At least 1 diagnosis added',
         duration: 2
       });
     } else if (diagnosisData.filter(e => e.tds_name == "").length > 0) {
@@ -413,7 +413,7 @@ function DiagnosisBox() {
   };
 
   //Child Componet
-  const TABLE_DIAGNOSISES = useMemo(() => {
+  const TABLE_DIAGNOSIS = useMemo(() => {
     return (
       diagnosisData.length > 0 &&
       diagnosisData.map((item, index) => {
@@ -421,7 +421,7 @@ function DiagnosisBox() {
           <Row
             key={index}
             gutter={[0]}
-            className="align-items-center border-bottom border-top mt-14"
+            className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
           >
             <Col lg={7} md={7} sm={7} xs={7} className="border-end">
               <div className="fontroboto fw-medium">
@@ -668,7 +668,7 @@ function DiagnosisBox() {
           </div>
         </div>
 
-        {TABLE_DIAGNOSISES}
+        {TABLE_DIAGNOSIS}
 
         <div className="p-14">
           <AutoComplete

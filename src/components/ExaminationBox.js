@@ -418,7 +418,7 @@ function ExaminationBox() {
           <Row
             key={index}
             gutter={[0]}
-            className="align-items-center border-bottom border-top mt-14"
+            className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
           >
             <Col lg={7} md={7} sm={7} xs={7} className="border-end">
               <div className="fontroboto fw-medium">

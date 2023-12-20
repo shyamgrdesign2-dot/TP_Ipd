@@ -148,6 +148,7 @@ body {
             letter-spacing: 0.1px;
             border-color: $bordercolor !important;
             border-radius: 0;
+            color: $maincolor;
             &:focus, &:focus-within {
                 box-shadow: 0 0 0 2px rgba(74, 74, 212, 0.1) !important;
             }
