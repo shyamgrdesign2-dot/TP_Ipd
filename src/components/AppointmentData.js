@@ -1,15 +1,27 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Table, Select, Segmented, DatePicker, Dropdown } from "antd";
+import {
+  Table,
+  Select,
+  Segmented,
+  DatePicker,
+  Dropdown,
+  Input,
+  AutoComplete,
+} from "antd";
 import { Form, Row, Col, Button, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 import { useSelector, useDispatch } from "react-redux";
 
 import { getAllRecords, searchAppointments } from "../redux/appointmentsSlice";
 import { getFormattedDate } from "../utils/utils";
-import moment from "moment";
 
-function AppointmentData() {
+export const TAB_QUEUE = 0;
+export const TAB_FINISHED = 1;
+export const TAB_CANCELLED = 4;
+
+function AppointmentData({ type }) {
+  console.log("type: ", type);
   const navigate = useNavigate();
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
@@ -25,6 +37,7 @@ function AppointmentData() {
   };
   const [date, setDate] = useState(initialDate);
   const [searchQuery, setSearchQuery] = useState(null);
+  const [value, setValue] = useState(null);
   const [pageNo, setPageNo] = useState(0);
   const { records, loading, error, queueCount } = useSelector(
     (state) => state.records
@@ -118,18 +131,7 @@ function AppointmentData() {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      filters: [
-        {
-          text: "Joe",
-          value: "Joe",
-        },
-        {
-          text: "Jim",
-          value: "Jim",
-        },
-      ],
       filteredValue: filteredInfo.name || null,
-      onFilter: (value, record) => record.name.includes(value),
       sorter: (a, b) => a.name.length - b.name.length,
       sortOrder: sortedInfo.columnKey === "name" ? sortedInfo.order : null,
       render: (text, record) => (
@@ -153,7 +155,18 @@ function AppointmentData() {
       title: "Visit Type",
       dataIndex: "toct_type",
       key: "visittype",
-      sorter: (a, b) => a.visittype.length - b.visittype.length,
+      onFilter: (value, record) => record.name.includes(value),
+      filters: [
+        {
+          text: "New",
+          value: "new-visit",
+        },
+        {
+          text: "Follow-Up",
+          value: "follow-up-visit",
+        },
+      ],
+      // sorter: (a, b) => a.visittype.length - b.visittype.length,
       sortOrder: sortedInfo.columnKey === "visittype" ? sortedInfo.order : null,
       ellipsis: true,
     },
@@ -200,13 +213,12 @@ function AppointmentData() {
 
   const dateChange = (date, dateString) => {
     console.log(date, dateString);
-    if(dateString) {
+    if (dateString) {
       setDate({
         startDate: getFormattedDate(dateString),
         endDate: getFormattedDate(dateString),
       });
     }
-   
   };
 
   const items = [
@@ -281,9 +293,10 @@ function AppointmentData() {
   };
 
   const onSearch = (e) => {
+    const query = e;
+    setValue(query);
+    console.log("query: ", query);
     let timeOutId = setTimeout(() => {
-      const query = e.target.value;
-      console.log("query: ", query);
       setSearchQuery(query);
 
       return () => {
@@ -294,7 +307,7 @@ function AppointmentData() {
 
   const getDefaultDate = () => {
     const defaultDate = dayjs(getFormattedDate(date.startDate), "YYYY-MM-DD");
-    console.log('defaultDate: ', defaultDate);
+    console.log("defaultDate: ", defaultDate);
     return defaultDate;
   };
 
@@ -304,11 +317,33 @@ function AppointmentData() {
         <Col xl={3} lg={4}>
           <Form>
             <Form.Group className="mb-4" controlId="exampleForm.ControlInput1">
-              <Form.Control
+              {/* <Form.Control
                 type="text"
                 placeholder="Search by patient name"
                 onChange={onSearch}
-              />
+                prefix={<i className="icon-search" />}
+              /> */}
+              <AutoComplete
+                value={value}
+                onSearch={onSearch}
+                defaultActiveFirstOption={true}
+              >
+                <Input
+                  placeholder="Search by patient name"
+                  prefix={<i className="icon-search" />}
+                  suffix={
+                    searchQuery?.length > 0 && (
+                      <i
+                        className="icon-Cross"
+                        onClick={() => {
+                          onSearch(null);
+                          setValue("");
+                        }}
+                      />
+                    )
+                  }
+                />
+              </AutoComplete>
             </Form.Group>
           </Form>
         </Col>
@@ -327,7 +362,7 @@ function AppointmentData() {
               </Button>
               <Button variant="outline-light" className="p-0">
                 <DatePicker
-                  allowClear={false}
+                  // allowClear={false}
                   onChange={dateChange}
                   value={
                     date.startDate === date.endDate

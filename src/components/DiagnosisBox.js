@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useContext,
+} from "react";
 import {
   AutoComplete,
   Input,
@@ -9,13 +15,13 @@ import {
   Popover,
   Tabs,
   Spin,
-  message
+  message,
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
-import CashManagerContext from '../context/CashManagerContext';
+import CashManagerContext from "../context/CashManagerContext";
 import { MESSAGE_KEY } from "../utils/constants";
 import { onlyNumberFormat } from "../utils/utils";
 import Diagnosisicon from "../assets/images/Diagnosis.svg";
@@ -25,7 +31,7 @@ import {
   deleteTemplate,
   getDiagnosisTemplates,
   getFrequentlySearchedDiagnosis,
-  searchDiagnosis
+  searchDiagnosis,
 } from "../redux/diagnosisSlice";
 
 function DiagnosisBox() {
@@ -311,9 +317,9 @@ function DiagnosisBox() {
   };
 
   const onTemplateSelected = (template) => {
-    const updatedData = template.diagnosis.map(e => {
-      return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" }
-    })
+    const updatedData = template.diagnosis.map((e) => {
+      return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" };
+    });
     setDiagnosisData([...diagnosisData, ...updatedData]);
     showHideTemplatesListPopover();
   };
@@ -347,16 +353,16 @@ function DiagnosisBox() {
     if (diagnosisData.length == 0) {
       messageApi.open({
         MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 diagnosis added',
-        duration: 2
+        type: "warning",
+        content: "At least 1 diagnosis added",
+        duration: 2,
       });
-    } else if (diagnosisData.filter(e => e.tds_name == "").length > 0) {
+    } else if (diagnosisData.filter((e) => e.tds_name == "").length > 0) {
       messageApi.open({
         MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup diagnosis name',
-        duration: 2
+        type: "warning",
+        content: "Please fillup diagnosis name",
+        duration: 2,
       });
     } else {
       var sendData = {
@@ -386,16 +392,16 @@ function DiagnosisBox() {
     if (diagnosisData.length == 0) {
       messageApi.open({
         MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 diagnosis added',
-        duration: 2
+        type: "warning",
+        content: "At least 1 diagnosis added",
+        duration: 2,
       });
-    } else if (diagnosisData.filter(e => e.tds_name == "").length > 0) {
+    } else if (diagnosisData.filter((e) => e.tds_name == "").length > 0) {
       messageApi.open({
         MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup diagnosis name',
-        duration: 2
+        type: "warning",
+        content: "Please fillup diagnosis name",
+        duration: 2,
       });
     } else {
       var data = JSON.parse(inputTemplateName);
@@ -421,7 +427,9 @@ function DiagnosisBox() {
           <Row
             key={index}
             gutter={[0]}
-            className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
+            className={`${
+              index === 0 && "mt-14 border-top"
+            } align-items-center border-bottom`}
           >
             <Col lg={7} md={7} sm={7} xs={7} className="border-end">
               <div className="fontroboto fw-medium">
@@ -474,7 +482,7 @@ function DiagnosisBox() {
                 className="btn py-0 btn-delete-prescription px-0"
                 onClick={() => onRemoveRow(index)}
               >
-                <i className="icon-delete"></i>
+                <i className="icon-delete" />
               </Button>
             </Col>
           </Row>
@@ -517,7 +525,7 @@ function DiagnosisBox() {
                     className="round-box"
                     onClick={() => onTemplateSelected(template)}
                   >
-                    <i className="icon-template"></i>
+                    <i className="icon-template" />
                   </div>
                   <div
                     className="text-truncate w-100"
@@ -527,8 +535,9 @@ function DiagnosisBox() {
                     <div className="text-truncate">
                       {template.diagnosis.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.tds_name}${template.diagnosis.length - 1 != ii ? ", " : ""
-                            }`}</span>
+                          <span key={ii}>{`${item.tds_name}${
+                            template.diagnosis.length - 1 != ii ? ", " : ""
+                          }`}</span>
                         );
                       })}
                     </div>
@@ -544,7 +553,7 @@ function DiagnosisBox() {
                         }
                       />
                     ) : (
-                      <i className="icon-delete"></i>
+                      <i className="icon-delete" />
                     )}
                   </Button>
                 </div>
@@ -570,7 +579,7 @@ function DiagnosisBox() {
             className="btn btn-delete-prescription"
             onClick={showHideSaveTemplatePopOver}
           >
-            <i className="icon-Cross"></i>
+            <i className="icon-Cross" />
           </Button>
         </div>
         {tabChange === TAB_ADD_TEMPLATE ? (
@@ -637,7 +646,7 @@ function DiagnosisBox() {
           <div className="d-flex align-items-center">
             <button className="btn d-flex align-items-center btn-text">
               {" "}
-              <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span>
+              <i className="icon-reload me-2" /> <span>Load Prev. Rx</span>
             </button>
             <Popover
               open={popOver1}
@@ -649,7 +658,7 @@ function DiagnosisBox() {
             >
               <button className="btn d-flex align-items-center btn-text">
                 {" "}
-                <i className="icon-template me-2"></i> <span>Templates</span>
+                <i className="icon-template me-2" /> <span>Templates</span>
               </button>
             </Popover>
             <Popover
@@ -662,7 +671,7 @@ function DiagnosisBox() {
             >
               <button className="btn d-flex align-items-center btn-text">
                 {" "}
-                <i className="icon-save me-2"></i> <span>Save</span>
+                <i className="icon-save me-2" /> <span>Save</span>
               </button>
             </Popover>
           </div>
@@ -682,7 +691,7 @@ function DiagnosisBox() {
           >
             <Input
               placeholder="Search by Patient’s Name, Phone number or Id"
-              prefix={<i className="icon-search"></i>}
+              prefix={<i className="icon-search" />}
             />
           </AutoComplete>
         </div>

@@ -2,7 +2,11 @@ import React, { useCallback, useState } from "react";
 import { Tabs } from "antd";
 import { useSelector } from "react-redux";
 
-import AppointmentData from "../components/AppointmentData";
+import AppointmentData, {
+  TAB_CANCELLED,
+  TAB_FINISHED,
+  TAB_QUEUE,
+} from "../components/AppointmentData";
 
 function Appointment() {
   const [tabChange, setTabChange] = useState("1");
@@ -49,11 +53,11 @@ function Appointment() {
     <div className="border rounded-4 appointment-wrap dateborder">
       <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
       {tabChange == 1 ? (
-        <AppointmentData />
+        <AppointmentData type={TAB_QUEUE} />
       ) : tabChange == 2 ? (
-        <h1>Finished</h1>
+        <AppointmentData type={TAB_FINISHED} />
       ) : (
-        <h1>Cancelled</h1>
+        <AppointmentData type={TAB_CANCELLED} />
       )}
     </div>
   );
