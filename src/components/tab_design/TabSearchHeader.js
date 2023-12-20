@@ -4,7 +4,7 @@ import { AutoComplete, Input, Button } from 'antd';
 function TabSearchHeader(props) {
     const { onClose, searchParentQuery, onSearchParent, onSearchParentClose } = props
     return (
-        <div className='modalCard-header align-items-center d-flex'>
+        <div className='modalCard-header h-74 align-items-center d-flex'>
             <div className='border-end h-100 text-center'>
                 <Button className='btn btn-delete-prescription px-3 h-100' onClick={onClose}>
                     <i className='icon-right'></i>

@@ -299,8 +299,13 @@
 }
 
 body {
-    .ant-notification .ant-notification-notice-wrapper .ant-notification-notice-with-icon .ant-notification-notice-message {
-        margin-bottom: 0;
+    .ant-notification .ant-notification-notice-wrapper {
+        .ant-notification-notice-with-icon .ant-notification-notice-message {
+            margin-bottom: 0;
+        }
+        .ant-notification-notice {
+            min-height: 60px;
+        }
     }
     .tablet-medication-tabs {
         .ant-tabs-nav {

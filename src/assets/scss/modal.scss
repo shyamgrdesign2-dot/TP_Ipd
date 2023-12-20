@@ -64,11 +64,11 @@ body {
                     height: 100%;
                 }
                 .modalCard-header {
-                    height: 74px;
+                    height: 60px;
                     border-bottom: 1px solid $bordercolor;
                     background-color: $white;
-                    &.h-60 {
-                        height: 60px;
+                    &.h-74 {
+                        height: 74px;
                     }
                 }
                 .modalcard-body {
