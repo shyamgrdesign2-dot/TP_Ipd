@@ -103,6 +103,7 @@ function DiagnosisBox() {
           searchDiagnosis({ searchQuery: searchParentQuery, type: "parent" })
         );
       }, 500);
+      
       return () => {
         clearTimeout(timeOutId);
       };

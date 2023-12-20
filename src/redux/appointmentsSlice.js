@@ -151,11 +151,16 @@ const appointmentsSlice = createSlice({
         state.records = null;
         state.error = action.error;
       })
+      .addCase(searchAppointments.pending, (state, action) => {
+        state.error = null;
+        state.loading = true;
+      })
       .addCase(searchAppointments.fulfilled, (state, action) => {
         state.error = null;
         state.records = {
           app_data: action.payload
         };
+        state.loading = false;
         state.patients = action.payload;
         state.queueCount = action.payload?.queue_count ?? 0;
       })
@@ -163,6 +168,7 @@ const appointmentsSlice = createSlice({
         console.log('search.rejected.action.payload: ', action);
         state.records = null;
         state.patients = [];
+        state.loading = false;
         state.error = action.error.message;
       })
       .addCase(searchPincode.fulfilled, (state, action) => {

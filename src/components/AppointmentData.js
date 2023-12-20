@@ -27,10 +27,10 @@ function AppointmentData({ type }) {
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterDate = getFormattedDate(yesterday);
   const todaysDate = getFormattedDate(new Date());
-  console.log("todaysDate: ", todaysDate);
-  console.log("yesterDate: ", yesterDate);
-  const startDate = "2023-08-17";
-  const endDate = "2023-08-17";
+  /* console.log("todaysDate: ", todaysDate);
+  console.log("yesterDate: ", yesterDate); */
+  /* const startDate = "2023-08-17";
+  const endDate = "2023-08-17"; */
   const initialDate = {
     startDate: todaysDate,
     endDate: todaysDate,
@@ -45,8 +45,16 @@ function AppointmentData({ type }) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (searchQuery && searchQuery.length >= 3) {
-      dispatch(searchAppointments(searchQuery));
+    if (searchQuery) {
+      console.log("searchQuery: ", searchQuery);
+
+      let timeOutId = setTimeout(() => {
+        dispatch(searchAppointments(searchQuery));
+      }, 500);
+
+      return () => {
+        clearTimeout(timeOutId);
+      };
     } else {
       dispatch(
         getAllRecords({
@@ -241,12 +249,10 @@ function AppointmentData({ type }) {
   };
 
   const onDateChanged = (selectedValue) => {
-    console.log("selectedValue: ", selectedValue);
     if (selectedValue === "next7days") {
       const date = new Date();
       date.setDate(date.getDate() + 7);
       const forwardDate = getFormattedDate(date);
-      console.log("forwardDate7: ", forwardDate);
       setDate({
         startDate: todaysDate,
         endDate: forwardDate,
@@ -255,7 +261,6 @@ function AppointmentData({ type }) {
       const date = new Date();
       date.setDate(date.getDate() + 30);
       const forwardDate = getFormattedDate(date);
-      console.log("forwardDate30: ", forwardDate);
       setDate({
         startDate: todaysDate,
         endDate: forwardDate,
@@ -292,18 +297,12 @@ function AppointmentData({ type }) {
     });
   };
 
-  const onSearch = (e) => {
+  const onSearch = useCallback((e) => {
     const query = e;
     setValue(query);
-    console.log("query: ", query);
-    let timeOutId = setTimeout(() => {
-      setSearchQuery(query);
-
-      return () => {
-        clearTimeout(timeOutId);
-      };
-    }, 500);
-  };
+    setSearchQuery(query);
+    
+  }, [searchQuery]);
 
   const getDefaultDate = () => {
     const defaultDate = dayjs(getFormattedDate(date.startDate), "YYYY-MM-DD");
