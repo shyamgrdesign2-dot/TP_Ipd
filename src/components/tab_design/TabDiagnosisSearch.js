@@ -6,22 +6,22 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../../context/CashManagerContext';
 import {
-    searchSymptoms
-} from "../../redux/symptomsSlice";
+    searchDiagnosis
+} from "../../redux/diagnosisSlice";
 
 import TabSearchHeader from "./TabSearchHeader";
 
-function TabSearch({ passIndex, onClose }) {
+function TabDiagnosisSearch({ passIndex, onClose }) {
 
     const {
         parentOptionsList,
         childOptionsList,
-    } = useSelector((state) => state.symptoms);
+    } = useSelector((state) => state.diagnosis);
     const dispatch = useDispatch();
 
-    const { symptomsData, setSymptomsData } = useContext(CashManagerContext);
+    const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
 
-    const [searchParentQuery, setSearchParentQuery] = useState("");
+    const [searchChildQuery, setSearchChildQuery] = useState("");
     const [childSearchOptions, setChildSearchOptions] = useState([]);
 
     const [selectedIndex, setSelectedIndex] = useState(passIndex);
@@ -33,35 +33,36 @@ function TabSearch({ passIndex, onClose }) {
 
     //Parent AutoComplete
     useEffect(() => {
-        if (searchParentQuery) {
+        if (searchChildQuery) {
             const timeOutId = setTimeout(() => {
                 dispatch(
-                    searchSymptoms({ searchQuery: searchParentQuery, type: "child" })
+                    searchDiagnosis({ searchQuery: searchChildQuery, type: "child" })
                 );
             }, 500);
             return () => {
                 clearTimeout(timeOutId);
             };
         }
-    }, [searchParentQuery]);
+    }, [searchChildQuery]);
 
     useEffect(() => {
         const data = [];
         childOptionsList.map((e) => {
             return data.push({
                 key: JSON.stringify({ ...e, unique_id: uuidv4() }),
-                value: e.symptom_name
+                value: e.tds_name
             });
         });
-        if (searchParentQuery.length > 0) {
-            searchParentQuery &&
+        if (searchChildQuery.length > 0) {
+            searchChildQuery &&
                 data.push({
                     key: JSON.stringify({
                         unique_id: uuidv4(),
-                        change: 1,
-                        symptom_name: searchParentQuery
+                        tds_id: 0,
+                        tds_name: searchChildQuery,
+                        pms_default: 0
                     }),
-                    value: searchParentQuery
+                    value: searchChildQuery
                 });
         }
         setChildSearchOptions(data);
@@ -69,43 +70,44 @@ function TabSearch({ passIndex, onClose }) {
 
     const onSearchParent = useCallback(
         (query) => {
-            setSearchParentQuery(query);
+            setSearchChildQuery(query);
         },
-        [searchParentQuery]
+        [searchChildQuery]
     );
 
     const onSelectParent = useCallback(
         (e) => {
-            symptomsData.push({
+            diagnosisData.push({
                 ...e,
                 since: "",
                 severity: "",
                 note: "",
             });
-            setSymptomsData((prev) => [...prev]);
-            setSelectedIndex(symptomsData.length - 1);
+            setDiagnosisData((prev) => [...prev]);
+            setSelectedIndex(diagnosisData.length - 1);
             setSinceValue(1)
         },
-        [symptomsData, selectedIndex, sinceValue]
+        [diagnosisData, selectedIndex, sinceValue]
     );
 
     const onRemoveRow = (index) => {
-        symptomsData.splice(index, 1);
-        setSymptomsData((prev) => [...prev]);
+        diagnosisData.splice(index, 1);
+        setDiagnosisData((prev) => [...prev]);
         setSelectedIndex(null)
     };
 
-    const TABLE_SYMPTOMS = useMemo(() => {
+    //Child Componet
+    const TABLE_DIAGNOSIS = useMemo(() => {
         return (
-            symptomsData.length > 0 &&
-            symptomsData.map((item, index) => {
+            diagnosisData.length > 0 &&
+            diagnosisData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.symptom_name.length > 12 && item.symptom_name.length < 24 ? `${item.symptom_name.length * 10.5}px` : item.symptom_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
+                    <div key={index} style={{ width: item.tds_name.length > 12 && item.tds_name.length < 24 ? `${item.tds_name.length * 10.5}px` : item.tds_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
                         <div className="text-truncate p-2" onClick={() => {
                             setSelectedIndex(index)
                             setSinceValue(item.since ? parseInt(item.since.split(" ")[0]) : 1)
                         }}>
-                            <div className="text-truncate">{item.symptom_name}
+                            <div className="text-truncate">{item.tds_name}
                                 {(item.since || item.severity || item.note) ? (
                                     <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.severity ? item.severity + ' | ' : ''}${item.note ? item.note : ''}`}</div>
                                 ) : (
@@ -120,7 +122,7 @@ function TabSearch({ passIndex, onClose }) {
                 );
             })
         );
-    }, [symptomsData]);
+    }, [diagnosisData]);
 
 
     useEffect(() => {
@@ -157,8 +159,8 @@ function TabSearch({ passIndex, onClose }) {
     const onChangeInputSinceChild = useCallback(
         (e) => {
             setInputSince(e.target.value);
-            symptomsData[selectedIndex].since = '';
-            setSymptomsData((prev) => [...prev]);
+            diagnosisData[selectedIndex].since = '';
+            setDiagnosisData((prev) => [...prev]);
             if (e.target.value.length > 0) {
                 const options = SINCE_OPTIONS.map((option) => {
                     return {
@@ -179,7 +181,7 @@ function TabSearch({ passIndex, onClose }) {
                 setSinceOptions(options);
             }
         },
-        [inputSince, sinceOptions, symptomsData]
+        [inputSince, sinceOptions, diagnosisData]
     );
 
     const SINCE_LIST = [
@@ -200,33 +202,33 @@ function TabSearch({ passIndex, onClose }) {
     const onChangeSegmentedSinceChild = useCallback(
         (key) => {
             setSinceValue(key)
-            symptomsData[selectedIndex].since = '';
-            setSymptomsData((prev) => [...prev]);
+            diagnosisData[selectedIndex].since = '';
+            setDiagnosisData((prev) => [...prev]);
         },
-        [sinceValue, selectedIndex, symptomsData]
+        [sinceValue, selectedIndex, diagnosisData]
     );
 
     const onChangeSinceChild = useCallback(
         (key) => {
-            symptomsData[selectedIndex].since = key;
-            setSymptomsData((prev) => [...prev]);
+            diagnosisData[selectedIndex].since = key;
+            setDiagnosisData((prev) => [...prev]);
         },
-        [selectedIndex, symptomsData]
+        [selectedIndex, diagnosisData]
     );
 
     const onChangeSeverityChild = useCallback(
         (key) => {
-            symptomsData[selectedIndex].severity = key;
-            setSymptomsData((prev) => [...prev]);
+            diagnosisData[selectedIndex].severity = key;
+            setDiagnosisData((prev) => [...prev]);
         },
-        [selectedIndex, symptomsData]
+        [selectedIndex, diagnosisData]
     );
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            symptomsData[selectedIndex].note = e.target.value;
-            setSymptomsData((prev) => [...prev]);
+            diagnosisData[selectedIndex].note = e.target.value;
+            setDiagnosisData((prev) => [...prev]);
         },
-        [selectedIndex, symptomsData]
+        [selectedIndex, diagnosisData]
     );
 
     //Child Componet
@@ -236,7 +238,7 @@ function TabSearch({ passIndex, onClose }) {
                 <>
                     <div className="h-100">
                         <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
-                            <span>{selectedIndex != null && symptomsData[selectedIndex].symptom_name}</span>
+                            <span className="text-truncate-twolines">{selectedIndex != null && diagnosisData[selectedIndex].tds_name}</span>
                         </div>
                         <div className="p-4">
                             <div>
@@ -252,7 +254,7 @@ function TabSearch({ passIndex, onClose }) {
                             </div>
                             <div className="mt-3">
                                 <Segmented
-                                    value={selectedIndex != null && symptomsData[selectedIndex].since}
+                                    value={selectedIndex != null && diagnosisData[selectedIndex].since}
                                     className="search-segment"
                                     options={sinceOptions}
                                     onChange={onChangeSinceChild}
@@ -263,7 +265,7 @@ function TabSearch({ passIndex, onClose }) {
                                     Severity
                                 </label>
                                 <Segmented
-                                    value={selectedIndex != null && symptomsData[selectedIndex].severity}
+                                    value={selectedIndex != null && diagnosisData[selectedIndex].severity}
                                     className="search-segment"
                                     options={SEVERITY_LIST}
                                     onChange={onChangeSeverityChild}
@@ -273,7 +275,7 @@ function TabSearch({ passIndex, onClose }) {
                                 <label className="title-common">
                                     Add Details
                                 </label>
-                                <Input.TextArea value={selectedIndex != null && symptomsData[selectedIndex].note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                                <Input.TextArea value={selectedIndex != null && diagnosisData[selectedIndex].note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                             </div>
                         </div>
                     </div>
@@ -281,35 +283,35 @@ function TabSearch({ passIndex, onClose }) {
                 </>
             )
         );
-    }, [selectedIndex, symptomsData, sinceValue, inputSince, sinceOptions]);
+    }, [selectedIndex, diagnosisData, sinceValue, inputSince, sinceOptions]);
 
     return (
         <>
             <Card bordered={false} className="search-modalCard h-100">
                 <TabSearchHeader
-                    searchParentQuery={searchParentQuery}
+                    searchQuery={searchChildQuery}
                     onSearchParent={onSearchParent}
                     onClose={onClose} />
                 <div className="modalcard-body">
                     <Row gutter={0} className="h-100">
                         <Col md={14}>
                             <div className="bg-white h-100 p-14">
-                                {symptomsData.length > 0 && (
+                                {diagnosisData.length > 0 && (
                                     <>
                                         <div className="title2">
                                             Added
                                         </div>
                                         <div className="d-flex flex-wrap mt-3">
-                                            {TABLE_SYMPTOMS}
+                                            {TABLE_DIAGNOSIS}
                                         </div>
                                     </>
                                 )}
                                 <div>
                                     <div className="title2">
-                                        {searchParentQuery.length > 0 ? 'Searched' : 'Frequently Used'}
+                                        {searchChildQuery.length > 0 ? 'Searched' : 'Frequently Used'}
                                     </div>
                                     <div className="mt-3 d-flex flex-wrap">
-                                        {searchParentQuery.length > 0 ? (
+                                        {searchChildQuery.length > 0 ? (
                                             childSearchOptions.length > 0 &&
                                             childSearchOptions.map((item, i) => {
                                                 return (
@@ -320,7 +322,7 @@ function TabSearch({ passIndex, onClose }) {
                                             parentOptionsList.length > 0 &&
                                             parentOptionsList.map((item, i) => {
                                                 return (
-                                                    <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.symptom_name}</Button>
+                                                    <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.tds_name}</Button>
                                                 )
                                             })
                                         )}
@@ -338,4 +340,4 @@ function TabSearch({ passIndex, onClose }) {
     );
 }
 
-export default React.memo(TabSearch);
+export default React.memo(TabDiagnosisSearch);

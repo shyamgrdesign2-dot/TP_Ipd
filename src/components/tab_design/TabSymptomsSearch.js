@@ -11,7 +11,7 @@ import {
 
 import TabSearchHeader from "./TabSearchHeader";
 
-function TabSearch({ passIndex, onClose }) {
+function TabSymptomsSearch({ passIndex, onClose }) {
 
     const {
         parentOptionsList,
@@ -21,7 +21,7 @@ function TabSearch({ passIndex, onClose }) {
 
     const { symptomsData, setSymptomsData } = useContext(CashManagerContext);
 
-    const [searchParentQuery, setSearchParentQuery] = useState("");
+    const [searchChildQuery, setSearchChildQuery] = useState("");
     const [childSearchOptions, setChildSearchOptions] = useState([]);
 
     const [selectedIndex, setSelectedIndex] = useState(passIndex);
@@ -33,17 +33,17 @@ function TabSearch({ passIndex, onClose }) {
 
     //Parent AutoComplete
     useEffect(() => {
-        if (searchParentQuery) {
+        if (searchChildQuery) {
             const timeOutId = setTimeout(() => {
                 dispatch(
-                    searchSymptoms({ searchQuery: searchParentQuery, type: "child" })
+                    searchSymptoms({ searchQuery: searchChildQuery, type: "child" })
                 );
             }, 500);
             return () => {
                 clearTimeout(timeOutId);
             };
         }
-    }, [searchParentQuery]);
+    }, [searchChildQuery]);
 
     useEffect(() => {
         const data = [];
@@ -53,15 +53,15 @@ function TabSearch({ passIndex, onClose }) {
                 value: e.symptom_name
             });
         });
-        if (searchParentQuery.length > 0) {
-            searchParentQuery &&
+        if (searchChildQuery.length > 0) {
+            searchChildQuery &&
                 data.push({
                     key: JSON.stringify({
                         unique_id: uuidv4(),
                         change: 1,
-                        symptom_name: searchParentQuery
+                        symptom_name: searchChildQuery
                     }),
-                    value: searchParentQuery
+                    value: searchChildQuery
                 });
         }
         setChildSearchOptions(data);
@@ -69,9 +69,9 @@ function TabSearch({ passIndex, onClose }) {
 
     const onSearchParent = useCallback(
         (query) => {
-            setSearchParentQuery(query);
+            setSearchChildQuery(query);
         },
-        [searchParentQuery]
+        [searchChildQuery]
     );
 
     const onSelectParent = useCallback(
@@ -95,6 +95,7 @@ function TabSearch({ passIndex, onClose }) {
         setSelectedIndex(null)
     };
 
+    //Child Componet
     const TABLE_SYMPTOMS = useMemo(() => {
         return (
             symptomsData.length > 0 &&
@@ -236,7 +237,7 @@ function TabSearch({ passIndex, onClose }) {
                 <>
                     <div className="h-100">
                         <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
-                            <span>{selectedIndex != null && symptomsData[selectedIndex].symptom_name}</span>
+                            <span className="text-truncate-twolines">{selectedIndex != null && symptomsData[selectedIndex].symptom_name}</span>
                         </div>
                         <div className="p-4">
                             <div>
@@ -287,7 +288,7 @@ function TabSearch({ passIndex, onClose }) {
         <>
             <Card bordered={false} className="search-modalCard h-100">
                 <TabSearchHeader
-                    searchParentQuery={searchParentQuery}
+                    searchQuery={searchChildQuery}
                     onSearchParent={onSearchParent}
                     onClose={onClose} />
                 <div className="modalcard-body">
@@ -306,10 +307,10 @@ function TabSearch({ passIndex, onClose }) {
                                 )}
                                 <div>
                                     <div className="title2">
-                                        {searchParentQuery.length > 0 ? 'Searched' : 'Frequently Used'}
+                                        {searchChildQuery.length > 0 ? 'Searched' : 'Frequently Used'}
                                     </div>
                                     <div className="mt-3 d-flex flex-wrap">
-                                        {searchParentQuery.length > 0 ? (
+                                        {searchChildQuery.length > 0 ? (
                                             childSearchOptions.length > 0 &&
                                             childSearchOptions.map((item, i) => {
                                                 return (
@@ -338,4 +339,4 @@ function TabSearch({ passIndex, onClose }) {
     );
 }
 
-export default React.memo(TabSearch);
+export default React.memo(TabSymptomsSearch);

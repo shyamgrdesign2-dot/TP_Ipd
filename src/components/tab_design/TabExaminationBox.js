@@ -7,30 +7,30 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
-import Symptomsicon from "../../assets/images/Symptoms.svg";
+import Examinationicon from "../../assets/images/Examination.svg";
 import {
     addTemplate,
     updateTemplate,
     deleteTemplate,
-    getSymptomsTemplates,
-    getFrequentlySearchedSymptoms,
-} from "../../redux/symptomsSlice";
+    getExaminationTemplates,
+    getFrequentlySearchedExamination,
+} from "../../redux/examinationSlice";
 
-import TabSymptomsSearch from "../../components/tab_design/TabSymptomsSearch";
+import TabExaminationSearch from "../../components/tab_design/TabExaminationSearch";
 
-function TabSymptomsBox() {
+function TabExaminationBox() {
 
     const [messageApi, contextHolder] = message.useMessage();
     const {
-        selectedSymptomsList,
+        selectedExaminationList,
         parentOptionsList,
         templates,
         loading,
-    } = useSelector((state) => state.symptoms);
+    } = useSelector((state) => state.examination);
     const dispatch = useDispatch();
 
-    const { symptomsData, setSymptomsData } = useContext(CashManagerContext);
-    // const [ symptomsData, setSymptomsData] = useState([]);
+    const { examinationData, setExaminationData } = useContext(CashManagerContext);
+    // const [ examinationData, setExaminationData] = useState([]);
 
     const [parentDrawer, setParentDrawer] = useState(false);
     const [childDrawer, setChildDrawer] = useState(false);
@@ -58,17 +58,17 @@ function TabSymptomsBox() {
 
 
     useEffect(() => {
-        if (selectedSymptomsList.length > 0) {
-            const updatedData = symptomsData.map((e, i) => {
-                return { ...e, ...selectedSymptomsList[i] };
+        if (selectedExaminationList.length > 0) {
+            const updatedData = examinationData.map((e, i) => {
+                return { ...e, ...selectedExaminationList[i] };
             });
-            setSymptomsData(updatedData);
+            setExaminationData(updatedData);
         }
-    }, [selectedSymptomsList]);
+    }, [selectedExaminationList]);
 
     useEffect(() => {
-        dispatch(getSymptomsTemplates());
-        dispatch(getFrequentlySearchedSymptoms());
+        dispatch(getExaminationTemplates());
+        dispatch(getFrequentlySearchedExamination());
     }, []);
 
     useEffect(() => {
@@ -77,8 +77,8 @@ function TabSymptomsBox() {
     }, [templates]);
 
     const onRemoveRow = (index) => {
-        symptomsData.splice(index, 1);
-        setSymptomsData((prev) => [...prev]);
+        examinationData.splice(index, 1);
+        setExaminationData((prev) => [...prev]);
         setSelectedIndex(null)
     };
 
@@ -89,17 +89,17 @@ function TabSymptomsBox() {
 
     const onSelectParent = useCallback(
         (e) => {
-            symptomsData.push({
+            examinationData.push({
                 ...e,
                 since: "",
                 severity: "",
                 note: "",
             });
-            setSymptomsData((prev) => [...prev]);
-            setSelectedIndex(symptomsData.length - 1);
+            setExaminationData((prev) => [...prev]);
+            setSelectedIndex(examinationData.length - 1);
             handleDrawerParent()
         },
-        [symptomsData, selectedIndex, parentDrawer]
+        [examinationData, selectedIndex, parentDrawer]
     );
 
     // Handle Child Drawer
@@ -129,15 +129,15 @@ function TabSymptomsBox() {
     );
 
     const onTemplateSelected = (template) => {
-        const updatedData = template.symptoms.map(e => {
+        const updatedData = template.examination.map(e => {
             return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" }
         })
-        setSymptomsData([...symptomsData, ...updatedData]);
+        setExaminationData([...examinationData, ...updatedData]);
         handleDrawerTemplate();
     };
 
-    const onDeleteTemplateClicked = (tst_id) => {
-        dispatch(deleteTemplate(tst_id));
+    const onDeleteTemplateClicked = (tet_id) => {
+        dispatch(deleteTemplate(tet_id));
     };
 
     const onChangeSaveTemplate = useCallback(
@@ -148,24 +148,24 @@ function TabSymptomsBox() {
     );
 
     const onAddTemplateClicked = async () => {
-        if (symptomsData.length == 0) {
+        if (examinationData.length == 0) {
             messageApi.open({
                 MESSAGE_KEY,
                 type: 'warning',
-                content: 'At least 1 symptom added',
+                content: 'At least 1 examination added',
                 duration: 2
             });
-        } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
+        } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
             messageApi.open({
                 MESSAGE_KEY,
                 type: 'warning',
-                content: 'Please fillup symptom name',
+                content: 'Please fillup examination name',
                 duration: 2
             });
         } else {
             var sendData = {
-                tst_template_name: inputTemplateName,
-                symptoms: symptomsData,
+                tet_template_name: inputTemplateName,
+                examination: examinationData,
             };
             const action = await dispatch(addTemplate(sendData));
             if (action.meta.requestStatus == "fulfilled") {
@@ -187,26 +187,26 @@ function TabSymptomsBox() {
     );
 
     const onUpdateTemplateClicked = async () => {
-        if (symptomsData.length == 0) {
+        if (examinationData.length == 0) {
             messageApi.open({
                 MESSAGE_KEY,
                 type: 'warning',
-                content: 'At least 1 symptom added',
+                content: 'At least 1 examination added',
                 duration: 2
             });
-        } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
+        } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
             messageApi.open({
                 MESSAGE_KEY,
                 type: 'warning',
-                content: 'Please fillup symptom name',
+                content: 'Please fillup examination name',
                 duration: 2
             });
         } else {
             var data = JSON.parse(inputTemplateName);
             var sendData = {
-                tst_id: data.tst_id,
-                tst_template_name: data.tst_template_name,
-                symptoms: symptomsData,
+                tet_id: data.tet_id,
+                tet_template_name: data.tet_template_name,
+                examination: examinationData,
             };
             const action = await dispatch(updateTemplate(sendData));
             if (action.meta.requestStatus == "fulfilled") {
@@ -217,14 +217,14 @@ function TabSymptomsBox() {
     };
 
     //Child Componet
-    const TABLE_SYMPTOMS = useMemo(() => {
+    const TABLE_EXAMINATION = useMemo(() => {
         return (
-            symptomsData.length > 0 &&
-            symptomsData.map((item, index) => {
+            examinationData.length > 0 &&
+            examinationData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.symptom_name.length > 12 && item.symptom_name.length < 24 ? `${item.symptom_name.length * 10.5}px` : item.symptom_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
+                    <div key={index} style={{ width: item.examination_name.length > 12 && item.examination_name.length < 24 ? `${item.examination_name.length * 10.5}px` : item.examination_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
                         <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
-                            <div className="text-truncate">{item.symptom_name}
+                            <div className="text-truncate">{item.examination_name}
                                 {(item.since || item.severity || item.note) ? (
                                     <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.severity ? item.severity + ' | ' : ''}${item.note ? item.note : ''}`}</div>
                                 ) : (
@@ -239,7 +239,7 @@ function TabSymptomsBox() {
                 );
             })
         );
-    }, [symptomsData]);
+    }, [examinationData]);
 
     //Template Componet
     const TEMPLATE_CONTENT = useMemo(() => {
@@ -257,18 +257,18 @@ function TabSymptomsBox() {
                                         <div className="align-items-center d-flex text-truncate">
                                             <div className="round-box" onClick={() => onTemplateSelected(template)}><i className="icon-template"></i></div>
                                             <div className="text-truncate" onClick={() => onTemplateSelected(template)}>
-                                                <div className="title">{template.tst_template_name}</div>
+                                                <div className="title">{template.tet_template_name}</div>
                                                 <div className="text-truncate">
-                                                    {template.symptoms.map((item, ii) => {
+                                                    {template.examination.map((item, ii) => {
                                                         return (
-                                                            <span key={ii}>{`${item.symptom_name}${template.symptoms.length - 1 != ii ? ", " : ""
+                                                            <span key={ii}>{`${item.examination_name}${template.examination.length - 1 != ii ? ", " : ""
                                                                 }`}</span>
                                                         );
                                                     })}
                                                 </div>
                                             </div>
                                         </div>
-                                        <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => onDeleteTemplateClicked(template.tst_id)}>
+                                        <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => onDeleteTemplateClicked(template.tet_id)}>
                                             {template.loading ? (
                                                 <Spin
                                                     indicator={
@@ -320,7 +320,7 @@ function TabSymptomsBox() {
                     <div className="medicine-templates d-flex">
                         <Select
                             showSearch
-                            value={inputTemplateName && inputTemplateName.tst_template_name}
+                            value={inputTemplateName && inputTemplateName.tet_template_name}
                             className="autocomplete-custom w-100 popinput inputheight41"
                             placeholder="Select Template"
                             onSearch={onSearchTemplate}
@@ -328,10 +328,10 @@ function TabSymptomsBox() {
                             options={allTemplates.map((template) => {
                                 return {
                                     key: JSON.stringify(template),
-                                    value: template.tst_template_name,
+                                    value: template.tet_template_name,
                                     label: (
-                                        <div key={template.tst_id}>
-                                            {template.tst_template_name}
+                                        <div key={template.tet_id}>
+                                            {template.tet_template_name}
                                         </div>
                                     ),
                                 };
@@ -455,8 +455,8 @@ function TabSymptomsBox() {
 
     const updateChild = (item) => {
         const { index, ...updatedReqData } = item;
-        symptomsData[item.index] = { ...symptomsData[item.index], ...updatedReqData };
-        setSymptomsData((prev) => [...prev]);
+        examinationData[item.index] = { ...examinationData[item.index], ...updatedReqData };
+        setExaminationData((prev) => [...prev]);
         handleDrawerChild()
     }
 
@@ -471,7 +471,7 @@ function TabSymptomsBox() {
                                 <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={handleDrawerChild}>
                                     <i className='icon-Cross fs-3'></i>
                                 </Button>
-                                <div className="modal-title text-truncate-twolines">{childDrawerData.symptom_name}</div>
+                                <div className="modal-title text-truncate-twolines">{childDrawerData.examination_name}</div>
                             </div>
                             <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => updateChild(childDrawerData)}>
                                 Done
@@ -527,8 +527,8 @@ function TabSymptomsBox() {
             <div className="prescription-box-sm p-20px">
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">
-                        <img className='me-2' src={Symptomsicon} alt="Symptoms" />
-                        <div className="title-common">Symptoms</div>
+                        <img className='me-2' src={Examinationicon} alt="Examination" />
+                        <div className="title-common">Examination</div>
                     </div>
 
                     <div className="d-flex align-items-center">
@@ -536,7 +536,7 @@ function TabSymptomsBox() {
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerTemplate}> <i className="icon-template me-2"></i> <span>Templates</span></button>
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerSave}> <i className="icon-save me-2"></i> <span>Save</span></button>
                     </div>
-                    <Drawer title="Symptoms Templates" placement="right" onClose={handleDrawerTemplate} open={templateDrawer} className="modalWidth-563" width="auto">
+                    <Drawer title="Examination Templates" placement="right" onClose={handleDrawerTemplate} open={templateDrawer} className="modalWidth-563" width="auto">
                         {TEMPLATE_CONTENT}
                     </Drawer>
 
@@ -545,7 +545,7 @@ function TabSymptomsBox() {
                     </Drawer>
                 </div>
                 <div className="d-flex flex-wrap p-14-pb0">
-                    {TABLE_SYMPTOMS}
+                    {TABLE_EXAMINATION}
                     <Drawer closeIcon={false} placement="right" onClose={handleDrawerChild} open={childDrawer} className="modalWidth-563" width="auto">
                         {CHILD_DRAWER_DATA}
                     </Drawer>
@@ -555,19 +555,19 @@ function TabSymptomsBox() {
                         className='autocomplete-custom w-100'
                         onClick={handleDrawerParent}>
                         <Input
-                            placeholder="Search Symptoms"
+                            placeholder="Search Examination"
                             prefix={<i className='icon-search'></i>}
                         />
                     </AutoComplete>
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
-                    {parentDrawer && (<TabSymptomsSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
+                    {parentDrawer && (<TabExaminationSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
                 </Drawer>
                 <div className="d-flex flex-wrap p-14-pb0">
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.map((item, i) => {
                             return (
-                                <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.symptom_name}</Button>
+                                <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.examination_name}</Button>
                             )
                         })}
                 </div>
@@ -577,4 +577,4 @@ function TabSymptomsBox() {
 }
 
 
-export default React.memo(TabSymptomsBox);
+export default React.memo(TabExaminationBox);
