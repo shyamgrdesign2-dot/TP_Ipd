@@ -5,7 +5,9 @@ import CashManagerContext from '../../context/CashManagerContext';
 
 import HeaderPrescription from "../../common/HeaderPrescription";
 
+import TabDiagnosisBox from "../../components/tab_design/TabDiagnosisBox";
 import TabSymptomsBox from "../../components/tab_design/TabSymptomsBox";
+import TabExaminationBox from "../../components/tab_design/TabExaminationBox";
 
 import vitalsWhite from '../../assets/images/vitals-white.svg';
 import medicalHistoryWhite from '../../assets/images/medical-history-white.svg';
@@ -200,8 +202,9 @@ function TabPrescription() {
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                             <Content>
-                                {/* Symptoms Box */}
+                                <TabDiagnosisBox />
                                 <TabSymptomsBox />
+                                <TabExaminationBox />
                             </Content>
                         </div>
                     </Layout>

@@ -2,7 +2,7 @@ import React from "react";
 import { AutoComplete, Input, Button } from 'antd';
 
 function TabSearchHeader(props) {
-    const { onClose, searchParentQuery, onSearchParent, onSearchParentClose } = props
+    const { onClose, searchQuery, onSearchParent } = props
     return (
         <div className='modalCard-header h-74 align-items-center d-flex'>
             <div className='border-end h-100 text-center'>
@@ -11,12 +11,12 @@ function TabSearchHeader(props) {
                 </Button>
             </div>
             <Input
-                value={searchParentQuery}
+                value={searchQuery}
                 className="mx-20 inputheight38"
                 placeholder="Search Symptoms / Chief Complaints"
                 prefix={<i className="icon-search"></i>}
-                suffix={searchParentQuery.length > 0 && <i className="icon-Cross" onClick={onSearchParentClose}></i>}
-                onChange={onSearchParent}
+                suffix={searchQuery.length > 0 && <i className="icon-Cross" onClick={() => onSearchParent('')}></i>}
+                onChange={(e) => onSearchParent(e.target.value)}
             />
             <Button className='btn btn-primary3 me-30 btn-41 px-4' onClick={onClose}>
                 Done
