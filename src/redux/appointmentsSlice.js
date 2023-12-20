@@ -26,7 +26,6 @@ export const getAllRecords = createAsyncThunk(
         page: pageNo,
       }
       result = await ApiAppointments.getAll(sendData);
-      console.log("results: ", result);
       if (result.status) {
         return result.data;
       }
@@ -48,7 +47,6 @@ export const searchAppointments = createAsyncThunk(
   async (query) => {
     let result = {};
     result = await ApiAppointments.search(query);
-    console.log("results: ", result);
     if (result.status) {
       return result.data;
     } else {
@@ -72,9 +70,7 @@ export const searchPincode = createAsyncThunk(
     }
     try {
       const result = await ApiAppointments.searchPincode(body);
-      console.log("results: ", result);
       if (result.status && result.data.pincode == pincode) {
-        console.log("pincode: ", result.data.pincode);
         return result.data;
       } else {
         throw Error(result.error);
@@ -97,7 +93,6 @@ export const addPatient = createAsyncThunk(
 
     try {
       const result = await ApiAppointments.addPatient(formData);
-      console.log("results: ", result);
       if (result.status) {
         return result.data;
       }
@@ -148,7 +143,6 @@ const appointmentsSlice = createSlice({
       .addCase(getAllRecords.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        console.log('getAllRecords.action.payload: ', action.payload);
         state.records = action.payload;
         state.queueCount = action.payload?.queue_count ?? 0;
       })
@@ -159,7 +153,6 @@ const appointmentsSlice = createSlice({
       })
       .addCase(searchAppointments.fulfilled, (state, action) => {
         state.error = null;
-        console.log('search.action.payload: ', action.payload);
         state.records = {
           app_data: action.payload
         };

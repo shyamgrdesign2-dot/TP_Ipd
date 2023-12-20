@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { getAllRecords, searchAppointments } from "../redux/appointmentsSlice";
 import { getFormattedDate } from "../utils/utils";
+import moment from "moment";
 
 function AppointmentData() {
   const navigate = useNavigate();
@@ -19,8 +20,8 @@ function AppointmentData() {
   const startDate = "2023-08-17";
   const endDate = "2023-08-17";
   const initialDate = {
-    startDate,
-    endDate,
+    startDate: todaysDate,
+    endDate: todaysDate,
   };
   const [date, setDate] = useState(initialDate);
   const [searchQuery, setSearchQuery] = useState(null);
@@ -29,7 +30,6 @@ function AppointmentData() {
     (state) => state.records
   );
   const dispatch = useDispatch();
-  console.log("records: ", records);
 
   useEffect(() => {
     if (searchQuery && searchQuery.length >= 3) {
@@ -44,6 +44,10 @@ function AppointmentData() {
       );
     }
   }, [pageNo, date, searchQuery, dispatch]);
+
+  useEffect(() => {
+    console.log("date: ", date);
+  }, [date]);
 
   const calanderList = [
     { value: todaysDate, label: "Today" },
@@ -95,8 +99,6 @@ function AppointmentData() {
       }
     );
   }, [records]);
-
-  console.log("data: ", data);
 
   const handleChange = (pagination, filters, sorter) => {
     console.log("Various parameters", pagination, filters, sorter);
@@ -198,10 +200,13 @@ function AppointmentData() {
 
   const dateChange = (date, dateString) => {
     console.log(date, dateString);
-    setDate({
-      startDate: getFormattedDate(dateString),
-      endDate: getFormattedDate(dateString),
-    });
+    if(dateString) {
+      setDate({
+        startDate: getFormattedDate(dateString),
+        endDate: getFormattedDate(dateString),
+      });
+    }
+   
   };
 
   const items = [
@@ -276,14 +281,21 @@ function AppointmentData() {
   };
 
   const onSearch = (e) => {
-    let id = 0;
-    id = setTimeout(() => {
+    let timeOutId = setTimeout(() => {
       const query = e.target.value;
-      console.log("value: ", query);
+      console.log("query: ", query);
       setSearchQuery(query);
 
-      clearTimeout(id);
+      return () => {
+        clearTimeout(timeOutId);
+      };
     }, 500);
+  };
+
+  const getDefaultDate = () => {
+    const defaultDate = dayjs(getFormattedDate(date.startDate), "YYYY-MM-DD");
+    console.log('defaultDate: ', defaultDate);
+    return defaultDate;
   };
 
   return (
@@ -315,16 +327,14 @@ function AppointmentData() {
               </Button>
               <Button variant="outline-light" className="p-0">
                 <DatePicker
+                  allowClear={false}
                   onChange={dateChange}
                   value={
                     date.startDate === date.endDate
                       ? dayjs(getFormattedDate(date.startDate), "YYYY-MM-DD")
                       : ""
                   }
-                  defaultValue={dayjs(
-                    getFormattedDate(date.startDate),
-                    "YYYY-MM-DD"
-                  )}
+                  defaultValue={getDefaultDate}
                   format="YYYY-MM-DD"
                   disabled={date.startDate !== date.endDate}
                 />
