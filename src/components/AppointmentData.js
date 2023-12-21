@@ -20,6 +20,7 @@ import {
 } from "../redux/appointmentsSlice";
 import { getFormattedDate } from "../utils/utils";
 import { PAGE_SIZE } from "../utils/constants";
+import moment from "moment";
 
 export const TAB_QUEUE = 0;
 export const TAB_FINISHED = 1;
@@ -188,7 +189,7 @@ function AppointmentData({ type }) {
       dataIndex: "name",
       key: "name",
       filteredValue: filteredInfo.name || null,
-      sorter: (a, b) => a.name.length - b.name.length,
+      sorter: (a, b) => a.name.localeCompare(b.name),
       sortOrder: sortedInfo.columnKey === "name" ? sortedInfo.order : null,
       render: (text, record) => (
         <div>
@@ -210,8 +211,8 @@ function AppointmentData({ type }) {
     {
       title: "Visit Type",
       dataIndex: "toct_type",
-      key: "visittype",
-      onFilter: (value, record) => record.name.includes(value),
+      key: "toct_type",
+      onFilter: (value, record) => record.toct_type === value,
       filters: [
         {
           text: "New",
@@ -223,7 +224,7 @@ function AppointmentData({ type }) {
         },
       ],
       // sorter: (a, b) => a.visittype.length - b.visittype.length,
-      sortOrder: sortedInfo.columnKey === "visittype" ? sortedInfo.order : null,
+      // sortOrder: sortedInfo.columnKey === "visittype" ? sortedInfo.order : null,
       ellipsis: true,
     },
     {
@@ -232,7 +233,18 @@ function AppointmentData({ type }) {
       key: "time",
       filteredValue: filteredInfo.time || null,
       onFilter: (value, record) => record.time.includes(value),
-      sorter: (a, b) => a.time.length - b.time.length,
+      sorter: (a, b) => {
+        const lhsDateTime = `${a.apDate} ${a.apTime}`;
+        const lhsLongTime = moment(lhsDateTime, 'Do MMM YYYY HH:mm A').valueOf();
+        // console.log('lhsLongTime: ', lhsLongTime);
+
+        const rhsDateTime = `${b.apDate} ${b.apTime}`;
+        const rhsLongTime = moment(rhsDateTime, 'Do MMM YYYY HH:mm A').valueOf();
+        // console.log('rhsLongTime: ', rhsLongTime);
+
+        const result = lhsLongTime - rhsLongTime;
+        return result;
+      },
       sortOrder: sortedInfo.columnKey === "time" ? sortedInfo.order : null,
       render: (text, record) => (
         <div>

@@ -133,19 +133,36 @@ export const generateMockData = () => {
   return data;
 };
 
-const NAMES_FIRST = ["Sooraj", "Pankaj", "Raj", "Vivek"];
+const NAMES_FIRST = [
+  "Aakash",
+  "Aavesh",
+  "Ajeet",
+  "Sooraj",
+  "Pankaj",
+  "Rajesh",
+  "Mangesh",
+  "Jayesh",
+  "Bhavesh",
+  "Raj",
+  "Vivek",
+];
 const NAMES_LAST = ["Ramachandran", "Saraswat", "Gokhale", "Shah"];
 
 export const getRandomAppointment = () => {
+  const randomMonthShort = moment()._locale._monthsShort[randomInteger(0, 11)];
+  const apiTime = `${randomInteger(1, 12)}:${randomInteger(10, 59)} PM`;
+  const apiDate = `${randomInteger(1, 31)}th ${randomMonthShort} ${randomInteger(2021, 2025)}`;
+  console.log('randomMonthShort: ', moment());
+
   return {
     pm_first_name: NAMES_FIRST[randomInteger(0, 3)],
     pm_last_name: NAMES_LAST[randomInteger(0, 3)],
     pm_gender: "Male",
     ageYears: randomInteger(18, 99),
     pm_contact_no: `${randomInteger(10, 99)}058${randomInteger(11111, 99999)}`,
-    toct_type: "follow-up",
-    apTime: `${randomInteger(1, 12)}:${randomInteger(10, 59)} PM`,
-    apDate: `17th Aug ${randomInteger(2023, 2024)}`,
+    toct_type: Math.random() < 0.5 ? "follow-up-visit" : "new-visit",
+    apTime: apiTime,
+    apDate: apiDate,
   };
 };
 
