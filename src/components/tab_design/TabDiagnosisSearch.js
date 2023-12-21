@@ -80,7 +80,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
             diagnosisData.push({
                 ...e,
                 since: "",
-                severity: "",
+                status: "",
                 note: "",
             });
             setDiagnosisData((prev) => [...prev]);
@@ -108,8 +108,8 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                             setSinceValue(item.since ? parseInt(item.since.split(" ")[0]) : 1)
                         }}>
                             <div className="text-truncate">{item.tds_name}
-                                {(item.since || item.severity || item.note) ? (
-                                    <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.severity ? item.severity + ' | ' : ''}${item.note ? item.note : ''}`}</div>
+                                {(item.since || item.status || item.note) ? (
+                                    <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.status ? item.status + ' | ' : ''}${item.note ? item.note : ''}`}</div>
                                 ) : (
                                     <div className="text-truncate small">Add Details</div>
                                 )}
@@ -193,10 +193,10 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
         { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
     ];
 
-    const SEVERITY_LIST = [
-        { value: "severe", label: "Severe" },
-        { value: "moderate", label: "Moderate" },
-        { value: "mild", label: "Mild" },
+    const STATUS_LIST = [
+        { value: "ruled out", label: "Ruled Out" },
+        { value: "suspected", label: "Suspected" },
+        { value: "confirmed", label: "Confirmed" },
     ];
 
     const onChangeSegmentedSinceChild = useCallback(
@@ -216,9 +216,9 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
         [selectedIndex, diagnosisData]
     );
 
-    const onChangeSeverityChild = useCallback(
+    const onChangeStatusChild = useCallback(
         (key) => {
-            diagnosisData[selectedIndex].severity = key;
+            diagnosisData[selectedIndex].status = key;
             setDiagnosisData((prev) => [...prev]);
         },
         [selectedIndex, diagnosisData]
@@ -262,13 +262,13 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                             </div>
                             <div className="mt-5">
                                 <label className="title-common">
-                                    Severity
+                                    Status
                                 </label>
                                 <Segmented
-                                    value={selectedIndex != null && diagnosisData[selectedIndex].severity}
+                                    value={selectedIndex != null && diagnosisData[selectedIndex].status}
                                     className="search-segment"
-                                    options={SEVERITY_LIST}
-                                    onChange={onChangeSeverityChild}
+                                    options={STATUS_LIST}
+                                    onChange={onChangeStatusChild}
                                 />
                             </div>
                             <div className="mt-5">

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
+import { isTablet } from 'react-device-detect';
 
 import Header from "../common/Header";
 import SidebarDoctor from "../common/SidebarDoctor";
 import Welcome from "../common/Welcome";
 import Appointment from "../components/Appointment";
 import AddNewPatient from "./AddNewPatient";
-import WalkInConsultation from "../components/WalkInConsultation";
+import NewWalkInConsultation from "./NewWalkInConsultation";
+import TabConsultationHeader from "../components/tab_design/TabConsultationHeader";
 
 function AppointmentList() {
 
@@ -23,17 +25,21 @@ function AppointmentList() {
 
   return (
     <>
-      <Header />
+      {(!isTablet || locationPath == '/') && (<Header />)}
       <div className="d-flex">
-        <SidebarDoctor />
+        {(!isTablet || locationPath == '/') && (<SidebarDoctor />)}
         <div className="w-100 bg-body wrapper custom-scroll">
-          <Welcome
-            locationPath={locationPath}
-            backVisible={locationPath == '/' ? false : true}
-          />
+          {(!isTablet || locationPath == '/') ? (
+            <Welcome
+              locationPath={locationPath}
+              backVisible={locationPath == '/' ? false : true}
+            />
+          ) : (
+            <TabConsultationHeader />
+          )}
           <Routes>
             <Route path="/" element={<Appointment />} />
-            <Route path="walk_in_consultation" element={<WalkInConsultation />} />
+            <Route path="walk_in_consultation" element={<NewWalkInConsultation />} />
             <Route path="add_new_patient" element={<AddNewPatient />} />
           </Routes>
         </div>

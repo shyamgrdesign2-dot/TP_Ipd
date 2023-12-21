@@ -48,10 +48,10 @@ function DiagnosisBox() {
   const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
   // const [diagnosisData, setDiagnosisData] = useState([]);
 
-  const SEVERITY_LIST = [
-    { value: "severe", label: "Severe" },
-    { value: "moderate", label: "Moderate" },
-    { value: "mild", label: "Mild" },
+  const STATUS_LIST = [
+    { value: "ruled out", label: "Ruled Out" },
+    { value: "suspected", label: "Suspected" },
+    { value: "confirmed", label: "Confirmed" },
   ];
 
   //PopOver1
@@ -162,7 +162,7 @@ function DiagnosisBox() {
       diagnosisData.push({
         ...JSON.parse(e.key),
         since: "",
-        severity: "",
+        status: "",
         note: "",
       });
       setDiagnosisData((prev) => [...prev]);
@@ -277,9 +277,9 @@ function DiagnosisBox() {
     [sinceOptions, diagnosisData]
   );
 
-  const onSelectSeverityChild = useCallback(
+  const onSelectStatusChild = useCallback(
     (data, i) => {
-      diagnosisData[i].severity = data;
+      diagnosisData[i].status = data;
       setDiagnosisData((prev) => [...prev]);
     },
     [diagnosisData]
@@ -318,9 +318,9 @@ function DiagnosisBox() {
   };
 
   const onTemplateSelected = (template) => {
-    const updatedData = template.diagnosis.map((e) => {
-      return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" };
-    });
+    const updatedData = template.diagnosis.map(e => {
+      return { ...e, unique_id: uuidv4(), since: "", status: "", note: "" }
+    })
     setDiagnosisData([...diagnosisData, ...updatedData]);
     showHideTemplatesListPopover();
   };
@@ -466,9 +466,9 @@ function DiagnosisBox() {
             <Col lg={4} md={4} sm={4} xs={4} className="border-end">
               <Select
                 className="autocomplete-custom w-100 inputborder"
-                placeholder="Severity"
-                onSelect={(data) => onSelectSeverityChild(data, index)}
-                options={SEVERITY_LIST}
+                placeholder="Status"
+                onSelect={(data) => onSelectStatusChild(data, index)}
+                options={STATUS_LIST}
               />
             </Col>
             <Col lg={8} md={8} sm={7} xs={7} className="border-end">
