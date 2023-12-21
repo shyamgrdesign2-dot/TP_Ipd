@@ -289,6 +289,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
         <>
             <Card bordered={false} className="search-modalCard h-100">
                 <TabSearchHeader
+                    placeholder="Search Diagnosis"
                     searchQuery={searchChildQuery}
                     onSearchParent={onSearchParent}
                     onClose={onClose} />

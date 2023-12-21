@@ -288,6 +288,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
         <>
             <Card bordered={false} className="search-modalCard h-100">
                 <TabSearchHeader
+                    placeholder="Search Symptoms / Chief Complaints"
                     searchQuery={searchChildQuery}
                     onSearchParent={onSearchParent}
                     onClose={onClose} />
