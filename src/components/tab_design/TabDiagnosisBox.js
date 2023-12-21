@@ -551,14 +551,10 @@ function TabDiagnosisBox() {
                     </Drawer>
                 </div>
                 <div className="p-14 py-0">
-                    <AutoComplete
-                        className='autocomplete-custom w-100'
-                        onClick={handleDrawerParent}>
-                        <Input
-                            placeholder="Search Diagnosis"
-                            prefix={<i className='icon-search'></i>}
-                        />
-                    </AutoComplete>
+                    <div className="inputheight38 border rounded-10px d-flex align-items-center" onClick={handleDrawerParent}>
+                        <i className='icon-search mx-2'></i>
+                        <span className="fontroboto backbar fw-normal">Search Diagnosis</span>
+                    </div>
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
                     {parentDrawer && (<TabDiagnosisSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
