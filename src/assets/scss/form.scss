@@ -217,8 +217,23 @@ body {
                 border-color: $theme !important;
             }
         }
+        &.advice-check {
+            margin-right: 10px;
+        }
         
     }
+    .advicecheck-row {
+        height: 38px;
+        .btn {
+            display: none;
+        }
+        &:hover {
+            .btn {
+                display: block;
+            }
+        }
+    }
+    
     .textarea-save {
         position: relative;
         .textarea-save-btn {

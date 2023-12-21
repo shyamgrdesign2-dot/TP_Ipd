@@ -5,9 +5,11 @@ import storage from 'redux-persist/lib/storage';
 
 import appointmentsSlice from './appointmentsSlice';
 import doctorsSlice from './doctorsSlice';
-import diagnosisSlice from './diagnosisSlice';
 import symptomsSlice from './symptomsSlice';
 import examinationSlice from './examinationSlice';
+import diagnosisSlice from './diagnosisSlice';
+import adviceSlice from './adviceSlice';
+import investigationSlice from './investigationSlice';
 
 const persistConfig = {
   key: 'root',
@@ -18,9 +20,11 @@ const persistConfig = {
 const rootReducer = combineReducers({
   records: appointmentsSlice,
   doctors: doctorsSlice,
-  diagnosis: diagnosisSlice,
   symptoms: symptomsSlice,
-  examination:  examinationSlice
+  examination:  examinationSlice,
+  diagnosis: diagnosisSlice,
+  advice: adviceSlice,
+  investigation: investigationSlice,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

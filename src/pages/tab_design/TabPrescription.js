@@ -5,9 +5,11 @@ import CashManagerContext from '../../context/CashManagerContext';
 
 import HeaderPrescription from "../../common/HeaderPrescription";
 
-import TabDiagnosisBox from "../../components/tab_design/TabDiagnosisBox";
+
 import TabSymptomsBox from "../../components/tab_design/TabSymptomsBox";
 import TabExaminationBox from "../../components/tab_design/TabExaminationBox";
+import TabDiagnosisBox from "../../components/tab_design/TabDiagnosisBox";
+import TabInvestigationBox from "../../components/tab_design/TabInvestigationBox";
 
 import vitalsWhite from '../../assets/images/vitals-white.svg';
 import medicalHistoryWhite from '../../assets/images/medical-history-white.svg';
@@ -21,11 +23,13 @@ import VitalsDetails from "../../components/VitalsDetails";
 
 function TabPrescription() {
 
-    const [diagnosisData, setDiagnosisData] = useState([]);
     const [symptomsData, setSymptomsData] = useState([]);
     const [examinationData, setExaminationData] = useState([]);
+    const [diagnosisData, setDiagnosisData] = useState([]);
+    const [adviceData, setAdviceData] = useState([]);
+    const [investigationData, setInvestigationData] = useState([]);
 
-    const contextApi = { diagnosisData, setDiagnosisData, symptomsData, setSymptomsData, examinationData, setExaminationData };
+    const contextApi = { symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData };
 
     const [collapsed, setCollapsed] = useState(false);
     const [collapsedFlag, setCollapsedFlag] = useState(1);
@@ -202,9 +206,10 @@ function TabPrescription() {
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                             <Content>
-                                <TabDiagnosisBox />
+                                <TabInvestigationBox />
                                 <TabSymptomsBox />
                                 <TabExaminationBox />
+                                <TabDiagnosisBox />
                             </Content>
                         </div>
                     </Layout>
