@@ -15,14 +15,14 @@ const initialState = {
 
 export const getAllRecords = createAsyncThunk(
   "records/getAllRecords",
-  async ({ startDate, endDate, pageNo }) => {
+  async ({ startDate, endDate, pageNo, filterVisitType }) => {
     let result = {};
     try {
       const sendData = {
         startDate: startDate,
         endDate: endDate,
         apStatue: 0,
-        filterVisitType: "14",
+        filterVisitType,
         page: pageNo,
       }
       result = await ApiAppointments.getAll(sendData);

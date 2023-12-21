@@ -21,8 +21,6 @@ export const TAB_FINISHED = 1;
 export const TAB_CANCELLED = 4;
 
 function AppointmentData({ type }) {
-  console.log("type: ", type);
-  const navigate = useNavigate();
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterDate = getFormattedDate(yesterday);
@@ -61,6 +59,7 @@ function AppointmentData({ type }) {
           startDate: date.startDate,
           endDate: date.endDate,
           pageNo,
+          filterVisitType: type
         })
       );
     }
