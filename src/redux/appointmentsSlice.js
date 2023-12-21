@@ -15,7 +15,7 @@ const initialState = {
 
 export const getAllRecords = createAsyncThunk(
   "records/getAllRecords",
-  async ({ startDate, endDate, pageNo, filterVisitType, queueType }) => {
+  async ({ startDate, endDate, pageNo, filterVisitType }) => {
     let result = {};
     try {
       const params = {
@@ -28,16 +28,12 @@ export const getAllRecords = createAsyncThunk(
       result = await ApiAppointments.getAll(params);
       if (result.status) {
         return result.data;
+      } else {
+        throw Error(result.error);
       }
     } catch (error) {
       console.log("error: ", error);
-      if (error.response.status === 401) {
-        // redirect here
-        throw parseApiError(error);
-      } else {
-        // API failed, return some meaningful error
-        throw parseApiError(error);
-      }
+      throw Error(error);
     }
   }
 );

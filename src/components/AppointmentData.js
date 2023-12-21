@@ -189,8 +189,8 @@ function AppointmentData({ type }) {
       dataIndex: "name",
       key: "name",
       filteredValue: filteredInfo.name || null,
-      sorter: (a, b) => a.name.localeCompare(b.name),
-      sortOrder: sortedInfo.columnKey === "name" ? sortedInfo.order : null,
+      /* sorter: (a, b) => a.name.localeCompare(b.name),
+      sortOrder: sortedInfo.columnKey === "name" ? sortedInfo.order : null, */
       render: (text, record) => (
         <div>
           <span>{text}</span>
@@ -236,11 +236,9 @@ function AppointmentData({ type }) {
       sorter: (a, b) => {
         const lhsDateTime = `${a.apDate} ${a.apTime}`;
         const lhsLongTime = moment(lhsDateTime, 'Do MMM YYYY HH:mm A').valueOf();
-        // console.log('lhsLongTime: ', lhsLongTime);
 
         const rhsDateTime = `${b.apDate} ${b.apTime}`;
         const rhsLongTime = moment(rhsDateTime, 'Do MMM YYYY HH:mm A').valueOf();
-        // console.log('rhsLongTime: ', rhsLongTime);
 
         const result = lhsLongTime - rhsLongTime;
         return result;
