@@ -13,7 +13,11 @@ import { Form, Row, Col, Button, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 import { useSelector, useDispatch } from "react-redux";
 
-import { getAllRecords, searchAppointments } from "../redux/appointmentsSlice";
+import {
+  clearSearch,
+  getAllRecords,
+  searchAppointments,
+} from "../redux/appointmentsSlice";
 import { getFormattedDate } from "../utils/utils";
 import { PAGE_SIZE } from "../utils/constants";
 
@@ -48,12 +52,33 @@ function AppointmentData({ type }) {
 
   console.log("records: ", records);
 
+  const getQueueTypeString = () => {
+    return type === TAB_QUEUE
+      ? "queue"
+      : type === TAB_FINISHED
+      ? "finished"
+      : "cancelled";
+  };
+
+  const getQueuePageNo = () => {
+    return type === TAB_QUEUE
+      ? pageNoQueue
+      : type === TAB_FINISHED
+      ? pageNoFinished
+      : pageNoCancelled;
+  };
+
   useEffect(() => {
     if (searchQuery) {
       console.log("searchQuery: ", searchQuery);
 
       let timeOutId = setTimeout(() => {
-        dispatch(searchAppointments(searchQuery));
+        dispatch(
+          searchAppointments({
+            searchQuery,
+            queueType: getQueueTypeString(),
+          })
+        );
       }, 500);
 
       return () => {
@@ -65,19 +90,8 @@ function AppointmentData({ type }) {
           startDate: date.startDate,
           endDate: date.endDate,
           filterVisitType: type,
-          
-          pageNo: type === TAB_QUEUE
-          ? pageNoQueue
-          : type === TAB_FINISHED
-          ? pageNoFinished
-          : pageNoCancelled,
-
-          queueType:
-            type === TAB_QUEUE
-              ? "queue"
-              : type === TAB_FINISHED
-              ? "finished"
-              : "cancelled",
+          pageNo: getQueuePageNo(),
+          queueType: getQueueTypeString(),
         })
       );
     }
@@ -279,9 +293,9 @@ function AppointmentData({ type }) {
   ];
 
   const loadMoreData = () => {
-    if(type === TAB_QUEUE) {
+    if (type === TAB_QUEUE) {
       setPageNoQueue(pageNoQueue + 1);
-    } else if(type === TAB_FINISHED) {
+    } else if (type === TAB_FINISHED) {
       setPageNoFinished(pageNoFinished + 1);
     } else {
       setPageNoCancelled(pageNoCancelled + 1);
@@ -338,10 +352,24 @@ function AppointmentData({ type }) {
   };
 
   const onSearch = useCallback(
-    (e) => {
-      const query = e;
+    (query) => {
       setValue(query);
       setSearchQuery(query);
+
+      if (!query) {
+        dispatch(
+          clearSearch({
+            queueType: getQueueTypeString(),
+            pageNo: getQueuePageNo(),
+          })
+        );
+
+        type === TAB_QUEUE
+        ? setPageNoQueue(0)
+        : type === TAB_FINISHED
+        ? setPageNoFinished(0)
+        : setPageNoCancelled(0);
+      }
     },
     [searchQuery]
   );
@@ -472,28 +500,30 @@ function AppointmentData({ type }) {
       </Row>
       {segmented == 1 ? (
         <div>
-          {error ? (
-            <div>{error.message}</div>
-          ) : (
-            <>
-              <Table
-                columns={columns}
-                dataSource={data}
-                onChange={handleChange}
-                pagination={false}
-                loading={loading}
-              />
-              {getTotalCount() > PAGE_SIZE &&
-                getRemainingRecordsCount() > 0 && (
-                  <button
-                    className="btn btn-light w-100 mt-3 load-more"
-                    onClick={loadMoreData}
-                  >
-                    Show More ({getRemainingRecordsCount()})
-                  </button>
-                )}
-            </>
-          )}
+          {/* {error ? (
+            <div>{error}</div>
+          ) : ( */}
+          <>
+            <Table
+              columns={columns}
+              dataSource={data}
+              onChange={handleChange}
+              pagination={false}
+              loading={loading}
+            />
+            {data?.length > 0 &&
+              !searchQuery &&
+              getTotalCount() > PAGE_SIZE &&
+              getRemainingRecordsCount() > 0 && (
+                <button
+                  className="btn btn-light w-100 mt-3 load-more"
+                  onClick={loadMoreData}
+                >
+                  Show More ({getRemainingRecordsCount()})
+                </button>
+              )}
+          </>
+          {/* )} */}
         </div>
       ) : (
         <h1>Grid View</h1>

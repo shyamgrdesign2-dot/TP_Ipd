@@ -1,11 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { v4 as uuidv4 } from "uuid";
+
 import { parseApiError } from "../utils/utils";
 import ApiAppointments from "../api/services/ApiAppointments";
-import { TAB_FINISHED, TAB_QUEUE } from "../components/AppointmentData";
 
 const initialState = {
-  records: { app_data: [], queue: {}, finished: {}, cancelled: {} },
+  records: { queue: {}, finished: {}, cancelled: {} },
   loading: false,
   error: null,
   counts: {},
@@ -45,9 +44,10 @@ export const getAllRecords = createAsyncThunk(
 
 export const searchAppointments = createAsyncThunk(
   "records/searchAppointments",
-  async (query) => {
+  async ({searchQuery, queueType}) => {
+    console.log('queueType: ', queueType);
     let result = {};
-    result = await ApiAppointments.search(query);
+    result = await ApiAppointments.search(searchQuery);
     if (result.status) {
       return result.data;
     } else {
@@ -119,7 +119,7 @@ const appointmentsSlice = createSlice({
         state.error = null;
         const queueType = action.meta.arg.queueType;
         const pageNo = action.meta.arg.pageNo;
-        console.log("arg.queueType: ", queueType);
+        // console.log("arg.queueType: ", queueType);
         state.records = {
           ...state.records,
           [queueType]: {
@@ -127,31 +127,6 @@ const appointmentsSlice = createSlice({
             [pageNo]: [...action.payload.app_data]
           },
         };
-        /* if (action.meta.arg.type === TAB_QUEUE) {
-          state.records = {
-            ...state.records,
-            app_data: [...state.records.app_data, ...action.payload.app_data],
-          };
-        } else */
-        /* if (action.meta.arg.type === TAB_QUEUE) {
-          
-        } else if (action.meta.arg.type === TAB_FINISHED) {
-          state.records = {
-            ...state.records,
-            finished: {
-              ...state.records.finished,
-              [action.meta.arg.pageNo]: [...action.payload.app_data]
-            },
-          };
-        } else {
-          state.records = {
-            ...state.records,
-            cancelled: {
-              ...state.records.cancelled,
-              [action.meta.arg.pageNo]: [...action.payload.app_data]
-            },
-          };
-        } */
 
         state.counts = {
           queueCount: action.payload?.queue_count ?? 0,
@@ -169,16 +144,31 @@ const appointmentsSlice = createSlice({
       })
       .addCase(searchAppointments.fulfilled, (state, action) => {
         state.error = null;
+        const queueType = action.meta.arg.queueType;
+        const pageNo = action.meta.arg.pageNo;
+        console.log("search.arg.queueType: ", queueType);
         state.records = {
-          app_data: action.payload,
+          ...state.records,
+          [queueType]: {
+            [pageNo]: [...action.payload]
+          },
         };
+
         state.loading = false;
         state.patients = action.payload;
         state.queueCount = action.payload?.queue_count ?? 0;
       })
       .addCase(searchAppointments.rejected, (state, action) => {
         console.log("search.rejected.action.payload: ", action);
-        state.records = null;
+        const queueType = action.meta.arg.queueType;
+        const pageNo = action.meta.arg.pageNo;
+        console.log("search.arg.queueType: ", queueType);
+        state.records = {
+          ...state.records,
+          [queueType]: {
+            [pageNo]: []
+          },
+        };
         state.patients = [];
         state.loading = false;
         state.error = action.error.message;
@@ -212,6 +202,17 @@ const appointmentsSlice = createSlice({
         state.loading = false;
         state.error = null;
         console.log("clearSearch.fulfilled: ", action.payload);
+
+        const queueType = action.meta.arg.queueType;
+        const pageNo = action.meta.arg.pageNo;
+        console.log("clearSearch.arg.queueType: ", queueType);
+        state.records = {
+          ...state.records,
+          [queueType]: {
+            [pageNo]: []
+          },
+        };
+
         state.patients = null;
       });
   },
