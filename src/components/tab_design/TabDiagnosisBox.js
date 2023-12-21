@@ -92,7 +92,7 @@ function TabDiagnosisBox() {
             diagnosisData.push({
                 ...e,
                 since: "",
-                severity: "",
+                status: "",
                 note: "",
             });
             setDiagnosisData((prev) => [...prev]);
@@ -130,7 +130,7 @@ function TabDiagnosisBox() {
 
     const onTemplateSelected = (template) => {
         const updatedData = template.diagnosis.map(e => {
-            return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" }
+            return { ...e, unique_id: uuidv4(), since: "", status: "", note: "" }
         })
         setDiagnosisData([...diagnosisData, ...updatedData]);
         handleDrawerTemplate();
@@ -225,8 +225,8 @@ function TabDiagnosisBox() {
                     <div key={index} style={{ width: item.tds_name.length > 12 && item.tds_name.length < 24 ? `${item.tds_name.length * 10.5}px` : item.tds_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
                         <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
                             <div className="text-truncate">{item.tds_name}
-                                {(item.since || item.severity || item.note) ? (
-                                    <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.severity ? item.severity + ' | ' : ''}${item.note ? item.note : ''}`}</div>
+                                {(item.since || item.status || item.note) ? (
+                                    <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.status ? item.status + ' | ' : ''}${item.note ? item.note : ''}`}</div>
                                 ) : (
                                     <div className="text-truncate small">Add Details</div>
                                 )}
@@ -419,10 +419,10 @@ function TabDiagnosisBox() {
         { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
     ];
 
-    const SEVERITY_LIST = [
-        { value: "severe", label: "Severe" },
-        { value: "moderate", label: "Moderate" },
-        { value: "mild", label: "Mild" },
+    const STATUS_LIST = [
+        { value: "ruled out", label: "Ruled Out" },
+        { value: "suspected", label: "Suspected" },
+        { value: "confirmed", label: "Confirmed" },
     ];
 
     const onChangeSegmentedSinceChild = useCallback(
@@ -440,9 +440,9 @@ function TabDiagnosisBox() {
         [childDrawerData]
     );
 
-    const onChangeSeverityChild = useCallback(
+    const onChangeStatusChild = useCallback(
         (key) => {
-            setChildDrawerData({ ...childDrawerData, severity: key })
+            setChildDrawerData({ ...childDrawerData, status: key })
         },
         [childDrawerData]
     );
@@ -500,13 +500,13 @@ function TabDiagnosisBox() {
                         </div>
                         <div className="mt-5">
                             <label className="title-common">
-                                Severity
+                                Status
                             </label>
                             <Segmented
-                                value={childDrawerData.severity != undefined && childDrawerData.severity}
+                                value={childDrawerData.status != undefined && childDrawerData.status}
                                 className="search-segment"
-                                options={SEVERITY_LIST}
-                                onChange={onChangeSeverityChild}
+                                options={STATUS_LIST}
+                                onChange={onChangeStatusChild}
                             />
                         </div>
                         <div className="mt-5">
