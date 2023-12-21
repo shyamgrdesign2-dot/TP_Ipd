@@ -7,17 +7,21 @@ import vitals from "../assets/images/Vitals.svg";
 import HeaderPrescription from "../common/HeaderPrescription";
 import hey from "../assets/images/bg-hey.png";
 
-import DiagnosisBox from "../components/DiagnosisBox";
 import SymptomsBox from "../components/SymptomsBox";
 import ExaminationBox from "../components/ExaminationBox";
+import DiagnosisBox from "../components/DiagnosisBox";
+import AdviceBox from "../components/AdviceBox";
+import InvestigationBox from "../components/InvestigationBox";
 
 function Prescription() {
 
-  const [diagnosisData, setDiagnosisData] = useState([]);
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
+  const [diagnosisData, setDiagnosisData] = useState([]);
+  const [adviceData, setAdviceData] = useState([]);
+  const [investigationData, setInvestigationData] = useState([]);
 
-  const contextApi = { diagnosisData, setDiagnosisData, symptomsData, setSymptomsData, examinationData, setExaminationData };
+  const contextApi = { symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData };
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -50,9 +54,11 @@ function Prescription() {
               </div>
             </div>
             <div className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3">
-              <DiagnosisBox />
+              <InvestigationBox/>
               <SymptomsBox />
               <ExaminationBox />
+              <DiagnosisBox />
+              <AdviceBox />
             </div>
           </div>
         </div>
