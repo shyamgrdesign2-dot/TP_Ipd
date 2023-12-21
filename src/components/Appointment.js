@@ -10,7 +10,7 @@ import AppointmentData, {
 
 function Appointment() {
   const [tabChange, setTabChange] = useState("1");
-  const queueCount = useSelector((state) => state.records.queueCount);
+  const counts = useSelector((state) => state.records.counts);
 
   const items = [
     {
@@ -18,7 +18,7 @@ function Appointment() {
       label: (
         <div className="d-flex align-items-baseline">
           <i className="icon-Queue"></i>
-          Queue ({queueCount ?? 0})
+          Queue ({counts.queueCount ?? 0})
         </div>
       ),
     },
@@ -27,7 +27,7 @@ function Appointment() {
       label: (
         <div className="d-flex align-items-baseline">
           <i className="icon-Finished"></i>
-          Finished (0)
+          Finished ({counts.finishedCount ?? 0})
         </div>
       ),
     },
@@ -36,7 +36,7 @@ function Appointment() {
       label: (
         <div className="d-flex align-items-baseline">
           <i className="icon-Cancelled"></i>
-          Cancelled (0)
+          Cancelled ({counts.cancelledCount ?? 0})
         </div>
       ),
     },

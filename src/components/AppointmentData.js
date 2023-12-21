@@ -15,12 +15,14 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { getAllRecords, searchAppointments } from "../redux/appointmentsSlice";
 import { getFormattedDate } from "../utils/utils";
+import { PAGE_SIZE } from "../utils/constants";
 
 export const TAB_QUEUE = 0;
 export const TAB_FINISHED = 1;
 export const TAB_CANCELLED = 4;
 
 function AppointmentData({ type }) {
+  console.log("type: ", type);
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterDate = getFormattedDate(yesterday);
@@ -36,11 +38,15 @@ function AppointmentData({ type }) {
   const [date, setDate] = useState(initialDate);
   const [searchQuery, setSearchQuery] = useState(null);
   const [value, setValue] = useState(null);
-  const [pageNo, setPageNo] = useState(0);
-  const { records, loading, error, queueCount } = useSelector(
+  const [pageNoQueue, setPageNoQueue] = useState(0);
+  const [pageNoFinished, setPageNoFinished] = useState(0);
+  const [pageNoCancelled, setPageNoCancelled] = useState(0);
+  const { records, loading, error, counts } = useSelector(
     (state) => state.records
   );
   const dispatch = useDispatch();
+
+  console.log("records: ", records);
 
   useEffect(() => {
     if (searchQuery) {
@@ -58,16 +64,32 @@ function AppointmentData({ type }) {
         getAllRecords({
           startDate: date.startDate,
           endDate: date.endDate,
-          pageNo,
-          filterVisitType: type
+          filterVisitType: type,
+          
+          pageNo: type === TAB_QUEUE
+          ? pageNoQueue
+          : type === TAB_FINISHED
+          ? pageNoFinished
+          : pageNoCancelled,
+
+          queueType:
+            type === TAB_QUEUE
+              ? "queue"
+              : type === TAB_FINISHED
+              ? "finished"
+              : "cancelled",
         })
       );
     }
-  }, [pageNo, date, searchQuery, dispatch]);
-
-  useEffect(() => {
-    console.log("date: ", date);
-  }, [date]);
+  }, [
+    pageNoQueue,
+    pageNoFinished,
+    pageNoCancelled,
+    date,
+    searchQuery,
+    dispatch,
+    type,
+  ]);
 
   const calanderList = [
     { value: todaysDate, label: "Today" },
@@ -93,7 +115,18 @@ function AppointmentData({ type }) {
 
   // transform the data
   const data = useMemo(() => {
-    return records?.app_data?.map(
+    let index = 1;
+    const arrayOfPagedQueue =
+      type === TAB_QUEUE
+        ? Object.values(records?.queue)
+        : type === TAB_FINISHED
+        ? Object.values(records?.finished)
+        : Object.values(records?.cancelled);
+    let source = [].concat(...arrayOfPagedQueue);
+
+    // console.log("source:", source);
+
+    return source?.map(
       ({
         pm_first_name,
         pm_last_name,
@@ -109,7 +142,7 @@ function AppointmentData({ type }) {
           key: Math.random(),
           pm_contact_no,
           name: `${pm_first_name} ${pm_last_name}`,
-          srno: um_id,
+          srno: index++,
           ageYears,
           apTime,
           apDate,
@@ -118,7 +151,9 @@ function AppointmentData({ type }) {
         };
       }
     );
-  }, [records]);
+  }, [records, type]);
+
+  console.log("data: ", data);
 
   const handleChange = (pagination, filters, sorter) => {
     console.log("Various parameters", pagination, filters, sorter);
@@ -244,7 +279,13 @@ function AppointmentData({ type }) {
   ];
 
   const loadMoreData = () => {
-    setPageNo(pageNo + 1);
+    if(type === TAB_QUEUE) {
+      setPageNoQueue(pageNoQueue + 1);
+    } else if(type === TAB_FINISHED) {
+      setPageNoFinished(pageNoFinished + 1);
+    } else {
+      setPageNoCancelled(pageNoCancelled + 1);
+    }
   };
 
   const onDateChanged = (selectedValue) => {
@@ -296,17 +337,48 @@ function AppointmentData({ type }) {
     });
   };
 
-  const onSearch = useCallback((e) => {
-    const query = e;
-    setValue(query);
-    setSearchQuery(query);
-    
-  }, [searchQuery]);
+  const onSearch = useCallback(
+    (e) => {
+      const query = e;
+      setValue(query);
+      setSearchQuery(query);
+    },
+    [searchQuery]
+  );
 
   const getDefaultDate = () => {
     const defaultDate = dayjs(getFormattedDate(date.startDate), "YYYY-MM-DD");
     console.log("defaultDate: ", defaultDate);
     return defaultDate;
+  };
+
+  const getRemainingRecordsCount = () => {
+    const pageNo =
+      type === TAB_QUEUE
+        ? pageNoQueue
+        : type === TAB_FINISHED
+        ? pageNoFinished
+        : pageNoCancelled;
+
+    const count =
+      type === TAB_QUEUE
+        ? counts.queueCount
+        : type === TAB_FINISHED
+        ? counts.finishedCount
+        : counts.cancelledCount;
+
+    const pagesReminaing = count - PAGE_SIZE * (pageNo + 1);
+    return pagesReminaing;
+  };
+
+  const getTotalCount = () => {
+    if (type === TAB_QUEUE) {
+      return counts.queueCount;
+    } else if (type === TAB_FINISHED) {
+      return counts.finishedCount;
+    } else {
+      return counts.cancelledCount;
+    }
   };
 
   return (
@@ -411,14 +483,15 @@ function AppointmentData({ type }) {
                 pagination={false}
                 loading={loading}
               />
-              {queueCount > 10 && (
-                <button
-                  className="btn btn-light w-100 mt-3 load-more"
-                  onClick={loadMoreData}
-                >
-                  Show All (10)
-                </button>
-              )}
+              {getTotalCount() > PAGE_SIZE &&
+                getRemainingRecordsCount() > 0 && (
+                  <button
+                    className="btn btn-light w-100 mt-3 load-more"
+                    onClick={loadMoreData}
+                  >
+                    Show More ({getRemainingRecordsCount()})
+                  </button>
+                )}
             </>
           )}
         </div>
