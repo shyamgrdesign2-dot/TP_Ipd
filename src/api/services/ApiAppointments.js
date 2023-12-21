@@ -1,12 +1,27 @@
 import api from "./axiosService";
 import config from '../../config';
+import { generateMockData } from "../../utils/utils";
+import { IS_DEV } from "../../utils/constants";
 
 const baseUrl = { customBaseUrl: config.appointment_api_url }
 
 const ApiAppointments = {};
 
 ApiAppointments.getAll = function (params) {
-  return api.post(`/api/v1/appointment/listAppointment`, params, baseUrl);
+  console.log('params: ', params);
+  if(IS_DEV) {
+    return {
+      status: true,
+      data: {
+        queue_count: 34,
+        finished_count: 22,
+        cancelled_count: 41,
+        app_data: generateMockData(),
+      }
+    };
+  } else {
+    return api.post(`/api/v1/appointment/listAppointment`, params, baseUrl);
+  }
 };
 
 ApiAppointments.search = function (query) {

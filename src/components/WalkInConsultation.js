@@ -150,9 +150,11 @@ function WalkInConsultation() {
 
   const onSearch = (query) => {
     setValue(query);
-    let id = setTimeout(() => {
+    let timeOutId = setTimeout(() => {
       setSearchQuery(query);
-      clearTimeout(id);
+      return () => {
+        clearTimeout(timeOutId);
+      };
     }, 500);
   };
 
@@ -175,13 +177,16 @@ function WalkInConsultation() {
         >
           <Input
             placeholder="Search by Patient’s Name, Phone number or Id"
-            prefix={<i className="icon-search"></i>}
+            prefix={<i className="icon-search" />}
             suffix={
               value.length > 0 && (
-                <i className="icon-Cross" onClick={() =>{
-                  onSearch(null);
-                  setValue("");
-                }}></i>
+                <i
+                  className="icon-Cross"
+                  onClick={() => {
+                    onSearch(null);
+                    setValue("");
+                  }}
+                />
               )
             }
           />
@@ -198,7 +203,7 @@ function WalkInConsultation() {
           <>
             <div className="border bg-body rounded-10px p-2 patient-details">
               <div className="d-flex align-items-center">
-                <i className="icon-patients me-2"></i>
+                <i className="icon-patients me-2" />
                 <span>
                   {clickedPatient?.pm_salutation
                     ? clickedPatient?.pm_salutation
@@ -208,7 +213,7 @@ function WalkInConsultation() {
                 </span>
               </div>
               <div className="mt-2 d-flex align-items-center">
-                <i className="icon-phone me-2"></i>{" "}
+                <i className="icon-phone me-2" />{" "}
                 <span>{clickedPatient?.pm_contact_no}</span>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i className="icon-Id me-2"></i>{" "}

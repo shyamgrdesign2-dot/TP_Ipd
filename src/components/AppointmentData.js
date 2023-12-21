@@ -1,53 +1,110 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Table, Select, Segmented, DatePicker, Dropdown } from "antd";
+import {
+  Table,
+  Select,
+  Segmented,
+  DatePicker,
+  Dropdown,
+  Input,
+  AutoComplete,
+} from "antd";
 import { Form, Row, Col, Button, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 import { useSelector, useDispatch } from "react-redux";
 
-import { getAllRecords, searchAppointments } from "../redux/appointmentsSlice";
+import {
+  clearSearch,
+  getAllRecords,
+  searchAppointments,
+} from "../redux/appointmentsSlice";
 import { getFormattedDate } from "../utils/utils";
+import { PAGE_SIZE } from "../utils/constants";
 import moment from "moment";
 
-function AppointmentData() {
-  const navigate = useNavigate();
+export const TAB_QUEUE = 0;
+export const TAB_FINISHED = 1;
+export const TAB_CANCELLED = 4;
+
+function AppointmentData({ type }) {
+  console.log("type: ", type);
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterDate = getFormattedDate(yesterday);
   const todaysDate = getFormattedDate(new Date());
-  console.log("todaysDate: ", todaysDate);
-  console.log("yesterDate: ", yesterDate);
-  const startDate = "2023-08-17";
-  const endDate = "2023-08-17";
+  /* console.log("todaysDate: ", todaysDate);
+  console.log("yesterDate: ", yesterDate); */
+  /* const startDate = "2023-08-17";
+  const endDate = "2023-08-17"; */
   const initialDate = {
     startDate: todaysDate,
     endDate: todaysDate,
   };
   const [date, setDate] = useState(initialDate);
   const [searchQuery, setSearchQuery] = useState(null);
-  const [pageNo, setPageNo] = useState(0);
-  const { records, loading, error, queueCount } = useSelector(
+  const [value, setValue] = useState(null);
+  const [pageNoQueue, setPageNoQueue] = useState(0);
+  const [pageNoFinished, setPageNoFinished] = useState(0);
+  const [pageNoCancelled, setPageNoCancelled] = useState(0);
+  const { records, loading, error, counts } = useSelector(
     (state) => state.records
   );
   const dispatch = useDispatch();
 
+  console.log("records: ", records);
+
+  const getQueueTypeString = () => {
+    return type === TAB_QUEUE
+      ? "queue"
+      : type === TAB_FINISHED
+      ? "finished"
+      : "cancelled";
+  };
+
+  const getQueuePageNo = () => {
+    return type === TAB_QUEUE
+      ? pageNoQueue
+      : type === TAB_FINISHED
+      ? pageNoFinished
+      : pageNoCancelled;
+  };
+
   useEffect(() => {
-    if (searchQuery && searchQuery.length >= 3) {
-      dispatch(searchAppointments(searchQuery));
+    if (searchQuery) {
+      console.log("searchQuery: ", searchQuery);
+
+      let timeOutId = setTimeout(() => {
+        dispatch(
+          searchAppointments({
+            searchQuery,
+            queueType: getQueueTypeString(),
+          })
+        );
+      }, 500);
+
+      return () => {
+        clearTimeout(timeOutId);
+      };
     } else {
       dispatch(
         getAllRecords({
           startDate: date.startDate,
           endDate: date.endDate,
-          pageNo,
+          filterVisitType: type,
+          pageNo: getQueuePageNo(),
+          queueType: getQueueTypeString(),
         })
       );
     }
-  }, [pageNo, date, searchQuery, dispatch]);
-
-  useEffect(() => {
-    console.log("date: ", date);
-  }, [date]);
+  }, [
+    pageNoQueue,
+    pageNoFinished,
+    pageNoCancelled,
+    date,
+    searchQuery,
+    dispatch,
+    type,
+  ]);
 
   const calanderList = [
     { value: todaysDate, label: "Today" },
@@ -73,7 +130,18 @@ function AppointmentData() {
 
   // transform the data
   const data = useMemo(() => {
-    return records?.app_data?.map(
+    let index = 1;
+    const arrayOfPagedQueue =
+      type === TAB_QUEUE
+        ? Object.values(records?.queue)
+        : type === TAB_FINISHED
+        ? Object.values(records?.finished)
+        : Object.values(records?.cancelled);
+    let source = [].concat(...arrayOfPagedQueue);
+
+    // console.log("source:", source);
+
+    return source?.map(
       ({
         pm_first_name,
         pm_last_name,
@@ -89,7 +157,7 @@ function AppointmentData() {
           key: Math.random(),
           pm_contact_no,
           name: `${pm_first_name} ${pm_last_name}`,
-          srno: um_id,
+          srno: index++,
           ageYears,
           apTime,
           apDate,
@@ -98,7 +166,9 @@ function AppointmentData() {
         };
       }
     );
-  }, [records]);
+  }, [records, type]);
+
+  console.log("data: ", data);
 
   const handleChange = (pagination, filters, sorter) => {
     console.log("Various parameters", pagination, filters, sorter);
@@ -118,19 +188,8 @@ function AppointmentData() {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      filters: [
-        {
-          text: "Joe",
-          value: "Joe",
-        },
-        {
-          text: "Jim",
-          value: "Jim",
-        },
-      ],
       filteredValue: filteredInfo.name || null,
-      onFilter: (value, record) => record.name.includes(value),
-      sorter: (a, b) => a.name.length - b.name.length,
+      sorter: (a, b) => a.name.localeCompare(b.name),
       sortOrder: sortedInfo.columnKey === "name" ? sortedInfo.order : null,
       render: (text, record) => (
         <div>
@@ -152,9 +211,20 @@ function AppointmentData() {
     {
       title: "Visit Type",
       dataIndex: "toct_type",
-      key: "visittype",
-      sorter: (a, b) => a.visittype.length - b.visittype.length,
-      sortOrder: sortedInfo.columnKey === "visittype" ? sortedInfo.order : null,
+      key: "toct_type",
+      onFilter: (value, record) => record.toct_type === value,
+      filters: [
+        {
+          text: "New",
+          value: "new-visit",
+        },
+        {
+          text: "Follow-Up",
+          value: "follow-up-visit",
+        },
+      ],
+      // sorter: (a, b) => a.visittype.length - b.visittype.length,
+      // sortOrder: sortedInfo.columnKey === "visittype" ? sortedInfo.order : null,
       ellipsis: true,
     },
     {
@@ -163,7 +233,18 @@ function AppointmentData() {
       key: "time",
       filteredValue: filteredInfo.time || null,
       onFilter: (value, record) => record.time.includes(value),
-      sorter: (a, b) => a.time.length - b.time.length,
+      sorter: (a, b) => {
+        const lhsDateTime = `${a.apDate} ${a.apTime}`;
+        const lhsLongTime = moment(lhsDateTime, 'Do MMM YYYY HH:mm A').valueOf();
+        // console.log('lhsLongTime: ', lhsLongTime);
+
+        const rhsDateTime = `${b.apDate} ${b.apTime}`;
+        const rhsLongTime = moment(rhsDateTime, 'Do MMM YYYY HH:mm A').valueOf();
+        // console.log('rhsLongTime: ', rhsLongTime);
+
+        const result = lhsLongTime - rhsLongTime;
+        return result;
+      },
       sortOrder: sortedInfo.columnKey === "time" ? sortedInfo.order : null,
       render: (text, record) => (
         <div>
@@ -200,13 +281,12 @@ function AppointmentData() {
 
   const dateChange = (date, dateString) => {
     console.log(date, dateString);
-    if(dateString) {
+    if (dateString) {
       setDate({
         startDate: getFormattedDate(dateString),
         endDate: getFormattedDate(dateString),
       });
     }
-   
   };
 
   const items = [
@@ -225,16 +305,20 @@ function AppointmentData() {
   ];
 
   const loadMoreData = () => {
-    setPageNo(pageNo + 1);
+    if (type === TAB_QUEUE) {
+      setPageNoQueue(pageNoQueue + 1);
+    } else if (type === TAB_FINISHED) {
+      setPageNoFinished(pageNoFinished + 1);
+    } else {
+      setPageNoCancelled(pageNoCancelled + 1);
+    }
   };
 
   const onDateChanged = (selectedValue) => {
-    console.log("selectedValue: ", selectedValue);
     if (selectedValue === "next7days") {
       const date = new Date();
       date.setDate(date.getDate() + 7);
       const forwardDate = getFormattedDate(date);
-      console.log("forwardDate7: ", forwardDate);
       setDate({
         startDate: todaysDate,
         endDate: forwardDate,
@@ -243,7 +327,6 @@ function AppointmentData() {
       const date = new Date();
       date.setDate(date.getDate() + 30);
       const forwardDate = getFormattedDate(date);
-      console.log("forwardDate30: ", forwardDate);
       setDate({
         startDate: todaysDate,
         endDate: forwardDate,
@@ -280,22 +363,62 @@ function AppointmentData() {
     });
   };
 
-  const onSearch = (e) => {
-    let timeOutId = setTimeout(() => {
-      const query = e.target.value;
-      console.log("query: ", query);
+  const onSearch = useCallback(
+    (query) => {
+      setValue(query);
       setSearchQuery(query);
 
-      return () => {
-        clearTimeout(timeOutId);
-      };
-    }, 500);
-  };
+      if (!query) {
+        dispatch(
+          clearSearch({
+            queueType: getQueueTypeString(),
+            pageNo: getQueuePageNo(),
+          })
+        );
+
+        type === TAB_QUEUE
+        ? setPageNoQueue(0)
+        : type === TAB_FINISHED
+        ? setPageNoFinished(0)
+        : setPageNoCancelled(0);
+      }
+    },
+    [searchQuery]
+  );
 
   const getDefaultDate = () => {
     const defaultDate = dayjs(getFormattedDate(date.startDate), "YYYY-MM-DD");
-    console.log('defaultDate: ', defaultDate);
+    console.log("defaultDate: ", defaultDate);
     return defaultDate;
+  };
+
+  const getRemainingRecordsCount = () => {
+    const pageNo =
+      type === TAB_QUEUE
+        ? pageNoQueue
+        : type === TAB_FINISHED
+        ? pageNoFinished
+        : pageNoCancelled;
+
+    const count =
+      type === TAB_QUEUE
+        ? counts.queueCount
+        : type === TAB_FINISHED
+        ? counts.finishedCount
+        : counts.cancelledCount;
+
+    const pagesReminaing = count - PAGE_SIZE * (pageNo + 1);
+    return pagesReminaing;
+  };
+
+  const getTotalCount = () => {
+    if (type === TAB_QUEUE) {
+      return counts.queueCount;
+    } else if (type === TAB_FINISHED) {
+      return counts.finishedCount;
+    } else {
+      return counts.cancelledCount;
+    }
   };
 
   return (
@@ -304,11 +427,33 @@ function AppointmentData() {
         <Col xl={3} lg={4}>
           <Form>
             <Form.Group className="mb-4" controlId="exampleForm.ControlInput1">
-              <Form.Control
+              {/* <Form.Control
                 type="text"
                 placeholder="Search by patient name"
                 onChange={onSearch}
-              />
+                prefix={<i className="icon-search" />}
+              /> */}
+              <AutoComplete
+                value={value}
+                onSearch={onSearch}
+                defaultActiveFirstOption={true}
+              >
+                <Input
+                  placeholder="Search by patient name"
+                  prefix={<i className="icon-search" />}
+                  suffix={
+                    searchQuery?.length > 0 && (
+                      <i
+                        className="icon-Cross"
+                        onClick={() => {
+                          onSearch(null);
+                          setValue("");
+                        }}
+                      />
+                    )
+                  }
+                />
+              </AutoComplete>
             </Form.Group>
           </Form>
         </Col>
@@ -327,7 +472,7 @@ function AppointmentData() {
               </Button>
               <Button variant="outline-light" className="p-0">
                 <DatePicker
-                  allowClear={false}
+                  // allowClear={false}
                   onChange={dateChange}
                   value={
                     date.startDate === date.endDate
@@ -367,27 +512,30 @@ function AppointmentData() {
       </Row>
       {segmented == 1 ? (
         <div>
-          {error ? (
-            <div>{error.message}</div>
-          ) : (
-            <>
-              <Table
-                columns={columns}
-                dataSource={data}
-                onChange={handleChange}
-                pagination={false}
-                loading={loading}
-              />
-              {queueCount > 10 && (
+          {/* {error ? (
+            <div>{error}</div>
+          ) : ( */}
+          <>
+            <Table
+              columns={columns}
+              dataSource={data}
+              onChange={handleChange}
+              pagination={false}
+              loading={loading}
+            />
+            {data?.length > 0 &&
+              !searchQuery &&
+              getTotalCount() > PAGE_SIZE &&
+              getRemainingRecordsCount() > 0 && (
                 <button
                   className="btn btn-light w-100 mt-3 load-more"
                   onClick={loadMoreData}
                 >
-                  Show All (10)
+                  Show More ({getRemainingRecordsCount()})
                 </button>
               )}
-            </>
-          )}
+          </>
+          {/* )} */}
         </div>
       ) : (
         <h1>Grid View</h1>

@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from "moment";
 
 import config from "../config";
 
@@ -11,33 +11,33 @@ export const validateEmail = (email) => {
 };
 
 export const onlyNumberFormat = (text) => {
-  return text.replace(/[^0-9]/g, '')
+  return text.replace(/[^0-9]/g, "");
 };
 
 export const trimEllip = (source, length) => {
-  if(source == null) {
+  if (source == null) {
     return "";
   }
   return source.length > length ? source.substring(0, length) + "..." : source;
 };
 
 export const isLocalDev = () => {
-  if(config.placeholderApiUrl.includes("ninjasforjava.com")) {
+  if (config.placeholderApiUrl.includes("ninjasforjava.com")) {
     return true;
   }
 
-  if(window.location.includes("localhost:")) {
+  if (window.location.includes("localhost:")) {
     return true;
   }
   return false;
 };
 
 export const getFormattedDate = (date) => {
-  if(!date) {
+  if (!date) {
     return "";
   }
-  const dateObj = new Date(date+" UTC");
-  return moment(dateObj).format('YYYY-MM-DD');
+  const dateObj = new Date(date + " UTC");
+  return moment(dateObj).format("YYYY-MM-DD");
 };
 
 const getTime = (date) => {
@@ -46,21 +46,21 @@ const getTime = (date) => {
 
 export const parseApiError = (errorResponse) => {
   console.log("errorResponse: ", errorResponse);
-  if(!errorResponse) {
+  if (!errorResponse) {
     return "Something went wrong!";
   }
 
-  if(errorResponse.response?.data?.error) {
+  if (errorResponse.response?.data?.error) {
     return errorResponse.response?.data?.error;
   }
 
-  if(errorResponse.message) {
+  if (errorResponse.message) {
     return errorResponse.message;
   }
-  
-  if(errorResponse.data && Array.isArray(errorResponse.data)) {
+
+  if (errorResponse.data && Array.isArray(errorResponse.data)) {
     const errorArray = errorResponse.data;
-    if(errorArray.length > 0) {
+    if (errorArray.length > 0) {
       const firstItem = errorArray[0];
       const firstItemError = `${firstItem.type} ${firstItem.msg} ${firstItem.path}`;
       return firstItemError;
@@ -82,7 +82,10 @@ export function calculateAge(birthdate) {
   const monthsDiff = currentDate.getMonth() - birthdateDate.getMonth();
 
   // Adjust the age if the birthdate month is later than the current month
-  if (monthsDiff < 0 || (monthsDiff === 0 && currentDate.getDate() < birthdateDate.getDate())) {
+  if (
+    monthsDiff < 0 ||
+    (monthsDiff === 0 && currentDate.getDate() < birthdateDate.getDate())
+  ) {
     yearsDiff = yearsDiff > 0 ? yearsDiff-- : 0;
   }
 
@@ -92,7 +95,7 @@ export function calculateAge(birthdate) {
   // Return the age in years and months
   return {
     years: yearsDiff,
-    months: remainingMonths
+    months: remainingMonths,
   };
 }
 
@@ -115,8 +118,54 @@ export function calculateBirthdateFromAge(age) {
   // Set the day to 1 for simplicity
   const birthDate = new Date(birthYear, birthMonth, 1);
   return birthDate;
-};
+}
 
 export const generateTempId = () => {
-  return "temp-id-" + Math.floor(Math.random()*90) + 1000;
+  return "temp-id-" + Math.floor(Math.random() * 90) + 1000;
+};
+
+export const generateMockData = () => {
+  const data = [];
+  for (let i = 0; i < 10; i++) {
+    data.push(getRandomAppointment());
+  }
+
+  return data;
+};
+
+const NAMES_FIRST = [
+  "Aakash",
+  "Aavesh",
+  "Ajeet",
+  "Sooraj",
+  "Pankaj",
+  "Rajesh",
+  "Mangesh",
+  "Jayesh",
+  "Bhavesh",
+  "Raj",
+  "Vivek",
+];
+const NAMES_LAST = ["Ramachandran", "Saraswat", "Gokhale", "Shah"];
+
+export const getRandomAppointment = () => {
+  const randomMonthShort = moment()._locale._monthsShort[randomInteger(0, 11)];
+  const apiTime = `${randomInteger(1, 12)}:${randomInteger(10, 59)} PM`;
+  const apiDate = `${randomInteger(1, 31)}th ${randomMonthShort} ${randomInteger(2021, 2025)}`;
+  console.log('randomMonthShort: ', moment());
+
+  return {
+    pm_first_name: NAMES_FIRST[randomInteger(0, 3)],
+    pm_last_name: NAMES_LAST[randomInteger(0, 3)],
+    pm_gender: "Male",
+    ageYears: randomInteger(18, 99),
+    pm_contact_no: `${randomInteger(10, 99)}058${randomInteger(11111, 99999)}`,
+    toct_type: Math.random() < 0.5 ? "follow-up-visit" : "new-visit",
+    apTime: apiTime,
+    apDate: apiDate,
+  };
+};
+
+function randomInteger(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }

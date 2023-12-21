@@ -1,31 +1,31 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { v4 as uuidv4 } from "uuid";
+
 import { parseApiError } from "../utils/utils";
-import ApiAppointments from '../api/services/ApiAppointments';
+import ApiAppointments from "../api/services/ApiAppointments";
 
 const initialState = {
-  records: [],
+  records: { queue: {}, finished: {}, cancelled: {} },
   loading: false,
   error: null,
-  queueCount: 0,
+  counts: {},
   patients: null,
   pincodeInfo: {},
-  patientDetals: {}
+  patientDetals: {},
 };
 
 export const getAllRecords = createAsyncThunk(
   "records/getAllRecords",
-  async ({ startDate, endDate, pageNo }) => {
+  async ({ startDate, endDate, pageNo, filterVisitType, queueType }) => {
     let result = {};
     try {
-      const sendData = {
+      const params = {
         startDate: startDate,
         endDate: endDate,
         apStatue: 0,
-        filterVisitType: "14",
-        page: pageNo,
-      }
-      result = await ApiAppointments.getAll(sendData);
+        filterVisitType,
+        page: pageNo
+      };
+      result = await ApiAppointments.getAll(params);
       if (result.status) {
         return result.data;
       }
@@ -44,9 +44,10 @@ export const getAllRecords = createAsyncThunk(
 
 export const searchAppointments = createAsyncThunk(
   "records/searchAppointments",
-  async (query) => {
+  async ({searchQuery, queueType}) => {
+    console.log('queueType: ', queueType);
     let result = {};
-    result = await ApiAppointments.search(query);
+    result = await ApiAppointments.search(searchQuery);
     if (result.status) {
       return result.data;
     } else {
@@ -55,19 +56,16 @@ export const searchAppointments = createAsyncThunk(
   }
 );
 
-export const clearSearch = createAsyncThunk(
-  "records/clearSearch",
-  async () => {
-    return null;
-  }
-);
+export const clearSearch = createAsyncThunk("records/clearSearch", async () => {
+  return null;
+});
 
 export const searchPincode = createAsyncThunk(
   "records/searchPincode",
   async (pincode) => {
     const body = {
       searchPincode: pincode,
-    }
+    };
     try {
       const result = await ApiAppointments.searchPincode(body);
       if (result.status && result.data.pincode == pincode) {
@@ -85,7 +83,6 @@ export const searchPincode = createAsyncThunk(
 export const addPatient = createAsyncThunk(
   "records/addPatient",
   async (patientInfo) => {
-
     const formData = new FormData();
     Object.keys(patientInfo).forEach((key) => {
       formData.append(key, patientInfo[key]);
@@ -112,29 +109,6 @@ export const addPatient = createAsyncThunk(
 const appointmentsSlice = createSlice({
   name: "records",
   initialState,
-  reducers: {
-    addRecord: (state, action) => {
-      const uuid = uuidv4();
-      const values = {
-        ...action.payload,
-        uuid,
-      };
-      state.records.push(values);
-    },
-    updateRecord: (state, action) => {
-      const index = state.records.findIndex(
-        (record) => record.uuid === action.payload.uuid
-      );
-      if (index !== -1) {
-        state.records[index] = action.payload;
-      }
-    },
-    deleteRecord: (state, action) => {
-      state.records = state.records.filter(
-        (record) => record.uuid !== action.payload
-      );
-    },
-  },
   extraReducers: (builder) => {
     builder
       .addCase(getAllRecords.pending, (state) => {
@@ -143,37 +117,71 @@ const appointmentsSlice = createSlice({
       .addCase(getAllRecords.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.records = action.payload;
-        state.queueCount = action.payload?.queue_count ?? 0;
+        const queueType = action.meta.arg.queueType;
+        const pageNo = action.meta.arg.pageNo;
+        // console.log("arg.queueType: ", queueType);
+        state.records = {
+          ...state.records,
+          [queueType]: {
+            ...state.records[queueType],
+            [pageNo]: [...action.payload.app_data]
+          },
+        };
+
+        state.counts = {
+          queueCount: action.payload?.queue_count ?? 0,
+          finishedCount: action.payload?.finished_count ?? 0,
+          cancelledCount: action.payload?.cancelled_count ?? 0,
+        };
       })
       .addCase(getAllRecords.rejected, (state, action) => {
         state.loading = false;
-        state.records = null;
         state.error = action.error;
+      })
+      .addCase(searchAppointments.pending, (state, action) => {
+        state.error = null;
+        state.loading = true;
       })
       .addCase(searchAppointments.fulfilled, (state, action) => {
         state.error = null;
+        const queueType = action.meta.arg.queueType;
+        const pageNo = action.meta.arg.pageNo;
+        console.log("search.arg.queueType: ", queueType);
         state.records = {
-          app_data: action.payload
+          ...state.records,
+          [queueType]: {
+            [pageNo]: [...action.payload]
+          },
         };
+
+        state.loading = false;
         state.patients = action.payload;
         state.queueCount = action.payload?.queue_count ?? 0;
       })
       .addCase(searchAppointments.rejected, (state, action) => {
-        console.log('search.rejected.action.payload: ', action);
-        state.records = null;
+        console.log("search.rejected.action.payload: ", action);
+        const queueType = action.meta.arg.queueType;
+        const pageNo = action.meta.arg.pageNo;
+        console.log("search.arg.queueType: ", queueType);
+        state.records = {
+          ...state.records,
+          [queueType]: {
+            [pageNo]: []
+          },
+        };
         state.patients = [];
+        state.loading = false;
         state.error = action.error.message;
       })
       .addCase(searchPincode.fulfilled, (state, action) => {
         state.error = null;
-        console.log('searchPincode.action.payload: ', action);
+        console.log("searchPincode.action.payload: ", action);
         state.pincodeInfo = action.payload;
         state.error = action.error;
       })
       .addCase(searchPincode.rejected, (state, action) => {
         state.pincodeInfo = null;
-        console.log('searchPincode.rejected.payload: ', action);
+        console.log("searchPincode.rejected.payload: ", action);
         state.error = action.error;
       })
       .addCase(addPatient.pending, (state) => {
@@ -182,7 +190,7 @@ const appointmentsSlice = createSlice({
       .addCase(addPatient.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        console.log('addPatient.action.payload: ', action.payload);
+        console.log("addPatient.action.payload: ", action.payload);
         state.patientDetals = action.payload;
       })
       .addCase(addPatient.rejected, (state, action) => {
@@ -193,11 +201,23 @@ const appointmentsSlice = createSlice({
       .addCase(clearSearch.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        console.log('clearSearch.fulfilled: ', action.payload);
+        console.log("clearSearch.fulfilled: ", action.payload);
+
+        const queueType = action.meta.arg.queueType;
+        const pageNo = action.meta.arg.pageNo;
+        console.log("clearSearch.arg.queueType: ", queueType);
+        state.records = {
+          ...state.records,
+          [queueType]: {
+            [pageNo]: []
+          },
+        };
+
         state.patients = null;
       });
   },
 });
 
-export const { addRecord, updateRecord, deleteRecord } = appointmentsSlice.actions;
+export const { addRecord, updateRecord, deleteRecord } =
+  appointmentsSlice.actions;
 export default appointmentsSlice.reducer;
