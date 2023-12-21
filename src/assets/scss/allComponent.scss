@@ -105,6 +105,9 @@
             font-size: 20px;
         }
     }
+    &:hover {
+        border-color: $theme;
+    }
 }
 .autocomplete-custom {
     border-radius: 10px;

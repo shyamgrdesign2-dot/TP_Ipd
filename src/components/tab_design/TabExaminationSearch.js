@@ -288,6 +288,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
         <>
             <Card bordered={false} className="search-modalCard h-100">
                 <TabSearchHeader
+                    placeholder="Search Examination"
                     searchQuery={searchChildQuery}
                     onSearchParent={onSearchParent}
                     onClose={onClose} />
@@ -314,7 +315,23 @@ function TabExaminationSearch({ passIndex, onClose }) {
                                             childSearchOptions.length > 0 &&
                                             childSearchOptions.map((item, i) => {
                                                 return (
-                                                    <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>{item.value}</Button>
+                                                    i === childSearchOptions.length - 1 ? (
+                                                        <Button
+                                                            key={i}
+                                                            type="text"
+                                                            className="btn btn-primary2 chips-custom mb-14 me-14 d-flex align-items-center chips-addCustom"
+                                                            onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
+                                                            {item.value} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
+                                                        </Button>
+                                                    ) : (
+                                                        <Button
+                                                            key={i}
+                                                            type="text"
+                                                            className="btn btn-primary2 chips-custom mb-14 me-14"
+                                                            onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
+                                                            {item.value}
+                                                        </Button>
+                                                    )
                                                 )
                                             })
                                         ) : (
