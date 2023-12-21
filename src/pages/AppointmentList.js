@@ -25,11 +25,11 @@ function AppointmentList() {
 
   return (
     <>
-      {!isTablet && (<Header />)}
+      {(!isTablet || locationPath == '/') && (<Header />)}
       <div className="d-flex">
-        {!isTablet && (<SidebarDoctor />)}
+        {(!isTablet || locationPath == '/') && (<SidebarDoctor />)}
         <div className="w-100 bg-body wrapper custom-scroll">
-          {!isTablet ? (
+          {(!isTablet || locationPath == '/') ? (
             <Welcome
               locationPath={locationPath}
               backVisible={locationPath == '/' ? false : true}

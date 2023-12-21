@@ -98,14 +98,14 @@ function NewWalkInConsultation() {
         if (patients) {
             if (patients.length === 0 && searchQuery.length > 0) {
                 data.push({
-                    key: -1,
+                    key: '-2',
                     label: <div>{error}</div>,
                 });
             } else {
                 patients.map((patient) => {
                     return data.push({
                         key: JSON.stringify(patient),
-                        value: patient.patient_unique_id,
+                        value: patient.pm_pid,
                         label: PatientPlank(patient)
                     });
                 });
@@ -113,7 +113,7 @@ function NewWalkInConsultation() {
         }
         if (!isTablet) {
             data.push({
-                key: -1,
+                key: '-1',
                 value: 'Add New Patient',
                 label: AddPatientPlank(),
             });

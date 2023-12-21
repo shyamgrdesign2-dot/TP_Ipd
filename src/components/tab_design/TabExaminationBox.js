@@ -51,11 +51,6 @@ function TabExaminationBox() {
     const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
 
     const [selectedIndex, setSelectedIndex] = useState(null);
-    const SINCE_OPTIONS = ["H", "D", "W", "M", "Y"];
-    const [sinceValue, setSinceValue] = useState(1);
-    const [inputSince, setInputSince] = useState('');
-    const [sinceOptions, setSinceOptions] = useState([]);
-
 
     useEffect(() => {
         if (selectedExaminationList.length > 0) {
@@ -91,8 +86,6 @@ function TabExaminationBox() {
         (e) => {
             examinationData.push({
                 ...e,
-                since: "",
-                severity: "",
                 note: "",
             });
             setExaminationData((prev) => [...prev]);
@@ -106,8 +99,7 @@ function TabExaminationBox() {
     const handleDrawerChild = useCallback((item) => {
         setChildDrawer(!childDrawer);
         setChildDrawerData(item)
-        setSinceValue(item && item.since ? parseInt(item.since.split(" ")[0]) : 1)
-    }, [childDrawer, childDrawerData, sinceValue]);
+    }, [childDrawer, childDrawerData]);
 
     // Handle Template Drawer
     const handleDrawerTemplate = useCallback(() => {
@@ -130,7 +122,7 @@ function TabExaminationBox() {
 
     const onTemplateSelected = (template) => {
         const updatedData = template.examination.map(e => {
-            return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" }
+            return { ...e, unique_id: uuidv4(), note: "" }
         })
         setExaminationData([...examinationData, ...updatedData]);
         handleDrawerTemplate();
@@ -225,8 +217,8 @@ function TabExaminationBox() {
                     <div key={index} style={{ width: item.examination_name.length > 12 && item.examination_name.length < 24 ? `${item.examination_name.length * 10.5}px` : item.examination_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
                         <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
                             <div className="text-truncate">{item.examination_name}
-                                {(item.since || item.severity || item.note) ? (
-                                    <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.severity ? item.severity + ' | ' : ''}${item.note ? item.note : ''}`}</div>
+                                {item.note ? (
+                                    <div className="text-truncate small">{item.note}</div>
                                 ) : (
                                     <div className="text-truncate small">Add Details</div>
                                 )}
@@ -351,101 +343,6 @@ function TabExaminationBox() {
         );
     }, [tabChange, saveDrawer, inputTemplateName, loading, allTemplates]);
 
-
-    useEffect(() => {
-        if (sinceValue != -1) {
-            const options = SINCE_OPTIONS.map((option) => {
-                return {
-                    key: Math.random(),
-                    value: `${sinceValue} ${option}`,
-                    label: <>{`${sinceValue} ${option}`}</>,
-                };
-            });
-            setSinceOptions(options);
-        } else if (inputSince.length > 0) {
-            const options = SINCE_OPTIONS.map((option) => {
-                return {
-                    key: Math.random(),
-                    value: `${inputSince} ${option}`,
-                    label: <>{`${inputSince} ${option}`}</>,
-                };
-            });
-            setSinceOptions(options);
-        } else {
-            const options = SINCE_OPTIONS.map((option) => {
-                return {
-                    key: Math.random(),
-                    value: `${option}`,
-                    label: <>{`${option}`}</>,
-                };
-            });
-            setSinceOptions(options);
-        }
-    }, [sinceValue]);
-
-    const onChangeInputSinceChild = useCallback(
-        (e) => {
-            setInputSince(e.target.value);
-            setChildDrawerData({ ...childDrawerData, since: '' })
-            if (e.target.value.length > 0) {
-                const options = SINCE_OPTIONS.map((option) => {
-                    return {
-                        key: Math.random(),
-                        value: `${e.target.value} ${option}`,
-                        label: <>{`${e.target.value} ${option}`}</>,
-                    };
-                });
-                setSinceOptions(options);
-            } else {
-                const options = SINCE_OPTIONS.map((option) => {
-                    return {
-                        key: Math.random(),
-                        value: `${option}`,
-                        label: <>{`${option}`}</>,
-                    };
-                });
-                setSinceOptions(options);
-            }
-        },
-        [inputSince, sinceOptions, childDrawerData]
-    );
-
-    const SINCE_LIST = [
-        { value: 1, label: 1 },
-        { value: 2, label: 2 },
-        { value: 3, label: 3 },
-        { value: 4, label: 4 },
-        { value: 5, label: 5 },
-        { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
-    ];
-
-    const SEVERITY_LIST = [
-        { value: "severe", label: "Severe" },
-        { value: "moderate", label: "Moderate" },
-        { value: "mild", label: "Mild" },
-    ];
-
-    const onChangeSegmentedSinceChild = useCallback(
-        (key) => {
-            setSinceValue(key)
-            setChildDrawerData({ ...childDrawerData, since: '' })
-        },
-        [sinceValue, childDrawerData]
-    );
-
-    const onChangeSinceChild = useCallback(
-        (key) => {
-            setChildDrawerData({ ...childDrawerData, since: key })
-        },
-        [childDrawerData]
-    );
-
-    const onChangeSeverityChild = useCallback(
-        (key) => {
-            setChildDrawerData({ ...childDrawerData, severity: key })
-        },
-        [childDrawerData]
-    );
     const onChangeInputNoteChild = useCallback(
         (e) => {
             setChildDrawerData({ ...childDrawerData, note: e.target.value })
@@ -479,47 +376,15 @@ function TabExaminationBox() {
                         </div>
                     </Card>
                     <div className="p-4">
-                        <div>
-                            <label className="title-common">
-                                Since
-                            </label>
-                            <Segmented
-                                value={sinceValue > 5 ? -1 : sinceValue}
-                                className="search-segment"
-                                options={SINCE_LIST}
-                                onChange={onChangeSegmentedSinceChild}
-                            />
-                        </div>
-                        <div className="mt-3">
-                            <Segmented
-                                value={childDrawerData.since != undefined && childDrawerData.since}
-                                className="search-segment"
-                                options={sinceOptions}
-                                onChange={onChangeSinceChild}
-                            />
-                        </div>
-                        <div className="mt-5">
-                            <label className="title-common">
-                                Severity
-                            </label>
-                            <Segmented
-                                value={childDrawerData.severity != undefined && childDrawerData.severity}
-                                className="search-segment"
-                                options={SEVERITY_LIST}
-                                onChange={onChangeSeverityChild}
-                            />
-                        </div>
-                        <div className="mt-5">
-                            <label className="title-common">
-                                Add Details
-                            </label>
-                            <Input.TextArea value={childDrawerData.note != undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
-                        </div>
+                        <label className="title-common">
+                            Add Details
+                        </label>
+                        <Input.TextArea value={childDrawerData.note != undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                     </div>
                 </>
             )
         );
-    }, [childDrawer, childDrawerData, sinceValue, inputSince, sinceOptions]);
+    }, [childDrawer, childDrawerData]);
 
     return (
         <>

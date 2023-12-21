@@ -42,12 +42,6 @@ function ExaminationBox() {
   const { examinationData, setExaminationData } = useContext(CashManagerContext);
   // const [ examinationData, setExaminationData] = useState([]);
 
-  const SEVERITY_LIST = [
-    { value: "severe", label: "Severe" },
-    { value: "moderate", label: "Moderate" },
-    { value: "mild", label: "Mild" },
-  ];
-
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
   const [allTemplates, setAllTemplates] = useState([]);
@@ -57,8 +51,6 @@ function ExaminationBox() {
 
   const [searchChildQuery, setSearchChildQuery] = useState(null);
   const [childSearchOptions, setChildSearchOptions] = useState([]);
-  const [sinceOptions, setSinceOptions] = useState([]);
-  const SINCE_OPTIONS = ["Hour", "Day", "Week", "Month", "Year"];
 
   //PopOver2
   const [popOver2, setPopOver2] = useState(false);
@@ -153,8 +145,6 @@ function ExaminationBox() {
     (data, e) => {
       examinationData.push({
         ...JSON.parse(e.key),
-        since: "",
-        severity: "",
         note: "",
       });
       setExaminationData((prev) => [...prev]);
@@ -237,44 +227,6 @@ function ExaminationBox() {
     [searchChildQuery, examinationData]
   );
 
-  const onSearchSinceChid = useCallback(
-    (query, i) => {
-      const updateQuery = onlyNumberFormat(query);
-      examinationData[i].since = updateQuery;
-      setExaminationData((prev) => [...prev]);
-      if (updateQuery) {
-        const options = SINCE_OPTIONS.map((option) => {
-          return {
-            key: Math.random(),
-            value: `${updateQuery} ${option}`,
-            label: <>{`${updateQuery} ${option}`}</>,
-          };
-        });
-        setSinceOptions(options);
-      } else {
-        setSinceOptions([]);
-      }
-    },
-    [sinceOptions, examinationData]
-  );
-
-  const onSelectSinceChild = useCallback(
-    (data, i) => {
-      setSinceOptions([]);
-      examinationData[i].since = data;
-      setExaminationData((prev) => [...prev]);
-    },
-    [sinceOptions, examinationData]
-  );
-
-  const onSelectSeverityChild = useCallback(
-    (data, i) => {
-      examinationData[i].severity = data;
-      setExaminationData((prev) => [...prev]);
-    },
-    [examinationData]
-  );
-
   const onChangeNoteChild = useCallback(
     (e, i) => {
       examinationData[i].note = e.target.value;
@@ -309,7 +261,7 @@ function ExaminationBox() {
 
   const onTemplateSelected = (template) => {
     const updatedData = template.examination.map(e => {
-      return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" }
+      return { ...e, unique_id: uuidv4(), note: "" }
     })
     setExaminationData([...examinationData, ...updatedData]);
     showHideTemplatesListPopover();
@@ -420,7 +372,7 @@ function ExaminationBox() {
             gutter={[0]}
             className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
           >
-            <Col lg={7} md={7} sm={7} xs={7} className="border-end">
+            <Col lg={9} md={9} sm={9} xs={9} className="border-end">
               <div className="fontroboto fw-medium">
                 <AutoComplete
                   defaultValue={item.examination_name}
@@ -437,29 +389,7 @@ function ExaminationBox() {
                 />
               </div>
             </Col>
-            <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-              <AutoComplete
-                defaultValue={item.since}
-                value={item.since}
-                placeholder="Since"
-                bordered={false}
-                defaultOpen={false}
-                onSearch={(query) => onSearchSinceChid(query, index)}
-                options={sinceOptions}
-                className="autocomplete-custom w-100 inputborder"
-                defaultActiveFirstOption={true}
-                onSelect={(data) => onSelectSinceChild(data, index)}
-              />
-            </Col>
-            <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-              <Select
-                className="autocomplete-custom w-100 inputborder"
-                placeholder="Severity"
-                onSelect={(data) => onSelectSeverityChild(data, index)}
-                options={SEVERITY_LIST}
-              />
-            </Col>
-            <Col lg={8} md={8} sm={7} xs={7} className="border-end">
+            <Col lg={14} md={14} sm={13} xs={13} className="border-end">
               <Input
                 className="notesinput border-0"
                 placeholder="Notes"
