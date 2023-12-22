@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import CommonModal from "../common/CommonModal";
-import { clearSearch, searchAppointments } from "../redux/appointmentsSlice";
+import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
 
 const AddPatientPlank = () => {
   return (
@@ -78,13 +78,11 @@ const PatientPlank = ({ patient, setClickedPatient, setIsModalOpen }) => {
 };
 
 function WalkInConsultation() {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [value, setValue] = useState("");
   const [searchQuery, setSearchQuery] = useState(null);
   const [clickedPatient, setClickedPatient] = useState(null);
   const { patients, error } = useSelector((state) => state.records);
-  const [isModalOpen, setIsModalOpen] = useState("");
   const [options, setOptions] = useState([
     {
       label: <AddPatientPlank />,
@@ -107,7 +105,7 @@ function WalkInConsultation() {
       dispatch(clearSearch());
       addAddPatientPlank();
     } else if (searchQuery && searchQuery.length >= 3) {
-      dispatch(searchAppointments(searchQuery));
+      dispatch(searchPatients(searchQuery));
     }
   }, [dispatch, searchQuery]);
 

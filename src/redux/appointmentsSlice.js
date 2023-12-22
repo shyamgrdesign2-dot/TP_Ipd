@@ -38,12 +38,25 @@ export const getAllRecords = createAsyncThunk(
   }
 );
 
+export const searchPatients = createAsyncThunk(
+  "records/searchPatients",
+  async (searchQuery) => {
+    let result = {};
+    result = await ApiAppointments.searchPatients(searchQuery);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 export const searchAppointments = createAsyncThunk(
   "records/searchAppointments",
   async ({searchQuery, queueType}) => {
     console.log('queueType: ', queueType);
     let result = {};
-    result = await ApiAppointments.search(searchQuery);
+    result = await ApiAppointments.searchPatients(searchQuery);
     if (result.status) {
       return result.data;
     } else {
@@ -134,6 +147,22 @@ const appointmentsSlice = createSlice({
         state.loading = false;
         state.error = action.error;
       })
+      .addCase(searchPatients.pending, (state, action) => {
+        state.error = null;
+        state.loading = true;
+      })
+      .addCase(searchPatients.fulfilled, (state, action) => {
+        state.error = null;
+        state.loading = false;
+        state.patients = action.payload;
+        state.queueCount = action.payload?.queue_count ?? 0;
+      })
+      .addCase(searchPatients.rejected, (state, action) => {
+        console.log("search.rejected.action.payload: ", action);
+        state.patients = [];
+        state.loading = false;
+        state.error = action.error.message;
+      })
       .addCase(searchAppointments.pending, (state, action) => {
         state.error = null;
         state.loading = true;
@@ -152,7 +181,6 @@ const appointmentsSlice = createSlice({
 
         state.loading = false;
         state.patients = action.payload;
-        state.queueCount = action.payload?.queue_count ?? 0;
       })
       .addCase(searchAppointments.rejected, (state, action) => {
         console.log("search.rejected.action.payload: ", action);
@@ -165,7 +193,6 @@ const appointmentsSlice = createSlice({
             [pageNo]: []
           },
         };
-        state.patients = [];
         state.loading = false;
         state.error = action.error.message;
       })
@@ -199,8 +226,8 @@ const appointmentsSlice = createSlice({
         state.error = null;
         console.log("clearSearch.fulfilled: ", action.payload);
 
-        const queueType = action.meta.arg.queueType;
-        const pageNo = action.meta.arg.pageNo;
+        const queueType = action.meta.arg?.queueType;
+        const pageNo = action.meta.arg?.pageNo;
         console.log("clearSearch.arg.queueType: ", queueType);
         state.records = {
           ...state.records,
