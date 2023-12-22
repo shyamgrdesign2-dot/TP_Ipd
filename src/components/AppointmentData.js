@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import noData from '../assets/images/nodata-found.svg';
+import { Link } from "react-router-dom";
+import moment from "moment";
 import {
   Table,
   Select,
@@ -21,7 +21,7 @@ import {
 } from "../redux/appointmentsSlice";
 import { getFormattedDate } from "../utils/utils";
 import { PAGE_SIZE } from "../utils/constants";
-import moment from "moment";
+import noData from '../assets/images/nodata-found.svg';
 
 export const TAB_QUEUE = 0;
 export const TAB_FINISHED = 1;

@@ -7,6 +7,7 @@ import {
   getFormattedDate,
 } from "../utils/utils";
 import dayjs from "dayjs";
+import { isTablet } from "react-device-detect";
 
 function PersonalDetails({ patientInfo, setPatientInfo }) {
   const [form] = Form.useForm();
@@ -37,19 +38,21 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
   };
 
   const onBirthDateChanged = (date, dateString) => {
-    console.log("onBirthDateChanged triggred: ");
-    console.log(date, dateString);
-    const age = calculateAge(getFormattedDate(dateString));
-    setAgeYearsMonths(age);
-    setPatientInfo({
-      ...patientInfo,
-      pm_dob: getFormattedDate(dateString),
-    });
+    console.log("onBirthDateChanged triggred: ", dateString);
+    console.log(date);
+    if(dateString) {
+      const age = calculateAge(getFormattedDate(dateString));
+      setAgeYearsMonths(age);
+      setPatientInfo({
+        ...patientInfo,
+        pm_dob: getFormattedDate(dateString),
+      });
+    }
   };
 
   const disabledDate = (current) => {
     // Can not select days before today and today
-    return current && current > dayjs().endOf('day');
+    return current && current > dayjs().endOf("day");
   };
 
   useEffect(() => {
@@ -76,8 +79,9 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
         ); //months from 1-12
       let day = dateObj.getUTCDate() - 0;
       let newdate = year + "-" + month + "-" + day;
-      console.log("newdate", newdate);
+      console.log("calculateBirthdateFromAge", calculateBirthdateFromAge(ageYearsMonths));
       setBirthDate(newdate);
+
       setPatientInfo({
         ...patientInfo,
         pm_dob: getFormattedDate(newdate),
@@ -128,25 +132,29 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
     <>
       <div className="d-flex justify-content-between">
         <div className="title">Personal Details</div>
-        <Button
-          className="border-0 shadow-none"
-          onClick={() => {
-            setShowDetails(!showDetails);
-          }}
-        >
-          <div className="title align-items-center d-flex">
-            {" "}
-            {showDetails ? (
-              <>
-                <i className="icon-minus me-2" /> Show Less
-              </>
-            ) : (
-              <>
-                <i className="icon-Add me-2" /> Add Details
-              </>
-            )}
-          </div>
-        </Button>
+        {!isTablet && (
+          <>
+            <Button
+              className="border-0 shadow-none"
+              onClick={() => {
+                setShowDetails(!showDetails);
+              }}
+            >
+              <div className="title align-items-center d-flex">
+                {" "}
+                {showDetails ? (
+                  <>
+                    <i className="icon-minus me-2" /> Show Less
+                  </>
+                ) : (
+                  <>
+                    <i className="icon-Add me-2" /> Add Details
+                  </>
+                )}
+              </div>
+            </Button>
+          </>
+        )}
       </div>
 
       {showDetails && (
@@ -175,6 +183,7 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
                 <Input
                   placeholder="Full Name"
                   id="pm_fullname"
+                  value={patientInfo?.pm_fullname}
                   onChange={onFieldChanged}
                 />
               </Form.Item>

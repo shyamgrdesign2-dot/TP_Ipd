@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button, Form, Input, Select, Row, Col } from "antd";
 import { notification } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 
 import { searchPincode } from "../redux/appointmentsSlice";
+import { isTablet } from "react-device-detect";
+import { setSelectionRange } from "@testing-library/user-event/dist/utils";
 
 function AddressDetails({ patientInfo, setPatientInfo }) {
   const dispatch = useDispatch();
   const [showDetails, setShowDetails] = useState(true);
+  const [searchParentQuery, setSearchParentQuery] = useState("");
   let { pincodeInfo, error } = useSelector((state) => state.records);
 
   console.log("pincodeInfo: ", pincodeInfo);
@@ -30,18 +33,33 @@ function AddressDetails({ patientInfo, setPatientInfo }) {
     }
   }, [pincodeInfo, error]);
 
-  const onSearch = (event) => {
-    const searchQuery = event.target.value;
-    console.log("searchQuery: ", searchQuery);
-    let id = 0;
-    id = setTimeout(() => {
-      if (searchQuery?.length > 3) {
-        dispatch(searchPincode(searchQuery));
-      }
+  const onSearch = useCallback(
+    (event) => {
+      const query = event.target.value;
+      console.log('query: ', query);
+      setSearchParentQuery(query);
+    },
+    [searchParentQuery]
+  );
 
-      clearTimeout(id);
-    }, 500);
-  };
+  useEffect(() => {
+    if (searchParentQuery) {
+      const timeOutId = setTimeout(() => {
+        dispatch(searchPincode(searchParentQuery));
+      }, 500);
+      
+      return () => {
+        clearTimeout(timeOutId);
+      };
+    } else {
+      setPatientInfo({
+        ...patientInfo,
+        pm_pincode: null,
+        pm_city: null,
+        pm_state: null,
+      });
+    }
+  }, [searchParentQuery]);
 
   const onFieldChanged = (event) => {
     console.log("id: ", event.target.id);
@@ -56,25 +74,29 @@ function AddressDetails({ patientInfo, setPatientInfo }) {
     <>
       <div className="d-flex justify-content-between">
         <div className="title">Address Details</div>
-        <Button
-          className="border-0 shadow-none"
-          onClick={() => {
-            setShowDetails(!showDetails);
-          }}
-        >
-          <div className="title align-items-center d-flex">
-            {" "}
-            {showDetails ? (
-              <>
-                <i className="icon-minus me-2" /> Show Less
-              </>
-            ) : (
-              <>
-                <i className="icon-Add me-2" /> Add Details
-              </>
-            )}
-          </div>
-        </Button>
+        {!isTablet && (
+          <>
+            <Button
+              className="border-0 shadow-none"
+              onClick={() => {
+                setShowDetails(!showDetails);
+              }}
+            >
+              <div className="title align-items-center d-flex">
+                {" "}
+                {showDetails ? (
+                  <>
+                    <i className="icon-minus me-2" /> Show Less
+                  </>
+                ) : (
+                  <>
+                    <i className="icon-Add me-2" /> Add Details
+                  </>
+                )}
+              </div>
+            </Button>
+          </>
+        )}
       </div>
       {showDetails && (
         <Form

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AutoComplete, Input, Button } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import CommonModal from "../common/CommonModal";
@@ -12,7 +12,7 @@ const AddPatientPlank = () => {
       <Button
         type="text"
         className="btn btn-primary1 btn-41 align-items-center d-flex"
-        icon={<i className="icon-Add"></i>}
+        icon={<i className="icon-Add" />}
       >
         Add New Patient
       </Button>
