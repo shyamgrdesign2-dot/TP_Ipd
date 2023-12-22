@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { isTablet } from 'react-device-detect';
 
 import CommonModal from "../common/CommonModal";
-import { clearSearch, searchAppointments } from "../redux/appointmentsSlice";
+import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
 
 
 const PatientPlank = (patient) => {
@@ -82,7 +82,7 @@ function NewWalkInConsultation() {
         if (searchQuery) {
             const timeOutId = setTimeout(() => {
                 dispatch(
-                    searchAppointments(searchQuery)
+                    searchPatients(searchQuery)
                 );
             }, 500);
             return () => {

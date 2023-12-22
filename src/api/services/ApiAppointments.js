@@ -24,7 +24,7 @@ ApiAppointments.getAll = function (params) {
   }
 };
 
-ApiAppointments.search = function (query) {
+ApiAppointments.searchPatients = function (query) {
   return api.post(`/api/v1/appointment/searchPatient`, {
     search: query
   },
