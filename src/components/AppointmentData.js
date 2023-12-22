@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import noData from '../assets/images/nodata-found.svg';
 import {
   Table,
   Select,
@@ -57,16 +58,16 @@ function AppointmentData({ type }) {
     return type === TAB_QUEUE
       ? "queue"
       : type === TAB_FINISHED
-      ? "finished"
-      : "cancelled";
+        ? "finished"
+        : "cancelled";
   };
 
   const getQueuePageNo = () => {
     return type === TAB_QUEUE
       ? pageNoQueue
       : type === TAB_FINISHED
-      ? pageNoFinished
-      : pageNoCancelled;
+        ? pageNoFinished
+        : pageNoCancelled;
   };
 
   useEffect(() => {
@@ -135,8 +136,8 @@ function AppointmentData({ type }) {
       type === TAB_QUEUE
         ? Object.values(records?.queue)
         : type === TAB_FINISHED
-        ? Object.values(records?.finished)
-        : Object.values(records?.cancelled);
+          ? Object.values(records?.finished)
+          : Object.values(records?.cancelled);
     let source = [].concat(...arrayOfPagedQueue);
 
     // console.log("source:", source);
@@ -375,10 +376,10 @@ function AppointmentData({ type }) {
         );
 
         type === TAB_QUEUE
-        ? setPageNoQueue(0)
-        : type === TAB_FINISHED
-        ? setPageNoFinished(0)
-        : setPageNoCancelled(0);
+          ? setPageNoQueue(0)
+          : type === TAB_FINISHED
+            ? setPageNoFinished(0)
+            : setPageNoCancelled(0);
       }
     },
     [searchQuery]
@@ -395,15 +396,15 @@ function AppointmentData({ type }) {
       type === TAB_QUEUE
         ? pageNoQueue
         : type === TAB_FINISHED
-        ? pageNoFinished
-        : pageNoCancelled;
+          ? pageNoFinished
+          : pageNoCancelled;
 
     const count =
       type === TAB_QUEUE
         ? counts.queueCount
         : type === TAB_FINISHED
-        ? counts.finishedCount
-        : counts.cancelledCount;
+          ? counts.finishedCount
+          : counts.cancelledCount;
 
     const pagesReminaing = count - PAGE_SIZE * (pageNo + 1);
     return pagesReminaing;
@@ -418,6 +419,13 @@ function AppointmentData({ type }) {
       return counts.cancelledCount;
     }
   };
+
+  const emptyText = (
+    <div className="d-flex flex-column align-items-center justify-content-center" style={{height : 'calc(100vh - 434px)'}}>
+      <img src={noData} alt="Warning" />
+      <div className="mt-3 fontRoboto">There are no patients in your queue right now!</div>
+    </div>
+  );
 
   return (
     <div className="p-4 appointment-data">
@@ -520,6 +528,8 @@ function AppointmentData({ type }) {
               onChange={handleChange}
               pagination={false}
               loading={loading}
+              locale={{ emptyText: emptyText }}
+
             />
             {data?.length > 0 &&
               !searchQuery &&
