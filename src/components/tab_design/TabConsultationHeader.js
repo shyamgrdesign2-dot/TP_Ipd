@@ -1,12 +1,13 @@
 import React from "react";
-import { Button} from 'antd';
-import { Link } from "react-router-dom";
+import { Button } from 'antd';
+import { Link, useNavigate } from "react-router-dom";
 
 function TabConsultationHeader() {
+    const navigate = useNavigate();
     return (
         <div className='modalCard-header align-items-center d-flex'>
             <div className='border-end h-100 text-center'>
-                <Button className='btn btn-delete-prescription px-3 h-100'>
+                <Button className='btn btn-delete-prescription px-3 h-100' onClick={() => navigate(-1)}>
                     <i className='icon-right'></i>
                 </Button>
             </div>
