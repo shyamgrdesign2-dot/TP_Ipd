@@ -444,10 +444,10 @@ function AppointmentData({ type }) {
 
   return (
     <div className="p-4 appointment-data">
-      <Row className="justify-content-between">
-        <Col xl={3} lg={4}>
+      <Row className="justify-content-between align-items-center mb-3">
+        <Col xl={4} lg={4}>
           <Form>
-            <Form.Group className="mb-4" controlId="exampleForm.ControlInput1">
+            <Form.Group controlId="exampleForm.ControlInput1">
               {/* <Form.Control
                 type="text"
                 placeholder="Search by patient name"
@@ -458,9 +458,11 @@ function AppointmentData({ type }) {
                 value={value}
                 onSearch={onSearch}
                 defaultActiveFirstOption={true}
+                className="w-100 inputheight38"
               >
                 <Input
                   placeholder="Search by patient name"
+                  className="inputheight38"
                   prefix={<i className="icon-search" />}
                   suffix={
                     searchQuery?.length > 0 && (
