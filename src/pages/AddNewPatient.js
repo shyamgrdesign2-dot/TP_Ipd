@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { isTablet } from "react-device-detect";
 import { Col, Row } from "react-bootstrap";
-import { Tabs } from "antd";
+import { Form, Tabs } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 
 import PersonalDetails from "../components/PersonalDetails";
@@ -14,8 +14,9 @@ export const TAB_ADDRESS_DETAILS = 1;
 
 function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
   const dispatch = useDispatch();
+  const [form] = Form.useForm();
   const [tabChange, setTabChange] = useState(TAB_PERSONAL_DETAILS);
-  const { loading } = useSelector((state) => state.records);
+  const { loading, error } = useSelector((state) => state.records);
   const [patientInfo, setPatientInfo] = useState({});
   const [isFormValid, setFormValid] = useState(false);
 
@@ -23,24 +24,21 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
     {
       key: TAB_PERSONAL_DETAILS,
       label: (
-        <div className="d-flex align-items-baseline">
-          Personal Details
-        </div>
+        <div className="d-flex align-items-baseline">Personal Details</div>
       ),
     },
     {
       key: TAB_ADDRESS_DETAILS,
-      label: (
-        <div className="d-flex align-items-baseline">
-          Address Details
-        </div>
-      ),
+      label: <div className="d-flex align-items-baseline">Address Details</div>,
     },
   ];
 
   useEffect(() => {
-    console.log('patientInfo: ', patientInfo);
-    dispatch(addPatient(patientInfo));
+    console.log("addPatientMutate: ", addPatientMutate);
+    if(addPatientMutate) {
+      // dispatch(addPatient(patientInfo));
+      console.log('ready to submit');
+    }
   }, [addPatientMutate]);
 
   useEffect(() => {
@@ -52,19 +50,32 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
       patientInfo.pm_dob
     ) {
       setFormValid(true);
-      if(setFormValidForToolbar) {
+      if (setFormValidForToolbar) {
         setFormValidForToolbar(true);
       }
     } else {
       setFormValid(false);
-      if(setFormValidForToolbar) {
+      if (setFormValidForToolbar) {
         setFormValidForToolbar(false);
       }
     }
   }, [patientInfo]);
 
   const onAddPatientClicked = async () => {
-    /*   let patientInfo = {
+    dispatch(addPatient(patientInfo));
+  };
+
+  const onChange = useCallback(
+    (key) => {
+      setTabChange(key);
+    },
+    [tabChange]
+  );
+
+  const onFinish = (values) => {
+    console.log("Success:", values);
+
+        /*   let patientInfo = {
       pm_address: "Vitae esse enim off",
       pm_city: "Akola",
       pm_contact_no: "7279777411",
@@ -76,15 +87,12 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
       pm_image: 'blob:http://localhost:3000/8ffd7207-1c51-4a3d-a699-45933e1a7ab8'
     }; */
 
-    dispatch(addPatient(patientInfo));
+    dispatch(addPatient(values));
   };
 
-  const onChange = useCallback(
-    (key) => {
-      setTabChange(key);
-    },
-    [tabChange]
-  );
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+  };
 
   return (
     <>
@@ -116,11 +124,17 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
                   <PersonalDetails
                     patientInfo={patientInfo}
                     setPatientInfo={setPatientInfo}
+                    onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
+                    form={form}
                   />
                   <hr className="mb-3 mt-1" />
                   <AddressDetails
                     patientInfo={patientInfo}
                     setPatientInfo={setPatientInfo}
+                    onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
+                    form={form}
                   />
                 </>
               )}
@@ -129,6 +143,9 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
               <UploadProfile
                 patientInfo={patientInfo}
                 setPatientInfo={setPatientInfo}
+                onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
+                form={form}
               />
             </Col>
           </Row>
@@ -142,8 +159,10 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
               </button>
               <button
                 className="btn btn-primary btn-41"
-                disabled={!isFormValid || loading}
-                onClick={onAddPatientClicked}
+                disabled={loading}
+                onClick={() => {
+                  form.submit();
+                }}
               >
                 {loading ? "Adding Patient..." : "Add Patient to Consult"}
               </button>

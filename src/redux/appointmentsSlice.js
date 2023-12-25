@@ -77,6 +77,7 @@ export const searchPincode = createAsyncThunk(
     };
     try {
       const result = await ApiAppointments.searchPincode(body);
+      console.log('searchPincode.result', result);
       if (result.status && result.data.pincode == pincode) {
         return result.data;
       } else {
@@ -99,18 +100,15 @@ export const addPatient = createAsyncThunk(
 
     try {
       const result = await ApiAppointments.addPatient(formData);
+      console.log('result: ', result)
       if (result.status) {
         return result.data;
+      } else {
+        throw Error(result.error);
       }
     } catch (error) {
       console.log("error: ", error);
-      if (error.response.status === 401) {
-        // redirect here
-        throw parseApiError(error);
-      } else {
-        // API failed, return some meaningful error
-        throw parseApiError(error);
-      }
+      throw Error(error);
     }
   }
 );
@@ -219,6 +217,7 @@ const appointmentsSlice = createSlice({
       .addCase(addPatient.rejected, (state, action) => {
         state.loading = false;
         state.patientDetals = null;
+        console.log("addPatient.rejected: ", action.error);
         state.error = action.error;
       })
       .addCase(clearSearch.fulfilled, (state, action) => {

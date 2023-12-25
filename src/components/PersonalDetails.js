@@ -9,8 +9,13 @@ import {
 import dayjs from "dayjs";
 import { isTablet } from "react-device-detect";
 
-function PersonalDetails({ patientInfo, setPatientInfo }) {
-  const [form] = Form.useForm();
+function PersonalDetails({
+  form,
+  onFinish,
+  onFinishFailed,
+  patientInfo,
+  setPatientInfo,
+}) {
   const [showDetails, setShowDetails] = useState(true);
   const [ageYearsMonths, setAgeYearsMonths] = useState(null);
   const [birthDate, setBirthDate] = useState(null);
@@ -23,12 +28,12 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
     { value: "Other", label: "Other" },
   ];
 
-  const onSalutationChanged = (value) => {
+  /* const onSalutationChanged = (value) => {
     setPatientInfo({
       ...patientInfo,
       pm_salutation: value,
     });
-  };
+  }; */
 
   const onGenderChanged = (event) => {
     setPatientInfo({
@@ -40,7 +45,7 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
   const onBirthDateChanged = (date, dateString) => {
     console.log("onBirthDateChanged triggred: ", dateString);
     console.log(date);
-    if(dateString) {
+    if (dateString) {
       const age = calculateAge(getFormattedDate(dateString));
       setAgeYearsMonths(age);
       setPatientInfo({
@@ -79,7 +84,10 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
         ); //months from 1-12
       let day = dateObj.getUTCDate() - 0;
       let newdate = year + "-" + month + "-" + day;
-      console.log("calculateBirthdateFromAge", calculateBirthdateFromAge(ageYearsMonths));
+      /* console.log(
+        "calculateBirthdateFromAge",
+        calculateBirthdateFromAge(ageYearsMonths)
+      ); */
       setBirthDate(newdate);
 
       setPatientInfo({
@@ -91,15 +99,6 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
       });
     }
   }, [ageYearsMonths]);
-
-  const onFieldChanged = (event) => {
-    console.log("id: ", event.target.id);
-    const value = event.target.value;
-    setPatientInfo({
-      ...patientInfo,
-      [event.target.id]: value,
-    });
-  };
 
   // Form Rules
   const rules = {
@@ -128,6 +127,11 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
       },
     ],
   };
+
+  const onValuesChange = (values) => {
+    console.log("OnValuesChange:", values);
+  };
+
   return (
     <>
       <div className="d-flex justify-content-between">
@@ -163,6 +167,9 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
           layout="vertical"
           name="advanced_search"
           className="form_addnewpatient"
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          onValuesChange={onValuesChange}
         >
           <Row gutter={{ xs: 8, sm: 18, md: 24, lg: 30 }}>
             <Col xs={8} sm={8} md={6} lg={4}>
@@ -170,21 +177,18 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
                 <Select
                   placeholder="Select"
                   options={salutationOption}
-                  onChange={onSalutationChanged}
                 />
               </Form.Item>
             </Col>
             <Col xs={16} sm={16} md={18} lg={20}>
               <Form.Item
-                name="fullname"
+                name="pm_fullname"
                 label="Full Name"
                 rules={rules.fullname}
               >
                 <Input
                   placeholder="Full Name"
-                  id="pm_fullname"
                   value={patientInfo?.pm_fullname}
-                  onChange={onFieldChanged}
                 />
               </Form.Item>
             </Col>
@@ -192,22 +196,20 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
           <Row gutter={{ xs: 8, sm: 18, md: 40, lg: 94 }}>
             <Col xs={24} sm={24} md={12} lg={12}>
               <Form.Item
-                name="mobilenumber"
+                name="pm_contact_no"
                 label="Mobile Number"
                 rules={rules.mobilenumber}
               >
                 <Input
                   placeholder="Enter 10 digit number"
-                  id="pm_contact_no"
                   type="tel"
                   maxLength={10}
-                  onChange={onFieldChanged}
                 />
               </Form.Item>
             </Col>
             <Col xs={24} sm={24} md={12} lg={12}>
-              <Form.Item name="gender" label="Gender" rules={rules.gender}>
-                <Radio.Group onChange={onGenderChanged}>
+              <Form.Item name="pm_gender" label="Gender" rules={rules.gender}>
+                <Radio.Group>
                   <Radio.Button value="Male">Male</Radio.Button>
                   <Radio.Button value="Female">Female</Radio.Button>
                   <Radio.Button value="Other">Other</Radio.Button>
@@ -218,7 +220,7 @@ function PersonalDetails({ patientInfo, setPatientInfo }) {
           <Row className="align-items-center" gutter={{ xs: 0, sm: 0, lg: 0 }}>
             <Col xs={24} sm={24} md={11} lg={11}>
               <Form.Item
-                name="ageyearsmonths"
+                name="pm_dob"
                 label="Age In Years & Months"
                 rules={rules.ageyearsmonths}
               >

@@ -7,14 +7,17 @@ import { searchPincode } from "../redux/appointmentsSlice";
 import { isTablet } from "react-device-detect";
 import { setSelectionRange } from "@testing-library/user-event/dist/utils";
 
-function AddressDetails({ patientInfo, setPatientInfo }) {
+function AddressDetails({
+  form,
+  onFinish,
+  onFinishFailed,
+  patientInfo,
+  setPatientInfo,
+}) {
   const dispatch = useDispatch();
   const [showDetails, setShowDetails] = useState(true);
   const [searchParentQuery, setSearchParentQuery] = useState("");
   let { pincodeInfo, error } = useSelector((state) => state.records);
-
-  console.log("pincodeInfo: ", pincodeInfo);
-  console.log("error: ", error);
 
   useEffect(() => {
     if (pincodeInfo && Object.keys(pincodeInfo).length > 0) {
@@ -36,7 +39,6 @@ function AddressDetails({ patientInfo, setPatientInfo }) {
   const onSearch = useCallback(
     (event) => {
       const query = event.target.value;
-      console.log('query: ', query);
       setSearchParentQuery(query);
     },
     [searchParentQuery]
@@ -47,7 +49,7 @@ function AddressDetails({ patientInfo, setPatientInfo }) {
       const timeOutId = setTimeout(() => {
         dispatch(searchPincode(searchParentQuery));
       }, 500);
-      
+
       return () => {
         clearTimeout(timeOutId);
       };
@@ -62,12 +64,12 @@ function AddressDetails({ patientInfo, setPatientInfo }) {
   }, [searchParentQuery]);
 
   const onFieldChanged = (event) => {
-    console.log("id: ", event.target.id);
+    /* console.log("id: ", event.target.id);
     const value = event.target.value;
     setPatientInfo({
       ...patientInfo,
       [event.target.id]: value,
-    });
+    }); */
   };
 
   return (
@@ -100,13 +102,16 @@ function AddressDetails({ patientInfo, setPatientInfo }) {
       </div>
       {showDetails && (
         <Form
+          form={form}
           layout="vertical"
           name="advanced_search"
           className="form_addnewpatient"
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
         >
           <Row className="mt-3" gutter={{ xs: 8, sm: 18, md: 40, lg: 94 }}>
             <Col xs={24} sm={24} md={12} lg={12}>
-              <Form.Item name="Pincode" label="Pincode">
+              <Form.Item name="pm_pincode" label="Pincode">
                 <Input
                   placeholder="Enter Pin Code"
                   type="number"
@@ -116,14 +121,17 @@ function AddressDetails({ patientInfo, setPatientInfo }) {
               </Form.Item>
             </Col>
             <Col xs={24} sm={24} md={12} lg={12}>
-              <Form.Item name="city" label="City">
-                <Input placeholder={pincodeInfo?.city ?? "City"} disabled />
+              <Form.Item
+                name="pm_city"
+                label="City"
+              >
+                <Input defaultValue={pincodeInfo?.city ?? "City"} disabled />
               </Form.Item>
             </Col>
           </Row>
           <Row className="mt-3" gutter={{ xs: 8, sm: 18, md: 40, lg: 94 }}>
             <Col xs={24} sm={24} md={12} lg={12}>
-              <Form.Item name="state" label="State">
+              <Form.Item name="pm_state" label="State">
                 <Select
                   placeholder={pincodeInfo?.state ?? "Select state"}
                   disabled
@@ -131,7 +139,7 @@ function AddressDetails({ patientInfo, setPatientInfo }) {
               </Form.Item>
             </Col>
             <Col xs={24} sm={24} md={12} lg={12}>
-              <Form.Item name="streetaddress" label="Street Address">
+              <Form.Item name="pm_address" label="Street Address">
                 <Input
                   placeholder="Address"
                   id="pm_address"
