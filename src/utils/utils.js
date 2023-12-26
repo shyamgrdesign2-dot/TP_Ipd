@@ -155,6 +155,8 @@ export const getRandomAppointment = () => {
   console.log('randomMonthShort: ', moment());
 
   return {
+    patient_unique_id: randomInteger(10000, 99999),
+    pam_id: randomInteger(10000, 99999),
     pm_first_name: NAMES_FIRST[randomInteger(0, 3)],
     pm_last_name: NAMES_LAST[randomInteger(0, 3)],
     pm_gender: "Male",

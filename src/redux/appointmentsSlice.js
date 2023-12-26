@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import { parseApiError } from "../utils/utils";
 import ApiAppointments from "../api/services/ApiAppointments";
 
 const initialState = {
@@ -57,6 +56,20 @@ export const searchAppointments = createAsyncThunk(
     console.log('queueType: ', queueType);
     let result = {};
     result = await ApiAppointments.searchPatients(searchQuery);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const cancelAppointments = createAsyncThunk(
+  "records/cancelAppointments",
+  async (data) => {
+    console.log('data: ', data);
+    let result = {};
+    result = await ApiAppointments.cancelAppointments(data);
     if (result.status) {
       return result.data;
     } else {
@@ -211,13 +224,23 @@ const appointmentsSlice = createSlice({
       .addCase(addPatient.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        console.log("addPatient.action.payload: ", action.payload);
         state.patientDetals = action.payload;
       })
       .addCase(addPatient.rejected, (state, action) => {
         state.loading = false;
         state.patientDetals = null;
-        console.log("addPatient.rejected: ", action.error);
+        state.error = action.error;
+      })
+      .addCase(cancelAppointments.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        console.log("cancelAppointments.action.payload: ", action.payload);
+        state.patientDetals = action.payload;
+      })
+      .addCase(cancelAppointments.rejected, (state, action) => {
+        state.loading = false;
+        state.patientDetals = null;
+        console.log("cancelAppointments.rejected: ", action.error);
         state.error = action.error;
       })
       .addCase(clearSearch.fulfilled, (state, action) => {

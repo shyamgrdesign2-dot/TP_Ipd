@@ -1,15 +1,15 @@
 import api from "./axiosService";
-import config from '../../config';
+import config from "../../config";
 import { generateMockData } from "../../utils/utils";
 import { IS_DEV } from "../../utils/constants";
 
-const baseUrl = { customBaseUrl: config.appointment_api_url }
+const baseUrl = { customBaseUrl: config.appointment_api_url };
 
 const ApiAppointments = {};
 
 ApiAppointments.getAll = function (params) {
-  console.log('params: ', params);
-  if(IS_DEV) {
+  console.log("params: ", params);
+  if (IS_DEV) {
     return {
       status: true,
       data: {
@@ -17,7 +17,7 @@ ApiAppointments.getAll = function (params) {
         finished_count: 22,
         cancelled_count: 41,
         app_data: generateMockData(),
-      }
+      },
     };
   } else {
     return api.post(`/api/v1/appointment/listAppointment`, params, baseUrl);
@@ -25,10 +25,17 @@ ApiAppointments.getAll = function (params) {
 };
 
 ApiAppointments.searchPatients = function (query) {
-  return api.post(`/api/v1/appointment/searchPatient`, {
-    search: query
-  },
-    baseUrl);
+  return api.post(
+    `/api/v1/appointment/searchPatient`,
+    {
+      search: query,
+    },
+    baseUrl
+  );
+};
+
+ApiAppointments.cancelAppointments = function (body) {
+  return api.post(`/api/v1/appointment/cancelAppointment`, body, baseUrl);
 };
 
 ApiAppointments.getProfile = function () {

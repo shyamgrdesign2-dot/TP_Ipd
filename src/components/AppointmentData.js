@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import { useSelector, useDispatch } from "react-redux";
 
 import {
+  cancelAppointments,
   clearSearch,
   getAllRecords,
   searchAppointments,
@@ -153,9 +154,13 @@ function AppointmentData({ type }) {
         apDate,
         pm_gender,
         toct_type,
+        pam_id,
+        patient_unique_id
       }) => {
         return {
           key: Math.random(),
+          pam_id,
+          patient_unique_id,
           pm_contact_no,
           name: `${pm_first_name} ${pm_last_name}`,
           srno: index++,
@@ -271,11 +276,15 @@ function AppointmentData({ type }) {
           </Link>
           <Dropdown
             className="btn btn-outline btn-more ms-3"
-            menu={{ items }}
+            menu={{
+              items: getMenuItems(record)
+            }}
             trigger={["click"]}
           >
-            <a onClick={(e) => e.preventDefault()}>
-              <i className="icon-More"></i>
+            <a onClick={(e) => {
+              e.preventDefault();
+            }}>
+              <i className="icon-More" />
             </a>
           </Dropdown>
         </div>
@@ -294,20 +303,36 @@ function AppointmentData({ type }) {
     }
   };
 
-  const items = [
-    {
-      label: "Patient Details",
-      key: "patientdetails",
-    },
-    {
-      label: "Cancel Appt.",
-      key: "cancelappt",
-    },
-    {
-      label: "End Visit",
-      key: "endvisit",
-    },
-  ];
+
+  const getMenuItems = (record) => {
+    const items = [
+      {
+        label: "Patient Details",
+        key: "patientdetails",
+      },
+      {
+        label: (
+          <span onClick={() => {
+            const data = {
+              pam_id: record.pam_id,
+              patient_unique_id: record.patient_unique_id 
+            }
+            console.log('clicked.data', record);
+            dispatch(cancelAppointments(data));
+          }}>
+            Cancel Appt.
+          </span>
+        ),
+        key: "cancelappt",
+      },
+      {
+        label: "End Visit",
+        key: "endvisit",
+      },
+    ];
+
+    return items;
+  };
 
   const loadMoreData = () => {
     if (type === TAB_QUEUE) {
