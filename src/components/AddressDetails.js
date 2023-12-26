@@ -101,14 +101,15 @@ function AddressDetails({
         )}
       </div>
       {showDetails && (
-        <Form
+        <>
+          {/* <Form
           form={form}
           layout="vertical"
           name="advanced_search"
           className="form_addnewpatient"
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
-        >
+        > */}
           <Row className="mt-3" gutter={{ xs: 8, sm: 18, md: 40, lg: 94 }}>
             <Col xs={24} sm={24} md={12} lg={12}>
               <Form.Item name="pm_pincode" label="Pincode">
@@ -121,10 +122,7 @@ function AddressDetails({
               </Form.Item>
             </Col>
             <Col xs={24} sm={24} md={12} lg={12}>
-              <Form.Item
-                name="pm_city"
-                label="City"
-              >
+              <Form.Item name="pm_city" label="City">
                 <Input placeholder={pincodeInfo?.city ?? "City"} disabled />
               </Form.Item>
             </Col>
@@ -140,14 +138,12 @@ function AddressDetails({
             </Col>
             <Col xs={24} sm={24} md={12} lg={12}>
               <Form.Item name="pm_address" label="Street Address">
-                <Input
-                  placeholder="Address"
-                  id="pm_address"
-                />
+                <Input placeholder="Address" id="pm_address" />
               </Form.Item>
             </Col>
           </Row>
-        </Form>
+          {/* </Form> */}
+        </>
       )}
     </>
   );

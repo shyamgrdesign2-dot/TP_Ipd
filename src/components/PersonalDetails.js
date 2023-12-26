@@ -162,7 +162,8 @@ function PersonalDetails({
       </div>
 
       {showDetails && (
-        <Form
+        <>
+          {/* <Form
           form={form}
           layout="vertical"
           name="advanced_search"
@@ -170,14 +171,11 @@ function PersonalDetails({
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           onValuesChange={onValuesChange}
-        >
+        > */}
           <Row gutter={{ xs: 8, sm: 18, md: 24, lg: 30 }}>
             <Col xs={8} sm={8} md={6} lg={4}>
               <Form.Item name="salutation" label="Salutation">
-                <Select
-                  placeholder="Select"
-                  options={salutationOption}
-                />
+                <Select placeholder="Select" options={salutationOption} />
               </Form.Item>
             </Col>
             <Col xs={16} sm={16} md={18} lg={20}>
@@ -270,7 +268,8 @@ function PersonalDetails({
               </Form.Item>
             </Col>
           </Row>
-        </Form>
+          {/* </Form> */}
+        </>
       )}
     </>
   );
