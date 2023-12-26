@@ -11,9 +11,9 @@ const instance = axios.create({
 // Request interceptor
 instance.interceptors.request.use(
     (config) => {
-        if(!window.navigator.onLine) {
+        if (!window.navigator.onLine) {
             const error = 'Internet connection not available';
-            notification.error({ message: error })
+            notification.error({ key: "notification_key", message: error })
             return Promise.reject(new Error(error));
         }
         // You can modify the request config here (e.g., add headers)
@@ -30,7 +30,7 @@ instance.interceptors.request.use(
     },
     (error) => {
         // Do something with request error here
-        notification.error({ message: 'Error' })
+        notification.error({ key: "notification_key", message: error.response.data.error })
         return Promise.reject(error);
     }
 );
@@ -42,6 +42,7 @@ instance.interceptors.response.use(
         return response.data;
     },
     (error) => {
+        console.log('kishan',error)
         // You can handle errors globally here
         let notificationParam = {
             message: ''
@@ -70,6 +71,11 @@ instance.interceptors.response.use(
             notificationParam.message = 'Time Out'
         }
 
+        if (error.response.status === 401) {
+            notificationParam.message = error.response.data.error
+        }
+        
+        notificationParam.key = "notification_key"
         notification.error(notificationParam)
         return Promise.reject(error);
     }

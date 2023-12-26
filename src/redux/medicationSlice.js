@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import ApiAdvice from "../api/services/ApiAdvice";
+import ApiMedication from "../api/services/ApiMedication";
 
 const initialState = {
-  selectedAdviceList: [],
+  selectedMedicationList: [],
   parentOptionsList: [],
   childOptionsList: [],
   templates: [],
@@ -12,10 +12,10 @@ const initialState = {
 };
 
 export const addTemplate = createAsyncThunk(
-  "advice/addTemplate",
+  "medication/addTemplate",
   async (template) => {
     let result = {};
-    result = await ApiAdvice.addTemplate(template);
+    result = await ApiMedication.addTemplate(template);
     if (result.status) {
       return result.data;
     } else {
@@ -25,9 +25,9 @@ export const addTemplate = createAsyncThunk(
 );
 
 export const updateTemplate = createAsyncThunk(
-  "advice/updateTemplate",
+  "medication/updateTemplate",
   async (template) => {
-    const result = await ApiAdvice.updateTemplate(template);
+    const result = await ApiMedication.updateTemplate(template);
     if (result.status) {
       return result.data;
     } else {
@@ -37,9 +37,9 @@ export const updateTemplate = createAsyncThunk(
 );
 
 export const deleteTemplate = createAsyncThunk(
-  "advice/deleteTemplate",
+  "medication/deleteTemplate",
   async (templateId) => {
-    const result = await ApiAdvice.deleteTemplate(templateId);
+    const result = await ApiMedication.deleteTemplate(templateId);
     if (result.status) {
       return result.data;
     } else {
@@ -48,11 +48,11 @@ export const deleteTemplate = createAsyncThunk(
   }
 );
 
-export const getAdviceTemplates = createAsyncThunk(
-  "advice/getAdviceTemplates",
+export const getMedicationTemplates = createAsyncThunk(
+  "medication/getMedicationTemplates",
   async () => {
     let result = {};
-    result = await ApiAdvice.getAdviceTemplates();
+    result = await ApiMedication.getMedicationTemplates();
     if (result.status) {
       return result.data;
     } else {
@@ -61,11 +61,11 @@ export const getAdviceTemplates = createAsyncThunk(
   }
 );
 
-export const getFrequentlySearchedAdvice = createAsyncThunk(
-  "advice/getFrequentlySearchedAdvice",
+export const getFrequentlySearchedMedication = createAsyncThunk(
+  "medication/getFrequentlySearchedMedication",
   async () => {
     let result = {};
-    result = await ApiAdvice.getFrequentlySearchedAdvice();
+    result = await ApiMedication.getFrequentlySearchedMedication();
     if (result.status) {
       return result.data;
     } else {
@@ -74,11 +74,11 @@ export const getFrequentlySearchedAdvice = createAsyncThunk(
   }
 );
 
-export const searchAdvice = createAsyncThunk(
-  "advice/searchAdvice",
+export const searchMedication = createAsyncThunk(
+  "medication/searchMedication",
   async (data) => {
     let result = {};
-    result = await ApiAdvice.searchAdvice(data.searchQuery);
+    result = await ApiMedication.searchMedication(data.searchQuery);
     if (result.status) {
       return result.data;
     } else {
@@ -87,8 +87,8 @@ export const searchAdvice = createAsyncThunk(
   }
 );
 
-const adviceSlice = createSlice({
-  name: "advice",
+const medicationSlice = createSlice({
+  name: "medication",
   initialState,
   extraReducers: (builder) => {
     builder
@@ -97,7 +97,7 @@ const adviceSlice = createSlice({
       })
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedAdviceList = action.payload.advices;
+        state.selectedMedicationList = action.payload.medication;
         state.templates.unshift(action.payload);
       })
       .addCase(addTemplate.rejected, (state, action) => {
@@ -108,9 +108,9 @@ const adviceSlice = createSlice({
       })
       .addCase(updateTemplate.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedAdviceList = action.payload.advices;
+        state.selectedMedicationList = action.payload.medication;
         const index = state.templates.findIndex(
-          (e) => e.tat_id == action.payload.tat_id
+          (e) => e.tet_id == action.payload.tet_id
         );
         if (index != -1) {
           state.templates[index] = action.payload;
@@ -121,43 +121,43 @@ const adviceSlice = createSlice({
       })
       .addCase(deleteTemplate.pending, (state, action) => {
         const updatedData = state.templates.map((e) =>
-          e.tat_id == action.meta.arg ? { ...e, loading: true } : e
+          e.tet_id == action.meta.arg ? { ...e, loading: true } : e
         );
         state.templates = [...updatedData];
       })
       .addCase(deleteTemplate.fulfilled, (state, action) => {
         const result = state.templates.filter(
-          (item) => item.tat_id !== action.payload.tat_id
+          (item) => item.tet_id !== action.payload.tet_id
         );
         state.templates = [...result];
       })
       .addCase(deleteTemplate.rejected, (state, action) => {
         const updatedData = state.templates.map((e) =>
-          e.tat_id == action.meta.arg ? { ...e, loading: false } : e
+          e.tet_id == action.meta.arg ? { ...e, loading: false } : e
         );
         state.templates = [...updatedData];
       })
-      .addCase(getAdviceTemplates.fulfilled, (state, action) => {
+      .addCase(getMedicationTemplates.fulfilled, (state, action) => {
         state.templates = action.payload;
       })
-      .addCase(getAdviceTemplates.rejected, (state, action) => {
+      .addCase(getMedicationTemplates.rejected, (state, action) => {
         state.templates = [];
       })
-      .addCase(getFrequentlySearchedAdvice.fulfilled, (state, action) => {
+      .addCase(getFrequentlySearchedMedication.fulfilled, (state, action) => {
         state.parentOptionsList = action.payload;
       })
-      .addCase(getFrequentlySearchedAdvice.rejected, (state, action) => {
+      .addCase(getFrequentlySearchedMedication.rejected, (state, action) => {
         state.parentOptionsList = [];
       })
-      .addCase(searchAdvice.pending, (state) => { })
-      .addCase(searchAdvice.fulfilled, (state, action) => {
+      .addCase(searchMedication.pending, (state) => { })
+      .addCase(searchMedication.fulfilled, (state, action) => {
         if (action.meta.arg.type == "parent") {
           state.parentOptionsList = action.payload;
         } else {
           state.childOptionsList = action.payload;
         }
       })
-      .addCase(searchAdvice.rejected, (state, action) => {
+      .addCase(searchMedication.rejected, (state, action) => {
         if (action.meta.arg.type == "parent") {
           state.parentOptionsList = [];
         } else {
@@ -167,4 +167,4 @@ const adviceSlice = createSlice({
   },
 });
 
-export default adviceSlice.reducer;
+export default medicationSlice.reducer;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useContext } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useContext, useRef } from "react";
 import {
   AutoComplete,
   Input,
@@ -10,7 +10,9 @@ import {
   Tabs,
   Spin,
   message,
-  Checkbox
+  Checkbox,
+  Drawer,
+  Card
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -30,6 +32,7 @@ import {
 } from "../redux/adviceSlice";
 
 function AdviceBox() {
+  const inputRef = useRef();
   const [messageApi, contextHolder] = message.useMessage();
   const {
     selectedAdviceList,
@@ -42,6 +45,7 @@ function AdviceBox() {
 
   const { adviceData, setAdviceData } = useContext(CashManagerContext);
   // const [adviceData, setAdviceData] = useState([]);
+  const [adviceDataCheck, setAdviceDataCheck] = useState([]);
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -51,8 +55,8 @@ function AdviceBox() {
   const [parentSearchOptions, setParentSearchOptions] = useState([]);
 
   const [autoCompleteFlag, setAutoCompleteFlag] = useState(false);
-  const [searchChildQuery, setSearchChildQuery] = useState(null);
-  const [childSearchOptions, setChildSearchOptions] = useState([]);
+  const [childDrawer, setChildDrawer] = useState(false);
+  const [childDrawerData, setChildDrawerData] = useState(null);
 
   //PopOver2
   const [popOver2, setPopOver2] = useState(false);
@@ -105,7 +109,7 @@ function AdviceBox() {
       return data.push({
         key: JSON.stringify({ ...e, unique_id: uuidv4() }),
         value: e.advice_name,
-        label: <><Checkbox className="advice-check" checked={adviceData.some(x => x.advice_name == e.advice_name)}></Checkbox>{e.advice_name}</>,
+        label: <><Checkbox className="advice-check" checked={adviceDataCheck.some(x => x.advice_name == e.advice_name)}></Checkbox>{e.advice_name}</>,
       });
     });
 
@@ -113,10 +117,10 @@ function AdviceBox() {
       key: -1,
       label: (
         <div className="d-flex justify-content-between align-items-center">
-          <div>FREQUENTLY USED</div>
+          <div>{searchQuery ? 'SEARCHED' : 'FREQUENTLY USED'}</div>
           <Button
-            className="btn btn-primary3 ms-3">
-            {`Done (${adviceData.length})`}
+            className="btn btn-primary3 ms-3" onClick={onClickParent}>
+            {`Done (${adviceDataCheck.length})`}
           </Button>
         </div>
       ),
@@ -130,15 +134,20 @@ function AdviceBox() {
           advice_name: searchQuery
         }),
         value: searchQuery,
-        label: (
-          <>
-            <div>{searchQuery}</div>
-          </>
-        ),
+        label: <div className='d-flex align-items-center'>
+          <Checkbox checked={adviceDataCheck.some(x => x.advice_name == searchQuery)}></Checkbox>
+          <div className="ms-2">{searchQuery} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a></div>
+        </div>,
       });
-
+    // <Row
+    //   key={index}
+    //   gutter={[0]}
+    //   className='px-3 advicecheck-row justify-content-between align-items-center'>
+    //   <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
+    //   <Button className="btn btn-delete-prescription p-0" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit"></i></Button>
+    // </Row>
     setParentSearchOptions(data);
-  }, [parentOptionsList, adviceData]);
+  }, [parentOptionsList, adviceDataCheck]);
 
   const onFocusParent = useCallback(
     () => {
@@ -162,16 +171,41 @@ function AdviceBox() {
 
   const onSelectParent = useCallback(
     (data, e) => {
-      // setAutoCompleteFlag(true);
-      // console.log('onSelectParent')
-      adviceData.push({
-        ...JSON.parse(e.key),
-      });
-      setAdviceData((prev) => [...prev]);
-      // setSearchParentQuery("");
+      setAdviceDataCheck((previousState) => {
+        const index = previousState.findIndex((x) => x.advice_name == JSON.parse(e.key).advice_name)
+        console.log(index)
+        if (index !== -1) {
+          const cloned = [...previousState]
+          cloned.splice(index, 1)
+          return cloned
+        } else {
+          return [...previousState, JSON.parse(e.key)]
+        }
+      })
+      // if (adviceDataCheck.some(el => el.advice_name == JSON.parse(e.key).advice_name)) {
+      //   console.log('Some')
+      //   const index = adviceDataCheck.findIndex(el => el.advice_name == JSON.parse(e.key).advice_name)
+      //   if (index !== -1)
+      //     adviceDataCheck.splice(index, 1)
+      // } else {
+      //   console.log('With')
+      //   adviceDataCheck.push({
+      //     ...JSON.parse(e.key),
+      //   })
+      // }
+      // setAdviceDataCheck(prev => [...prev])
     },
-    [autoCompleteFlag, searchQuery, adviceData]
+    [adviceDataCheck]
   );
+
+  function onClickParent() {
+    const data = [...adviceData, ...adviceDataCheck]
+    setAdviceData(data);
+    setAdviceDataCheck([])
+    setSearchQuery("");
+    setAutoCompleteFlag(false);
+    inputRef.current.blur()
+  }
 
   const onRemoveRow = (index) => {
     adviceData.splice(index, 1);
@@ -199,7 +233,7 @@ function AdviceBox() {
 
   const onTemplateSelected = (template) => {
     const updatedData = template.advices.map(e => {
-      return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" }
+      return { ...e, unique_id: uuidv4() }
     })
     setAdviceData([...adviceData, ...updatedData]);
     showHideTemplatesListPopover();
@@ -289,7 +323,7 @@ function AdviceBox() {
       var sendData = {
         tat_id: data.tat_id,
         tat_template_name: data.tat_template_name,
-        advice: adviceData,
+        advices: adviceData,
       };
       const action = await dispatch(updateTemplate(sendData));
       if (action.meta.requestStatus == "fulfilled") {
@@ -309,13 +343,19 @@ function AdviceBox() {
             key={index}
             gutter={[0]}
             className='px-3 advicecheck-row justify-content-between align-items-center'>
-            <Checkbox checked onClick={() => onRemoveRow(index)}>{item.advice_name}</Checkbox>
-            <Button className="btn btn-delete-prescription p-0"><i className="icon-Edit"></i></Button>
+            <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
+            <Button className="btn btn-delete-prescription p-0" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit"></i></Button>
           </Row>
         );
       })
     );
-  }, [adviceData, childSearchOptions]);
+  }, [adviceData]);
+
+  // Handle Child Drawer
+  const handleDrawerChild = useCallback((item) => {
+    setChildDrawer(!childDrawer);
+    setChildDrawerData(item)
+  }, [childDrawer, childDrawerData]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useCallback(() => {
@@ -459,6 +499,53 @@ function AdviceBox() {
     );
   }, [tabChange, popOver2, inputTemplateName, loading, allTemplates]);
 
+  const onChangeInputNoteChild = useCallback(
+    (e) => {
+      setChildDrawerData({ ...childDrawerData, advice_name: e.target.value })
+    },
+    [childDrawerData]
+  );
+
+  const updateChild = (item) => {
+    const { index, ...updatedReqData } = item;
+    console.log(adviceData[item.index].advice_name, updatedReqData.advice_name)
+    if (adviceData[item.index].advice_name != updatedReqData.advice_name) {
+      updatedReqData["change"] = 1
+    }
+    adviceData[item.index] = { ...adviceData[item.index], ...updatedReqData };
+    setAdviceData((prev) => [...prev]);
+    handleDrawerChild()
+  }
+
+  //Child Componet
+  const CHILD_DRAWER_DATA = useMemo(() => {
+    return (
+      childDrawerData && (
+        <>
+          <Card bordered={false} className="search-modalCard">
+            <div className='modalCard-header align-items-center justify-content-between d-flex'>
+              <div className='align-items-center d-flex'>
+                <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={handleDrawerChild}>
+                  <i className='icon-Cross fs-3'></i>
+                </Button>
+                <div className="modal-title text-truncate-twolines">{'Edit Advice'}</div>
+              </div>
+              <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => updateChild(childDrawerData)}>
+                Done
+              </Button>
+            </div>
+          </Card>
+          <div className="p-4">
+            <label className="title-common">
+              Add Details
+            </label>
+            <Input.TextArea value={childDrawerData.advice_name != undefined && childDrawerData.advice_name} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+          </div>
+        </>
+      )
+    );
+  }, [childDrawer, childDrawerData]);
+
   return (
     <>
       {contextHolder}
@@ -503,9 +590,13 @@ function AdviceBox() {
         </div>
 
         {TABLE_ADVICE}
+        <Drawer closeIcon={false} placement="right" onClose={handleDrawerChild} open={childDrawer} className="modalWidth-563" width="auto">
+          {CHILD_DRAWER_DATA}
+        </Drawer>
 
         <div className="p-14">
           <AutoComplete
+            ref={inputRef}
             // defaultValue={searchParentQuery}
             value={searchQuery}
             onSearch={onSearchParent}
