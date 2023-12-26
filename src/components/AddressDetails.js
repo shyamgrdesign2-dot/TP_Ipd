@@ -125,7 +125,7 @@ function AddressDetails({
                 name="pm_city"
                 label="City"
               >
-                <Input defaultValue={pincodeInfo?.city ?? "City"} disabled />
+                <Input placeholder={pincodeInfo?.city ?? "City"} disabled />
               </Form.Item>
             </Col>
           </Row>
@@ -143,7 +143,6 @@ function AddressDetails({
                 <Input
                   placeholder="Address"
                   id="pm_address"
-                  onChange={onFieldChanged}
                 />
               </Form.Item>
             </Col>

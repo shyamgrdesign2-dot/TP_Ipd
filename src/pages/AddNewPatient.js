@@ -8,6 +8,7 @@ import PersonalDetails from "../components/PersonalDetails";
 import AddressDetails from "../components/AddressDetails";
 import UploadProfile from "../components/UploadProfile";
 import { addPatient } from "../redux/appointmentsSlice";
+import config from "../config";
 
 export const TAB_PERSONAL_DETAILS = 0;
 export const TAB_ADDRESS_DETAILS = 1;
@@ -19,6 +20,10 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
   const { loading, error } = useSelector((state) => state.records);
   const [patientInfo, setPatientInfo] = useState({});
   const [isFormValid, setFormValid] = useState(false);
+  const fullName = Form.useWatch("pm_fullname", form);
+  const contactNumber = Form.useWatch("pm_contact_no", form);
+  const gender = Form.useWatch("pm_gender", form);
+  const dob = Form.useWatch("dateofbirth", form);
 
   const items = [
     {
@@ -35,13 +40,13 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
 
   useEffect(() => {
     console.log("addPatientMutate: ", addPatientMutate);
-    if(addPatientMutate) {
-      // dispatch(addPatient(patientInfo));
-      console.log('ready to submit');
+    if (addPatientMutate) {
+      console.log("ready to submit");
+      form.submit();
     }
   }, [addPatientMutate]);
 
-  useEffect(() => {
+  /*   useEffect(() => {
     // console.log("patientInfo: ", patientInfo);
     if (
       patientInfo.pm_fullname &&
@@ -59,7 +64,36 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
         setFormValidForToolbar(false);
       }
     }
-  }, [patientInfo]);
+  }, [patientInfo]); */
+
+  useEffect(() => {
+    console.log("form is changing", form);
+    const promise = form.validateFields({ validateOnly: true });
+    promise.then(
+      function (value) {
+        console.log("value: ", value);
+        const {pm_contact_no, pm_fullname, pm_gender, dateofbirth } = value;
+        if(pm_contact_no && pm_fullname && pm_gender && dateofbirth) {
+          setFormValid(true);
+          if (setFormValidForToolbar) {
+            setFormValidForToolbar(true);
+          }
+        } else {
+          setFormValid(false);
+          if (setFormValidForToolbar) {
+            setFormValidForToolbar(false);
+          }
+        }
+      },
+      function (e) {
+        console.log("Error: ", e);
+        setFormValid(false);
+        if (setFormValidForToolbar) {
+          setFormValidForToolbar(false);
+        }
+      }
+    );
+  }, [fullName, contactNumber, gender, dob]);
 
   const onAddPatientClicked = async () => {
     dispatch(addPatient(patientInfo));
@@ -75,7 +109,7 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
   const onFinish = (values) => {
     console.log("Success:", values);
 
-        /*   let patientInfo = {
+    /*   let patientInfo = {
       pm_address: "Vitae esse enim off",
       pm_city: "Akola",
       pm_contact_no: "7279777411",
@@ -87,7 +121,10 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
       pm_image: 'blob:http://localhost:3000/8ffd7207-1c51-4a3d-a699-45933e1a7ab8'
     }; */
 
-    dispatch(addPatient(values));
+    console.log("patientInfo:", patientInfo);
+    const finalData = { ...values, pm_dob: patientInfo.pm_dob };
+    console.log("finalData:", finalData);
+    dispatch(addPatient(finalData));
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -111,11 +148,17 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
                     <PersonalDetails
                       patientInfo={patientInfo}
                       setPatientInfo={setPatientInfo}
+                      onFinish={onFinish}
+                      onFinishFailed={onFinishFailed}
+                      form={form}
                     />
                   ) : (
                     <AddressDetails
                       patientInfo={patientInfo}
                       setPatientInfo={setPatientInfo}
+                      onFinish={onFinish}
+                      onFinishFailed={onFinishFailed}
+                      form={form}
                     />
                   )}
                 </>
@@ -159,7 +202,7 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
               </button>
               <button
                 className="btn btn-primary btn-41"
-                disabled={loading}
+                disabled={!isFormValid || loading}
                 onClick={() => {
                   form.submit();
                 }}

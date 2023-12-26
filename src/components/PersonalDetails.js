@@ -82,7 +82,7 @@ function PersonalDetails({
               : 0
             : 0
         ); //months from 1-12
-      let day = dateObj.getUTCDate() - 0;
+      let day = 1;
       let newdate = year + "-" + month + "-" + day;
       /* console.log(
         "calculateBirthdateFromAge",
@@ -220,7 +220,7 @@ function PersonalDetails({
           <Row className="align-items-center" gutter={{ xs: 0, sm: 0, lg: 0 }}>
             <Col xs={24} sm={24} md={11} lg={11}>
               <Form.Item
-                name="pm_dob"
+                name="dobYearsMonths"
                 label="Age In Years & Months"
                 rules={rules.ageyearsmonths}
               >
