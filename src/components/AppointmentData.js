@@ -28,7 +28,7 @@ export const TAB_QUEUE = 0;
 export const TAB_FINISHED = 1;
 export const TAB_CANCELLED = 4;
 
-function AppointmentData({ type }) {
+function AppointmentData({ clinicChanged, type }) {
   console.log("type: ", type);
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
@@ -70,6 +70,16 @@ function AppointmentData({ type }) {
       ? pageNoFinished
       : pageNoCancelled;
   };
+
+  useEffect(() => {
+    console.log("clinicChanged: ", clinicChanged);
+    if (clinicChanged) {
+      console.log("ready to refetch");
+      setPageNoQueue(0);
+      setPageNoFinished(0);
+      setPageNoCancelled(0);
+    }
+  }, [clinicChanged]);
 
   useEffect(() => {
     if (searchQuery) {

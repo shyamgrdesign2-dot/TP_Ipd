@@ -46,6 +46,7 @@ function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
     }
   }, [addPatientMutate]);
 
+
   /*   useEffect(() => {
     // console.log("patientInfo: ", patientInfo);
     if (

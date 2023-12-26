@@ -93,7 +93,10 @@ export const changeHospital = createAsyncThunk(
     
     const result = await ApiAppointments.changeHospital(data);
     if (result.status) {
-      return result;
+      return {
+        ...result,
+        clinicId
+      };
     } else {
       throw Error(result.error);
     }
@@ -256,7 +259,7 @@ const appointmentsSlice = createSlice({
       .addCase(changeHospital.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        console.log('action.payload: ', action.payload);
+        // console.log('action.payload: ', action.payload);
         state.changeHospitalResponse = action.payload;
       })
       .addCase(changeHospital.rejected, (state, action) => {

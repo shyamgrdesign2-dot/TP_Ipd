@@ -6,8 +6,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { getProfile } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import { changeHospital } from "../redux/appointmentsSlice";
+import { useLocalStorage } from "../utils/localStorage";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
-function Header() {
+function Header({onClickChanged}) {
+  const [getToken, setToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_AUTH_TOKEN
+  );
+
   const [clinicOptions, setClinicOptions] = useState(null);
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -21,6 +27,23 @@ function Header() {
   useEffect(() => {
     dispatch(getProfile());
   }, [dispatch]);
+
+  useEffect(() => {
+    if(changeHospitalResponse.token) {
+      setToken(changeHospitalResponse.token);
+      onClickChanged(changeHospitalResponse.clinicId);
+      
+
+      /* const id = setTimeout(() => {
+        window.location.reload();
+      }, 300);
+
+      return () => {
+        clearTimeout(id);
+      }; */
+    }
+  }, [changeHospitalResponse]);
+  
 
   useEffect(() => {
     if (profiles && profiles.length > 0) {

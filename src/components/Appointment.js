@@ -8,7 +8,7 @@ import AppointmentData, {
   TAB_QUEUE,
 } from "../components/AppointmentData";
 
-function Appointment() {
+function Appointment({ clinicChanged }) {
   const [tabChange, setTabChange] = useState("1");
   const counts = useSelector((state) => state.records.counts);
 
@@ -53,11 +53,11 @@ function Appointment() {
     <div className="border rounded-4 appointment-wrap dateborder">
       <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
       {tabChange == 1 ? (
-        <AppointmentData type={TAB_QUEUE} />
+        <AppointmentData type={TAB_QUEUE} clinicChanged={clinicChanged} />
       ) : tabChange == 2 ? (
-        <AppointmentData type={TAB_FINISHED} />
+        <AppointmentData type={TAB_FINISHED} clinicChanged={clinicChanged} />
       ) : (
-        <AppointmentData type={TAB_CANCELLED} />
+        <AppointmentData type={TAB_CANCELLED} clinicChanged={clinicChanged} />
       )}
     </div>
   );

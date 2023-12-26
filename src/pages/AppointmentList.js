@@ -15,6 +15,7 @@ function AppointmentList() {
   const [locationPath, setLocationPath] = useState("/");
   const [addPatient, setAddPatient] = useState(false);
   const [isFormValid, setFormValid] = useState(false);
+  const [clinicChanged, setClinicChanged] = useState();
 
   useEffect(() => {
     setLocationPath(location.pathname);
@@ -22,7 +23,7 @@ function AppointmentList() {
 
   return (
     <>
-      {(!isTablet || locationPath == "/") && <Header />}
+      {(!isTablet || locationPath == "/") && <Header onClickChanged={setClinicChanged} />}
       <div className="d-flex">
         {(!isTablet || locationPath == "/") && <SidebarDoctor />}
         <div className="w-100 bg-body wrapper custom-scroll">
@@ -35,7 +36,7 @@ function AppointmentList() {
             <TabConsultationHeader setAddPatient={setAddPatient} isFormValid={isFormValid} />
           )}
           <Routes>
-            <Route path="/" element={<Appointment />} />
+            <Route path="/" element={<Appointment clinicChanged={clinicChanged} />} />
             <Route
               path="walk_in_consultation"
               element={<NewWalkInConsultation />}
