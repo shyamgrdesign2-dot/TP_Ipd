@@ -152,7 +152,7 @@ export const getRandomAppointment = () => {
   const randomMonthShort = moment()._locale._monthsShort[randomInteger(0, 11)];
   const apiTime = `${randomInteger(1, 12)}:${randomInteger(10, 59)} PM`;
   const apiDate = `${randomInteger(1, 31)}th ${randomMonthShort} ${randomInteger(2021, 2025)}`;
-  console.log('randomMonthShort: ', moment());
+  // console.log('randomMonthShort: ', moment());
 
   return {
     patient_unique_id: randomInteger(10000, 99999),

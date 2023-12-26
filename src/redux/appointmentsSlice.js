@@ -10,6 +10,7 @@ const initialState = {
   patients: null,
   pincodeInfo: {},
   patientDetals: {},
+  changeHospitalResponse: {},
 };
 
 export const getAllRecords = createAsyncThunk(
@@ -66,12 +67,33 @@ export const searchAppointments = createAsyncThunk(
 
 export const cancelAppointments = createAsyncThunk(
   "records/cancelAppointments",
-  async (data) => {
-    console.log('data: ', data);
+  async (record) => {
+    console.log('record: ', record);
+    const data = {
+      pam_id: record.pam_id,
+      patient_unique_id: record.patient_unique_id 
+    }
     let result = {};
     result = await ApiAppointments.cancelAppointments(data);
     if (result.status) {
       return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const changeHospital = createAsyncThunk(
+  "records/changeHospital",
+  async (clinicId) => {
+    console.log('clinicId: ', clinicId);
+    const data = {
+      clinic_id: clinicId,
+    }
+    
+    const result = await ApiAppointments.changeHospital(data);
+    if (result.status) {
+      return result;
     } else {
       throw Error(result.error);
     }
@@ -231,11 +253,30 @@ const appointmentsSlice = createSlice({
         state.patientDetals = null;
         state.error = action.error;
       })
+      .addCase(changeHospital.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        console.log('action.payload: ', action.payload);
+        state.changeHospitalResponse = action.payload;
+      })
+      .addCase(changeHospital.rejected, (state, action) => {
+        state.loading = false;
+        state.changeHospitalResponse = null;
+        state.error = action.error;
+      })
       .addCase(cancelAppointments.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        console.log("cancelAppointments.action.payload: ", action.payload);
-        state.patientDetals = action.payload;
+        const index = Object.values(state.records.queue).indexOf(action.meta.arg.record);
+        console.log("index:", index);
+
+        // TODO: Find and remove from queue and add to cancelled list
+          
+        state.counts = {
+          ...state.counts,
+          cancelledCount: state.counts.cancelledCount + 1,
+          queueCount: state.counts.queueCount === 0 ? 0 : state.counts.queueCount - 1,
+        };
       })
       .addCase(cancelAppointments.rejected, (state, action) => {
         state.loading = false;

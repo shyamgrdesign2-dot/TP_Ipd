@@ -313,12 +313,9 @@ function AppointmentData({ type }) {
       {
         label: (
           <span onClick={() => {
-            const data = {
-              pam_id: record.pam_id,
-              patient_unique_id: record.patient_unique_id 
-            }
+            
             console.log('clicked.data', record);
-            dispatch(cancelAppointments(data));
+            dispatch(cancelAppointments(record));
           }}>
             Cancel Appt.
           </span>

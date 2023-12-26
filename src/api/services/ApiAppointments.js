@@ -38,6 +38,10 @@ ApiAppointments.cancelAppointments = function (body) {
   return api.post(`/api/v1/appointment/cancelAppointment`, body, baseUrl);
 };
 
+ApiAppointments.changeHospital = function (body) {
+  return api.post(`/api/v1/appointment/changeHospital`, body, baseUrl);
+};
+
 ApiAppointments.getProfile = function () {
   return api.get(`/api/v1/appointment/showProfile`, baseUrl);
 };

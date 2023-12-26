@@ -5,13 +5,18 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { getProfile } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
+import { changeHospital } from "../redux/appointmentsSlice";
 
 function Header() {
   const [clinicOptions, setClinicOptions] = useState(null);
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [profile, setProfile] = useState(null);
   const profiles = useSelector((state) => state.doctors.profile);
+  const { changeHospitalResponse } = useSelector(
+    (state) => state.records
+  );
   const dispatch = useDispatch();
+  console.log('changeHospitalResponse: ', changeHospitalResponse);
 
   useEffect(() => {
     dispatch(getProfile());
@@ -55,6 +60,8 @@ function Header() {
             value={selectedHospital ? selectedHospital : "Add a clinic"}
             onChange={(hospital) => {
               setSelectedHospital(hospital);
+              console.log("hospital: ", hospital);
+              dispatch(changeHospital(hospital));
             }}
             options={clinicOptions}
           />
@@ -99,7 +106,11 @@ function Header() {
               className="py-0 border-0 nav-link"
             >
               {/* <i className='icon-patients'></i> */}
-              <img src={profile?.um_image ?? defaultprofile} alt="Profile" style={{width: '30px'}} />
+              <img
+                src={profile?.um_image ?? defaultprofile}
+                alt="Profile"
+                style={{ width: "30px" }}
+              />
             </Dropdown.Toggle>
             <Dropdown.Menu className="dropdown-menu-end">
               <Dropdown.Item>
