@@ -9,6 +9,7 @@ import HeaderPrescription from "../../common/HeaderPrescription";
 import TabSymptomsBox from "../../components/tab_design/TabSymptomsBox";
 import TabExaminationBox from "../../components/tab_design/TabExaminationBox";
 import TabDiagnosisBox from "../../components/tab_design/TabDiagnosisBox";
+import TabAdviceBox from "../../components/tab_design/TabAdviceBox";
 import TabInvestigationBox from "../../components/tab_design/TabInvestigationBox";
 import TabMedicationBox from "../../components/tab_design/TabMedicationBox";
 
@@ -208,6 +209,7 @@ function TabPrescription() {
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                             <Content>
+                                <TabAdviceBox/>
                                 <TabMedicationBox />
                                 <TabSymptomsBox />
                                 <TabExaminationBox />

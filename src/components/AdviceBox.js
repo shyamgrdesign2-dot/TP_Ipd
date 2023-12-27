@@ -21,7 +21,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
 import { onlyNumberFormat } from "../utils/utils";
-import Symptomsicon from "../assets/images/Symptoms.svg";
+import Investigationicon from "../assets/images/Lab.svg";
 import {
   addTemplate,
   updateTemplate,
@@ -139,13 +139,6 @@ function AdviceBox() {
           <div className="ms-2">{searchQuery} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a></div>
         </div>,
       });
-    // <Row
-    //   key={index}
-    //   gutter={[0]}
-    //   className='px-3 advicecheck-row justify-content-between align-items-center'>
-    //   <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
-    //   <Button className="btn btn-delete-prescription p-0" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit"></i></Button>
-    // </Row>
     setParentSearchOptions(data);
   }, [parentOptionsList, adviceDataCheck]);
 
@@ -315,7 +308,7 @@ function AdviceBox() {
       messageApi.open({
         MESSAGE_KEY,
         type: 'warning',
-        content: 'Please fillup symptom name',
+        content: 'Please fillup advice name',
         duration: 2
       });
     } else {
@@ -536,9 +529,6 @@ function AdviceBox() {
             </div>
           </Card>
           <div className="p-4">
-            <label className="title-common">
-              Add Details
-            </label>
             <Input.TextArea value={childDrawerData.advice_name != undefined && childDrawerData.advice_name} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
           </div>
         </>
@@ -552,7 +542,7 @@ function AdviceBox() {
       <div className="prescription-box-sm">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
-            <img className="me-2" src={Symptomsicon} alt="Advice" />
+            <img className="me-2" src={Investigationicon} alt="Advice" />
             <div className="title-common">Advice</div>
           </div>
           <div className="d-flex align-items-center">
