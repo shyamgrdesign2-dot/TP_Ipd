@@ -209,11 +209,11 @@ function TabPrescription() {
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                             <Content>
-                                <TabAdviceBox/>
                                 <TabMedicationBox />
                                 <TabSymptomsBox />
                                 <TabExaminationBox />
                                 <TabDiagnosisBox />
+                                <TabAdviceBox/>
                                 <TabInvestigationBox />
                             </Content>
                         </div>
