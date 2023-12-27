@@ -54,11 +54,11 @@ function Prescription() {
               </div>
             </div>
             <div className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3">
-              <InvestigationBox/>
               <SymptomsBox />
               <ExaminationBox />
               <DiagnosisBox />
               <AdviceBox />
+              <InvestigationBox/>
             </div>
           </div>
         </div>

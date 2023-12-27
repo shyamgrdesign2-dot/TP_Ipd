@@ -224,6 +224,9 @@ body {
     }
     .advicecheck-row {
         height: 38px;
+        label {
+            max-width: 95%
+        }
         .btn {
             display: none;
         }
