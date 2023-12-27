@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import moment from "moment";
+import { Link } from "react-router-dom";
 import {
   Table,
   Select,
@@ -20,7 +21,7 @@ import {
 } from "../redux/appointmentsSlice";
 import { getFormattedDate } from "../utils/utils";
 import { PAGE_SIZE } from "../utils/constants";
-import moment from "moment";
+import noData from "../assets/images/nodata-found.svg";
 
 export const TAB_QUEUE = 0;
 export const TAB_FINISHED = 1;
@@ -235,10 +236,16 @@ function AppointmentData({ type }) {
       onFilter: (value, record) => record.time.includes(value),
       sorter: (a, b) => {
         const lhsDateTime = `${a.apDate} ${a.apTime}`;
-        const lhsLongTime = moment(lhsDateTime, 'Do MMM YYYY HH:mm A').valueOf();
+        const lhsLongTime = moment(
+          lhsDateTime,
+          "Do MMM YYYY HH:mm A"
+        ).valueOf();
 
         const rhsDateTime = `${b.apDate} ${b.apTime}`;
-        const rhsLongTime = moment(rhsDateTime, 'Do MMM YYYY HH:mm A').valueOf();
+        const rhsLongTime = moment(
+          rhsDateTime,
+          "Do MMM YYYY HH:mm A"
+        ).valueOf();
 
         const result = lhsLongTime - rhsLongTime;
         return result;
@@ -375,10 +382,10 @@ function AppointmentData({ type }) {
         );
 
         type === TAB_QUEUE
-        ? setPageNoQueue(0)
-        : type === TAB_FINISHED
-        ? setPageNoFinished(0)
-        : setPageNoCancelled(0);
+          ? setPageNoQueue(0)
+          : type === TAB_FINISHED
+          ? setPageNoFinished(0)
+          : setPageNoCancelled(0);
       }
     },
     [searchQuery]
@@ -419,12 +426,28 @@ function AppointmentData({ type }) {
     }
   };
 
+  const emptyText = (
+    <div
+      className="d-flex flex-column align-items-center justify-content-center"
+      style={{ height: "calc(100vh - 434px)" }}
+    >
+      <img src={noData} alt="Warning" />
+      <div className="mt-3 fontRoboto">
+        {type === TAB_QUEUE
+          ? "There are no patients in your queue right now!"
+          : type === TAB_FINISHED
+          ? "You haven't finished any consultations or ended the visit yet."
+          : "Nothing here! You haven’t cancelled any appointments here."}
+      </div>
+    </div>
+  );
+
   return (
     <div className="p-4 appointment-data">
-      <Row className="justify-content-between">
-        <Col xl={3} lg={4}>
+      <Row className="justify-content-between align-items-center mb-3">
+        <Col xl={4} lg={4}>
           <Form>
-            <Form.Group className="mb-4" controlId="exampleForm.ControlInput1">
+            <Form.Group controlId="exampleForm.ControlInput1">
               {/* <Form.Control
                 type="text"
                 placeholder="Search by patient name"
@@ -435,9 +458,11 @@ function AppointmentData({ type }) {
                 value={value}
                 onSearch={onSearch}
                 defaultActiveFirstOption={true}
+                className="w-100 inputheight38"
               >
                 <Input
                   placeholder="Search by patient name"
+                  className="inputheight38"
                   prefix={<i className="icon-search" />}
                   suffix={
                     searchQuery?.length > 0 && (
@@ -510,9 +535,6 @@ function AppointmentData({ type }) {
       </Row>
       {segmented == 1 ? (
         <div>
-          {/* {error ? (
-            <div>{error}</div>
-          ) : ( */}
           <>
             <Table
               columns={columns}
@@ -520,6 +542,7 @@ function AppointmentData({ type }) {
               onChange={handleChange}
               pagination={false}
               loading={loading}
+              locale={{ emptyText: emptyText }}
             />
             {data?.length > 0 &&
               !searchQuery &&

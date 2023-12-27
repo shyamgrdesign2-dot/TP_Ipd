@@ -32,8 +32,8 @@ function Welcome(props) {
                     <div>
                         {locationPath == '/' && (
                             <div className='d-lg-flex d-block'>
-                                <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => alert('Comming Soon')}> <i className={'icon-Add me-2'}></i> {'Add New Appointment'}</Button>
-                                <Button variant="primary" onClick={() => navigate('/walk_in_consultation')}>{'Star Walk-In Consultation'}</Button>
+                                {/* <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => alert('Comming Soon')}> <i className={'icon-Add me-2'}></i> {'Add New Appointment'}</Button> */}
+                                <Button variant="primary" className='px-3' onClick={() => navigate('/walk_in_consultation')}>{'Star Walk-In Consultation'}</Button>
                             </div>
                         )}
                     </div>
