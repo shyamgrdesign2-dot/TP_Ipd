@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { isMobile } from 'react-device-detect';
 
-import TabConsultationHeader from "../components/tab_design/TabConsultationHeader";
+import TabHeader from "../components/tab_design/TabHeader";
 import CommonModal from "../common/CommonModal";
 import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
 
@@ -200,7 +200,7 @@ function WalkInConsultation() {
     return (
         <>
             {isMobile && (
-                <TabConsultationHeader
+                <TabHeader
                     flag={1}
                     title="Star Walking Consultation" />
             )}

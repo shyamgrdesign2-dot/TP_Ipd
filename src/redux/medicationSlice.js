@@ -110,7 +110,7 @@ const medicationSlice = createSlice({
         state.loading = false;
         state.selectedMedicationList = action.payload.medication;
         const index = state.templates.findIndex(
-          (e) => e.tet_id == action.payload.tet_id
+          (e) => e.tmtd_id == action.payload.tmtd_id
         );
         if (index != -1) {
           state.templates[index] = action.payload;
@@ -121,19 +121,19 @@ const medicationSlice = createSlice({
       })
       .addCase(deleteTemplate.pending, (state, action) => {
         const updatedData = state.templates.map((e) =>
-          e.tet_id == action.meta.arg ? { ...e, loading: true } : e
+          e.tmtd_id == action.meta.arg ? { ...e, loading: true } : e
         );
         state.templates = [...updatedData];
       })
       .addCase(deleteTemplate.fulfilled, (state, action) => {
         const result = state.templates.filter(
-          (item) => item.tet_id !== action.payload.tet_id
+          (item) => item.tmtd_id !== action.payload.tmtd_id
         );
         state.templates = [...result];
       })
       .addCase(deleteTemplate.rejected, (state, action) => {
         const updatedData = state.templates.map((e) =>
-          e.tet_id == action.meta.arg ? { ...e, loading: false } : e
+          e.tmtd_id == action.meta.arg ? { ...e, loading: false } : e
         );
         state.templates = [...updatedData];
       })

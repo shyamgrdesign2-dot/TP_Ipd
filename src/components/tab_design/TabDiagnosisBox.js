@@ -128,6 +128,20 @@ function TabDiagnosisBox() {
         [tabChange]
     );
 
+    const onSearch = (e) => {
+        const searchQuery = e.target.value;
+        if (searchQuery) {
+            let filteredTemplates = templates.filter((template) => {
+                return template.tdt_template_name
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase());
+            });
+            setMatchedTemplates(filteredTemplates);
+        } else {
+            setMatchedTemplates(templates);
+        }
+    };
+
     const onTemplateSelected = (template) => {
         const updatedData = template.diagnosis.map(e => {
             return { ...e, unique_id: uuidv4(), since: "", status: "", note: "" }
@@ -247,7 +261,7 @@ function TabDiagnosisBox() {
             <>
                 <div>
                     <div className="medicine-templates">
-                        <Input className="popinput" prefix={<i className='icon-search me-2'></i>} />
+                        <Input className="popinput" onChange={onSearch} prefix={<i className='icon-search me-2'></i>} />
                     </div>
                     <div className="tab-template-height" >
                         {matchedTemplates.length > 0 &&

@@ -27,4 +27,4 @@ function CommonModal({ isModalOpen, title, modalBody, modalWidth, onCancel }) {
   );
 }
 
-export default CommonModal;
+export default React.memo(CommonModal);
