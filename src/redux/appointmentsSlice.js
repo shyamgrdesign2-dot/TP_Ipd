@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import ApiAppointments from "../api/services/ApiAppointments";
+import { STRING_QUEUE_TYPE_CANCELLED, STRING_QUEUE_TYPE_FINISHED, STRING_QUEUE_TYPE_QUEUE } from "../components/AppointmentData";
 
 const initialState = {
   records: { queue: {}, finished: {}, cancelled: {} },
@@ -226,11 +227,22 @@ const appointmentsSlice = createSlice({
           },
         };
 
-        state.counts = {
-          queueCount: 0,
-          finishedCount: 0,
-          cancelledCount: 0,
-        };
+        if(queueType === STRING_QUEUE_TYPE_QUEUE) {
+          state.counts = {
+            ...state.counts,
+            queueCount: 0
+          };
+        } else if(queueType === STRING_QUEUE_TYPE_FINISHED) {
+          state.counts = {
+            ...state.counts,
+            finishedCount: 0
+          };
+        } else if(queueType === STRING_QUEUE_TYPE_CANCELLED) {
+          state.counts = {
+            ...state.counts,
+            cancelledCount: 0
+          };
+        }
       })
       .addCase(searchPatients.pending, (state, action) => {
         state.error = null;
@@ -346,9 +358,8 @@ const appointmentsSlice = createSlice({
             [0]: cancelledFirstPage && cancelledFirstPage.length > 0 ? [targetObject, ...cancelledFirstPage] : [targetObject]
           }
         }
-
-        // TODO: Find and remove from queue and add to cancelled list
-
+        
+        // update the counts.
         state.counts = {
           ...state.counts,
           cancelledCount: state.counts.cancelledCount + 1,
