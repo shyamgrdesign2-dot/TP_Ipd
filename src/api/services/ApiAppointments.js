@@ -54,4 +54,8 @@ ApiAppointments.addPatient = function (formData) {
   return api.post(`/api/v1/appointment/addPatient`, formData, baseUrl);
 };
 
+ApiAppointments.getCaseTypes = function () {
+  return api.post(`/api/v1/appointment/listCasetype`, {}, baseUrl);
+};
+
 export default ApiAppointments;

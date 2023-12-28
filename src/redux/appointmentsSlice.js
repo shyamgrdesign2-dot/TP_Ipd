@@ -11,6 +11,7 @@ const initialState = {
   pincodeInfo: {},
   patientDetals: {},
   changeHospitalResponse: {},
+  caseTypes: []
 };
 
 export const getAllRecords = createAsyncThunk(
@@ -128,6 +129,24 @@ export const searchPincode = createAsyncThunk(
   }
 );
 
+export const getCaseTypes = createAsyncThunk(
+  "records/getCaseTypes",
+  async () => {
+    try {
+      const result = await ApiAppointments.getCaseTypes();
+      console.log('getCaseTypes.result', result);
+      if (result.status) {
+        return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
 export const addPatient = createAsyncThunk(
   "records/addPatient",
   async (patientInfo) => {
@@ -203,8 +222,18 @@ const appointmentsSlice = createSlice({
         state.queueCount = action.payload?.queue_count ?? 0;
       })
       .addCase(searchPatients.rejected, (state, action) => {
-        console.log("search.rejected.action.payload: ", action);
         state.patients = [];
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(getCaseTypes.fulfilled, (state, action) => {
+        state.error = null;
+        state.loading = false;
+        state.caseTypes = action.payload;
+      })
+      .addCase(getCaseTypes.rejected, (state, action) => {
+        console.log("getCaseTypes.rejected.action.payload: ", action);
+        state.caseTypes = [];
         state.loading = false;
         state.error = action.error.message;
       })

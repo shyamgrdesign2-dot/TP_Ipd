@@ -74,6 +74,11 @@ function AppointmentData({ clinicChanged, type }) {
   useEffect(() => {
     console.log("clinicChanged: ", clinicChanged);
     if (clinicChanged) {
+      setPageNoQueue(0);
+      setPageNoCancelled(0);
+      setPageNoFinished(0);
+      setSearchQuery(null);
+      
       dispatch(
         getAllRecords({
           startDate: date.startDate,
