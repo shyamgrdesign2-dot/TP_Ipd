@@ -17,6 +17,9 @@
                 color: $maincolor;
             }
         }
+        &:hover {
+            border-color: $theme !important;
+        }
     }
 
     .ant-picker-focused.ant-picker {

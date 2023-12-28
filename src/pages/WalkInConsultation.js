@@ -9,67 +9,6 @@ import CommonModal from "../common/CommonModal";
 import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
 
 
-const PatientPlank = (patient) => {
-    return (
-        <>
-            <div className="d-flex align-items-center justify-content-between py-3 border-bottom">
-                <div className="d-flex align-items-center">
-                    <div className="list-patientName d-flex align-items-center me-4">
-                        <i className="icon-patients backbar me-2"></i>{" "}
-                        <span>
-                            {patient.pm_salutation && patient.pm_salutation}{" "}
-                            {patient.pm_first_name} {patient.pm_last_name} (
-                            {patient.pm_gender}, {patient.ageYears})
-                        </span>
-                    </div>
-                    <div className="list-patientName d-flex align-items-center me-4">
-                        <i className="icon-phone backbar me-2"></i>
-                        <span>{patient.pm_contact_no}</span>
-                    </div>
-                    <div className="list-patientName d-flex align-items-center me-4">
-                        <i className="icon-Id backbar me-2"></i>
-                        <span>{patient.patient_unique_id}</span>
-                    </div>
-                </div>
-                <div className="d-flex align-items-center">
-                    <Link to="/patient_details">
-                        <Button
-                            type="text"
-                            className="btn btn-primary2 me-4 align-items-center d-flex"
-                            icon={<i className="icon-Preview"></i>}
-                        >
-                            Patient Details
-                        </Button>
-                    </Link>
-                    <Link to="/prescription">
-                        <Button
-                            type="text"
-                            className="btn btn-primary3 align-items-center d-flex"
-                            icon={<i className="icon-Consult"></i>}
-                        >
-                            Start Consult
-                        </Button>
-                    </Link>
-                </div>
-            </div>
-        </>
-    );
-}
-
-const AddPatientPlank = () => {
-    return (
-        <Link to="/add_new_patient">
-            <Button
-                type="text"
-                className="btn btn-primary1 btn-41 align-items-center d-flex"
-                icon={<i className="icon-Add"></i>}
-            >
-                Add New Patient
-            </Button>
-        </Link>
-    );
-};
-
 function WalkInConsultation() {
     const navigate = useNavigate();
     const { patients, error } = useSelector((state) => state.records);
@@ -78,6 +17,64 @@ function WalkInConsultation() {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchOptions, setSearchOptions] = useState([]);
     const [clickedPatient, setClickedPatient] = useState(null);
+
+    const PatientPlank = (patient) => {
+        return (
+            <>
+                <div className="d-flex align-items-center justify-content-between py-3 border-bottom">
+                    <div className="d-flex align-items-center">
+                        <div className="list-patientName d-flex align-items-center me-4">
+                            <i className="icon-patients backbar me-2"></i>{" "}
+                            <span>
+                                {patient.pm_salutation && patient.pm_salutation}{" "}
+                                {patient.pm_first_name} {patient.pm_last_name} (
+                                {patient.pm_gender}, {patient.ageYears})
+                            </span>
+                        </div>
+                        <div className="list-patientName d-flex align-items-center me-4">
+                            <i className="icon-phone backbar me-2"></i>
+                            <span>{patient.pm_contact_no}</span>
+                        </div>
+                        <div className="list-patientName d-flex align-items-center me-4">
+                            <i className="icon-Id backbar me-2"></i>
+                            <span>{patient.patient_unique_id}</span>
+                        </div>
+                    </div>
+                    <div className="d-flex align-items-center">
+                        <Link to="/patient_details">
+                            <Button
+                                type="text"
+                                className="btn btn-primary2 me-4 align-items-center d-flex"
+                                icon={<i className="icon-Preview"></i>}>
+                                Patient Details
+                            </Button>
+                        </Link>
+                        <Button
+                            type="text"
+                            className="btn btn-primary3 align-items-center d-flex"
+                            icon={<i className="icon-Consult"></i>}
+                            onClick={() => navigate('/prescription', { state: patient })}>
+                            Start Consult
+                        </Button>
+                    </div>
+                </div>
+            </>
+        );
+    }
+
+    const AddPatientPlank = () => {
+        return (
+            <Link to="/add_new_patient">
+                <Button
+                    type="text"
+                    className="btn btn-primary1 btn-41 align-items-center d-flex"
+                    icon={<i className="icon-Add"></i>}
+                >
+                    Add New Patient
+                </Button>
+            </Link>
+        );
+    };
 
     useEffect(() => {
         if (searchQuery) {
@@ -173,22 +170,19 @@ function WalkInConsultation() {
                                     <Button
                                         type="text"
                                         className="btn btn-primary2 align-items-center d-flex btn-41 w-100"
-                                        icon={<i className="icon-Preview"></i>}
-                                    >
+                                        icon={<i className="icon-Preview"></i>}>
                                         View Patient Details{" "}
                                         <i className="icon-right iconrotate90 ms-auto"></i>
                                     </Button>
                                 </Link>
-                                <Link to="/prescription" className="w-50">
-                                    <Button
-                                        type="text"
-                                        className="btn btn-primary3 align-items-center d-flex btn-41 w-100"
-                                        icon={<i className="icon-Consult"></i>}
-                                    >
-                                        Start Consult{" "}
-                                        <i className="icon-right iconrotate90 ms-auto"></i>
-                                    </Button>
-                                </Link>
+                                <Button
+                                    type="text"
+                                    className="btn btn-primary3 align-items-center d-flex btn-41 w-100"
+                                    icon={<i className="icon-Consult"></i>}
+                                    onClick={() => navigate('/prescription', { state: clickedPatient })}>
+                                    Start Consult{" "}
+                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                </Button>
                             </div>
                         </div>
                     </>
@@ -202,7 +196,7 @@ function WalkInConsultation() {
             {isMobile && (
                 <TabHeader
                     flag={1}
-                    title="Star Walking Consultation" />
+                    title="Start Walk-in Consultation" />
             )}
             <div className={`${!isMobile && "border rounded-4 appointment-wrap"} p-4`}>
                 <label className="mb-2"> Enter Patient’s Name, Phone number or Id</label>{" "}

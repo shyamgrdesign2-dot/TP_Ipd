@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { Button, Layout, Collapse, Drawer, Card, } from 'antd';
 
 import CashManagerContext from '../../context/CashManagerContext';
@@ -25,6 +26,8 @@ import VitalsDetails from "../../components/VitalsDetails";
 
 function TabPrescription() {
 
+    const { state } = useLocation();
+
     const [symptomsData, setSymptomsData] = useState([]);
     const [examinationData, setExaminationData] = useState([]);
     const [diagnosisData, setDiagnosisData] = useState([]);
@@ -32,7 +35,7 @@ function TabPrescription() {
     const [investigationData, setInvestigationData] = useState([]);
     const [medicationData, setMedicationData] = useState([]);
 
-    const contextApi = { symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData };
+    const contextApi = { state, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData };
 
     const [collapsed, setCollapsed] = useState(false);
     const [collapsedFlag, setCollapsedFlag] = useState(1);
@@ -213,7 +216,7 @@ function TabPrescription() {
                                 <TabSymptomsBox />
                                 <TabExaminationBox />
                                 <TabDiagnosisBox />
-                                <TabAdviceBox/>
+                                <TabAdviceBox />
                                 <TabInvestigationBox />
                             </Content>
                         </div>

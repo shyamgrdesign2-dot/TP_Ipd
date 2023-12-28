@@ -47,7 +47,8 @@ function AddNewPatient() {
             )}
             <Form
                 form={form}
-                layout="vertical">
+                layout="vertical"
+                className="form_addnewpatient">
                 <div className={isMobile ? "" : "border rounded-4 appointment-wrap"}>
                     <div className={isMobile ? "p-30 pt-0" : "p-30"}>
                         <Row className="justify-content-between">

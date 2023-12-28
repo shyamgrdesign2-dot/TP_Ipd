@@ -542,10 +542,6 @@ const DiagnosisPanel = () => {
             <div className="title-common">Diagnosis</div>
           </div>
           <div className="d-flex align-items-center">
-            <button className="btn d-flex align-items-center btn-text">
-              {" "}
-              <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span>
-            </button>
             <button
               className="btn d-flex align-items-center btn-text"
               onClick={finalizeData}

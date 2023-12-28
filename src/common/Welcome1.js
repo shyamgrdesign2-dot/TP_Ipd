@@ -1,11 +1,14 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
+
 import ProfilePopover from './ProfilePopover';
 
-function Welcome(props) {
+function Welcome1(props) {
 
     const navigate = useNavigate();
+
+    const { locationPath, isMobile } = props
 
     return (
         <>
@@ -13,8 +16,9 @@ function Welcome(props) {
                 <div className='bg-welcome d-flex justify-content-between align-items-center'>
                     <div className='d-flex align-items-center'>
                         <div>
-                            <h1>{'Patient Details'}</h1>
-                            <ProfilePopover />
+                            <h1 className='mt-2'>{'Patient Details'}</h1>
+                            {isMobile && (<ProfilePopover locationPath={locationPath} isMobile={isMobile} />)}
+                            {isMobile ? '' : <p className='mb-1'>&nbsp;</p>}
                         </div>
                         <img src={require("../assets/images/bg-welcome.png")} className="welcomeig d-inline-block align-top" alt="Welcome" />
                     </div>
@@ -33,4 +37,4 @@ function Welcome(props) {
     )
 }
 
-export default React.memo(Welcome)
+export default React.memo(Welcome1)

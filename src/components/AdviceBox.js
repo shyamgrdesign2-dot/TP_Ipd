@@ -546,10 +546,6 @@ function AdviceBox() {
             <div className="title-common">Advice</div>
           </div>
           <div className="d-flex align-items-center">
-            <button className="btn d-flex align-items-center btn-text">
-              {" "}
-              <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span>
-            </button>
             <Popover
               open={popOver1}
               onOpenChange={showHideTemplatesListPopover}

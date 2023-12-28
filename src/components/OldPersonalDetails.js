@@ -258,6 +258,7 @@ function PersonalDetails({
               <Form.Item name="dateofbirth" label="Date of Birth">
                 <DatePicker
                   onChange={onBirthDateChanged}
+                  inputReadOnly
                   disabledDate={disabledDate}
                   value={
                     birthDate

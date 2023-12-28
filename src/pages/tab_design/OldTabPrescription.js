@@ -270,7 +270,6 @@ function TabPrescription() {
                                     </div>
 
                                     <div className="d-flex align-items-center">
-                                        <button className='btn d-flex align-items-center btn-text'> <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span></button>
                                         <button className='btn d-flex align-items-center btn-text' onClick={templateDrawer}> <i className="icon-template me-2"></i> <span>Templates</span></button>
                                         <button className='btn d-flex align-items-center btn-text' onClick={saveDrawer}> <i className="icon-save me-2"></i> <span>Save</span></button>
                                     </div>
@@ -519,7 +518,7 @@ function TabPrescription() {
                                                 <img className='me-2' src={Symptomsicon} alt="Symptoms" />
                                                 <div className="title-common">Follow-up</div>
                                             </div>
-                                            <DatePicker className="w-100" onChange={onChange} />
+                                            <DatePicker className="w-100" onChange={onChange} inputReadOnly />
                                             {/* Open Below code after date selection  */}
                                             {/* <div className="title fontroboto mt-2">
                                                 Saturday, 16th October 2023
