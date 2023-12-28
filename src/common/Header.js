@@ -22,7 +22,6 @@ function Header({onClickChanged}) {
     (state) => state.records
   );
   const dispatch = useDispatch();
-  console.log('changeHospitalResponse: ', changeHospitalResponse);
 
   useEffect(() => {
     dispatch(getProfile());

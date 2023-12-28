@@ -18,15 +18,24 @@ import {
   cancelAppointments,
   clearSearch,
   getAllRecords,
+  getCaseTypes,
   searchAppointments,
 } from "../redux/appointmentsSlice";
 import { getFormattedDate } from "../utils/utils";
 import { PAGE_SIZE } from "../utils/constants";
 import noData from "../assets/images/nodata-found.svg";
 
+// Tab constants mapping UI as well as apStatue field of API
+// Changing these 0, 1, 4 value will break the functionality.
 export const TAB_QUEUE = 0;
 export const TAB_FINISHED = 1;
 export const TAB_CANCELLED = 4;
+
+// constants that are used as identifiers when storing queue based
+// data into redux state
+export const STRING_QUEUE_TYPE_QUEUE = "queue";
+export const STRING_QUEUE_TYPE_FINISHED = "finished";
+export const STRING_QUEUE_TYPE_CANCELLED = "cancelled";
 
 function AppointmentData({ clinicChanged, type }) {
   console.log("type: ", type);
@@ -48,19 +57,17 @@ function AppointmentData({ clinicChanged, type }) {
   const [pageNoQueue, setPageNoQueue] = useState(0);
   const [pageNoFinished, setPageNoFinished] = useState(0);
   const [pageNoCancelled, setPageNoCancelled] = useState(0);
-  const { records, loading, error, counts } = useSelector(
+  const { records, loading, error, counts, caseTypes } = useSelector(
     (state) => state.records
   );
   const dispatch = useDispatch();
 
-  console.log("records: ", records);
-
   const getQueueTypeString = () => {
     return type === TAB_QUEUE
-      ? "queue"
+      ? STRING_QUEUE_TYPE_QUEUE
       : type === TAB_FINISHED
-      ? "finished"
-      : "cancelled";
+      ? STRING_QUEUE_TYPE_FINISHED
+      : STRING_QUEUE_TYPE_CANCELLED;
   };
 
   const getQueuePageNo = () => {
@@ -72,18 +79,24 @@ function AppointmentData({ clinicChanged, type }) {
   };
 
   useEffect(() => {
+    dispatch(
+      getCaseTypes()
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
     console.log("clinicChanged: ", clinicChanged);
     if (clinicChanged) {
       setPageNoQueue(0);
       setPageNoCancelled(0);
       setPageNoFinished(0);
       setSearchQuery(null);
-      
+
       dispatch(
         getAllRecords({
           startDate: date.startDate,
           endDate: date.endDate,
-          filterVisitType: type,
+          apStatue: type,
           pageNo: 0,
           queueType: getQueueTypeString(),
         })
@@ -112,7 +125,7 @@ function AppointmentData({ clinicChanged, type }) {
         getAllRecords({
           startDate: date.startDate,
           endDate: date.endDate,
-          filterVisitType: type,
+          apStatue: type,
           pageNo: getQueuePageNo(),
           queueType: getQueueTypeString(),
         })
@@ -194,12 +207,19 @@ function AppointmentData({ clinicChanged, type }) {
     );
   }, [records, type]);
 
-  console.log("data: ", data);
-
   const handleChange = (pagination, filters, sorter) => {
     console.log("Various parameters", pagination, filters, sorter);
     setFilteredInfo(filters);
     setSortedInfo(sorter);
+  };
+
+  const getVisitTypeFilters = () => {
+    return caseTypes.map((typeObj) => {
+      return {
+        text: typeObj.toct_type,
+        value: typeObj.toct_type
+      }
+    })
   };
 
   const columns = [
@@ -239,16 +259,7 @@ function AppointmentData({ clinicChanged, type }) {
       dataIndex: "toct_type",
       key: "toct_type",
       onFilter: (value, record) => record.toct_type === value,
-      filters: [
-        {
-          text: "New",
-          value: "new-visit",
-        },
-        {
-          text: "Follow-Up",
-          value: "follow-up-visit",
-        },
-      ],
+      filters: getVisitTypeFilters(),
       // sorter: (a, b) => a.visittype.length - b.visittype.length,
       // sortOrder: sortedInfo.columnKey === "visittype" ? sortedInfo.order : null,
       ellipsis: true,

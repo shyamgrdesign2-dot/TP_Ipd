@@ -16,17 +16,17 @@ const initialState = {
 
 export const getAllRecords = createAsyncThunk(
   "records/getAllRecords",
-  async ({ startDate, endDate, pageNo, filterVisitType }) => {
-    let result = {};
+  async ({ startDate, endDate, pageNo, apStatue, filterVisitType }) => {
     try {
       const params = {
         startDate: startDate,
         endDate: endDate,
-        apStatue: 0,
-        filterVisitType,
+        apStatue: apStatue,
+        filterVisitType: 1,
         page: pageNo
       };
-      result = await ApiAppointments.getAll(params);
+
+      const result = await ApiAppointments.getAll(params);
       if (result.status) {
         return result.data;
       } else {
@@ -136,7 +136,7 @@ export const getCaseTypes = createAsyncThunk(
       const result = await ApiAppointments.getCaseTypes();
       console.log('getCaseTypes.result', result);
       if (result.status) {
-        return result.data;
+        return result.data.case_type;
       } else {
         throw Error(result.error);
       }
@@ -192,7 +192,7 @@ const appointmentsSlice = createSlice({
         state.error = null;
         const queueType = action.meta.arg.queueType;
         const pageNo = action.meta.arg.pageNo;
-        // console.log("arg.queueType: ", queueType);
+        console.log("getAllRecords.fulfilled: ", action.payload.app_data);
         state.records = {
           ...state.records,
           [queueType]: {
@@ -210,6 +210,21 @@ const appointmentsSlice = createSlice({
       .addCase(getAllRecords.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error;
+        const queueType = action.meta.arg.queueType;
+        const pageNo = action.meta.arg.pageNo;
+        state.records = {
+          ...state.records,
+          [queueType]: {
+            ...state.records[queueType],
+            [pageNo]: []
+          },
+        };
+
+        state.counts = {
+          queueCount: 0,
+          finishedCount: 0,
+          cancelledCount: 0,
+        };
       })
       .addCase(searchPatients.pending, (state, action) => {
         state.error = null;
