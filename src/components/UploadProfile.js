@@ -8,7 +8,9 @@ function UploadProfile({ form }) {
   function handleChange(e) {
     console.log(e.target.files);
     if (e.target.files?.length > 0) {
+      // console.log(e.target.files[0])
       const fileUrl = URL.createObjectURL(e.target.files[0]);
+      console.log(fileUrl)
       setFile(fileUrl);
       form.setFieldsValue({
         pm_image: fileUrl,

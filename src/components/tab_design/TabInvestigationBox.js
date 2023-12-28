@@ -120,6 +120,20 @@ function TabInvestigationBox() {
         [tabChange]
     );
 
+    const onSearch = (e) => {
+        const searchQuery = e.target.value;
+        if (searchQuery) {
+            let filteredTemplates = templates.filter((template) => {
+                return template.tit_template_name
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase());
+            });
+            setMatchedTemplates(filteredTemplates);
+        } else {
+            setMatchedTemplates(templates);
+        }
+    };
+
     const onTemplateSelected = (template) => {
         const updatedData = template.investigation.map(e => {
             return { ...e, unique_id: uuidv4(), note: "" }
@@ -239,7 +253,7 @@ function TabInvestigationBox() {
             <>
                 <div>
                     <div className="medicine-templates">
-                        <Input className="popinput" prefix={<i className='icon-search me-2'></i>} />
+                        <Input className="popinput" onChange={onSearch} prefix={<i className='icon-search me-2'></i>} />
                     </div>
                     <div className="tab-template-height" >
                         {matchedTemplates.length > 0 &&

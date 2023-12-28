@@ -62,7 +62,7 @@ function TabMedicationBox() {
     // }, [selectedMedicationList]);
 
     useEffect(() => {
-        // dispatch(getMedicationTemplates());
+        dispatch(getMedicationTemplates());
         dispatch(getFrequentlySearchedMedication());
     }, []);
 
@@ -120,6 +120,20 @@ function TabMedicationBox() {
         [tabChange]
     );
 
+    const onSearch = (e) => {
+        const searchQuery = e.target.value;
+        if (searchQuery) {
+            let filteredTemplates = templates.filter((template) => {
+                return template.tmtd_template_name
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase());
+            });
+            setMatchedTemplates(filteredTemplates);
+        } else {
+            setMatchedTemplates(templates);
+        }
+    };
+
     const onTemplateSelected = (template) => {
         const updatedData = template.medication.map(e => {
             return { ...e, unique_id: uuidv4(), note: "" }
@@ -128,8 +142,8 @@ function TabMedicationBox() {
         handleDrawerTemplate();
     };
 
-    const onDeleteTemplateClicked = (tit_id) => {
-        dispatch(deleteTemplate(tit_id));
+    const onDeleteTemplateClicked = (tmtd_id) => {
+        dispatch(deleteTemplate(tmtd_id));
     };
 
     const onChangeSaveTemplate = useCallback(
@@ -156,8 +170,8 @@ function TabMedicationBox() {
             });
         } else {
             var sendData = {
-                tit_template_name: inputTemplateName,
-                medication: medicationData,
+                tmtd_template_name: inputTemplateName,
+                data: medicationData,
             };
             const action = await dispatch(addTemplate(sendData));
             if (action.meta.requestStatus == "fulfilled") {
@@ -196,9 +210,9 @@ function TabMedicationBox() {
         } else {
             var data = JSON.parse(inputTemplateName);
             var sendData = {
-                tit_id: data.tit_id,
-                tit_template_name: data.tit_template_name,
-                medication: medicationData,
+                tmtd_id: data.tmtd_id,
+                tmtd_template_name: data.tmtd_template_name,
+                data: medicationData,
             };
             const action = await dispatch(updateTemplate(sendData));
             if (action.meta.requestStatus == "fulfilled") {
@@ -239,7 +253,7 @@ function TabMedicationBox() {
             <>
                 <div>
                     <div className="medicine-templates">
-                        <Input className="popinput" prefix={<i className='icon-search me-2'></i>} />
+                        <Input className="popinput" onChange={onSearch} prefix={<i className='icon-search me-2'></i>} />
                     </div>
                     <div className="tab-template-height" >
                         {matchedTemplates.length > 0 &&
@@ -249,18 +263,18 @@ function TabMedicationBox() {
                                         <div className="align-items-center d-flex text-truncate">
                                             <div className="round-box" onClick={() => onTemplateSelected(template)}><i className="icon-template"></i></div>
                                             <div className="text-truncate" onClick={() => onTemplateSelected(template)}>
-                                                <div className="title">{template.tit_template_name}</div>
-                                                <div className="text-truncate">
+                                                <div className="title">{template.tmtd_template_name}</div>
+                                                {/* <div className="text-truncate">
                                                     {template.medication.map((item, ii) => {
                                                         return (
                                                             <span key={ii}>{`${item.medication_name}${template.medication.length - 1 != ii ? ", " : ""
                                                                 }`}</span>
                                                         );
                                                     })}
-                                                </div>
+                                                </div> */}
                                             </div>
                                         </div>
-                                        <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => onDeleteTemplateClicked(template.tit_id)}>
+                                        <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => onDeleteTemplateClicked(template.tmtd_id)}>
                                             {template.loading ? (
                                                 <Spin
                                                     indicator={
@@ -312,7 +326,7 @@ function TabMedicationBox() {
                     <div className="medicine-templates d-flex">
                         <Select
                             showSearch
-                            value={inputTemplateName && inputTemplateName.tit_template_name}
+                            value={inputTemplateName && inputTemplateName.tmtd_template_name}
                             className="autocomplete-custom w-100 popinput inputheight41"
                             placeholder="Select Template"
                             onSearch={onSearchTemplate}
@@ -320,10 +334,10 @@ function TabMedicationBox() {
                             options={allTemplates.map((template) => {
                                 return {
                                     key: JSON.stringify(template),
-                                    value: template.tit_template_name,
+                                    value: template.tmtd_template_name,
                                     label: (
-                                        <div key={template.tit_id}>
-                                            {template.tit_template_name}
+                                        <div key={template.tmtd_id}>
+                                            {template.tmtd_template_name}
                                         </div>
                                     ),
                                 };
@@ -402,11 +416,11 @@ function TabMedicationBox() {
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerSave}> <i className="icon-save me-2"></i> <span>Save</span></button>
                     </div>
                     <Drawer title="Medication Templates" placement="right" onClose={handleDrawerTemplate} open={templateDrawer} className="modalWidth-563" width="auto">
-                        {/* {TEMPLATE_CONTENT} */}
+                        {TEMPLATE_CONTENT}
                     </Drawer>
 
                     <Drawer title="Save Template" placement="right" onClose={handleDrawerSave} open={saveDrawer} className="modalWidth-563" width="auto">
-                        {/* {SAVE_CONTENT} */}
+                        {SAVE_CONTENT}
                     </Drawer>
                 </div>
                 <div className="d-flex flex-wrap p-14-pb0">

@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from 'antd';
 import { Link, useNavigate } from "react-router-dom";
 
-function TabConsultationHeader({ flag, title, loading, onClick }) {
+function TabHeader({ flag, title, loading, onClick }) {
     const navigate = useNavigate();
     return (
         <div className='modalCard-header align-items-center d-flex'>
@@ -28,4 +28,4 @@ function TabConsultationHeader({ flag, title, loading, onClick }) {
     );
 }
 
-export default React.memo(TabConsultationHeader);
+export default React.memo(TabHeader);
