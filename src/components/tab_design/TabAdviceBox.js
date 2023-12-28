@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
-import Investigationicon from "../../assets/images/Lab.svg";
+import Adviceicon from "../../assets/images/advice.svg";
 import {
     addTemplate,
     updateTemplate,
@@ -377,7 +377,7 @@ function TabAdviceBox() {
             <div className="prescription-box-sm p-20px">
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">
-                        <img className='me-2' src={Investigationicon} alt="Advice" />
+                        <img className='me-2' src={Adviceicon} alt="Advice" />
                         <div className="title-common">Advice</div>
                     </div>
 

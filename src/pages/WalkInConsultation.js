@@ -2,8 +2,9 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { AutoComplete, Input, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { isTablet } from 'react-device-detect';
+import { isMobile } from 'react-device-detect';
 
+import TabConsultationHeader from "../components/tab_design/TabConsultationHeader";
 import CommonModal from "../common/CommonModal";
 import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
 
@@ -69,7 +70,7 @@ const AddPatientPlank = () => {
     );
 };
 
-function NewWalkInConsultation() {
+function WalkInConsultation() {
     const navigate = useNavigate();
     const { patients, error } = useSelector((state) => state.records);
     const dispatch = useDispatch();
@@ -111,7 +112,7 @@ function NewWalkInConsultation() {
                 });
             }
         }
-        if (!isTablet) {
+        if (!isMobile) {
             data.push({
                 key: '-1',
                 value: 'Add New Patient',
@@ -197,35 +198,42 @@ function NewWalkInConsultation() {
     }, [clickedPatient]);
 
     return (
-        <div className={`${!isTablet && "border rounded-4 appointment-wrap"} p-4`}>
-            <label className="mb-2"> Enter Patient’s Name, Phone number or Id</label>{" "}
-            <br />
-            <div className="align-items-center d-flex">
-                <AutoComplete
-                    value={searchQuery}
-                    onSearch={onSearchParent}
-                    options={searchOptions}
-                    className="autocomplete-custom w-100"
-                    onSelect={onSelect}
-                    defaultActiveFirstOption={true}
-                    defaultOpen
-                    autoFocus
-                >
-                    <Input
-                        placeholder="Search by Patient’s Name, Phone number or Id"
-                        prefix={<i className="icon-search"></i>}
-                        suffix={
-                            searchQuery.length > 0 && (
-                                <i className="icon-Cross" onClick={() => onSearchParent("")}></i>
-                            )
-                        }
-                    />
-                </AutoComplete>
+        <>
+            {isMobile && (
+                <TabConsultationHeader
+                    flag={1}
+                    title="Star Walking Consultation" />
+            )}
+            <div className={`${!isMobile && "border rounded-4 appointment-wrap"} p-4`}>
+                <label className="mb-2"> Enter Patient’s Name, Phone number or Id</label>{" "}
+                <br />
+                <div className="align-items-center d-flex">
+                    <AutoComplete
+                        value={searchQuery}
+                        onSearch={onSearchParent}
+                        options={searchOptions}
+                        className="autocomplete-custom w-100"
+                        onSelect={onSelect}
+                        defaultActiveFirstOption={true}
+                        defaultOpen
+                        autoFocus
+                    >
+                        <Input
+                            placeholder="Search by Patient’s Name, Phone number or Id"
+                            prefix={<i className="icon-search"></i>}
+                            suffix={
+                                searchQuery.length > 0 && (
+                                    <i className="icon-Cross" onClick={() => onSearchParent("")}></i>
+                                )
+                            }
+                        />
+                    </AutoComplete>
 
-                {COMMON_MODAL}
+                    {COMMON_MODAL}
 
+                </div>
             </div>
-        </div>
+        </>
     );
 }
-export default NewWalkInConsultation;
+export default WalkInConsultation;

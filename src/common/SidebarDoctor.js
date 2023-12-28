@@ -1,5 +1,5 @@
 import React from 'react';
-import { isTablet } from 'react-device-detect';
+import { isMobile } from 'react-device-detect';
 import { NavLink } from "react-router-dom";
 
 function SidebarDoctor() {
@@ -10,13 +10,13 @@ function SidebarDoctor() {
                     isPending ? "pending" : isActive ? "active" : ""
                 }>
                     <i className='icon-calendar'></i>
-                    <div className='mt-1 px-2'>{isTablet ? 'Appt' : <div className='text-truncate'>Appointment</div>}</div>
+                    <div className='mt-1 px-2'>{isMobile ? 'Appt' : <div className='text-truncate'>Appointment</div>}</div>
                 </NavLink>
                 {/* <NavLink to="/" className={({ isActive, isPending }) =>
                     isPending ? "pending" : isActive ? "active" : ""
                 }>
                     <i className='icon-patients'></i>
-                    <div className='mt-1 px-2'>{isTablet ? 'Patients' : 'All Patients'}</div>
+                    <div className='mt-1 px-2'>{isMobile ? 'Patients' : 'All Patients'}</div>
                 </NavLink>
                 <NavLink to="/" className={({ isActive, isPending }) =>
                     isPending ? "pending" : isActive ? "active" : ""
