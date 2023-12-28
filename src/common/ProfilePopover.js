@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button, Popover } from 'antd';
-import { isTablet } from 'react-device-detect';
 
 function ProfilePopover() {
     const [open, setOpen] = useState(false);

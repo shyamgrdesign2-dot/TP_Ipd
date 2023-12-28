@@ -74,10 +74,15 @@ function AppointmentData({ clinicChanged, type }) {
   useEffect(() => {
     console.log("clinicChanged: ", clinicChanged);
     if (clinicChanged) {
-      console.log("ready to refetch");
-      setPageNoQueue(0);
-      setPageNoFinished(0);
-      setPageNoCancelled(0);
+      dispatch(
+        getAllRecords({
+          startDate: date.startDate,
+          endDate: date.endDate,
+          filterVisitType: type,
+          pageNo: 0,
+          queueType: getQueueTypeString(),
+        })
+      );
     }
   }, [clinicChanged]);
 
@@ -325,7 +330,7 @@ function AppointmentData({ clinicChanged, type }) {
           <span onClick={() => {
             
             console.log('clicked.data', record);
-            dispatch(cancelAppointments(record));
+            dispatch(cancelAppointments({record}));
           }}>
             Cancel Appt.
           </span>

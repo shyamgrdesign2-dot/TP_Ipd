@@ -10,6 +10,7 @@ import examinationSlice from './examinationSlice';
 import diagnosisSlice from './diagnosisSlice';
 import adviceSlice from './adviceSlice';
 import investigationSlice from './investigationSlice';
+import medicationSlice from './medicationSlice';
 
 const persistConfig = {
   key: 'root',
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   diagnosis: diagnosisSlice,
   advice: adviceSlice,
   investigation: investigationSlice,
+  medication: medicationSlice,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -67,7 +67,7 @@ export const searchAppointments = createAsyncThunk(
 
 export const cancelAppointments = createAsyncThunk(
   "records/cancelAppointments",
-  async (record) => {
+  async ({record}) => {
     console.log('record: ', record);
     const data = {
       pam_id: record.pam_id,
@@ -150,6 +150,15 @@ export const addPatient = createAsyncThunk(
     }
   }
 );
+
+function removeObjectFromArrays(obj, targetObject) {
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key) && Array.isArray(obj[key])) {
+      // Remove the targetObject from the array if it exists
+      obj[key] = obj[key].filter(item => item !== targetObject);
+    }
+  }
+}
 
 const appointmentsSlice = createSlice({
   name: "records",
@@ -270,9 +279,24 @@ const appointmentsSlice = createSlice({
       .addCase(cancelAppointments.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        const index = Object.values(state.records.queue).indexOf(action.meta.arg.record);
-        console.log("index:", index);
 
+        console.log(" record.obj:",  action.meta.arg.record);
+        removeObjectFromArrays(state.records.queue, action.meta.arg.record);
+        console.log(" state.records:",  state.records);
+
+        /* let source = [].concat(...Object.values(state.records.queue));
+        console.log(" source.leng:",  source.length);
+        const index = source.indexOf(action.meta.arg.record);
+        console.log(" index:",  index); */
+
+        /* const keys = Object.keys(state.records.queue);
+        for(let i=0; i < keys.length; i++) {
+          const key = keys[i];
+          const listAti = state.records.queue[key];
+          console.log(" listAti:",  listAti);
+          const index = listAti.indexOf(action.meta.arg.record);
+          console.log(" index:",  index);
+        } */
         // TODO: Find and remove from queue and add to cancelled list
           
         state.counts = {

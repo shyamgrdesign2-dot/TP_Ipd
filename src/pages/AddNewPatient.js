@@ -1,230 +1,106 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { isTablet } from "react-device-detect";
+import { isMobile } from "react-device-detect";
 import { Col, Row } from "react-bootstrap";
-import { Form, Tabs } from "antd";
+import { Form, Tabs, Button } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 
+import TabConsultationHeader from "../components/tab_design/TabConsultationHeader";
 import PersonalDetails from "../components/PersonalDetails";
 import AddressDetails from "../components/AddressDetails";
 import UploadProfile from "../components/UploadProfile";
 import { addPatient } from "../redux/appointmentsSlice";
-import config from "../config";
 
-export const TAB_PERSONAL_DETAILS = 0;
-export const TAB_ADDRESS_DETAILS = 1;
+const { TabPane } = Tabs;
 
-function AddNewPatient({ addPatientMutate, setFormValidForToolbar }) {
-  const dispatch = useDispatch();
-  const [form] = Form.useForm();
-  const [tabChange, setTabChange] = useState(TAB_PERSONAL_DETAILS);
-  const { loading, error } = useSelector((state) => state.records);
-  const [patientInfo, setPatientInfo] = useState({});
-  const [isFormValid, setFormValid] = useState(false);
-  const fullName = Form.useWatch("pm_fullname", form);
-  const contactNumber = Form.useWatch("pm_contact_no", form);
-  const gender = Form.useWatch("pm_gender", form);
-  const dob = Form.useWatch("dateofbirth", form);
+function AddNewPatient() {
 
-  const items = [
-    {
-      key: TAB_PERSONAL_DETAILS,
-      label: (
-        <div className="d-flex align-items-baseline">Personal Details</div>
-      ),
-    },
-    {
-      key: TAB_ADDRESS_DETAILS,
-      label: <div className="d-flex align-items-baseline">Address Details</div>,
-    },
-  ];
+    const dispatch = useDispatch();
 
-  useEffect(() => {
-    console.log("addPatientMutate: ", addPatientMutate);
-    if (addPatientMutate) {
-      console.log("ready to submit");
-      form.submit();
-    }
-  }, [addPatientMutate]);
+    const [form] = Form.useForm();
 
+    const [submitLoading, setSubmitLoading] = useState(false)
 
-  /*   useEffect(() => {
-    // console.log("patientInfo: ", patientInfo);
-    if (
-      patientInfo.pm_fullname &&
-      patientInfo.pm_contact_no &&
-      patientInfo.pm_gender &&
-      patientInfo.pm_dob
-    ) {
-      setFormValid(true);
-      if (setFormValidForToolbar) {
-        setFormValidForToolbar(true);
-      }
-    } else {
-      setFormValid(false);
-      if (setFormValidForToolbar) {
-        setFormValidForToolbar(false);
-      }
-    }
-  }, [patientInfo]); */
+    const onFinish = () => {
+        setSubmitLoading(true)
+        form.validateFields().then(values => {
+            setTimeout(() => {
+                setSubmitLoading(false)
+                const finalValues = {
+                    ...values,
+                    pm_salutation: values.pm_salutation != undefined ? values.pm_salutation : '',
+                    pm_dob: values['pm_dob'].format('YYYY-MM-DD'),
+                    pm_pincode: values.pm_pincode != undefined ? values.pm_pincode : '',
+                    pm_city: values.pm_city != undefined ? values.pm_city : '',
+                    pm_state: values.pm_state != undefined ? values.pm_state : '',
+                    pm_address: values.pm_address != undefined ? values.pm_address : '',
+                };
+                dispatch(addPatient(finalValues));
+            }, 1500);
+        }).catch(info => {
+            setSubmitLoading(false)
+            console.log('info', info)
+        });
+    };
 
-  useEffect(() => {
-    console.log("form is changing", form);
-    console.log("isFormValid", isFormValid);
-    const promise = form.validateFields({ validateOnly: true });
-    promise.then(
-      function (value) {
-        console.log("value: ", value);
-        const { pm_contact_no, pm_fullname, pm_gender, dateofbirth } = value;
-        if (pm_contact_no && pm_fullname && pm_gender && dateofbirth) {
-          setFormValid(true);
-          if (setFormValidForToolbar) {
-            setFormValidForToolbar(true);
-          }
-        } else {
-          setFormValid(false);
-          if (setFormValidForToolbar) {
-            setFormValidForToolbar(false);
-          }
-        }
-      },
-      function (e) {
-        console.log("Error: ", e);
-        setFormValid(false);
-        if (setFormValidForToolbar) {
-          setFormValidForToolbar(false);
-        }
-      }
-    );
-  }, [fullName, contactNumber, gender, dob]);
-
-  const onAddPatientClicked = async () => {
-    dispatch(addPatient(patientInfo));
-  };
-
-  const onChange = useCallback(
-    (key) => {
-      setTabChange(key);
-    },
-    [tabChange]
-  );
-
-  const onFinish = (values) => {
-    console.log("Success:", values);
-
-    /*   let patientInfo = {
-      pm_address: "Vitae esse enim off",
-      pm_city: "Akola",
-      pm_contact_no: "7279777411",
-      pm_dob: "1988-12-12",
-      pm_fullname: "Mona Bauer",
-      pm_gender: "Female",
-      pm_pincode: 444001,
-      pm_state: "Maharashtra",
-      pm_image: 'blob:http://localhost:3000/8ffd7207-1c51-4a3d-a699-45933e1a7ab8'
-    }; */
-
-    console.log("patientInfo:", patientInfo);
-    const finalData = { ...values, pm_dob: patientInfo.pm_dob };
-    console.log("finalData:", finalData);
-    dispatch(addPatient(finalData));
-  };
-
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-  };
-
-  return (
-    <>
-      <Form
-        form={form}
-        layout="vertical"
-        name="advanced_search"
-        className="form_addnewpatient"
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
-      >
-        <div className={isTablet ? "" : "border rounded-4 appointment-wrap"}>
-          <div className="p-30">
-            <Row className="justify-content-between">
-              <Col lg={8} md={12}>
-                {isTablet ? (
-                  <>
-                    <Tabs
-                      defaultActiveKey={TAB_PERSONAL_DETAILS}
-                      items={items}
-                      onChange={onChange}
-                    />
-                    {tabChange == TAB_PERSONAL_DETAILS ? (
-                      <PersonalDetails
-                        patientInfo={patientInfo}
-                        setPatientInfo={setPatientInfo}
-                        onFinish={onFinish}
-                        onFinishFailed={onFinishFailed}
-                        form={form}
-                      />
-                    ) : (
-                      <AddressDetails
-                        patientInfo={patientInfo}
-                        setPatientInfo={setPatientInfo}
-                        onFinish={onFinish}
-                        onFinishFailed={onFinishFailed}
-                        form={form}
-                      />
+    return (
+        <>
+            {isMobile && (
+                <TabConsultationHeader
+                    flag={2}
+                    title="Add New Patient"
+                    loading={submitLoading}
+                    onClick={onFinish} />
+            )}
+            <Form
+                form={form}
+                layout="vertical">
+                <div className={isMobile ? "" : "border rounded-4 appointment-wrap"}>
+                    <div className={isMobile ? "p-30 pt-0" : "p-30"}>
+                        <Row className="justify-content-between">
+                            <Col lg={8} md={12}>
+                                {isMobile ? (
+                                    <>
+                                        <Tabs defaultActiveKey="1">
+                                            <TabPane tab="Personal Details" key="1">
+                                                <PersonalDetails form={form} />
+                                            </TabPane>
+                                            <TabPane tab="Address Details" key="2">
+                                                <AddressDetails form={form} />
+                                            </TabPane>
+                                        </Tabs>
+                                    </>
+                                ) : (
+                                    <>
+                                        <PersonalDetails form={form} />
+                                        <hr className="mb-3 mt-1" />
+                                        <AddressDetails form={form} />
+                                    </>
+                                )}
+                            </Col>
+                            <Col lg={"auto"} md={12} className="mt-5">
+                                <UploadProfile form={form} />
+                            </Col>
+                        </Row>
+                    </div>
+                    {!isMobile && (
+                        <>
+                            <hr className="my-0" />
+                            <div className="text-end p-20">
+                                <button className="btn btn-text text-decoration-underline me-3">
+                                    Cancel
+                                </button>
+                                <Button
+                                    className='btn btn-primary3 me-30 btn-41 px-4'
+                                    onClick={onFinish}
+                                    loading={submitLoading}>
+                                    Add Patient to Consult
+                                </Button>
+                            </div>
+                        </>
                     )}
-                  </>
-                ) : (
-                  <>
-                    <PersonalDetails
-                      patientInfo={patientInfo}
-                      setPatientInfo={setPatientInfo}
-                      onFinish={onFinish}
-                      onFinishFailed={onFinishFailed}
-                      form={form}
-                    />
-                    <hr className="mb-3 mt-1" />
-                    <AddressDetails
-                      patientInfo={patientInfo}
-                      setPatientInfo={setPatientInfo}
-                      onFinish={onFinish}
-                      onFinishFailed={onFinishFailed}
-                      form={form}
-                    />
-                  </>
-                )}
-              </Col>
-              <Col lg={"auto"} md={12}>
-                <UploadProfile
-                  patientInfo={patientInfo}
-                  setPatientInfo={setPatientInfo}
-                  onFinish={onFinish}
-                  onFinishFailed={onFinishFailed}
-                  form={form}
-                />
-              </Col>
-            </Row>
-          </div>
-          {!isTablet && (
-            <>
-              <hr className="my-0" />
-              <div className="text-end p-20">
-                <button className="btn btn-text text-decoration-underline me-3">
-                  Cancel
-                </button>
-                <button
-                  className="btn btn-primary btn-41"
-                  disabled={!isFormValid || loading}
-                  onClick={() => {
-                    form.submit();
-                  }}
-                >
-                  {loading ? "Adding Patient..." : "Add Patient to Consult"}
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </Form>
-    </>
-  );
+                </div>
+            </Form>
+        </>
+    );
 }
 export default React.memo(AddNewPatient);

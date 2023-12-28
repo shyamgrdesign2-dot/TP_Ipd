@@ -5,4 +5,5 @@ export default {
   diagnosis_api_url: `https://diagnosis-webservice.azurewebsites.net`,
   advice_api_url: `https://advice-webservice.azurewebsites.net`,
   investigation_api_url: `https://investigation-webservice.azurewebsites.net`,
+  medication_api_url: `https://medicine-webservice.azurewebsites.net`,
 }
