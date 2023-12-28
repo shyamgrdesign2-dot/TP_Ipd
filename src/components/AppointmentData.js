@@ -61,6 +61,7 @@ function AppointmentData({ clinicChanged, type }) {
     (state) => state.records
   );
   const dispatch = useDispatch();
+  console.log('records: ', records);
 
   const getQueueTypeString = () => {
     return type === TAB_QUEUE
@@ -188,7 +189,9 @@ function AppointmentData({ clinicChanged, type }) {
         pm_gender,
         toct_type,
         pam_id,
-        patient_unique_id
+        patient_unique_id,
+        pageNo,
+        indexInPage,
       }) => {
         return {
           key: Math.random(),
@@ -202,6 +205,8 @@ function AppointmentData({ clinicChanged, type }) {
           apDate,
           pm_gender,
           toct_type,
+          pageNo,
+          indexInPage
         };
       }
     );
@@ -258,7 +263,10 @@ function AppointmentData({ clinicChanged, type }) {
       title: "Visit Type",
       dataIndex: "toct_type",
       key: "toct_type",
-      onFilter: (value, record) => record.toct_type === value,
+      onFilter: (value, record) => {
+        console.log('record.toct_type: ', record.toct_type);
+        return record.toct_type === value;
+      },
       filters: getVisitTypeFilters(),
       // sorter: (a, b) => a.visittype.length - b.visittype.length,
       // sortOrder: sortedInfo.columnKey === "visittype" ? sortedInfo.order : null,

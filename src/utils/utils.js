@@ -162,7 +162,7 @@ export const getRandomAppointment = () => {
     pm_gender: "Male",
     ageYears: randomInteger(18, 99),
     pm_contact_no: `${randomInteger(10, 99)}058${randomInteger(11111, 99999)}`,
-    toct_type: Math.random() < 0.5 ? "follow-up-visit" : "new-visit",
+    toct_type: Math.random() < 0.5 ? "Follow-up" : Math.random() < 0.5 ? "New" : "Urgent",
     apTime: apiTime,
     apDate: apiDate,
   };

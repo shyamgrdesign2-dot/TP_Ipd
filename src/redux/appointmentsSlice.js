@@ -11,7 +11,7 @@ const initialState = {
   pincodeInfo: {},
   patientDetals: {},
   changeHospitalResponse: {},
-  caseTypes: []
+  caseTypes: [],
 };
 
 export const getAllRecords = createAsyncThunk(
@@ -23,7 +23,7 @@ export const getAllRecords = createAsyncThunk(
         endDate: endDate,
         apStatue: apStatue,
         filterVisitType: 1,
-        page: pageNo
+        page: pageNo,
       };
 
       const result = await ApiAppointments.getAll(params);
@@ -54,8 +54,8 @@ export const searchPatients = createAsyncThunk(
 
 export const searchAppointments = createAsyncThunk(
   "records/searchAppointments",
-  async ({searchQuery, queueType}) => {
-    console.log('queueType: ', queueType);
+  async ({ searchQuery, queueType }) => {
+    console.log("queueType: ", queueType);
     let result = {};
     result = await ApiAppointments.searchPatients(searchQuery);
     if (result.status) {
@@ -68,12 +68,12 @@ export const searchAppointments = createAsyncThunk(
 
 export const cancelAppointments = createAsyncThunk(
   "records/cancelAppointments",
-  async ({record}) => {
-    console.log('record: ', record);
+  async ({ record }) => {
+    console.log("record: ", record);
     const data = {
       pam_id: record.pam_id,
-      patient_unique_id: record.patient_unique_id 
-    }
+      patient_unique_id: record.patient_unique_id,
+    };
     let result = {};
     result = await ApiAppointments.cancelAppointments(data);
     if (result.status) {
@@ -87,16 +87,16 @@ export const cancelAppointments = createAsyncThunk(
 export const changeHospital = createAsyncThunk(
   "records/changeHospital",
   async (clinicId) => {
-    console.log('clinicId: ', clinicId);
+    console.log("clinicId: ", clinicId);
     const data = {
       clinic_id: clinicId,
-    }
-    
+    };
+
     const result = await ApiAppointments.changeHospital(data);
     if (result.status) {
       return {
         ...result,
-        clinicId
+        clinicId,
       };
     } else {
       throw Error(result.error);
@@ -116,7 +116,7 @@ export const searchPincode = createAsyncThunk(
     };
     try {
       const result = await ApiAppointments.searchPincode(body);
-      console.log('searchPincode.result', result);
+      console.log("searchPincode.result", result);
       if (result.status && result.data.pincode == pincode) {
         return result.data;
       } else {
@@ -134,7 +134,7 @@ export const getCaseTypes = createAsyncThunk(
   async () => {
     try {
       const result = await ApiAppointments.getCaseTypes();
-      console.log('getCaseTypes.result', result);
+      console.log("getCaseTypes.result", result);
       if (result.status) {
         return result.data.case_type;
       } else {
@@ -157,7 +157,7 @@ export const addPatient = createAsyncThunk(
 
     try {
       const result = await ApiAppointments.addPatient(formData);
-      console.log('result: ', result)
+      console.log("result: ", result);
       if (result.status) {
         return result.data;
       } else {
@@ -170,11 +170,11 @@ export const addPatient = createAsyncThunk(
   }
 );
 
-function removeObjectFromArrays(obj, targetObject) {
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key) && Array.isArray(obj[key])) {
+function removeObjectFromArrays(source, targetObject) {
+  for (const page in source) {
+    if (source.hasOwnProperty(page) && Array.isArray(source[page])) {
       // Remove the targetObject from the array if it exists
-      obj[key] = obj[key].filter(item => item !== targetObject);
+      source[page] = source[page].filter((item) => item !== targetObject);
     }
   }
 }
@@ -197,7 +197,13 @@ const appointmentsSlice = createSlice({
           ...state.records,
           [queueType]: {
             ...state.records[queueType],
-            [pageNo]: [...action.payload.app_data]
+            [pageNo]: [...action.payload.app_data.map((data, index) => {
+              return {
+                ...data,
+                pageNo: pageNo,
+                indexInPage: index
+              }
+            })],
           },
         };
 
@@ -216,7 +222,7 @@ const appointmentsSlice = createSlice({
           ...state.records,
           [queueType]: {
             ...state.records[queueType],
-            [pageNo]: []
+            [pageNo]: [],
           },
         };
 
@@ -264,7 +270,7 @@ const appointmentsSlice = createSlice({
         state.records = {
           ...state.records,
           [queueType]: {
-            [pageNo]: [...action.payload]
+            [pageNo]: [...action.payload],
           },
         };
 
@@ -279,7 +285,7 @@ const appointmentsSlice = createSlice({
         state.records = {
           ...state.records,
           [queueType]: {
-            [pageNo]: []
+            [pageNo]: [],
           },
         };
         state.loading = false;
@@ -324,29 +330,30 @@ const appointmentsSlice = createSlice({
         state.loading = false;
         state.error = null;
 
-        console.log(" record.obj:",  action.meta.arg.record);
-        removeObjectFromArrays(state.records.queue, action.meta.arg.record);
-        console.log(" state.records:",  state.records);
+        console.log(" record.obj:", action.meta.arg.record);
 
-        /* let source = [].concat(...Object.values(state.records.queue));
-        console.log(" source.leng:",  source.length);
-        const index = source.indexOf(action.meta.arg.record);
-        console.log(" index:",  index); */
+        const targetObject = action.meta.arg.record;
+        console.log('targetObject: ', targetObject);
+        // remove from queue
+        state.records.queue[targetObject.pageNo].splice(targetObject.indexInPage, 1);
 
-        /* const keys = Object.keys(state.records.queue);
-        for(let i=0; i < keys.length; i++) {
-          const key = keys[i];
-          const listAti = state.records.queue[key];
-          console.log(" listAti:",  listAti);
-          const index = listAti.indexOf(action.meta.arg.record);
-          console.log(" index:",  index);
-        } */
+        // add to cancelled list
+        const cancelledFirstPage = state.records.cancelled[0];
+        state.records = {
+          ...state.records,
+          "cancelled": {
+            ...state.records.cancelled,
+            [0]: cancelledFirstPage && cancelledFirstPage.length > 0 ? [targetObject, ...cancelledFirstPage] : [targetObject]
+          }
+        }
+
         // TODO: Find and remove from queue and add to cancelled list
-          
+
         state.counts = {
           ...state.counts,
           cancelledCount: state.counts.cancelledCount + 1,
-          queueCount: state.counts.queueCount === 0 ? 0 : state.counts.queueCount - 1,
+          queueCount:
+            state.counts.queueCount === 0 ? 0 : state.counts.queueCount - 1,
         };
       })
       .addCase(cancelAppointments.rejected, (state, action) => {
@@ -366,7 +373,7 @@ const appointmentsSlice = createSlice({
         state.records = {
           ...state.records,
           [queueType]: {
-            [pageNo]: []
+            [pageNo]: [],
           },
         };
 
