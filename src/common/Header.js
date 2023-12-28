@@ -31,15 +31,6 @@ function Header({onClickChanged}) {
     if(changeHospitalResponse.token) {
       setToken(changeHospitalResponse.token);
       onClickChanged(changeHospitalResponse.clinicId);
-      
-
-      /* const id = setTimeout(() => {
-        window.location.reload();
-      }, 300);
-
-      return () => {
-        clearTimeout(id);
-      }; */
     }
   }, [changeHospitalResponse]);
   
@@ -59,7 +50,7 @@ function Header({onClickChanged}) {
         if (hospitals.length > 0) {
           const firstClinic = hospitals[0];
           setClinicOptions(hospitals);
-          setSelectedHospital(firstClinic);
+          // setSelectedHospital(firstClinic);
         }
       }
     }
@@ -79,7 +70,7 @@ function Header({onClickChanged}) {
           <Select
             placeholder="Your Clinics"
             className="me-2"
-            value={selectedHospital ? selectedHospital : "Add a clinic"}
+            value={selectedHospital ? selectedHospital : clinicOptions?.length === 0 ? "Add a clinic" : "Select Clinic"}
             onChange={(hospital) => {
               setSelectedHospital(hospital);
               console.log("hospital: ", hospital);

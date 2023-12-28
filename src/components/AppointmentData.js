@@ -188,6 +188,7 @@ function AppointmentData({ clinicChanged, type }) {
         apDate,
         pm_gender,
         toct_type,
+        toct_id,
         pam_id,
         patient_unique_id,
         pageNo,
@@ -205,6 +206,7 @@ function AppointmentData({ clinicChanged, type }) {
           apDate,
           pm_gender,
           toct_type,
+          toct_id,
           pageNo,
           indexInPage
         };
@@ -263,9 +265,9 @@ function AppointmentData({ clinicChanged, type }) {
       title: "Visit Type",
       dataIndex: "toct_type",
       key: "toct_type",
+      filteredValue: filteredInfo.toct_type || null,
       onFilter: (value, record) => {
-        console.log('record.toct_type: ', record.toct_type);
-        return record.toct_type === value;
+       return record.toct_type === value;
       },
       filters: getVisitTypeFilters(),
       // sorter: (a, b) => a.visittype.length - b.visittype.length,

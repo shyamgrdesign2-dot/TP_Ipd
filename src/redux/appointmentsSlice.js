@@ -22,7 +22,7 @@ export const getAllRecords = createAsyncThunk(
         startDate: startDate,
         endDate: endDate,
         apStatue: apStatue,
-        filterVisitType: 1,
+        filterVisitType: "",
         page: pageNo,
       };
 
