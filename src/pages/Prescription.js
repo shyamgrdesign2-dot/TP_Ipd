@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import CashManagerContext from '../context/CashManagerContext';
 
@@ -15,13 +15,15 @@ import InvestigationBox from "../components/InvestigationBox";
 
 function Prescription() {
 
+  const { state } = useLocation();
+
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
   const [diagnosisData, setDiagnosisData] = useState([]);
   const [adviceData, setAdviceData] = useState([]);
   const [investigationData, setInvestigationData] = useState([]);
 
-  const contextApi = { symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData };
+  const contextApi = { state, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData };
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -58,7 +60,7 @@ function Prescription() {
               <ExaminationBox />
               <DiagnosisBox />
               <AdviceBox />
-              <InvestigationBox/>
+              <InvestigationBox />
             </div>
           </div>
         </div>

@@ -172,7 +172,7 @@ function Cardiology() {
                             </div>
                         </div>
                     </div> */}
-                    <div className='d-flex flex-column justify-content-center' style={{"height": "calc(100vh - 230px)"}}>
+                    <div className='d-flex flex-column justify-content-center' style={{"height": "calc(100vh - 200px)"}}>
                         <div className='align-items-center text-center'>
                             <img src={calenderBlank} width={57} height={62} alt="No vital & body composition saved for the patient!" />
                             <p className='mt-4 fontroboto'>No any visit found for this patient yet</p>

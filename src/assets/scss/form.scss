@@ -17,7 +17,7 @@ body {
             }
         }
         .ant-input {
-            height: 38px;
+            height: 38px !important;
             border-radius: 10px;
             font-family: 'Roboto';
             font-size: 14px;
@@ -250,4 +250,39 @@ body {
             }
         }
     }
+    label.ant-form-item-required {
+        &:before {
+            display: none !important;
+        }
+        &:after {
+            visibility: visible !important;
+            display: inline-block;
+            margin-inline-end: 4px;
+            color: $alerText !important;
+            font-size: 14px;
+            line-height: 1;
+            content: "*" !important;
+        }
+    }
+    .ant-form-item {
+        .ant-form-item-explain-error {
+            div {
+                color: $alerText !important;
+            }
+        }
+    }
+    // .gender-radio {
+    //     .ant-radio-button-wrapper {
+    //         &:hover, &:focus, &:active, &.ant-radio-button-wrapper-checked {
+    //             color: $theme !important;
+    //             border-color: $theme;
+    //             &.ant-radio-button-wrapper-checked:before {
+    //                 background-color: $theme;
+    //             }
+    //             span {
+    //                 color: $theme !important;
+    //             }
+    //         }
+    //     }
+    // }
 }

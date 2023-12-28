@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState, useContext } from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { Button, Dropdown } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
+
+import CashManagerContext from "../context/CashManagerContext";
 import ProfilePopover from './ProfilePopover';
 import CommonModal from './CommonModal';
-import alert from '../assets/images/alert.svg';
+import alertIcon from '../assets/images/alertIcon.svg';
 
 function HeaderPrescription() {
+
     const navigate = useNavigate();
+    const { symptomsData, examinationData, diagnosisData, adviceData, investigationData } = useContext(CashManagerContext);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
+
     const items = [
         {
             label: 'Clear',
@@ -31,12 +37,21 @@ function HeaderPrescription() {
         },
     ];
 
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
+    const showHideModal = useCallback(() => {
+        setIsModalOpen(!isModalOpen);
+    }, [isModalOpen]);
+
+    function onEndVisitClick() {
+        var sendData = {
+            symptoms: symptomsData,
+            examination: examinationData,
+            diagnosis: diagnosisData,
+            advice: adviceData,
+            investigation: investigationData
+        }
+        console.log(sendData)
+    }
+
     return (
         <Navbar className="justify-content-between headerprescription p-0">
             <Container fluid className='h-100 gx-0 w-100'>
@@ -44,9 +59,9 @@ function HeaderPrescription() {
                     <Col lg="auto" className='h-100'>
                         <div className='align-items-center d-flex h-100'>
                             <div className='border-end h-100 text-center'>
-                                <Link onClick={showModal} className='btn-headerback align-items-center d-flex h-100 justify-content-around'>
+                                <div onClick={showHideModal} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
                                     <i className='icon-right'></i>
-                                </Link>
+                                </div>
                                 <CommonModal
                                     isModalOpen={isModalOpen}
                                     modalWidth={500}
@@ -55,7 +70,7 @@ function HeaderPrescription() {
                                         <>
                                             <div className="alert-warning rounded-10px p-2 patient-details">
                                                 <div className="d-flex align-items-center">
-                                                <img className='me-3' src={alert} alt="Warning" />
+                                                    <img className='me-3' src={alertIcon} alt="Warning" />
                                                     <span>
                                                         Are you sure you want to leave? <br />
                                                         You will permanently lose your data.
@@ -64,12 +79,12 @@ function HeaderPrescription() {
                                             </div>
                                             <div className="mt-4">
                                                 <div className="d-flex align-items-center mt-2 justify-content-end">
-                                                    <Link to='/walk_in_consultation' className="me-4 text-decoration-underline btn p-0 text-main">
+                                                    <div onClick={() => navigate(-1)} className="me-4 text-decoration-underline btn p-0 text-main">
                                                         Yes Leave
-                                                    </Link>
-                                                    <Link onClick={closeModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                                    </div>
+                                                    <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 px-4">
                                                         <span>No, Stay</span>
-                                                    </Link>
+                                                    </Button>
                                                 </div>
                                             </div>
                                         </>
@@ -81,13 +96,13 @@ function HeaderPrescription() {
                     </Col>
                     <Col lg="auto">
                         <div className='align-items-center d-flex h-100'>
-                            <Link to='/' className='text-main align-items-center d-flex fw-medium text14 me-30'>
+                            <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                 <i className='icon-template me-2'></i> <span className='text-decoration-underline'>Templates</span>
                             </Link>
-                            <Link to='/' className='text-main align-items-center d-flex fw-medium text14 me-30'>
+                            <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                 <i className='icon-save me-2'></i> <span className='text-decoration-underline'>Save</span>
                             </Link>
-                            <Link to='/' className='text-main align-items-center d-flex fw-medium text14 me-30'>
+                            <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                 <i className='icon-setting me-2'></i> <span className='text-decoration-underline'>Customize</span>
                             </Link>
 
@@ -104,18 +119,18 @@ function HeaderPrescription() {
                                 </a>
                             </Dropdown>
 
-                            <Link to='/prescription_print_view' onClick={() => window.print()}>
+                            <div onClick={() => window.print()}>
                                 <Button className='btn align-items-center d-flex btn-41 btn-input me-20'>
                                     <i className='icon-Print me-2'></i>
                                     Print
                                 </Button>
-                            </Link>
-                            <Link to='/prescription_print_view'>
-                                <Button className='btn align-items-center d-flex btn-41 btn-primary3 me-20'>
-                                    <i className='icon-exit me-2'></i>
-                                    End Visit
-                                </Button>
-                            </Link>
+                            </div>
+
+                            <Button className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={onEndVisitClick}>
+                                <i className='icon-exit me-2'></i>
+                                End Visit
+                            </Button>
+
                             <Dropdown className='btn btn-outline btn-more p-0' menu={{ items }} trigger={['click']}>
                                 <a onClick={(e) => e.preventDefault()}>
                                     <i className='icon-More'></i>

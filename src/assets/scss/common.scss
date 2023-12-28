@@ -72,6 +72,9 @@ body {
     .bg-secondary-light {
         background-color: $themesecondarylight;
     }
+    .fs-18 {
+        font-size: 18px !important;
+    }
     .fs-21 {
         font-size: 21px !important;
     }
@@ -210,6 +213,9 @@ body {
             .ant-select-item {
                 padding: 0px;
             }
+        }
+        .ant-select-item-option-content {
+            white-space: normal;
         }
     }
     .ant-input-affix-wrapper {

@@ -24,25 +24,25 @@ function PersonalDetails({ form }) {
         fullname: [
             {
                 required: true,
-                message: "Please enter full name",
+                message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div>,
             },
         ],
         mobile_no: [
             {
                 required: true,
-                message: "Enter a valid mobile number",
+                message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Enter a valid mobile number</div>,
             },
         ],
         gender: [
             {
                 required: true,
-                message: "Please select gender",
+                message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please select gender</div>,
             },
         ],
         dobYearsMonths: [
             {
                 required: true,
-                message: "Please fill age in years & months",
+                message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please fill age in years & months</div>,
             },
         ],
     };
@@ -98,7 +98,7 @@ function PersonalDetails({ form }) {
     }, [ageYearsMonths]);
 
     return (
-        <>
+        <div>
             {!isMobile && (
                 <div className="d-flex justify-content-between">
                     <div className="title">Personal Details</div>
@@ -145,10 +145,10 @@ function PersonalDetails({ form }) {
                         </Col>
                         <Col xs={24} sm={24} md={12} lg={12}>
                             <Form.Item name="pm_gender" label="Gender" rules={rules.gender}>
-                                <Radio.Group>
-                                    <Radio.Button value="Male">Male</Radio.Button>
-                                    <Radio.Button value="Female">Female</Radio.Button>
-                                    <Radio.Button value="Other">Other</Radio.Button>
+                                <Radio.Group className="d-flex gender-radio">
+                                    <Radio.Button className="w-100 text-center" value="Male">Male</Radio.Button>
+                                    <Radio.Button className="w-100 text-center" value="Female">Female</Radio.Button>
+                                    <Radio.Button className="w-100 text-center" value="Other">Other</Radio.Button>
                                 </Radio.Group>
                             </Form.Item>
                         </Col>
@@ -195,6 +195,8 @@ function PersonalDetails({ form }) {
                         <Col xs={24} sm={24} md={11} lg={11}>
                             <Form.Item name="pm_dob" label="Date of Birth">
                                 <DatePicker
+                                    className="w-100"
+                                    inputReadOnly
                                     onChange={onBirthDateChanged}
                                     disabledDate={disabledDate}
                                     value={
@@ -208,7 +210,7 @@ function PersonalDetails({ form }) {
                     </Row>
                 </>
             )}
-        </>
+        </div>
     );
 }
 

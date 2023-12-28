@@ -194,7 +194,7 @@ function AppointmentData({ type }) {
       sortOrder: sortedInfo.columnKey === "name" ? sortedInfo.order : null, */
       render: (text, record) => (
         <div>
-          <span>{text}</span>
+          <span className="text-primary">{text}</span>
           <br />
           <small>
             {record.pm_gender}, {record.ageYears}
@@ -496,6 +496,7 @@ function AppointmentData({ type }) {
               <Button variant="outline-light" className="p-0">
                 <DatePicker
                   // allowClear={false}
+                  inputReadOnly
                   onChange={dateChange}
                   value={
                     date.startDate === date.endDate
