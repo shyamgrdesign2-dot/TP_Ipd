@@ -407,7 +407,7 @@ function TabInvestigationBox() {
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">
                         <img className='me-2' src={Investigationicon} alt="Investigation" />
-                        <div className="title-common">Investigation</div>
+                        <div className="title-common">Lab Investigation</div>
                     </div>
 
                     <div className="d-flex align-items-center">

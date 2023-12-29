@@ -407,7 +407,7 @@ function TabMedicationBox() {
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">
                         <img className='me-2' src={Medicationicon} alt="Medication" />
-                        <div className="title-common">Medication</div>
+                        <div className="title-common">Medications (Rx)</div>
                     </div>
 
                     <div className="d-flex align-items-center">

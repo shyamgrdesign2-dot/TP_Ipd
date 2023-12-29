@@ -543,7 +543,7 @@ function AdviceBox() {
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Adviceicon} alt="Advice" />
-            <div className="title-common">Advice</div>
+            <div className="title-common">Advices</div>
           </div>
           <div className="d-flex align-items-center">
             <Popover

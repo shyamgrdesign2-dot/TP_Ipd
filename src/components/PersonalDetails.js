@@ -116,7 +116,7 @@ function PersonalDetails({ form }) {
                     <Row gutter={{ xs: 8, sm: 18, md: 24, lg: 30 }}>
                         <Col xs={8} sm={8} md={6} lg={4}>
                             <Form.Item name="pm_salutation" label="Salutation">
-                                <Select placeholder="Salutation">
+                                <Select placeholder="Select">
                                     {
                                         salutationOption.map(elm => (
                                             <Option key={elm} value={elm}>{elm}</Option>
@@ -197,6 +197,7 @@ function PersonalDetails({ form }) {
                                 <DatePicker
                                     className="w-100"
                                     inputReadOnly
+                                    placeholder="dd-mm-yyyy"
                                     onChange={onBirthDateChanged}
                                     disabledDate={disabledDate}
                                     value={
