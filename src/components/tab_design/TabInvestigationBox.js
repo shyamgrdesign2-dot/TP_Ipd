@@ -431,7 +431,7 @@ function TabInvestigationBox() {
                 <div className="p-14 py-0">
                     <div className="inputheight38 border rounded-10px d-flex align-items-center" onClick={handleDrawerParent}>
                         <i className='icon-search mx-2'></i>
-                        <span className="fontroboto backbar fw-normal">Search Investigation</span>
+                        <span className="fontroboto backbar fw-normal">Search Lab Investigation</span>
                     </div>
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">

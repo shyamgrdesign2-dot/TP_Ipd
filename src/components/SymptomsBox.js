@@ -674,7 +674,7 @@ function SymptomsBox() {
             defaultActiveFirstOption={true}
           >
             <Input
-              placeholder="Search by Patient’s Name, Phone number or Id"
+              placeholder="Search Symptoms"
               prefix={<i className="icon-search"></i>}
             />
           </AutoComplete>
