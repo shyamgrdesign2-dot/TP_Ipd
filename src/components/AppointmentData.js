@@ -18,6 +18,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   cancelAppointments,
   clearSearch,
+  endVisit,
   getAllRecords,
   getCaseTypes,
   searchAppointments,
@@ -67,7 +68,7 @@ function AppointmentData({ clinicChanged, type }) {
   const [showEndVisitReasonModal, setShowEndVisitReasonModal] = useState(false);
   const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
     useState(null);
-  const { records, loading, error, counts, caseTypes, cancelledAppointment } =
+  const { records, loading, error, counts, caseTypes, cancelledAppointment, endedAppointment } =
     useSelector((state) => state.records);
   const dispatch = useDispatch();
   console.log("records: ", records);
@@ -102,8 +103,19 @@ function AppointmentData({ clinicChanged, type }) {
         description: "View cancelled appointments in Cancelled tab.",
       };
       notification.success({ key: "notification_key", ...notificationParam });
+    } else if(endedAppointment) {
+      console.log('endedAppointment: ', endedAppointment);
+      setEndVisitReason(null);
+      setReasonDraweOpen(false);
+
+      // show notification
+      const notificationParam = {
+        message: "Anish's visit end successfully",
+        description: "View end visits in Finished tab.",
+      };
+      notification.success({ key: "notification_key", ...notificationParam });
     }
-  }, [cancelledAppointment]);
+  }, [cancelledAppointment, endedAppointment]);
 
   useEffect(() => {
     console.log("clinicChanged: ", clinicChanged);
@@ -546,10 +558,10 @@ function AppointmentData({ clinicChanged, type }) {
     }
   };
 
-  const endVisit = () => {
+  const onEndVisitClick = () => {
     // TODO: change this to end appointment API call
     console.log("appointmentSelectedFromMenu: ", appointmentSelectedFromMenu);
-    dispatch(cancelAppointments(endVisitReason));
+    dispatch(endVisit({appointment: appointmentSelectedFromMenu}));
   };
 
   const END_VISIT_REASON_DISPLAY_MODAL = useMemo(() => {
@@ -805,7 +817,7 @@ function AppointmentData({ clinicChanged, type }) {
         extra={
           <Space>
             <Button
-              onClick={endVisit}
+              onClick={onEndVisitClick}
               type="primary"
               disabled={!endVisitReason}
             >

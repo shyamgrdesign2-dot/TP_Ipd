@@ -53,6 +53,10 @@ ApiAppointments.addPatient = function (formData) {
   return api.post(`/api/v1/appointment/addPatient`, formData, baseUrl);
 };
 
+ApiAppointments.endVisit = function (appointment) {
+  return api.post(`/api/v1/appointment/cancelAppointment`, appointment, baseUrl);
+};
+
 ApiAppointments.getCaseTypes = function () {
   return api.post(`/api/v1/appointment/listCasetype`, {}, baseUrl);
 };

@@ -14,6 +14,7 @@ const initialState = {
   changeHospitalResponse: {},
   caseTypes: [],
   cancelledAppointment: null,
+  endedAppointment: null,
 };
 
 export const getAllRecords = createAsyncThunk(
@@ -162,6 +163,25 @@ export const addPatient = createAsyncThunk(
       console.log("result: ", result);
       if (result.status) {
         return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
+export const endVisit = createAsyncThunk(
+  "records/endVisit",
+  async ({ appointment }) => {
+
+    try {
+      const result = await ApiAppointments.endVisit(appointment);
+      console.log("result: ", result);
+      if (result.status) {
+        return result;
       } else {
         throw Error(result.error);
       }
@@ -326,6 +346,43 @@ const appointmentsSlice = createSlice({
       .addCase(addPatient.rejected, (state, action) => {
         state.loading = false;
         state.patientDetals = null;
+        state.error = action.error;
+      })
+      .addCase(endVisit.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+
+        const endedAppointment = action.meta.arg.appointment;
+        
+        console.log('endedAppointment: ', endedAppointment);
+
+        // set response
+        state.endedAppointment = action.payload;
+
+        // remove from the queue
+        state.records.queue[endedAppointment.pageNo].splice(endedAppointment.indexInPage, 1);
+
+        // add to cancelled list
+        const cancelledFirstPage = state.records.finished[0];
+        state.records = {
+          ...state.records,
+          "finished": {
+            ...state.records.cancelled,
+            [0]: cancelledFirstPage && cancelledFirstPage.length > 0 ? [endedAppointment, ...cancelledFirstPage] : [endedAppointment]
+          }
+        }
+        
+        // update the counts.
+        state.counts = {
+          ...state.counts,
+          finishedCount: state.counts.finishedCount + 1,
+          queueCount:
+            state.counts.queueCount === 0 ? 0 : state.counts.queueCount - 1,
+        };
+      })
+      .addCase(endVisit.rejected, (state, action) => {
+        state.loading = false;
+        state.endedAppointment = null;
         state.error = action.error;
       })
       .addCase(changeHospital.fulfilled, (state, action) => {
