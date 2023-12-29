@@ -1,8 +1,8 @@
 import React from 'react';
 import Nav from 'react-bootstrap/Nav';
+import { Button, Popover } from 'antd';
 
 function SidebarPatient({ collapsed }) {
-
     const menu = [
         { icon_name: 'icon-Visit-Summary', short_title: 'Visit', long_title: 'Visit Summary' },
         { icon_name: 'icon-Report', short_title: 'Reports', long_title: 'Medical Reports (3)' },
@@ -12,19 +12,58 @@ function SidebarPatient({ collapsed }) {
         { icon_name: 'icon-More', short_title: '', long_title: 'More Options' }
     ]
 
+    const content = (
+        <>
+            <div className="align-items-center d-flex medicine-templates without-hover px-0 pt-0 pb-3">
+                <div className="round-box bg-body-secondary"><i className="icon-Id fs-21"></i></div>
+                <div className="text-truncate">
+                    <div className="fontroboto letterspacing">Patient Id</div>
+                    <div className="fontroboto letterspacing fw-medium">000000</div>
+                </div>
+            </div>
+            <div className="align-items-center d-flex medicine-templates without-hover px-0 pt-0">
+                <div className="round-box bg-body-secondary"><i className="icon-phone fs-21"></i></div>
+                <div className="text-truncate">
+                    <div className="fontroboto letterspacing">Mobile Number</div>
+                    <div className="fontroboto letterspacing fw-medium">000000</div>
+                </div>
+            </div>
+            <div>
+                <Button className='btn btn-primary2 d-flex justify-content-center align-items-center w-100 mt-3 btn-41'>
+                    <i className='icon-Edit me-2 fs-21'></i>
+                    Edit Profile
+                </Button>
+                <Button className='btn btn-primary2 align-items-center d-flex justify-content-center w-100 mt-3 btn-41'>
+                    <i className='icon-Visit-Summary fs-21 me-2'></i>
+                    Visit Summary
+                </Button>
+
+            </div>
+        </>
+    )
+
     return (
         <div>
-            <div className={`d-flex align-items-center rounded-3 m-2 text-truncate ${collapsed ? '' : 'bg-body p-2'}`}>
-                <div className={`rounded-pill patientProfile border ${collapsed ? 'mx-auto' : 'me-2'}`}>
-                    AP
-                </div>
-                {!collapsed && (
-                    <div className='text-truncate'>
-                        <div className='patientName d-flex align-items-center'> <div className='text-truncate pt-2px'>Ashish Patel</div> <button className='btn p-0 ms-2'><i className='icon-Edit text-primary'></i></button> </div>
-                        <p className='mb-0'>M, 28y, +91-7894561230</p>
+            <Popover
+                content={content}
+                trigger="click"
+                className='cursor-pointer'
+                overlayClassName="pop-260 pp-20"
+            >
+                <div className={`d-flex align-items-center rounded-3 m-2 text-truncate ${collapsed ? '' : 'bg-body p-2'}`}>
+                    <div className={`rounded-pill patientProfile border ${collapsed ? 'mx-auto' : 'me-2'}`}>
+                        AP
                     </div>
-                )}
-            </div>
+                    {!collapsed && (
+                        <div className='text-truncate'>
+                            <div className='patientName d-flex align-items-center'> <div className='text-truncate pt-2px'>Ashish Patel</div>
+                                <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right'></i></button>
+                            </div>
+                            <p className='mb-0'>M, 28y, +91-7894561230</p>
+                        </div>
+                    )}
+                </div>
+            </Popover>
             <hr />
             {menu.map((item, index) => {
                 return (
