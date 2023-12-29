@@ -687,7 +687,7 @@ function DiagnosisBox() {
             defaultActiveFirstOption={true}
           >
             <Input
-              placeholder="Search by Patient’s Name, Phone number or Id"
+              placeholder="Search Diagnosis"
               prefix={<i className="icon-search" />}
             />
           </AutoComplete>
