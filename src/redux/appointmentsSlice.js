@@ -13,6 +13,7 @@ const initialState = {
   patientDetals: {},
   changeHospitalResponse: {},
   caseTypes: [],
+  cancelledAppointment: null,
 };
 
 export const getAllRecords = createAsyncThunk(
@@ -69,11 +70,11 @@ export const searchAppointments = createAsyncThunk(
 
 export const cancelAppointments = createAsyncThunk(
   "records/cancelAppointments",
-  async ({ record }) => {
-    console.log("record: ", record);
+  async ({ appointment }) => {
+    console.log("appointment: ", appointment);
     const data = {
-      pam_id: record.pam_id,
-      patient_unique_id: record.patient_unique_id,
+      pam_id: appointment.pam_id,
+      patient_unique_id: appointment.patient_unique_id,
     };
     let result = {};
     result = await ApiAppointments.cancelAppointments(data);
@@ -341,13 +342,15 @@ const appointmentsSlice = createSlice({
       .addCase(cancelAppointments.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
+        const cancelledAppointment = action.meta.arg.appointment;
+        
+        console.log('cancelledAppointment: ', cancelledAppointment);
 
-        console.log(" record.obj:", action.meta.arg.record);
+        // set response
+        state.cancelledAppointment = cancelledAppointment;
 
-        const targetObject = action.meta.arg.record;
-        console.log('targetObject: ', targetObject);
-        // remove from queue
-        state.records.queue[targetObject.pageNo].splice(targetObject.indexInPage, 1);
+        // remove from the queue
+        state.records.queue[cancelledAppointment.pageNo].splice(cancelledAppointment.indexInPage, 1);
 
         // add to cancelled list
         const cancelledFirstPage = state.records.cancelled[0];
@@ -355,7 +358,7 @@ const appointmentsSlice = createSlice({
           ...state.records,
           "cancelled": {
             ...state.records.cancelled,
-            [0]: cancelledFirstPage && cancelledFirstPage.length > 0 ? [targetObject, ...cancelledFirstPage] : [targetObject]
+            [0]: cancelledFirstPage && cancelledFirstPage.length > 0 ? [cancelledAppointment, ...cancelledFirstPage] : [cancelledAppointment]
           }
         }
         

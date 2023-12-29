@@ -24,6 +24,7 @@ import {
 import { getFormattedDate } from "../utils/utils";
 import { PAGE_SIZE } from "../utils/constants";
 import noData from "../assets/images/nodata-found.svg";
+import CommonModal from "../common/CommonModal";
 
 // Tab constants mapping UI as well as apStatue field of API
 // Changing these 0, 1, 4 value will break the functionality.
@@ -57,11 +58,12 @@ function AppointmentData({ clinicChanged, type }) {
   const [pageNoQueue, setPageNoQueue] = useState(0);
   const [pageNoFinished, setPageNoFinished] = useState(0);
   const [pageNoCancelled, setPageNoCancelled] = useState(0);
-  const { records, loading, error, counts, caseTypes } = useSelector(
+  const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] = useState(null);
+  const { records, loading, error, counts, caseTypes, cancelledAppointment } = useSelector(
     (state) => state.records
   );
   const dispatch = useDispatch();
-  console.log('records: ', records);
+  console.log("records: ", records);
 
   const getQueueTypeString = () => {
     return type === TAB_QUEUE
@@ -80,10 +82,16 @@ function AppointmentData({ clinicChanged, type }) {
   };
 
   useEffect(() => {
-    dispatch(
-      getCaseTypes()
-    );
+    dispatch(getCaseTypes());
   }, [dispatch]);
+
+  useEffect(() => {
+    console.log('useEffect.cancelledAppointment: ', cancelledAppointment);
+    if(cancelledAppointment && cancelledAppointment.pam_id) {
+      setAppointmentSelectedFromMenu(null);
+      // TODO: Show notificatoin here
+    }
+  }, [cancelledAppointment]);
 
   useEffect(() => {
     console.log("clinicChanged: ", clinicChanged);
@@ -208,7 +216,7 @@ function AppointmentData({ clinicChanged, type }) {
           toct_type,
           toct_id,
           pageNo,
-          indexInPage
+          indexInPage,
         };
       }
     );
@@ -224,9 +232,9 @@ function AppointmentData({ clinicChanged, type }) {
     return caseTypes.map((typeObj) => {
       return {
         text: typeObj.toct_type,
-        value: typeObj.toct_type
-      }
-    })
+        value: typeObj.toct_type,
+      };
+    });
   };
 
   const columns = [
@@ -267,7 +275,7 @@ function AppointmentData({ clinicChanged, type }) {
       key: "toct_type",
       filteredValue: filteredInfo.toct_type || null,
       onFilter: (value, record) => {
-       return record.toct_type === value;
+        return record.toct_type === value;
       },
       filters: getVisitTypeFilters(),
       // sorter: (a, b) => a.visittype.length - b.visittype.length,
@@ -318,13 +326,15 @@ function AppointmentData({ clinicChanged, type }) {
           <Dropdown
             className="btn btn-outline btn-more ms-3"
             menu={{
-              items: getMenuItems(record)
+              items: getMenuItems(record),
             }}
             trigger={["click"]}
           >
-            <a onClick={(e) => {
-              e.preventDefault();
-            }}>
+            <a
+              onClick={(e) => {
+                e.preventDefault();
+              }}
+            >
               <i className="icon-More" />
             </a>
           </Dropdown>
@@ -344,7 +354,6 @@ function AppointmentData({ clinicChanged, type }) {
     }
   };
 
-
   const getMenuItems = (record) => {
     const items = [
       {
@@ -353,11 +362,12 @@ function AppointmentData({ clinicChanged, type }) {
       },
       {
         label: (
-          <span onClick={() => {
-            
-            console.log('clicked.data', record);
-            dispatch(cancelAppointments({record}));
-          }}>
+          <span
+            onClick={() => {
+              console.log("clicked.data", record);
+              setAppointmentSelectedFromMenu(record);
+            }}
+          >
             Cancel Appt.
           </span>
         ),
@@ -488,6 +498,67 @@ function AppointmentData({ clinicChanged, type }) {
       return counts.cancelledCount;
     }
   };
+
+  const CONFIRMATION_MODAL = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={appointmentSelectedFromMenu != null}
+        modalWidth={610}
+        title={"Are you sure you want to cancel this appointment?"}
+        onCancel={() => {
+          setAppointmentSelectedFromMenu(null);
+        }}
+        modalBody={
+          <>
+            <div className="border bg-body rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <i className="icon-patients me-2" />
+                <span>
+                  {appointmentSelectedFromMenu?.pm_salutation
+                    ? appointmentSelectedFromMenu?.pm_salutation
+                    : "Mr./Mrs./Miss."}{" "}
+                  {appointmentSelectedFromMenu?.name} ({appointmentSelectedFromMenu?.pm_gender},{" "}
+                  {appointmentSelectedFromMenu?.ageYears}y)
+                </span>
+              </div>
+              <div className="mt-2 d-flex align-items-center">
+                <i className="icon-phone me-2" />{" "}
+                <span>{appointmentSelectedFromMenu?.pm_contact_no}</span>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <i className="icon-Id me-2" />{" "}
+                <span>{appointmentSelectedFromMenu?.patient_unique_id}</span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2">
+                <Button
+                  type="text"
+                  className="btn btn-primary2 align-items-center text-primary btn-41 w-50"
+                  icon={<i className="icon-Preview" />}
+                  onClick={() => {
+                    setAppointmentSelectedFromMenu(null);
+                  }}
+                >
+                  No, Keep Appointment{" "}
+                </Button>
+                <Button
+                  type="text"
+                  className="btn btn-primary3 align-items-center btn-41 w-50"
+                  icon={<i className="icon-Consult" />}
+                  onClick={() => {
+                    console.log('clicked: ', appointmentSelectedFromMenu.pam_id);
+                    dispatch(cancelAppointments({ appointment: appointmentSelectedFromMenu }));
+                  }}
+                >
+                  Yes, Cancel Appointment{" "}
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+    );
+  }, [appointmentSelectedFromMenu]);
 
   const emptyText = (
     <div
@@ -625,6 +696,7 @@ function AppointmentData({ clinicChanged, type }) {
       ) : (
         <h1>Grid View</h1>
       )}
+      {CONFIRMATION_MODAL}
     </div>
   );
 }
