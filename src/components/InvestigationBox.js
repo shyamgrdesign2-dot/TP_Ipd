@@ -604,7 +604,7 @@ function InvestigationBox() {
             defaultActiveFirstOption={true}
           >
             <Input
-              placeholder="Search by Patient’s Name, Phone number or Id"
+              placeholder="Search Lab Investigation"
               prefix={<i className="icon-search"></i>}
             />
           </AutoComplete>

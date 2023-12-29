@@ -594,7 +594,7 @@ function AdviceBox() {
             onSelect={onSelectParent}
           >
             <Input
-              placeholder="Search by Patient’s Name, Phone number or Id"
+              placeholder="Search Advices"
               prefix={<i className="icon-search"></i>}
             />
           </AutoComplete>

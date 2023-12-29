@@ -1,84 +1,108 @@
-import React, { useState } from 'react';
-import Card from 'react-bootstrap/Card';
-import { Input, Table } from 'antd';
-import vitals from '../assets/images/Vitals.svg';
-import arrowright from '../assets/images/arrow-box-right.svg';
-import graph from '../assets/images/Graph.svg';
-import heartBeat from '../assets/images/heartBeat.svg';
-
+import React from 'react';
+import { Input } from 'antd';
 function VitalsDetails() {
-
-    const [filteredInfo, setFilteredInfo] = useState({});
-    const [sortedInfo, setSortedInfo] = useState({});
-
-    const [data, setData] = useState([
+    const data = [
         {
-            name: 'Temperature',
-            inputVitals: <Input className='inputheight41-group' addonAfter={'Frh'} />,
-        },
-        {
-            name: 'Pulse',
-            inputVitals: <Input className='inputheight41-group' addonAfter={'/min'} />,
-        },
-        {
-            name: 'Resp. Rate',
-            inputVitals: <Input className='inputheight41-group' addonAfter={'/min'} />,
-        },
-        {
-            name: 'Systolic',
-            inputVitals: <Input className='inputheight41-group' addonAfter={'mmhg'} />,
-        },
-        {
-            name: 'Diastolic',
-            inputVitals: <Input className='inputheight41-group' addonAfter={'mmhg'} />,
-        },
-        {
-            name: 'SPO2',
-            inputVitals: <Input className='inputheight41-group' addonAfter={'%'} />,
+            "date": "2023-12-29",
+            "dev_unique_id": 0,
+            "tcv_id": 0,
+            "temp": "10",
+            "pres": "20",
+            "resp_rate": "330",
+            "systolic": "40",
+            "diastolic": "50",
+            "spot": "74",
+            "tcbc_id": "0",
+            "height": "12",
+            "weight": "3",
+            "bmi": "2",
+            "bmr": "2",
+            "bsa": "2"
         }
-    ]);
-
-    const handleChange = (pagination, filters, sorter) => {
-        console.log('Various parameters', pagination, filters, sorter);
-        setFilteredInfo(filters);
-        setSortedInfo(sorter);
-    };
-
-    const columns = [
-        {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-            ellipsis: true,
-            fixed: 'left',
-            width: 140,
-        },
-        {
-            title: '9 OCT, 22',
-            dataIndex: 'inputVitals',
-            key: 'inputVitals',
-            ellipsis: true,
-            width: 200,
-        },
-        {
-            title: '9 OCT, 22',
-            dataIndex: 'inputVitals',
-            key: 'inputVitals',
-            ellipsis: true,
-            width: 200,
-        },
-        {
-            title: '9 OCT, 22',
-            dataIndex: 'inputVitals',
-            key: 'inputVitals',
-            ellipsis: true,
-            width: 200,
-        }
-    ];
-
+    ]
     return (
         <div className='px-20'>
-            <Table columns={columns} className='vitalsTable table-border' dataSource={data} onChange={handleChange} pagination={false} scroll={{ x: 450}} />
+            <div className='vitals-wrapper w-100'>
+                <div className='vitals-wrap-body vitals-parent-width'>
+                    <div className='vitals-head'>Name</div>
+                    <div className='vitals-row d-flex align-items-center border-bottom'>
+                        Temperature
+                    </div>
+                    <div className='vitals-row d-flex align-items-center border-bottom'>
+                        Pulse
+                    </div>
+                    <div className='vitals-row d-flex align-items-center border-bottom'>
+                        Resp. Rate
+                    </div>
+                    <div className='vitals-row d-flex align-items-center border-bottom'>
+                        Systolic
+                    </div>
+                    <div className='vitals-row d-flex align-items-center border-bottom'>
+                        Diastolic
+                    </div>
+                    <div className='vitals-row d-flex align-items-center border-bottom'>
+                        SPO2
+                    </div>
+                    <div className='vitals-row vitals-row-50 d-flex align-items-center'>
+                        Height
+                    </div>
+                    <div className='vitals-row vitals-row-50 d-flex align-items-center'>
+                        Weight
+                    </div>
+                    <div className='vitals-row vitals-row-40 d-flex align-items-center'>
+                        BMI <i className='icon-info ms-1'></i>
+                    </div>
+                    <div className='vitals-row vitals-row-40 d-flex align-items-center'>
+                        BMR <i className='icon-info ms-1'></i>
+                    </div>
+                    <div className='vitals-row vitals-row-40 d-flex align-items-center'>
+                        BSA <i className='icon-info ms-1'></i>
+                    </div>
+                </div>
+                <div className='d-flex overflow-x-auto scrollvitals w-100'>
+                    {data.length > 0 &&
+                        data.map((item, i) => {
+                            return (
+                                <div key={i} className='vitals-wrap-body w-100 vitals-child-width'>
+                                    <div className='vitals-head rounded-start-0 w-100'>{item.date}</div>
+                                    <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
+                                        <Input className='inputheight41-group' value={item.temp} addonAfter={'mmhg'} />
+                                    </div>
+                                    <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
+                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                    </div>
+                                    <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
+                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                    </div>
+                                    <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
+                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                    </div>
+                                    <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
+                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                    </div>
+                                    <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
+                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                    </div>
+                                    <div className='vitals-row vitals-row-50 d-flex align-items-center px-2 w-100'>
+                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                    </div>
+                                    <div className='vitals-row vitals-row-50 d-flex align-items-center px-2 w-100'>
+                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                    </div>
+                                    <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
+                                        <div className='fs-14 '>22.2 kg/m² </div>
+                                    </div>
+                                    <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
+                                        <div className='fs-14'>1653.75 kcals </div>
+                                    </div>
+                                    <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
+                                        <div className='fs-14'>1.82 m² </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                </div>
+            </div>
         </div>
     )
 }
