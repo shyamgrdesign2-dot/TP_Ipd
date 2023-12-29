@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import { Button, Layout, Collapse, Drawer, Card, } from 'antd';
+import { Button, Layout, Collapse, Drawer, Card, DatePicker } from 'antd';
 
 import CashManagerContext from '../../context/CashManagerContext';
 
@@ -120,6 +120,10 @@ function TabPrescription() {
         },
     ];
 
+    const onChange = (date, dateString) => {
+        console.log(date, dateString);
+      };
+
     return (
         <CashManagerContext.Provider value={contextApi}>
             <>
@@ -236,9 +240,12 @@ function TabPrescription() {
                             </Button>
                         </div>
                         <div className="align-items-center d-flex justify-content-between px-20 py-3">
-                            <Button className='btn btn-primary2 btn-41'>
-                                Add New Date
-                            </Button>
+                            <div className="position-relative">
+                                <Button className='btn btn-primary2 btn-41'>
+                                    Add New Date
+                                </Button>
+                                <DatePicker suffixIcon={null} inputReadOnly onChange={onChange} className="calender-vitals w-100 h-100"/>
+                            </div>
                             <div className="float-end d-flex align-itms-center">
                                 <i className="icon-setting me-2"></i>
                                 <span className="text-decoration-underline fw-medium"> Add or Configure </span>
