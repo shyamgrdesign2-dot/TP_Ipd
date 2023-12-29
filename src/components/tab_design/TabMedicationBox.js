@@ -135,11 +135,11 @@ function TabMedicationBox() {
     };
 
     const onTemplateSelected = (template) => {
-        const updatedData = template.medication.map(e => {
-            return { ...e, unique_id: uuidv4(), note: "" }
-        })
-        setMedicationData([...medicationData, ...updatedData]);
-        handleDrawerTemplate();
+        // const updatedData = template.medication.map(e => {
+        //     return { ...e, unique_id: uuidv4(), note: "" }
+        // })
+        // setMedicationData([...medicationData, ...updatedData]);
+        // handleDrawerTemplate();
     };
 
     const onDeleteTemplateClicked = (tmtd_id) => {
@@ -154,31 +154,31 @@ function TabMedicationBox() {
     );
 
     const onAddTemplateClicked = async () => {
-        if (medicationData.length == 0) {
-            messageApi.open({
-                MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 medication added',
-                duration: 2
-            });
-        } else if (medicationData.filter(e => e.medication_name == "").length > 0) {
-            messageApi.open({
-                MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup medication name',
-                duration: 2
-            });
-        } else {
-            var sendData = {
-                tmtd_template_name: inputTemplateName,
-                data: medicationData,
-            };
-            const action = await dispatch(addTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
-                setInputTemplateName(null);
-                handleDrawerSave();
-            }
-        }
+        // if (medicationData.length == 0) {
+        //     messageApi.open({
+        //         MESSAGE_KEY,
+        //         type: 'warning',
+        //         content: 'At least 1 medication added',
+        //         duration: 2
+        //     });
+        // } else if (medicationData.filter(e => e.medication_name == "").length > 0) {
+        //     messageApi.open({
+        //         MESSAGE_KEY,
+        //         type: 'warning',
+        //         content: 'Please fillup medication name',
+        //         duration: 2
+        //     });
+        // } else {
+        //     var sendData = {
+        //         tmtd_template_name: inputTemplateName,
+        //         data: medicationData,
+        //     };
+        //     const action = await dispatch(addTemplate(sendData));
+        //     if (action.meta.requestStatus == "fulfilled") {
+        //         setInputTemplateName(null);
+        //         handleDrawerSave();
+        //     }
+        // }
     };
 
     const onSearchTemplate = useCallback(() => {
@@ -193,33 +193,33 @@ function TabMedicationBox() {
     );
 
     const onUpdateTemplateClicked = async () => {
-        if (medicationData.length == 0) {
-            messageApi.open({
-                MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 medication added',
-                duration: 2
-            });
-        } else if (medicationData.filter(e => e.medication_name == "").length > 0) {
-            messageApi.open({
-                MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup medication name',
-                duration: 2
-            });
-        } else {
-            var data = JSON.parse(inputTemplateName);
-            var sendData = {
-                tmtd_id: data.tmtd_id,
-                tmtd_template_name: data.tmtd_template_name,
-                data: medicationData,
-            };
-            const action = await dispatch(updateTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
-                setInputTemplateName(null);
-                handleDrawerSave();
-            }
-        }
+        // if (medicationData.length == 0) {
+        //     messageApi.open({
+        //         MESSAGE_KEY,
+        //         type: 'warning',
+        //         content: 'At least 1 medication added',
+        //         duration: 2
+        //     });
+        // } else if (medicationData.filter(e => e.medication_name == "").length > 0) {
+        //     messageApi.open({
+        //         MESSAGE_KEY,
+        //         type: 'warning',
+        //         content: 'Please fillup medication name',
+        //         duration: 2
+        //     });
+        // } else {
+        //     var data = JSON.parse(inputTemplateName);
+        //     var sendData = {
+        //         tmtd_id: data.tmtd_id,
+        //         tmtd_template_name: data.tmtd_template_name,
+        //         data: medicationData,
+        //     };
+        //     const action = await dispatch(updateTemplate(sendData));
+        //     if (action.meta.requestStatus == "fulfilled") {
+        //         setInputTemplateName(null);
+        //         handleDrawerSave();
+        //     }
+        // }
     };
 
     //Child Componet

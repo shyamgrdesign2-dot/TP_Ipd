@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { Button, Layout, Collapse, Drawer, Card, DatePicker } from 'antd';
+import { Content } from "antd/es/layout/layout";
 
 import CashManagerContext from '../../context/CashManagerContext';
 
@@ -13,6 +14,7 @@ import TabDiagnosisBox from "../../components/tab_design/TabDiagnosisBox";
 import TabAdviceBox from "../../components/tab_design/TabAdviceBox";
 import TabInvestigationBox from "../../components/tab_design/TabInvestigationBox";
 import TabMedicationBox from "../../components/tab_design/TabMedicationBox";
+import TabVitalsBox from "../../components/tab_design/TabVitalsBox";
 
 import vitalsWhite from '../../assets/images/vitals-white.svg';
 import medicalHistoryWhite from '../../assets/images/medical-history-white.svg';
@@ -21,8 +23,7 @@ import vaccinationWhite from '../../assets/images/vaccination-white.svg';
 import notesWhite from '../../assets/images/notes-white.svg';
 import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
-import { Content } from "antd/es/layout/layout";
-import VitalsDetails from "../../components/VitalsDetails";
+
 
 function TabPrescription() {
 
@@ -34,8 +35,9 @@ function TabPrescription() {
     const [adviceData, setAdviceData] = useState([]);
     const [investigationData, setInvestigationData] = useState([]);
     const [medicationData, setMedicationData] = useState([]);
+    const [vitalsData, setVitalsData] = useState([]);
 
-    const contextApi = { state, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData };
+    const contextApi = { state, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData };
 
     const [collapsed, setCollapsed] = useState(false);
     const [collapsedFlag, setCollapsedFlag] = useState(1);
@@ -120,9 +122,7 @@ function TabPrescription() {
         },
     ];
 
-    const onChange = (date, dateString) => {
-        console.log(date, dateString);
-      };
+  
 
     return (
         <CashManagerContext.Provider value={contextApi}>
@@ -227,32 +227,7 @@ function TabPrescription() {
                     </Layout>
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerVital} open={vitalDrawer} className="modalWidth-645" width="auto">
-                    <Card bordered={false} className="search-modalCard h-100">
-                        <div className='modalCard-header h-60 align-items-center justify-content-between d-flex'>
-                            <div className='align-items-center d-flex'>
-                                <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={handleDrawerVital}>
-                                    <i className='icon-Cross fs-3'></i>
-                                </Button>
-                                <div className="modal-title">Vitals</div>
-                            </div>
-                            <Button onClick={() => handleCollapsed(1)} className='btn btn-primary3 btn-41 px-4 me-20'>
-                                Done
-                            </Button>
-                        </div>
-                        <div className="align-items-center d-flex justify-content-between px-20 py-3">
-                            <div className="position-relative">
-                                <Button className='btn btn-primary2 btn-41'>
-                                    Add New Date
-                                </Button>
-                                <DatePicker suffixIcon={null} inputReadOnly onChange={onChange} className="calender-vitals w-100 h-100"/>
-                            </div>
-                            <div className="float-end d-flex align-itms-center">
-                                <i className="icon-setting me-2"></i>
-                                <span className="text-decoration-underline fw-medium"> Add or Configure </span>
-                            </div>
-                        </div>
-                        <VitalsDetails />
-                    </Card>
+                    <TabVitalsBox handleDrawerVital={handleDrawerVital} handleCollapsed={(flag) => handleCollapsed(flag)} />
                 </Drawer >
             </>
         </CashManagerContext.Provider>
