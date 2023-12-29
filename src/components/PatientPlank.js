@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { AutoComplete, Input, Button } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import React from "react";
+import { Button } from "antd";
+import { Link } from "react-router-dom";
 
 const PatientPlank = ({patient, isModalOpen, setIsModalOpen}) => {
   return (

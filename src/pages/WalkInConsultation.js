@@ -28,7 +28,7 @@ function WalkInConsultation() {
                             <span>
                                 {patient.pm_salutation && patient.pm_salutation}{" "}
                                 {patient.pm_first_name} {patient.pm_last_name} (
-                                {patient.pm_gender}, {patient.ageYears})
+                                {patient.pm_gender}, {patient.ageYears}y)
                             </span>
                         </div>
                         <div className="list-patientName d-flex align-items-center me-4">
@@ -152,7 +152,7 @@ function WalkInConsultation() {
                                         ? clickedPatient?.pm_salutation
                                         : "Mr./Mrs./Miss."}{" "}
                                     {clickedPatient?.pm_first_name} {clickedPatient?.pm_last_name}{" "}
-                                    ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears})
+                                    ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y)
                                 </span>
                             </div>
                             <div className="mt-2 d-flex align-items-center">
