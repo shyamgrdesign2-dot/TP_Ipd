@@ -7,11 +7,15 @@ import { getProfile } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import { changeHospital } from "../redux/appointmentsSlice";
 import { useLocalStorage } from "../utils/localStorage";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID } from "../utils/constants";
 
 function Header({onClickChanged}) {
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
+  );
+
+  const [getSavedClinic, saveClinic] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_CLINIC_ID
   );
 
   const [clinicOptions, setClinicOptions] = useState(null);
@@ -25,6 +29,13 @@ function Header({onClickChanged}) {
 
   useEffect(() => {
     dispatch(getProfile());
+
+    const clinic = getSavedClinic();
+    console.log('clinic1: ', clinic);
+    if(clinic) {
+      setSelectedHospital(clinic);
+    }
+    
   }, [dispatch]);
 
   useEffect(() => {
@@ -33,24 +44,40 @@ function Header({onClickChanged}) {
       onClickChanged(changeHospitalResponse.clinicId);
     }
   }, [changeHospitalResponse]);
-  
 
+  useEffect(() => {
+    saveClinic(selectedHospital);
+  }, [selectedHospital]);
+  
   useEffect(() => {
     if (profiles && profiles.length > 0) {
       const firstProfile = profiles[0];
       if (firstProfile) {
         setProfile(firstProfile);
-        const hospitals = firstProfile.hospital_data?.map((hospital) => {
+        const clinics = firstProfile.hospital_data?.map((hospital) => {
           return {
             value: hospital.hm_id,
             label: hospital.hm_name,
           };
         });
+        setClinicOptions(clinics);
 
-        if (hospitals.length > 0) {
-          const firstClinic = hospitals[0];
-          setClinicOptions(hospitals);
-          // setSelectedHospital(firstClinic);
+        const id = setTimeout(() => {
+          const clinic = getSavedClinic();
+          console.log('clinic2: ', clinic);
+
+          if(!clinic && clinics.length > 0) {
+            // if no clinic was previouly slected
+            // save first one so that on reload, it shows
+            // selected.
+            const firstClinic = clinics[0];
+            setSelectedHospital(firstClinic.value);
+            saveClinic(firstClinic.value);
+          }
+        }, 300);
+
+        return () => {
+          clearTimeout(id);
         }
       }
     }
@@ -70,7 +97,8 @@ function Header({onClickChanged}) {
           <Select
             placeholder="Your Clinics"
             className="me-2"
-            value={selectedHospital ? selectedHospital : clinicOptions?.length === 0 ? "Add a clinic" : "Select Clinic"}
+            defaultValue={selectedHospital ? selectedHospital : "Add a clinic"}
+            value={selectedHospital ? selectedHospital : "Add a clinic"}
             onChange={(hospital) => {
               setSelectedHospital(hospital);
               console.log("hospital: ", hospital);
