@@ -62,6 +62,9 @@ function AppointmentData({ clinicChanged, type }) {
   const [pageNoFinished, setPageNoFinished] = useState(0);
   const [pageNoCancelled, setPageNoCancelled] = useState(0);
   const [reasonDraweOpen, setReasonDraweOpen] = useState(false);
+  const [endVisitReason, setEndVisitReason] = useState(null);
+  const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
+  const [showEndVisitReasonModal, setShowEndVisitReasonModal] = useState(false);
   const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
     useState(null);
   const { records, loading, error, counts, caseTypes, cancelledAppointment } =
@@ -90,9 +93,8 @@ function AppointmentData({ clinicChanged, type }) {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log("useEffect.cancelledAppointment: ", cancelledAppointment);
     if (cancelledAppointment && cancelledAppointment.pam_id) {
-      setAppointmentSelectedFromMenu(null);
+      setConfirmationModalOpen(false);
 
       // show notification
       const notificationParam = {
@@ -364,7 +366,7 @@ function AppointmentData({ clinicChanged, type }) {
     }
   };
 
-  const getMenuItems = (record) => {
+  const getMenuItems = (appointment) => {
     const items = [
       {
         label: <Link to="/patient_details">Patient Details</Link>,
@@ -374,8 +376,9 @@ function AppointmentData({ clinicChanged, type }) {
         label: (
           <span
             onClick={() => {
-              console.log("clicked.data", record);
-              setAppointmentSelectedFromMenu(record);
+              console.log("clicked.data", appointment);
+              setAppointmentSelectedFromMenu(appointment);
+              setConfirmationModalOpen(true);
             }}
           >
             Cancel Appt.
@@ -384,21 +387,42 @@ function AppointmentData({ clinicChanged, type }) {
         key: "cancelappt",
       },
       {
-        label: (<span
-          onClick={() => {
-            console.log("clicked.data", record);
-            setReasonDraweOpen(true);
-          }}
-        >
-          End Visit
-        </span>),
+        label: (
+          <span
+            onClick={() => {
+              console.log("clicked.data", appointment);
+              setAppointmentSelectedFromMenu(appointment);
+              setReasonDraweOpen(true);
+            }}
+          >
+            End Visit
+          </span>
+        ),
         key: "endvisit",
+      },
+      {
+        label: (
+          <span
+            onClick={() => {
+              console.log("clicked.data", appointment);
+              setAppointmentSelectedFromMenu(appointment);
+              setShowEndVisitReasonModal(true);
+            }}
+          >
+            End Visit Reason
+          </span>
+        ),
+        key: "endvisitreason",
       },
     ];
 
-    console.log("Type: ", type);
-
-    if (type === TAB_CANCELLED) {
+    if (type === TAB_QUEUE) {
+      return items.filter((item) => item.key !== "endvisitreason");
+    } else if (type === TAB_FINISHED) {
+      return items
+        .filter((item) => item.key !== "endvisit")
+        .filter((item) => item.key !== "cancelappt");
+    } else if (type === TAB_CANCELLED) {
       return items.splice(0, 1);
     } else {
       return items;
@@ -522,14 +546,52 @@ function AppointmentData({ clinicChanged, type }) {
     }
   };
 
+  const endVisit = () => {
+    // TODO: change this to end appointment API call
+    console.log("appointmentSelectedFromMenu: ", appointmentSelectedFromMenu);
+    dispatch(cancelAppointments(endVisitReason));
+  };
+
+  const END_VISIT_REASON_DISPLAY_MODAL = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={showEndVisitReasonModal}
+        modalWidth={610}
+        title={
+          <>
+            <div className="d-flex align-items-center">
+              <i className="icon-patients me-2" />
+              <span>
+                {appointmentSelectedFromMenu?.name} (
+                {appointmentSelectedFromMenu?.pm_gender},{" "}
+                {appointmentSelectedFromMenu?.ageYears}y)
+              </span>
+            </div>
+          </>
+        }
+        onCancel={() => {
+          setShowEndVisitReasonModal(false);
+        }}
+        modalBody={
+          <>
+            <div>End Visit Reason</div>
+            <div className="border bg-body rounded-10px p-2 patient-details">
+              This is my reason of the life
+            </div>
+          </>
+        }
+      />
+    );
+  }, [showEndVisitReasonModal]);
+
   const CONFIRMATION_MODAL = useMemo(() => {
     return (
       <CommonModal
-        isModalOpen={appointmentSelectedFromMenu != null}
+        isModalOpen={isConfirmationModalOpen}
         modalWidth={610}
         title={"Are you sure you want to cancel this appointment?"}
         onCancel={() => {
-          setAppointmentSelectedFromMenu(null);
+          setConfirmationModalOpen(false);
         }}
         modalBody={
           <>
@@ -560,7 +622,7 @@ function AppointmentData({ clinicChanged, type }) {
                   className="btn btn-primary2 align-items-center text-primary btn-41 w-50"
                   icon={<i className="icon-Preview" />}
                   onClick={() => {
-                    setAppointmentSelectedFromMenu(null);
+                    setConfirmationModalOpen(false);
                   }}
                 >
                   No, Keep Appointment{" "}
@@ -589,7 +651,7 @@ function AppointmentData({ clinicChanged, type }) {
         }
       />
     );
-  }, [appointmentSelectedFromMenu]);
+  }, [isConfirmationModalOpen]);
 
   const emptyText = (
     <div
@@ -729,19 +791,25 @@ function AppointmentData({ clinicChanged, type }) {
           <h1>Grid View</h1>
         )}
         {CONFIRMATION_MODAL}
+        {END_VISIT_REASON_DISPLAY_MODAL}
       </div>
       <Drawer
         title="End Visit"
         placement="left"
-        closable={false}
+        closable
         onClose={() => {
           console.log("Close has been called");
           setReasonDraweOpen(false);
+          setEndVisitReason(null);
         }}
         extra={
           <Space>
-            <Button type="primary">
-              Submit
+            <Button
+              onClick={endVisit}
+              type="primary"
+              disabled={!endVisitReason}
+            >
+              Save
             </Button>
           </Space>
         }
@@ -749,18 +817,20 @@ function AppointmentData({ clinicChanged, type }) {
         key="left"
       >
         <TextArea
-      showCount
-      maxLength={100}
-      onChange={(e) => {
-        const text = e.target.value;
-        console.log('value: ', text);
-      }}
-      placeholder="disable resize"
-      style={{
-        height: 120,
-        resize: 'none',
-      }}
-    />
+          showCount
+          maxLength={100}
+          value={endVisitReason}
+          onChange={(e) => {
+            const text = e.target.value;
+            console.log("value: ", text);
+            setEndVisitReason(text);
+          }}
+          placeholder="disable resize"
+          style={{
+            height: 120,
+            resize: "none",
+          }}
+        />
       </Drawer>
     </>
   );

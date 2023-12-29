@@ -31,7 +31,6 @@ function Header({onClickChanged}) {
     dispatch(getProfile());
 
     const clinic = getSavedClinic();
-    console.log('clinic1: ', clinic);
     if(clinic) {
       setSelectedHospital(clinic);
     }
