@@ -40,7 +40,6 @@ function ProfilePopover(props) {
                         Visit Summary
                     </Button>
                 }
-
             </div>
         </>
     )
