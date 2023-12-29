@@ -386,7 +386,13 @@ function AppointmentData({ clinicChanged, type }) {
       },
     ];
 
-    return items;
+    console.log('Type: ', type);
+
+    if(type === TAB_CANCELLED) {
+      return items.splice(0, 1);
+    } else {
+      return items;
+    }
   };
 
   const loadMoreData = () => {
