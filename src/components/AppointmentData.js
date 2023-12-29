@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
+import { notification } from "antd";
 import { Link } from "react-router-dom";
 import {
   Table,
@@ -58,10 +59,10 @@ function AppointmentData({ clinicChanged, type }) {
   const [pageNoQueue, setPageNoQueue] = useState(0);
   const [pageNoFinished, setPageNoFinished] = useState(0);
   const [pageNoCancelled, setPageNoCancelled] = useState(0);
-  const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] = useState(null);
-  const { records, loading, error, counts, caseTypes, cancelledAppointment } = useSelector(
-    (state) => state.records
-  );
+  const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
+    useState(null);
+  const { records, loading, error, counts, caseTypes, cancelledAppointment } =
+    useSelector((state) => state.records);
   const dispatch = useDispatch();
   console.log("records: ", records);
 
@@ -86,10 +87,16 @@ function AppointmentData({ clinicChanged, type }) {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log('useEffect.cancelledAppointment: ', cancelledAppointment);
-    if(cancelledAppointment && cancelledAppointment.pam_id) {
+    console.log("useEffect.cancelledAppointment: ", cancelledAppointment);
+    if (cancelledAppointment && cancelledAppointment.pam_id) {
       setAppointmentSelectedFromMenu(null);
-      // TODO: Show notificatoin here
+
+      // show notification
+      const notificationParam = {
+        message: "Appointment Cancelled Successfully",
+        description: "View cancelled appointments in Cancelled tab.",
+      };
+      notification.success({ key: "notification_key", ...notificationParam });
     }
   }, [cancelledAppointment]);
 
@@ -517,7 +524,8 @@ function AppointmentData({ clinicChanged, type }) {
                   {appointmentSelectedFromMenu?.pm_salutation
                     ? appointmentSelectedFromMenu?.pm_salutation
                     : "Mr./Mrs./Miss."}{" "}
-                  {appointmentSelectedFromMenu?.name} ({appointmentSelectedFromMenu?.pm_gender},{" "}
+                  {appointmentSelectedFromMenu?.name} (
+                  {appointmentSelectedFromMenu?.pm_gender},{" "}
                   {appointmentSelectedFromMenu?.ageYears}y)
                 </span>
               </div>
@@ -546,8 +554,15 @@ function AppointmentData({ clinicChanged, type }) {
                   className="btn btn-primary3 align-items-center btn-41 w-50"
                   icon={<i className="icon-Consult" />}
                   onClick={() => {
-                    console.log('clicked: ', appointmentSelectedFromMenu.pam_id);
-                    dispatch(cancelAppointments({ appointment: appointmentSelectedFromMenu }));
+                    console.log(
+                      "clicked: ",
+                      appointmentSelectedFromMenu.pam_id
+                    );
+                    dispatch(
+                      cancelAppointments({
+                        appointment: appointmentSelectedFromMenu,
+                      })
+                    );
                   }}
                 >
                   Yes, Cancel Appointment{" "}
