@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
-import { notification } from "antd";
+import { Drawer, Space, notification } from "antd";
 import { Link } from "react-router-dom";
 import {
   Table,
@@ -39,6 +39,8 @@ export const STRING_QUEUE_TYPE_QUEUE = "queue";
 export const STRING_QUEUE_TYPE_FINISHED = "finished";
 export const STRING_QUEUE_TYPE_CANCELLED = "cancelled";
 
+const { TextArea } = Input;
+
 function AppointmentData({ clinicChanged, type }) {
   console.log("type: ", type);
   const yesterday = new Date();
@@ -59,6 +61,7 @@ function AppointmentData({ clinicChanged, type }) {
   const [pageNoQueue, setPageNoQueue] = useState(0);
   const [pageNoFinished, setPageNoFinished] = useState(0);
   const [pageNoCancelled, setPageNoCancelled] = useState(0);
+  const [reasonDraweOpen, setReasonDraweOpen] = useState(false);
   const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
     useState(null);
   const { records, loading, error, counts, caseTypes, cancelledAppointment } =
@@ -327,7 +330,7 @@ function AppointmentData({ clinicChanged, type }) {
           {/* <button className='btn btn-outline-primary btn-consult' onClick={() => navigate("/patient_details")}>Consult</button> */}
           <Link to="/patient_details">
             <button className="btn btn-outline-primary btn-consult">
-              Consult
+              {type === TAB_FINISHED ? "PrintRx" : "Consult"}
             </button>
           </Link>
           <Dropdown
@@ -364,7 +367,7 @@ function AppointmentData({ clinicChanged, type }) {
   const getMenuItems = (record) => {
     const items = [
       {
-        label: "Patient Details",
+        label: <Link to="/patient_details">Patient Details</Link>,
         key: "patientdetails",
       },
       {
@@ -381,14 +384,21 @@ function AppointmentData({ clinicChanged, type }) {
         key: "cancelappt",
       },
       {
-        label: "End Visit",
+        label: (<span
+          onClick={() => {
+            console.log("clicked.data", record);
+            setReasonDraweOpen(true);
+          }}
+        >
+          End Visit
+        </span>),
         key: "endvisit",
       },
     ];
 
-    console.log('Type: ', type);
+    console.log("Type: ", type);
 
-    if(type === TAB_CANCELLED) {
+    if (type === TAB_CANCELLED) {
       return items.splice(0, 1);
     } else {
       return items;
@@ -598,127 +608,161 @@ function AppointmentData({ clinicChanged, type }) {
   );
 
   return (
-    <div className="p-4 appointment-data">
-      <Row className="justify-content-between align-items-center mb-3">
-        <Col xl={4} lg={4}>
-          <Form>
-            <Form.Group controlId="exampleForm.ControlInput1">
-              {/* <Form.Control
+    <>
+      <div className="p-4 appointment-data">
+        <Row className="justify-content-between align-items-center mb-3">
+          <Col xl={4} lg={4}>
+            <Form>
+              <Form.Group controlId="exampleForm.ControlInput1">
+                {/* <Form.Control
                 type="text"
                 placeholder="Search by patient name"
                 onChange={onSearch}
                 prefix={<i className="icon-search" />}
               /> */}
-              <AutoComplete
-                value={value}
-                onSearch={onSearch}
-                defaultActiveFirstOption={true}
-                className="w-100 inputheight38"
-              >
-                <Input
-                  placeholder="Search by patient name"
-                  className="inputheight38"
-                  prefix={<i className="icon-search" />}
-                  suffix={
-                    searchQuery?.length > 0 && (
-                      <i
-                        className="icon-Cross"
-                        onClick={() => {
-                          onSearch(null);
-                          setValue("");
-                        }}
-                      />
-                    )
-                  }
-                />
-              </AutoComplete>
-            </Form.Group>
-          </Form>
-        </Col>
-        <Col md="auto">
-          <div className="d-flex align-items-center">
-            <ButtonGroup aria-label="Basic example">
-              <Button
-                variant="outline-light"
-                className="dateoutline"
-                disabled={date.startDate !== date.endDate}
-                onClick={() => {
-                  stepDate(false);
-                }}
-              >
-                <i className="icon-right d-block text-main"></i>
-              </Button>
-              <Button variant="outline-light" className="p-0">
-                <DatePicker
-                  // allowClear={false}
-                  inputReadOnly
-                  onChange={dateChange}
-                  value={
-                    date.startDate === date.endDate
-                      ? dayjs(getFormattedDate(date.startDate), "YYYY-MM-DD")
-                      : ""
-                  }
-                  defaultValue={getDefaultDate}
-                  format="YYYY-MM-DD"
-                  disabled={date.startDate !== date.endDate}
-                />
-              </Button>
-              <Button
-                variant="outline-light"
-                className="dateoutline"
-                disabled={date.startDate !== date.endDate}
-                onClick={() => {
-                  stepDate(true);
-                }}
-              >
-                <i className="icon-right text-main d-block iconrotate90"></i>
-              </Button>
-            </ButtonGroup>
-            <Select
-              placeholder="Today"
-              className="ms-3 appointmentselect"
-              options={calanderList}
-              onChange={onDateChanged}
-            />
-            <Segmented
-              className="ms-3 appointment-segment"
-              defaultValue={1}
-              options={segmentedList}
-              onChange={segmentedChange}
-            />
-          </div>
-        </Col>
-      </Row>
-      {segmented == 1 ? (
-        <div>
-          <>
-            <Table
-              columns={columns}
-              dataSource={data}
-              onChange={handleChange}
-              pagination={false}
-              loading={loading}
-              locale={{ emptyText: emptyText }}
-            />
-            {data?.length > 0 &&
-              !searchQuery &&
-              getTotalCount() > PAGE_SIZE &&
-              getRemainingRecordsCount() > 0 && (
-                <button
-                  className="btn btn-light w-100 mt-3 load-more"
-                  onClick={loadMoreData}
+                <AutoComplete
+                  value={value}
+                  onSearch={onSearch}
+                  defaultActiveFirstOption={true}
+                  className="w-100 inputheight38"
                 >
-                  Show More ({getRemainingRecordsCount()})
-                </button>
-              )}
-          </>
-          {/* )} */}
-        </div>
-      ) : (
-        <h1>Grid View</h1>
-      )}
-      {CONFIRMATION_MODAL}
-    </div>
+                  <Input
+                    placeholder="Search by patient name"
+                    className="inputheight38"
+                    prefix={<i className="icon-search" />}
+                    suffix={
+                      searchQuery?.length > 0 && (
+                        <i
+                          className="icon-Cross"
+                          onClick={() => {
+                            onSearch(null);
+                            setValue("");
+                          }}
+                        />
+                      )
+                    }
+                  />
+                </AutoComplete>
+              </Form.Group>
+            </Form>
+          </Col>
+          <Col md="auto">
+            <div className="d-flex align-items-center">
+              <ButtonGroup aria-label="Basic example">
+                <Button
+                  variant="outline-light"
+                  className="dateoutline"
+                  disabled={date.startDate !== date.endDate}
+                  onClick={() => {
+                    stepDate(false);
+                  }}
+                >
+                  <i className="icon-right d-block text-main"></i>
+                </Button>
+                <Button variant="outline-light" className="p-0">
+                  <DatePicker
+                    // allowClear={false}
+                    inputReadOnly
+                    onChange={dateChange}
+                    value={
+                      date.startDate === date.endDate
+                        ? dayjs(getFormattedDate(date.startDate), "YYYY-MM-DD")
+                        : ""
+                    }
+                    defaultValue={getDefaultDate}
+                    format="YYYY-MM-DD"
+                    disabled={date.startDate !== date.endDate}
+                  />
+                </Button>
+                <Button
+                  variant="outline-light"
+                  className="dateoutline"
+                  disabled={date.startDate !== date.endDate}
+                  onClick={() => {
+                    stepDate(true);
+                  }}
+                >
+                  <i className="icon-right text-main d-block iconrotate90"></i>
+                </Button>
+              </ButtonGroup>
+              <Select
+                placeholder="Today"
+                className="ms-3 appointmentselect"
+                options={calanderList}
+                onChange={onDateChanged}
+              />
+              <Segmented
+                className="ms-3 appointment-segment"
+                defaultValue={1}
+                options={segmentedList}
+                onChange={segmentedChange}
+              />
+            </div>
+          </Col>
+        </Row>
+        {segmented == 1 ? (
+          <div>
+            <>
+              <Table
+                columns={columns}
+                dataSource={data}
+                onChange={handleChange}
+                pagination={false}
+                loading={loading}
+                locale={{ emptyText: emptyText }}
+              />
+              {data?.length > 0 &&
+                !searchQuery &&
+                getTotalCount() > PAGE_SIZE &&
+                getRemainingRecordsCount() > 0 && (
+                  <button
+                    className="btn btn-light w-100 mt-3 load-more"
+                    onClick={loadMoreData}
+                  >
+                    Show More ({getRemainingRecordsCount()})
+                  </button>
+                )}
+            </>
+            {/* )} */}
+          </div>
+        ) : (
+          <h1>Grid View</h1>
+        )}
+        {CONFIRMATION_MODAL}
+      </div>
+      <Drawer
+        title="End Visit"
+        placement="left"
+        closable={false}
+        onClose={() => {
+          console.log("Close has been called");
+          setReasonDraweOpen(false);
+        }}
+        extra={
+          <Space>
+            <Button type="primary">
+              Submit
+            </Button>
+          </Space>
+        }
+        open={reasonDraweOpen}
+        key="left"
+      >
+        <TextArea
+      showCount
+      maxLength={100}
+      onChange={(e) => {
+        const text = e.target.value;
+        console.log('value: ', text);
+      }}
+      placeholder="disable resize"
+      style={{
+        height: 120,
+        resize: 'none',
+      }}
+    />
+      </Drawer>
+    </>
   );
 }
 
