@@ -149,9 +149,6 @@ function WalkInConsultation() {
                             <div className="d-flex align-items-center">
                                 <i className="icon-patients me-2" />
                                 <span className="fw-medium">
-                                    {clickedPatient?.pm_salutation
-                                        ? clickedPatient?.pm_salutation
-                                        : "Mr./Mrs./Miss."}{" "}
                                     {clickedPatient?.pm_first_name} {clickedPatient?.pm_last_name}{" "}
                                     ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y)
                                 </span>
