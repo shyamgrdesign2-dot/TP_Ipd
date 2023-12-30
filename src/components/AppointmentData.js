@@ -45,6 +45,8 @@ const { TextArea } = Input;
 function AppointmentData({ clinicChanged, type, setSelectedTab }) {
   console.log("type: ", type);
   const yesterday = new Date();
+  const visitTypeFiltersSet = new Set();
+  let didSetPosition = false;
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterDate = getFormattedDate(yesterday);
   const todaysDate = getFormattedDate(new Date());
@@ -64,6 +66,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
   const [pageNoCancelled, setPageNoCancelled] = useState(0);
   const [reasonDrawerOpen, setReasonDrawerOpen] = useState(false);
   const [endVisitReason, setEndVisitReason] = useState(null);
+  const [visitTypeFilters, setVisitTypeFilters] = useState(null);
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [showEndVisitReasonModal, setShowEndVisitReasonModal] = useState(false);
   const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
@@ -175,6 +178,10 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
     dispatch,
     type,
   ]);
+
+  useEffect(() => {
+    console.log('visitTypeFilters: ', visitTypeFilters);
+  }, [visitTypeFilters]);
 
   const calanderList = [
     { value: todaysDate, label: "Today" },
@@ -299,8 +306,19 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
       title: "Visit Type",
       dataIndex: "toct_type",
       key: "toct_type",
-      filteredValue: filteredInfo.toct_type || null,
+      // filteredValue: filteredInfo.toct_type || null,
       onFilter: (value, record) => {
+        console.log('value: ', value);
+        visitTypeFiltersSet.add(value);
+
+        if(!didSetPosition) {
+          setTimeout(() => {
+            didSetPosition = false;
+            setVisitTypeFilters(visitTypeFiltersSet);
+          }, 200);
+          didSetPosition = true;
+        }
+
         return record.toct_type === value;
       },
       filters: getVisitTypeFilters(),
