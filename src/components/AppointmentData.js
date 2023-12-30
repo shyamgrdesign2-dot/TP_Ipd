@@ -69,8 +69,15 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
   const [showEndVisitReasonModal, setShowEndVisitReasonModal] = useState(false);
   const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
     useState(null);
-  const { records, loading, error, counts, caseTypes, cancelledAppointment, endedAppointment } =
-    useSelector((state) => state.records);
+  const {
+    records,
+    loading,
+    error,
+    counts,
+    caseTypes,
+    cancelledAppointment,
+    endedAppointment,
+  } = useSelector((state) => state.records);
   const dispatch = useDispatch();
   // console.log("records: ", records);
 
@@ -95,18 +102,23 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
   }, [dispatch]);
 
   useEffect(() => {
-    if (cancelledAppointment && cancelledAppointment.pam_id) {
+    if (
+      cancelledAppointment &&
+      appointmentSelectedFromMenu &&
+      cancelledAppointment.pam_id
+    ) {
       setConfirmationModalOpen(false);
 
       // show notification
       const notificationParam = {
         message: "Appointment Cancelled Successfully",
         description: "View cancelled appointments in Cancelled tab.",
+        duration: 3,
       };
-      notification.success({ key: "notification_key", ...notificationParam });
+      notification.success({ key: "cancelled-notif", ...notificationParam });
       setSelectedTab(TAB_CANCELLED);
-    } else if(endedAppointment) {
-      console.log('endedAppointment: ', endedAppointment);
+    } else if (endedAppointment && appointmentSelectedFromMenu) {
+      console.log("endedAppointment: ", endedAppointment);
       setEndVisitReason(null);
       setReasonDrawerOpen(false);
 
@@ -114,8 +126,9 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
       const notificationParam = {
         message: "Anish's visit end successfully",
         description: "View end visits in Finished tab.",
+        duration: 3,
       };
-      notification.success({ key: "notification_key", ...notificationParam });
+      notification.success({ key: "ended-visit-notif", ...notificationParam });
       setSelectedTab(TAB_FINISHED);
     }
   }, [cancelledAppointment, endedAppointment]);
@@ -135,7 +148,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
           apStatue: type,
           pageNo: 0,
           queueType: getQueueTypeString(),
-          filterVisitType: ""
+          filterVisitType: "",
         })
       );
     }
@@ -165,7 +178,9 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
           apStatue: type,
           pageNo: getQueuePageNo(),
           queueType: getQueueTypeString(),
-          filterVisitType: visitTypeFilters ? Array.from(visitTypeFilters).join(', ') : ""
+          filterVisitType: visitTypeFilters
+            ? Array.from(visitTypeFilters).join(", ")
+            : "",
         })
       );
     }
@@ -177,11 +192,11 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
     searchQuery,
     dispatch,
     type,
-    visitTypeFilters
+    visitTypeFilters,
   ]);
 
   useEffect(() => {
-    console.log('visitTypeFilters: ', visitTypeFilters);
+    console.log("visitTypeFilters: ", visitTypeFilters);
   }, [visitTypeFilters]);
 
   const calanderList = [
@@ -351,11 +366,13 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
       key: "action",
       render: (_, record) => (
         <div size="middle">
-          {type !== TAB_CANCELLED && <Link to="/patient_details">
-            <button className="btn btn-outline-primary btn-consult">
-              {type === TAB_FINISHED ? "PrintRx" : "Consult"}
-            </button>
-          </Link>}
+          {type !== TAB_CANCELLED && (
+            <Link to="/patient_details">
+              <button className="btn btn-outline-primary btn-consult">
+                {type === TAB_FINISHED ? "PrintRx" : "Consult"}
+              </button>
+            </Link>
+          )}
           <Dropdown
             className="btn btn-outline btn-more ms-3"
             menu={{
@@ -570,7 +587,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
   const onEndVisitClick = () => {
     // TODO: change this to end appointment API call
     console.log("appointmentSelectedFromMenu: ", appointmentSelectedFromMenu);
-    dispatch(endVisit({appointment: appointmentSelectedFromMenu}));
+    dispatch(endVisit({ appointment: appointmentSelectedFromMenu }));
   };
 
   const END_VISIT_REASON_DISPLAY_MODAL = useMemo(() => {

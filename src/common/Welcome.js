@@ -11,7 +11,6 @@ function Welcome(props) {
   );
 
   const profile = getStoredProfile();
-  console.log("ProfileXX: ", profile);
 
   const { locationPath, backVisible } = props;
 
