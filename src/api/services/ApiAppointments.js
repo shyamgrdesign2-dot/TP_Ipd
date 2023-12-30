@@ -8,6 +8,7 @@ const baseUrl = { customBaseUrl: config.appointment_api_url };
 const ApiAppointments = {};
 
 ApiAppointments.getAll = function (params) {
+  console.log('Params: ', params);
   if (IS_DEV) {
     return {
       status: true,

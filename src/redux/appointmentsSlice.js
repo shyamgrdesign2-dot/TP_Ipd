@@ -25,7 +25,7 @@ export const getAllRecords = createAsyncThunk(
         startDate: startDate,
         endDate: endDate,
         apStatue: apStatue,
-        filterVisitType: "",
+        filterVisitType,
         page: pageNo,
       };
 
@@ -137,7 +137,6 @@ export const getCaseTypes = createAsyncThunk(
   async () => {
     try {
       const result = await ApiAppointments.getCaseTypes();
-      console.log("getCaseTypes.result", result);
       if (result.status) {
         return result.data.case_type;
       } else {
@@ -214,7 +213,6 @@ const appointmentsSlice = createSlice({
         state.error = null;
         const queueType = action.meta.arg.queueType;
         const pageNo = action.meta.arg.pageNo;
-        console.log("getAllRecords.fulfilled: ", action.payload.app_data);
         state.records = {
           ...state.records,
           [queueType]: {
