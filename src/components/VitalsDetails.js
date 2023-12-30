@@ -43,10 +43,10 @@ function VitalsDetails() {
                     <div className='vitals-row d-flex align-items-center border-bottom'>
                         SPO2
                     </div>
-                    <div className='vitals-row vitals-row-50 d-flex align-items-center'>
+                    <div className='vitals-row vitals-row-60 d-flex align-items-center'>
                         Height
                     </div>
-                    <div className='vitals-row vitals-row-50 d-flex align-items-center'>
+                    <div className='vitals-row vitals-row-60 d-flex align-items-center'>
                         Weight
                     </div>
                     <div className='vitals-row vitals-row-40 d-flex align-items-center'>
@@ -83,10 +83,10 @@ function VitalsDetails() {
                                     <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                                         <Input className='inputheight41-group' addonAfter={'mmhg'} />
                                     </div>
-                                    <div className='vitals-row vitals-row-50 d-flex align-items-center px-2 w-100'>
+                                    <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
                                         <Input className='inputheight41-group' addonAfter={'mmhg'} />
                                     </div>
-                                    <div className='vitals-row vitals-row-50 d-flex align-items-center px-2 w-100'>
+                                    <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
                                         <Input className='inputheight41-group' addonAfter={'mmhg'} />
                                     </div>
                                     <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
