@@ -15,8 +15,13 @@ function Welcome(props) {
   const { locationPath, backVisible } = props;
 
   const getFirstNameWithFallback = () => {
-    const fullName = profile.um_name;
-    if (fullName.includes(" ")) {
+    const fullName = profile?.um_name;
+
+    if(!fullName) {
+      return "";
+    }
+
+    if (fullName?.includes(" ")) {
       const firstName = fullName.split(" ")[0];
       return firstName;
     } else {
