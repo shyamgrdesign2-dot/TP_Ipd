@@ -291,4 +291,9 @@ body {
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
+    .endreason-textarea {
+        textarea {
+            border-radius: 10px;
+        }
+    }
 }

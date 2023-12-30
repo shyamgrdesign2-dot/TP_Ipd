@@ -98,7 +98,8 @@ body {
             border: 1px solid $bordercolor !important;
             height: 33px;
             background-color: $white;
-
+            font-weight: 500;
+            
             i {
                 font-size: 19px;
             }
@@ -124,7 +125,7 @@ body {
             &:hover {
                 background-color: $theme !important;
                 border-color: $theme !important;
-
+                color: $white !important;
                 span {
                     color: $white !important;
                 }
@@ -139,7 +140,7 @@ body {
             border-radius: 10px;
             background-color: $theme;
             height: 33px;
-
+            font-weight: 500;
             i {
                 font-size: 19px;
             }
