@@ -49,21 +49,32 @@ function Appointment({ clinicChanged }) {
     [selectedTab]
   );
 
-/*   useEffect(() => {
-    setTimeout(() => {
-      onChange(TAB_CANCELLED);
-    }, 1400);
-  }, []); */
-
   return (
     <div className="border rounded-4 appointment-wrap dateborder">
-      <Tabs defaultActiveKey={TAB_QUEUE} items={items} onChange={onChange} activeKey={selectedTab} />
+      <Tabs
+        defaultActiveKey={TAB_QUEUE}
+        items={items}
+        onChange={onChange}
+        activeKey={selectedTab}
+      />
       {selectedTab === TAB_QUEUE ? (
-        <AppointmentData type={TAB_QUEUE} clinicChanged={clinicChanged} setSelectedTab={setSelectedTab} />
+        <AppointmentData
+          type={TAB_QUEUE}
+          clinicChanged={clinicChanged}
+          setSelectedTab={setSelectedTab}
+        />
       ) : selectedTab === TAB_FINISHED ? (
-        <AppointmentData type={TAB_FINISHED} clinicChanged={clinicChanged} setSelectedTab={setSelectedTab} />
+        <AppointmentData
+          type={TAB_FINISHED}
+          clinicChanged={clinicChanged}
+          setSelectedTab={setSelectedTab}
+        />
       ) : (
-        <AppointmentData type={TAB_CANCELLED} clinicChanged={clinicChanged} setSelectedTab={setSelectedTab} />
+        <AppointmentData
+          type={TAB_CANCELLED}
+          clinicChanged={clinicChanged}
+          setSelectedTab={setSelectedTab}
+        />
       )}
     </div>
   );
