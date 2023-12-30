@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Tabs } from "antd";
 import { useSelector } from "react-redux";
 
@@ -49,9 +49,15 @@ function Appointment({ clinicChanged }) {
     [tabChange]
   );
 
+  useEffect(() => {
+    setTimeout(() => {
+      onChange("3");
+    }, 1400);
+  }, []);
+
   return (
     <div className="border rounded-4 appointment-wrap dateborder">
-      <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+      <Tabs defaultActiveKey="1" items={items} onChange={onChange} activeKey={tabChange} />
       {tabChange == 1 ? (
         <AppointmentData type={TAB_QUEUE} clinicChanged={clinicChanged} />
       ) : tabChange == 2 ? (
