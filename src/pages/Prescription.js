@@ -39,7 +39,7 @@ function Prescription() {
                     <img src={vitals} alt="vitals" className="me-3" />
                     <div className="title-common">Vitals & Calculator</div>
                   </div>
-                  <Link to="/">
+                  <Link>
                     <button className="btn d-flex align-items-center btn-text">
                       {" "}
                       <i className="icon-Add me-1 fs-5"></i> <span>Add</span>

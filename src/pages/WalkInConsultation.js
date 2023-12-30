@@ -24,7 +24,7 @@ function WalkInConsultation() {
                     <div className="d-flex align-items-center">
                         <div className="list-patientName d-flex align-items-center me-4">
                             <i className="icon-patients backbar me-2"></i>{" "}
-                            <span>
+                            <span className="fw-medium">
                                 {patient.pm_salutation && patient.pm_salutation}{" "}
                                 {patient.pm_first_name} {patient.pm_last_name} (
                                 {patient.pm_gender}, {patient.ageYears}y)
@@ -148,10 +148,7 @@ function WalkInConsultation() {
                         <div className="border bg-body rounded-10px p-2 patient-details">
                             <div className="d-flex align-items-center">
                                 <i className="icon-patients me-2" />
-                                <span>
-                                    {clickedPatient?.pm_salutation
-                                        ? clickedPatient?.pm_salutation
-                                        : "Mr./Mrs./Miss."}{" "}
+                                <span className="fw-medium">
                                     {clickedPatient?.pm_first_name} {clickedPatient?.pm_last_name}{" "}
                                     ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y)
                                 </span>

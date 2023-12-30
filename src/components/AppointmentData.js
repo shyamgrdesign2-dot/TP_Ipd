@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
-import { Drawer, Space, notification } from "antd";
 import { Link } from "react-router-dom";
 import {
   Table,
+  Space,
+  Drawer,
   Select,
+  notification,
   Segmented,
   DatePicker,
   Dropdown,
@@ -85,16 +87,16 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
     return type === TAB_QUEUE
       ? STRING_QUEUE_TYPE_QUEUE
       : type === TAB_FINISHED
-      ? STRING_QUEUE_TYPE_FINISHED
-      : STRING_QUEUE_TYPE_CANCELLED;
+        ? STRING_QUEUE_TYPE_FINISHED
+        : STRING_QUEUE_TYPE_CANCELLED;
   };
 
   const getQueuePageNo = () => {
     return type === TAB_QUEUE
       ? pageNoQueue
       : type === TAB_FINISHED
-      ? pageNoFinished
-      : pageNoCancelled;
+        ? pageNoFinished
+        : pageNoCancelled;
   };
 
   useEffect(() => {
@@ -228,8 +230,8 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
       type === TAB_QUEUE
         ? Object.values(records?.queue)
         : type === TAB_FINISHED
-        ? Object.values(records?.finished)
-        : Object.values(records?.cancelled);
+          ? Object.values(records?.finished)
+          : Object.values(records?.cancelled);
     let source = [].concat(...arrayOfPagedQueue);
 
     // console.log("source:", source);
@@ -542,8 +544,8 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
         type === TAB_QUEUE
           ? setPageNoQueue(0)
           : type === TAB_FINISHED
-          ? setPageNoFinished(0)
-          : setPageNoCancelled(0);
+            ? setPageNoFinished(0)
+            : setPageNoCancelled(0);
       }
     },
     [searchQuery]
@@ -560,15 +562,15 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
       type === TAB_QUEUE
         ? pageNoQueue
         : type === TAB_FINISHED
-        ? pageNoFinished
-        : pageNoCancelled;
+          ? pageNoFinished
+          : pageNoCancelled;
 
     const count =
       type === TAB_QUEUE
         ? counts.queueCount
         : type === TAB_FINISHED
-        ? counts.finishedCount
-        : counts.cancelledCount;
+          ? counts.finishedCount
+          : counts.cancelledCount;
 
     const pagesReminaing = count - PAGE_SIZE * (pageNo + 1);
     return pagesReminaing;
@@ -636,7 +638,8 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
             <div className="border bg-body rounded-10px p-2 patient-details">
               <div className="d-flex align-items-center">
                 <i className="icon-patients me-2" />
-                <span>
+                
+                <span className="fw-medium">
                   {appointmentSelectedFromMenu?.name} (
                   {appointmentSelectedFromMenu?.pm_gender},{" "}
                   {appointmentSelectedFromMenu?.ageYears}y)
@@ -654,8 +657,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
               <div className="d-flex align-items-center mt-2">
                 <Button
                   type="text"
-                  className="btn btn-primary2 align-items-center text-primary btn-41 w-50"
-                  icon={<i className="icon-Preview" />}
+                  className="btn btn-primary2 align-items-center text-primary btn-41 me-4 w-50"
                   onClick={() => {
                     setConfirmationModalOpen(false);
                   }}
@@ -665,7 +667,6 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
                 <Button
                   type="text"
                   className="btn btn-primary3 align-items-center btn-41 w-50"
-                  icon={<i className="icon-Consult" />}
                   onClick={() => {
                     console.log(
                       "clicked: ",
@@ -698,8 +699,8 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
         {type === TAB_QUEUE
           ? "There are no patients in your queue right now!"
           : type === TAB_FINISHED
-          ? "You haven't finished any consultations or ended the visit yet."
-          : "Nothing here! You haven’t cancelled any appointments here."}
+            ? "You haven't finished any consultations or ended the visit yet."
+            : "Nothing here! You haven’t cancelled any appointments here."}
       </div>
     </div>
   );
@@ -756,7 +757,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
                 >
                   <i className="icon-right d-block text-main"></i>
                 </Button>
-                <Button variant="outline-light" className="p-0">
+                <Button variant="outline-light" className="p-0 antround-0">
                   <DatePicker
                     // allowClear={false}
                     inputReadOnly
@@ -829,8 +830,9 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
         {END_VISIT_REASON_DISPLAY_MODAL}
       </div>
       <Drawer
+      className="modalWidth-645" width="auto"
         title="End Visit"
-        placement="left"
+        placement="right"
         closable
         onClose={() => {
           console.log("Close has been called");
@@ -842,6 +844,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
             <Button
               onClick={onEndVisitClick}
               type="primary"
+              className="btn-41 px-4"
               disabled={!endVisitReason}
             >
               Save
@@ -851,21 +854,25 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
         open={reasonDrawerOpen}
         key="left"
       >
-        <TextArea
-          showCount
-          maxLength={100}
-          value={endVisitReason}
-          onChange={(e) => {
-            const text = e.target.value;
-            console.log("value: ", text);
-            setEndVisitReason(text);
-          }}
-          placeholder="disable resize"
-          style={{
-            height: 120,
-            resize: "none",
-          }}
-        />
+        <div className="p-4">
+          <div className="title-common mb-2">Reason</div>
+          <TextArea
+            showCount
+            className="endreason-textarea"
+            maxLength={100}
+            value={endVisitReason}
+            onChange={(e) => {
+              const text = e.target.value;
+              console.log("value: ", text);
+              setEndVisitReason(text);
+            }}
+            placeholder="Enter reason for end visit"
+            style={{
+              height: 200,
+              resize: "none",
+            }}
+          />
+        </div>
       </Drawer>
     </>
   );

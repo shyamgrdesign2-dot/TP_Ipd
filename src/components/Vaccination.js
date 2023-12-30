@@ -15,7 +15,7 @@ function Vaccination() {
                             <img src={VaccinationIcon} alt="vitals" className='me-3' />
                             Vaccination
                         </div>
-                        <a href="#">
+                        <a>
                             <img src={arrowright} alt="vitals" />
                         </a>
                     </div>
