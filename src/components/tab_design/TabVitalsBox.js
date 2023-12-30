@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useContext, useMemo } from "react";
-import { Button, message, Card, DatePicker,Input } from 'antd';
+import { Button, message, Card, DatePicker, Input, Tooltip } from 'antd';
 
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -18,28 +18,133 @@ function TabVitalsBox(props) {
 
     const [messageApi, contextHolder] = message.useMessage();
     const {
-        vitalsList,
+        vitalsTodayList,
         loading,
     } = useSelector((state) => state.vitals);
     const dispatch = useDispatch();
 
-    const { vitalsData, setVitalsData } = useContext(CashManagerContext);
+    const { state, vitalsData, setVitalsData } = useContext(CashManagerContext);
     // const [ vitalsData, setVitalsData] = useState([]);
 
-    useEffect(() => {
-        dispatch(getVitals({
-            "patient_unique_id": "5754059960",
-            "pam_id":"0"
-        }));
-    }, []);
+    // useEffect(() => {
+    //     var sendData = {
+    //         patient_unique_id: state != undefined ? state.patient_unique_id : 0,
+    //         pam_id: state != undefined && state.pam_id != undefined ? state.pam_id : 0,
+    //     }
+    //     dispatch(getVitals(sendData));
+    // }, []);
 
     useEffect(() => {
-        setVitalsData(vitalsList);
-    }, [vitalsList]);
+        const updatedData = vitalsTodayList.map((e, i) => {
+            return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
+        });
+        setVitalsData(updatedData);
+    }, [vitalsTodayList]);
 
-    const onChange = (date, dateString) => {
-        console.log(date, dateString);
-    };
+    const onChange = useCallback(
+        (date, dateString) => {
+            let cal = calculate('', '');
+            vitalsData.push({
+                date: dateString,
+                dev_unique_id: 0,
+                tcv_id: 0,
+                tcbc_id: 0,
+                temp: '',
+                pres: '',
+                resp_rate: '',
+                systolic: '',
+                diastolic: '',
+                spo2: '',
+                height: '',
+                weight: '',
+                bmi: cal.bmi,
+                bmr: cal.bmr,
+                bsa: cal.bsa,
+            });
+            setVitalsData((prev) => [...prev]);
+        },
+        [vitalsData]
+    );
+
+    const calculate = (H, W) => {
+        var height = 0, weight = 0, bmi = "", bmr = "", bsa = ""
+
+        if (H != '' && H != 0) {
+            height = parseFloat(H)
+        } else {
+            height = 0
+        }
+
+        if (W != '' && W != 0) {
+            weight = parseFloat(W)
+        } else {
+            weight = 0
+        }
+
+        const calBMI = (weight / height / height) * 10000
+        bmi = !isFinite(calBMI) ? '' : calBMI.toFixed(2);
+
+        var age = state != undefined && state.ageYears != undefined ? state.ageYears : 0
+        if (state != undefined && state.pm_gender == 'Male') {
+            const calBMR = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+            bmr = !isFinite(calBMR) ? '' : calBMR.toFixed(2);
+        } else {
+            const calBMR = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+            bmr = !isFinite(calBMR) ? '' : calBMR.toFixed(2);
+        }
+
+        const calBSA = Math.sqrt(height * weight / 3600);
+        bsa = !isFinite(calBSA) ? '' : calBSA.toFixed(2);
+
+        return { bmi: bmi, bmr: bmr, bsa: bsa }
+    }
+
+    const onChangeInput = useCallback(
+        (value, i, flag) => {
+            if (flag === 1) {
+                vitalsData[i].temp = value;
+            } else if (flag === 2) {
+                vitalsData[i].pres = value;
+            } else if (flag === 3) {
+                vitalsData[i].resp_rate = value;
+            } else if (flag === 4) {
+                vitalsData[i].systolic = value;
+            } else if (flag === 5) {
+                vitalsData[i].diastolic = value;
+            } else if (flag === 6) {
+                vitalsData[i].spo2 = value;
+            } else if (flag === 7) {
+                vitalsData[i].height = value;
+                let cal = calculate(value, vitalsData[i].weight);
+                vitalsData[i].bmi = cal.bmi;
+                vitalsData[i].bmr = cal.bmr;
+                vitalsData[i].bsa = cal.bsa;
+            } else if (flag === 8) {
+                vitalsData[i].weight = value;
+                let cal = calculate(vitalsData[i].height, value);
+                vitalsData[i].bmi = cal.bmi;
+                vitalsData[i].bmr = cal.bmr;
+                vitalsData[i].bsa = cal.bsa;
+            }
+            setVitalsData((prev) => [...prev]);
+        },
+        [vitalsData]
+    );
+
+    const onAddUpdateClicked = async () => {
+        var sendData = {
+            patient_unique_id: state != undefined ? state.patient_unique_id : 0,
+            pm_pid: state != undefined ? state.pm_pid : 0,
+            pm_id: state != undefined ? state.pm_id : 0,
+            pam_id: state != undefined && state.pam_id != undefined ? state.pam_id : 0,
+            data: vitalsData,
+        };
+        console.log(sendData)
+        const action = await dispatch(addUpdateVitals(sendData));
+        if (action.meta.requestStatus == "fulfilled") {
+            handleCollapsed(1)
+        }
+    }
 
     //Child Componet
     const TABLE_VITALS = useMemo(() => {
@@ -50,37 +155,37 @@ function TabVitalsBox(props) {
                     <div key={i} className='vitals-wrap-body w-100 vitals-child-width'>
                         <div className='vitals-head rounded-start-0 w-100'>{item.date}</div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' value={item.temp} addonAfter={'mmhg'} />
+                            <Input className='inputheight41-group' value={item.temp} addonAfter={'Frh'} onChange={(e) => onChangeInput(e.target.value, i, 1)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                            <Input className='inputheight41-group' value={item.pres} addonAfter={'/min'} onChange={(e) => onChangeInput(e.target.value, i, 2)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                            <Input className='inputheight41-group' value={item.resp_rate} addonAfter={'/min'} onChange={(e) => onChangeInput(e.target.value, i, 3)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                            <Input className='inputheight41-group' value={item.systolic} addonAfter={'mmhg'} onChange={(e) => onChangeInput(e.target.value, i, 4)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                            <Input className='inputheight41-group' value={item.diastolic} addonAfter={'mmhg'} onChange={(e) => onChangeInput(e.target.value, i, 5)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                            <Input className='inputheight41-group' value={item.spo2} addonAfter={'%'} onChange={(e) => onChangeInput(e.target.value, i, 6)} />
                         </div>
-                        <div className='vitals-row vitals-row-50 d-flex align-items-center px-2 w-100'>
-                            <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                        <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
+                            <Input className='inputheight41-group' value={item.height} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 7)} />
                         </div>
-                        <div className='vitals-row vitals-row-50 d-flex align-items-center px-2 w-100'>
-                            <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                        <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
+                            <Input className='inputheight41-group' value={item.weight} addonAfter={'kgs'} onChange={(e) => onChangeInput(e.target.value, i, 8)} />
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14 '>22.2 kg/m² </div>
+                            <div className='fs-14 '>{`${item.bmi != '' ? item.bmi : '--'} kg/m²`}</div>
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14'>1653.75 kcals </div>
+                            <div className='fs-14'>{`${item.bmr != '' ? item.bmr : '--'} kcals`}</div>
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14'>1.82 m² </div>
+                            <div className='fs-14'>{`${item.bsa != '' ? item.bsa : '--'} m²`}</div>
                         </div>
                     </div>
                 );
@@ -99,7 +204,7 @@ function TabVitalsBox(props) {
                         </Button>
                         <div className="modal-title">Vitals</div>
                     </div>
-                    <Button onClick={() => handleCollapsed(1)} className='btn btn-primary3 btn-41 px-4 me-20'>
+                    <Button onClick={onAddUpdateClicked} className='btn btn-primary3 btn-41 px-4 me-20'>
                         Done
                     </Button>
                 </div>
@@ -115,49 +220,60 @@ function TabVitalsBox(props) {
                         <span className="text-decoration-underline fw-medium"> Add or Configure </span>
                     </div>
                 </div>
-                <div className='px-20'>
-                    <div className='vitals-wrapper w-100'>
-                        <div className='vitals-wrap-body vitals-parent-width'>
-                            <div className='vitals-head'>Name</div>
-                            <div className='vitals-row d-flex align-items-center border-bottom'>
-                                Temperature
+                {vitalsData.length > 0 && (
+                    <div className='px-20'>
+                        <div className='vitals-wrapper w-100'>
+                            <div className='vitals-wrap-body vitals-parent-width'>
+                                <div className='vitals-head'>Name</div>
+                                <div className='vitals-row d-flex align-items-center border-bottom'>
+                                    Temperature
+                                </div>
+                                <div className='vitals-row d-flex align-items-center border-bottom'>
+                                    Pulse
+                                </div>
+                                <div className='vitals-row d-flex align-items-center border-bottom'>
+                                    Resp. Rate
+                                </div>
+                                <div className='vitals-row d-flex align-items-center border-bottom'>
+                                    Systolic
+                                </div>
+                                <div className='vitals-row d-flex align-items-center border-bottom'>
+                                    Diastolic
+                                </div>
+                                <div className='vitals-row d-flex align-items-center border-bottom'>
+                                    SPO2
+                                </div>
+                                <div className='vitals-row vitals-row-60 d-flex align-items-center'>
+                                    Height
+                                </div>
+                                <div className='vitals-row vitals-row-60 d-flex align-items-center'>
+                                    Weight
+                                </div>
+                                <div className='vitals-row vitals-row-40 d-flex align-items-center'>
+                                    BMI
+                                    <Tooltip placement="right" title="Body mass index will be auto-calculated by entering Height and Weight">
+                                        <i className='icon-info ms-1'></i>
+                                    </Tooltip>
+                                </div>
+                                <div className='vitals-row vitals-row-40 d-flex align-items-center'>
+                                    BMR
+                                    <Tooltip placement="right" title="Body mass index will be auto-calculated by entering Height and Weight">
+                                        <i className='icon-info ms-1'></i>
+                                    </Tooltip>
+                                </div>
+                                <div className='vitals-row vitals-row-40 d-flex align-items-center'>
+                                    BSA
+                                    <Tooltip placement="right" title="Body mass index will be auto-calculated by entering Height and Weight">
+                                        <i className='icon-info ms-1'></i>
+                                    </Tooltip>
+                                </div>
                             </div>
-                            <div className='vitals-row d-flex align-items-center border-bottom'>
-                                Pulse
+                            <div className='d-flex overflow-x-auto scrollvitals w-100'>
+                                {TABLE_VITALS}
                             </div>
-                            <div className='vitals-row d-flex align-items-center border-bottom'>
-                                Resp. Rate
-                            </div>
-                            <div className='vitals-row d-flex align-items-center border-bottom'>
-                                Systolic
-                            </div>
-                            <div className='vitals-row d-flex align-items-center border-bottom'>
-                                Diastolic
-                            </div>
-                            <div className='vitals-row d-flex align-items-center border-bottom'>
-                                SPO2
-                            </div>
-                            <div className='vitals-row vitals-row-50 d-flex align-items-center'>
-                                Height
-                            </div>
-                            <div className='vitals-row vitals-row-50 d-flex align-items-center'>
-                                Weight
-                            </div>
-                            <div className='vitals-row vitals-row-40 d-flex align-items-center'>
-                                BMI <i className='icon-info ms-1'></i>
-                            </div>
-                            <div className='vitals-row vitals-row-40 d-flex align-items-center'>
-                                BMR <i className='icon-info ms-1'></i>
-                            </div>
-                            <div className='vitals-row vitals-row-40 d-flex align-items-center'>
-                                BSA <i className='icon-info ms-1'></i>
-                            </div>
-                        </div>
-                        <div className='d-flex overflow-x-auto scrollvitals w-100'>
-                            {TABLE_VITALS}
                         </div>
                     </div>
-                </div>
+                )}
             </Card>
         </>
     );

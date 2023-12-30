@@ -3,7 +3,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import ApiVitals from "../api/services/ApiVitals";
 
 const initialState = {
-    vitalsList: [],
+    vitalsTodayList: [],
+    vitalsPastList: [],
     loading: false,
     error: null,
 };
@@ -44,7 +45,8 @@ const vitalsSlice = createSlice({
             })
             .addCase(addUpdateVitals.fulfilled, (state, action) => {
                 state.loading = false;
-                state.vitalsList = action.payload;
+                console.log(action.payload)
+                state.vitalsTodayList = action.payload;
             })
             .addCase(addUpdateVitals.rejected, (state) => {
                 state.loading = false;
@@ -54,7 +56,8 @@ const vitalsSlice = createSlice({
             })
             .addCase(getVitals.fulfilled, (state, action) => {
                 state.loading = false;
-                state.vitalsList = action.payload;
+                state.vitalsTodayList = action.payload.today_data;
+                state.vitalsPastList = action.payload.past_data;
             })
             .addCase(getVitals.rejected, (state) => {
                 state.loading = false;

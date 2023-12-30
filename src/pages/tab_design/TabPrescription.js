@@ -15,6 +15,7 @@ import TabAdviceBox from "../../components/tab_design/TabAdviceBox";
 import TabInvestigationBox from "../../components/tab_design/TabInvestigationBox";
 import TabMedicationBox from "../../components/tab_design/TabMedicationBox";
 import TabVitalsBox from "../../components/tab_design/TabVitalsBox";
+import TabVitalsList from "../../components/tab_design/TabVitalsList";
 
 import vitalsWhite from '../../assets/images/vitals-white.svg';
 import medicalHistoryWhite from '../../assets/images/medical-history-white.svg';
@@ -55,74 +56,6 @@ function TabPrescription() {
         setCollapsed(!collapsed)
         setVitalDrawer(!vitalDrawer);
     }, [collapsedFlag, collapsed, vitalDrawer]);
-
-    // Accordian for side menu
-    const accordionItems = [
-        {
-            key: '1',
-            label: <div className="title-common">Past Visit Data</div>,
-            children:
-                <>
-                    <div className="p-10 border-bottom pb-0">
-                        <div className="title-sami">
-                            10 OCT, 22
-                        </div>
-                        <div className="py-3">
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">SPO2(%)</div>
-                                <div className="fontroboto">95</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">HbA1C (%)</div>
-                                <div className="fontroboto">7.4</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Temperature (Frh)</div>
-                                <div className="fontroboto">95</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Pulse(/min)</div>
-                                <div className="fontroboto">66</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">BP(mm Hg)</div>
-                                <div className="fontroboto">120/80</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="p-10 border-bottom pb-0">
-                        <div className="title-sami">
-                            10 OCT, 22
-                        </div>
-                        <div className="py-3">
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">SPO2(%)</div>
-                                <div className="fontroboto">95</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">HbA1C (%)</div>
-                                <div className="fontroboto">7.4</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Temperature (Frh)</div>
-                                <div className="fontroboto">95</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Pulse(/min)</div>
-                                <div className="fontroboto">66</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">BP(mm Hg)</div>
-                                <div className="fontroboto">120/80</div>
-                            </div>
-                        </div>
-                    </div>
-                </>
-            ,
-        },
-    ];
-
-  
 
     return (
         <CashManagerContext.Provider value={contextApi}>
@@ -170,48 +103,7 @@ function TabPrescription() {
                         </div>
                         <Sider trigger={null} collapsible collapsed={collapsed} className={collapsed ? 'tabsider' : 'tabsider1'}>
                             {collapsedFlag === 1 && (
-                                <>
-                                    <div className="text-white align-items-center bg-secondary d-flex justify-content-between lh-lg px-2 py-2">
-                                        Vitals
-                                        <Button type="text" className="btn p-0 btn-outline" onClick={() => setCollapsed(!collapsed)}>
-                                            <i className='icon-Contract fs-21 text-white p-0'></i>
-                                        </Button>
-                                    </div>
-                                    <div className="overflow-y-auto" style={{ height: "calc(100vh - 109px)" }}>
-                                        <div className="p-10 pb-0">
-                                            <span className="title-common">Today’s Data</span>
-                                            <Button className='btn btn-input mt-3 d-flex justify-content-center align-items-center btn-41' onClick={handleDrawerVital}>
-                                                <i className='icon-Add me-2 fs-21'></i>
-                                                Add or Edit Vitals
-                                            </Button>
-                                            <div className="py-3">
-                                                <div className="d-flex align-items-center justify-content-between mb-12">
-                                                    <div className="fontroboto">SPO2(%)</div>
-                                                    <div className="fontroboto">95</div>
-                                                </div>
-                                                <div className="d-flex align-items-center justify-content-between mb-12">
-                                                    <div className="fontroboto">HbA1C (%)</div>
-                                                    <div className="fontroboto">7.4</div>
-                                                </div>
-                                                <div className="d-flex align-items-center justify-content-between mb-12">
-                                                    <div className="fontroboto">Temperature (Frh)</div>
-                                                    <div className="fontroboto">95</div>
-                                                </div>
-                                                <div className="d-flex align-items-center justify-content-between mb-12">
-                                                    <div className="fontroboto">Pulse(/min)</div>
-                                                    <div className="fontroboto">66</div>
-                                                </div>
-                                                <div className="d-flex align-items-center justify-content-between mb-12">
-                                                    <div className="fontroboto">BP(mm Hg)</div>
-                                                    <div className="fontroboto">120/80</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <Collapse items={accordionItems} className="prescriptiontab-accordian" expandIconPosition={'end'} />
-                                        </div>
-                                    </div>
-                                </>
+                                <TabVitalsList handleDrawerVital={handleDrawerVital} handleCollapsed={()=>setCollapsed(!collapsed)}/>
                             )}
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
