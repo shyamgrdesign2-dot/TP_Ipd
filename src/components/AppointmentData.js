@@ -118,13 +118,13 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
       notification.success({ key: "cancelled-notif", ...notificationParam });
       setSelectedTab(TAB_CANCELLED);
     } else if (endedAppointment && appointmentSelectedFromMenu) {
-      console.log("endedAppointment: ", endedAppointment);
+      console.log("appointmentSelectedFromMenu: ", appointmentSelectedFromMenu);
       setEndVisitReason(null);
       setReasonDrawerOpen(false);
 
       // show notification
       const notificationParam = {
-        message: "Anish's visit end successfully",
+        message: `${appointmentSelectedFromMenu.name}'s visit end successfully`,
         description: "View end visits in Finished tab.",
         duration: 3,
       };
