@@ -623,9 +623,6 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
                 <i className="icon-patients me-2" />
                 
                 <span className="fw-medium">
-                  {appointmentSelectedFromMenu?.pm_salutation
-                    ? appointmentSelectedFromMenu?.pm_salutation
-                    : "Mr./Mrs./Miss."}{" "}
                   {appointmentSelectedFromMenu?.name} (
                   {appointmentSelectedFromMenu?.pm_gender},{" "}
                   {appointmentSelectedFromMenu?.ageYears}y)
