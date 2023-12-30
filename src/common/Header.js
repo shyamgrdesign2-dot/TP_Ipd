@@ -7,7 +7,7 @@ import { getProfile } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import { changeHospital } from "../redux/appointmentsSlice";
 import { useLocalStorage } from "../utils/localStorage";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID } from "../utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
 
 function Header({onClickChanged}) {
   const [getToken, setToken] = useLocalStorage(
@@ -16,6 +16,10 @@ function Header({onClickChanged}) {
 
   const [getSavedClinic, saveClinic] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_CLINIC_ID
+  );
+
+  const [getStoredProfile, saveProfile] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_PROFILE
   );
 
   const [clinicOptions, setClinicOptions] = useState(null);
@@ -52,6 +56,7 @@ function Header({onClickChanged}) {
     if (profiles && profiles.length > 0) {
       const firstProfile = profiles[0];
       if (firstProfile) {
+        saveProfile(firstProfile);
         setProfile(firstProfile);
         const clinics = firstProfile.hospital_data?.map((hospital) => {
           return {
