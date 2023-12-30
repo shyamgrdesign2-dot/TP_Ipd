@@ -733,7 +733,7 @@ function AppointmentData({ clinicChanged, type }) {
                 >
                   <i className="icon-right d-block text-main"></i>
                 </Button>
-                <Button variant="outline-light" className="p-0">
+                <Button variant="outline-light" className="p-0 antround-0">
                   <DatePicker
                     // allowClear={false}
                     inputReadOnly

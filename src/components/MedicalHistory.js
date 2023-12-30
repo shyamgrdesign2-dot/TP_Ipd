@@ -15,7 +15,7 @@ function MedicalHistory() {
                             <img src={MedicalHistoryicon} alt="Medical History" className='me-3' />
                             Medical History
                         </div>
-                        <a href="#">
+                        <a>
                             <img src={arrowright} alt="vitals" />
                         </a>
                     </div>

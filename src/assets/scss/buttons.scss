@@ -296,6 +296,11 @@ body {
                         border-bottom-right-radius: 10px;
                     }
                 }
+                &.antround-0 {
+                    .ant-picker {
+                        border-radius: 0;
+                    }
+                }
             }
         }
     }

@@ -85,7 +85,7 @@ function Header({onClickChanged}) {
   return (
     <Navbar className="justify-content-between portal-header">
       <Container fluid>
-        <Navbar.Brand href="/">
+        <Navbar.Brand href="/tab_app/">
           <img
             src={require("../assets/images/logo.png")}
             className="d-inline-block align-top"
