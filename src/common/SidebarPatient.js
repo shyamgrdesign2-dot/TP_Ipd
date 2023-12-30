@@ -69,7 +69,7 @@ function SidebarPatient({ collapsed }) {
                 return (
                     <div key={index}>
                         <Nav.Item className={collapsed && 'text-center'}>
-                            <Nav.Link href="/" className={`${index == 0 && 'active'} ${!collapsed && 'd-flex align-items-center'}`}>
+                            <Nav.Link className={`${index == 0 && 'active'} ${!collapsed && 'd-flex align-items-center'}`}>
                                 <i className={item.icon_name}></i>
                                 <div className={collapsed ? 'text-truncate' : 'ms-3'}>{collapsed ? item.short_title : item.long_title}</div>
                             </Nav.Link>

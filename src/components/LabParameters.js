@@ -92,10 +92,10 @@ function LabParameters() {
                             Lab Parameters
                         </div>
                         <div>
-                            <a href="#" className='me-3'>
+                            <a className='me-3'>
                                 <img src={graph} alt="vitals" />
                             </a>
-                            <a href="#">
+                            <a>
                                 <img src={arrowright} alt="vitals" />
                             </a>
                         </div>
