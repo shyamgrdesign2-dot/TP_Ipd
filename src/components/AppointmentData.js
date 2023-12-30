@@ -42,7 +42,7 @@ export const STRING_QUEUE_TYPE_CANCELLED = "cancelled";
 
 const { TextArea } = Input;
 
-function AppointmentData({ clinicChanged, type }) {
+function AppointmentData({ clinicChanged, type, setSelectedTab }) {
   console.log("type: ", type);
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
@@ -62,7 +62,7 @@ function AppointmentData({ clinicChanged, type }) {
   const [pageNoQueue, setPageNoQueue] = useState(0);
   const [pageNoFinished, setPageNoFinished] = useState(0);
   const [pageNoCancelled, setPageNoCancelled] = useState(0);
-  const [reasonDraweOpen, setReasonDraweOpen] = useState(false);
+  const [reasonDrawerOpen, setReasonDrawerOpen] = useState(false);
   const [endVisitReason, setEndVisitReason] = useState(null);
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [showEndVisitReasonModal, setShowEndVisitReasonModal] = useState(false);
@@ -103,10 +103,11 @@ function AppointmentData({ clinicChanged, type }) {
         description: "View cancelled appointments in Cancelled tab.",
       };
       notification.success({ key: "notification_key", ...notificationParam });
+      setSelectedTab(TAB_CANCELLED);
     } else if(endedAppointment) {
       console.log('endedAppointment: ', endedAppointment);
       setEndVisitReason(null);
-      setReasonDraweOpen(false);
+      setReasonDrawerOpen(false);
 
       // show notification
       const notificationParam = {
@@ -114,6 +115,7 @@ function AppointmentData({ clinicChanged, type }) {
         description: "View end visits in Finished tab.",
       };
       notification.success({ key: "notification_key", ...notificationParam });
+      setSelectedTab(TAB_FINISHED);
     }
   }, [cancelledAppointment, endedAppointment]);
 
@@ -404,7 +406,7 @@ function AppointmentData({ clinicChanged, type }) {
             onClick={() => {
               console.log("clicked.data", appointment);
               setAppointmentSelectedFromMenu(appointment);
-              setReasonDraweOpen(true);
+              setReasonDrawerOpen(true);
             }}
           >
             End Visit
@@ -611,9 +613,6 @@ function AppointmentData({ clinicChanged, type }) {
               <div className="d-flex align-items-center">
                 <i className="icon-patients me-2" />
                 <span>
-                  {appointmentSelectedFromMenu?.pm_salutation
-                    ? appointmentSelectedFromMenu?.pm_salutation
-                    : "Mr./Mrs./Miss."}{" "}
                   {appointmentSelectedFromMenu?.name} (
                   {appointmentSelectedFromMenu?.pm_gender},{" "}
                   {appointmentSelectedFromMenu?.ageYears}y)
@@ -811,7 +810,7 @@ function AppointmentData({ clinicChanged, type }) {
         closable
         onClose={() => {
           console.log("Close has been called");
-          setReasonDraweOpen(false);
+          setReasonDrawerOpen(false);
           setEndVisitReason(null);
         }}
         extra={
@@ -825,7 +824,7 @@ function AppointmentData({ clinicChanged, type }) {
             </Button>
           </Space>
         }
-        open={reasonDraweOpen}
+        open={reasonDrawerOpen}
         key="left"
       >
         <TextArea

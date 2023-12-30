@@ -351,7 +351,7 @@ const appointmentsSlice = createSlice({
       .addCase(endVisit.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-
+        state.cancelledAppointment = null;
         const endedAppointment = action.meta.arg.appointment;
         
         console.log('endedAppointment: ', endedAppointment);
@@ -399,6 +399,7 @@ const appointmentsSlice = createSlice({
       .addCase(cancelAppointments.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
+        state.endedAppointment = null;
         const cancelledAppointment = action.meta.arg.appointment;
         
         console.log('cancelledAppointment: ', cancelledAppointment);

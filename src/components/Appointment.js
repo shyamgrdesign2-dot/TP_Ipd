@@ -9,12 +9,12 @@ import AppointmentData, {
 } from "../components/AppointmentData";
 
 function Appointment({ clinicChanged }) {
-  const [tabChange, setTabChange] = useState("1");
+  const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
   const counts = useSelector((state) => state.records.counts);
 
   const items = [
     {
-      key: "1",
+      key: TAB_QUEUE,
       label: (
         <div className="d-flex align-items-baseline">
           <i className="icon-Queue"></i>
@@ -23,7 +23,7 @@ function Appointment({ clinicChanged }) {
       ),
     },
     {
-      key: "2",
+      key: TAB_FINISHED,
       label: (
         <div className="d-flex align-items-baseline">
           <i className="icon-Finished"></i>
@@ -32,7 +32,7 @@ function Appointment({ clinicChanged }) {
       ),
     },
     {
-      key: "3",
+      key: TAB_CANCELLED,
       label: (
         <div className="d-flex align-items-baseline">
           <i className="icon-Cancelled"></i>
@@ -44,26 +44,26 @@ function Appointment({ clinicChanged }) {
 
   const onChange = useCallback(
     (key) => {
-      setTabChange(key);
+      setSelectedTab(key);
     },
-    [tabChange]
+    [selectedTab]
   );
 
-  useEffect(() => {
+/*   useEffect(() => {
     setTimeout(() => {
-      onChange("3");
+      onChange(TAB_CANCELLED);
     }, 1400);
-  }, []);
+  }, []); */
 
   return (
     <div className="border rounded-4 appointment-wrap dateborder">
-      <Tabs defaultActiveKey="1" items={items} onChange={onChange} activeKey={tabChange} />
-      {tabChange == 1 ? (
-        <AppointmentData type={TAB_QUEUE} clinicChanged={clinicChanged} />
-      ) : tabChange == 2 ? (
-        <AppointmentData type={TAB_FINISHED} clinicChanged={clinicChanged} />
+      <Tabs defaultActiveKey={TAB_QUEUE} items={items} onChange={onChange} activeKey={selectedTab} />
+      {selectedTab === TAB_QUEUE ? (
+        <AppointmentData type={TAB_QUEUE} clinicChanged={clinicChanged} setSelectedTab={setSelectedTab} />
+      ) : selectedTab === TAB_FINISHED ? (
+        <AppointmentData type={TAB_FINISHED} clinicChanged={clinicChanged} setSelectedTab={setSelectedTab} />
       ) : (
-        <AppointmentData type={TAB_CANCELLED} clinicChanged={clinicChanged} />
+        <AppointmentData type={TAB_CANCELLED} clinicChanged={clinicChanged} setSelectedTab={setSelectedTab} />
       )}
     </div>
   );
