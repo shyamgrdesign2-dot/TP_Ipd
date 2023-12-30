@@ -45,8 +45,6 @@ const { TextArea } = Input;
 function AppointmentData({ clinicChanged, type, setSelectedTab }) {
   console.log("type: ", type);
   const yesterday = new Date();
-  const visitTypeFiltersSet = new Set();
-  let didSetPosition = false;
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterDate = getFormattedDate(yesterday);
   const todaysDate = getFormattedDate(new Date());
@@ -74,7 +72,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
   const { records, loading, error, counts, caseTypes, cancelledAppointment, endedAppointment } =
     useSelector((state) => state.records);
   const dispatch = useDispatch();
-  console.log("records: ", records);
+  // console.log("records: ", records);
 
   const getQueueTypeString = () => {
     return type === TAB_QUEUE
@@ -137,6 +135,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
           apStatue: type,
           pageNo: 0,
           queueType: getQueueTypeString(),
+          filterVisitType: ""
         })
       );
     }
@@ -166,6 +165,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
           apStatue: type,
           pageNo: getQueuePageNo(),
           queueType: getQueueTypeString(),
+          filterVisitType: visitTypeFilters ? Array.from(visitTypeFilters).join(', ') : ""
         })
       );
     }
@@ -177,6 +177,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
     searchQuery,
     dispatch,
     type,
+    visitTypeFilters
   ]);
 
   useEffect(() => {
@@ -259,13 +260,15 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
     console.log("Various parameters", pagination, filters, sorter);
     setFilteredInfo(filters);
     setSortedInfo(sorter);
+
+    setVisitTypeFilters(filters.toct_type);
   };
 
   const getVisitTypeFilters = () => {
     return caseTypes.map((typeObj) => {
       return {
         text: typeObj.toct_type,
-        value: typeObj.toct_type,
+        value: typeObj.toct_id,
       };
     });
   };
@@ -307,20 +310,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
       dataIndex: "toct_type",
       key: "toct_type",
       // filteredValue: filteredInfo.toct_type || null,
-      onFilter: (value, record) => {
-        console.log('value: ', value);
-        visitTypeFiltersSet.add(value);
-
-        if(!didSetPosition) {
-          setTimeout(() => {
-            didSetPosition = false;
-            setVisitTypeFilters(visitTypeFiltersSet);
-          }, 200);
-          didSetPosition = true;
-        }
-
-        return record.toct_type === value;
-      },
+      onFilter: (value, record) => record.toct_type === value,
       filters: getVisitTypeFilters(),
       // sorter: (a, b) => a.visittype.length - b.visittype.length,
       // sortOrder: sortedInfo.columnKey === "visittype" ? sortedInfo.order : null,
@@ -361,12 +351,11 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
       key: "action",
       render: (_, record) => (
         <div size="middle">
-          {/* <button className='btn btn-outline-primary btn-consult' onClick={() => navigate("/patient_details")}>Consult</button> */}
-          <Link to="/patient_details">
+          {type !== TAB_CANCELLED && <Link to="/patient_details">
             <button className="btn btn-outline-primary btn-consult">
               {type === TAB_FINISHED ? "PrintRx" : "Consult"}
             </button>
-          </Link>
+          </Link>}
           <Dropdown
             className="btn btn-outline btn-more ms-3"
             menu={{
