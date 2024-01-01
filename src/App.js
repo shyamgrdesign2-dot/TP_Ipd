@@ -38,7 +38,6 @@ function App() {
             <Route path="/*" element={<AppointmentList />} />
             <Route path="patient_details" element={<PatientDetails />} />
             <Route path="prescription" element={isMobile ? <TabPrescription /> : <Prescription />} />
-            <Route path="add-patient" element={isMobile ? <TabPrescription /> : <Prescription />} />
             <Route path="prescription_print_view" element={<PrescriptionPrintView />} />
           </Routes>
         </PersistGate>

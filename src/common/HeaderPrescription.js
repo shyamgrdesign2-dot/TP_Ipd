@@ -8,10 +8,21 @@ import ProfilePopover from './ProfilePopover';
 import CommonModal from './CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 
+import { useSelector, useDispatch } from "react-redux";
+
+import {
+    addCaseManager,
+} from "../redux/caseManagerSlice";
+
 function HeaderPrescription() {
 
+    const {
+        loading,
+    } = useSelector((state) => state.caseManager);
+    const dispatch = useDispatch();
+
     const navigate = useNavigate();
-    const { state, symptomsData, examinationData, diagnosisData, adviceData, investigationData } = useContext(CashManagerContext);
+    const { state, symptomsData, examinationData, diagnosisData, adviceData, investigationData, vitalsData } = useContext(CashManagerContext);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -41,15 +52,21 @@ function HeaderPrescription() {
         setIsModalOpen(!isModalOpen);
     }, [isModalOpen]);
 
-    function onEndVisitClick() {
+    async function onEndVisitClick() {
         var sendData = {
+            action: 'add',
+            patient_unique_id: state != undefined ? state.patient_unique_id : 0,
             symptoms: symptomsData,
             examination: examinationData,
             diagnosis: diagnosisData,
             advice: adviceData,
-            investigation: investigationData
+            investigation: investigationData,
+            vitals: vitalsData
         }
-        console.log(sendData)
+        const action = await dispatch(addCaseManager(sendData));
+        if (action.meta.requestStatus == "fulfilled") {
+            navigate('/prescription_print_view', { state: action.payload })
+        }
     }
 
     return (
@@ -91,7 +108,7 @@ function HeaderPrescription() {
                                     }
                                 />
                             </div>
-                            <ProfilePopover state={state}/>
+                            <ProfilePopover state={state} />
                         </div>
                     </Col>
                     <Col lg="auto">
@@ -112,7 +129,7 @@ function HeaderPrescription() {
                                 }}
                                 trigger={['click']}
                             >
-                                 <a onClick={(e) => e.preventDefault()} className='text-main align-items-center d-flex fw-medium text14 me-30'>
+                                <a onClick={(e) => e.preventDefault()} className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                     <i className='icon-language me-2'></i>
                                     <span className='text-decoration-underline'>English</span>
                                     <i className='icon-right iconrotate270 ms-1'></i>
@@ -126,7 +143,7 @@ function HeaderPrescription() {
                                 </Button>
                             </div>
 
-                            <Button className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={onEndVisitClick}>
+                            <Button className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={onEndVisitClick} loading={loading}>
                                 <i className='icon-exit me-2'></i>
                                 End Visit
                             </Button>
