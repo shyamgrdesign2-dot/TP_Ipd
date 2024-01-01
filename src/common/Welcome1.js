@@ -8,7 +8,7 @@ function Welcome1(props) {
 
     const navigate = useNavigate();
 
-    const { locationPath, isMobile } = props
+    const { locationPath, isMobile, state } = props
 
     return (
         <>
@@ -17,7 +17,7 @@ function Welcome1(props) {
                     <div className='d-flex align-items-center'>
                         <div>
                             <h1 className='mt-2'>{'Patient Details'}</h1>
-                            {isMobile && (<ProfilePopover locationPath={locationPath} isMobile={isMobile} />)}
+                            {isMobile && (<ProfilePopover locationPath={locationPath} isMobile={isMobile} state={state} />)}
                             {isMobile ? '' : <p className='mb-1'>&nbsp;</p>}
                         </div>
                         <img src={require("../assets/images/bg-welcome.png")} className="welcomeig d-inline-block align-top" alt="Welcome" />

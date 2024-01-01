@@ -1,13 +1,10 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Button, Popover } from 'antd';
-
-import CashManagerContext from "../context/CashManagerContext";
 
 function ProfilePopover(props) {
     const [open, setOpen] = useState(false);
 
-    const { locationPath, isMobile } = props
-    const { state } = useContext(CashManagerContext);
+    const { locationPath, isMobile, state } = props
 
     const handleOpenChange = (newOpen) => {
         setOpen(newOpen);
@@ -56,16 +53,16 @@ function ProfilePopover(props) {
             {locationPath == '/patient_details' ? (
                 <div className={'align-items-center d-flex h-100'}>
                     <div className='align-items-center d-flex'>
-                        <div className='patientName'>{`${state != undefined ? state.pm_first_name : "Kishan"} ${state != undefined ? state.pm_last_name : "Patel"}`}</div>
+                        <div className='patientName'>{`${state != undefined ? state.pm_first_name : "Hello"} ${state != undefined ? state.pm_last_name : "Guest"}`}</div>
                         <div className='text-2 ms-2'>{`${state != undefined ? state.pm_gender[0].toUpperCase() : "M"}, ${state != undefined ? state.ageYears : 30}y`}</div>
                         <i className='icon-right iconrotate270 ms-1'></i>
                     </div>
                 </div>
             ) : (
                 <div className={'align-items-center d-flex h-100 ps-3'}>
-                    <div className='rounded-pill patientProfile border me-3'>{`${state != undefined ? state.pm_first_name[0].toUpperCase() : "K"}${state != undefined ? state.pm_last_name[0].toUpperCase() : "P"}`}</div>
+                    <div className='rounded-pill patientProfile border me-3'>{`${state != undefined ? state.pm_first_name[0].toUpperCase() : "H"}${state != undefined ? state.pm_last_name[0].toUpperCase() : "G"}`}</div>
                     <div>
-                        <div className='patientName'>{`${state != undefined ? state.pm_first_name : "Kishan"} ${state != undefined ? state.pm_last_name : "Patel"}`}<div className='text-2'>{`${state != undefined ? state.pm_gender[0].toUpperCase() : "M"}, ${state != undefined ? state.ageYears : 30}y`}</div></div>
+                        <div className='patientName'>{`${state != undefined ? state.pm_first_name : "Hello"} ${state != undefined ? state.pm_last_name : "Guest"}`}<div className='text-2'>{`${state != undefined ? state.pm_gender[0].toUpperCase() : "M"}, ${state != undefined ? state.ageYears : 30}y`}</div></div>
                     </div>
                     <div className='iconrotate270 align-self-start ms-2 mt-1'>
                         <i className='icon-right'></i>

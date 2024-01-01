@@ -479,6 +479,15 @@ body {
             border: 1px solid $theme !important;
         }
     }
+
+    .vitals-height {
+        .ant-input-group-wrapper {
+            max-width: 170px;
+            width: 150px;
+            min-width: 150px;
+        }
+    }
+
     // Walk in consultation page
     .walkincomplete {
         padding: 0;

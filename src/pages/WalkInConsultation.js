@@ -40,15 +40,16 @@ function WalkInConsultation() {
                         </div>
                     </div>
                     <div className="d-flex align-items-center">
-                        <Link to="/patient_details">
-                            <Button
-                                type="text"
-                                className="btn btn-primary2 me-4 align-items-center d-flex"
-                                icon={<i className="icon-Preview"></i>}
-                            >
-                                Patient Details
-                            </Button>
-                        </Link>
+                        <Button
+                            type="text"
+                            className="btn btn-primary2 me-4 align-items-center d-flex"
+                            icon={<i className="icon-Preview"></i>}
+                            onClick={() =>
+                                navigate("/patient_details", { state: patient })
+                            }
+                        >
+                            Patient Details
+                        </Button>
                         <Button
                             type="text"
                             className="btn btn-primary3 align-items-center d-flex"
@@ -164,16 +165,17 @@ function WalkInConsultation() {
                         <div className="mt-4">
                             <span className="title-common">Choose Action</span>
                             <div className="d-flex align-items-center mt-2">
-                                <Link to="/patient_details" className="me-4 w-50">
-                                    <Button
-                                        type="text"
-                                        className="btn btn-primary2 align-items-center d-flex btn-41 w-100"
-                                        icon={<i className="icon-Preview" />}
-                                    >
-                                        View Patient Details{" "}
-                                        <i className="icon-right iconrotate90 ms-auto" />
-                                    </Button>
-                                </Link>
+                                <Button
+                                    type="text"
+                                    className="btn btn-primary2 align-items-center d-flex btn-41 w-100"
+                                    icon={<i className="icon-Preview" />}
+                                    onClick={() =>
+                                        navigate("/patient_details", { state: clickedPatient })
+                                    }
+                                >
+                                    View Patient Details{" "}
+                                    <i className="icon-right iconrotate90 ms-auto" />
+                                </Button>
                                 <Button
                                     type="text"
                                     className="btn btn-primary3 align-items-center d-flex btn-41 w-100"

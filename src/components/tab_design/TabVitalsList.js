@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useMemo } from "react";
 import { Button, Collapse } from 'antd';
 
 import { useSelector, useDispatch } from "react-redux";
@@ -20,7 +20,7 @@ function TabVitalsList(props) {
     } = useSelector((state) => state.vitals);
     const dispatch = useDispatch();
 
-    const { state } = useContext(CashManagerContext);
+    const { state, setVitalsData } = useContext(CashManagerContext);
 
     useEffect(() => {
         var sendData = {
@@ -30,69 +30,93 @@ function TabVitalsList(props) {
         dispatch(getVitals(sendData));
     }, []);
 
+    useEffect(() => {
+        const updatedData = vitalsTodayList.map((e, i) => {
+            return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
+        });
+        setVitalsData(updatedData);
+    }, [vitalsTodayList]);
+
+    const PAST_VITALS = useMemo(() => {
+        return (
+            vitalsPastList.length > 0 &&
+            vitalsPastList.map((item, i) => {
+                return (
+                    <div key={i} className="p-10 border-bottom pb-0">
+                        <div className="title-sami">
+                            {item.date}
+                        </div>
+                        <div className="py-3">
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">SPO2(%)</div>
+                                <div className="fontroboto">{item.spo2}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">HbA1C (%)</div>
+                                <div className="fontroboto">{item.spo2}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Temperature (Frh)</div>
+                                <div className="fontroboto">{item.temp}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Pulse(/min)</div>
+                                <div className="fontroboto">{item.pres}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">BP(mm Hg)</div>
+                                <div className="fontroboto">{item.blood_press}</div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            })
+        );
+    }, [vitalsPastList]);
+
+    const TODAY_VITALS = useMemo(() => {
+        return (
+            vitalsTodayList.length > 0 &&
+            vitalsTodayList.map((item, i) => {
+                return (
+                    <div key={i} className="p-10 border-bottom pb-0">
+                        <div className="title-sami">
+                            {item.date}
+                        </div>
+                        <div className="py-3">
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">SPO2(%)</div>
+                                <div className="fontroboto">{item.spo2}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">HbA1C (%)</div>
+                                <div className="fontroboto">{item.spo2}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Temperature (Frh)</div>
+                                <div className="fontroboto">{item.temp}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Pulse(/min)</div>
+                                <div className="fontroboto">{item.pres}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">BP(mm Hg)</div>
+                                <div className="fontroboto">{item.blood_press}</div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            })
+        );
+    }, [vitalsTodayList]);
+
     // Accordian for side menu
     const accordionItems = [
         {
             key: '1',
             label: <div className="title-common">Past Visit Data</div>,
-            children:
-                <>
-                    <div className="p-10 border-bottom pb-0">
-                        <div className="title-sami">
-                            10 OCT, 22
-                        </div>
-                        <div className="py-3">
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">SPO2(%)</div>
-                                <div className="fontroboto">95</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">HbA1C (%)</div>
-                                <div className="fontroboto">7.4</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Temperature (Frh)</div>
-                                <div className="fontroboto">95</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Pulse(/min)</div>
-                                <div className="fontroboto">66</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">BP(mm Hg)</div>
-                                <div className="fontroboto">120/80</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="p-10 border-bottom pb-0">
-                        <div className="title-sami">
-                            10 OCT, 22
-                        </div>
-                        <div className="py-3">
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">SPO2(%)</div>
-                                <div className="fontroboto">95</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">HbA1C (%)</div>
-                                <div className="fontroboto">7.4</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Temperature (Frh)</div>
-                                <div className="fontroboto">95</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Pulse(/min)</div>
-                                <div className="fontroboto">66</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">BP(mm Hg)</div>
-                                <div className="fontroboto">120/80</div>
-                            </div>
-                        </div>
-                    </div>
-                </>
-            ,
+            children: PAST_VITALS,
         },
     ];
 
@@ -111,29 +135,8 @@ function TabVitalsList(props) {
                         <i className='icon-Add me-2 fs-21'></i>
                         Add or Edit Vitals
                     </Button>
-                    <div className="py-3">
-                        <div className="d-flex align-items-center justify-content-between mb-12">
-                            <div className="fontroboto">SPO2(%)</div>
-                            <div className="fontroboto">95</div>
-                        </div>
-                        <div className="d-flex align-items-center justify-content-between mb-12">
-                            <div className="fontroboto">HbA1C (%)</div>
-                            <div className="fontroboto">7.4</div>
-                        </div>
-                        <div className="d-flex align-items-center justify-content-between mb-12">
-                            <div className="fontroboto">Temperature (Frh)</div>
-                            <div className="fontroboto">95</div>
-                        </div>
-                        <div className="d-flex align-items-center justify-content-between mb-12">
-                            <div className="fontroboto">Pulse(/min)</div>
-                            <div className="fontroboto">66</div>
-                        </div>
-                        <div className="d-flex align-items-center justify-content-between mb-12">
-                            <div className="fontroboto">BP(mm Hg)</div>
-                            <div className="fontroboto">120/80</div>
-                        </div>
-                    </div>
                 </div>
+                {TODAY_VITALS}
                 <div>
                     <Collapse items={accordionItems} className="prescriptiontab-accordian" expandIconPosition={'end'} />
                 </div>

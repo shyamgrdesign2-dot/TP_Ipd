@@ -24,13 +24,11 @@ function AppointmentList() {
       <div className="d-flex">
         {(!isMobile || locationPath == "/") && <SidebarDoctor />}
         <div className="w-100 bg-body wrapper custom-scroll">
-          {!isMobile || locationPath == "/" ? (
+          {(!isMobile || locationPath == "/") && (
             <Welcome
               locationPath={locationPath}
               backVisible={locationPath == "/" ? false : true}
             />
-          ) : (
-            null
           )}
           <Routes>
             <Route path="/" element={<Appointment clinicChanged={clinicChanged} />} />
