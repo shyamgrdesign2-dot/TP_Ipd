@@ -67,13 +67,13 @@ function Prescription() {
                   <VitalsList />
                 )}
               </div>
-              <div>
+              {/* <div>
                 <button className="btn btn-parameters mx-auto w-100">
                   <div className="align-items-center d-flex justify-content-center">
                     <i className="icon-Add me-2"></i> Add More Parameters
                   </div>
                 </button>
-              </div>
+              </div> */}
             </div>
             <div className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3">
               <SymptomsBox />
