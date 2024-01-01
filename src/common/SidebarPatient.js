@@ -1,15 +1,16 @@
 import React from 'react';
 import Nav from 'react-bootstrap/Nav';
 import { Button, Popover } from 'antd';
+import { isMobile } from 'react-device-detect';
 
 function SidebarPatient({ collapsed, state }) {
     const menu = [
         { icon_name: 'icon-Visit-Summary', short_title: 'Visit', long_title: 'Visit Summary' },
-        { icon_name: 'icon-Report', short_title: 'Reports', long_title: 'Medical Reports (3)' },
-        { icon_name: 'icon-Discharge-Summary', short_title: 'Discharge', long_title: 'Discharge Summary' },
-        { icon_name: 'icon-Medical-Certificate', short_title: 'Certificate', long_title: 'Medical Certificate' },
-        { icon_name: 'icon-billings', short_title: 'Add Bill', long_title: 'Add Bill/Payment' },
-        { icon_name: 'icon-More', short_title: '', long_title: 'More Options' }
+        // { icon_name: 'icon-Report', short_title: 'Reports', long_title: 'Medical Reports (3)' },
+        // { icon_name: 'icon-Discharge-Summary', short_title: 'Discharge', long_title: 'Discharge Summary' },
+        // { icon_name: 'icon-Medical-Certificate', short_title: 'Certificate', long_title: 'Medical Certificate' },
+        // { icon_name: 'icon-billings', short_title: 'Add Bill', long_title: 'Add Bill/Payment' },
+        // { icon_name: 'icon-More', short_title: '', long_title: 'More Options' }
     ]
 
     const content = (
@@ -45,7 +46,7 @@ function SidebarPatient({ collapsed, state }) {
     return (
         <div>
             <Popover
-                content={content}
+                content={!isMobile ? content : null}
                 trigger="click"
                 className='cursor-pointer'
                 overlayClassName="pop-260 pp-20"

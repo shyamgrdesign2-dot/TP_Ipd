@@ -122,7 +122,7 @@ function Cardiology() {
                     </div>
                 </Card.Header>
                 <Card.Body className='p-0 cardbody-data'>
-                    {/* <div>
+                     <div>
                         <div className='p-3'>
                             <div className='d-flex align-items-start mb-4'>
                                 <img className='me-2' src={Symptomsicon} alt="Symptoms" />
@@ -171,14 +171,14 @@ function Cardiology() {
                                 </div>
                             </div>
                         </div>
-                    </div> */}
-                    <div className='d-flex flex-column justify-content-center' style={{"height": "calc(100vh - 200px)"}}>
+                    </div> 
+                    {/* <div className='d-flex flex-column justify-content-center' style={{"height": "calc(100vh - 200px)"}}>
                         <div className='align-items-center text-center'>
                             <img src={calenderBlank} width={57} height={62} alt="No vital & body composition saved for the patient!" />
                             <p className='mt-4 fontroboto'>No any visit found for this patient yet</p>
                             <Button className="btn btn-primary3 btn-text-white px-5 btn-41">Start New Visit</Button>
                         </div>
-                    </div>
+                    </div> */}
                 </Card.Body>
             </Card>
         </div>

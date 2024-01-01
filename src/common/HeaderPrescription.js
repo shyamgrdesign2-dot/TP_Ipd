@@ -22,20 +22,20 @@ function HeaderPrescription() {
         },
     ];
 
-    const languageItems = [
-        {
-            label: '1st menu item',
-            key: '0',
-        },
-        {
-            label: '2nd menu item',
-            key: '1',
-        },
-        {
-            label: '3rd menu item',
-            key: '3',
-        },
-    ];
+    // const languageItems = [
+    //     {
+    //         label: '1st menu item',
+    //         key: '0',
+    //     },
+    //     {
+    //         label: '2nd menu item',
+    //         key: '1',
+    //     },
+    //     {
+    //         label: '3rd menu item',
+    //         key: '3',
+    //     },
+    // ];
 
     const showHideModal = useCallback(() => {
         setIsModalOpen(!isModalOpen);
@@ -96,23 +96,23 @@ function HeaderPrescription() {
                     </Col>
                     <Col lg="auto">
                         <div className='align-items-center d-flex h-100'>
-                            <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
+                            {/* <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                 <i className='icon-template me-2'></i> <span className='text-decoration-underline'>Templates</span>
                             </Link>
                             <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                 <i className='icon-save me-2'></i> <span className='text-decoration-underline'>Save</span>
-                            </Link>
-                            <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
+                            </Link> */}
+                            {/* <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                 <i className='icon-setting me-2'></i> <span className='text-decoration-underline'>Customize</span>
-                            </Link>
+                            </Link> */}
 
                             <Dropdown
                                 menu={{
-                                    languageItems,
+                                    items
                                 }}
                                 trigger={['click']}
                             >
-                                <a onClick={(e) => e.preventDefault()} className='text-main align-items-center d-flex fw-medium text14 me-30'>
+                                 <a onClick={(e) => e.preventDefault()} className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                     <i className='icon-language me-2'></i>
                                     <span className='text-decoration-underline'>English</span>
                                     <i className='icon-right iconrotate270 ms-1'></i>

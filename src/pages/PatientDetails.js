@@ -12,9 +12,21 @@ import Vaccination from '../components/Vaccination';
 import Cardiology from '../components/Cardiology';
 import variables from '../assets/scss/variables.scss'
 
+import { useSelector, useDispatch } from "react-redux";
+
+import {
+    viewCaseManager,
+} from "../redux/caseManagerSlice";
+
 const { Sider, Content } = Layout;
 
 function PatientDetails() {
+
+    const {
+        viewCaseManagerData,
+        loading,
+    } = useSelector((state) => state.caseManager);
+    const dispatch = useDispatch();
 
     const { state } = useLocation();
 
@@ -27,6 +39,14 @@ function PatientDetails() {
     useEffect(() => {
         setLocationPath(location.pathname);
     }, [location]);
+
+
+    useEffect(() => {
+        var sendData = {
+            "tcm_id": "127403"
+        }
+        dispatch(viewCaseManager(sendData));
+    }, []);
 
     return (
         <>
@@ -56,9 +76,9 @@ function PatientDetails() {
                             <div className='row'>
                                 <div className='col-lg-5 col-md-12 col-12'>
                                     <VitalsBodyComposition />
-                                    <MedicalHistory />
+                                    {/* <MedicalHistory />
                                     <LabParameters />
-                                    <Vaccination />
+                                    <Vaccination /> */}
                                 </div>
                                 <div className='col-lg-7 col-md-12 col-12'>
                                     <Cardiology />

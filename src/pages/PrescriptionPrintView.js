@@ -1,25 +1,16 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Col, Row, Select, Button } from "antd";
+import { isMobile } from "react-device-detect";
 
 import HeaderPrescription from "../common/HeaderPrescription";
 import messageSent from '../assets/images/message-sent.svg';
-import { Col, Row, Select, Button } from "antd";
-import CareClinicPrint from "../prints/CareClinicPrint";
-import { isMobile } from "react-device-detect";
 
-const items = [
-    {
-        label: 'Print Rx',
-        key: 'printrx',
-    },
-    {
-        label: 'Clear',
-        key: 'clear',
-    }
-];
 
 function PrescriptionPrintView() {
+    
     const navigate = useNavigate();
+    
     return (
         <>
             <HeaderPrescription />
@@ -34,7 +25,7 @@ function PrescriptionPrintView() {
                         </div>
                         }
                         <div className={`${!isMobile ? 'rounded-20px mt-20' : 'border-top-0 border-start-0 border-bottom-0'} border p-20 bg-white d-flex justify-content-between flex-column`}
-                            style={{ height: !isMobile ? 'calc(100vh - 160px)' :'calc(100vh - 60px)'}}>
+                            style={{ height: !isMobile ? 'calc(100vh - 160px)' : 'calc(100vh - 60px)' }}>
                             <div>
                                 {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38">
                                     <i className="icon-setting me-2"></i>
@@ -108,7 +99,7 @@ function PrescriptionPrintView() {
                                 </div>
                             </div>
                             <div className="border rounded-20px p-20 pe-1 bg-white mt-20">
-                                <CareClinicPrint />
+
                             </div>
                         </div>
                     </Col>

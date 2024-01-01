@@ -70,7 +70,7 @@ function TabPrescription() {
                                 </div>
                                 <label className="text-white mt-1">Vitals</label>
                             </button>
-                            <button type='button' className="mb-3 text-center btn btn-action">
+                            {/* <button type='button' className="mb-3 text-center btn btn-action">
                                 <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                     <img src={medicalHistoryWhite} alt="History" />
                                 </div>
@@ -99,7 +99,7 @@ function TabPrescription() {
                                     <img src={docsWhite} alt="Docs" />
                                 </div>
                                 <label className="text-white mt-1">Docs</label>
-                            </button>
+                            </button> */}
                         </div>
                         <Sider trigger={null} collapsible collapsed={collapsed} className={collapsed ? 'tabsider' : 'tabsider1'}>
                             {collapsedFlag === 1 && (

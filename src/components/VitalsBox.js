@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useContext, useMemo } from "react";
 import { Button, message, Card, DatePicker, Input, Tooltip } from 'antd';
+import dayjs from "dayjs";
 
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -183,6 +184,11 @@ function VitalsBox(props) {
         );
     }, [vitalsData]);
 
+    const disabledDate = (current) => {
+        // Can not select days before today and today
+        return current && current > dayjs().endOf("day");
+    };
+
     return (
         <>
             {contextHolder}
@@ -203,12 +209,12 @@ function VitalsBox(props) {
                         <Button className='btn btn-primary2 btn-41'>
                             Add New Date
                         </Button>
-                        <DatePicker suffixIcon={null} inputReadOnly onChange={onChange} className="calender-vitals w-100 h-100" />
+                        <DatePicker suffixIcon={null} inputReadOnly onChange={onChange} disabledDate={disabledDate} className="calender-vitals w-100 h-100" />
                     </div>
-                    <div className="float-end d-flex align-itms-center">
+                    {/* <div className="float-end d-flex align-itms-center">
                         <i className="icon-setting me-2"></i>
                         <span className="text-decoration-underline fw-medium"> Add or Configure </span>
-                    </div>
+                    </div> */}
                 </div>
                 {vitalsData.length > 0 && (
                     <div className='px-20'>
