@@ -44,8 +44,6 @@ const caseManagerSlice = createSlice({
             })
             .addCase(addCaseManager.fulfilled, (state, action) => {
                 state.loading = false;
-                console.log(action.payload)
-                state.vitalsTodayList = action.payload;
             })
             .addCase(addCaseManager.rejected, (state) => {
                 state.loading = false;
