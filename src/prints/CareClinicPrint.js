@@ -1,6 +1,26 @@
-import React from "react";
+import React, { useEffect } from "react";
+
+import { useSelector, useDispatch } from "react-redux";
+
+import {
+  viewCaseManager,
+} from "../redux/caseManagerSlice";
 
 function CareClinicPrint() {
+
+  const {
+    viewCaseManagerData,
+    loading,
+  } = useSelector((state) => state.caseManager);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    var sendData = {
+      "tcm_id": "127403"
+    }
+    dispatch(viewCaseManager(sendData));
+  }, []);
+
   return (
     <div className="printheight">
       <div>
@@ -16,7 +36,7 @@ function CareClinicPrint() {
           <small class="text-muted">With faded secondary text</small>
         </h3>
         <br />
-        <h1 class="display-1">Display 1</h1>
+        {/* <h1 class="display-1">{viewCaseManagerData.hospital_data.hm_name}</h1> */}
         <h1 class="display-2">Display 2</h1>
         <h1 class="display-3">Display 3</h1>
         <h1 class="display-4">Display 4</h1>
@@ -66,4 +86,4 @@ function CareClinicPrint() {
   );
 }
 
-export default CareClinicPrint;
+export default React.memo(CareClinicPrint);

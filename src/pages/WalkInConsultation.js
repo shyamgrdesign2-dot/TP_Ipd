@@ -164,7 +164,7 @@ function WalkInConsultation() {
                         <div className="mt-4">
                             <span className="title-common">Choose Action</span>
                             <div className="d-flex align-items-center mt-2">
-                                <Link to="/patient_details" className="me-4 w-50">
+                                <Link to="/patient_details" className="w-50">
                                     <Button
                                         type="text"
                                         className="btn btn-primary2 align-items-center d-flex btn-41 w-100"
@@ -176,7 +176,7 @@ function WalkInConsultation() {
                                 </Link>
                                 <Button
                                     type="text"
-                                    className="btn btn-primary3 align-items-center d-flex btn-41 w-100"
+                                    className="btn btn-primary3 align-items-center d-flex btn-41 w-50 ms-4"
                                     icon={<i className="icon-Consult"></i>}
                                     onClick={() =>
                                         navigate("/prescription", { state: clickedPatient })

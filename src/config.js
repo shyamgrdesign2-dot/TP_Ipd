@@ -7,4 +7,5 @@ export default {
   investigation_api_url: `https://investigation-webservice.azurewebsites.net`,
   medication_api_url: `https://medicine-webservice.azurewebsites.net`,
   vitals_api_url: `https://vital-webservice.azurewebsites.net`,
+  casemanager_api_url: `https://casemanager-webservice.azurewebsites.net`,
 }
