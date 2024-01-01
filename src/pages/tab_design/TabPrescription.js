@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import { Button, Layout, Collapse, Drawer, Card, DatePicker } from 'antd';
+import { Layout, Drawer } from 'antd';
 import { Content } from "antd/es/layout/layout";
 
 import CashManagerContext from '../../context/CashManagerContext';
@@ -14,7 +14,7 @@ import TabDiagnosisBox from "../../components/tab_design/TabDiagnosisBox";
 import TabAdviceBox from "../../components/tab_design/TabAdviceBox";
 import TabInvestigationBox from "../../components/tab_design/TabInvestigationBox";
 import TabMedicationBox from "../../components/tab_design/TabMedicationBox";
-import TabVitalsBox from "../../components/tab_design/TabVitalsBox";
+import VitalsBox from "../../components/VitalsBox";
 import TabVitalsList from "../../components/tab_design/TabVitalsList";
 
 import vitalsWhite from '../../assets/images/vitals-white.svg';
@@ -103,7 +103,7 @@ function TabPrescription() {
                         </div>
                         <Sider trigger={null} collapsible collapsed={collapsed} className={collapsed ? 'tabsider' : 'tabsider1'}>
                             {collapsedFlag === 1 && (
-                                <TabVitalsList handleDrawerVital={handleDrawerVital} handleCollapsed={()=>setCollapsed(!collapsed)}/>
+                                <TabVitalsList handleDrawerVital={handleDrawerVital} handleCollapsed={() => setCollapsed(!collapsed)} />
                             )}
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
@@ -119,7 +119,7 @@ function TabPrescription() {
                     </Layout>
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerVital} open={vitalDrawer} className="modalWidth-645" width="auto">
-                    <TabVitalsBox handleDrawerVital={handleDrawerVital} handleCollapsed={(flag) => handleCollapsed(flag)} />
+                    <VitalsBox handleDrawerVital={handleDrawerVital} handleCollapsed={(flag) => handleCollapsed(flag)} />
                 </Drawer >
             </>
         </CashManagerContext.Provider>

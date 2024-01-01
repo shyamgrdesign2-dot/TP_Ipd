@@ -17,7 +17,7 @@ function Welcome(props) {
   const getFirstNameWithFallback = () => {
     const fullName = profile?.um_name;
 
-    if(!fullName) {
+    if (!fullName) {
       return "";
     }
 
@@ -35,9 +35,9 @@ function Welcome(props) {
         <div className="bg-welcome d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             {backVisible && (
-              <Link to="/" className="lh-1 me-1 px-2 text-dark">
+              <div onClick={() => navigate(-1)} className="lh-1 me-1 px-2 text-dark cursor-pointer">
                 <i className="fs-3 icon-right"></i>
-              </Link>
+              </div>
             )}
             <div>
               {locationPath == "/add_new_patient" ? (

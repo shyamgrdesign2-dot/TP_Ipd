@@ -11,7 +11,7 @@ import alertIcon from '../assets/images/alertIcon.svg';
 function HeaderPrescription() {
 
     const navigate = useNavigate();
-    const { symptomsData, examinationData, diagnosisData, adviceData, investigationData } = useContext(CashManagerContext);
+    const { state, symptomsData, examinationData, diagnosisData, adviceData, investigationData } = useContext(CashManagerContext);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -91,7 +91,7 @@ function HeaderPrescription() {
                                     }
                                 />
                             </div>
-                            <ProfilePopover />
+                            <ProfilePopover state={state}/>
                         </div>
                     </Col>
                     <Col lg="auto">

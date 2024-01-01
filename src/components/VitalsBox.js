@@ -5,14 +5,14 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import CashManagerContext from '../../context/CashManagerContext';
+import CashManagerContext from '../context/CashManagerContext';
 
 import {
     addUpdateVitals,
     getVitals,
-} from "../../redux/vitalsSlice";
+} from "../redux/vitalsSlice";
 
-function TabVitalsBox(props) {
+function VitalsBox(props) {
 
     const { handleDrawerVital, handleCollapsed } = props
 
@@ -23,16 +23,8 @@ function TabVitalsBox(props) {
     } = useSelector((state) => state.vitals);
     const dispatch = useDispatch();
 
-    const { state, vitalsData, setVitalsData } = useContext(CashManagerContext);
-    // const [ vitalsData, setVitalsData] = useState([]);
-
-    // useEffect(() => {
-    //     var sendData = {
-    //         patient_unique_id: state != undefined ? state.patient_unique_id : 0,
-    //         pam_id: state != undefined && state.pam_id != undefined ? state.pam_id : 0,
-    //     }
-    //     dispatch(getVitals(sendData));
-    // }, []);
+    const { state } = useContext(CashManagerContext);
+    const [ vitalsData, setVitalsData] = useState([]);
 
     useEffect(() => {
         const updatedData = vitalsTodayList.map((e, i) => {
@@ -139,14 +131,12 @@ function TabVitalsBox(props) {
             pam_id: state != undefined && state.pam_id != undefined ? state.pam_id : 0,
             data: vitalsData,
         };
-        console.log(sendData)
         const action = await dispatch(addUpdateVitals(sendData));
         if (action.meta.requestStatus == "fulfilled") {
             handleCollapsed(1)
         }
     }
 
-    //Child Componet
     const TABLE_VITALS = useMemo(() => {
         return (
             vitalsData.length > 0 &&
@@ -204,7 +194,7 @@ function TabVitalsBox(props) {
                         </Button>
                         <div className="modal-title">Vitals</div>
                     </div>
-                    <Button onClick={onAddUpdateClicked} className='btn btn-primary3 btn-41 px-4 me-20'>
+                    <Button onClick={onAddUpdateClicked} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading}>
                         Done
                     </Button>
                 </div>
@@ -280,4 +270,4 @@ function TabVitalsBox(props) {
 }
 
 
-export default React.memo(TabVitalsBox);
+export default React.memo(VitalsBox);

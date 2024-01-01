@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
+import { Drawer } from 'antd';
 
 import CashManagerContext from '../context/CashManagerContext';
 
@@ -12,6 +13,8 @@ import ExaminationBox from "../components/ExaminationBox";
 import DiagnosisBox from "../components/DiagnosisBox";
 import AdviceBox from "../components/AdviceBox";
 import InvestigationBox from "../components/InvestigationBox";
+import VitalsBox from "../components/VitalsBox";
+import VitalsList from "../components/VitalsList";
 
 function Prescription() {
 
@@ -22,8 +25,24 @@ function Prescription() {
   const [diagnosisData, setDiagnosisData] = useState([]);
   const [adviceData, setAdviceData] = useState([]);
   const [investigationData, setInvestigationData] = useState([]);
+  const [medicationData, setMedicationData] = useState([]);
+  const [vitalsData, setVitalsData] = useState([]);
 
-  const contextApi = { state, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData };
+  const contextApi = { state, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData };
+
+  const [collapsedFlag, setCollapsedFlag] = useState(1);
+  const [vitalDrawer, setVitalDrawer] = useState(false);
+
+  // Drawer Vitals
+  const handleDrawerVital = useCallback(() => {
+    setVitalDrawer(!vitalDrawer);
+  }, [vitalDrawer]);
+
+  //Handle Sider
+  const handleCollapsed = useCallback((flag) => {
+    setCollapsedFlag(flag);
+    setVitalDrawer(!vitalDrawer);
+  }, [collapsedFlag, vitalDrawer]);
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -39,13 +58,14 @@ function Prescription() {
                     <img src={vitals} alt="vitals" className="me-3" />
                     <div className="title-common">Vitals & Calculator</div>
                   </div>
-                  <Link>
-                    <button className="btn d-flex align-items-center btn-text">
-                      {" "}
-                      <i className="icon-Add me-1 fs-5"></i> <span>Add</span>
-                    </button>
-                  </Link>
+                  <button className="btn d-flex align-items-center btn-text" onClick={handleDrawerVital}>
+                    {" "}
+                    <i className={`${vitalsData.length > 0 ? 'icon-Edit' : 'icon-Add'} me-1 fs-5`}></i> <span>{`${vitalsData.length > 0 ? 'Edit' : 'Add'}`}</span>
+                  </button>
                 </div>
+                {collapsedFlag === 1 && (
+                  <VitalsList />
+                )}
               </div>
               <div>
                 <button className="btn btn-parameters mx-auto w-100">
@@ -64,6 +84,9 @@ function Prescription() {
             </div>
           </div>
         </div>
+        <Drawer closeIcon={false} placement="right" onClose={handleDrawerVital} open={vitalDrawer} className="modalWidth-645" width="auto">
+          <VitalsBox handleDrawerVital={handleDrawerVital} handleCollapsed={(flag) => handleCollapsed(flag)} />
+        </Drawer >
       </>
     </CashManagerContext.Provider>
   );
