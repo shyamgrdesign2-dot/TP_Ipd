@@ -58,11 +58,11 @@ function VitalsList() {
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">Systolic</div>
-                            <Input className='inputheight41-group mx-2' value={item.systolic} addonAfter={'mmhg'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={item.blood_press ? item.blood_press.split('/')[0] : ''} addonAfter={'mmhg'} readOnly />
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">Diastolic</div>
-                            <Input className='inputheight41-group mx-2' value={item.diastolic} addonAfter={'mmhg'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={item.blood_press ? item.blood_press.split('/')[1] : ''} addonAfter={'mmhg'} readOnly />
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">SPO2</div>
