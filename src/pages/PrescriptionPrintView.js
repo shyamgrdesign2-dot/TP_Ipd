@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from 'react-router-dom';
 import { Col, Row, Select, Button } from "antd";
 import { isMobile } from "react-device-detect";
 
-import HeaderPrescription from "../common/HeaderPrescription";
 import messageSent from '../assets/images/message-sent.svg';
+import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
 
 function PrescriptionPrintView() {
@@ -13,13 +13,13 @@ function PrescriptionPrintView() {
     
     return (
         <>
-            <HeaderPrescription />
+            <HeaderPrescriptionPrint />
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 custom-scroll prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={7} lg={7} xl={5}>
 
-                        {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38">
+                        {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38 " style={{visibility: 'hidden'}}>
                             <i className="icon-setting me-2"></i>
                             <span className="text-decoration-underline fw-medium"> Configure Print Setting </span>
                         </div>
@@ -27,7 +27,7 @@ function PrescriptionPrintView() {
                         <div className={`${!isMobile ? 'rounded-20px mt-20' : 'border-top-0 border-start-0 border-bottom-0'} border p-20 bg-white d-flex justify-content-between flex-column`}
                             style={{ height: !isMobile ? 'calc(100vh - 160px)' : 'calc(100vh - 60px)' }}>
                             <div>
-                                {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38">
+                                {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38" style={{visibility: 'hidden'}}>
                                     <i className="icon-setting me-2"></i>
                                     <span className="text-decoration-underline fw-medium"> Configure Print Setting </span>
                                 </div>
@@ -65,7 +65,7 @@ function PrescriptionPrintView() {
                                     <i className="icon-right iconrotate90 ms-auto"></i>
                                 </Button>
                             </div>
-                            <div className="bg-body d-flex p-3 rounded-10px border">
+                            <div className="bg-body d-flex p-3 rounded-10px border" style={{visibility: 'hidden'}}>
                                 <img src={messageSent} alt="whatsapp Message" className='align-self-baseline me-3' />
                                 <div className="fontroboto title-common">
                                     <div className="fw-normal fontroboto mb-2">WhatsApp & SMS Sent to </div>
