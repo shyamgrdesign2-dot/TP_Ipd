@@ -369,11 +369,11 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
       render: (_, record) => (
         <div size="middle">
           {type !== TAB_CANCELLED && (
-            <Link to="/patient_details">
+            // <Link to="/prescription" state={record}>
               <button className="btn btn-outline-primary btn-consult">
                 {type === TAB_FINISHED ? "PrintRx" : "Consult"}
               </button>
-            </Link>
+            // </Link>
           )}
           <Dropdown
             className="btn btn-outline btn-more ms-3"
@@ -638,7 +638,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
             <div className="border bg-body rounded-10px p-2 patient-details">
               <div className="d-flex align-items-center">
                 <i className="icon-patients me-2" />
-                
+
                 <span className="fw-medium">
                   {appointmentSelectedFromMenu?.name} (
                   {appointmentSelectedFromMenu?.pm_gender},{" "}
@@ -830,7 +830,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
         {END_VISIT_REASON_DISPLAY_MODAL}
       </div>
       <Drawer
-      className="modalWidth-700" width="auto"
+        className="modalWidth-700" width="auto"
         title="End Visit"
         placement="right"
         closable
