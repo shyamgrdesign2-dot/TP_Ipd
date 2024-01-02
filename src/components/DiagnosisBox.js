@@ -510,6 +510,7 @@ function DiagnosisBox() {
             <Input
               className="popinput"
               onChange={onSearch}
+              placeholder="Search Templates"
               prefix={<i className="icon-search me-2" />}
             />
           </div>

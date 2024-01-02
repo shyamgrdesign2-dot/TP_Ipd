@@ -428,6 +428,7 @@ function ExaminationBox() {
             <Input
               className="popinput"
               onChange={onSearch}
+              placeholder="Search Templates"
               prefix={<i className="icon-search me-2" />}
             />
           </div>
@@ -566,6 +567,7 @@ function ExaminationBox() {
               open={popOver1}
               onOpenChange={showHideTemplatesListPopover}
               content={TEMPLATE_CONTENT}
+              
               trigger="click"
               overlayClassName="pop-350 pp-0"
               placement="bottom"

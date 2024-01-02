@@ -144,7 +144,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
         <>
             <Card bordered={false} className="search-modalCard h-100">
                 <TabSearchHeader
-                    placeholder="Search Advice"
+                    placeholder="Search Advices"
                     searchQuery={searchChildQuery}
                     onSearchParent={onSearchParent}
                     onClose={onClose} />

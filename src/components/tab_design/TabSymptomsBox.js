@@ -261,7 +261,7 @@ function TabSymptomsBox() {
             <>
                 <div>
                     <div className="medicine-templates">
-                        <Input className="popinput" onChange={onSearch} prefix={<i className='icon-search me-2'></i>} />
+                        <Input className="popinput" onChange={onSearch} placeholder="Search Templates" prefix={<i className='icon-search me-2'></i>} />
                     </div>
                     <div className="tab-template-height" >
                         {matchedTemplates.length > 0 &&
