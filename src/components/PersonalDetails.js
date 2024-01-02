@@ -8,6 +8,9 @@ import {
 import dayjs from "dayjs";
 import { isMobile } from "react-device-detect";
 
+import { useDispatch, useSelector } from "react-redux";
+import { listSalutation } from "../redux/appointmentsSlice";
+
 const { Option } = Select;
 
 function PersonalDetails({ form }) {
@@ -16,8 +19,12 @@ function PersonalDetails({ form }) {
     const [ageYearsMonths, setAgeYearsMonths] = useState(null);
     const [birthDate, setBirthDate] = useState(null);
 
-    // Salutation
-    const salutationOption = ["Mr.", "Mrs.", "Mss.", "Other"];
+    const dispatch = useDispatch();
+    const { salutationData, loading } = useSelector((state) => state.records);
+
+    useEffect(() => {
+        dispatch(listSalutation());
+    }, []);
 
     // Form Rules
     const rules = {
@@ -116,10 +123,10 @@ function PersonalDetails({ form }) {
                     <Row gutter={{ xs: 8, sm: 18, md: 24, lg: 30 }}>
                         <Col xs={8} sm={8} md={6} lg={4}>
                             <Form.Item name="pm_salutation" label="Salutation">
-                                <Select placeholder="Select">
+                                <Select placeholder="Select" loading={loading}>
                                     {
-                                        salutationOption.map(elm => (
-                                            <Option key={elm} value={elm}>{elm}</Option>
+                                        salutationData.map(elm => (
+                                            <Option key={elm.ts_id} value={elm.ts_name}>{elm.ts_name}</Option>
                                         ))
                                     }
                                 </Select>

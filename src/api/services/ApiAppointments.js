@@ -62,4 +62,8 @@ ApiAppointments.getCaseTypes = function () {
   return api.post(`/api/v1/appointment/listCasetype`, {}, baseUrl);
 };
 
+ApiAppointments.listSalutation = function () {
+  return api.get(`/api/v1/appointment/showSalutation`, baseUrl);
+};
+
 export default ApiAppointments;

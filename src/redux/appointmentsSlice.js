@@ -15,6 +15,7 @@ const initialState = {
   caseTypes: [],
   cancelledAppointment: null,
   endedAppointment: null,
+  salutationData: [],
 };
 
 export const getAllRecords = createAsyncThunk(
@@ -139,6 +140,23 @@ export const getCaseTypes = createAsyncThunk(
       const result = await ApiAppointments.getCaseTypes();
       if (result.status) {
         return result.data.case_type;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
+export const listSalutation = createAsyncThunk(
+  "records/listSalutation",
+  async () => {
+    try {
+      const result = await ApiAppointments.listSalutation();
+      if (result.status) {
+        return result.data;
       } else {
         throw Error(result.error);
       }
@@ -331,6 +349,18 @@ const appointmentsSlice = createSlice({
       .addCase(searchPincode.rejected, (state, action) => {
         state.pincodeInfo = null;
         console.log("searchPincode.rejected.payload: ", action);
+        state.error = action.error;
+      })
+      .addCase(listSalutation.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(listSalutation.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.salutationData = action.payload;
+      })
+      .addCase(listSalutation.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.error;
       })
       .addCase(addPatient.pending, (state) => {
