@@ -6,6 +6,7 @@ import {
     getFormattedDate,
 } from "../utils/utils";
 import dayjs from "dayjs";
+import moment from "moment";
 import { isMobile } from "react-device-detect";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -55,11 +56,10 @@ function PersonalDetails({ form }) {
     };
 
     const onBirthDateChanged = (date, dateString) => {
-        console.log("onBirthDateChanged triggred: ", dateString);
-        console.log(date);
         if (dateString) {
             setBirthDate(dateString);
-            const age = calculateAge(getFormattedDate(dateString));
+            const remaingDate = moment(dateString).add(1, 'day').format('YYYY-MM-DD')
+            const age = calculateAge(getFormattedDate(remaingDate));
             setAgeYearsMonths(age);
         }
     };
@@ -71,35 +71,34 @@ function PersonalDetails({ form }) {
 
     useEffect(() => {
         if (ageYearsMonths) {
-            let dateObj = new Date();
-            let year =
-                dateObj.getUTCFullYear() -
-                parseInt(
+            const newDate = new Date();
+            newDate.setFullYear(
+                newDate.getFullYear() - parseInt(
                     ageYearsMonths.hasOwnProperty("years")
                         ? ageYearsMonths.years != ""
                             ? ageYearsMonths.years
                             : 0
                         : 0
-                );
-            let month =
-                dateObj.getUTCMonth() +
-                1 -
-                parseInt(
+                ));
+            newDate.setMonth(
+                newDate.getMonth() - parseInt(
                     ageYearsMonths.hasOwnProperty("months")
                         ? ageYearsMonths.months != ""
                             ? ageYearsMonths.months
                             : 0
                         : 0
-                ); //months from 1-12
-            let day = birthDate ? birthDate.split("-")[2] : 1;
-            let newdate = year + "-" + month + "-" + day;
-            /* console.log(
-              "calculateBirthdateFromAge",
-              calculateBirthdateFromAge(ageYearsMonths)
-            ); */
-            setBirthDate(newdate);
+                ));
+            newDate.setDate(newDate.getDate() - parseInt(
+                ageYearsMonths.hasOwnProperty("days")
+                    ? ageYearsMonths.days != ""
+                        ? ageYearsMonths.days
+                        : 0
+                    : 0
+            ));
+
+            setBirthDate(newDate);
             form.setFieldsValue({
-                pm_dob: dayjs(getFormattedDate(newdate), "YYYY-MM-DD"),
+                pm_dob: dayjs(getFormattedDate(newDate), "YYYY-MM-DD"),
             });
         }
     }, [ageYearsMonths]);
@@ -123,7 +122,7 @@ function PersonalDetails({ form }) {
                     <Row gutter={{ xs: 8, sm: 18, md: 24, lg: 30 }}>
                         <Col xs={8} sm={8} md={6} lg={4}>
                             <Form.Item name="pm_salutation" label="Salutation">
-                                <Select placeholder="Select" loading={loading}>
+                                <Select placeholder="Select">
                                     {
                                         salutationData.map(elm => (
                                             <Option key={elm.ts_id} value={elm.ts_name}>{elm.ts_name}</Option>
@@ -147,7 +146,7 @@ function PersonalDetails({ form }) {
                                 name="pm_contact_no"
                                 label="Mobile Number"
                                 rules={rules.mobile_no}>
-                                <Input placeholder="Enter 10 digit number" type="tel" maxLength={10} />
+                                <Input placeholder="Enter 10 digit number" type="number" inputmode="numeric" maxLength={10} />
                             </Form.Item>
                         </Col>
                         <Col xs={24} sm={24} md={12} lg={12}>

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { Col, Row } from "react-bootstrap";
 import { Form, Tabs, Button } from "antd";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import TabHeader from "../components/tab_design/TabHeader";
@@ -13,14 +14,14 @@ import { addPatient } from "../redux/appointmentsSlice";
 const { TabPane } = Tabs;
 
 function AddNewPatient() {
-
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const { loading, error } = useSelector((state) => state.records);
 
     const [form] = Form.useForm();
 
     const onFinish = () => {
-        form.validateFields().then(values => {
+        form.validateFields().then(async (values) => {
             const finalValues = {
                 ...values,
                 pm_salutation: values.pm_salutation != undefined ? values.pm_salutation : '',
@@ -30,7 +31,10 @@ function AddNewPatient() {
                 pm_state: values.pm_state != undefined ? values.pm_state : '',
                 pm_address: values.pm_address != undefined ? values.pm_address : '',
             };
-            dispatch(addPatient(finalValues));
+            const action = await dispatch(addPatient(finalValues));
+            if (action.meta.requestStatus == "fulfilled") {
+                navigate(-1)
+            }
         }).catch(info => {
             console.log('info', info)
         });
@@ -81,7 +85,7 @@ function AddNewPatient() {
                         <>
                             <hr className="my-0" />
                             <div className="text-end p-20">
-                                <button className="btn btn-text text-decoration-underline me-3">
+                                <button className="btn btn-text text-decoration-underline me-3" onClick={() => navigate(-1)}>
                                     Cancel
                                 </button>
                                 <Button

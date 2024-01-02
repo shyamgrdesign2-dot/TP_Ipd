@@ -70,34 +70,17 @@ export const parseApiError = (errorResponse) => {
   }
 };
 
-export function calculateAge(birthdate) {
-  // Parse the birthdate string into a Date object
-  const birthdateDate = new Date(birthdate);
-
-  // Get the current date
+export function calculateAge(dateOfBirth) {
+  const dob = new Date(dateOfBirth);
   const currentDate = new Date();
 
-  // Calculate the difference in years and months
-  let yearsDiff = currentDate.getFullYear() - birthdateDate.getFullYear();
-  const monthsDiff = currentDate.getMonth() - birthdateDate.getMonth();
+  const ageInMilliseconds = currentDate - dob;
+  const ageInYears = Math.floor(ageInMilliseconds / (365.25 * 24 * 60 * 60 * 1000));
+  const ageInMonths = Math.floor((ageInMilliseconds % (365.25 * 24 * 60 * 60 * 1000)) / (30.44 * 24 * 60 * 60 * 1000));
+  const ageInDays = Math.floor((ageInMilliseconds % (30.44 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000));
 
-  // Adjust the age if the birthdate month is later than the current month
-  if (
-    monthsDiff < 0 ||
-    (monthsDiff === 0 && currentDate.getDate() < birthdateDate.getDate())
-  ) {
-    yearsDiff = yearsDiff > 0 ? yearsDiff-- : 0;
-  }
-
-  // Calculate the remaining months
-  const remainingMonths = (12 + monthsDiff) % 12;
-
-  // Return the age in years and months
-  return {
-    years: yearsDiff,
-    months: remainingMonths,
-  };
-}
+  return { years: ageInYears, months: ageInMonths, days: ageInDays };
+};
 
 export function calculateBirthdateFromAge(age) {
   // Get the current date
