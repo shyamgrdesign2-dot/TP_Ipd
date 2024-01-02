@@ -40,6 +40,7 @@ function WalkInConsultation() {
                         </div>
                     </div>
                     <div className="d-flex align-items-center">
+                        {/* <Link to='/patient_details' state={patient}> */}
                         <Button
                             type="text"
                             className="btn btn-primary2 me-4 align-items-center d-flex"
@@ -50,6 +51,7 @@ function WalkInConsultation() {
                         >
                             Patient Details
                         </Button>
+                        {/* </Link> */}
                         <Button
                             type="text"
                             className="btn btn-primary3 align-items-center d-flex"
@@ -166,6 +168,7 @@ function WalkInConsultation() {
                             <span className="title-common">Choose Action</span>
                             <div className="d-flex align-items-center mt-2">
                                 <div className="w-50">
+                                    {/* <Link to='/patient_details' state={clickedPatient}> */}
                                     <Button
                                         type="text"
                                         className="btn btn-primary2 align-items-center d-flex btn-41 w-100"
@@ -177,6 +180,7 @@ function WalkInConsultation() {
                                         View Patient Details{" "}
                                         <i className="icon-right iconrotate90 ms-auto" />
                                     </Button>
+                                    {/* </Link> */}
                                 </div>
                                 <Button
                                     type="text"

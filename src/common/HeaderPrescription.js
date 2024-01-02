@@ -65,7 +65,7 @@ function HeaderPrescription() {
         }
         const action = await dispatch(addCaseManager(sendData));
         if (action.meta.requestStatus == "fulfilled") {
-            navigate('/prescription_print_view', { state: action.payload })
+            navigate('/prescription_print_view', { state: { ...action.payload, ...state } })
         }
     }
 
