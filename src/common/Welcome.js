@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
 

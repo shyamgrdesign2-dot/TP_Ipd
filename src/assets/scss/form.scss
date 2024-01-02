@@ -135,7 +135,7 @@ body {
         letter-spacing: 0.1px;
     }
     .ant-input {
-        &:hover {
+        &:hover, &:focus {
             border-color: $theme;
         }
         &.notesinput{

@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Col, Row, Select, Button } from "antd";
 import { isMobile } from "react-device-detect";
 
@@ -83,16 +83,44 @@ function PrescriptionPrintView() {
                                     <Select placeholder="English" className='ms-3 appointmentselect '
                                         options={[
                                             {
-                                                value: 'english',
+                                                value: '1',
                                                 label: 'English',
                                             },
                                             {
-                                                value: 'hindi',
+                                                value: '2',
+                                                label: 'Gujarati',
+                                            },
+                                            {
+                                                value: '3',
                                                 label: 'Hindi',
                                             },
                                             {
-                                                value: 'gujarati',
-                                                label: 'Gujarati',
+                                                value: '4',
+                                                label: 'Marathi',
+                                            },
+                                            {
+                                                value: '5',
+                                                label: 'Telugu',
+                                            },
+                                            {
+                                                value: '6',
+                                                label: 'Kannada',
+                                            },
+                                            {
+                                                value: '7',
+                                                label: 'Urdu',
+                                            },
+                                            {
+                                                value: '8',
+                                                label: 'Punjabi',
+                                            },
+                                            {
+                                                value: '9',
+                                                label: 'Malayalam',
+                                            },
+                                            {
+                                                value: '10',
+                                                label: 'Tamil',
                                             },
                                         ]}
                                     />
@@ -100,7 +128,7 @@ function PrescriptionPrintView() {
                             </div>
                             <div className="border rounded-20px bg-white mt-20">
                                 <div className="printheight">
-                                    <embed className="printBox" src={`${state.print_url}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed>
+                                    <embed className="printBox" src={state != undefined && `${state.print_url}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed>
                                 </div>
                             </div>
                         </div>

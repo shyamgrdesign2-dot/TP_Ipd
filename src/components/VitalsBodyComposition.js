@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Card from 'react-bootstrap/Card';
-import { Table, Input } from 'antd';
+import { Table } from 'antd';
 
 import vitals from '../assets/images/Vitals.svg';
-import arrowright from '../assets/images/arrow-box-right.svg';
-import graph from '../assets/images/Graph.svg';
+// import arrowright from '../assets/images/arrow-box-right.svg';
+// import graph from '../assets/images/Graph.svg';
 import heartBeat from '../assets/images/heartBeat.svg';
 
 function VitalsBodyComposition({ passVitals }) {
@@ -49,7 +49,7 @@ function VitalsBodyComposition({ passVitals }) {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            width: 100,
+            width: 160,
         },
     ];
 

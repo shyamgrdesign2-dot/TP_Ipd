@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef, useContext, useMemo } from "react";
-import { AutoComplete, Input, Button, Drawer, Tabs, message, Select, Card, Spin, Segmented } from 'antd';
+import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
+import { Input, Button, Drawer, Tabs, message, Select, Card, Spin } from 'antd';
 
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";

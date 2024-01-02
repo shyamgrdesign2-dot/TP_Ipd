@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import Card from 'react-bootstrap/Card';
-import { Table, Dropdown, Button } from 'antd';
+import { Table, Dropdown } from 'antd';
 
 import Symptomsicon from '../assets/images/Symptoms.svg';
 import Examinationsicon from '../assets/images/Examination.svg';
 import Diagnosisicon from '../assets/images/Diagnosis.svg';
 import Medicationicon from '../assets/images/Medication.svg';
 import Frameicon from '../assets/images/Frame.svg';
-import notesicon from '../assets/images/notes.svg';
-import calenderBlank from '../assets/images/calenderBlank.svg';
+import Investigationicon from "../assets/images/Lab.svg";
+// import notesicon from '../assets/images/notes.svg';
+// import calenderBlank from '../assets/images/calenderBlank.svg';
 
 function Cardiology({ viewCaseManagerData }) {
 
@@ -170,7 +171,7 @@ function Cardiology({ viewCaseManagerData }) {
                                 </div>
                              )}
                             <div>
-                                <div className='d-flex align-items-start'>
+                                <div className='d-flex align-items-center'>
                                     <img className='me-2' src={Medicationicon} alt="Medication" />
                                     <div>
                                         <div className='title'>Medication</div>
@@ -198,7 +199,7 @@ function Cardiology({ viewCaseManagerData }) {
                              )}
                              {viewCaseManagerData.investigation.length > 0 &&(
                                 <div className='d-flex align-items-start mb-4'>
-                                    <img className='me-2' src={Frameicon} alt="Advice" />
+                                    <img className='me-2' src={Investigationicon} alt="Advice" />
                                     <div>
                                         <div className='title'>Lab Investigation</div>
                                             {viewCaseManagerData.investigation.map((item, i) => {

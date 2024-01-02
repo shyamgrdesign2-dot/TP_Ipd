@@ -84,7 +84,7 @@ function VitalsList() {
 
     return (
         <>
-            <div className="overflow-y-auto" style={{ height: "250px" }}>
+            <div className="overflow-y-auto" style={{ height: `${vitalsTodayList.length > 0 && "250px"}` }}>
                 {TODAY_VITALS}
             </div>
         </>

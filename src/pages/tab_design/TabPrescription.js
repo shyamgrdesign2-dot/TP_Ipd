@@ -18,11 +18,11 @@ import VitalsBox from "../../components/VitalsBox";
 import TabVitalsList from "../../components/tab_design/TabVitalsList";
 
 import vitalsWhite from '../../assets/images/vitals-white.svg';
-import medicalHistoryWhite from '../../assets/images/medical-history-white.svg';
-import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
-import vaccinationWhite from '../../assets/images/vaccination-white.svg';
-import notesWhite from '../../assets/images/notes-white.svg';
-import docsWhite from '../../assets/images/docs-white.svg';
+// import medicalHistoryWhite from '../../assets/images/medical-history-white.svg';
+// import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
+// import vaccinationWhite from '../../assets/images/vaccination-white.svg';
+// import notesWhite from '../../assets/images/notes-white.svg';
+// import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
 
 
@@ -118,7 +118,7 @@ function TabPrescription() {
                         </div>
                     </Layout>
                 </div>
-                <Drawer closeIcon={false} placement="right" onClose={handleDrawerVital} open={vitalDrawer} className="modalWidth-645" width="auto">
+                <Drawer closeIcon={false} placement="right" onClose={handleDrawerVital} open={vitalDrawer} className="modalWidth-700" width="auto">
                     <VitalsBox handleDrawerVital={handleDrawerVital} handleCollapsed={(flag) => handleCollapsed(flag)} />
                 </Drawer >
             </>

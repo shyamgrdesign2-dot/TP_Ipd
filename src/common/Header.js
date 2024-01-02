@@ -110,7 +110,7 @@ function Header({onClickChanged}) {
             }}
             options={clinicOptions}
           />
-          <Dropdown className="dropdown-profile nav-link-profile mx-1 pt-1 align-items-center">
+          {/* <Dropdown className="dropdown-profile nav-link-profile mx-1 pt-1 align-items-center">
             <Dropdown.Toggle
               id="navbarDropdown"
               variant=""
@@ -126,8 +126,8 @@ function Header({onClickChanged}) {
                 <span>Logout</span>
               </Dropdown.Item>
             </Dropdown.Menu>
-          </Dropdown>
-          <Dropdown className="dropdown-profile nav-link-profile mx-1 pt-1">
+          </Dropdown> */}
+          {/* <Dropdown className="dropdown-profile nav-link-profile mx-1 pt-1">
             <Dropdown.Toggle
               id="navbarDropdown"
               variant=""
@@ -143,7 +143,7 @@ function Header({onClickChanged}) {
                 <span>Logout</span>
               </Dropdown.Item>
             </Dropdown.Menu>
-          </Dropdown>
+          </Dropdown> */}
           <Dropdown className="dropdown-profile nav-link-profile mx-1">
             <Dropdown.Toggle
               id="navbarDropdown"

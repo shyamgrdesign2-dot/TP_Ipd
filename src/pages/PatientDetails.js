@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Layout, Button } from "antd";
 import { isMobile } from 'react-device-detect';
 
 import SidebarPatient from '../common/SidebarPatient'
 import Welcome1 from '../common/Welcome1'
 import VitalsBodyComposition from '../components/VitalsBodyComposition';
-import LabParameters from '../components/LabParameters';
-import MedicalHistory from '../components/MedicalHistory';
-import Vaccination from '../components/Vaccination';
+// import LabParameters from '../components/LabParameters';
+// import MedicalHistory from '../components/MedicalHistory';
+// import Vaccination from '../components/Vaccination';
 import Cardiology from '../components/Cardiology';
 import variables from '../assets/scss/variables.scss'
 
