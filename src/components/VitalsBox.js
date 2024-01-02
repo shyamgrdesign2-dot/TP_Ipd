@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback, useRef, useContext, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
 import { Button, message, Card, DatePicker, Input, Tooltip } from 'antd';
 import dayjs from "dayjs";
 
-import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../context/CashManagerContext';
 

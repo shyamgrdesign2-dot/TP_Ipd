@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useContext, useCallback, useMemo } from "react";
 import { Button, Card, Row, Col, Segmented, Input } from 'antd';
 
 import { useSelector, useDispatch } from "react-redux";

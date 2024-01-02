@@ -4,7 +4,6 @@ import {
   Input,
   Button,
   Row,
-  Col,
   Select,
   Popover,
   Tabs,
@@ -20,7 +19,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat } from "../utils/utils";
+// import { onlyNumberFormat } from "../utils/utils";
 import Adviceicon from "../assets/images/advice.svg";
 import {
   addTemplate,

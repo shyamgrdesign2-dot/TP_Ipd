@@ -830,7 +830,7 @@ function AppointmentData({ clinicChanged, type, setSelectedTab }) {
         {END_VISIT_REASON_DISPLAY_MODAL}
       </div>
       <Drawer
-      className="modalWidth-645" width="auto"
+      className="modalWidth-700" width="auto"
         title="End Visit"
         placement="right"
         closable
