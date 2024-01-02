@@ -66,28 +66,28 @@ function VitalsDetails() {
                                 <div key={i} className='vitals-wrap-body w-100 vitals-child-width'>
                                     <div className='vitals-head rounded-start-0 w-100'>{item.date}</div>
                                     <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                                        <Input className='inputheight41-group' value={item.temp} addonAfter={'mmhg'} />
+                                        <Input className='inputheight41-group' type="number" inputmode="numeric" value={item.temp} addonAfter={'mmhg'} />
                                     </div>
                                     <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                        <Input className='inputheight41-group' type="number" inputmode="numeric" addonAfter={'mmhg'} />
                                     </div>
                                     <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                        <Input className='inputheight41-group' type="number" inputmode="numeric" addonAfter={'mmhg'} />
                                     </div>
                                     <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                        <Input className='inputheight41-group' type="number" inputmode="numeric" addonAfter={'mmhg'} />
                                     </div>
                                     <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                        <Input className='inputheight41-group' type="number" inputmode="numeric" addonAfter={'mmhg'} />
                                     </div>
                                     <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                        <Input className='inputheight41-group' type="number" inputmode="numeric" addonAfter={'mmhg'} />
                                     </div>
                                     <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
-                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                        <Input className='inputheight41-group' type="number" inputmode="numeric" addonAfter={'mmhg'} />
                                     </div>
                                     <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
-                                        <Input className='inputheight41-group' addonAfter={'mmhg'} />
+                                        <Input className='inputheight41-group' type="number" inputmode="numeric" addonAfter={'mmhg'} />
                                     </div>
                                     <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
                                         <div className='fs-14 '>22.2 kg/m² </div>

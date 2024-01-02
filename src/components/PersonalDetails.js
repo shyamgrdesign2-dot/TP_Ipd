@@ -146,7 +146,7 @@ function PersonalDetails({ form }) {
                                 name="pm_contact_no"
                                 label="Mobile Number"
                                 rules={rules.mobile_no}>
-                                <Input placeholder="Enter 10 digit number" type="number" inputmode="numeric" maxLength={10} />
+                                <Input placeholder="Enter 10 Digit Number" type="number" inputmode="numeric" maxLength={10} minLength={10} />
                             </Form.Item>
                         </Col>
                         <Col xs={24} sm={24} md={12} lg={12}>

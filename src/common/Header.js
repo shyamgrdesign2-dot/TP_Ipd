@@ -154,17 +154,17 @@ function Header({onClickChanged}) {
               <img
                 src={profile?.um_image ?? defaultprofile}
                 alt="Profile"
-                style={{ width: "30px" }}
+                style={{ width: "35px" }}
               />
             </Dropdown.Toggle>
-            <Dropdown.Menu className="dropdown-menu-end">
+            {/* <Dropdown.Menu className="dropdown-menu-end">
               <Dropdown.Item>
                 <span>Profile</span>
               </Dropdown.Item>
               <Dropdown.Item>
                 <span>Logout</span>
               </Dropdown.Item>
-            </Dropdown.Menu>
+            </Dropdown.Menu> */}
           </Dropdown>
         </Nav>
       </Container>
