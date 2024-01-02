@@ -249,8 +249,10 @@
 }
 
 .printheight {
-    overflow-y: auto;
     height: calc(100vh - 200px);
+    .printBox {
+        border-radius: 20px;
+    }
 }
 
 // Prescription tab design

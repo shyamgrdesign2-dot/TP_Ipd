@@ -98,9 +98,9 @@ function PrescriptionPrintView() {
                                     />
                                 </div>
                             </div>
-                            <div className="border rounded-20px p-20 pe-1 bg-white mt-20">
+                            <div className="border rounded-20px bg-white mt-20">
                                 <div className="printheight">
-                                    <embed src="https://pms-upgrade.azurewebsites.net/case_manager/pdf_casemanager_send.php?pdf_id=MTI3NDA4&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ==&lg=MQ==#toolbar=0&navpanes=0&scrollbar=0" height="100%" width="100%"></embed>
+                                    <embed className="printBox" src={`${state.print_url}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed>
                                 </div>
                             </div>
                         </div>

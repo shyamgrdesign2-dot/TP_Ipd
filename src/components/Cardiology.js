@@ -10,7 +10,7 @@ import Frameicon from '../assets/images/Frame.svg';
 import notesicon from '../assets/images/notes.svg';
 import calenderBlank from '../assets/images/calenderBlank.svg';
 
-function Cardiology() {
+function Cardiology({ viewCaseManagerData }) {
 
     const [filteredInfo, setFilteredInfo] = useState({});
     const [setSortedInfo] = useState({});
@@ -122,56 +122,105 @@ function Cardiology() {
                     </div>
                 </Card.Header>
                 <Card.Body className='p-0 cardbody-data'>
-                     <div>
+                    <div>
                         <div className='p-3'>
-                            <div className='d-flex align-items-start mb-4'>
-                                <img className='me-2' src={Symptomsicon} alt="Symptoms" />
-                                <div>
-                                    <div className='title'>Symptoms</div>
-                                    <span>Chest pain</span> - <label>2 Months, Mild, Lorem ispsum dolor sit amet</label> | <span>Cold </span> - <label>1 Month, Severe </label>
+                            {viewCaseManagerData.symptoms.length > 0 && (
+                                <div className='d-flex align-items-start mb-4'>
+                                    <img className='me-2' src={Symptomsicon} alt="Symptoms" />
+                                    <div>
+                                        <div className='title'>Symptoms</div>
+                                        {viewCaseManagerData.symptoms.map((item, i) => {
+                                            return (
+                                                <>
+                                                    <span key={i}>{item.symptom_name}</span> - <label>{`${item.since} ${item.severity && `, ${item.severity}`} ${item.note && `, ${item.note}`}`}</label>{viewCaseManagerData.symptoms.length - 1 != i && ' | '}
+                                                </>
+                                            )
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className='d-flex align-items-start mb-4'>
-                                <img className='me-2' src={Examinationsicon} alt="Examinations" />
-                                <div>
-                                    <div className='title'>Examinations</div>
-                                    <span>No dehydration</span> - <label>Lorem ispsum dolor sit amet, consectetur adipiscing elit</label> | <span>Chest congestion </span> : <label>lorem ipsum dolor sit </label>
+                            )}
+                            {viewCaseManagerData.examination.length > 0 && (
+                                <div className='d-flex align-items-start mb-4'>
+                                    <img className='me-2' src={Examinationsicon} alt="Examinations" />
+                                    <div>
+                                        <div className='title'>Examinations</div>
+                                            {viewCaseManagerData.examination.map((item, i) => {
+                                                return (
+                                                    <>
+                                                        <span key={i}>{item.examination_name}</span> : <label>{item.note}</label>{viewCaseManagerData.examination.length - 1 != i && ' | '}
+                                                    </>
+                                                )
+                                            })}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className='d-flex align-items-start mb-4'>
-                                <img className='me-2' src={Diagnosisicon} alt="Diagnosis" />
-                                <div>
-                                    <div className='title'>Diagnosis</div>
-                                    <span>Hypertension</span> - <label>1 month, suspected, Lorem ipsum dolor sit amet, consectetur adipiscing elit</label> | <span>Heaet failure </span> - <label>3 month, Confirmed </label>
+                             )}
+                             {viewCaseManagerData.diagnosis.length > 0 && (
+                                <div className='d-flex align-items-start mb-4'>
+                                    <img className='me-2' src={Diagnosisicon} alt="Diagnosis" />
+                                    <div>
+                                        <div className='title'>Diagnosis</div>
+                                            {viewCaseManagerData.diagnosis.map((item, i) => {
+                                                return (
+                                                    <>
+                                                        <span key={i}>{item.tds_name}</span> - <label>{`${item.since} ${item.status && `, ${item.status}`} ${item.note && `, ${item.note}`}`}</label>{viewCaseManagerData.diagnosis.length - 1 != i && ' | '}
+                                                    </>
+                                                )
+                                            })}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className='d-flex align-items-start'>
-                                <img className='me-2' src={Medicationicon} alt="Medication" />
-                                <div>
-                                    <div className='title'>Medication</div>
+                             )}
+                            <div>
+                                <div className='d-flex align-items-start'>
+                                    <img className='me-2' src={Medicationicon} alt="Medication" />
+                                    <div>
+                                        <div className='title'>Medication</div>
+                                    </div>
+                                </div>
+                                <div className='border-top border-bottom mt-2'>
+                                    <Table className='table-border' columns={columns} dataSource={data} onChange={handleChange} pagination={false} />
                                 </div>
                             </div>
                         </div>
-                        <div className='border-top border-bottom'>
-                            <Table className='table-border' columns={columns} dataSource={data} onChange={handleChange} pagination={false} />
-                        </div>
                         <div className='p-3'>
-                            <div className='d-flex align-items-start mb-4'>
-                                <img className='me-2' src={Frameicon} alt="Advice" />
-                                <div>
-                                    <div className='title'>Advice</div>
-                                    <label>Avoid spicy food, No alcohol</label>
+                            {viewCaseManagerData.advice.length > 0 && (
+                                <div className='d-flex align-items-start mb-4'>
+                                    <img className='me-2' src={Frameicon} alt="Advice" />
+                                    <div>
+                                        <div className='title'>Advice</div>
+                                        
+                                            {viewCaseManagerData.advice.map((item, i) => {
+                                                return (
+                                                    <label>{`${i != 0 ? ', ' : ''}${item.advice_name}`}</label>
+                                                )
+                                            })}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className='d-flex align-items-start mb-4'>
+                             )}
+                             {viewCaseManagerData.investigation.length > 0 &&(
+                                <div className='d-flex align-items-start mb-4'>
+                                    <img className='me-2' src={Frameicon} alt="Advice" />
+                                    <div>
+                                        <div className='title'>Lab Investigation</div>
+                                            {viewCaseManagerData.investigation.map((item, i) => {
+                                                return (
+                                                    <>
+                                                        <span key={i}>{item.investigation_name}</span> : <label>{item.note}</label>{viewCaseManagerData.investigation.length - 1 != i && ' | '}
+                                                    </>
+                                                )
+                                            })}
+                                    </div>
+                                </div>
+                            )}
+                            {/* Use This in 2nd Version */}
+                            {/* <div className='d-flex align-items-start mb-4'>
                                 <img className='me-2' src={notesicon} alt="Doctor Note" />
                                 <div>
                                     <div className='title'>Doctor Note</div>
                                     <label>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt</label>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
-                    </div> 
+                    </div>
                     {/* <div className='d-flex flex-column justify-content-center' style={{"height": "calc(100vh - 200px)"}}>
                         <div className='align-items-center text-center'>
                             <img src={calenderBlank} width={57} height={62} alt="No vital & body composition saved for the patient!" />
