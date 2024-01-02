@@ -58,8 +58,8 @@ function PersonalDetails({ form }) {
     const onBirthDateChanged = (date, dateString) => {
         if (dateString) {
             setBirthDate(dateString);
-            const remaingDate = moment(dateString).add(1, 'day').format('YYYY-MM-DD')
-            const age = calculateAge(getFormattedDate(remaingDate));
+            // const remaingDate = moment(dateString).add(1, 'day').format('YYYY-MM-DD')
+            const age = calculateAge(getFormattedDate(dateString));
             setAgeYearsMonths(age);
         }
     };
@@ -203,7 +203,7 @@ function PersonalDetails({ form }) {
                                 <DatePicker
                                     className="w-100"
                                     inputReadOnly
-                                    placeholder="dd-mm-yyyy"
+                                    placeholder="YYYY-MM-DD"
                                     onChange={onBirthDateChanged}
                                     disabledDate={disabledDate}
                                     value={

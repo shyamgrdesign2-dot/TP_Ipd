@@ -130,13 +130,15 @@ function Cardiology({ viewCaseManagerData }) {
                                     <img className='me-2' src={Symptomsicon} alt="Symptoms" />
                                     <div>
                                         <div className='title'>Symptoms</div>
-                                        {viewCaseManagerData.symptoms.map((item, i) => {
-                                            return (
-                                                <>
-                                                    <span key={i}>{item.symptom_name}</span> - <label>{`${item.since} ${item.severity && `, ${item.severity}`} ${item.note && `, ${item.note}`}`}</label>{viewCaseManagerData.symptoms.length - 1 != i && ' | '}
-                                                </>
-                                            )
-                                        })}
+                                        <div className='d-flex'>
+                                            {viewCaseManagerData.symptoms.map((item, i) => {
+                                                return (
+                                                    <div key={i}>
+                                                        <span>{item.symptom_name}</span> - <label>{`${item.since} ${item.severity && `, ${item.severity}`} ${item.note && `, ${item.note}`}`}</label>{viewCaseManagerData.symptoms.length - 1 != i && ' | '}
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -145,31 +147,35 @@ function Cardiology({ viewCaseManagerData }) {
                                     <img className='me-2' src={Examinationsicon} alt="Examinations" />
                                     <div>
                                         <div className='title'>Examinations</div>
+                                        <div className='d-flex'>
                                             {viewCaseManagerData.examination.map((item, i) => {
                                                 return (
-                                                    <>
-                                                        <span key={i}>{item.examination_name}</span> : <label>{item.note}</label>{viewCaseManagerData.examination.length - 1 != i && ' | '}
-                                                    </>
+                                                    <div key={i}>
+                                                        <span>{item.examination_name}</span> : <label>{item.note}</label>{viewCaseManagerData.examination.length - 1 != i && ' | '}
+                                                    </div>
                                                 )
                                             })}
+                                        </div>
                                     </div>
                                 </div>
-                             )}
-                             {viewCaseManagerData.diagnosis.length > 0 && (
+                            )}
+                            {viewCaseManagerData.diagnosis.length > 0 && (
                                 <div className='d-flex align-items-start mb-4'>
                                     <img className='me-2' src={Diagnosisicon} alt="Diagnosis" />
                                     <div>
                                         <div className='title'>Diagnosis</div>
+                                        <div className='d-flex'>
                                             {viewCaseManagerData.diagnosis.map((item, i) => {
                                                 return (
-                                                    <>
-                                                        <span key={i}>{item.tds_name}</span> - <label>{`${item.since} ${item.status && `, ${item.status}`} ${item.note && `, ${item.note}`}`}</label>{viewCaseManagerData.diagnosis.length - 1 != i && ' | '}
-                                                    </>
+                                                    <div key={i}>
+                                                        <span>{item.tds_name}</span> - <label>{`${item.since} ${item.status && `, ${item.status}`} ${item.note && `, ${item.note}`}`}</label>{viewCaseManagerData.diagnosis.length - 1 != i && ' | '}
+                                                    </div>
                                                 )
                                             })}
+                                        </div>
                                     </div>
                                 </div>
-                             )}
+                            )}
                             <div>
                                 <div className='d-flex align-items-center'>
                                     <img className='me-2' src={Medicationicon} alt="Medication" />
@@ -188,27 +194,29 @@ function Cardiology({ viewCaseManagerData }) {
                                     <img className='me-2' src={Frameicon} alt="Advice" />
                                     <div>
                                         <div className='title'>Advice</div>
-                                        
-                                            {viewCaseManagerData.advice.map((item, i) => {
-                                                return (
-                                                    <label>{`${i != 0 ? ', ' : ''}${item.advice_name}`}</label>
-                                                )
-                                            })}
+
+                                        {viewCaseManagerData.advice.map((item, i) => {
+                                            return (
+                                                <label key={i}>{`${i != 0 ? ', ' : ''}${item.advice_name}`}</label>
+                                            )
+                                        })}
                                     </div>
                                 </div>
-                             )}
-                             {viewCaseManagerData.investigation.length > 0 &&(
+                            )}
+                            {viewCaseManagerData.investigation.length > 0 && (
                                 <div className='d-flex align-items-start mb-4'>
                                     <img className='me-2' src={Investigationicon} alt="Advice" />
                                     <div>
                                         <div className='title'>Lab Investigation</div>
+                                        <div className='d-flex'>
                                             {viewCaseManagerData.investigation.map((item, i) => {
                                                 return (
-                                                    <>
+                                                    <div key={i}>
                                                         <span key={i}>{item.investigation_name}</span> : <label>{item.note}</label>{viewCaseManagerData.investigation.length - 1 != i && ' | '}
-                                                    </>
+                                                    </div>
                                                 )
                                             })}
+                                        </div>
                                     </div>
                                 </div>
                             )}
