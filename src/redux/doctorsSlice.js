@@ -3,7 +3,7 @@ import { parseApiError } from "../utils/utils";
 import ApiAppointments from "../api/services/ApiAppointments";
 
 const initialState = {
-  profile: {},
+  profile: null,
   loading: false,
   error: null,
 };
@@ -15,17 +15,25 @@ export const getProfile = createAsyncThunk(
     try {
       result = await ApiAppointments.getProfile();
       if (result.status) {
-        return result.data;
+        return result.data[0];
+      } else {
+        throw Error(result.error);
       }
     } catch (error) {
       console.log("error: ", error);
-      if (error.response.status === 401) {
-        // redirect here
-        throw parseApiError(error);
-      } else {
-        // API failed, return some meaningful error
-        throw parseApiError(error);
-      }
+      throw Error(error);
+    }
+  }
+);
+
+export const changeHospital = createAsyncThunk(
+  "records/changeHospital",
+  async (data) => {
+    const result = await ApiAppointments.changeHospital(data);
+    if (result.status) {
+      return result;
+    } else {
+      throw Error(result.error);
     }
   }
 );
@@ -40,15 +48,21 @@ const doctorsSlice = createSlice({
       })
       .addCase(getProfile.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
         state.profile = action.payload;
       })
-      .addCase(getProfile.rejected, (state, action) => {
-        console.log("getProfile.rejected: ", action.payload);
+      .addCase(getProfile.rejected, (state) => {
         state.loading = false;
         state.profile = null;
-        state.error = action.error;
-      });
+      })
+      .addCase(changeHospital.pending, (state) => {
+        state.loading = false;
+      })
+      .addCase(changeHospital.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(changeHospital.rejected, (state, action) => {
+        state.loading = false;
+      })
   },
 });
 

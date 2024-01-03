@@ -23,14 +23,16 @@ ApiAppointments.getAll = function (params) {
   }
 };
 
-ApiAppointments.searchPatients = function (query) {
-  return api.post(
-    `/api/v1/appointment/searchPatient`,
-    {
-      search: query,
-    },
-    baseUrl
-  );
+ApiAppointments.getProfile = function () {
+  return api.get(`/api/v1/appointment/showProfile`, baseUrl);
+};
+
+ApiAppointments.changeHospital = function (body) {
+  return api.post(`/api/v1/appointment/changeHospital`, body, baseUrl);
+};
+
+ApiAppointments.getCaseTypes = function () {
+  return api.post(`/api/v1/appointment/listCasetype`, {}, baseUrl);
 };
 
 ApiAppointments.getAllAppointment = function (data) {
@@ -41,12 +43,22 @@ ApiAppointments.cancelAppointments = function (body) {
   return api.post(`/api/v1/appointment/cancelAppointment`, body, baseUrl);
 };
 
-ApiAppointments.changeHospital = function (body) {
-  return api.post(`/api/v1/appointment/changeHospital`, body, baseUrl);
+ApiAppointments.endVisit = function (appointment) {
+  return api.post(`/api/v1/appointment/cancelAppointment`, appointment, baseUrl);
 };
 
-ApiAppointments.getProfile = function () {
-  return api.get(`/api/v1/appointment/showProfile`, baseUrl);
+ApiAppointments.searchPatients = function (query) {
+  return api.post(
+    `/api/v1/appointment/searchPatient`,
+    {
+      search: query,
+    },
+    baseUrl
+  );
+};
+
+ApiAppointments.listSalutation = function () {
+  return api.get(`/api/v1/appointment/showSalutation`, baseUrl);
 };
 
 ApiAppointments.searchPincode = function (body) {
@@ -57,16 +69,5 @@ ApiAppointments.addPatient = function (formData) {
   return api.post(`/api/v1/appointment/addPatient`, formData, baseUrl);
 };
 
-ApiAppointments.endVisit = function (appointment) {
-  return api.post(`/api/v1/appointment/cancelAppointment`, appointment, baseUrl);
-};
-
-ApiAppointments.getCaseTypes = function () {
-  return api.post(`/api/v1/appointment/listCasetype`, {}, baseUrl);
-};
-
-ApiAppointments.listSalutation = function () {
-  return api.get(`/api/v1/appointment/showSalutation`, baseUrl);
-};
 
 export default ApiAppointments;

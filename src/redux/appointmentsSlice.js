@@ -16,26 +16,6 @@ const initialState = {
     patients: null,
 };
 
-export const changeHospital = createAsyncThunk(
-    "records/changeHospital",
-    async (clinicId) => {
-        console.log("clinicId: ", clinicId);
-        const data = {
-            clinic_id: clinicId,
-        };
-
-        const result = await ApiAppointments.changeHospital(data);
-        if (result.status) {
-            return {
-                ...result,
-                clinicId,
-            };
-        } else {
-            throw Error(result.error);
-        }
-    }
-);
-
 export const getAllAppointment = createAsyncThunk(
     "records/getAllAppointment",
     async (data) => {
@@ -148,34 +128,6 @@ const appointmentsSlice = createSlice({
     initialState,
     extraReducers: (builder) => {
         builder
-            .addCase(changeHospital.fulfilled, (state, action) => {
-                state.loading = false;
-                state.error = null;
-                // console.log('action.payload: ', action.payload);
-                state.changeHospitalResponse = action.payload;
-            })
-            .addCase(changeHospital.rejected, (state, action) => {
-                state.loading = false;
-                state.changeHospitalResponse = null;
-                state.error = action.error;
-            })
-            .addCase(clearSearch.fulfilled, (state, action) => {
-                state.loading = false;
-                state.error = null;
-                console.log("clearSearch.fulfilled: ", action.payload);
-
-                const queueType = action.meta.arg?.queueType;
-                const pageNo = action.meta.arg?.pageNo;
-                console.log("clearSearch.arg.queueType: ", queueType);
-                state.records = {
-                    ...state.records,
-                    [queueType]: {
-                        [pageNo]: [],
-                    },
-                };
-
-                state.patients = null;
-            })
             .addCase(getAllAppointment.pending, (state) => {
                 state.loading = true;
                 state.setOnLoad = true;
@@ -216,8 +168,12 @@ const appointmentsSlice = createSlice({
                 const updatedData = state.appointmentsData.filter(e => e.pam_id != action.meta.arg.pam_id);
                 state.appointmentsData = updatedData
             })
-            .addCase(cancelAppointments.rejected, (state, action) => {
+            .addCase(cancelAppointments.rejected, (state) => {
                 state.loading = false;
+            })
+            .addCase(clearSearch.fulfilled, (state) => {
+                state.loading = false;
+                state.patients = null;
             })
             .addCase(searchPatients.pending, (state) => {
                 state.loading = true;

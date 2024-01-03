@@ -1,91 +1,91 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { Select } from "antd";
 import { useSelector, useDispatch } from "react-redux";
+import { jwtDecode } from "jwt-decode";
 
-import { getProfile } from "../redux/doctorsSlice";
+import { getProfile, changeHospital } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
-import { changeHospital } from "../redux/appointmentsSlice";
 import { useLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
 
-function Header({onClickChanged}) {
-  // const [getToken, setToken] = useLocalStorage(
-  //   PERSISTANT_STORAGE_KEY_AUTH_TOKEN
-  // );
+function Header({ locationPath }) {
 
-  // const [getSavedClinic, saveClinic] = useLocalStorage(
-  //   PERSISTANT_STORAGE_KEY_CLINIC_ID
-  // );
+  const navigate = useNavigate();
 
-  // const [getStoredProfile, saveProfile] = useLocalStorage(
-  //   PERSISTANT_STORAGE_KEY_PROFILE
-  // );
+  const { profile } = useSelector((state) => state.doctors);
+  const dispatch = useDispatch();
 
-  // const [clinicOptions, setClinicOptions] = useState(null);
-  // const [selectedHospital, setSelectedHospital] = useState(null);
-  // const [profile, setProfile] = useState(null);
-  // const profiles = useSelector((state) => state.doctors.profile);
-  // const { changeHospitalResponse } = useSelector(
-  //   (state) => state.records
-  // );
-  // const dispatch = useDispatch();
+  const [clinicOptions, setClinicOptions] = useState([]);
+  const [selectedHospital, setSelectedHospital] = useState(null);
+  const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  const [getStoredProfile, saveProfile] = useLocalStorage(PERSISTANT_STORAGE_KEY_PROFILE);
 
-  // useEffect(() => {
-  //   dispatch(getProfile());
+  useEffect(() => {
+    dispatch(getProfile());
+  }, []);
 
-  //   const clinic = getSavedClinic();
-  //   if(clinic) {
-  //     setSelectedHospital(clinic);
-  //   }
-    
-  // }, [dispatch]);
+  useEffect(() => {
+    if (profile) {
+      saveProfile(profile);
+      const clinics = profile.hospital_data?.map((e) => {
+        return {
+          value: e.hm_id,
+          label: e.hm_name,
+        };
+      });
+      setClinicOptions(clinics);
+    }
+  }, [profile]);
 
-  // useEffect(() => {
-  //   if(changeHospitalResponse.token) {
-  //     setToken(changeHospitalResponse.token);
-  //     onClickChanged(changeHospitalResponse.clinicId);
-  //   }
-  // }, [changeHospitalResponse]);
+  useEffect(() => {
+    if (clinicOptions.length > 0) {
+      const getClinicId = async () => {
+        const token = await getToken()
+        if (token !== undefined) {
+          console.log(token)
+          try {
+            var decoded = jwtDecode(token);
+            const index = clinicOptions.findIndex(e => e.value == decoded.result.clinic_id)
+            index != -1 ? setSelectedHospital(parseInt(decoded.result.clinic_id)) : setSelectedHospital(null)
+          } catch (e) {
+            console.log(e)
+          }
+        }
+      }
+      getClinicId()
+    }
+  }, [clinicOptions]);
 
-  // useEffect(() => {
-  //   saveClinic(selectedHospital);
-  // }, [selectedHospital]);
-  
-  // useEffect(() => {
-  //   if (profiles && profiles.length > 0) {
-  //     const firstProfile = profiles[0];
-  //     if (firstProfile) {
-  //       saveProfile(firstProfile);
-  //       setProfile(firstProfile);
-  //       const clinics = firstProfile.hospital_data?.map((hospital) => {
-  //         return {
-  //           value: hospital.hm_id,
-  //           label: hospital.hm_name,
-  //         };
-  //       });
-  //       setClinicOptions(clinics);
-
-  //       const id = setTimeout(() => {
-  //         const clinic = getSavedClinic();
-  //         console.log('clinic2: ', clinic);
-
-  //         if(!clinic && clinics.length > 0) {
-  //           // if no clinic was previouly slected
-  //           // save first one so that on reload, it shows
-  //           // selected.
-  //           const firstClinic = clinics[0];
-  //           setSelectedHospital(firstClinic.value);
-  //           saveClinic(firstClinic.value);
-  //         }
-  //       }, 300);
-
-  //       return () => {
-  //         clearTimeout(id);
-  //       }
-  //     }
-  //   }
-  // }, [profiles]);
+  const HOSPITAL_DATA = useMemo(() => {
+    return (
+      <Select
+        placeholder="Clinic Name"
+        className="me-2"
+        defaultValue={selectedHospital ? selectedHospital : "Clinic Name"}
+        value={selectedHospital ? selectedHospital : "Clinic Name"}
+        onChange={async (value) => {
+          const sendData = {
+            clinic_id: value,
+          };
+          const action = await dispatch(changeHospital(sendData));
+          if (action.meta.requestStatus == "fulfilled") {
+            // setSelectedHospital(value)
+            await setToken(action.payload.token);
+            if (locationPath == "/") {
+              navigate('/', { replace: true });
+              navigate(0, { replace: true });
+            } else {
+              navigate(0, { replace: true });
+            }
+          }
+        }
+        }
+        options={clinicOptions}
+      />
+    );
+  }, [selectedHospital, clinicOptions, locationPath]);
 
   return (
     <Navbar className="justify-content-between portal-header">
@@ -98,18 +98,7 @@ function Header({onClickChanged}) {
           />
         </Navbar.Brand>
         <Nav className="ms-auto">
-          {/* <Select
-            placeholder="Your Clinics"
-            className="me-2"
-            defaultValue={selectedHospital ? selectedHospital : "Add a clinic"}
-            value={selectedHospital ? selectedHospital : "Add a clinic"}
-            onChange={(hospital) => {
-              setSelectedHospital(hospital);
-              console.log("hospital: ", hospital);
-              dispatch(changeHospital(hospital));
-            }}
-            options={clinicOptions}
-          /> */}
+          {HOSPITAL_DATA}
           {/* <Dropdown className="dropdown-profile nav-link-profile mx-1 pt-1 align-items-center">
             <Dropdown.Toggle
               id="navbarDropdown"
@@ -144,18 +133,17 @@ function Header({onClickChanged}) {
               </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown> */}
-          <Dropdown className="dropdown-profile nav-link-profile">
+          <Dropdown className="dropdown-profile nav-link-profile mx-1">
             <Dropdown.Toggle
               id="navbarDropdown"
               variant=""
               className="py-0 border-0 nav-link"
             >
-              {/* <i className='icon-patients'></i> */}
-              {/* <img
+              <img
                 src={profile?.um_image ?? defaultprofile}
                 alt="Profile"
                 style={{ width: "35px" }}
-              /> */}
+              />
             </Dropdown.Toggle>
             {/* <Dropdown.Menu className="dropdown-menu-end">
               <Dropdown.Item>

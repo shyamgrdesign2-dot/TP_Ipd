@@ -12,7 +12,6 @@ import WalkInConsultation from "./WalkInConsultation";
 function AppointmentList() {
   let location = useLocation();
   const [locationPath, setLocationPath] = useState("/");
-  const [clinicChanged, setClinicChanged] = useState();
 
   useEffect(() => {
     setLocationPath(location.pathname);
@@ -20,7 +19,7 @@ function AppointmentList() {
 
   return (
     <>
-      {(!isMobile || locationPath == "/") && <Header onClickChanged={setClinicChanged} />}
+      {(!isMobile || locationPath == "/") && <Header locationPath={locationPath} />}
       <div className="d-flex">
         {(!isMobile || locationPath == "/") && <SidebarDoctor />}
         <div className="w-100 bg-body wrapper custom-scroll">
@@ -31,7 +30,7 @@ function AppointmentList() {
             />
           )}
           <Routes>
-            <Route path="/" element={<Appointment clinicChanged={clinicChanged} />} />
+            <Route path="/" element={<Appointment />} />
             <Route path="walk_in_consultation" element={<WalkInConsultation />} />
             <Route path="add_new_patient" element={<AddNewPatient />} />
           </Routes>
