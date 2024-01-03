@@ -74,19 +74,17 @@ function PatientDetails() {
                             isMobile={isMobile}
                             state={state} />
                         <div className="appointment-wrap PatientDetailswrap">
-                            {viewCaseManagerData && (
-                                <div className='row'>
-                                    <div className='col-lg-5 col-md-12 col-12'>
-                                        <VitalsBodyComposition passVitals={viewCaseManagerData.vitals.slice(0, 2)} />
-                                        {/* <MedicalHistory />
+                            <div className='row'>
+                                <div className='col-lg-5 col-md-12 col-12'>
+                                    <VitalsBodyComposition passVitals={viewCaseManagerData ? viewCaseManagerData.vitals.slice(0, 2) : viewCaseManagerData} />
+                                    {/* <MedicalHistory />
                                             <LabParameters />
                                             <Vaccination /> */}
-                                    </div>
-                                    <div className='col-lg-7 col-md-12 col-12'>
-                                        <Cardiology viewCaseManagerData={viewCaseManagerData} />
-                                    </div>
                                 </div>
-                            )}
+                                <div className='col-lg-7 col-md-12 col-12'>
+                                    <Cardiology viewCaseManagerData={viewCaseManagerData} />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </Content>

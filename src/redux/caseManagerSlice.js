@@ -57,6 +57,7 @@ const caseManagerSlice = createSlice({
             })
             .addCase(viewCaseManager.rejected, (state) => {
                 state.loading = false;
+                state.viewCaseManagerData = null;
             })
     },
 });

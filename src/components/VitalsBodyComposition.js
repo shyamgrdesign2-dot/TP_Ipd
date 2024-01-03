@@ -54,7 +54,7 @@ function VitalsBodyComposition({ passVitals }) {
     ];
 
     // Extract unique dates from the JSON array
-    const uniqueDates = [...passVitals.map((item) => item.date)];
+    const uniqueDates = passVitals && passVitals.length > 0 ? [...passVitals.map((item) => item.date)] : [];
 
     // Initialize columns for each unique date
     const dateColumns = uniqueDates.map((date) => ({
@@ -65,7 +65,7 @@ function VitalsBodyComposition({ passVitals }) {
     }));
     const columns = [...initialColumns, ...dateColumns];
 
-    passVitals.map((item, index) => {
+    passVitals && passVitals.length > 0 && passVitals.map((item, index) => {
         initialRows[0][item.date] = item.temp
         initialRows[1][item.date] = item.pres
         initialRows[2][item.date] = item.resp_rate
@@ -86,7 +86,7 @@ function VitalsBodyComposition({ passVitals }) {
                     </div>
                 </Card.Header>
                 <Card.Body className='p-0'>
-                    {passVitals.length > 0 ? (
+                    {passVitals && passVitals.length > 0 ? (
                         <Table dataSource={initialRows} columns={columns} pagination={false} />
                     ) : (
                         <div className='d-flex flex-column justify-content-center' style={{ "min-height": "300px" }}>

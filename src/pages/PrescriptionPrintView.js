@@ -11,6 +11,10 @@ function PrescriptionPrintView() {
 
     const { state } = useLocation();
 
+    const printContent = async () => {
+        const printWindow = await window.open(state != undefined && `${state.print_url}`);
+        printWindow.print();
+    };
     return (
         <>
             <HeaderPrescriptionPrint state={state} />
@@ -34,6 +38,7 @@ function PrescriptionPrintView() {
                                 }
                                 <Button
                                     type="text"
+                                    onClick={printContent}
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-Print"></i>}
                                 >
@@ -41,6 +46,7 @@ function PrescriptionPrintView() {
                                     <i className="icon-right iconrotate90 ms-auto"></i>
                                 </Button>
                                 <Button
+
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-billings"></i>}
