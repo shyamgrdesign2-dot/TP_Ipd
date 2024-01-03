@@ -1,881 +1,605 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
-  Table,
-  Space,
-  Drawer,
-  Select,
-  notification,
-  Segmented,
-  DatePicker,
-  Dropdown,
-  Input,
-  AutoComplete,
+    Tabs,
+    Table,
+    Space,
+    Drawer,
+    Select,
+    Segmented,
+    DatePicker,
+    Dropdown,
+    Input,
+    Button,
 } from "antd";
-import { Form, Row, Col, Button, ButtonGroup } from "react-bootstrap";
+import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
-import { useSelector, useDispatch } from "react-redux";
 
-import {
-  cancelAppointments,
-  clearSearch,
-  endVisit,
-  getAllRecords,
-  getCaseTypes,
-  searchAppointments,
-} from "../redux/appointmentsSlice";
 import { getFormattedDate } from "../utils/utils";
-import { PAGE_SIZE } from "../utils/constants";
+import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../utils/constants";
 import noData from "../assets/images/nodata-found.svg";
 import CommonModal from "../common/CommonModal";
 
-// Tab constants mapping UI as well as apStatue field of API
-// Changing these 0, 1, 4 value will break the functionality.
-export const TAB_QUEUE = 0;
-export const TAB_FINISHED = 1;
-export const TAB_CANCELLED = 4;
+import { useSelector, useDispatch } from "react-redux";
 
-// constants that are used as identifiers when storing queue based
-// data into redux state
-export const STRING_QUEUE_TYPE_QUEUE = "queue";
-export const STRING_QUEUE_TYPE_FINISHED = "finished";
-export const STRING_QUEUE_TYPE_CANCELLED = "cancelled";
+import {
+    getAllAppointment,
+    cancelAppointments,
+} from "../redux/appointmentsSlice";
 
 const { TextArea } = Input;
 
-function AppointmentData({ clinicChanged, type, setSelectedTab }) {
-  console.log("type: ", type);
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterDate = getFormattedDate(yesterday);
-  const todaysDate = getFormattedDate(new Date());
-  /* console.log("todaysDate: ", todaysDate);
-  console.log("yesterDate: ", yesterDate); */
-  /* const startDate = "2023-08-17";
-  const endDate = "2023-08-17"; */
-  const initialDate = {
-    startDate: todaysDate,
-    endDate: todaysDate,
-  };
-  const [date, setDate] = useState(initialDate);
-  const [searchQuery, setSearchQuery] = useState(null);
-  const [value, setValue] = useState(null);
-  const [pageNoQueue, setPageNoQueue] = useState(0);
-  const [pageNoFinished, setPageNoFinished] = useState(0);
-  const [pageNoCancelled, setPageNoCancelled] = useState(0);
-  const [reasonDrawerOpen, setReasonDrawerOpen] = useState(false);
-  const [endVisitReason, setEndVisitReason] = useState(null);
-  const [visitTypeFilters, setVisitTypeFilters] = useState(null);
-  const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
-  const [showEndVisitReasonModal, setShowEndVisitReasonModal] = useState(false);
-  const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
-    useState(null);
-  const {
-    records,
-    loading,
-    error,
-    counts,
-    caseTypes,
-    cancelledAppointment,
-    endedAppointment,
-  } = useSelector((state) => state.records);
-  const dispatch = useDispatch();
-  // console.log("records: ", records);
+const dateFormat = 'YYYY-MM-DD'
 
-  const getQueueTypeString = () => {
-    return type === TAB_QUEUE
-      ? STRING_QUEUE_TYPE_QUEUE
-      : type === TAB_FINISHED
-        ? STRING_QUEUE_TYPE_FINISHED
-        : STRING_QUEUE_TYPE_CANCELLED;
-  };
+function AppointmentData() {
 
-  const getQueuePageNo = () => {
-    return type === TAB_QUEUE
-      ? pageNoQueue
-      : type === TAB_FINISHED
-        ? pageNoFinished
-        : pageNoCancelled;
-  };
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    dispatch(getCaseTypes());
-  }, [dispatch]);
+    const { queueCount, finishedCount, cancelledCount, appointmentsData, loading, setOnLoad } = useSelector((state) => state.records);
+    const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (
-      cancelledAppointment &&
-      appointmentSelectedFromMenu &&
-      cancelledAppointment.pam_id
-    ) {
-      setConfirmationModalOpen(false);
-
-      // show notification
-      const notificationParam = {
-        message: "Appointment Cancelled Successfully",
-        description: "View cancelled appointments in Cancelled tab.",
-        duration: 3,
-      };
-      notification.success({ key: "cancelled-notif", ...notificationParam });
-      setSelectedTab(TAB_CANCELLED);
-    } else if (endedAppointment && appointmentSelectedFromMenu) {
-      console.log("appointmentSelectedFromMenu: ", appointmentSelectedFromMenu);
-      setEndVisitReason(null);
-      setReasonDrawerOpen(false);
-
-      // show notification
-      const notificationParam = {
-        message: `${appointmentSelectedFromMenu.name}'s visit end successfully`,
-        description: "View end visits in Finished tab.",
-        duration: 3,
-      };
-      notification.success({ key: "ended-visit-notif", ...notificationParam });
-      setSelectedTab(TAB_FINISHED);
-    }
-  }, [cancelledAppointment, endedAppointment]);
-
-  useEffect(() => {
-    console.log("clinicChanged: ", clinicChanged);
-    if (clinicChanged) {
-      setPageNoQueue(0);
-      setPageNoCancelled(0);
-      setPageNoFinished(0);
-      setSearchQuery(null);
-
-      dispatch(
-        getAllRecords({
-          startDate: date.startDate,
-          endDate: date.endDate,
-          apStatue: type,
-          pageNo: 0,
-          queueType: getQueueTypeString(),
-          filterVisitType: "",
-        })
-      );
-    }
-  }, [clinicChanged]);
-
-  useEffect(() => {
-    if (searchQuery) {
-      console.log("searchQuery: ", searchQuery);
-
-      let timeOutId = setTimeout(() => {
-        dispatch(
-          searchAppointments({
-            searchQuery,
-            queueType: getQueueTypeString(),
-          })
-        );
-      }, 500);
-
-      return () => {
-        clearTimeout(timeOutId);
-      };
-    } else {
-      dispatch(
-        getAllRecords({
-          startDate: date.startDate,
-          endDate: date.endDate,
-          apStatue: type,
-          pageNo: getQueuePageNo(),
-          queueType: getQueueTypeString(),
-          filterVisitType: visitTypeFilters
-            ? Array.from(visitTypeFilters).join(", ")
-            : "",
-        })
-      );
-    }
-  }, [
-    pageNoQueue,
-    pageNoFinished,
-    pageNoCancelled,
-    date,
-    searchQuery,
-    dispatch,
-    type,
-    visitTypeFilters,
-  ]);
-
-  useEffect(() => {
-    console.log("visitTypeFilters: ", visitTypeFilters);
-  }, [visitTypeFilters]);
-
-  const calanderList = [
-    { value: todaysDate, label: "Today" },
-    { value: "next7days", label: "Next 7 Days" },
-    { value: "next30days", label: "Next 30 Days" },
-  ];
-
-  const segmentedList = [
-    { value: 1, icon: <i className="icon-List"></i> },
-    { value: 2, icon: <i className="icon-calendar"></i> },
-  ];
-  const [segmented, setSegmented] = useState(1);
-
-  const [filteredInfo, setFilteredInfo] = useState({});
-  const [sortedInfo, setSortedInfo] = useState({});
-
-  const segmentedChange = useCallback(
-    (key) => {
-      setSegmented(key);
-    },
-    [segmented]
-  );
-
-  // transform the data
-  const data = useMemo(() => {
-    let index = 1;
-    const arrayOfPagedQueue =
-      type === TAB_QUEUE
-        ? Object.values(records?.queue)
-        : type === TAB_FINISHED
-          ? Object.values(records?.finished)
-          : Object.values(records?.cancelled);
-    let source = [].concat(...arrayOfPagedQueue);
-
-    // console.log("source:", source);
-
-    return source?.map(
-      ({
-        pm_first_name,
-        pm_last_name,
-        pm_contact_no,
-        um_id,
-        ageYears,
-        apTime,
-        apDate,
-        pm_gender,
-        toct_type,
-        toct_id,
-        pam_id,
-        patient_unique_id,
-        pageNo,
-        indexInPage,
-      }) => {
-        return {
-          key: Math.random(),
-          pam_id,
-          patient_unique_id,
-          pm_contact_no,
-          name: `${pm_first_name} ${pm_last_name}`,
-          srno: index++,
-          ageYears,
-          apTime,
-          apDate,
-          pm_gender,
-          toct_type,
-          toct_id,
-          pageNo,
-          indexInPage,
-        };
-      }
-    );
-  }, [records, type]);
-
-  const handleChange = (pagination, filters, sorter) => {
-    console.log("Various parameters", pagination, filters, sorter);
-    setFilteredInfo(filters);
-    setSortedInfo(sorter);
-
-    setVisitTypeFilters(filters.toct_type);
-  };
-
-  const getVisitTypeFilters = () => {
-    return caseTypes.map((typeObj) => {
-      return {
-        text: typeObj.toct_type,
-        value: typeObj.toct_id,
-      };
+    const [date, setDate] = useState({
+        startDate: getFormattedDate(moment().format(dateFormat)),
+        endDate: getFormattedDate(moment().format(dateFormat)),
     });
-  };
+    const [searchQuery, setSearchQuery] = useState('');
+    const [pageNo, setPageNo] = useState(0);
 
-  const columns = [
-    {
-      title: "#",
-      dataIndex: "srno",
-      key: "srno",
-      ellipsis: true,
-      width: 80,
-    },
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      filteredValue: filteredInfo.name || null,
-      /* sorter: (a, b) => a.name.localeCompare(b.name),
-      sortOrder: sortedInfo.columnKey === "name" ? sortedInfo.order : null, */
-      render: (text, record) => (
-        <div>
-          <span className="text-primary">{text}</span>
-          <br />
-          <small>
-            {record.pm_gender}, {record.ageYears}
-          </small>
-        </div>
-      ),
-      ellipsis: true,
-    },
-    {
-      title: "Contact",
-      dataIndex: "pm_contact_no",
-      key: "contact",
-      ellipsis: true,
-    },
-    {
-      title: "Visit Type",
-      dataIndex: "toct_type",
-      key: "toct_type",
-      // filteredValue: filteredInfo.toct_type || null,
-      onFilter: (value, record) => record.toct_type === value,
-      filters: getVisitTypeFilters(),
-      // sorter: (a, b) => a.visittype.length - b.visittype.length,
-      // sortOrder: sortedInfo.columnKey === "visittype" ? sortedInfo.order : null,
-      ellipsis: true,
-    },
-    {
-      title: "Slot",
-      dataIndex: "time",
-      key: "time",
-      filteredValue: filteredInfo.time || null,
-      onFilter: (value, record) => record.time.includes(value),
-      sorter: (a, b) => {
-        const lhsDateTime = `${a.apDate} ${a.apTime}`;
-        const lhsLongTime = moment(
-          lhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const rhsDateTime = `${b.apDate} ${b.apTime}`;
-        const rhsLongTime = moment(
-          rhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const result = lhsLongTime - rhsLongTime;
-        return result;
-      },
-      sortOrder: sortedInfo.columnKey === "time" ? sortedInfo.order : null,
-      render: (text, record) => (
-        <div>
-          <span>{record.apTime} </span> <br /> <small> {record.apDate}</small>
-        </div>
-      ),
-      ellipsis: true,
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <div size="middle">
-          {type !== TAB_CANCELLED && (
-            // <Link to="/prescription" state={record}>
-              <button className="btn btn-outline-primary btn-consult">
-                {type === TAB_FINISHED ? "PrintRx" : "Consult"}
-              </button>
-            // </Link>
-          )}
-          <Dropdown
-            className="btn btn-outline btn-more ms-3"
-            menu={{
-              items: getMenuItems(record),
-            }}
-            trigger={["click"]}
-          >
-            <a
-              onClick={(e) => {
-                e.preventDefault();
-              }}
-            >
-              <i className="icon-More" />
-            </a>
-          </Dropdown>
-        </div>
-      ),
-      width: 170,
-    },
-  ];
-
-  const dateChange = (date, dateString) => {
-    console.log(date, dateString);
-    if (dateString) {
-      setDate({
-        startDate: getFormattedDate(dateString),
-        endDate: getFormattedDate(dateString),
-      });
-    }
-  };
-
-  const getMenuItems = (appointment) => {
     const items = [
-      {
-        label: <Link to="/patient_details">Patient Details</Link>,
-        key: "patientdetails",
-      },
-      {
-        label: (
-          <span
-            onClick={() => {
-              console.log("clicked.data", appointment);
-              setAppointmentSelectedFromMenu(appointment);
-              setConfirmationModalOpen(true);
-            }}
-          >
-            Cancel Appt.
-          </span>
-        ),
-        key: "cancelappt",
-      },
-      {
-        label: (
-          <span
-            onClick={() => {
-              console.log("clicked.data", appointment);
-              setAppointmentSelectedFromMenu(appointment);
-              setReasonDrawerOpen(true);
-            }}
-          >
-            End Visit
-          </span>
-        ),
-        key: "endvisit",
-      },
-      {
-        label: (
-          <span
-            onClick={() => {
-              console.log("clicked.data", appointment);
-              setAppointmentSelectedFromMenu(appointment);
-              setShowEndVisitReasonModal(true);
-            }}
-          >
-            End Visit Reason
-          </span>
-        ),
-        key: "endvisitreason",
-      },
+        {
+            key: TAB_QUEUE,
+            label: (
+                <div className="d-flex align-items-baseline">
+                    <i className="icon-Queue"></i>
+                    Queue ({queueCount})
+                </div>
+            ),
+        },
+        {
+            key: TAB_FINISHED,
+            label: (
+                <div className="d-flex align-items-baseline">
+                    <i className="icon-Finished"></i>
+                    Finished ({finishedCount})
+                </div>
+            ),
+        },
+        {
+            key: TAB_CANCELLED,
+            label: (
+                <div className="d-flex align-items-baseline">
+                    <i className="icon-Cancelled"></i>
+                    Cancelled ({cancelledCount})
+                </div>
+            ),
+        },
+    ];
+    const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
+
+    const calanderOptions = [
+        { value: '1', label: "Today" },
+        { value: '2', label: "Next 7 Days" },
+        { value: '3', label: "Next 30 Days" },
     ];
 
-    if (type === TAB_QUEUE) {
-      return items.filter((item) => item.key !== "endvisitreason");
-    } else if (type === TAB_FINISHED) {
-      return items
-        .filter((item) => item.key !== "endvisit")
-        .filter((item) => item.key !== "cancelappt");
-    } else if (type === TAB_CANCELLED) {
-      return items.splice(0, 1);
-    } else {
-      return items;
-    }
-  };
+    const segmentedList = [
+        { value: 1, icon: <i className="icon-List"></i> },
+        { value: 2, icon: <i className="icon-calendar"></i> },
+    ];
+    const [segmented, setSegmented] = useState(1);
+    const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] = useState(null);
+    const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
+    const [isEndVisitReasonModal, setEndVisitReasonModal] = useState(false);
+    const [endVisitReasonDrawer, setEndVisitReasonDrawer] = useState(false);
+    const [endVisitReason, setEndVisitReason] = useState('');
 
-  const loadMoreData = () => {
-    if (type === TAB_QUEUE) {
-      setPageNoQueue(pageNoQueue + 1);
-    } else if (type === TAB_FINISHED) {
-      setPageNoFinished(pageNoFinished + 1);
-    } else {
-      setPageNoCancelled(pageNoCancelled + 1);
-    }
-  };
+    useEffect(() => {
+        var sendData = {
+            startDate: date.startDate,
+            endDate: date.endDate,
+            apStatue: selectedTab,
+            filterVisitType: '',
+            page: pageNo,
+            search: searchQuery
+        }
+        // console.log(sendData)
+        if (searchQuery) {
+            const timeOutId = setTimeout(() => {
+                dispatch(getAllAppointment(sendData));
+            }, 500);
+            return () => {
+                clearTimeout(timeOutId);
+            };
+        } else {
+            dispatch(getAllAppointment(sendData));
+        }
+    }, [selectedTab, date, searchQuery, pageNo]);
 
-  const onDateChanged = (selectedValue) => {
-    if (selectedValue === "next7days") {
-      const date = new Date();
-      date.setDate(date.getDate() + 7);
-      const forwardDate = getFormattedDate(date);
-      setDate({
-        startDate: todaysDate,
-        endDate: forwardDate,
-      });
-    } else if (selectedValue === "next30days") {
-      const date = new Date();
-      date.setDate(date.getDate() + 30);
-      const forwardDate = getFormattedDate(date);
-      setDate({
-        startDate: todaysDate,
-        endDate: forwardDate,
-      });
-    } else if (selectedValue === "alltime") {
-      const todayDateStart = new Date();
-      todayDateStart.setDate(todayDateStart.getDate() - 365);
-      const startDate = getFormattedDate(todayDateStart);
-      const todayDateEnd = new Date();
-      todayDateEnd.setDate(todayDateEnd.getDate() + 365);
-      const endDate = getFormattedDate(todayDateEnd);
-      console.log("endDate: ", endDate);
-      setDate({
-        startDate: startDate,
-        endDate: endDate,
-      });
-    } else {
-      setDate({
-        startDate: selectedValue,
-        endDate: selectedValue,
-      });
-    }
-  };
-
-  const stepDate = (forward) => {
-    const currentDate = date.startDate ? new Date(date.startDate) : new Date();
-    currentDate.setDate(
-      forward ? currentDate.getDate() + 1 : currentDate.getDate() - 1
+    const onChange = useCallback(
+        (key) => {
+            setPageNo(0)
+            setSelectedTab(key);
+        },
+        [selectedTab]
     );
-    console.log("currentDate: ", currentDate);
-    setDate({
-      startDate: getFormattedDate(currentDate),
-      endDate: getFormattedDate(currentDate),
-    });
-  };
 
-  const onSearch = useCallback(
-    (query) => {
-      setValue(query);
-      setSearchQuery(query);
-
-      if (!query) {
-        dispatch(
-          clearSearch({
-            queueType: getQueueTypeString(),
-            pageNo: getQueuePageNo(),
-          })
-        );
-
-        type === TAB_QUEUE
-          ? setPageNoQueue(0)
-          : type === TAB_FINISHED
-            ? setPageNoFinished(0)
-            : setPageNoCancelled(0);
-      }
-    },
-    [searchQuery]
-  );
-
-  const getDefaultDate = () => {
-    const defaultDate = dayjs(getFormattedDate(date.startDate), "YYYY-MM-DD");
-    console.log("defaultDate: ", defaultDate);
-    return defaultDate;
-  };
-
-  const getRemainingRecordsCount = () => {
-    const pageNo =
-      type === TAB_QUEUE
-        ? pageNoQueue
-        : type === TAB_FINISHED
-          ? pageNoFinished
-          : pageNoCancelled;
-
-    const count =
-      type === TAB_QUEUE
-        ? counts.queueCount
-        : type === TAB_FINISHED
-          ? counts.finishedCount
-          : counts.cancelledCount;
-
-    const pagesReminaing = count - PAGE_SIZE * (pageNo + 1);
-    return pagesReminaing;
-  };
-
-  const getTotalCount = () => {
-    if (type === TAB_QUEUE) {
-      return counts.queueCount;
-    } else if (type === TAB_FINISHED) {
-      return counts.finishedCount;
-    } else {
-      return counts.cancelledCount;
-    }
-  };
-
-  const onEndVisitClick = () => {
-    // TODO: change this to end appointment API call
-    console.log("appointmentSelectedFromMenu: ", appointmentSelectedFromMenu);
-    dispatch(endVisit({ appointment: appointmentSelectedFromMenu }));
-  };
-
-  const END_VISIT_REASON_DISPLAY_MODAL = useMemo(() => {
-    return (
-      <CommonModal
-        isModalOpen={showEndVisitReasonModal}
-        modalWidth={610}
-        title={
-          <>
-            <div className="d-flex align-items-center">
-              <i className="icon-patients me-2" />
-              <span>
-                {appointmentSelectedFromMenu?.name} (
-                {appointmentSelectedFromMenu?.pm_gender},{" "}
-                {appointmentSelectedFromMenu?.ageYears}y)
-              </span>
-            </div>
-          </>
-        }
-        onCancel={() => {
-          setShowEndVisitReasonModal(false);
-        }}
-        modalBody={
-          <>
-            <div>End Visit Reason</div>
-            <div className="border bg-body rounded-10px p-2 patient-details">
-              This is my reason of the life
-            </div>
-          </>
-        }
-      />
+    const onSearch = useCallback(
+        (query) => {
+            setPageNo(0)
+            setSearchQuery(query);
+        },
+        [searchQuery]
     );
-  }, [showEndVisitReasonModal]);
 
-  const CONFIRMATION_MODAL = useMemo(() => {
-    return (
-      <CommonModal
-        isModalOpen={isConfirmationModalOpen}
-        modalWidth={610}
-        title={"Are you sure you want to cancel this appointment?"}
-        onCancel={() => {
-          setConfirmationModalOpen(false);
-        }}
-        modalBody={
-          <>
-            <div className="border bg-body rounded-10px p-2 patient-details">
-              <div className="d-flex align-items-center">
-                <i className="icon-patients me-2" />
-
-                <span className="fw-medium">
-                  {appointmentSelectedFromMenu?.name} (
-                  {appointmentSelectedFromMenu?.pm_gender},{" "}
-                  {appointmentSelectedFromMenu?.ageYears}y)
-                </span>
-              </div>
-              <div className="mt-2 d-flex align-items-center">
-                <i className="icon-phone me-2" />{" "}
-                <span>{appointmentSelectedFromMenu?.pm_contact_no}</span>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <i className="icon-Id me-2" />{" "}
-                <span>{appointmentSelectedFromMenu?.patient_unique_id}</span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <div className="d-flex align-items-center mt-2">
-                <Button
-                  type="text"
-                  className="btn btn-primary2 align-items-center text-primary btn-41 me-4 w-50"
-                  onClick={() => {
-                    setConfirmationModalOpen(false);
-                  }}
-                >
-                  No, Keep Appointment{" "}
-                </Button>
-                <Button
-                  type="text"
-                  className="btn btn-primary3 align-items-center btn-41 w-50"
-                  onClick={() => {
-                    console.log(
-                      "clicked: ",
-                      appointmentSelectedFromMenu.pam_id
-                    );
-                    dispatch(
-                      cancelAppointments({
-                        appointment: appointmentSelectedFromMenu,
-                      })
-                    );
-                  }}
-                >
-                  Yes, Cancel Appointment{" "}
-                </Button>
-              </div>
-            </div>
-          </>
-        }
-      />
+    const onDateChange = useCallback(
+        (date, dateString) => {
+            if (dateString) {
+                setPageNo(0)
+                setDate({
+                    startDate: getFormattedDate(dateString),
+                    endDate: getFormattedDate(dateString),
+                });
+            }
+        },
+        [date]
     );
-  }, [isConfirmationModalOpen]);
 
-  const emptyText = (
-    <div
-      className="d-flex flex-column align-items-center justify-content-center"
-      style={{ height: "calc(100vh - 434px)" }}
-    >
-      <img src={noData} alt="Warning" />
-      <div className="mt-3 fontRoboto">
-        {type === TAB_QUEUE
-          ? "There are no patients in your queue right now!"
-          : type === TAB_FINISHED
-            ? "You haven't finished any consultations or ended the visit yet."
-            : "Nothing here! You haven’t cancelled any appointments here."}
-      </div>
-    </div>
-  );
+    const backDatePress = useCallback(
+        () => {
+            setPageNo(0)
+            setDate({
+                startDate: getFormattedDate(moment(date.startDate).subtract(1, 'day').format(dateFormat)),
+                endDate: getFormattedDate(moment(date.endDate).subtract(1, 'day').format(dateFormat)),
+            })
+        },
+        [date]);
 
-  return (
-    <>
-      <div className="p-4 appointment-data">
-        <Row className="justify-content-between align-items-center mb-3">
-          <Col xl={4} lg={4}>
-            <Form>
-              <Form.Group controlId="exampleForm.ControlInput1">
-                {/* <Form.Control
-                type="text"
-                placeholder="Search by patient name"
-                onChange={onSearch}
-                prefix={<i className="icon-search" />}
-              /> */}
-                <AutoComplete
-                  value={value}
-                  onSearch={onSearch}
-                  defaultActiveFirstOption={true}
-                  className="w-100 inputheight38"
-                >
-                  <Input
-                    placeholder="Search by patient name"
-                    className="inputheight38"
-                    prefix={<i className="icon-search" />}
-                    suffix={
-                      searchQuery?.length > 0 && (
-                        <i
-                          className="icon-Cross"
-                          onClick={() => {
-                            onSearch(null);
-                            setValue("");
-                          }}
-                        />
-                      )
-                    }
-                  />
-                </AutoComplete>
-              </Form.Group>
-            </Form>
-          </Col>
-          <Col md="auto">
-            <div className="d-flex align-items-center">
-              <ButtonGroup aria-label="Basic example">
-                <Button
-                  variant="outline-light"
-                  className="dateoutline"
-                  disabled={date.startDate !== date.endDate}
-                  onClick={() => {
-                    stepDate(false);
-                  }}
-                >
-                  <i className="icon-right d-block text-main"></i>
-                </Button>
-                <Button variant="outline-light" className="p-0 antround-0">
-                  <DatePicker
-                    // allowClear={false}
-                    inputReadOnly
-                    onChange={dateChange}
-                    value={
-                      date.startDate === date.endDate
-                        ? dayjs(getFormattedDate(date.startDate), "YYYY-MM-DD")
-                        : ""
-                    }
-                    defaultValue={getDefaultDate}
-                    format="YYYY-MM-DD"
-                    disabled={date.startDate !== date.endDate}
-                  />
-                </Button>
-                <Button
-                  variant="outline-light"
-                  className="dateoutline"
-                  disabled={date.startDate !== date.endDate}
-                  onClick={() => {
-                    stepDate(true);
-                  }}
-                >
-                  <i className="icon-right text-main d-block iconrotate90"></i>
-                </Button>
-              </ButtonGroup>
-              <Select
-                placeholder="Today"
-                className="ms-3 appointmentselect"
-                options={calanderList}
-                onChange={onDateChanged}
-              />
-              <Segmented
-                className="ms-3 appointment-segment"
-                defaultValue={1}
-                options={segmentedList}
-                onChange={segmentedChange}
-              />
-            </div>
-          </Col>
-        </Row>
-        {segmented == 1 ? (
-          <div>
-            <>
-              <Table
-                columns={columns}
-                dataSource={data}
-                onChange={handleChange}
-                pagination={false}
-                loading={loading}
-                locale={{ emptyText: emptyText }}
-              />
-              {data?.length > 0 &&
-                !searchQuery &&
-                getTotalCount() > PAGE_SIZE &&
-                getRemainingRecordsCount() > 0 && (
-                  <button
-                    className="btn btn-light w-100 mt-3 load-more"
-                    onClick={loadMoreData}
-                  >
-                    Show More ({getRemainingRecordsCount()})
-                  </button>
-                )}
-            </>
-            {/* )} */}
-          </div>
-        ) : (
-          <h1>Grid View</h1>
-        )}
-        {CONFIRMATION_MODAL}
-        {END_VISIT_REASON_DISPLAY_MODAL}
-      </div>
-      <Drawer
-        className="modalWidth-700" width="auto"
-        title="End Visit"
-        placement="right"
-        closable
-        onClose={() => {
-          console.log("Close has been called");
-          setReasonDrawerOpen(false);
-          setEndVisitReason(null);
-        }}
-        extra={
-          <Space>
-            <Button
-              onClick={onEndVisitClick}
-              type="primary"
-              className="btn-41 px-4"
-              disabled={!endVisitReason}
-            >
-              Save
-            </Button>
-          </Space>
+    const nextDatePress = useCallback(
+        () => {
+            setPageNo(0)
+            setDate({
+                startDate: getFormattedDate(moment(date.startDate).add(1, 'day').format(dateFormat)),
+                endDate: getFormattedDate(moment(date.endDate).add(1, 'day').format(dateFormat)),
+            })
+        },
+        [date]);
+
+    const handleDateChange = useCallback(
+        (value) => {
+            const updatedate = {
+                startDate: getFormattedDate(moment().format(dateFormat)),
+                endDate: getFormattedDate(moment().format(dateFormat)),
+            }
+            setPageNo(0)
+            if (value == 2) {
+                setDate({
+                    startDate: getFormattedDate(moment(updatedate.startDate).format(dateFormat)),
+                    endDate: getFormattedDate(moment(updatedate.endDate).add(7, 'day').format(dateFormat)),
+                })
+            } else if (value == 3) {
+                setDate({
+                    startDate: getFormattedDate(moment(updatedate.startDate).format(dateFormat)),
+                    endDate: getFormattedDate(moment(updatedate.endDate).add(30, 'day').format(dateFormat)),
+                })
+            } else {
+                setDate(updatedate)
+            }
+        },
+        [date]
+    );
+
+    const segmentedChange = useCallback(
+        (key) => {
+            setSegmented(key);
+        },
+        [segmented]
+    );
+
+
+    const getMenuItems = (record) => {
+        const items = [
+            {
+                label: <Link to="/patient_details" state={record}>Patient Details</Link>,
+                key: "patientdetails",
+            },
+            {
+                label: <span
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
+                        handleConfirmationModal()
+                    }}>Cancel Appt.</span>,
+                key: "cancelappt",
+            },
+            {
+                label: <span
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
+                        handleEndVisitReasonDrawer()
+                    }}>End Visit</span>,
+                key: "endvisit",
+            },
+            {
+                label: <span
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
+                        handleEndVisitReasonModal();
+                    }}>End Visit Reason</span>,
+                key: "endvisitreason",
+            },
+        ];
+
+        if (selectedTab === TAB_QUEUE) {
+            return items.filter((item) => item.key !== "endvisitreason");
+        } else if (selectedTab === TAB_FINISHED) {
+            return items.filter((item) => item.key !== "endvisit" && item.key !== "cancelappt");
+        } else if (selectedTab === TAB_CANCELLED) {
+            return items.splice(0, 1);
+        } else {
+            return items;
         }
-        open={reasonDrawerOpen}
-        key="left"
-      >
-        <div className="p-4">
-          <div className="title-common mb-2">Reason</div>
-          <TextArea
-            showCount
-            className="endreason-textarea"
-            maxLength={100}
-            value={endVisitReason}
-            onChange={(e) => {
-              const text = e.target.value;
-              console.log("value: ", text);
-              setEndVisitReason(text);
-            }}
-            placeholder="Enter reason for end visit"
-            style={{
-              height: 200,
-              resize: "none",
-            }}
-          />
+    };
+
+    var index = 1;
+    const columns = [
+        {
+            title: "#",
+            dataIndex: "srno",
+            key: "srno",
+            ellipsis: true,
+            width: 80,
+            render: () => (
+                <div>
+                    <span className="text-primary">{index++}</span>
+                </div>
+            ),
+        },
+        {
+            title: "Name",
+            dataIndex: "name",
+            key: "name",
+            ellipsis: true,
+            render: (text, record) => (
+                <div>
+                    <span className="text-primary">{record.pm_fullname}</span>
+                    <br />
+                    <small>
+                        {record.pm_gender}, {record.ageYears}
+                    </small>
+                </div>
+            ),
+        },
+        {
+            title: "Contact",
+            dataIndex: "pm_contact_no",
+            key: "pm_contact_no",
+            ellipsis: true,
+        },
+        {
+            title: "Visit Type",
+            dataIndex: "toct_type",
+            key: "toct_type",
+            ellipsis: true,
+        },
+        {
+            title: "Slot",
+            dataIndex: "time",
+            key: "time",
+            ellipsis: true,
+            render: (text, record) => (
+                <div>
+                    <span>{record.apTime} </span> <br /> <small> {record.apDate}</small>
+                </div>
+            ),
+        },
+        {
+            title: "Action",
+            key: "action",
+            width: 170,
+            render: (_, record) => (
+                <div size="middle">
+                    {selectedTab !== TAB_CANCELLED && (
+                        <button className="btn btn-outline-primary btn-consult" onClick={() => selectedTab === TAB_QUEUE ? navigate("/prescription", { state: record }) : alert('comming soon')}>
+                            {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
+                        </button>
+                    )}
+                    <Dropdown
+                        className="btn btn-outline btn-more ms-3"
+                        menu={{
+                            items: getMenuItems(record),
+                        }}
+                        trigger={["click"]}
+                    >
+                        <a
+                            onClick={(e) => {
+                                e.preventDefault();
+                            }}
+                        >
+                            <i className="icon-More" />
+                        </a>
+                    </Dropdown>
+                </div>
+            ),
+
+        },
+    ];
+
+    const emptyText = (
+        <div
+            className="d-flex flex-column align-items-center justify-content-center"
+            style={{ height: "calc(100vh - 434px)" }}
+        >
+            <img src={noData} alt="Warning" />
+            {/* <div className="mt-3 fontRoboto">
+                {selectedTab === TAB_QUEUE
+                    ? "There are no patients in your queue right now!"
+                    : selectedTab === TAB_FINISHED
+                        ? "You haven't finished any consultations or ended the visit yet."
+                        : "Nothing here! You haven’t cancelled any appointments here."}
+            </div> */}
         </div>
-      </Drawer>
-    </>
-  );
+    );
+
+    const loadMoreData = useCallback(
+        () => {
+            setPageNo(pageNo + 1)
+        },
+        [pageNo]
+    );
+
+    const handleConfirmationModal = useCallback(
+        () => {
+            setConfirmationModalOpen(!isConfirmationModalOpen)
+        },
+        [isConfirmationModalOpen]
+    );
+
+    const handleEndVisitReasonModal = useCallback(
+        () => {
+            setEndVisitReasonModal(!isEndVisitReasonModal)
+        },
+        [isEndVisitReasonModal]
+    );
+
+    const handleEndVisitReasonDrawer = useCallback(
+        () => {
+            setEndVisitReasonDrawer(!endVisitReasonDrawer)
+        },
+        [endVisitReasonDrawer]
+    );
+
+    const onEndVisitReasonChange = useCallback(
+        (e) => {
+            setEndVisitReason(e.target.value)
+        },
+        [endVisitReason]
+    );
+
+    const CONFIRMATION_MODAL = useMemo(() => {
+        return (
+            <CommonModal
+                isModalOpen={isConfirmationModalOpen}
+                modalWidth={610}
+                title={"Are you sure you want to cancel this appointment?"}
+                onCancel={handleConfirmationModal}
+                modalBody={
+                    <>
+                        <div className="border bg-body rounded-10px p-2 patient-details">
+                            <div className="d-flex align-items-center">
+                                <i className="icon-patients me-2" />
+
+                                <span className="fw-medium">
+                                    {appointmentSelectedFromMenu?.pm_fullname} (
+                                    {appointmentSelectedFromMenu?.pm_gender},{" "}
+                                    {appointmentSelectedFromMenu?.ageYears}y)
+                                </span>
+                            </div>
+                            <div className="mt-2 d-flex align-items-center">
+                                <i className="icon-phone me-2" />{" "}
+                                <span>{appointmentSelectedFromMenu?.pm_contact_no}</span>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <i className="icon-Id me-2" />{" "}
+                                <span>{appointmentSelectedFromMenu?.patient_unique_id}</span>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <div className="d-flex align-items-center mt-2">
+                                <Button
+                                    type="text"
+                                    className="btn btn-primary2 align-items-center text-primary btn-41 me-4 w-50"
+                                    onClick={handleConfirmationModal}>
+                                    No, Keep Appointment{" "}
+                                </Button>
+                                <Button
+                                    type="text"
+                                    className="btn btn-primary3 align-items-center btn-41 w-50"
+                                    loading={loading}
+                                    onClick={async () => {
+                                        const sendData = {
+                                            pam_id: appointmentSelectedFromMenu.pam_id,
+                                            patient_unique_id: appointmentSelectedFromMenu.patient_unique_id,
+                                        };
+                                        const action = await dispatch(cancelAppointments(sendData));
+                                        if (action.meta.requestStatus == "fulfilled") {
+                                            handleConfirmationModal()
+                                        }
+                                    }}>
+                                    Yes, Cancel Appointment{" "}
+                                </Button>
+                            </div>
+                        </div>
+                    </>
+                }
+            />
+        );
+    }, [isConfirmationModalOpen]);
+
+    const END_VISIT_REASON_DISPLAY_MODAL = useMemo(() => {
+        return (
+            <CommonModal
+                isModalOpen={isEndVisitReasonModal}
+                modalWidth={610}
+                title={
+                    <>
+                        <div className="d-flex align-items-center">
+                            <i className="icon-patients me-2" />
+                            <span>
+                                {appointmentSelectedFromMenu?.pm_fullname} (
+                                {appointmentSelectedFromMenu?.pm_gender},{" "}
+                                {appointmentSelectedFromMenu?.ageYears}y)
+                            </span>
+                        </div>
+                    </>
+                }
+                onCancel={handleEndVisitReasonModal}
+                modalBody={
+                    <>
+                        <div className="mb-2">End Visit Reason</div>
+                        <div className="border bg-body rounded-10px p-3 patient-details">
+                            This is my reason of the life
+                        </div>
+                    </>
+                }
+            />
+        );
+    }, [isEndVisitReasonModal]);
+
+    const onEndVisitClick = () => {
+        handleEndVisitReasonDrawer()
+    }
+
+    return (
+        <div className="border rounded-4 appointment-wrap dateborder">
+            <Tabs
+                defaultActiveKey={TAB_QUEUE}
+                items={items}
+                onChange={onChange}
+                activeKey={selectedTab}
+            />
+            <div className="p-4 appointment-data">
+                <Row className="justify-content-between align-items-center mb-3">
+                    <Col xl={4} lg={4}>
+                        <Input
+                            value={searchQuery}
+                            placeholder="Search by patient name"
+                            className="inputheight38"
+                            prefix={<i className="icon-search" />}
+                            suffix={searchQuery.length > 0 && <i className="icon-Cross" onClick={() => onSearch('')}></i>}
+                            onChange={(e) => onSearch(e.target.value)}
+                        />
+                    </Col>
+                    <Col md="auto">
+                        <div className="d-flex align-items-center">
+                            <ButtonGroup aria-label="Basic example">
+                                <Button
+                                    variant="outline-light"
+                                    className="dateoutline"
+                                    disabled={date.startDate !== date.endDate}
+                                    onClick={backDatePress}>
+                                    <i className="icon-right d-block text-main"></i>
+                                </Button>
+                                <Button variant="outline-light" className="p-0 antround-0">
+                                    <DatePicker
+                                        inputReadOnly
+                                        format={dateFormat}
+                                        disabled={date.startDate != date.endDate}
+                                        defaultValue={dayjs(getFormattedDate(date.startDate), dateFormat)}
+                                        value={
+                                            date.startDate === date.endDate
+                                                ? dayjs(getFormattedDate(date.startDate), "YYYY-MM-DD")
+                                                : ""
+                                        }
+                                        onChange={onDateChange}
+
+                                    />
+                                </Button>
+                                <Button
+                                    variant="outline-light"
+                                    className="dateoutline"
+                                    disabled={date.startDate !== date.endDate}
+                                    onClick={nextDatePress}>
+                                    <i className="icon-right text-main d-block iconrotate90"></i>
+                                </Button>
+                            </ButtonGroup>
+                            <Select
+                                placeholder="Today"
+                                className="ms-3 appointmentselect"
+                                options={calanderOptions}
+                                onChange={handleDateChange}
+                            />
+                            <Segmented
+                                className="ms-3 appointment-segment"
+                                defaultValue={1}
+                                options={segmentedList}
+                                onChange={segmentedChange}
+                            />
+                        </div>
+                    </Col>
+                </Row>
+                {segmented == 1 ? (
+                    <div>
+                        <>
+                            <Table
+                                columns={columns}
+                                dataSource={appointmentsData}
+                                // onChange={handleChange}
+                                pagination={false}
+                                loading={loading}
+                                locale={{ emptyText: emptyText }}
+                            />
+                            {appointmentsData.length > 0 && setOnLoad && (
+                                <button
+                                    className="btn btn-light w-100 mt-3 load-more"
+                                    onClick={loadMoreData}>
+                                    Show More
+                                </button>
+                            )}
+                        </>
+                    </div>
+                ) : (
+                    <h1>Grid View</h1>
+                )}
+                {CONFIRMATION_MODAL}
+                {END_VISIT_REASON_DISPLAY_MODAL}
+            </div>
+            <Drawer
+                className="modalWidth-700" width="auto"
+                title="End Visit"
+                placement="right"
+                closable
+                open={endVisitReasonDrawer}
+                onClose={handleEndVisitReasonDrawer}
+                extra={
+                    <Space>
+                        <Button
+                            onClick={onEndVisitClick}
+                            type="primary"
+                            className="btn-41 px-4"
+                            disabled={!endVisitReason}>
+                            Save
+                        </Button>
+                    </Space>
+                }
+                key="left"
+            >
+                <div className="p-4">
+                    <div className="title-common mb-2">Reason</div>
+                    <TextArea
+                        showCount
+                        className="endreason-textarea"
+                        maxLength={100}
+                        value={endVisitReason}
+                        placeholder="Enter reason for end visit"
+                        onChange={onEndVisitReasonChange}
+                        style={{
+                            height: 200,
+                            resize: "none",
+                        }}
+                    />
+                </div>
+            </Drawer>
+        </div>
+    );
 }
 
 export default React.memo(AppointmentData);
