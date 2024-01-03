@@ -250,7 +250,7 @@ function AppointmentData() {
             width: 80,
             render: () => (
                 <div>
-                    <span className="text-primary">{index++}</span>
+                    <span>{index++}</span>
                 </div>
             ),
         },
@@ -330,13 +330,13 @@ function AppointmentData() {
             style={{ height: "calc(100vh - 434px)" }}
         >
             <img src={noData} alt="Warning" />
-            {/* <div className="mt-3 fontRoboto">
+            <div className="mt-3 fontRoboto">
                 {selectedTab === TAB_QUEUE
                     ? "There are no patients in your queue right now!"
                     : selectedTab === TAB_FINISHED
                         ? "You haven't finished any consultations or ended the visit yet."
                         : "Nothing here! You haven’t cancelled any appointments here."}
-            </div> */}
+            </div>
         </div>
     );
 
@@ -490,7 +490,7 @@ function AppointmentData() {
                     </Col>
                     <Col md="auto">
                         <div className="d-flex align-items-center">
-                            <ButtonGroup aria-label="Basic example">
+                            <ButtonGroup aria-label="Basic example" className="appointment-date-group">
                                 <Button
                                     variant="outline-light"
                                     className="dateoutline"
@@ -547,7 +547,7 @@ function AppointmentData() {
                                 loading={loading}
                                 locale={{ emptyText: emptyText }}
                             />
-                            {appointmentsData.length > 0 && setOnLoad && (
+                            {appointmentsData.length >= 10 && setOnLoad && (
                                 <button
                                     className="btn btn-light w-100 mt-3 load-more"
                                     onClick={loadMoreData}>

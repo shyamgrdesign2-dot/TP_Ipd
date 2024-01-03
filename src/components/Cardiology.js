@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Card from 'react-bootstrap/Card';
-import { Table, Dropdown,Button } from 'antd';
+import { Table, Dropdown, Button } from 'antd';
 
 import Symptomsicon from '../assets/images/Symptoms.svg';
 import Examinationsicon from '../assets/images/Examination.svg';
@@ -123,7 +123,7 @@ function Cardiology({ viewCaseManagerData }) {
                     </div>
                 </Card.Header>
                 <Card.Body className='p-0 cardbody-data'>
-                    {viewCaseManagerData ? (
+                    {(viewCaseManagerData && viewCaseManagerData.symptoms.length > 0 && viewCaseManagerData.examination.length > 0 && viewCaseManagerData.diagnosis.length > 0 && viewCaseManagerData.investigation.length > 0 && viewCaseManagerData.advice.length > 0) ? (
                         <div>
                             <div className='p-3'>
                                 {viewCaseManagerData.symptoms.length > 0 && (
