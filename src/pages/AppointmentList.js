@@ -5,7 +5,7 @@ import { isMobile } from "react-device-detect";
 import Header from "../common/Header";
 import SidebarDoctor from "../common/SidebarDoctor";
 import Welcome from "../common/Welcome";
-import Appointment from "../components/Appointment";
+import Appointment from "../components/AppointmentData";
 import AddNewPatient from "./AddNewPatient";
 import WalkInConsultation from "./WalkInConsultation";
 

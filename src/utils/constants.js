@@ -4,3 +4,7 @@ export const PERSISTANT_STORAGE_KEY_PROFILE = 'persistant.storage.key.profile';
 export const MESSAGE_KEY = 'message_key';
 export const IS_DEV = true;
 export const PAGE_SIZE = 10;
+
+export const TAB_QUEUE = 0;
+export const TAB_FINISHED = 3;
+export const TAB_CANCELLED = 4;

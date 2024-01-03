@@ -8,7 +8,6 @@ const baseUrl = { customBaseUrl: config.appointment_api_url };
 const ApiAppointments = {};
 
 ApiAppointments.getAll = function (params) {
-  console.log('Params: ', params);
   if (IS_DEV) {
     return {
       status: true,
@@ -32,6 +31,10 @@ ApiAppointments.searchPatients = function (query) {
     },
     baseUrl
   );
+};
+
+ApiAppointments.getAllAppointment = function (data) {
+  return api.post(`/api/v1/appointment/listAppointment`, data, baseUrl);
 };
 
 ApiAppointments.cancelAppointments = function (body) {
