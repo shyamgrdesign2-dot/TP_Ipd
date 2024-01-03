@@ -53,11 +53,11 @@ function SidebarPatient({ collapsed, state }) {
             >
                 <div className={`d-flex align-items-center rounded-3 m-2 text-truncate ${collapsed ? '' : 'bg-body p-2'}`}>
                     <div className={`rounded-pill patientProfile border ${collapsed ? 'mx-auto' : 'me-2'}`}>
-                        {`${state != undefined ? state.pm_first_name[0].toUpperCase() : "H"}${state != undefined ? state.pm_last_name[0].toUpperCase() : "G"}`}
+                        {`${state != undefined ? state.pm_fullname[0].toUpperCase() : "HG"}`}
                     </div>
                     {!collapsed && (
                         <div className='text-truncate'>
-                            <div className='patientName d-flex align-items-center'> <div className='text-truncate pt-2px'>{`${state != undefined ? state.pm_first_name : "Hello"} ${state != undefined ? state.pm_last_name : "Guest"}`}</div>
+                            <div className='patientName d-flex align-items-center'> <div className='text-truncate pt-2px'>{`${state != undefined ? state.pm_fullname : "Hello Guest"}`}</div>
                                 <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right'></i></button>
                             </div>
                             <p className='mb-0'>{`${state != undefined ? state.pm_gender[0].toUpperCase() : "M"}, ${state != undefined ? state.ageYears : 30}y, ${state != undefined ? state.pm_contact_no : "000000"}`}</p>

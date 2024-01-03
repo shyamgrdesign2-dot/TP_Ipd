@@ -11,9 +11,9 @@ function HeaderPrescriptionPrint({ state }) {
             <div className='align-items-center d-flex w-100 justify-content-between'>
                 <div>
                     <div className={'align-items-center d-flex h-100 ps-3'}>
-                        <div className='rounded-pill patientProfile border me-3'>{`${state != undefined ? state.pm_first_name[0].toUpperCase() : "H"}${state != undefined ? state.pm_last_name[0].toUpperCase() : "G"}`}</div>
+                        <div className='rounded-pill patientProfile border me-3'>{`${state != undefined ? state.pm_fullname[0].toUpperCase() : "HG"}`}</div>
                         <div>
-                            <div className='patientName'>{`${state != undefined ? state.pm_first_name : "Hello"} ${state != undefined ? state.pm_last_name : "Guest"}`}<div className='text-2'>{`${state != undefined ? state.pm_gender[0].toUpperCase() : "M"}, ${state != undefined ? state.ageYears : 30}y`}</div></div>
+                            <div className='patientName'>{`${state != undefined ? state.pm_fullname : "Hello Guest"}`}<div className='text-2'>{`${state != undefined ? state.pm_gender[0].toUpperCase() : "M"}, ${state != undefined ? state.ageYears : 30}y`}</div></div>
                         </div>
                     </div>
                 </div>

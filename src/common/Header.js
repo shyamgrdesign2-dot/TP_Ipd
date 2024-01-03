@@ -144,7 +144,7 @@ function Header({onClickChanged}) {
               </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown> */}
-          <Dropdown className="dropdown-profile nav-link-profile mx-1">
+          <Dropdown className="dropdown-profile nav-link-profile">
             <Dropdown.Toggle
               id="navbarDropdown"
               variant=""
