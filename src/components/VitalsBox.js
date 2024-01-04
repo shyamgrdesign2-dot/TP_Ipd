@@ -5,6 +5,8 @@ import dayjs from "dayjs";
 import { useSelector, useDispatch } from "react-redux";
 // import { v4 as uuidv4 } from 'uuid';
 
+import { onlyDecimalFormat } from "../utils/utils";
+
 import CashManagerContext from '../context/CashManagerContext';
 
 import {
@@ -24,7 +26,7 @@ function VitalsBox(props) {
     const dispatch = useDispatch();
 
     const { state } = useContext(CashManagerContext);
-    const [ vitalsData, setVitalsData] = useState([]);
+    const [vitalsData, setVitalsData] = useState([]);
 
     useEffect(() => {
         const updatedData = vitalsTodayList.map((e, i) => {
@@ -93,27 +95,28 @@ function VitalsBox(props) {
 
     const onChangeInput = useCallback(
         (value, i, flag) => {
+            const updateValue = onlyDecimalFormat(value);
             if (flag === 1) {
-                vitalsData[i].temp = value;
+                vitalsData[i].temp = updateValue;
             } else if (flag === 2) {
-                vitalsData[i].pres = value;
+                vitalsData[i].pres = updateValue;
             } else if (flag === 3) {
-                vitalsData[i].resp_rate = value;
+                vitalsData[i].resp_rate = updateValue;
             } else if (flag === 4) {
-                vitalsData[i].systolic = value;
+                vitalsData[i].systolic = updateValue;
             } else if (flag === 5) {
-                vitalsData[i].diastolic = value;
+                vitalsData[i].diastolic = updateValue;
             } else if (flag === 6) {
-                vitalsData[i].spo2 = value;
+                vitalsData[i].spo2 = updateValue;
             } else if (flag === 7) {
-                vitalsData[i].height = value;
-                let cal = calculate(value, vitalsData[i].weight);
+                vitalsData[i].height = updateValue;
+                let cal = calculate(updateValue, vitalsData[i].weight);
                 vitalsData[i].bmi = cal.bmi;
                 vitalsData[i].bmr = cal.bmr;
                 vitalsData[i].bsa = cal.bsa;
             } else if (flag === 8) {
-                vitalsData[i].weight = value;
-                let cal = calculate(vitalsData[i].height, value);
+                vitalsData[i].weight = updateValue;
+                let cal = calculate(vitalsData[i].height, updateValue);
                 vitalsData[i].bmi = cal.bmi;
                 vitalsData[i].bmr = cal.bmr;
                 vitalsData[i].bsa = cal.bsa;
@@ -145,28 +148,28 @@ function VitalsBox(props) {
                     <div key={i} className='vitals-wrap-body w-100 vitals-child-width'>
                         <div className='vitals-head rounded-start-0 w-100'>{item.date}</div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' type="number" inputmode="numeric" value={item.temp} addonAfter={'Frh'} onChange={(e) => onChangeInput(e.target.value, i, 1)} />
+                            <Input className='inputheight41-group' inputmode="numeric" value={item.temp} addonAfter={'Frh'} onChange={(e) => onChangeInput(e.target.value, i, 1)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' type="number" inputmode="numeric" value={item.pres} addonAfter={'/min'} onChange={(e) => onChangeInput(e.target.value, i, 2)} />
+                            <Input className='inputheight41-group' inputmode="numeric" value={item.pres} addonAfter={'/min'} onChange={(e) => onChangeInput(e.target.value, i, 2)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' type="number" inputmode="numeric" value={item.resp_rate} addonAfter={'/min'} onChange={(e) => onChangeInput(e.target.value, i, 3)} />
+                            <Input className='inputheight41-group' inputmode="numeric" value={item.resp_rate} addonAfter={'/min'} onChange={(e) => onChangeInput(e.target.value, i, 3)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' type="number" inputmode="numeric" value={item.systolic} addonAfter={'mmhg'} onChange={(e) => onChangeInput(e.target.value, i, 4)} />
+                            <Input className='inputheight41-group' inputmode="numeric" value={item.systolic} addonAfter={'mmhg'} onChange={(e) => onChangeInput(e.target.value, i, 4)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' type="number" inputmode="numeric" value={item.diastolic} addonAfter={'mmhg'} onChange={(e) => onChangeInput(e.target.value, i, 5)} />
+                            <Input className='inputheight41-group' inputmode="numeric" value={item.diastolic} addonAfter={'mmhg'} onChange={(e) => onChangeInput(e.target.value, i, 5)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' type="number" inputmode="numeric" value={item.spo2} addonAfter={'%'} onChange={(e) => onChangeInput(e.target.value, i, 6)} />
+                            <Input className='inputheight41-group' inputmode="numeric" value={item.spo2} addonAfter={'%'} onChange={(e) => onChangeInput(e.target.value, i, 6)} />
                         </div>
                         <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
-                            <Input className='inputheight41-group' type="number" inputmode="numeric" value={item.height} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 7)} />
+                            <Input className='inputheight41-group' inputmode="numeric" value={item.height} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 7)} />
                         </div>
                         <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
-                            <Input className='inputheight41-group' type="number" inputmode="numeric" value={item.weight} addonAfter={'kgs'} onChange={(e) => onChangeInput(e.target.value, i, 8)} />
+                            <Input className='inputheight41-group' inputmode="numeric" value={item.weight} addonAfter={'kgs'} onChange={(e) => onChangeInput(e.target.value, i, 8)} />
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
                             <div className='fs-14 '>{`${item.bmi != '' ? item.bmi : '--'} kg/m²`}</div>

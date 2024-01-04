@@ -13,6 +13,9 @@ export const validateEmail = (email) => {
 export const onlyNumberFormat = (text) => {
   return text.replace(/[^0-9]/g, "");
 };
+export const onlyDecimalFormat = (text) => {
+  return text.match(/([0-9]*[\.]{0,1}[0-9]{0,2})/s)[0]
+};
 
 export const trimEllip = (source, length) => {
   if (source == null) {

@@ -5,6 +5,8 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
+import { onlyNumberFormat } from "../../utils/utils";
+
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
 import Symptomsicon from "../../assets/images/Symptoms.svg";
@@ -399,14 +401,15 @@ function TabSymptomsBox() {
 
     const onChangeInputSinceChild = useCallback(
         (e) => {
-            setInputSince(e.target.value);
+            const updateQuery = onlyNumberFormat(e.target.value);
+            setInputSince(updateQuery);
             setChildDrawerData({ ...childDrawerData, since: '' })
-            if (e.target.value.length > 0) {
+            if (updateQuery.length > 0) {
                 const options = SINCE_OPTIONS.map((option) => {
                     return {
                         key: Math.random(),
-                        value: `${e.target.value} ${option}`,
-                        label: <>{`${e.target.value} ${option}`}</>,
+                        value: `${updateQuery} ${option}`,
+                        label: <>{`${updateQuery} ${option}`}</>,
                     };
                 });
                 setSinceOptions(options);
@@ -430,7 +433,7 @@ function TabSymptomsBox() {
         { value: 3, label: 3 },
         { value: 4, label: 4 },
         { value: 5, label: 5 },
-        { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
+        { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" value={inputSince} inputMode="numeric" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
     ];
 
     const SEVERITY_LIST = [

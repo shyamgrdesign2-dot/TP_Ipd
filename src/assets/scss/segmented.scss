@@ -53,16 +53,20 @@ body {
                     }
                     .segment-input {
                         border: none;
-                        height: 44px;
+                        height: 45px;
                         text-align: center;
-                        background: var(--White-Gradient, linear-gradient(180deg, rgba(255, 255, 255, 0.00) 0%, #E2E2EA 100%));
+                        background: transparent;
                         font-family: 'Roboto' !important;
                         font-weight: 500;
                         line-height: 26px;
                         letter-spacing: 0.1px;
-                        color: $maincolor;
+                        // color: $white;
+                        border-radius: 0;
                         &:focus-visible {
                             outline: none;
+                            &::placeholder {
+                                color: rgba(255, 255, 255, 0.5) !important;
+                            }
                         }
                         &::placeholder {
                             font-family: 'Roboto' !important;
@@ -85,6 +89,9 @@ body {
                         box-shadow: none;
                         .ant-segmented-item-label {
                             color: $white !important;
+                        }
+                        .segment-input {
+                            color: $white;
                         }
                     }
                 }

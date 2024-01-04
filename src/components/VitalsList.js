@@ -46,35 +46,35 @@ function VitalsList() {
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">Temperature</div>
-                            <Input className='inputheight41-group mx-2' type="number" inputmode="numeric" value={item.temp} addonAfter={'Frh'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={item.temp} addonAfter={'Frh'} readOnly />
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">Pulse</div>
-                            <Input className='inputheight41-group mx-2' type="number" inputmode="numeric" value={item.pres} addonAfter={'/min'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={item.pres} addonAfter={'/min'} readOnly />
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">Resp. Rate</div>
-                            <Input className='inputheight41-group mx-2' type="number" inputmode="numeric" value={item.resp_rate} addonAfter={'/min'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={item.resp_rate} addonAfter={'/min'} readOnly />
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">Systolic</div>
-                            <Input className='inputheight41-group mx-2' type="number" inputmode="numeric" value={item.blood_press ? item.blood_press.split('/')[0] : ''} addonAfter={'mmhg'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={item.blood_press ? item.blood_press.split('/')[0] : ''} addonAfter={'mmhg'} readOnly />
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">Diastolic</div>
-                            <Input className='inputheight41-group mx-2' type="number" inputmode="numeric" value={item.blood_press ? item.blood_press.split('/')[1] : ''} addonAfter={'mmhg'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={item.blood_press ? item.blood_press.split('/')[1] : ''} addonAfter={'mmhg'} readOnly />
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">SPO2</div>
-                            <Input className='inputheight41-group mx-2' type="number" inputmode="numeric" value={item.spo2} addonAfter={'%'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={item.spo2} addonAfter={'%'} readOnly />
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">Height</div>
-                            <Input className='inputheight41-group mx-2' type="number" inputmode="numeric" value={item.height} addonAfter={'cms'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={item.height} addonAfter={'cms'} readOnly />
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">Weight</div>
-                            <Input className='inputheight41-group mx-2' type="number" inputmode="numeric" value={item.weight} addonAfter={'kgs'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={item.weight} addonAfter={'kgs'} readOnly />
                         </div>
                     </div>
                 );

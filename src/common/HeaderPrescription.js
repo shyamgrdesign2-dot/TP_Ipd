@@ -81,6 +81,7 @@ function HeaderPrescription() {
                                 </div>
                                 <CommonModal
                                     isModalOpen={isModalOpen}
+                                    onCancel={showHideModal}
                                     modalWidth={500}
                                     title={"You may lose your data"}
                                     modalBody={
