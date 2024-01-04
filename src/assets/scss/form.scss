@@ -285,4 +285,14 @@ body {
     //         }
     //     }
     // }
+    .input-readonly {
+        .ant-input-wrapper {
+            .ant-input[readonly] {
+                &:hover, &:focus { 
+                    border-color: $bordercolor;
+                    box-shadow: none;
+                }
+            }
+        }
+    }
 }

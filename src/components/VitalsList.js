@@ -40,7 +40,7 @@ function VitalsList() {
             vitalsTodayList.length > 0 &&
             vitalsTodayList.map((item, i) => {
                 return (
-                    <div key={i} className={`${vitalsTodayList.length - 1 != i && 'border-bottom'} pt-3 vitals-height`}>
+                    <div key={i} className={`${vitalsTodayList.length - 1 != i && 'border-bottom'} pt-3 vitals-height input-readonly`}>
                         <div className="title-sami mb-3">
                             {item.date}
                         </div>
