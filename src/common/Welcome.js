@@ -18,15 +18,17 @@ function Welcome(props) {
     const fullName = profile?.um_name;
 
     if (!fullName) {
-      return "";
-    }
-
-    if (fullName?.includes(" ")) {
-      const firstName = fullName.split(" ")[0];
-      return firstName;
+      return "Dr.";
     } else {
       return fullName;
     }
+
+    // if (fullName?.includes(" ")) {
+    //   const firstName = fullName.split(" ")[0];
+    //   return firstName;
+    // } else {
+    //   return fullName;
+    // }
   };
 
   return (
@@ -45,7 +47,7 @@ function Welcome(props) {
               ) : locationPath == "/walk_in_consultation" ? (
                 <h1>Start Walk-In Consultation</h1>
               ) : (
-                <h1>Welcome Dr. {getFirstNameWithFallback()}!</h1>
+                <h1>Welcome {getFirstNameWithFallback()}!</h1>
               )}
               {locationPath == "/" && <p>{"Your Appointments"}</p>}
             </div>
