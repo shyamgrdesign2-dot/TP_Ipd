@@ -193,7 +193,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
         { value: 3, label: 3 },
         { value: 4, label: 4 },
         { value: 5, label: 5 },
-        { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" value={inputSince} inputmode="numeric" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
+        { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" value={inputSince} inputMode="numeric" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
     ];
 
     const STATUS_LIST = [
