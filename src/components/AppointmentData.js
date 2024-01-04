@@ -327,7 +327,7 @@ function AppointmentData() {
     const emptyText = (
         <div
             className="d-flex flex-column align-items-center justify-content-center"
-            style={{ height: "calc(100vh - 434px)" }}
+            style={{ height: "calc(100vh - 385px)" }}
         >
             <img src={noData} alt="Warning" />
             <div className="mt-3 fontRoboto">

@@ -204,6 +204,9 @@
         background-color: $white;
         border-radius: 20px;
         margin-bottom: 15px;
+        &:last-child {
+            margin-bottom: 0;
+        }
     }
 }
 
