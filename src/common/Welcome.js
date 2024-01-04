@@ -53,7 +53,7 @@ function Welcome(props) {
             </div>
             <img
               src={require("../assets/images/bg-welcome.png")}
-              className="welcomeig d-inline-block align-top"
+              className="welcomeig d-inline-block align-top ms-4"
               alt="Welcome"
             />
           </div>

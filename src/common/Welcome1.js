@@ -20,7 +20,7 @@ function Welcome1(props) {
                             {isMobile && (<ProfilePopover locationPath={locationPath} isMobile={isMobile} state={state} />)}
                             {isMobile ? '' : <p className='mb-1'>&nbsp;</p>}
                         </div>
-                        <img src={require("../assets/images/bg-welcome.png")} className="welcomeig d-inline-block align-top" alt="Welcome" />
+                        <img src={require("../assets/images/bg-welcome.png")} className="welcomeig d-inline-block align-top ms-4" alt="Welcome" />
                     </div>
                     <div>
                         <div className='d-lg-flex d-block'>

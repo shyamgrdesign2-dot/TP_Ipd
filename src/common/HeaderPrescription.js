@@ -124,7 +124,7 @@ function HeaderPrescription() {
                                 <i className='icon-setting me-2'></i> <span className='text-decoration-underline'>Customize</span>
                             </Link> */}
 
-                            <Dropdown
+                            {/* <Dropdown
                                 menu={{
                                     items
                                 }}
@@ -135,7 +135,7 @@ function HeaderPrescription() {
                                     <span className='text-decoration-underline'>English</span>
                                     <i className='icon-right iconrotate270 ms-1'></i>
                                 </a>
-                            </Dropdown>
+                            </Dropdown> */}
 
                             <div onClick={() => window.print()}>
                                 <Button className='btn align-items-center d-flex btn-41 btn-input me-20'>
