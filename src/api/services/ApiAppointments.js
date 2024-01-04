@@ -7,28 +7,28 @@ const baseUrl = { customBaseUrl: config.appointment_api_url };
 
 const ApiAppointments = {};
 
-ApiAppointments.getAll = function (params) {
-  if (IS_DEV) {
-    return {
-      status: true,
-      data: {
-        queue_count: 34,
-        finished_count: 22,
-        cancelled_count: 41,
-        app_data: generateMockData(),
-      },
-    };
-  } else {
-    return api.post(`/api/v1/appointment/listAppointment`, params, baseUrl);
-  }
-};
+// ApiAppointments.getAll = function (params) {
+//   if (IS_DEV) {
+//     return {
+//       status: true,
+//       data: {
+//         queue_count: 34,
+//         finished_count: 22,
+//         cancelled_count: 41,
+//         app_data: generateMockData(),
+//       },
+//     };
+//   } else {
+//     return api.post(`/api/v1/appointment/listAppointment`, params, baseUrl);
+//   }
+// };
 
 ApiAppointments.getProfile = function () {
   return api.get(`/api/v1/appointment/showProfile`, baseUrl);
 };
 
-ApiAppointments.changeHospital = function (body) {
-  return api.post(`/api/v1/appointment/changeHospital`, body, baseUrl);
+ApiAppointments.changeHospital = function (data) {
+  return api.post(`/api/v1/appointment/changeHospital`, data, baseUrl);
 };
 
 ApiAppointments.getCaseTypes = function () {
@@ -39,12 +39,12 @@ ApiAppointments.getAllAppointment = function (data) {
   return api.post(`/api/v1/appointment/listAppointment`, data, baseUrl);
 };
 
-ApiAppointments.cancelAppointments = function (body) {
-  return api.post(`/api/v1/appointment/cancelAppointment`, body, baseUrl);
+ApiAppointments.cancelAppointments = function (data) {
+  return api.post(`/api/v1/appointment/cancelAppointment`, data, baseUrl);
 };
 
-ApiAppointments.endVisit = function (appointment) {
-  return api.post(`/api/v1/appointment/cancelAppointment`, appointment, baseUrl);
+ApiAppointments.endVisit = function (data) {
+  return api.post(`/api/v1/appointment/endVisit`, data, baseUrl);
 };
 
 ApiAppointments.searchPatients = function (query) {

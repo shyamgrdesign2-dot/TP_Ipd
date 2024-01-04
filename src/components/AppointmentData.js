@@ -24,8 +24,10 @@ import CommonModal from "../common/CommonModal";
 import { useSelector, useDispatch } from "react-redux";
 
 import {
+    getCaseTypes,
     getAllAppointment,
     cancelAppointments,
+    endVisit
 } from "../redux/appointmentsSlice";
 
 const { TextArea } = Input;
@@ -36,7 +38,7 @@ function AppointmentData() {
 
     const navigate = useNavigate();
 
-    const { queueCount, finishedCount, cancelledCount, appointmentsData, loading, setOnLoad } = useSelector((state) => state.records);
+    const { queueCount, finishedCount, cancelledCount, appointmentsData, caseTypes, loading, setOnLoad } = useSelector((state) => state.records);
     const dispatch = useDispatch();
 
     const [date, setDate] = useState({
@@ -45,6 +47,7 @@ function AppointmentData() {
     });
     const [searchQuery, setSearchQuery] = useState('');
     const [pageNo, setPageNo] = useState(0);
+    const [visitTypeFilters, setVisitTypeFilters] = useState('');
 
     const items = [
         {
@@ -95,11 +98,15 @@ function AppointmentData() {
     const [endVisitReason, setEndVisitReason] = useState('');
 
     useEffect(() => {
+        dispatch(getCaseTypes());
+    }, []);
+
+    useEffect(() => {
         var sendData = {
             startDate: date.startDate,
             endDate: date.endDate,
             apStatue: selectedTab,
-            filterVisitType: '',
+            filterVisitType: visitTypeFilters,
             page: pageNo,
             search: searchQuery
         }
@@ -114,7 +121,7 @@ function AppointmentData() {
         } else {
             dispatch(getAllAppointment(sendData));
         }
-    }, [selectedTab, date, searchQuery, pageNo]);
+    }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters]);
 
     const onChange = useCallback(
         (key) => {
@@ -196,6 +203,14 @@ function AppointmentData() {
         [segmented]
     );
 
+    const getVisitTypeFilters = () => {
+        return caseTypes.map((e) => {
+            return {
+                text: e.toct_type,
+                value: e.toct_id,
+            };
+        });
+    };
 
     const getMenuItems = (record) => {
         const items = [
@@ -240,7 +255,6 @@ function AppointmentData() {
         }
     };
 
-    var index = 1;
     const columns = [
         {
             title: "#",
@@ -248,9 +262,9 @@ function AppointmentData() {
             key: "srno",
             ellipsis: true,
             width: 80,
-            render: () => (
+            render: (text, record, index) => (
                 <div>
-                    <span>{index++}</span>
+                    <span>{index + 1}</span>
                 </div>
             ),
         },
@@ -280,12 +294,24 @@ function AppointmentData() {
             dataIndex: "toct_type",
             key: "toct_type",
             ellipsis: true,
+            filters: getVisitTypeFilters()
         },
         {
             title: "Slot",
             dataIndex: "time",
             key: "time",
             ellipsis: true,
+            sorter: (a, b) => {
+
+                const lhsDateTime = `${a.apDate} ${a.apTime}`;
+                const lhsLongTime = moment(lhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
+
+                const rhsDateTime = `${b.apDate} ${b.apTime}`;
+                const rhsLongTime = moment(rhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
+
+                const result = lhsLongTime - rhsLongTime;
+                return result;
+            },
             render: (text, record) => (
                 <div>
                     <span>{record.apTime} </span> <br /> <small> {record.apDate}</small>
@@ -323,6 +349,11 @@ function AppointmentData() {
 
         },
     ];
+
+    const handleChange = (pagination, filters, sorter, extra) => {
+        // console.log('params', pagination, filters, sorter, extra);
+        setVisitTypeFilters(filters.toct_type ? filters.toct_type.toString() : '');
+    };
 
     const emptyText = (
         <div
@@ -456,7 +487,7 @@ function AppointmentData() {
                     <>
                         <div className="mb-2">End Visit Reason</div>
                         <div className="border bg-body rounded-10px p-3 patient-details">
-                            This is my reason of the life
+                            {appointmentSelectedFromMenu?.tpvl_remarks}
                         </div>
                     </>
                 }
@@ -464,8 +495,19 @@ function AppointmentData() {
         );
     }, [isEndVisitReasonModal]);
 
-    const onEndVisitClick = () => {
-        handleEndVisitReasonDrawer()
+    const onEndVisitClick = async () => {
+        const sendData = {
+            pam_id: appointmentSelectedFromMenu.pam_id,
+            patient_unique_id: appointmentSelectedFromMenu.patient_unique_id,
+            pm_id: appointmentSelectedFromMenu.pm_id,
+            pm_pid: appointmentSelectedFromMenu.pm_pid,
+            tpvl_remarks: endVisitReason
+        };
+        const action = await dispatch(endVisit(sendData));
+        if (action.meta.requestStatus == "fulfilled") {
+            setEndVisitReason('')
+            handleEndVisitReasonDrawer()
+        }
     }
 
     return (
@@ -542,7 +584,7 @@ function AppointmentData() {
                             <Table
                                 columns={columns}
                                 dataSource={appointmentsData}
-                                // onChange={handleChange}
+                                onChange={handleChange}
                                 pagination={false}
                                 loading={loading}
                                 locale={{ emptyText: emptyText }}
@@ -575,6 +617,7 @@ function AppointmentData() {
                             onClick={onEndVisitClick}
                             type="primary"
                             className="btn-41 px-4"
+                            loading={loading}
                             disabled={!endVisitReason}>
                             Save
                         </Button>

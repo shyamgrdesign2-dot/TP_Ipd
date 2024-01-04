@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import ApiAppointments from "../api/services/ApiAppointments";
-import { STRING_QUEUE_TYPE_CANCELLED, STRING_QUEUE_TYPE_FINISHED, STRING_QUEUE_TYPE_QUEUE } from "../components/AppointmentData";
+import { v4 as uuidv4 } from 'uuid';
 
 const initialState = {
     loading: false,
@@ -11,10 +11,28 @@ const initialState = {
     cancelledCount: 0,
     setOnLoad: true,
     appointmentsData: [],
+    caseTypes: [],
     salutationData: [],
     pincodeInfo: {},
     patients: null,
 };
+
+export const getCaseTypes = createAsyncThunk(
+    "records/getCaseTypes",
+    async () => {
+        try {
+            const result = await ApiAppointments.getCaseTypes();
+            if (result.status) {
+                return result.data.case_type;
+            } else {
+                throw Error(result.error);
+            }
+        } catch (error) {
+            console.log("error: ", error);
+            throw Error(error);
+        }
+    }
+);
 
 export const getAllAppointment = createAsyncThunk(
     "records/getAllAppointment",
@@ -39,7 +57,20 @@ export const cancelAppointments = createAsyncThunk(
         let result = {};
         result = await ApiAppointments.cancelAppointments(data);
         if (result.status) {
-            return result.data;
+            return result;
+        } else {
+            throw Error(result.error);
+        }
+    }
+);
+
+export const endVisit = createAsyncThunk(
+    "records/endVisit",
+    async (data) => {
+        let result = {};
+        result = await ApiAppointments.endVisit(data);
+        if (result.status) {
+            return result;
         } else {
             throw Error(result.error);
         }
@@ -128,6 +159,17 @@ const appointmentsSlice = createSlice({
     initialState,
     extraReducers: (builder) => {
         builder
+            .addCase(getCaseTypes.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(getCaseTypes.fulfilled, (state, action) => {
+                state.loading = false;
+                state.caseTypes = action.payload;
+            })
+            .addCase(getCaseTypes.rejected, (state, action) => {
+                state.caseTypes = [];
+                state.loading = false;
+            })
             .addCase(getAllAppointment.pending, (state) => {
                 state.loading = true;
                 state.setOnLoad = true;
@@ -137,7 +179,7 @@ const appointmentsSlice = createSlice({
                 state.setOnLoad = true;
 
                 const updatedData = action.payload.app_data.map((e) => {
-                    return { ...e, key: e.pam_id }
+                    return { ...e, key: uuidv4() }
                 });
                 if (action.meta.arg.page == 0) {
                     state.queueCount = action.payload.queue_count;
@@ -169,6 +211,19 @@ const appointmentsSlice = createSlice({
                 state.appointmentsData = updatedData
             })
             .addCase(cancelAppointments.rejected, (state) => {
+                state.loading = false;
+            })
+            .addCase(endVisit.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(endVisit.fulfilled, (state, action) => {
+                state.loading = false;
+                state.queueCount = state.queueCount - 1;
+                state.finishedCount = state.finishedCount + 1;
+                const updatedData = state.appointmentsData.filter(e => e.pam_id != action.meta.arg.pam_id);
+                state.appointmentsData = updatedData
+            })
+            .addCase(endVisit.rejected, (state) => {
                 state.loading = false;
             })
             .addCase(clearSearch.fulfilled, (state) => {
