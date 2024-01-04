@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Card from 'react-bootstrap/Card';
 import { Table, Dropdown, Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 import Symptomsicon from '../assets/images/Symptoms.svg';
 import Examinationsicon from '../assets/images/Examination.svg';
@@ -11,7 +12,10 @@ import Investigationicon from "../assets/images/Lab.svg";
 import notesicon from '../assets/images/notes.svg';
 import calenderBlank from '../assets/images/calenderBlank.svg';
 
-function Cardiology({ viewCaseManagerData }) {
+function Cardiology(props, { viewCaseManagerData }) {
+
+    const navigate = useNavigate();
+    const { state } = props
 
     const [filteredInfo, setFilteredInfo] = useState({});
     const [setSortedInfo] = useState({});
@@ -101,7 +105,9 @@ function Cardiology({ viewCaseManagerData }) {
     return (
         <div className="appointment-wrap PatientDetailswrap m-0">
             <Card className=''>
-                <Card.Header className='bg-white py-3'>
+            {(viewCaseManagerData && viewCaseManagerData.symptoms.length > 0 && viewCaseManagerData.examination.length > 0 && viewCaseManagerData.diagnosis.length > 0 && viewCaseManagerData.investigation.length > 0 && viewCaseManagerData.advice.length > 0) ? (
+                <>
+                    <Card.Header className='bg-white py-3'>
                     <div className='d-flex align-items-center justify-content-between'>
                         <div>
                             <div className='title2'>Dr Giri Surya | Cardiology</div>
@@ -123,7 +129,7 @@ function Cardiology({ viewCaseManagerData }) {
                     </div>
                 </Card.Header>
                 <Card.Body className='p-0 cardbody-data'>
-                    {(viewCaseManagerData && viewCaseManagerData.symptoms.length > 0 && viewCaseManagerData.examination.length > 0 && viewCaseManagerData.diagnosis.length > 0 && viewCaseManagerData.investigation.length > 0 && viewCaseManagerData.advice.length > 0) ? (
+                    
                         <div>
                             <div className='p-3'>
                                 {viewCaseManagerData.symptoms.length > 0 && (
@@ -231,16 +237,20 @@ function Cardiology({ viewCaseManagerData }) {
                             </div> */}
                             </div>
                         </div>
-                    ) : (
-                        <div className='d-flex flex-column justify-content-center' style={{ "height": "calc(100vh - 200px)" }}>
-                            <div className='align-items-center text-center'>
-                                <img src={calenderBlank} width={57} height={62} alt="No vital & body composition saved for the patient!" />
-                                <p className='mt-4 fontroboto'>No any visit found for this patient yet</p>
-                                <Button className="btn btn-primary3 btn-text-white px-5 btn-41">Start New Visit</Button>
-                            </div>
-                        </div>
-                    )}
+                   
                 </Card.Body>
+                </>
+                ) : (
+                    <div className='d-flex flex-column justify-content-center' style={{ "height": "calc(100vh - 118px)" }}>
+                        <div className='align-items-center text-center'>
+                            <img src={calenderBlank} width={57} height={62} alt="No vital & body composition saved for the patient!" />
+                            <p className='mt-4 fontroboto'>No any visit found for this patient yet</p>
+                            <Button  onClick={() =>
+                                    navigate("/prescription", { state: state })
+                                } className="btn btn-primary3 btn-text-white px-5 btn-41">Start New Visit</Button>
+                        </div>
+                    </div>
+                )}
             </Card>
         </div>
     )
