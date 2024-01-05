@@ -9,6 +9,7 @@ import { getProfile, changeHospital } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import { useLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
+import { makeDefaultLogo } from "../utils/utils";
 
 function Header({ locationPath }) {
 
@@ -93,7 +94,7 @@ function Header({ locationPath }) {
         <Navbar.Brand href="/tab_app/">
           <img
             src={require("../assets/images/logo.png")}
-            className="d-inline-block align-top"
+            className="d-inline-block align-top" style={{height: '30px'}}
             alt="Logo"
           />
         </Navbar.Brand>
@@ -139,11 +140,16 @@ function Header({ locationPath }) {
               variant=""
               className="py-0 border-0 nav-link"
             >
-              <img
-                src={profile?.um_image ?? defaultprofile}
-                alt="Profile"
-                style={{ width: "35px" }}
-              />
+              {profile?.um_image ? (
+                <img
+                  src={profile?.um_image ?? defaultprofile}
+                  alt="Profile"
+                  style={{ width: "35px" }}
+                />
+              ) : (
+                <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
+              )}
+
             </Dropdown.Toggle>
             {/* <Dropdown.Menu className="dropdown-menu-end">
               <Dropdown.Item>

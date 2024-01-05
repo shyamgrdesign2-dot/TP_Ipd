@@ -8,7 +8,7 @@ function TabHeader({ flag, title, loading, onClick }) {
         <div className='modalCard-header align-items-center d-flex'>
             <div className='border-end h-100 text-center'>
                 <Button className='btn btn-delete-prescription px-3 h-100' onClick={() => navigate(-1)}>
-                    <i className='icon-right'></i>
+                    <i className='icon-right lh-lg'></i>
                 </Button>
             </div>
             <div className="w-100 px-20 title-common">{title}</div>

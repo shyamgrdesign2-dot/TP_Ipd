@@ -28,7 +28,7 @@ function UploadProfile({ form }) {
         />
       </div>
       <div className="text-center mt-4">
-        <div className="btn btn-input btn-41 d-flex align-items-center">
+        <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
           <Form.Item name="pm_image"/>
           <input type="file" accept="image/*" onChange={handleChange} />
           <i className="icon-camera me-3" /> <span>Upload Profile</span>

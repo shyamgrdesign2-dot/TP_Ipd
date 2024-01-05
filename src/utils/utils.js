@@ -16,7 +16,19 @@ export const onlyNumberFormat = (text) => {
 export const onlyDecimalFormat = (text) => {
   return text.match(/([0-9]*[\.]{0,1}[0-9]{0,2})/s)[0]
 };
+export const makeDefaultLogo = (text) => {
 
+  if (!text) {
+    return "HG";
+  }
+
+  if (text?.includes(" ")) {
+    const letter = `${text.split(" ")[0][0].toUpperCase()}${text.split(" ")[1][0].toUpperCase()}`;
+    return letter;
+  } else {
+    return `${text.split(" ")[0]}`;
+  }
+};
 export const trimEllip = (source, length) => {
   if (source == null) {
     return "";

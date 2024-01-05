@@ -32,7 +32,7 @@
 
     .ant-tabs-tab {
         margin: 0 0 0 30px !important;
-        padding: 20px 15px;
+        padding: 15px;
 
         .ant-tabs-tab-btn {
             font-size: 14px;
@@ -40,7 +40,7 @@
 
             i {
                 padding-right: 10px;
-
+                font-size: medium;
                 &:before {
                     font-size: 17px;
                 }
@@ -100,6 +100,9 @@
             position: sticky;
             top: 0;
             z-index: 9;
+        }
+        tr td div {
+            line-height: 1.25!important;
         }
     }
 }
@@ -329,6 +332,9 @@
         min-width: 45px;
         max-width: 45px;
         color: $white !important;
+        i {
+            line-height: 1.5!important;
+        }
     }
 }
 

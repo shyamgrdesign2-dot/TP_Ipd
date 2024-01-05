@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Navbar } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'antd';
+import { makeDefaultLogo } from "../utils/utils";
 
 function HeaderPrescriptionPrint({ state }) {
     const navigate = useNavigate();
@@ -11,7 +12,7 @@ function HeaderPrescriptionPrint({ state }) {
             <div className='align-items-center d-flex w-100 justify-content-between'>
                 <div>
                     <div className={'align-items-center d-flex h-100 ps-3'}>
-                        <div className='rounded-pill patientProfile border me-3'>{`${state != undefined ? state.pm_fullname[0].toUpperCase() : "HG"}`}</div>
+                        <div className='rounded-pill patientProfile border me-3'>{makeDefaultLogo(state?.pm_fullname)}</div>
                         <div>
                             <div className='patientName'>{`${state != undefined ? state.pm_fullname : "Hello Guest"}`}<div className='text-2'>{`${state != undefined ? state.pm_gender[0].toUpperCase() : "M"}, ${state != undefined ? state.ageYears : 30}y`}</div></div>
                         </div>
