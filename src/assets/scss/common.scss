@@ -256,6 +256,9 @@ body {
     }
     .medicine-templates {
         padding: 10px 17px;
+        i {
+            color: #92929D;
+        }
         &:hover {
             background-color: #F1F1F5;
         }

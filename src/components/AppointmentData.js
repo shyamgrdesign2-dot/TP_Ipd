@@ -53,7 +53,7 @@ function AppointmentData() {
         {
             key: TAB_QUEUE,
             label: (
-                <div className="d-flex align-items-baseline">
+                <div className="d-flex align-items-center">
                     <i className="icon-Queue"></i>
                     Queue ({queueCount})
                 </div>
@@ -62,7 +62,7 @@ function AppointmentData() {
         {
             key: TAB_FINISHED,
             label: (
-                <div className="d-flex align-items-baseline">
+                <div className="d-flex align-items-center">
                     <i className="icon-Finished"></i>
                     Finished ({finishedCount})
                 </div>
@@ -71,7 +71,7 @@ function AppointmentData() {
         {
             key: TAB_CANCELLED,
             label: (
-                <div className="d-flex align-items-baseline">
+                <div className="d-flex align-items-center">
                     <i className="icon-Cancelled"></i>
                     Cancelled ({cancelledCount})
                 </div>
@@ -361,7 +361,7 @@ function AppointmentData() {
             style={{ height: "calc(100vh - 385px)" }}
         >
             <img src={noData} alt="Warning" />
-            <div className="mt-3 fontRoboto">
+            <div className="mt-3 fontroboto fw-normal">
                 {selectedTab === TAB_QUEUE
                     ? "There are no patients in your queue right now!"
                     : selectedTab === TAB_FINISHED
@@ -449,6 +449,8 @@ function AppointmentData() {
                                         const sendData = {
                                             pam_id: appointmentSelectedFromMenu.pam_id,
                                             patient_unique_id: appointmentSelectedFromMenu.patient_unique_id,
+                                            pm_id: appointmentSelectedFromMenu.pm_id,
+                                            pm_pid: appointmentSelectedFromMenu.pm_pid
                                         };
                                         const action = await dispatch(cancelAppointments(sendData));
                                         if (action.meta.requestStatus == "fulfilled") {

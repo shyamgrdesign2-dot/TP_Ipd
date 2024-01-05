@@ -9,7 +9,7 @@ function SidebarDoctor() {
                 <NavLink to="/" className={({ isActive, isPending }) =>
                     isPending ? "pending" : isActive ? "active" : ""
                 }>
-                    <i className='icon-calendar'></i>
+                    <i className='icon-calendarfill'></i>
                     <div className='mt-1 px-2'>{isMobile ? 'Appt' : <div className='text-truncate'>Appointment</div>}</div>
                 </NavLink>
                 {/* <NavLink to="/" className={({ isActive, isPending }) =>

@@ -2,6 +2,7 @@ import React from 'react';
 import Nav from 'react-bootstrap/Nav';
 import { Button, Popover } from 'antd';
 import { isMobile } from 'react-device-detect';
+import { makeDefaultLogo } from "../utils/utils";
 
 function SidebarPatient({ collapsed, state }) {
     const menu = [
@@ -53,7 +54,7 @@ function SidebarPatient({ collapsed, state }) {
             >
                 <div className={`d-flex align-items-center rounded-3 m-2 text-truncate ${collapsed ? '' : 'bg-body p-2'}`}>
                     <div className={`rounded-pill patientProfile border ${collapsed ? 'mx-auto' : 'me-2'}`}>
-                        {`${state != undefined ? state.pm_fullname[0].toUpperCase() : "HG"}`}
+                        {makeDefaultLogo(state?.pm_fullname)}
                     </div>
                     {!collapsed && (
                         <div className='text-truncate'>
