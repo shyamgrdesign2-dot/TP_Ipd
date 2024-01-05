@@ -263,7 +263,7 @@ function TabDiagnosisBox() {
             <>
                 <div>
                     <div className="medicine-templates">
-                        <Input className="popinput" placeholder="Search Templates" onChange={onSearch} prefix={<i className='icon-search me-2'></i>} />
+                        <Input className="popinput" placeholder="Search Templates" onChange={onSearch} prefix={<i className='icon-search me-2'></i>} allowClear />
                     </div>
                     <div className="tab-template-height" >
                         {matchedTemplates.length > 0 &&
@@ -318,6 +318,7 @@ function TabDiagnosisBox() {
                 {tabChange === TAB_ADD_TEMPLATE ? (
                     <div className="medicine-templates d-flex">
                         <Input
+                        allowClear
                             value={inputTemplateName && inputTemplateName}
                             className="popinput inputheight41"
                             placeholder="Template Name"

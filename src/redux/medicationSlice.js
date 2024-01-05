@@ -7,6 +7,8 @@ const initialState = {
   parentOptionsList: [],
   childOptionsList: [],
   templates: [],
+  timingList: [],
+  frequencyList: [],
   loading: false,
   error: null,
 };
@@ -61,6 +63,32 @@ export const getMedicationTemplates = createAsyncThunk(
   }
 );
 
+export const singleTemplateDetails = createAsyncThunk(
+  "medication/singleTemplateDetails",
+  async (templateId) => {
+    let result = {};
+    result = await ApiMedication.singleTemplateDetails(templateId);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const getMedicineDetails = createAsyncThunk(
+  "medication/getMedicineDetails",
+  async (query) => {
+    let result = {};
+    result = await ApiMedication.getMedicineDetails(query);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 export const getFrequentlySearchedMedication = createAsyncThunk(
   "medication/getFrequentlySearchedMedication",
   async () => {
@@ -86,6 +114,33 @@ export const searchMedication = createAsyncThunk(
     }
   }
 );
+
+export const showMedicineTime = createAsyncThunk(
+  "medication/showMedicineTime",
+  async () => {
+    let result = {};
+    result = await ApiMedication.showMedicineTime();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const showMedicineFrequency = createAsyncThunk(
+  "medication/showMedicineFrequency",
+  async () => {
+    let result = {};
+    result = await ApiMedication.showMedicineFrequency();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 
 const medicationSlice = createSlice({
   name: "medication",
@@ -163,6 +218,32 @@ const medicationSlice = createSlice({
         } else {
           state.childOptionsList = [];
         }
+      })
+      .addCase(showMedicineTime.fulfilled, (state, action) => {
+        const updatedData = action.payload.map((e) => {
+          return {
+            key: Math.random(),
+            value: e.tmt_id,
+            label: <>{e.tmt_title}</>,
+          };
+        });
+        state.timingList = updatedData;
+      })
+      .addCase(showMedicineTime.rejected, (state) => {
+        state.timingList = [];
+      })
+      .addCase(showMedicineFrequency.fulfilled, (state, action) => {
+        const updatedData = action.payload.map((e) => {
+          return {
+            key: JSON.stringify({ ...e }),
+            value: e.tmf_id,
+            label: <>{e.tmf_title}</>,
+          };
+        });
+        state.frequencyList = updatedData;
+      })
+      .addCase(showMedicineFrequency.rejected, (state) => {
+        state.frequencyList = [];
       });
   },
 });

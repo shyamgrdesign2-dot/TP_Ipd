@@ -256,11 +256,15 @@ body {
     }
     .medicine-templates {
         padding: 10px 17px;
+        border-top: 1px solid $bordercolor;
         i {
             color: #92929D;
         }
         &:hover {
             background-color: #F1F1F5;
+        }
+        &:first-child {
+            border-top: none;
         }
         &:last-child {
             &:hover{
@@ -289,6 +293,18 @@ body {
             display: flex;
             justify-content: center;
             margin-right: 15px;
+        }
+    }
+    .ant-input-clear-icon {
+        svg {
+            display: none;
+        }
+        &:after {
+            content: "\e919";
+            font-family: "icomoon" !important;
+            transform: rotate(-90deg);
+            font-size: 20px;
+            line-height: 1.6;
         }
     }
     .text-truncate-twolines {

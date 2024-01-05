@@ -6,31 +6,49 @@ const baseUrl = { customBaseUrl: config.medication_api_url }
 const ApiMedication = {};
 
 ApiMedication.addTemplate = function (template) {
-    return api.post(`/api/v1/medicine/addTemplate`, template, baseUrl);
+  return api.post(`/api/v1/medicine/addTemplate`, template, baseUrl);
 };
 
 ApiMedication.updateTemplate = function (template) {
-    return api.post(`/api/v1/medicine/editTemplate`, template, baseUrl);
+  return api.post(`/api/v1/medicine/editTemplate`, template, baseUrl);
 };
 
 ApiMedication.deleteTemplate = function (templateId) {
   return api.get(`/api/v1/medicine/deleteTemplate/${templateId}`, baseUrl);
 };
 
-ApiMedication.getMedicationTemplates = function (query) {
+ApiMedication.getMedicationTemplates = function () {
   return api.get(`/api/v1/medicine/listTemplate`, baseUrl);
+};
+
+ApiMedication.singleTemplateDetails = function (templateId) {
+  return api.get(`/api/v1/medicine/singleTemplateDetails/${templateId}`, baseUrl);
+};
+
+ApiMedication.getMedicineDetails = function (query) {
+  return api.post(`/api/v1/medicine/getMedicineDetails`, {
+    tmm_id: query
+  }, baseUrl);
 };
 
 ApiMedication.getFrequentlySearchedMedication = function () {
   return api.post(`/api/v1/medicine/searchMedicine`, {
-      search: "dolo"
+    search: "dolo"
   }, baseUrl);
 };
 
 ApiMedication.searchMedication = function (query) {
   return api.post(`/api/v1/medicine/searchMedicine`, {
-      search: query
+    search: query
   }, baseUrl);
+};
+
+ApiMedication.showMedicineTime = function () {
+  return api.get(`/api/v1/medicine/showMedicineTime`, baseUrl);
+};
+
+ApiMedication.showMedicineFrequency = function () {
+  return api.get(`/api/v1/medicine/showMedicineFrequency`, baseUrl);
 };
 
 export default ApiMedication;

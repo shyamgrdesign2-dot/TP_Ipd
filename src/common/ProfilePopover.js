@@ -13,14 +13,14 @@ function ProfilePopover(props) {
 
     const content = (
         <>
-            <div className="align-items-center d-flex medicine-templates without-hover px-0 pt-0 pb-3">
+            <div className="align-items-center d-flex medicine-templates border-top-0 without-hover px-0 pt-0 pb-3">
                 <div className="round-box bg-body-secondary"><i className="icon-Id fs-21"></i></div>
                 <div className="text-truncate">
                     <div className="fontroboto letterspacing">Patient Id</div>
                     <div className="fontroboto letterspacing fw-medium">{state != undefined ? state.pm_pid : "000000"}</div>
                 </div>
             </div>
-            <div className="align-items-center d-flex medicine-templates without-hover px-0 pt-0">
+            <div className="align-items-center d-flex medicine-templates border-top-0 without-hover px-0 pt-0">
                 <div className="round-box bg-body-secondary"><i className="icon-phone fs-21"></i></div>
                 <div className="text-truncate">
                     <div className="fontroboto letterspacing">Mobile Number</div>

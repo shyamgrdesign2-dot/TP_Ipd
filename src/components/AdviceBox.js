@@ -368,6 +368,7 @@ function AdviceBox() {
               className="popinput"
               onChange={onSearch}
               placeholder="Search Templates"
+              allowClear
               prefix={<i className="icon-search me-2" />}
             />
           </div>
@@ -443,6 +444,7 @@ function AdviceBox() {
         {tabChange === TAB_ADD_TEMPLATE ? (
           <div className="pop-header d-flex">
             <Input
+            allowClear
               value={inputTemplateName && inputTemplateName}
               className="popinput inputheight41"
               placeholder="Template Name"

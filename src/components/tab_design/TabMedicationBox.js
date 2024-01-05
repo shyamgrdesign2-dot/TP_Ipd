@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { Input, Button, Drawer, Tabs, message, Select, Card, Spin } from 'antd';
-
+import { Input, Button, Drawer, Tabs, message, Select, Card, Spin, Row, Col } from 'antd';
+import { Button as BSButton, ButtonGroup as BSButtonGroup } from "react-bootstrap";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
+
+import { onlyNumberFormat } from "../../utils/utils";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
@@ -13,10 +15,14 @@ import {
     updateTemplate,
     deleteTemplate,
     getMedicationTemplates,
+    singleTemplateDetails,
+    getMedicineDetails,
     getFrequentlySearchedMedication,
+    showMedicineTime,
+    showMedicineFrequency,
 } from "../../redux/medicationSlice";
 
-// import TabMedicationSearch from "../../components/tab_design/TabMedicationSearch";
+import TabMedicationSearch from "../../components/tab_design/TabMedicationSearch";
 
 function TabMedicationBox() {
 
@@ -25,6 +31,8 @@ function TabMedicationBox() {
         selectedMedicationList,
         parentOptionsList,
         templates,
+        timingList,
+        frequencyList,
         loading,
     } = useSelector((state) => state.medication);
     const dispatch = useDispatch();
@@ -64,6 +72,8 @@ function TabMedicationBox() {
     useEffect(() => {
         dispatch(getMedicationTemplates());
         dispatch(getFrequentlySearchedMedication());
+        dispatch(showMedicineTime());
+        dispatch(showMedicineFrequency());
     }, []);
 
     useEffect(() => {
@@ -83,14 +93,33 @@ function TabMedicationBox() {
     }, [parentDrawer]);
 
     const onSelectParent = useCallback(
-        (e) => {
-            medicationData.push({
-                ...e,
-                note: "",
-            });
-            setMedicationData((prev) => [...prev]);
-            setSelectedIndex(medicationData.length - 1);
-            handleDrawerParent()
+        async (e) => {
+            const action = await dispatch(getMedicineDetails(e.tmm_id));
+            if (action.meta.requestStatus == "fulfilled") {
+                const updatedData = action.payload.map(e => {
+                    const medicineUnit = e?.medicineUnit.map((e1) => {
+                        return {
+                            key: Math.random(),
+                            value: e1.tmu_id,
+                            label: <>{e1.tmu_title}</>,
+                        };
+                    });
+                    return { ...e, medicineUnit: medicineUnit, unique_id: uuidv4() }
+                })
+                medicationData.push({
+                    ...updatedData[0],
+                });
+                setMedicationData((prev) => [...prev]);
+                setSelectedIndex(medicationData.length - 1);
+                handleDrawerParent()
+            } else {
+                messageApi.open({
+                    MESSAGE_KEY,
+                    type: 'warning',
+                    content: action.error.message,
+                    duration: 2
+                });
+            }
         },
         [medicationData, selectedIndex, parentDrawer]
     );
@@ -134,12 +163,29 @@ function TabMedicationBox() {
         }
     };
 
-    const onTemplateSelected = (template) => {
-        // const updatedData = template.medication.map(e => {
-        //     return { ...e, unique_id: uuidv4(), note: "" }
-        // })
-        // setMedicationData([...medicationData, ...updatedData]);
-        // handleDrawerTemplate();
+    const onTemplateSelected = async (tmtd_id) => {
+        const action = await dispatch(singleTemplateDetails(tmtd_id));
+        if (action.meta.requestStatus == "fulfilled") {
+            const updatedData = action.payload.map(e => {
+                const medicineUnit = e?.medicineUnit.map((e1) => {
+                    return {
+                        key: Math.random(),
+                        value: e1.tmu_id,
+                        label: <>{e1.tmu_title}</>,
+                    };
+                });
+                return { ...e, medicineUnit: medicineUnit, unique_id: uuidv4() }
+            })
+            setMedicationData([...medicationData, ...updatedData]);
+            handleDrawerTemplate();
+        } else {
+            messageApi.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
+        }
     };
 
     const onDeleteTemplateClicked = (tmtd_id) => {
@@ -154,31 +200,31 @@ function TabMedicationBox() {
     );
 
     const onAddTemplateClicked = async () => {
-        // if (medicationData.length == 0) {
-        //     messageApi.open({
-        //         MESSAGE_KEY,
-        //         type: 'warning',
-        //         content: 'At least 1 medication added',
-        //         duration: 2
-        //     });
-        // } else if (medicationData.filter(e => e.medication_name == "").length > 0) {
-        //     messageApi.open({
-        //         MESSAGE_KEY,
-        //         type: 'warning',
-        //         content: 'Please fillup medication name',
-        //         duration: 2
-        //     });
-        // } else {
-        //     var sendData = {
-        //         tmtd_template_name: inputTemplateName,
-        //         data: medicationData,
-        //     };
-        //     const action = await dispatch(addTemplate(sendData));
-        //     if (action.meta.requestStatus == "fulfilled") {
-        //         setInputTemplateName(null);
-        //         handleDrawerSave();
-        //     }
-        // }
+        if (medicationData.length == 0) {
+            messageApi.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: 'At least 1 medication added',
+                duration: 2
+            });
+        } else if (medicationData.filter(e => e.tmm_medicine_name == "").length > 0) {
+            messageApi.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: 'Please fillup medication name',
+                duration: 2
+            });
+        } else {
+            var sendData = {
+                tmtd_template_name: inputTemplateName,
+                data: medicationData,
+            };
+            const action = await dispatch(addTemplate(sendData));
+            if (action.meta.requestStatus == "fulfilled") {
+                setInputTemplateName(null);
+                handleDrawerSave();
+            }
+        }
     };
 
     const onSearchTemplate = useCallback(() => {
@@ -193,33 +239,33 @@ function TabMedicationBox() {
     );
 
     const onUpdateTemplateClicked = async () => {
-        // if (medicationData.length == 0) {
-        //     messageApi.open({
-        //         MESSAGE_KEY,
-        //         type: 'warning',
-        //         content: 'At least 1 medication added',
-        //         duration: 2
-        //     });
-        // } else if (medicationData.filter(e => e.medication_name == "").length > 0) {
-        //     messageApi.open({
-        //         MESSAGE_KEY,
-        //         type: 'warning',
-        //         content: 'Please fillup medication name',
-        //         duration: 2
-        //     });
-        // } else {
-        //     var data = JSON.parse(inputTemplateName);
-        //     var sendData = {
-        //         tmtd_id: data.tmtd_id,
-        //         tmtd_template_name: data.tmtd_template_name,
-        //         data: medicationData,
-        //     };
-        //     const action = await dispatch(updateTemplate(sendData));
-        //     if (action.meta.requestStatus == "fulfilled") {
-        //         setInputTemplateName(null);
-        //         handleDrawerSave();
-        //     }
-        // }
+        if (medicationData.length == 0) {
+            messageApi.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: 'At least 1 medication added',
+                duration: 2
+            });
+        } else if (medicationData.filter(e => e.medication_name == "").length > 0) {
+            messageApi.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: 'Please fillup medication name',
+                duration: 2
+            });
+        } else {
+            var data = JSON.parse(inputTemplateName);
+            var sendData = {
+                tmtd_id: data.tmtd_id,
+                tmtd_template_name: data.tmtd_template_name,
+                data: medicationData,
+            };
+            const action = await dispatch(updateTemplate(sendData));
+            if (action.meta.requestStatus == "fulfilled") {
+                setInputTemplateName(null);
+                handleDrawerSave();
+            }
+        }
     };
 
     //Child Componet
@@ -228,15 +274,9 @@ function TabMedicationBox() {
             medicationData.length > 0 &&
             medicationData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.medication_name.length > 12 && item.medication_name.length < 24 ? `${item.medication_name.length * 10.5}px` : item.medication_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
+                    <div key={index} style={{ width: item.tmm_medicine_name.length > 12 && item.tmm_medicine_name.length < 24 ? `${item.tmm_medicine_name.length * 10.5}px` : item.tmm_medicine_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
                         <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
-                            <div className="text-truncate">{item.medication_name}
-                                {item.note ? (
-                                    <div className="text-truncate small">{item.note}</div>
-                                ) : (
-                                    <div className="text-truncate small">Add Details</div>
-                                )}
-                            </div>
+                            <div className="text-truncate">{item.tmm_medicine_name}</div>
                         </div>
                         <Button type="text" className="border-start rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
                             <i className="icon-Cross"></i>
@@ -253,7 +293,7 @@ function TabMedicationBox() {
             <>
                 <div>
                     <div className="medicine-templates">
-                        <Input className="popinput" onChange={onSearch} prefix={<i className='icon-search me-2'></i>} />
+                        <Input className="popinput" onChange={onSearch} prefix={<i className='icon-search me-2'></i>} allowClear />
                     </div>
                     <div className="tab-template-height" >
                         {matchedTemplates.length > 0 &&
@@ -261,17 +301,9 @@ function TabMedicationBox() {
                                 return (
                                     <div className="align-items-center d-flex justify-content-between medicine-templates" key={i}>
                                         <div className="align-items-center d-flex text-truncate">
-                                            <div className="round-box" onClick={() => onTemplateSelected(template)}><i className="icon-template"></i></div>
-                                            <div className="text-truncate" onClick={() => onTemplateSelected(template)}>
+                                            <div className="round-box" onClick={() => onTemplateSelected(template.tmtd_id)}><i className="icon-template"></i></div>
+                                            <div className="text-truncate" onClick={() => onTemplateSelected(template.tmtd_id)}>
                                                 <div className="title">{template.tmtd_template_name}</div>
-                                                {/* <div className="text-truncate">
-                                                    {template.medication.map((item, ii) => {
-                                                        return (
-                                                            <span key={ii}>{`${item.medication_name}${template.medication.length - 1 != ii ? ", " : ""
-                                                                }`}</span>
-                                                        );
-                                                    })}
-                                                </div> */}
                                             </div>
                                         </div>
                                         <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => onDeleteTemplateClicked(template.tmtd_id)}>
@@ -308,6 +340,7 @@ function TabMedicationBox() {
                 {tabChange === TAB_ADD_TEMPLATE ? (
                     <div className="medicine-templates d-flex">
                         <Input
+                            allowClear
                             value={inputTemplateName && inputTemplateName}
                             className="popinput inputheight41"
                             placeholder="Template Name"
@@ -357,9 +390,181 @@ function TabMedicationBox() {
         );
     }, [tabChange, saveDrawer, inputTemplateName, loading, allTemplates]);
 
+    const onChangeDosageChild = useCallback(
+        (e) => {
+            setChildDrawerData({ ...childDrawerData, tmm_dosage: e.target.value })
+        },
+        [childDrawerData]
+    );
+
+    const onSelectMedicineUnitChild = useCallback(
+        (data) => {
+            setChildDrawerData({ ...childDrawerData, tmm_unit: data, tmu_id: data })
+        },
+        [childDrawerData]
+    );
+
+    const onSelectMedicineFrequencyChild = useCallback(
+        (data) => {
+            const obj = frequencyList.find(e => e.value == data)
+            if (obj != undefined) {
+                const objParse = JSON.parse(obj.key)
+                setChildDrawerData({ ...childDrawerData, tmm_freq_type: objParse.tmf_id, tmf_block: objParse.tmf_block })
+            }
+        },
+        [childDrawerData]
+    );
+
+    const morningDecrement = useCallback(
+        () => {
+            setChildDrawerData((prev) => {
+                return { ...prev, tcm_tmm_freq_morning: parseInt(prev.tcm_tmm_freq_morning) - 1 }
+            });
+        },
+        [childDrawerData]
+    );
+
+    const morningClick = useCallback(
+        () => {
+            setChildDrawerData((prev) => {
+                return { ...prev, tcm_tmm_freq_morning: 1 }
+            });
+        },
+        [childDrawerData]
+    );
+
+    const onChangeInputMorningChild = useCallback(
+        (e) => {
+            const updateQuery = onlyNumberFormat(e.target.value);
+            setChildDrawerData({ ...childDrawerData, tcm_tmm_freq_morning: updateQuery })
+        },
+        [childDrawerData]
+    );
+
+    const morningIncrement = useCallback(
+        () => {
+            setChildDrawerData((prev) => {
+                return { ...prev, tcm_tmm_freq_morning: parseInt(prev.tcm_tmm_freq_morning) + 1 }
+            });
+        },
+        [childDrawerData]
+    );
+
+    const afternoonDecrement = useCallback(
+        () => {
+            setChildDrawerData((prev) => {
+                return { ...prev, tcm_tmm_freq_afternoon: parseInt(prev.tcm_tmm_freq_afternoon) - 1 }
+            });
+        },
+        [childDrawerData]
+    );
+
+    const afternoonClick = useCallback(
+        () => {
+            setChildDrawerData((prev) => {
+                return { ...prev, tcm_tmm_freq_afternoon: 1 }
+            });
+        },
+        [childDrawerData]
+    );
+
+    const onChangeInputAfternoonChild = useCallback(
+        (e) => {
+            const updateQuery = onlyNumberFormat(e.target.value);
+            setChildDrawerData({ ...childDrawerData, tcm_tmm_freq_afternoon: updateQuery })
+        },
+        [childDrawerData]
+    );
+
+    const afternoonIncrement = useCallback(
+        () => {
+            setChildDrawerData((prev) => {
+                return { ...prev, tcm_tmm_freq_afternoon: parseInt(prev.tcm_tmm_freq_afternoon) + 1 }
+            });
+        },
+        [childDrawerData]
+    );
+
+    const eveningDecrement = useCallback(
+        () => {
+            setChildDrawerData((prev) => {
+                return { ...prev, tcm_tmm_freq_evening: parseInt(prev.tcm_tmm_freq_evening) - 1 }
+            });
+        },
+        [childDrawerData]
+    );
+
+    const eveningClick = useCallback(
+        () => {
+            setChildDrawerData((prev) => {
+                return { ...prev, tcm_tmm_freq_evening: 1 }
+            });
+        },
+        [childDrawerData]
+    );
+
+    const onChangeInputEveningChild = useCallback(
+        (e) => {
+            const updateQuery = onlyNumberFormat(e.target.value);
+            setChildDrawerData({ ...childDrawerData, tcm_tmm_freq_evening: updateQuery })
+        },
+        [childDrawerData]
+    );
+
+    const eveningIncrement = useCallback(
+        () => {
+            setChildDrawerData((prev) => {
+                return { ...prev, tcm_tmm_freq_evening: parseInt(prev.tcm_tmm_freq_evening) + 1 }
+            });
+        },
+        [childDrawerData]
+    );
+
+    const nightDecrement = useCallback(
+        () => {
+            setChildDrawerData((prev) => {
+                return { ...prev, tcm_tmm_freq_night: parseInt(prev.tcm_tmm_freq_night) - 1 }
+            });
+        },
+        [childDrawerData]
+    );
+
+    const nightClick = useCallback(
+        () => {
+            setChildDrawerData((prev) => {
+                return { ...prev, tcm_tmm_freq_night: 1 }
+            });
+        },
+        [childDrawerData]
+    );
+
+    const onChangeInputNightChild = useCallback(
+        (e) => {
+            const updateQuery = onlyNumberFormat(e.target.value);
+            setChildDrawerData({ ...childDrawerData, tcm_tmm_freq_night: updateQuery })
+        },
+        [childDrawerData]
+    );
+
+    const nightIncrement = useCallback(
+        () => {
+            setChildDrawerData((prev) => {
+                return { ...prev, tcm_tmm_freq_night: parseInt(prev.tcm_tmm_freq_night) + 1 }
+            });
+        },
+        [childDrawerData]
+    );
+
+    const onSelectMedicineTimingChild = useCallback(
+        (data) => {
+            setChildDrawerData({ ...childDrawerData, tmm_time: data })
+        },
+        [childDrawerData]
+    );
+
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            setChildDrawerData({ ...childDrawerData, note: e.target.value })
+            setChildDrawerData({ ...childDrawerData, tmm_remarks: e.target.value })
         },
         [childDrawerData]
     );
@@ -378,11 +583,13 @@ function TabMedicationBox() {
                 <>
                     <Card bordered={false} className="search-modalCard">
                         <div className='modalCard-header align-items-center justify-content-between d-flex'>
-                            <div className='align-items-center d-flex'>
+                            <div className='align-items-center d-flex text-truncate'>
                                 <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={handleDrawerChild}>
                                     <i className='icon-Cross fs-3'></i>
                                 </Button>
-                                <div className="modal-title text-truncate-twolines">{childDrawerData.medication_name}</div>
+                                <div className="text-truncate title-common fontroboto">{childDrawerData.tmm_medicine_name}
+                                    <div className="text-truncate fs-14 fontroboto mt-1">{childDrawerData.tmm_generic}</div>
+                                </div>
                             </div>
                             <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => updateChild(childDrawerData)}>
                                 Done
@@ -390,10 +597,125 @@ function TabMedicationBox() {
                         </div>
                     </Card>
                     <div className="p-4">
-                        <label className="title-common">
+                        <div>
+                            <label className="title-common mb-1">
+                                Unit/Dose
+                            </label>
+                            <Row gutter={20} className="mb-3">
+                                <Col md={12}>
+                                    <Input placeholder="e.g. 1" value={childDrawerData.tmm_dosage ? childDrawerData.tmm_dosage : ''} inputMode="numeric" onChange={onChangeDosageChild} className="inputheight38" />
+                                </Col>
+                                <Col md={12}>
+                                    <Select
+                                        className="autocomplete-custom w-100 popinput inputheight38"
+                                        placeholder="Select"
+                                        defaultValue={childDrawerData.medicineUnit ? childDrawerData.medicineUnit.findIndex(e => e.value == childDrawerData.tmm_unit) != -1 ? childDrawerData.tmm_unit : null : null}
+                                        value={childDrawerData.medicineUnit ? childDrawerData.medicineUnit.findIndex(e => e.value == childDrawerData.tmm_unit) != -1 ? childDrawerData.tmm_unit : null : null}
+                                        onSelect={(data) => onSelectMedicineUnitChild(data)}
+                                        options={childDrawerData.medicineUnit}
+                                    />
+                                </Col>
+                            </Row>
+                            <label className="title-common mb-1">
+                                Timing
+                            </label>
+                            <Row gutter={20} className="mb-3">
+                                <Col md={12}>
+                                    <Select
+                                        className="autocomplete-custom w-100 popinput inputheight38"
+                                        placeholder="Select"
+                                        defaultValue={frequencyList ? frequencyList.findIndex(e => e.value == childDrawerData.tmm_freq_type) != -1 ? childDrawerData.tmm_freq_type : null : null}
+                                        value={frequencyList ? frequencyList.findIndex(e => e.value == childDrawerData.tmm_freq_type) != -1 ? childDrawerData.tmm_freq_type : null : null}
+                                        onSelect={(data) => onSelectMedicineFrequencyChild(data)}
+                                        options={frequencyList}
+                                    />
+                                </Col>
+                                <Col md={12}>
+                                    <Select
+                                        className="autocomplete-custom w-100 popinput inputheight38"
+                                        placeholder="Select"
+                                        defaultValue={timingList ? timingList.findIndex(e => e.value == childDrawerData.tmm_time) != -1 ? parseInt(childDrawerData.tmm_time) : null : null}
+                                        value={timingList ? timingList.findIndex(e => e.value == childDrawerData.tmm_time) != -1 ? parseInt(childDrawerData.tmm_time) : null : null}
+                                        onSelect={(data) => onSelectMedicineTimingChild(data)}
+                                        options={timingList}
+                                    />
+                                </Col>
+                            </Row>
+                            <Row gutter={20} className="mb-3">
+                                <Col md={6}>
+                                    <BSButtonGroup aria-label="Basic example" className="inputheight45 border rounded-0">
+                                        {childDrawerData.tcm_tmm_freq_morning != undefined && childDrawerData.tcm_tmm_freq_morning != 0 && (
+                                            <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={childDrawerData.tmf_block} onClick={morningDecrement}>
+                                                <i className="icon-minus d-block text-main"></i>
+                                            </BSButton>
+                                        )}
+                                        <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={childDrawerData.tmf_block} onClick={() => !childDrawerData.tcm_tmm_freq_morning && morningClick()}>
+                                            <Input placeholder="Morning" value={childDrawerData.tcm_tmm_freq_morning ? childDrawerData.tcm_tmm_freq_morning : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputMorningChild} />
+                                        </BSButton>
+                                        {childDrawerData.tcm_tmm_freq_morning != undefined && childDrawerData.tcm_tmm_freq_morning != 0 && (
+                                            <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={childDrawerData.tmf_block} onClick={morningIncrement}>
+                                                <i className="icon-Add text-main d-block"></i>
+                                            </BSButton>
+                                        )}
+                                    </BSButtonGroup>
+                                </Col>
+                                <Col md={6}>
+                                    <BSButtonGroup aria-label="Basic example" className="inputheight45 border rounded-0">
+                                        {childDrawerData.tcm_tmm_freq_afternoon != undefined && childDrawerData.tcm_tmm_freq_afternoon != 0 && (
+                                            <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={childDrawerData.tmf_block} onClick={afternoonDecrement}>
+                                                <i className="icon-minus d-block text-main"></i>
+                                            </BSButton>
+                                        )}
+                                        <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={childDrawerData.tmf_block} onClick={() => !childDrawerData.tcm_tmm_freq_afternoon && afternoonClick()}>
+                                            <Input placeholder="Afternoon" value={childDrawerData.tcm_tmm_freq_afternoon ? childDrawerData.tcm_tmm_freq_afternoon : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputAfternoonChild} />
+                                        </BSButton>
+                                        {childDrawerData.tcm_tmm_freq_afternoon != undefined && childDrawerData.tcm_tmm_freq_afternoon != 0 && (
+                                            <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={childDrawerData.tmf_block} onClick={afternoonIncrement}>
+                                                <i className="icon-Add text-main d-block"></i>
+                                            </BSButton>
+                                        )}
+                                    </BSButtonGroup>
+                                </Col>
+                                <Col md={6}>
+                                    <BSButtonGroup aria-label="Basic example" className="inputheight45 border rounded-0">
+                                        {childDrawerData.tcm_tmm_freq_evening != undefined && childDrawerData.tcm_tmm_freq_evening != 0 && (
+                                            <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={childDrawerData.tmf_block} onClick={eveningDecrement}>
+                                                <i className="icon-minus d-block text-main"></i>
+                                            </BSButton>
+                                        )}
+                                        <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={childDrawerData.tmf_block} onClick={() => !childDrawerData.tcm_tmm_freq_evening && eveningClick()}>
+                                            <Input placeholder="Evening" value={childDrawerData.tcm_tmm_freq_evening ? childDrawerData.tcm_tmm_freq_evening : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputEveningChild} />
+                                        </BSButton>
+                                        {childDrawerData.tcm_tmm_freq_evening != undefined && childDrawerData.tcm_tmm_freq_evening != 0 && (
+                                            <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={childDrawerData.tmf_block} onClick={eveningIncrement}>
+                                                <i className="icon-Add text-main d-block"></i>
+                                            </BSButton>
+                                        )}
+                                    </BSButtonGroup>
+                                </Col>
+                                <Col md={6}>
+                                    <BSButtonGroup aria-label="Basic example" className="inputheight45 border rounded-0">
+                                        {childDrawerData.tcm_tmm_freq_night != undefined && childDrawerData.tcm_tmm_freq_night != 0 && (
+                                            <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={childDrawerData.tmf_block} onClick={nightDecrement}>
+                                                <i className="icon-minus d-block text-main"></i>
+                                            </BSButton>
+                                        )}
+                                        <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={childDrawerData.tmf_block} onClick={() => !childDrawerData.tcm_tmm_freq_night && nightClick()}>
+                                            <Input placeholder="Night" value={childDrawerData.tcm_tmm_freq_night ? childDrawerData.tcm_tmm_freq_night : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputNightChild} />
+                                        </BSButton>
+                                        {childDrawerData.tcm_tmm_freq_night != undefined && childDrawerData.tcm_tmm_freq_night != 0 && (
+                                            <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={childDrawerData.tmf_block} onClick={nightIncrement}>
+                                                <i className="icon-Add text-main d-block"></i>
+                                            </BSButton>
+                                        )}
+                                    </BSButtonGroup>
+                                </Col>
+                            </Row>
+                        </div>
+                        <label className="title-common mb-1">
                             Add Details
                         </label>
-                        <Input.TextArea value={childDrawerData.note != undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                        <Input.TextArea value={childDrawerData.tmm_remarks ? childDrawerData.tmm_remarks : ''} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                     </div>
                 </>
             )
@@ -425,7 +747,7 @@ function TabMedicationBox() {
                 </div>
                 <div className="d-flex flex-wrap p-14-pb0">
                     {TABLE_MEDICATION}
-                    <Drawer closeIcon={false} placement="right" onClose={handleDrawerChild} open={childDrawer} className="modalWidth-563" width="auto">
+                    <Drawer closeIcon={false} placement="right" onClose={handleDrawerChild} open={childDrawer} className="modalWidth-700" width="auto">
                         {CHILD_DRAWER_DATA}
                     </Drawer>
                 </div>
@@ -436,13 +758,13 @@ function TabMedicationBox() {
                     </div>
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
-                    {/* {parentDrawer && (<TabMedicationSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)} */}
+                    {parentDrawer && (<TabMedicationSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
                 </Drawer>
                 <div className="d-flex flex-wrap p-14-pb0">
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.map((item, i) => {
                             return (
-                                <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.tmm_medicine_name}</Button>
+                                <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onSelectParent(item)}>{item.tmm_medicine_name}</Button>
                             )
                         })}
                 </div>
