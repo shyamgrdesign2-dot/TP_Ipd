@@ -263,7 +263,7 @@ function TabSymptomsBox() {
             <>
                 <div>
                     <div className="medicine-templates">
-                        <Input className="popinput" onChange={onSearch} placeholder="Search Templates" prefix={<i className='icon-search me-2'></i>} />
+                        <Input className="popinput" onChange={onSearch} placeholder="Search Templates" prefix={<i className='icon-search me-2'></i>} allowClear/>
                     </div>
                     <div className="tab-template-height" >
                         {matchedTemplates.length > 0 &&
@@ -318,6 +318,7 @@ function TabSymptomsBox() {
                 {tabChange === TAB_ADD_TEMPLATE ? (
                     <div className="medicine-templates d-flex">
                         <Input
+                            allowClear
                             value={inputTemplateName && inputTemplateName}
                             className="popinput inputheight41"
                             placeholder="Template Name"

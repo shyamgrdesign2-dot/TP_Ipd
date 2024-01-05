@@ -426,6 +426,7 @@ function ExaminationBox() {
           </div>
           <div className="mt-3" key="examination-template-search">
             <Input
+            allowClear
               className="popinput"
               onChange={onSearch}
               placeholder="Search Templates"
@@ -504,6 +505,7 @@ function ExaminationBox() {
         {tabChange === TAB_ADD_TEMPLATE ? (
           <div className="pop-header d-flex">
             <Input
+            allowClear
               value={inputTemplateName && inputTemplateName}
               className="popinput inputheight41"
               placeholder="Template Name"

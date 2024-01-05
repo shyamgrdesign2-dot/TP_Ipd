@@ -426,6 +426,7 @@ function InvestigationBox() {
           </div>
           <div className="mt-3" key="investigation-template-search">
             <Input
+            allowClear
               className="popinput"
               onChange={onSearch}
               placeholder="Search Templates"
@@ -504,6 +505,7 @@ function InvestigationBox() {
         {tabChange === TAB_ADD_TEMPLATE ? (
           <div className="pop-header d-flex">
             <Input
+            allowClear
               value={inputTemplateName && inputTemplateName}
               className="popinput inputheight41"
               placeholder="Template Name"

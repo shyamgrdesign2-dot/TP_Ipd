@@ -47,16 +47,12 @@ function TabVitalsList(props) {
                             {item.date}
                         </div>
                         <div className="py-3">
+                            {/* <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">BP(mm Hg)</div>
+                                <div className="fontroboto">{item.blood_press}</div>
+                            </div> */}
                             <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">SPO2(%)</div>
-                                <div className="fontroboto">{item.spo2}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">HbA1C (%)</div>
-                                <div className="fontroboto">{item.spo2}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Temperature (Frh)</div>
+                                <div className="fontroboto">Temperature(Frh)</div>
                                 <div className="fontroboto">{item.temp}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
@@ -64,8 +60,28 @@ function TabVitalsList(props) {
                                 <div className="fontroboto">{item.pres}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">BP(mm Hg)</div>
-                                <div className="fontroboto">{item.blood_press}</div>
+                                <div className="fontroboto">Resp. Rate(/min)</div>
+                                <div className="fontroboto">{item.resp_rate}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Systolic(mmhg)</div>
+                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[0] : ''}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Diastolic(mmhg)</div>
+                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[1] : ''}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">SPO2(%)</div>
+                                <div className="fontroboto">{item.spo2}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Height</div>
+                                <div className="fontroboto">{item.height}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Weight</div>
+                                <div className="fontroboto">{item.weight}</div>
                             </div>
                         </div>
                     </div>
@@ -85,15 +101,7 @@ function TabVitalsList(props) {
                         </div>
                         <div className="py-3">
                             <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">SPO2(%)</div>
-                                <div className="fontroboto">{item.spo2}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">HbA1C (%)</div>
-                                <div className="fontroboto">{item.spo2}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Temperature (Frh)</div>
+                                <div className="fontroboto">Temperature(Frh)</div>
                                 <div className="fontroboto">{item.temp}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
@@ -101,8 +109,28 @@ function TabVitalsList(props) {
                                 <div className="fontroboto">{item.pres}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">BP(mm Hg)</div>
-                                <div className="fontroboto">{item.blood_press}</div>
+                                <div className="fontroboto">Resp. Rate(/min)</div>
+                                <div className="fontroboto">{item.resp_rate}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Systolic(mmhg)</div>
+                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[0] : ''}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Diastolic(mmhg)</div>
+                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[1] : ''}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">SPO2(%)</div>
+                                <div className="fontroboto">{item.spo2}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Height</div>
+                                <div className="fontroboto">{item.height}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Weight</div>
+                                <div className="fontroboto">{item.weight}</div>
                             </div>
                         </div>
                     </div>
