@@ -321,6 +321,7 @@
     border: 1px solid $theme;
     &.closable-chips-active {
         background-color: $theme;
+        border: none;
         div {
             color: $white !important;
         }

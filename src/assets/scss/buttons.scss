@@ -3,7 +3,7 @@ body {
         font-family: "Poppins" !important;
         font-size: 14px;
         font-style: normal;
-        font-weight: 600;
+        font-weight: 500;
         &.btn-icon {
             border-radius: 10px;
             width: 24px;
@@ -255,6 +255,7 @@ body {
                 &:focus,
                 &:active {
                     background-color: transparent !important;
+                    border-color: $bordercolor !important;
                     a, span, i {
                         color: $theme !important;
                     }
