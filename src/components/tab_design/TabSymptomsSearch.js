@@ -103,7 +103,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
             symptomsData.length > 0 &&
             symptomsData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.symptom_name.length > 12 && item.symptom_name.length < 24 ? `${item.symptom_name.length * 10.5}px` : item.symptom_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
+                    <div key={index} style={{ width: item.symptom_name.length > 12 && item.symptom_name.length < 24 ? `${item.symptom_name.length * 10.5}px` : item.symptom_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex == index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
                         <div className="text-truncate p-2" onClick={() => {
                             setSelectedIndex(index)
                             setSinceValue(item.since ? parseInt(item.since.split(" ")[0]) : 1)
@@ -116,14 +116,14 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                 )}
                             </div>
                         </div>
-                        <Button type="text" className="border-start rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
+                        <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
                             <i className="icon-Cross"></i>
                         </Button>
                     </div>
                 );
             })
         );
-    }, [symptomsData]);
+    }, [symptomsData, selectedIndex]);
 
 
     useEffect(() => {

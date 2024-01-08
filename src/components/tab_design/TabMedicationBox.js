@@ -274,7 +274,7 @@ function TabMedicationBox() {
             medicationData.length > 0 &&
             medicationData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.tmm_medicine_name.length > 12 && item.tmm_medicine_name.length < 24 ? `${item.tmm_medicine_name.length * 10.5}px` : item.tmm_medicine_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
+                    <div key={index} style={{ width: item.tmm_medicine_name.length > 12 && item.tmm_medicine_name.length < 24 ? `${item.tmm_medicine_name.length * 10.5}px` : item.tmm_medicine_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active">
                         <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
                             <div className="text-truncate">{item.tmm_medicine_name}</div>
                         </div>
@@ -300,9 +300,9 @@ function TabMedicationBox() {
                             matchedTemplates.map((template, i) => {
                                 return (
                                     <div className="align-items-center d-flex justify-content-between medicine-templates" key={i}>
-                                        <div className="align-items-center d-flex text-truncate">
-                                            <div className="round-box" onClick={() => onTemplateSelected(template.tmtd_id)}><i className="icon-template"></i></div>
-                                            <div className="text-truncate" onClick={() => onTemplateSelected(template.tmtd_id)}>
+                                        <div className="align-items-center d-flex text-truncate w-100" onClick={() => onTemplateSelected(template.tmtd_id)}>
+                                            <div className="round-box"><i className="icon-template"></i></div>
+                                            <div className="text-truncate w-100">
                                                 <div className="title">{template.tmtd_template_name}</div>
                                             </div>
                                         </div>

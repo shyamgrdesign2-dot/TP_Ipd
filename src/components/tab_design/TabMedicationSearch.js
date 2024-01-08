@@ -121,7 +121,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             medicationData.length > 0 &&
             medicationData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.tmm_medicine_name.length > 12 && item.tmm_medicine_name.length < 24 ? `${item.tmm_medicine_name.length * 10.5}px` : item.tmm_medicine_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
+                    <div key={index} style={{ width: item.tmm_medicine_name.length > 12 && item.tmm_medicine_name.length < 24 ? `${item.tmm_medicine_name.length * 10.5}px` : item.tmm_medicine_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex == index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
                         <div className="text-truncate p-2" onClick={() => {
                             setSelectedIndex(index)
                         }}>
@@ -134,7 +134,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 );
             })
         );
-    }, [medicationData]);
+    }, [medicationData, selectedIndex]);
 
     const onChangeDosageChild = useCallback(
         (e) => {

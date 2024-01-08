@@ -104,7 +104,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
             diagnosisData.length > 0 &&
             diagnosisData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.tds_name.length > 12 && item.tds_name.length < 24 ? `${item.tds_name.length * 10.5}px` : item.tds_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
+                    <div key={index} style={{ width: item.tds_name.length > 12 && item.tds_name.length < 24 ? `${item.tds_name.length * 10.5}px` : item.tds_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex == index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
                         <div className="text-truncate p-2" onClick={() => {
                             setSelectedIndex(index)
                             setSinceValue(item.since ? parseInt(item.since.split(" ")[0]) : 1)
@@ -124,7 +124,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                 );
             })
         );
-    }, [diagnosisData]);
+    }, [diagnosisData, selectedIndex]);
 
 
     useEffect(() => {

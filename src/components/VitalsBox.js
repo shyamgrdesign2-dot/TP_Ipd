@@ -194,7 +194,7 @@ function VitalsBox(props) {
     return (
         <>
             {contextHolder}
-            <Card bordered={false} className="search-modalCard h-100">
+            <Card bordered={false} className="search-modalCard ">
                 <div className='modalCard-header h-60 align-items-center justify-content-between d-flex'>
                     <div className='align-items-center d-flex'>
                         <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={handleDrawerVital}>
@@ -255,13 +255,13 @@ function VitalsBox(props) {
                                 </div>
                                 <div className='vitals-row vitals-row-40 d-flex align-items-center'>
                                     BMR
-                                    <Tooltip placement="right" title="Body mass index will be auto-calculated by entering Height and Weight">
+                                    <Tooltip placement="right" title="Batch manufacturing record will be auto-calculated by entering Height and Weight">
                                         <i className='icon-info ms-1'></i>
                                     </Tooltip>
                                 </div>
                                 <div className='vitals-row vitals-row-40 d-flex align-items-center'>
                                     BSA
-                                    <Tooltip placement="right" title="Body mass index will be auto-calculated by entering Height and Weight">
+                                    <Tooltip placement="right" title="Body Surface Area will be auto-calculated by entering Height and Weight">
                                         <i className='icon-info ms-1'></i>
                                     </Tooltip>
                                 </div>

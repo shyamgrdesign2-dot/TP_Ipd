@@ -228,7 +228,7 @@ function TabInvestigationBox() {
             investigationData.length > 0 &&
             investigationData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.investigation_name.length > 12 && item.investigation_name.length < 24 ? `${item.investigation_name.length * 10.5}px` : item.investigation_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
+                    <div key={index} style={{ width: item.investigation_name.length > 12 && item.investigation_name.length < 24 ? `${item.investigation_name.length * 10.5}px` : item.investigation_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active">
                         <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
                             <div className="text-truncate">{item.investigation_name}
                                 {item.note ? (
@@ -260,9 +260,9 @@ function TabInvestigationBox() {
                             matchedTemplates.map((template, i) => {
                                 return (
                                     <div className="align-items-center d-flex justify-content-between medicine-templates" key={i}>
-                                        <div className="align-items-center d-flex text-truncate">
-                                            <div className="round-box" onClick={() => onTemplateSelected(template)}><i className="icon-template"></i></div>
-                                            <div className="text-truncate" onClick={() => onTemplateSelected(template)}>
+                                        <div className="align-items-center d-flex text-truncate w-100" onClick={() => onTemplateSelected(template)}>
+                                            <div className="round-box"><i className="icon-template"></i></div>
+                                            <div className="text-truncate w-100">
                                                 <div className="title">{template.tit_template_name}</div>
                                                 <div className="text-truncate">
                                                     {template.investigation.map((item, ii) => {

@@ -254,8 +254,9 @@ body {
                 &:hover,
                 &:focus,
                 &:active {
-                    a {
-                        color: $white !important;
+                    background-color: transparent !important;
+                    a, span, i {
+                        color: $theme !important;
                     }
                 }
             }

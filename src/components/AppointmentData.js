@@ -88,7 +88,7 @@ function AppointmentData() {
 
     const segmentedList = [
         { value: 1, icon: <i className="icon-List"></i> },
-        // { value: 2, icon: <i className="icon-calendar"></i> },
+        { value: 2, icon: <i className="icon-calendar"></i> },
     ];
     const [segmented, setSegmented] = useState(1);
     const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] = useState(null);
@@ -571,12 +571,12 @@ function AppointmentData() {
                                 options={calanderOptions}
                                 onChange={handleDateChange}
                             />
-                            <Segmented
+                            {/* <Segmented
                                 className="ms-3 appointment-segment"
                                 defaultValue={1}
                                 options={segmentedList}
                                 onChange={segmentedChange}
-                            />
+                            /> */}
                         </div>
                     </Col>
                 </Row>

@@ -244,9 +244,9 @@ function TabAdviceBox() {
                             matchedTemplates.map((template, i) => {
                                 return (
                                     <div className="align-items-center d-flex justify-content-between medicine-templates" key={i}>
-                                        <div className="align-items-center d-flex text-truncate">
-                                            <div className="round-box" onClick={() => onTemplateSelected(template)}><i className="icon-template"></i></div>
-                                            <div className="text-truncate" onClick={() => onTemplateSelected(template)}>
+                                        <div className="align-items-center d-flex text-truncate w-100" onClick={() => onTemplateSelected(template)}>
+                                            <div className="round-box"><i className="icon-template"></i></div>
+                                            <div className="text-truncate w-100">
                                                 <div className="title">{template.tat_template_name}</div>
                                                 <div className="text-truncate">
                                                     {template.advices.map((item, ii) => {

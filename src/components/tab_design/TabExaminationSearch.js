@@ -93,7 +93,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
             examinationData.length > 0 &&
             examinationData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.examination_name.length > 12 && item.examination_name.length < 24 ? `${item.examination_name.length * 10.5}px` : item.examination_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
+                    <div key={index} style={{ width: item.examination_name.length > 12 && item.examination_name.length < 24 ? `${item.examination_name.length * 10.5}px` : item.examination_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex == index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
                         <div className="text-truncate p-2" onClick={() => {
                             setSelectedIndex(index)
                         }}>
@@ -112,7 +112,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
                 );
             })
         );
-    }, [examinationData]);
+    }, [examinationData, selectedIndex]);
 
     const onChangeInputNoteChild = useCallback(
         (e) => {

@@ -238,7 +238,7 @@ function TabDiagnosisBox() {
             diagnosisData.length > 0 &&
             diagnosisData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.tds_name.length > 12 && item.tds_name.length < 24 ? `${item.tds_name.length * 10.5}px` : item.tds_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips">
+                    <div key={index} style={{ width: item.tds_name.length > 12 && item.tds_name.length < 24 ? `${item.tds_name.length * 10.5}px` : item.tds_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active">
                         <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
                             <div className="text-truncate">{item.tds_name}
                                 {(item.since || item.status || item.note) ? (
@@ -270,9 +270,9 @@ function TabDiagnosisBox() {
                             matchedTemplates.map((template, i) => {
                                 return (
                                     <div className="align-items-center d-flex justify-content-between medicine-templates" key={i}>
-                                        <div className="align-items-center d-flex text-truncate">
-                                            <div className="round-box" onClick={() => onTemplateSelected(template)}><i className="icon-template"></i></div>
-                                            <div className="text-truncate" onClick={() => onTemplateSelected(template)}>
+                                        <div className="align-items-center d-flex text-truncate w-100" onClick={() => onTemplateSelected(template)}>
+                                            <div className="round-box"><i className="icon-template"></i></div>
+                                            <div className="text-truncate w-100">
                                                 <div className="title">{template.tdt_template_name}</div>
                                                 <div className="text-truncate">
                                                     {template.diagnosis.map((item, ii) => {

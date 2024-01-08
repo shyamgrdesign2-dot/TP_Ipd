@@ -90,7 +90,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
             adviceData.length > 0 &&
             adviceData.map((item, index) => {
                 return (
-                    <div className="d-flex align-items-center justify-content-between border-bottom py-1">
+                    <div className={`${childDrawerData && childDrawerData.index == index && "bg-selected"} d-flex align-items-center justify-content-between border-bottom py-1 px-2`}>
                         <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
                         <Button className="focus-none btn px-1 btn-delete-prescription" onClick={() => childDrawerData && childDrawerData.index == index ? setChildDrawerData(null) : setChildDrawerData({ ...item, index: index })}><i className={`${childDrawerData && childDrawerData.index == index ? "icon-Cross" : "icon-Edit"} fs-21`}></i></Button>
                     </div>

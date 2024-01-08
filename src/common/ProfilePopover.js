@@ -54,7 +54,7 @@ function ProfilePopover(props) {
             {locationPath == '/patient_details' ? (
                 <div className={'align-items-center d-flex h-100'}>
                     <div className='align-items-center d-flex'>
-                        <div className='patientName'>{`${state != undefined ? state.pm_fullname : "Hello Guest"}`}</div>
+                        <div className='patientName'>{`${state != undefined ? state.pm_fullname : "Hello Guest"},`}</div>
                         <div className='text-2 ms-2'>{`${state != undefined ? state.pm_gender[0].toUpperCase() : "M"}, ${state != undefined ? state.ageYears : 30}y`}</div>
                         <i className='icon-right iconrotate270 ms-1'></i>
                     </div>
