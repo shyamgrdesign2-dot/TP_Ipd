@@ -16,6 +16,10 @@ export const onlyNumberFormat = (text) => {
 export const onlyDecimalFormat = (text) => {
   return text.match(/([0-9]*[\.]{0,1}[0-9]{0,2})/s)[0]
 };
+export const removeBeforeWhiteSpace = (text) => {
+  return text.replace(/^[ ]+/g, "")
+};
+
 export const makeDefaultLogo = (text) => {
 
   if (!text) {

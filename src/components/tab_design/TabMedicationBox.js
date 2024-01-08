@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { Input, Button, Drawer, Tabs, message, Select, Card, Spin, Row, Col } from 'antd';
+import { Input, Button, Drawer, Tabs, message, Select, Card, Spin, Row, Col, Segmented } from 'antd';
 import { Button as BSButton, ButtonGroup as BSButtonGroup } from "react-bootstrap";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -59,6 +59,15 @@ function TabMedicationBox() {
     const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
 
     const [selectedIndex, setSelectedIndex] = useState(null);
+    const SINCE_OPTIONS = [
+        { value: "day(s)", label: "D" },
+        { value: "week(s)", label: "W" },
+        { value: "month(s)", label: "M" },
+        { value: "year(s)", label: "Y" },
+    ];
+    const [sinceValue, setSinceValue] = useState(1);
+    const [inputSince, setInputSince] = useState('');
+    const [sinceOptions, setSinceOptions] = useState([]);
 
     // useEffect(() => {
     //     if (selectedMedicationList.length > 0) {
@@ -128,7 +137,8 @@ function TabMedicationBox() {
     const handleDrawerChild = useCallback((item) => {
         setChildDrawer(!childDrawer);
         setChildDrawerData(item)
-    }, [childDrawer, childDrawerData]);
+        setSinceValue(item && item.tmm_days ? parseInt(item.tmm_days) : 1)
+    }, [childDrawer, childDrawerData,sinceValue]);
 
     // Handle Template Drawer
     const handleDrawerTemplate = useCallback(() => {
@@ -392,7 +402,8 @@ function TabMedicationBox() {
 
     const onChangeDosageChild = useCallback(
         (e) => {
-            setChildDrawerData({ ...childDrawerData, tmm_dosage: e.target.value })
+            const updateQuery = onlyNumberFormat(e.target.value);
+            setChildDrawerData({ ...childDrawerData, tmm_dosage: updateQuery })
         },
         [childDrawerData]
     );
@@ -562,6 +573,89 @@ function TabMedicationBox() {
         [childDrawerData]
     );
 
+    useEffect(() => {
+        if (sinceValue != -1) {
+            const options = SINCE_OPTIONS.map((option) => {
+                return {
+                    key: Math.random(),
+                    value: option.value,
+                    label: <>{`${sinceValue} ${option.label}`}</>,
+                };
+            });
+            setSinceOptions(options);
+        } else if (inputSince.length > 0) {
+            const options = SINCE_OPTIONS.map((option) => {
+                return {
+                    key: Math.random(),
+                    value: option.value,
+                    label: <>{`${inputSince} ${option.label}`}</>,
+                };
+            });
+            setSinceOptions(options);
+        } else {
+            const options = SINCE_OPTIONS.map((option) => {
+                return {
+                    key: Math.random(),
+                    value: option.value,
+                    label: <>{`${option.label}`}</>,
+                };
+            });
+            setSinceOptions(options);
+        }
+    }, [sinceValue]);
+
+    const onChangeInputSinceChild = useCallback(
+        (e) => {
+            const updateQuery = onlyNumberFormat(e.target.value);
+            setInputSince(updateQuery);
+            setChildDrawerData({ ...childDrawerData, tmm_days: parseInt(updateQuery), tmm_duration_type: '' })
+            if (updateQuery.length > 0) {
+                const options = SINCE_OPTIONS.map((option) => {
+                    return {
+                        key: Math.random(),
+                        value: option.value,
+                        label: <>{`${updateQuery} ${option.label}`}</>,
+                    };
+                });
+                setSinceOptions(options);
+            } else {
+                const options = SINCE_OPTIONS.map((option) => {
+                    return {
+                        key: Math.random(),
+                        value: option.value,
+                        label: <>{`${option.label}`}</>,
+                    };
+                });
+                setSinceOptions(options);
+            }
+        },
+        [inputSince, sinceOptions, childDrawerData]
+    );
+
+    const SINCE_LIST = [
+        { value: 1, label: 1 },
+        { value: 2, label: 2 },
+        { value: 3, label: 3 },
+        { value: 4, label: 4 },
+        { value: 5, label: 5 },
+        { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" value={inputSince} inputMode="numeric" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
+    ];
+
+    const onChangeSegmentedSinceChild = useCallback(
+        (key) => {
+            setSinceValue(key)
+            setChildDrawerData({ ...childDrawerData, tmm_days: key != -1 ? key : 0, tmm_duration_type: '' })
+        },
+        [sinceValue, childDrawerData]
+    );
+
+    const onChangeSinceChild = useCallback(
+        (key) => {
+            setChildDrawerData({ ...childDrawerData, tmm_duration_type: key })
+        },
+        [childDrawerData]
+    );
+
     const onChangeInputNoteChild = useCallback(
         (e) => {
             setChildDrawerData({ ...childDrawerData, tmm_remarks: e.target.value })
@@ -712,6 +806,25 @@ function TabMedicationBox() {
                                 </Col>
                             </Row>
                         </div>
+                        <div>
+                            <label className="title-common">
+                                Duration
+                            </label>
+                            <Segmented
+                                value={sinceValue > 5 ? -1 : sinceValue}
+                                className="search-segment"
+                                options={SINCE_LIST}
+                                onChange={onChangeSegmentedSinceChild}
+                            />
+                        </div>
+                        <div className="mt-3 mb-3">
+                            <Segmented
+                                value={childDrawerData.tmm_duration_type != undefined && childDrawerData.tmm_duration_type}
+                                className="search-segment"
+                                options={sinceOptions}
+                                onChange={onChangeSinceChild}
+                            />
+                        </div>
                         <label className="title-common mb-1">
                             Add Details
                         </label>
@@ -720,7 +833,7 @@ function TabMedicationBox() {
                 </>
             )
         );
-    }, [childDrawer, childDrawerData]);
+    }, [childDrawer, childDrawerData,sinceValue, inputSince, sinceOptions]);
 
     return (
         <>

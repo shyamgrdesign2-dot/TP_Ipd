@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { Form, Input, Button, Select, DatePicker, Radio, Row, Col } from "antd";
+import { Form, Input, Button, Select, DatePicker, Radio, Row, Col, InputNumber } from "antd";
 import {
     calculateAge,
     getFormattedDate,
@@ -27,6 +27,14 @@ function PersonalDetails({ form }) {
         dispatch(listSalutation());
     }, []);
 
+    const validateMobileNumber = (_, value) => {
+        const mobileNumberRegex = /^[0-9]{10}$/; // 10-digit number validation regex
+        if (!value || !mobileNumberRegex.test(value)) {
+            return Promise.reject('Please enter a valid 10-digit mobile number');
+        }
+        return Promise.resolve();
+    };
+
     // Form Rules
     const rules = {
         fullname: [
@@ -36,10 +44,11 @@ function PersonalDetails({ form }) {
             },
         ],
         mobile_no: [
-            {
-                required: true,
-                message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Enter a valid mobile number</div>,
-            },
+            // {
+            //     required: true,
+            //     message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Enter a valid mobile number</div>,
+            // },
+            { validator: validateMobileNumber, message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Enter a valid 10-digit mobile number</div> },
         ],
         gender: [
             {
@@ -55,11 +64,16 @@ function PersonalDetails({ form }) {
         ],
     };
 
+
+
     const onBirthDateChanged = (date, dateString) => {
         if (dateString) {
             setBirthDate(dateString);
             // const remaingDate = moment(dateString).add(1, 'day').format('YYYY-MM-DD')
             const age = calculateAge(getFormattedDate(dateString));
+            form.setFieldsValue({
+                dobYearsMonths: age.years,
+            });
             setAgeYearsMonths(age);
         }
     };

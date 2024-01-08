@@ -14,14 +14,14 @@ function AddressDetails({ form }) {
     const [pincode, setPincode] = useState("");
 
     // Form Rules
-    const rules = {
-        pincode: [
-            {
-                required: true,
-                message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter pincode</div>,
-            },
-        ],
-    };
+    // const rules = {
+    //     pincode: [
+    //         {
+    //             required: true,
+    //             message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter pincode</div>,
+    //         },
+    //     ],
+    // };
 
     useEffect(() => {
         if (pincode) {
@@ -79,7 +79,9 @@ function AddressDetails({ form }) {
                 <>
                     <Row className="mt-3" gutter={{ xs: 8, sm: 18, md: 40, lg: 94 }}>
                         <Col xs={24} sm={24} md={12} lg={12}>
-                            <Form.Item name="pm_pincode" label="Pincode" rules={rules.pincode}>
+                            <Form.Item name="pm_pincode" label="Pincode"
+                                // rules={rules.pincode}
+                            >
                                 <Input
                                     placeholder="Enter Pin Code"
                                     type="number"
