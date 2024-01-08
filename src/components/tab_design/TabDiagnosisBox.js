@@ -9,6 +9,7 @@ import { onlyNumberFormat } from "../../utils/utils";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
+import { removeBeforeWhiteSpace } from "../../utils/utils";
 import Diagnosisicon from "../../assets/images/Diagnosis.svg";
 import {
     addTemplate,
@@ -158,7 +159,8 @@ function TabDiagnosisBox() {
 
     const onChangeSaveTemplate = useCallback(
         (e) => {
-            setInputTemplateName(e.target.value);
+            const updateQuery = removeBeforeWhiteSpace(e.target.value)
+            setInputTemplateName(updateQuery);
         },
         [inputTemplateName]
     );
@@ -318,7 +320,7 @@ function TabDiagnosisBox() {
                 {tabChange === TAB_ADD_TEMPLATE ? (
                     <div className="medicine-templates d-flex">
                         <Input
-                        allowClear
+                            allowClear
                             value={inputTemplateName && inputTemplateName}
                             className="popinput inputheight41"
                             placeholder="Template Name"

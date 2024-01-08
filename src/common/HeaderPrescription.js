@@ -2,6 +2,7 @@ import React, { useCallback, useState, useContext } from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { Button, Dropdown, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import moment from 'moment';
 
 import CashManagerContext from "../context/CashManagerContext";
 import ProfilePopover from './ProfilePopover';
@@ -24,7 +25,7 @@ function HeaderPrescription() {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
-    const { state, symptomsData, examinationData, diagnosisData, adviceData, investigationData, vitalsData } = useContext(CashManagerContext);
+    const { state, symptomsData, examinationData, diagnosisData, medicationData, adviceData, investigationData, vitalsData } = useContext(CashManagerContext);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -59,9 +60,11 @@ function HeaderPrescription() {
             action: 'add',
             patient_unique_id: state != undefined ? state.patient_unique_id : 0,
             pam_id: state != undefined ? state.hasOwnProperty('pam_id') ? state.pam_id : 0 : 0,
+            consultation_date: moment().format('YYYY-MM-DD HH:mm:ss'),
             symptoms: symptomsData,
             examination: examinationData,
             diagnosis: diagnosisData,
+            medicine: medicationData,
             advice: adviceData,
             investigation: investigationData,
             vitals: vitalsData

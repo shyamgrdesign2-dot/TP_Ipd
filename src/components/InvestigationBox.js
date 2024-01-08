@@ -17,7 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat } from "../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
 import Investigationicon from "../assets/images/Lab.svg";
 import {
   addTemplate,
@@ -136,7 +136,7 @@ function InvestigationBox() {
 
   const onSearchParent = useCallback(
     (query) => {
-      setSearchParentQuery(query);
+      setSearchParentQuery(removeBeforeWhiteSpace(query));
     },
     [searchParentQuery]
   );
@@ -207,13 +207,14 @@ function InvestigationBox() {
 
   const onSearchChild = useCallback(
     (query, i) => {
+      const updateQuery = removeBeforeWhiteSpace(query)
       investigationData[i] = {
         ...investigationData[i],
         change: 1,
-        investigation_name: query
+        investigation_name: updateQuery
       };
       setInvestigationData((prev) => [...prev]);
-      setSearchChildQuery({ query: query, index: i });
+      setSearchChildQuery({ query: updateQuery, index: i });
     },
     [searchChildQuery, investigationData]
   );
@@ -287,7 +288,8 @@ function InvestigationBox() {
 
   const onChangeSaveTemplate = useCallback(
     (e) => {
-      setInputTemplateName(e.target.value);
+      const updateQuery = removeBeforeWhiteSpace(e.target.value)
+      setInputTemplateName(updateQuery);
     },
     [inputTemplateName]
   );
@@ -376,7 +378,7 @@ function InvestigationBox() {
               <div className="fontroboto fw-medium">
                 <AutoComplete
                   defaultValue={item.investigation_name}
-                  // value={item.investigation_name}
+                  value={item.investigation_name}
                   placeholder="Investigation Name"
                   bordered={false}
                   defaultOpen={false}
@@ -426,7 +428,7 @@ function InvestigationBox() {
           </div>
           <div className="mt-3" key="investigation-template-search">
             <Input
-            allowClear
+              allowClear
               className="popinput"
               onChange={onSearch}
               placeholder="Search Templates"
@@ -505,7 +507,7 @@ function InvestigationBox() {
         {tabChange === TAB_ADD_TEMPLATE ? (
           <div className="pop-header d-flex">
             <Input
-            allowClear
+              allowClear
               value={inputTemplateName && inputTemplateName}
               className="popinput inputheight41"
               placeholder="Template Name"

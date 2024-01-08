@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
+import { removeBeforeWhiteSpace } from "../../utils/utils";
 import Adviceicon from "../../assets/images/advice.svg";
 import {
     addTemplate,
@@ -142,7 +143,8 @@ function TabAdviceBox() {
 
     const onChangeSaveTemplate = useCallback(
         (e) => {
-            setInputTemplateName(e.target.value);
+            const updateQuery = removeBeforeWhiteSpace(e.target.value)
+            setInputTemplateName(updateQuery);
         },
         [inputTemplateName]
     );
@@ -237,7 +239,7 @@ function TabAdviceBox() {
             <>
                 <div>
                     <div className="medicine-templates">
-                        <Input className="popinput" placeholder="Search Templates" onChange={onSearch} prefix={<i className='icon-search me-2'></i>} allowClear/>
+                        <Input className="popinput" placeholder="Search Templates" onChange={onSearch} prefix={<i className='icon-search me-2'></i>} allowClear />
                     </div>
                     <div className="tab-template-height" >
                         {matchedTemplates.length > 0 &&
@@ -292,7 +294,7 @@ function TabAdviceBox() {
                 {tabChange === TAB_ADD_TEMPLATE ? (
                     <div className="medicine-templates d-flex">
                         <Input
-                        allowClear
+                            allowClear
                             value={inputTemplateName && inputTemplateName}
                             className="popinput inputheight41"
                             placeholder="Template Name"
@@ -344,7 +346,8 @@ function TabAdviceBox() {
 
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            setChildDrawerData({ ...childDrawerData, advice_name: e.target.value })
+            const updateQuery = removeBeforeWhiteSpace(e.target.value)
+            setChildDrawerData({ ...childDrawerData, advice_name: updateQuery })
         },
         [childDrawerData]
     );

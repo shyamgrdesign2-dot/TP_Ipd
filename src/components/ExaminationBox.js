@@ -17,7 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat } from "../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
 import Examinationicon from "../assets/images/Examination.svg";
 import {
   addTemplate,
@@ -136,7 +136,7 @@ function ExaminationBox() {
 
   const onSearchParent = useCallback(
     (query) => {
-      setSearchParentQuery(query);
+      setSearchParentQuery(removeBeforeWhiteSpace(query));
     },
     [searchParentQuery]
   );
@@ -207,13 +207,14 @@ function ExaminationBox() {
 
   const onSearchChild = useCallback(
     (query, i) => {
+      const updateQuery = removeBeforeWhiteSpace(query)
       examinationData[i] = {
         ...examinationData[i],
         change: 1,
-        examination_name: query
+        examination_name: updateQuery
       };
       setExaminationData((prev) => [...prev]);
-      setSearchChildQuery({ query: query, index: i });
+      setSearchChildQuery({ query: updateQuery, index: i });
     },
     [searchChildQuery, examinationData]
   );
@@ -287,7 +288,8 @@ function ExaminationBox() {
 
   const onChangeSaveTemplate = useCallback(
     (e) => {
-      setInputTemplateName(e.target.value);
+      const updateQuery = removeBeforeWhiteSpace(e.target.value)
+      setInputTemplateName(updateQuery);
     },
     [inputTemplateName]
   );
@@ -376,7 +378,7 @@ function ExaminationBox() {
               <div className="fontroboto fw-medium">
                 <AutoComplete
                   defaultValue={item.examination_name}
-                  // value={item.examination_name}
+                  value={item.examination_name}
                   placeholder="Examination Name"
                   bordered={false}
                   defaultOpen={false}
@@ -426,7 +428,7 @@ function ExaminationBox() {
           </div>
           <div className="mt-3" key="examination-template-search">
             <Input
-            allowClear
+              allowClear
               className="popinput"
               onChange={onSearch}
               placeholder="Search Templates"
@@ -505,7 +507,7 @@ function ExaminationBox() {
         {tabChange === TAB_ADD_TEMPLATE ? (
           <div className="pop-header d-flex">
             <Input
-            allowClear
+              allowClear
               value={inputTemplateName && inputTemplateName}
               className="popinput inputheight41"
               placeholder="Template Name"
@@ -569,7 +571,7 @@ function ExaminationBox() {
               open={popOver1}
               onOpenChange={showHideTemplatesListPopover}
               content={TEMPLATE_CONTENT}
-              
+
               trigger="click"
               overlayClassName="pop-350 pp-0"
               placement="bottom"

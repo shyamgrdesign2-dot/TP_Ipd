@@ -5,10 +5,9 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import { onlyNumberFormat } from "../../utils/utils";
-
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
+import { onlyNumberFormat, removeBeforeWhiteSpace } from "../../utils/utils";
 import Medicationicon from "../../assets/images/Medication.svg";
 import {
     addTemplate,
@@ -204,7 +203,8 @@ function TabMedicationBox() {
 
     const onChangeSaveTemplate = useCallback(
         (e) => {
-            setInputTemplateName(e.target.value);
+            const updateQuery = removeBeforeWhiteSpace(e.target.value)
+            setInputTemplateName(updateQuery);
         },
         [inputTemplateName]
     );

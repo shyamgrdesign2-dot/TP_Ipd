@@ -17,7 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat } from "../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
 import Symptomsicon from "../assets/images/Symptoms.svg";
 import {
   addTemplate,
@@ -144,7 +144,7 @@ function SymptomsBox() {
 
   const onSearchParent = useCallback(
     (query) => {
-      setSearchParentQuery(query);
+      setSearchParentQuery(removeBeforeWhiteSpace(query));
     },
     [searchParentQuery]
   );
@@ -217,13 +217,14 @@ function SymptomsBox() {
 
   const onSearchChild = useCallback(
     (query, i) => {
+      const updateQuery = removeBeforeWhiteSpace(query)
       symptomsData[i] = {
         ...symptomsData[i],
         change: 1,
-        symptom_name: query
+        symptom_name: updateQuery
       };
       setSymptomsData((prev) => [...prev]);
-      setSearchChildQuery({ query: query, index: i });
+      setSearchChildQuery({ query: updateQuery, index: i });
     },
     [searchChildQuery, symptomsData]
   );
@@ -335,7 +336,8 @@ function SymptomsBox() {
 
   const onChangeSaveTemplate = useCallback(
     (e) => {
-      setInputTemplateName(e.target.value);
+      const updateQuery = removeBeforeWhiteSpace(e.target.value)
+      setInputTemplateName(updateQuery);
     },
     [inputTemplateName]
   );
@@ -424,7 +426,7 @@ function SymptomsBox() {
               <div className="fontroboto fw-medium">
                 <AutoComplete
                   defaultValue={item.symptom_name}
-                  // value={item.symptom_name}
+                  value={item.symptom_name}
                   placeholder="Symptom Name"
                   bordered={false}
                   defaultOpen={false}
@@ -496,7 +498,7 @@ function SymptomsBox() {
           </div>
           <div className="mt-3" key="symptoms-template-search">
             <Input
-            allowClear
+              allowClear
               className="popinput"
               onChange={onSearch}
               placeholder="Search Templates"
@@ -575,7 +577,7 @@ function SymptomsBox() {
         {tabChange === TAB_ADD_TEMPLATE ? (
           <div className="pop-header d-flex">
             <Input
-            allowClear
+              allowClear
               value={inputTemplateName && inputTemplateName}
               className="popinput inputheight41"
               placeholder="Template Name"

@@ -23,7 +23,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import CashManagerContext from "../context/CashManagerContext";
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat } from "../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
 import Diagnosisicon from "../assets/images/Diagnosis.svg";
 import {
   addTemplate,
@@ -103,7 +103,7 @@ function DiagnosisBox() {
           searchDiagnosis({ searchQuery: searchParentQuery, type: "parent" })
         );
       }, 500);
-      
+
       return () => {
         clearTimeout(timeOutId);
       };
@@ -152,7 +152,7 @@ function DiagnosisBox() {
 
   const onSearchParent = useCallback(
     (query) => {
-      setSearchParentQuery(query);
+      setSearchParentQuery(removeBeforeWhiteSpace(query));
     },
     [searchParentQuery]
   );
@@ -226,14 +226,15 @@ function DiagnosisBox() {
 
   const onSearchChild = useCallback(
     (query, i) => {
+      const updateQuery = removeBeforeWhiteSpace(query)
       diagnosisData[i] = {
         ...diagnosisData[i],
         tds_id: 0,
-        tds_name: query,
+        tds_name: updateQuery,
         pms_default: 0,
       };
       setDiagnosisData((prev) => [...prev]);
-      setSearchChildQuery({ query: query, index: i });
+      setSearchChildQuery({ query: updateQuery, index: i });
     },
     [searchChildQuery, diagnosisData]
   );
@@ -345,7 +346,8 @@ function DiagnosisBox() {
 
   const onChangeSaveTemplate = useCallback(
     (e) => {
-      setInputTemplateName(e.target.value);
+      const updateQuery = removeBeforeWhiteSpace(e.target.value)
+      setInputTemplateName(updateQuery);
     },
     [inputTemplateName]
   );
@@ -428,15 +430,14 @@ function DiagnosisBox() {
           <Row
             key={index}
             gutter={[0]}
-            className={`${
-              index === 0 && "mt-14 border-top"
-            } align-items-center border-bottom`}
+            className={`${index === 0 && "mt-14 border-top"
+              } align-items-center border-bottom`}
           >
             <Col lg={7} md={7} sm={7} xs={7} className="border-end">
               <div className="fontroboto fw-medium">
                 <AutoComplete
                   defaultValue={item.tds_name}
-                  // value={item.tds_name}
+                  value={item.tds_name}
                   placeholder="Diagnosis Name"
                   bordered={false}
                   defaultOpen={false}
@@ -508,7 +509,7 @@ function DiagnosisBox() {
           </div>
           <div className="mt-3" key="diagnosis-template-search">
             <Input
-            allowClear
+              allowClear
               className="popinput"
               onChange={onSearch}
               placeholder="Search Templates"
@@ -538,9 +539,8 @@ function DiagnosisBox() {
                     <div className="text-truncate">
                       {template.diagnosis.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.tds_name}${
-                            template.diagnosis.length - 1 != ii ? ", " : ""
-                          }`}</span>
+                          <span key={ii}>{`${item.tds_name}${template.diagnosis.length - 1 != ii ? ", " : ""
+                            }`}</span>
                         );
                       })}
                     </div>
@@ -588,7 +588,7 @@ function DiagnosisBox() {
         {tabChange === TAB_ADD_TEMPLATE ? (
           <div className="pop-header d-flex">
             <Input
-            allowClear
+              allowClear
               value={inputTemplateName && inputTemplateName}
               className="popinput inputheight41"
               placeholder="Template Name"

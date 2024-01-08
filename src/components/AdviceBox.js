@@ -19,7 +19,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-// import { onlyNumberFormat } from "../utils/utils";
+import { removeBeforeWhiteSpace } from "../utils/utils";
 import Adviceicon from "../assets/images/advice.svg";
 import {
   addTemplate,
@@ -156,7 +156,7 @@ function AdviceBox() {
 
   const onSearchParent = useCallback(
     (query) => {
-      setSearchQuery(query);
+      setSearchQuery(removeBeforeWhiteSpace(query));
     },
     [searchQuery]
   );
@@ -251,7 +251,8 @@ function AdviceBox() {
 
   const onChangeSaveTemplate = useCallback(
     (e) => {
-      setInputTemplateName(e.target.value);
+      const updateQuery = removeBeforeWhiteSpace(e.target.value)
+      setInputTemplateName(updateQuery);
     },
     [inputTemplateName]
   );
@@ -444,7 +445,7 @@ function AdviceBox() {
         {tabChange === TAB_ADD_TEMPLATE ? (
           <div className="pop-header d-flex">
             <Input
-            allowClear
+              allowClear
               value={inputTemplateName && inputTemplateName}
               className="popinput inputheight41"
               placeholder="Template Name"
@@ -496,7 +497,8 @@ function AdviceBox() {
 
   const onChangeInputNoteChild = useCallback(
     (e) => {
-      setChildDrawerData({ ...childDrawerData, advice_name: e.target.value })
+      const updateQuery = removeBeforeWhiteSpace(e.target.value)
+      setChildDrawerData({ ...childDrawerData, advice_name: updateQuery })
     },
     [childDrawerData]
   );

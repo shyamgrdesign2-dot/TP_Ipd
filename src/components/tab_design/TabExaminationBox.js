@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
+import { removeBeforeWhiteSpace } from "../../utils/utils";
 import Examinationicon from "../../assets/images/Examination.svg";
 import {
     addTemplate,
@@ -148,7 +149,8 @@ function TabExaminationBox() {
 
     const onChangeSaveTemplate = useCallback(
         (e) => {
-            setInputTemplateName(e.target.value);
+            const updateQuery = removeBeforeWhiteSpace(e.target.value)
+            setInputTemplateName(updateQuery);
         },
         [inputTemplateName]
     );
@@ -308,7 +310,7 @@ function TabExaminationBox() {
                 {tabChange === TAB_ADD_TEMPLATE ? (
                     <div className="medicine-templates d-flex">
                         <Input
-                        allowClear
+                            allowClear
                             value={inputTemplateName && inputTemplateName}
                             className="popinput inputheight41"
                             placeholder="Template Name"

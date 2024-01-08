@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../../context/CashManagerContext';
+import { removeBeforeWhiteSpace } from "../../utils/utils";
 import {
     searchAdvice
 } from "../../redux/adviceSlice";
@@ -101,7 +102,8 @@ function TabAdviceSearch({ passIndex, onClose }) {
 
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            setChildDrawerData({ ...childDrawerData, advice_name: e.target.value })
+            const updateQuery = removeBeforeWhiteSpace(e.target.value)
+            setChildDrawerData({ ...childDrawerData, advice_name: updateQuery })
         },
         [childDrawerData]
     );

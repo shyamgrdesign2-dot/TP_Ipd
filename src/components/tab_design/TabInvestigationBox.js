@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
+import { removeBeforeWhiteSpace } from "../../utils/utils";
 import Investigationicon from "../../assets/images/Lab.svg";
 import {
     addTemplate,
@@ -148,7 +149,8 @@ function TabInvestigationBox() {
 
     const onChangeSaveTemplate = useCallback(
         (e) => {
-            setInputTemplateName(e.target.value);
+            const updateQuery = removeBeforeWhiteSpace(e.target.value)
+            setInputTemplateName(updateQuery);
         },
         [inputTemplateName]
     );

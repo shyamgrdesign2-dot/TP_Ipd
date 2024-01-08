@@ -117,7 +117,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                                 )}
                             </div>
                         </div>
-                        <Button type="text" className="border-start rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
+                        <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
                             <i className="icon-Cross"></i>
                         </Button>
                     </div>

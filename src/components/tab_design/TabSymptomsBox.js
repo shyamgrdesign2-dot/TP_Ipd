@@ -5,10 +5,9 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import { onlyNumberFormat } from "../../utils/utils";
-
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
+import { onlyNumberFormat, removeBeforeWhiteSpace } from "../../utils/utils";
 import Symptomsicon from "../../assets/images/Symptoms.svg";
 import {
     addTemplate,
@@ -158,7 +157,8 @@ function TabSymptomsBox() {
 
     const onChangeSaveTemplate = useCallback(
         (e) => {
-            setInputTemplateName(e.target.value);
+            const updateQuery = removeBeforeWhiteSpace(e.target.value)
+            setInputTemplateName(updateQuery);
         },
         [inputTemplateName]
     );
@@ -255,7 +255,7 @@ function TabSymptomsBox() {
                 );
             })
         );
-    }, [symptomsData,childDrawerData]);
+    }, [symptomsData, childDrawerData]);
 
     //Template Componet
     const TEMPLATE_CONTENT = useMemo(() => {
@@ -263,7 +263,7 @@ function TabSymptomsBox() {
             <>
                 <div>
                     <div className="medicine-templates">
-                        <Input className="popinput" onChange={onSearch} placeholder="Search Templates" prefix={<i className='icon-search me-2'></i>} allowClear/>
+                        <Input className="popinput" onChange={onSearch} placeholder="Search Templates" prefix={<i className='icon-search me-2'></i>} allowClear />
                     </div>
                     <div className="tab-template-height" >
                         {matchedTemplates.length > 0 &&

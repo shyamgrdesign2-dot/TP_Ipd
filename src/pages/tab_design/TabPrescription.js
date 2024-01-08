@@ -2,14 +2,16 @@ import React, { useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { Layout, Drawer } from 'antd';
 import { Content } from "antd/es/layout/layout";
+
 import CashManagerContext from '../../context/CashManagerContext';
 import HeaderPrescription from "../../common/HeaderPrescription";
 import TabSymptomsBox from "../../components/tab_design/TabSymptomsBox";
 import TabExaminationBox from "../../components/tab_design/TabExaminationBox";
 import TabDiagnosisBox from "../../components/tab_design/TabDiagnosisBox";
+import TabMedicationBox from "../../components/tab_design/TabMedicationBox";
 import TabAdviceBox from "../../components/tab_design/TabAdviceBox";
 import TabInvestigationBox from "../../components/tab_design/TabInvestigationBox";
-import TabMedicationBox from "../../components/tab_design/TabMedicationBox";
+
 import VitalsBox from "../../components/VitalsBox";
 import TabVitalsList from "../../components/tab_design/TabVitalsList";
 import vitalsWhite from '../../assets/images/vitals-white.svg';
@@ -28,7 +30,7 @@ function TabPrescription() {
     const [investigationData, setInvestigationData] = useState([]);
     const [medicationData, setMedicationData] = useState([]);
     const [vitalsData, setVitalsData] = useState([]);
-    const contextApi = { state, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData };
+    const contextApi = { state, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, medicationData, setMedicationData, adviceData, setAdviceData, investigationData, setInvestigationData, vitalsData, setVitalsData };
     const [collapsed, setCollapsed] = useState(false);
     const [collapsedFlag, setCollapsedFlag] = useState(1);
     const [vitalDrawer, setVitalDrawer] = useState(false);
@@ -93,10 +95,10 @@ function TabPrescription() {
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                             <Content>
-                                <TabMedicationBox />
                                 <TabSymptomsBox />
                                 <TabExaminationBox />
                                 <TabDiagnosisBox />
+                                <TabMedicationBox />
                                 <TabAdviceBox />
                                 <TabInvestigationBox />
                             </Content>
