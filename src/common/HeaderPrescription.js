@@ -1,12 +1,14 @@
 import React, { useCallback, useState, useContext } from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
-import { Button, Dropdown } from 'antd';
+import { Button, Dropdown, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import CashManagerContext from "../context/CashManagerContext";
 import ProfilePopover from './ProfilePopover';
 import CommonModal from './CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
+
+import { MESSAGE_KEY } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -56,6 +58,7 @@ function HeaderPrescription() {
         var sendData = {
             action: 'add',
             patient_unique_id: state != undefined ? state.patient_unique_id : 0,
+            pam_id: state != undefined ? state.hasOwnProperty('pam_id') ? state.pam_id : 0 : 0,
             symptoms: symptomsData,
             examination: examinationData,
             diagnosis: diagnosisData,
@@ -66,6 +69,13 @@ function HeaderPrescription() {
         const action = await dispatch(addCaseManager(sendData));
         if (action.meta.requestStatus == "fulfilled") {
             navigate('/prescription_print_view', { state: { ...action.payload, ...state } })
+        } else {
+            message.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
         }
     }
 

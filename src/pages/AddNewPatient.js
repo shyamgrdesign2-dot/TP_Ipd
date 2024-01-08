@@ -10,10 +10,6 @@ import PersonalDetails from "../components/PersonalDetails";
 import AddressDetails from "../components/AddressDetails";
 import UploadProfile from "../components/UploadProfile";
 import { addPatient } from "../redux/appointmentsSlice";
-import {
-    calculateAge,
-    getFormattedDate,
-} from "../utils/utils";
 
 const { TabPane } = Tabs;
 
@@ -35,18 +31,8 @@ function AddNewPatient() {
                 pm_state: values.pm_state != undefined ? values.pm_state : '',
                 pm_address: values.pm_address != undefined ? values.pm_address : '',
             };
-            // const age = calculateAge(getFormattedDate(finalValues.pm_dob));
-            // const makeData = {
-            //     ageYears: age.years,
-            //     ageMonths: age.months,
-            //     ageDays: age.days,
-            //     "pm_first_name": "Saurya",
-            //     "pm_middle_name": "S",
-            //     "pm_last_name": "Prajapati",
-            // }
             const action = await dispatch(addPatient(finalValues));
             if (action.meta.requestStatus == "fulfilled") {
-                // console.log({ ...action.payload, ...makeData })
                 navigate("/prescription", { state: action.payload })
             }
         }).catch(info => {

@@ -82,7 +82,7 @@ function PatientDetails() {
                                             <Vaccination /> */}
                                 </div>
                                 <div className='col-lg-7 col-md-12 col-12'>
-                                    <Cardiology viewCaseManagerData={viewCaseManagerData} />
+                                    <Cardiology state={state} viewCaseManagerData={viewCaseManagerData} />
                                 </div>
                             </div>
                         </div>

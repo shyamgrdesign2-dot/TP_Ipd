@@ -89,7 +89,7 @@ function VitalsBodyComposition({ passVitals }) {
                     {passVitals && passVitals.length > 0 ? (
                         <Table dataSource={initialRows} columns={columns} pagination={false} />
                     ) : (
-                        <div className='d-flex flex-column justify-content-center' style={{ "min-height": "300px" }}>
+                        <div className='d-flex flex-column justify-content-center' style={{ minHeight: "300px" }}>
                             <div className='align-items-center text-center'>
                                 <img src={heartBeat} width={57} height={52} alt="No vital & body composition saved for the patient!" />
                                 <p className='mt-4 fontroboto'>No vital & body composition saved <br /> for the patient!</p>

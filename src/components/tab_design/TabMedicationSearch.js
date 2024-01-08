@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback, useMemo } from "react";
-import { Button, Card, Row, Col, Input, Select, message } from 'antd';
+import { Button, Card, Row, Col, Input, Select, message,Segmented } from 'antd';
 import { Button as BSButton, ButtonGroup as BSButtonGroup } from "react-bootstrap";
 
 import { useSelector, useDispatch } from "react-redux";
@@ -33,6 +33,15 @@ function TabMedicationSearch({ passIndex, onClose }) {
     const [childSearchOptions, setChildSearchOptions] = useState([]);
 
     const [selectedIndex, setSelectedIndex] = useState(passIndex);
+    const SINCE_OPTIONS = [
+        { value: "day(s)", label: "D" },
+        { value: "week(s)", label: "W" },
+        { value: "month(s)", label: "M" },
+        { value: "year(s)", label: "Y" },
+    ];
+    const [sinceValue, setSinceValue] = useState(1);
+    const [inputSince, setInputSince] = useState('');
+    const [sinceOptions, setSinceOptions] = useState([]);
 
 
     //Parent AutoComplete
@@ -97,6 +106,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 });
                 setMedicationData((prev) => [...prev]);
                 setSelectedIndex(medicationData.length - 1);
+                setSinceValue(1)
             } else {
                 messageApi.open({
                     MESSAGE_KEY,
@@ -124,6 +134,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                     <div key={index} style={{ width: item.tmm_medicine_name.length > 12 && item.tmm_medicine_name.length < 24 ? `${item.tmm_medicine_name.length * 10.5}px` : item.tmm_medicine_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex == index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
                         <div className="text-truncate p-2" onClick={() => {
                             setSelectedIndex(index)
+                            setSinceValue(item.tmm_days ? parseInt(item.tmm_days) : 1)
                         }}>
                             <div className="text-truncate">{item.tmm_medicine_name}</div>
                         </div>
@@ -138,7 +149,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
     const onChangeDosageChild = useCallback(
         (e) => {
-            medicationData[selectedIndex].tmm_dosage = e.target.value;
+            const updateQuery = onlyNumberFormat(e.target.value);
+            medicationData[selectedIndex].tmm_dosage = updateQuery;
             setMedicationData((prev) => [...prev]);
         },
         [selectedIndex, medicationData]
@@ -306,6 +318,95 @@ function TabMedicationSearch({ passIndex, onClose }) {
         [selectedIndex, medicationData]
     );
 
+    useEffect(() => {
+        if (sinceValue != -1) {
+            const options = SINCE_OPTIONS.map((option) => {
+                return {
+                    key: Math.random(),
+                    value: option.value,
+                    label: <>{`${sinceValue} ${option.label}`}</>,
+                };
+            });
+            setSinceOptions(options);
+        } else if (inputSince.length > 0) {
+            const options = SINCE_OPTIONS.map((option) => {
+                return {
+                    key: Math.random(),
+                    value: option.value,
+                    label: <>{`${inputSince} ${option.label}`}</>,
+                };
+            });
+            setSinceOptions(options);
+        } else {
+            const options = SINCE_OPTIONS.map((option) => {
+                return {
+                    key: Math.random(),
+                    value: option.value,
+                    label: <>{`${option.label}`}</>,
+                };
+            });
+            setSinceOptions(options);
+        }
+    }, [sinceValue]);
+
+    const onChangeInputSinceChild = useCallback(
+        (e) => {
+            const updateQuery = onlyNumberFormat(e.target.value);
+            setInputSince(updateQuery);
+            medicationData[selectedIndex].tmm_days = parseInt(updateQuery);
+            medicationData[selectedIndex].tmm_duration_type = '';
+            setMedicationData((prev) => [...prev]);
+            if (updateQuery.length > 0) {
+                const options = SINCE_OPTIONS.map((option) => {
+                    return {
+                        key: Math.random(),
+                        value: option.value,
+                        label: <>{`${updateQuery} ${option.label}`}</>,
+                    };
+                });
+                setSinceOptions(options);
+            } else {
+                const options = SINCE_OPTIONS.map((option) => {
+                    return {
+                        key: Math.random(),
+                        value: option.value,
+                        label: <>{`${option.label}`}</>,
+                    };
+                });
+                setSinceOptions(options);
+            }
+        },
+        [inputSince, sinceOptions, medicationData]
+    );
+
+    const SINCE_LIST = [
+        { value: 1, label: 1 },
+        { value: 2, label: 2 },
+        { value: 3, label: 3 },
+        { value: 4, label: 4 },
+        { value: 5, label: 5 },
+        { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" value={inputSince} inputMode="numeric" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
+    ];
+
+    const onChangeSegmentedSinceChild = useCallback(
+        (key) => {
+            console.log(key)
+            setSinceValue(key)
+            medicationData[selectedIndex].tmm_days = key != -1 ? key : 0;
+            medicationData[selectedIndex].tmm_duration_type = '';
+            setMedicationData((prev) => [...prev]);
+        },
+        [sinceValue, selectedIndex, medicationData]
+    );
+
+    const onChangeSinceChild = useCallback(
+        (key) => {
+            medicationData[selectedIndex].tmm_duration_type = key;
+            setMedicationData((prev) => [...prev]);
+        },
+        [selectedIndex, medicationData]
+    );
+
     const onChangeInputNoteChild = useCallback(
         (e) => {
             medicationData[selectedIndex].tmm_remarks = e.target.value;
@@ -441,6 +542,25 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                     </Col>
                                 </Row>
                             </div>
+                            <div>
+                                <label className="title-common">
+                                    Duration
+                                </label>
+                                <Segmented
+                                    value={sinceValue > 5 ? -1 : sinceValue}
+                                    className="search-segment"
+                                    options={SINCE_LIST}
+                                    onChange={onChangeSegmentedSinceChild}
+                                />
+                            </div>
+                            <div className="mt-3 mb-3">
+                                <Segmented
+                                    value={medicationData[selectedIndex].tmm_duration_type != undefined && medicationData[selectedIndex].tmm_duration_type}
+                                    className="search-segment"
+                                    options={sinceOptions}
+                                    onChange={onChangeSinceChild}
+                                />
+                            </div>
                             <label className="title-common mb-1">
                                 Add Details
                             </label>
@@ -450,7 +570,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 </>
             )
         );
-    }, [selectedIndex, medicationData]);
+    }, [selectedIndex, medicationData, sinceValue, inputSince, sinceOptions]);
 
     return (
         <>
