@@ -9,6 +9,8 @@ import dayjs from "dayjs";
 import moment from "moment";
 import { isMobile } from "react-device-detect";
 
+import { removeBeforeWhiteSpace } from "../utils/utils"
+
 import { useDispatch, useSelector } from "react-redux";
 import { listSalutation } from "../redux/appointmentsSlice";
 
@@ -35,6 +37,14 @@ function PersonalDetails({ form }) {
         return Promise.resolve();
     };
 
+    const validateFullName = (_, value) => {
+        const updateQuery = removeBeforeWhiteSpace(value);
+        form.setFieldsValue({
+            pm_fullname: updateQuery,
+        });
+        return Promise.resolve();
+    };
+
     // Form Rules
     const rules = {
         fullname: [
@@ -42,6 +52,7 @@ function PersonalDetails({ form }) {
                 required: true,
                 message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div>,
             },
+            { validator: validateFullName },
         ],
         mobile_no: [
             // {
