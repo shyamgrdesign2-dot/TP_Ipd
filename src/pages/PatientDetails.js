@@ -35,6 +35,7 @@ function PatientDetails() {
 
     const [locationPath, setLocationPath] = useState("/");
     const [collapsed, setCollapsed] = useState(isMobile ? true : false);
+    const [tcmData, setTcmData] = useState({ tcm_id: 0, page: 1 });
 
     useEffect(() => {
         setLocationPath(location.pathname);
@@ -44,10 +45,18 @@ function PatientDetails() {
     useEffect(() => {
         var sendData = {
             patient_unique_id: state != undefined ? state.patient_unique_id : 0,
-            tcm_id: '0'
+            tcm_id: tcmData.tcm_id
         }
         dispatch(viewCaseManager(sendData));
-    }, []);
+    }, [tcmData]);
+
+    const nextPress = () => {
+        setTcmData({ tcm_id: viewCaseManagerData?.next_tcm_id, page: tcmData.page -= 1 })
+    }
+
+    const prevPress = () => {
+        setTcmData({ tcm_id: viewCaseManagerData?.prev_tcm_id, page: tcmData.page += 1 })
+    }
 
     return (
         <>
@@ -76,13 +85,13 @@ function PatientDetails() {
                         <div className="appointment-wrap PatientDetailswrap">
                             <div className='row'>
                                 <div className='col-lg-5 col-md-12 col-12'>
-                                    <VitalsBodyComposition passVitals={viewCaseManagerData ? viewCaseManagerData.vitals.slice(0, 2) : viewCaseManagerData} />
+                                    <VitalsBodyComposition loading={loading} passVitals={viewCaseManagerData ? viewCaseManagerData.vitals.slice(0, 2) : viewCaseManagerData} />
                                     {/* <MedicalHistory />
                                             <LabParameters />
                                             <Vaccination /> */}
                                 </div>
                                 <div className='col-lg-7 col-md-12 col-12'>
-                                    <Cardiology state={state} viewCaseManagerData={viewCaseManagerData} />
+                                    <Cardiology state={state} tcmData={tcmData} loading={loading} viewCaseManagerData={viewCaseManagerData} nextPress={nextPress} prevPress={prevPress} />
                                 </div>
                             </div>
                         </div>

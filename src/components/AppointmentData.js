@@ -126,6 +126,7 @@ function AppointmentData() {
     const onChange = useCallback(
         (key) => {
             setPageNo(0)
+            setVisitTypeFilters('')
             setSelectedTab(key);
         },
         [selectedTab]
@@ -294,6 +295,7 @@ function AppointmentData() {
             dataIndex: "toct_type",
             key: "toct_type",
             ellipsis: true,
+            filteredValue: visitTypeFilters.split(',') || '',
             filters: getVisitTypeFilters()
         },
         {

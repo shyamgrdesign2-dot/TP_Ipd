@@ -4,6 +4,11 @@ body {
         font-size: 14px;
         font-style: normal;
         font-weight: 500;
+        &.antdesable-custom {
+            i {
+                font-size: 19px;
+            }
+        }
         &.btn-icon {
             border-radius: 10px;
             width: 24px;

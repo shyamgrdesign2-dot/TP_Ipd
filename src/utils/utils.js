@@ -21,18 +21,30 @@ export const removeBeforeWhiteSpace = (text) => {
 };
 
 export const makeDefaultLogo = (text) => {
-
-  if (!text) {
+  var fullName = text.trim()
+  if (!fullName) {
     return "HG";
   }
-
-  if (text?.includes(" ")) {
-    const letter = `${text.split(" ")[0][0].toUpperCase()}${text.split(" ")[1][0].toUpperCase()}`;
-    return letter;
+  const regex = /\s+/;
+  const results = fullName.split(regex);
+  if (results.length == 1) {
+    return results[0][0].toUpperCase();
   } else {
-    return `${text.split(" ")[0]}`;
+    const letter = `${results[0][0].toUpperCase()}${results[1][0].toUpperCase()}`;
+    return letter;
   }
+  // if (fullName?.includes(" ")) {
+  //   try {
+  //     const letter = `${fullName.split(" ")[0][0].toUpperCase()}${fullName.split(" ")[1][0].toUpperCase()}`;
+  //     return letter;
+  //   } catch (e) {
+  //     return `${fullName.split(" ")[0][0]}`;
+  //   }
+  // } else {
+  //   return `${fullName.split(" ")[0][0]}`;
+  // }
 };
+
 export const trimEllip = (source, length) => {
   if (source == null) {
     return "";

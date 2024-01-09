@@ -256,6 +256,7 @@
 
 .printheight {
     height: calc(100vh - 160px);
+    pointer-events: none;
     .printBox {
         border-radius: 20px;
     }

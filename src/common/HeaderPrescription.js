@@ -64,7 +64,7 @@ function HeaderPrescription() {
             symptoms: symptomsData,
             examination: examinationData,
             diagnosis: diagnosisData,
-            medicine: medicationData,
+            medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
             advice: adviceData,
             investigation: investigationData,
             vitals: vitalsData

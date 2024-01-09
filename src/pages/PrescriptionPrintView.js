@@ -1,20 +1,95 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { useLocation } from 'react-router-dom';
 import { Col, Row, Select, Button } from "antd";
 import { isMobile } from "react-device-detect";
+import axios from 'axios';
+import { saveAs } from 'file-saver';
 
 import messageSent from '../assets/images/message-sent.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
-
+const LANGUAGE_LIST = [
+    {
+        value: 1,
+        label: 'English',
+    },
+    {
+        value: 2,
+        label: 'Gujarati',
+    },
+    {
+        value: 3,
+        label: 'Hindi',
+    },
+    {
+        value: 4,
+        label: 'Marathi',
+    },
+    {
+        value: 5,
+        label: 'Telugu',
+    },
+    {
+        value: 6,
+        label: 'Kannada',
+    },
+    {
+        value: 7,
+        label: 'Urdu',
+    },
+    {
+        value: 8,
+        label: 'Punjabi',
+    },
+    {
+        value: 9,
+        label: 'Malayalam',
+    },
+    {
+        value: 10,
+        label: 'Tamil',
+    },
+]
 function PrescriptionPrintView() {
 
     const { state } = useLocation();
 
+    const [selectedLang, setSelectedLang] = useState(1);
+
+    const [printUrl, setPrintUrl] = useState(state != undefined ? `${state.print_url}` : null);
+    const [printRxUrl, setPrintRxUrl] = useState(state != undefined ? `${state.print_rx_url}` : null);
+
     const printContent = async () => {
-        const printWindow = await window.open(state != undefined && `${state.print_url}`);
+        const printWindow = await window.open(printUrl);
         printWindow.print();
     };
+
+    const onSelect = useCallback(
+        (data) => {
+            const encodedData = btoa(data.toString());
+            setPrintUrl(`${printUrl}&lg=${encodedData}`)
+            setSelectedLang(data)
+        },
+        [selectedLang, printUrl]
+    );
+
+    const handleDownload = async () => {
+        try {
+          const response = await axios({
+            // url: "https://morth.nic.in/sites/default/files/dd12-13_0.pdf",
+            url:printUrl,
+            method: 'GET',
+            responseType: 'blob', // Important for binary data
+          });
+      
+          const blob = new Blob([response.data], { type: response.headers['content-type'] });
+          saveAs(blob, `${Date.now()}.pdf`);
+        } catch (error) {
+          console.error('Error downloading file:', error);
+          // Handle errors gracefully, e.g., display an error message to the user
+        }
+      };
+
     return (
         <>
             <HeaderPrescriptionPrint state={state} />
@@ -58,6 +133,7 @@ function PrescriptionPrintView() {
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-download"></i>}
+                                    onClick={handleDownload}
                                 >
                                     <span className="fw-semibold">Download</span>
                                     <i className="icon-right iconrotate90 ms-auto"></i>
@@ -86,55 +162,16 @@ function PrescriptionPrintView() {
                                 <div className="titleprint">Preview</div>
                                 <div className="d-flex align-items-center">
                                     <label className="fontroboto">Select Language</label>
-                                    <Select placeholder="English" className='ms-3 appointmentselect '
-                                        options={[
-                                            {
-                                                value: '1',
-                                                label: 'English',
-                                            },
-                                            {
-                                                value: '2',
-                                                label: 'Gujarati',
-                                            },
-                                            {
-                                                value: '3',
-                                                label: 'Hindi',
-                                            },
-                                            {
-                                                value: '4',
-                                                label: 'Marathi',
-                                            },
-                                            {
-                                                value: '5',
-                                                label: 'Telugu',
-                                            },
-                                            {
-                                                value: '6',
-                                                label: 'Kannada',
-                                            },
-                                            {
-                                                value: '7',
-                                                label: 'Urdu',
-                                            },
-                                            {
-                                                value: '8',
-                                                label: 'Punjabi',
-                                            },
-                                            {
-                                                value: '9',
-                                                label: 'Malayalam',
-                                            },
-                                            {
-                                                value: '10',
-                                                label: 'Tamil',
-                                            },
-                                        ]}
+                                    <Select placeholder="English" className='ms-3 appointmentselect'
+                                        value={selectedLang}
+                                        onSelect={onSelect}
+                                        options={LANGUAGE_LIST}
                                     />
                                 </div>
                             </div>
                             <div className="border rounded-20px bg-white mt-20">
                                 <div className="printheight">
-                                    <embed className="printBox" src={state != undefined && `${state.print_url}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed>
+                                    <embed className="printBox" src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed>
                                 </div>
                             </div>
                         </div>
