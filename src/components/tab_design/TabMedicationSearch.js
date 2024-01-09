@@ -441,7 +441,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                             placeholder="Select"
                                             defaultValue={medicationData[selectedIndex].medicineUnit ? medicationData[selectedIndex].medicineUnit.findIndex(e => e.value == medicationData[selectedIndex].tmm_unit) != -1 ? medicationData[selectedIndex].tmm_unit : null : null}
                                             value={medicationData[selectedIndex].medicineUnit ? medicationData[selectedIndex].medicineUnit.findIndex(e => e.value == medicationData[selectedIndex].tmm_unit) != -1 ? medicationData[selectedIndex].tmm_unit : null : null}
-                                            onSelect={(data) => onSelectMedicineUnitChild(data)}
+                                            onSelect={onSelectMedicineUnitChild}
                                             options={medicationData[selectedIndex].medicineUnit}
                                         />
                                     </Col>
@@ -456,7 +456,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                             placeholder="Select"
                                             defaultValue={frequencyList ? frequencyList.findIndex(e => e.value == medicationData[selectedIndex].tmm_freq_type) != -1 ? medicationData[selectedIndex].tmm_freq_type : null : null}
                                             value={frequencyList ? frequencyList.findIndex(e => e.value == medicationData[selectedIndex].tmm_freq_type) != -1 ? medicationData[selectedIndex].tmm_freq_type : null : null}
-                                            onSelect={(data) => onSelectMedicineFrequencyChild(data)}
+                                            onSelect={onSelectMedicineFrequencyChild}
                                             options={frequencyList}
                                         />
                                     </Col>
@@ -466,7 +466,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                             placeholder="Select"
                                             defaultValue={timingList ? timingList.findIndex(e => e.value == medicationData[selectedIndex].tmm_time) != -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
                                             value={timingList ? timingList.findIndex(e => e.value == medicationData[selectedIndex].tmm_time) != -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
-                                            onSelect={(data) => onSelectMedicineTimingChild(data)}
+                                            onSelect={onSelectMedicineTimingChild}
                                             options={timingList}
                                         />
                                     </Col>

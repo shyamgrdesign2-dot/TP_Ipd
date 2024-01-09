@@ -45,7 +45,6 @@ function Header({ locationPath }) {
       const getClinicId = async () => {
         const token = await getToken()
         if (token !== undefined) {
-          console.log(token)
           try {
             var decoded = jwtDecode(token);
             const index = clinicOptions.findIndex(e => e.value == decoded.result.clinic_id)

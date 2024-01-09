@@ -7,7 +7,7 @@ import vitals from '../assets/images/Vitals.svg';
 // import graph from '../assets/images/Graph.svg';
 import heartBeat from '../assets/images/heartBeat.svg';
 
-function VitalsBodyComposition({ passVitals }) {
+function VitalsBodyComposition({ loading, passVitals }) {
 
     const initialRows = [
         {
@@ -85,18 +85,20 @@ function VitalsBodyComposition({ passVitals }) {
                         Vitals & Body Composition
                     </div>
                 </Card.Header>
-                <Card.Body className='p-0'>
-                    {passVitals && passVitals.length > 0 ? (
-                        <Table dataSource={initialRows} columns={columns} pagination={false} />
-                    ) : (
-                        <div className='d-flex flex-column justify-content-center' style={{ minHeight: "300px" }}>
-                            <div className='align-items-center text-center'>
-                                <img src={heartBeat} width={57} height={52} alt="No vital & body composition saved for the patient!" />
-                                <p className='mt-4 fontroboto'>No vital & body composition saved <br /> for the patient!</p>
+                {!loading && (
+                    <Card.Body className='p-0'>
+                        {passVitals && passVitals.length > 0 ? (
+                            <Table dataSource={initialRows} columns={columns} pagination={false} />
+                        ) : (
+                            <div className='d-flex flex-column justify-content-center' style={{ minHeight: "300px" }}>
+                                <div className='align-items-center text-center'>
+                                    <img src={heartBeat} width={57} height={52} alt="No vital & body composition saved for the patient!" />
+                                    <p className='mt-4 fontroboto'>No vital & body composition saved <br /> for the patient!</p>
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </Card.Body>
+                        )}
+                    </Card.Body>
+                )}
             </Card>
         </div>
     )
