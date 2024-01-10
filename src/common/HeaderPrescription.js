@@ -15,6 +15,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 import {
     addCaseManager,
+    editCaseManager
 } from "../redux/caseManagerSlice";
 
 function HeaderPrescription() {
@@ -25,17 +26,25 @@ function HeaderPrescription() {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
-    const { patient_data, symptomsData, examinationData, diagnosisData, medicationData, adviceData, investigationData, vitalsData } = useContext(CashManagerContext);
+    const { patient_data, tcmId, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData } = useContext(CashManagerContext);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const items = [
         {
-            label: 'Clear',
+            label: <div onClick={onResetClick}>Clear</div>,
             key: 'clear',
         },
     ];
-
+    async function onResetClick() {
+        setSymptomsData([])
+        setExaminationData([])
+        setDiagnosisData([])
+        setAdviceData([])
+        setInvestigationData([])
+        setMedicationData([])
+        // setVitalsData([])
+    }
     // const languageItems = [
     //     {
     //         label: '1st menu item',
@@ -56,29 +65,69 @@ function HeaderPrescription() {
     }, [isModalOpen]);
 
     async function onEndVisitClick() {
-        var sendData = {
-            action: 'add',
-            patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
-            pam_id: patient_data != undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
-            consultation_date: moment().format('YYYY-MM-DD HH:mm:ss'),
-            symptoms: symptomsData,
-            examination: examinationData,
-            diagnosis: diagnosisData,
-            medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
-            advice: adviceData,
-            investigation: investigationData,
-            vitals: vitalsData
-        }
-        const action = await dispatch(addCaseManager(sendData));
-        if (action.meta.requestStatus == "fulfilled") {
-            navigate('/prescription_print_view', { state: { ...action.payload, ...patient_data } })
-        } else {
+        if (symptomsData.length > 0 && symptomsData.filter(e => e.symptom_name == "").length > 0) {
             message.open({
                 MESSAGE_KEY,
                 type: 'warning',
-                content: action.error.message,
+                content: 'Please fillup symptom name',
                 duration: 2
             });
+        } else if (examinationData.length > 0 && examinationData.filter(e => e.examination_name == "").length > 0) {
+            message.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: 'Please fillup examination name',
+                duration: 2
+            });
+        } else if (diagnosisData.length > 0 && diagnosisData.filter((e) => e.tds_name == "").length > 0) {
+            message.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: 'Please fillup diagnosis name',
+                duration: 2
+            });
+        } else if (adviceData.length > 0 && adviceData.filter(e => e.advice_name == "").length > 0) {
+            message.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: 'Please fillup advice name',
+                duration: 2
+            });
+        } else if (investigationData.length > 0 && investigationData.filter(e => e.investigation_name == "").length > 0) {
+            message.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: 'Please fillup investigation name',
+                duration: 2
+            });
+        } else {
+            console.log(symptomsData)
+            // var sendData = {
+            //     action: tcmId == 0 ? 'add' : 'edit',
+            //     tcm_id: tcmId,
+            //     patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
+            //     pam_id: patient_data != undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
+            //     consultation_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+            //     symptoms: symptomsData,
+            //     examination: examinationData,
+            //     diagnosis: diagnosisData,
+            //     medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
+            //     advice: adviceData,
+            //     investigation: investigationData,
+            //     vitals: vitalsData
+            // }
+
+            // const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
+            // if (action.meta.requestStatus == "fulfilled") {
+            //     navigate('/prescription_print_view', { state: { ...action.payload, ...patient_data } })
+            // } else {
+            //     message.open({
+            //         MESSAGE_KEY,
+            //         type: 'warning',
+            //         content: action.error.message,
+            //         duration: 2
+            //     });
+            // }
         }
     }
 

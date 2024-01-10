@@ -64,7 +64,14 @@ function DiagnosisBox() {
   const [searchChildQuery, setSearchChildQuery] = useState(null);
   const [childSearchOptions, setChildSearchOptions] = useState([]);
   const [sinceOptions, setSinceOptions] = useState([]);
-  const SINCE_OPTIONS = ["Hour", "Day", "Week", "Month", "Year"];
+  const SINCE_OPTIONS = [
+    { value: "Hour", label: "Hour" },
+    { value: "Day", label: "Day" },
+    { value: "Week", label: "Week" },
+    { value: "Month", label: "Month" },
+    { value: "Year", label: "Year" },
+  ];
+
 
   //PopOver2
   const [popOver2, setPopOver2] = useState(false);
@@ -257,8 +264,8 @@ function DiagnosisBox() {
         const options = SINCE_OPTIONS.map((option) => {
           return {
             key: Math.random(),
-            value: `${updateQuery} ${option}`,
-            label: <>{`${updateQuery} ${option}`}</>,
+            value: `${updateQuery} ${option.value}`,
+            label: <>{`${updateQuery} ${option.label}`}</>,
           };
         });
         setSinceOptions(options);

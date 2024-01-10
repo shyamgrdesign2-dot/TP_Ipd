@@ -9,6 +9,10 @@ ApiCaseManager.addCaseManager = function (data) {
     return api.post(`/api/v1/casemanager/addCaseManager`, data, baseUrl);
 };
 
+ApiCaseManager.editCaseManager = function (data) {
+    return api.post(`/api/v1/casemanager/editCaseManager`, data, baseUrl);
+};
+
 ApiCaseManager.viewCaseManager = function (data) {
     return api.post(`/api/v1/casemanager/viewCaseManager`, data, baseUrl);
 };

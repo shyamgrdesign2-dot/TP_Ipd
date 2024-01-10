@@ -21,6 +21,19 @@ export const addCaseManager = createAsyncThunk(
     }
 );
 
+export const editCaseManager = createAsyncThunk(
+    "vitals/editCaseManager",
+    async (data) => {
+        let result = {};
+        result = await ApiCaseManager.editCaseManager(data);
+        if (result.status) {
+            return result.data;
+        } else {
+            throw Error(result.error);
+        }
+    }
+);
+
 export const viewCaseManager = createAsyncThunk(
     "vitals/viewCaseManager",
     async (data) => {
@@ -46,6 +59,15 @@ const caseManagerSlice = createSlice({
                 state.loading = false;
             })
             .addCase(addCaseManager.rejected, (state) => {
+                state.loading = false;
+            })
+            .addCase(editCaseManager.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(editCaseManager.fulfilled, (state, action) => {
+                state.loading = false;
+            })
+            .addCase(editCaseManager.rejected, (state) => {
                 state.loading = false;
             })
             .addCase(viewCaseManager.pending, (state) => {

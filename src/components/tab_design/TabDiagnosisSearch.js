@@ -27,7 +27,13 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
     const [childSearchOptions, setChildSearchOptions] = useState([]);
 
     const [selectedIndex, setSelectedIndex] = useState(passIndex);
-    const SINCE_OPTIONS = ["H", "D", "W", "M", "Y"];
+    const SINCE_OPTIONS = [
+        { value: "Hour", label: "H" },
+        { value: "Day", label: "D" },
+        { value: "Week", label: "W" },
+        { value: "Month", label: "M" },
+        { value: "Year", label: "Y" },
+    ];
     const [sinceValue, setSinceValue] = useState(1);
     const [inputSince, setInputSince] = useState('');
     const [sinceOptions, setSinceOptions] = useState([]);
@@ -132,8 +138,8 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
-                    value: `${sinceValue} ${option}`,
-                    label: <>{`${sinceValue} ${option}`}</>,
+                    value: `${sinceValue} ${option.value}`,
+                    label: <>{`${sinceValue} ${option.label}`}</>,
                 };
             });
             setSinceOptions(options);
@@ -141,8 +147,8 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
-                    value: `${inputSince} ${option}`,
-                    label: <>{`${inputSince} ${option}`}</>,
+                    value: `${inputSince} ${option.value}`,
+                    label: <>{`${inputSince} ${option.label}`}</>,
                 };
             });
             setSinceOptions(options);
@@ -150,8 +156,8 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
-                    value: `${option}`,
-                    label: <>{`${option}`}</>,
+                    value: `${option.value}`,
+                    label: <>{`${option.label}`}</>,
                 };
             });
             setSinceOptions(options);
@@ -168,8 +174,8 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                 const options = SINCE_OPTIONS.map((option) => {
                     return {
                         key: Math.random(),
-                        value: `${updateQuery} ${option}`,
-                        label: <>{`${updateQuery} ${option}`}</>,
+                        value: `${updateQuery} ${option.value}`,
+                        label: <>{`${updateQuery} ${option.label}`}</>,
                     };
                 });
                 setSinceOptions(options);
@@ -177,8 +183,8 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                 const options = SINCE_OPTIONS.map((option) => {
                     return {
                         key: Math.random(),
-                        value: `${option}`,
-                        label: <>{`${option}`}</>,
+                        value: `${option.value}`,
+                        label: <>{`${option.label}`}</>,
                     };
                 });
                 setSinceOptions(options);
