@@ -40,13 +40,13 @@ function WalkInConsultation() {
                         </div>
                     </div>
                     <div className="d-flex align-items-center">
-                        {/* <Link to='/patient_details' state={patient}> */}
+                        {/* <Link to='/patient_details' state={{ patient_data: patient }}> */}
                         <Button
                             type="text"
                             className="btn btn-primary2 me-4 align-items-center d-flex"
                             icon={<i className="icon-Preview"></i>}
                             onClick={() =>
-                                navigate("/patient_details", { state: patient })
+                                navigate("/patient_details", { state: { patient_data: patient } })
                             }
                         >
                             Patient Details
@@ -56,7 +56,7 @@ function WalkInConsultation() {
                             type="text"
                             className="btn btn-primary3 align-items-center d-flex"
                             icon={<i className="icon-Consult"></i>}
-                            onClick={() => navigate("/prescription", { state: patient })}
+                            onClick={() => navigate("/prescription", { state: { patient_data: patient } })}
                         >
                             Start Consult
                         </Button>
@@ -168,13 +168,13 @@ function WalkInConsultation() {
                             <span className="title-common">Choose Action</span>
                             <div className="d-flex align-items-center mt-2">
                                 <div className="w-50">
-                                    {/* <Link to='/patient_details' state={clickedPatient}> */}
+                                    {/* <Link to='/patient_details' state={{ patient_data: clickedPatient }}> */}
                                     <Button
                                         type="text"
                                         className="btn btn-primary2 align-items-center d-flex btn-41 w-100"
                                         icon={<i className="icon-Preview" />}
                                         onClick={() =>
-                                            navigate("/patient_details", { state: clickedPatient })
+                                            navigate("/patient_details", { state: { patient_data: clickedPatient } })
                                         }
                                     >
                                         View Patient Details{" "}
@@ -187,7 +187,7 @@ function WalkInConsultation() {
                                     className="btn btn-primary3 align-items-center d-flex btn-41 w-50 ms-4"
                                     icon={<i className="icon-Consult"></i>}
                                     onClick={() =>
-                                        navigate("/prescription", { state: clickedPatient })
+                                        navigate("/prescription", { state: { patient_data: clickedPatient } })
                                     }
                                 >
                                     Start Consult{" "}

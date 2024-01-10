@@ -21,8 +21,12 @@ import vitalsWhite from '../../assets/images/vitals-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
 // import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
+
 function TabPrescription() {
+
     const { state } = useLocation();
+    const { patient_data } = state
+
     const [symptomsData, setSymptomsData] = useState([]);
     const [examinationData, setExaminationData] = useState([]);
     const [diagnosisData, setDiagnosisData] = useState([]);
@@ -30,20 +34,25 @@ function TabPrescription() {
     const [investigationData, setInvestigationData] = useState([]);
     const [medicationData, setMedicationData] = useState([]);
     const [vitalsData, setVitalsData] = useState([]);
-    const contextApi = { state, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, medicationData, setMedicationData, adviceData, setAdviceData, investigationData, setInvestigationData, vitalsData, setVitalsData };
+
+    const contextApi = { patient_data, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, medicationData, setMedicationData, adviceData, setAdviceData, investigationData, setInvestigationData, vitalsData, setVitalsData };
+   
     const [collapsed, setCollapsed] = useState(false);
     const [collapsedFlag, setCollapsedFlag] = useState(1);
     const [vitalDrawer, setVitalDrawer] = useState(false);
+    
     // Drawer Vitals
     const handleDrawerVital = useCallback(() => {
         setVitalDrawer(!vitalDrawer);
     }, [vitalDrawer]);
+
     //Handle Sider
     const handleCollapsed = useCallback((flag) => {
         setCollapsedFlag(flag);
         setCollapsed(!collapsed)
         setVitalDrawer(!vitalDrawer);
     }, [collapsedFlag, collapsed, vitalDrawer]);
+
     return (
         <CashManagerContext.Provider value={contextApi}>
             <>

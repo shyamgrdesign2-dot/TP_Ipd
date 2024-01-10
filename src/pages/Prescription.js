@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { Drawer } from 'antd';
 
@@ -19,6 +19,7 @@ import VitalsList from "../components/VitalsList";
 function Prescription() {
 
   const { state } = useLocation();
+  const { patient_data, caseManagerData } = state
 
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
@@ -28,10 +29,18 @@ function Prescription() {
   const [medicationData, setMedicationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
 
-  const contextApi = { state, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData };
+  const contextApi = { patient_data, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData };
 
   const [collapsedFlag, setCollapsedFlag] = useState(1);
   const [vitalDrawer, setVitalDrawer] = useState(false);
+
+  useEffect(() => {
+    if (caseManagerData != undefined) {
+      if (caseManagerData.symptoms.length > 0) {
+        setSymptomsData(caseManagerData.symptoms)
+      }
+    }
+  }, []);
 
   // Drawer Vitals
   const handleDrawerVital = useCallback(() => {

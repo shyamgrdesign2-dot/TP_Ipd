@@ -4,7 +4,7 @@ import { Button, Popover } from 'antd';
 import { isMobile } from 'react-device-detect';
 import { makeDefaultLogo } from "../utils/utils";
 
-function SidebarPatient({ collapsed, state }) {
+function SidebarPatient({ collapsed, patient_data }) {
     const menu = [
         { icon_name: 'icon-Visit-Summary', short_title: 'Visit', long_title: 'Visit Summary' },
         // { icon_name: 'icon-Report', short_title: 'Reports', long_title: 'Medical Reports (3)' },
@@ -20,14 +20,14 @@ function SidebarPatient({ collapsed, state }) {
                 <div className="round-box bg-body-secondary"><i className="icon-Id fs-21"></i></div>
                 <div className="text-truncate">
                     <div className="fontroboto letterspacing">Patient Id</div>
-                    <div className="fontroboto letterspacing fw-medium">{state != undefined ? state.pm_pid : "000000"}</div>
+                    <div className="fontroboto letterspacing fw-medium">{patient_data != undefined ? patient_data.pm_pid : "000000"}</div>
                 </div>
             </div>
             <div className="align-items-center d-flex medicine-templates border-top-0 without-hover px-0 pt-0">
                 <div className="round-box bg-body-secondary"><i className="icon-phone fs-21"></i></div>
                 <div className="text-truncate">
                     <div className="fontroboto letterspacing">Mobile Number</div>
-                    <div className="fontroboto letterspacing fw-medium">{state != undefined ? state.pm_contact_no : "000000"}</div>
+                    <div className="fontroboto letterspacing fw-medium">{patient_data != undefined ? patient_data.pm_contact_no : "000000"}</div>
                 </div>
             </div>
             <div>
@@ -54,14 +54,14 @@ function SidebarPatient({ collapsed, state }) {
             >
                 <div className={`d-flex align-items-center rounded-3 m-2 text-truncate ${collapsed ? '' : 'bg-body p-2'}`}>
                     <div className={`rounded-pill patientProfile border ${collapsed ? 'mx-auto' : 'me-2'}`}>
-                        {makeDefaultLogo(state?.pm_fullname)}
+                        {makeDefaultLogo(patient_data?.pm_fullname)}
                     </div>
                     {!collapsed && (
                         <div className='text-truncate'>
-                            <div className='patientName d-flex align-items-center'> <div className='text-truncate pt-2px'>{`${state != undefined ? state.pm_fullname : "Hello Guest"}`}</div>
+                            <div className='patientName d-flex align-items-center'> <div className='text-truncate pt-2px'>{`${patient_data != undefined ? patient_data.pm_fullname : "Hello Guest"}`}</div>
                                 <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right'></i></button>
                             </div>
-                            <p className='mb-0'>{`${state != undefined ? state.pm_gender[0].toUpperCase() : "M"}, ${state != undefined ? state.ageYears : 30}y, ${state != undefined ? state.pm_contact_no : "000000"}`}</p>
+                            <p className='mb-0'>{`${patient_data != undefined ? patient_data.pm_gender[0].toUpperCase() : "M"}, ${patient_data != undefined ? patient_data.ageYears : 30}y, ${patient_data != undefined ? patient_data.pm_contact_no : "000000"}`}</p>
                         </div>
                     )}
                 </div>

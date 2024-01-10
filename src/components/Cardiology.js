@@ -15,7 +15,7 @@ import calenderBlank from '../assets/images/calenderBlank.svg';
 function Cardiology(props) {
 
     const navigate = useNavigate();
-    const { state, tcmData, loading, viewCaseManagerData, nextPress, prevPress } = props
+    const { patient_data, tcmData, loading, viewCaseManagerData, nextPress, prevPress } = props
 
     const [filteredInfo, setFilteredInfo] = useState({});
     const [setSortedInfo] = useState({});
@@ -128,7 +128,11 @@ function Cardiology(props) {
                                         </Button>
                                     </div>
                                     <div>
-                                        <button className="btn p-0 ms-3">
+                                        <button className="btn p-0 ms-3"
+                                            onClick={() =>
+                                                navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: viewCaseManagerData } })
+                                            }
+                                        >
                                             <i className="icon-Edit"></i>
                                         </button>
                                         <button className="btn p-0 ms-3" onClick={printContent}>
@@ -252,7 +256,7 @@ function Cardiology(props) {
                                 <img src={calenderBlank} width={57} height={62} alt="No vital & body composition saved for the patient!" />
                                 <p className='mt-4 fontroboto'>No any visit found for this patient yet</p>
                                 <Button onClick={() =>
-                                    navigate("/prescription", { state: state })
+                                    navigate("/prescription", { state: { patient_data: patient_data } })
                                 } className="btn btn-primary3 btn-text-white px-5 btn-41">Start New Visit</Button>
                             </div>
                         </div>

@@ -8,7 +8,7 @@ function Welcome1(props) {
 
     const navigate = useNavigate();
 
-    const { locationPath, isMobile, state } = props
+    const { locationPath, isMobile, patient_data } = props
 
     return (
         <>
@@ -17,7 +17,7 @@ function Welcome1(props) {
                     <div className='d-flex align-items-center'>
                         <div>
                             <h1 className='mt-2'>{'Patient Details'}</h1>
-                            {isMobile && (<ProfilePopover locationPath={locationPath} isMobile={isMobile} state={state} />)}
+                            {isMobile && (<ProfilePopover locationPath={locationPath} isMobile={isMobile} patient_data={patient_data} />)}
                             {isMobile ? '' : <p className='mb-1'>&nbsp;</p>}
                         </div>
                         <img src={require("../assets/images/bg-welcome.png")} className="welcomeig d-inline-block align-top ms-4" alt="Welcome" />
@@ -27,7 +27,7 @@ function Welcome1(props) {
                             <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2"> <i className={'icon-reload me-2'}></i> {'Repeat 10th Oct Rx'}</Button>
                             <Button variant="primary"
                                 onClick={() =>
-                                    navigate("/prescription", { state: state })
+                                    navigate("/prescription", { state: { patient_data: patient_data } })
                                 }>
                                 {'Start New Visit'}
                             </Button>

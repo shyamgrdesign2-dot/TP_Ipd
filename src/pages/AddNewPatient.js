@@ -33,7 +33,7 @@ function AddNewPatient() {
             };
             const action = await dispatch(addPatient(finalValues));
             if (action.meta.requestStatus == "fulfilled") {
-                navigate("/prescription", { state: action.payload })
+                navigate("/prescription", { state: { patient_data: action.payload } })
             }
         }).catch(info => {
             console.log('info', info)

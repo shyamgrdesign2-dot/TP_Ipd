@@ -29,6 +29,7 @@ function PatientDetails() {
     const dispatch = useDispatch();
 
     const { state } = useLocation();
+    const { patient_data } = state
 
     let location = useLocation();
     const navigate = useNavigate();
@@ -41,10 +42,9 @@ function PatientDetails() {
         setLocationPath(location.pathname);
     }, [location]);
 
-
     useEffect(() => {
         var sendData = {
-            patient_unique_id: state != undefined ? state.patient_unique_id : 0,
+            patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
             tcm_id: tcmData.tcm_id
         }
         dispatch(viewCaseManager(sendData));
@@ -73,7 +73,7 @@ function PatientDetails() {
                         </button>
                         {!isMobile && (<Button className={collapsed ? 'collapseborder border rounded-10px' : ''} style={collapsed && { marginRight: -12, backgroundColor: 'white', zIndex: 1, }} type="text" icon={collapsed ? <i className='icon-Expand fs-21'></i> : <i className='icon-Contract fs-21'></i>} onClick={() => setCollapsed(!collapsed)} />)}
                     </div>
-                    <SidebarPatient collapsed={collapsed} state={state} />
+                    <SidebarPatient collapsed={collapsed} patient_data={patient_data} />
                 </Sider>
 
                 <Content>
@@ -81,7 +81,7 @@ function PatientDetails() {
                         <Welcome1
                             locationPath={locationPath}
                             isMobile={isMobile}
-                            state={state} />
+                            patient_data={patient_data} />
                         <div className="appointment-wrap PatientDetailswrap">
                             <div className='row'>
                                 <div className='col-lg-5 col-md-12 col-12'>
@@ -91,7 +91,7 @@ function PatientDetails() {
                                             <Vaccination /> */}
                                 </div>
                                 <div className='col-lg-7 col-md-12 col-12'>
-                                    <Cardiology state={state} tcmData={tcmData} loading={loading} viewCaseManagerData={viewCaseManagerData} nextPress={nextPress} prevPress={prevPress} />
+                                    <Cardiology patient_data={patient_data} tcmData={tcmData} loading={loading} viewCaseManagerData={viewCaseManagerData} nextPress={nextPress} prevPress={prevPress} />
                                 </div>
                             </div>
                         </div>

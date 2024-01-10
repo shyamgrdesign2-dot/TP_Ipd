@@ -25,7 +25,7 @@ function HeaderPrescription() {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
-    const { state, symptomsData, examinationData, diagnosisData, medicationData, adviceData, investigationData, vitalsData } = useContext(CashManagerContext);
+    const { patient_data, symptomsData, examinationData, diagnosisData, medicationData, adviceData, investigationData, vitalsData } = useContext(CashManagerContext);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -58,8 +58,8 @@ function HeaderPrescription() {
     async function onEndVisitClick() {
         var sendData = {
             action: 'add',
-            patient_unique_id: state != undefined ? state.patient_unique_id : 0,
-            pam_id: state != undefined ? state.hasOwnProperty('pam_id') ? state.pam_id : 0 : 0,
+            patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
+            pam_id: patient_data != undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
             consultation_date: moment().format('YYYY-MM-DD HH:mm:ss'),
             symptoms: symptomsData,
             examination: examinationData,
@@ -71,7 +71,7 @@ function HeaderPrescription() {
         }
         const action = await dispatch(addCaseManager(sendData));
         if (action.meta.requestStatus == "fulfilled") {
-            navigate('/prescription_print_view', { state: { ...action.payload, ...state } })
+            navigate('/prescription_print_view', { state: { ...action.payload, ...patient_data } })
         } else {
             message.open({
                 MESSAGE_KEY,
@@ -122,7 +122,7 @@ function HeaderPrescription() {
                                     }
                                 />
                             </div>
-                            <ProfilePopover state={state} />
+                            <ProfilePopover patient_data={patient_data} />
                         </div>
                     </Col>
                     <Col lg="auto">

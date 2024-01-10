@@ -216,7 +216,7 @@ function AppointmentData() {
     const getMenuItems = (record) => {
         const items = [
             {
-                label: <Link to="/patient_details" state={record}>Patient Details</Link>,
+                label: <Link to="/patient_details" state={{ patient_data: record }}>Patient Details</Link>,
                 key: "patientdetails",
             },
             {
@@ -327,7 +327,7 @@ function AppointmentData() {
             render: (_, record) => (
                 <div size="middle">
                     {selectedTab !== TAB_CANCELLED && (
-                        <button className="btn btn-outline-primary btn-consult" onClick={() => selectedTab === TAB_QUEUE ? navigate("/prescription", { state: record }) : alert('comming soon')}>
+                        <button className="btn btn-outline-primary btn-consult" onClick={() => selectedTab === TAB_QUEUE ? navigate("/prescription", { state: { patient_data: record } }) : alert('comming soon')}>
                             {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
                         </button>
                     )}
