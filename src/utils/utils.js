@@ -21,7 +21,7 @@ export const removeBeforeWhiteSpace = (text) => {
 };
 
 export const makeDefaultLogo = (text) => {
-  var fullName = text.trim()
+  var fullName = text != undefined ? text.trim() : ''
   if (!fullName) {
     return "HG";
   }
