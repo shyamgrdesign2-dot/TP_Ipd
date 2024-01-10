@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace } from "../../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace, hasNumber } from "../../utils/utils";
 import Medicationicon from "../../assets/images/Medication.svg";
 import {
     addTemplate,
@@ -137,7 +137,7 @@ function TabMedicationBox() {
         setChildDrawer(!childDrawer);
         setChildDrawerData(item)
         setSinceValue(item && item.tmm_days ? parseInt(item.tmm_days) : 1)
-    }, [childDrawer, childDrawerData,sinceValue]);
+    }, [childDrawer, childDrawerData, sinceValue]);
 
     // Handle Template Drawer
     const handleDrawerTemplate = useCallback(() => {
@@ -303,7 +303,7 @@ function TabMedicationBox() {
             <>
                 <div>
                     <div className="medicine-templates">
-                        <Input className="popinput" onChange={onSearch} prefix={<i className='icon-search me-2'></i>} allowClear />
+                        <Input className="popinput" onChange={onSearch} placeholder="Search Templates" prefix={<i className='icon-search me-2'></i>} allowClear />
                     </div>
                     <div className="tab-template-height" >
                         {matchedTemplates.length > 0 &&
@@ -651,7 +651,9 @@ function TabMedicationBox() {
 
     const onChangeSinceChild = useCallback(
         (key) => {
-            setChildDrawerData({ ...childDrawerData, tmm_duration_type: key })
+            if (hasNumber(key)) {
+                setChildDrawerData({ ...childDrawerData, tmm_duration_type: key })
+            }
         },
         [childDrawerData]
     );
@@ -833,7 +835,7 @@ function TabMedicationBox() {
                 </>
             )
         );
-    }, [childDrawer, childDrawerData,sinceValue, inputSince, sinceOptions]);
+    }, [childDrawer, childDrawerData, sinceValue, inputSince, sinceOptions]);
 
     return (
         <>

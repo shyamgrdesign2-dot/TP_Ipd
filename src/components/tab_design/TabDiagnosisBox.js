@@ -9,7 +9,7 @@ import { onlyNumberFormat } from "../../utils/utils";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
-import { removeBeforeWhiteSpace } from "../../utils/utils";
+import { removeBeforeWhiteSpace, hasNumber } from "../../utils/utils";
 import Diagnosisicon from "../../assets/images/Diagnosis.svg";
 import {
     addTemplate,
@@ -461,7 +461,9 @@ function TabDiagnosisBox() {
 
     const onChangeSinceChild = useCallback(
         (key) => {
-            setChildDrawerData({ ...childDrawerData, since: key })
+            if (hasNumber(key)) {
+                setChildDrawerData({ ...childDrawerData, since: key })
+            }
         },
         [childDrawerData]
     );

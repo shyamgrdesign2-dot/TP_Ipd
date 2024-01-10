@@ -4,7 +4,7 @@ import { Button, Card, Row, Col, Segmented, Input } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import { onlyNumberFormat } from "../../utils/utils";
+import { onlyNumberFormat, hasNumber } from "../../utils/utils";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import {
@@ -219,8 +219,10 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
 
     const onChangeSinceChild = useCallback(
         (key) => {
-            diagnosisData[selectedIndex].since = key;
-            setDiagnosisData((prev) => [...prev]);
+            if (hasNumber(key)) {
+                diagnosisData[selectedIndex].since = key;
+                setDiagnosisData((prev) => [...prev]);
+            }
         },
         [selectedIndex, diagnosisData]
     );

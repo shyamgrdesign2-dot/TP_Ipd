@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext, useCallback, useMemo } from "react";
-import { Button, Card, Row, Col, Input, Select, message,Segmented } from 'antd';
+import { Button, Card, Row, Col, Input, Select, message, Segmented } from 'antd';
 import { Button as BSButton, ButtonGroup as BSButtonGroup } from "react-bootstrap";
 
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import { onlyNumberFormat } from "../../utils/utils";
+import { onlyNumberFormat, hasNumber } from "../../utils/utils";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
@@ -401,8 +401,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
     const onChangeSinceChild = useCallback(
         (key) => {
-            medicationData[selectedIndex].tmm_duration_type = key;
-            setMedicationData((prev) => [...prev]);
+            if (hasNumber(key)) {
+                medicationData[selectedIndex].tmm_duration_type = key;
+                setMedicationData((prev) => [...prev]);
+            }
         },
         [selectedIndex, medicationData]
     );

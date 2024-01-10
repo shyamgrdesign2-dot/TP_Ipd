@@ -20,6 +20,10 @@ export const removeBeforeWhiteSpace = (text) => {
   return text.replace(/^[ ]+/g, "")
 };
 
+export const hasNumber = (str) => {
+  return /\d/.test(str);
+}
+
 export const makeDefaultLogo = (text) => {
   var fullName = text != undefined ? text.trim() : ''
   if (!fullName) {

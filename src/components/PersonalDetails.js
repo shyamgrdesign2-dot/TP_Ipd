@@ -48,11 +48,11 @@ function PersonalDetails({ form }) {
     // Form Rules
     const rules = {
         fullname: [
-            {
-                required: true,
-                message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div>,
-            },
-            { validator: validateFullName },
+            // {
+            //     required: true,
+            //     message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div>,
+            // },
+            { validator: validateFullName,message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div> },
         ],
         mobile_no: [
             // {
@@ -200,7 +200,7 @@ function PersonalDetails({ form }) {
                                         onChange={(e) => {
                                             setAgeYearsMonths({
                                                 ...ageYearsMonths,
-                                                years: e.target.value,
+                                                years: Math.abs(e.target.value),
                                             });
                                         }}
                                     />
@@ -213,7 +213,7 @@ function PersonalDetails({ form }) {
                                         onChange={(e) => {
                                             setAgeYearsMonths({
                                                 ...ageYearsMonths,
-                                                months: e.target.value,
+                                                months: Math.abs(e.target.value),
                                             });
                                         }}
                                     />

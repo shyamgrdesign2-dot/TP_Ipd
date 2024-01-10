@@ -4,7 +4,7 @@ import { Button, Card, Row, Col, Segmented, Input } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import { onlyNumberFormat } from "../../utils/utils";
+import { onlyNumberFormat, hasNumber } from "../../utils/utils";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import {
@@ -218,8 +218,10 @@ function TabSymptomsSearch({ passIndex, onClose }) {
 
     const onChangeSinceChild = useCallback(
         (key) => {
-            symptomsData[selectedIndex].since = key;
-            setSymptomsData((prev) => [...prev]);
+            if (hasNumber(key)) {
+                symptomsData[selectedIndex].since = key;
+                setSymptomsData((prev) => [...prev]);
+            }
         },
         [selectedIndex, symptomsData]
     );

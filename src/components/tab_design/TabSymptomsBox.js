@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace } from "../../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace, hasNumber } from "../../utils/utils";
 import Symptomsicon from "../../assets/images/Symptoms.svg";
 import {
     addTemplate,
@@ -459,7 +459,9 @@ function TabSymptomsBox() {
 
     const onChangeSinceChild = useCallback(
         (key) => {
-            setChildDrawerData({ ...childDrawerData, since: key })
+            if (hasNumber(key)) {
+                setChildDrawerData({ ...childDrawerData, since: key })
+            }
         },
         [childDrawerData]
     );
