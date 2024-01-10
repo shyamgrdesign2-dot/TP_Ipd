@@ -37,14 +37,24 @@ function Prescription() {
 
   useEffect(() => {
     if (caseManagerData != undefined) {
+      // setVitalsData(caseManagerData.vitals)
       if (caseManagerData.symptoms.length > 0) {
         setSymptomsData(caseManagerData.symptoms)
+      }
+      if (caseManagerData.examination.length > 0) {
         setExaminationData(caseManagerData.examination)
+      }
+      if (caseManagerData.diagnosis.length > 0) {
         setDiagnosisData(caseManagerData.diagnosis)
+      }
+      if (caseManagerData.advice.length > 0) {
         setAdviceData(caseManagerData.advice)
+      }
+      if (caseManagerData.investigation.length > 0) {
         setInvestigationData(caseManagerData.investigation)
+      }
+      if (caseManagerData.medicine.length > 0) {
         setMedicationData(caseManagerData.medicine)
-        // setVitalsData(caseManagerData.vitals)
       }
     }
   }, []);

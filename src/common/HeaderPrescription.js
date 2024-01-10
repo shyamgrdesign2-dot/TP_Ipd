@@ -101,33 +101,32 @@ function HeaderPrescription() {
                 duration: 2
             });
         } else {
-            console.log(symptomsData)
-            // var sendData = {
-            //     action: tcmId == 0 ? 'add' : 'edit',
-            //     tcm_id: tcmId,
-            //     patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
-            //     pam_id: patient_data != undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
-            //     consultation_date: moment().format('YYYY-MM-DD HH:mm:ss'),
-            //     symptoms: symptomsData,
-            //     examination: examinationData,
-            //     diagnosis: diagnosisData,
-            //     medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
-            //     advice: adviceData,
-            //     investigation: investigationData,
-            //     vitals: vitalsData
-            // }
+            var sendData = {
+                action: tcmId == 0 ? 'add' : 'edit',
+                tcm_id: tcmId,
+                patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
+                pam_id: patient_data != undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
+                consultation_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                symptoms: symptomsData,
+                examination: examinationData,
+                diagnosis: diagnosisData,
+                medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
+                advice: adviceData,
+                investigation: investigationData,
+                vitals: vitalsData
+            }
 
-            // const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
-            // if (action.meta.requestStatus == "fulfilled") {
-            //     navigate('/prescription_print_view', { state: { ...action.payload, ...patient_data } })
-            // } else {
-            //     message.open({
-            //         MESSAGE_KEY,
-            //         type: 'warning',
-            //         content: action.error.message,
-            //         duration: 2
-            //     });
-            // }
+            const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
+            if (action.meta.requestStatus == "fulfilled") {
+                navigate('/prescription_print_view', { state: { ...action.payload, ...patient_data } })
+            } else {
+                message.open({
+                    MESSAGE_KEY,
+                    type: 'warning',
+                    content: action.error.message,
+                    duration: 2
+                });
+            }
         }
     }
 

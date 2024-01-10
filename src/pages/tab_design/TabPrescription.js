@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { Layout, Drawer } from 'antd';
 import { Content } from "antd/es/layout/layout";
@@ -25,7 +25,8 @@ import Sider from "antd/es/layout/Sider";
 function TabPrescription() {
 
     const { state } = useLocation();
-    const { patient_data } = state
+    const { patient_data, caseManagerData } = state
+    const tcmId = caseManagerData != undefined ? caseManagerData.tcm_id : 0
 
     const [symptomsData, setSymptomsData] = useState([]);
     const [examinationData, setExaminationData] = useState([]);
@@ -35,12 +36,36 @@ function TabPrescription() {
     const [medicationData, setMedicationData] = useState([]);
     const [vitalsData, setVitalsData] = useState([]);
 
-    const contextApi = { patient_data, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, medicationData, setMedicationData, adviceData, setAdviceData, investigationData, setInvestigationData, vitalsData, setVitalsData };
-   
+    const contextApi = { patient_data, tcmId, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData };
+
     const [collapsed, setCollapsed] = useState(false);
     const [collapsedFlag, setCollapsedFlag] = useState(1);
     const [vitalDrawer, setVitalDrawer] = useState(false);
-    
+
+    useEffect(() => {
+        if (caseManagerData != undefined) {
+            // setVitalsData(caseManagerData.vitals)
+            if (caseManagerData.symptoms.length > 0) {
+                setSymptomsData(caseManagerData.symptoms)
+            }
+            if (caseManagerData.examination.length > 0) {
+                setExaminationData(caseManagerData.examination)
+            }
+            if (caseManagerData.diagnosis.length > 0) {
+                setDiagnosisData(caseManagerData.diagnosis)
+            }
+            if (caseManagerData.advice.length > 0) {
+                setAdviceData(caseManagerData.advice)
+            }
+            if (caseManagerData.investigation.length > 0) {
+                setInvestigationData(caseManagerData.investigation)
+            }
+            if (caseManagerData.medicine.length > 0) {
+                setMedicationData(caseManagerData.medicine)
+            }
+        }
+    }, []);
+
     // Drawer Vitals
     const handleDrawerVital = useCallback(() => {
         setVitalDrawer(!vitalDrawer);
