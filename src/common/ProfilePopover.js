@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Popover } from 'antd';
 import { makeDefaultLogo } from "../utils/utils";
+import { Link } from 'react-router-dom';
 
 function ProfilePopover(props) {
     const [open, setOpen] = useState(false);
@@ -33,10 +34,12 @@ function ProfilePopover(props) {
                     Edit Profile
                 </Button>
                 {locationPath == '/patient_details' ? '' :
-                    <Button className='btn btn-primary2 align-items-center d-flex justify-content-center w-100 mt-3 btn-41'>
-                        <i className='icon-Visit-Summary fs-21 me-2'></i>
-                        Visit Summary
-                    </Button>
+                    <Link to="/patient_details" state={{ patient_data: patient_data }}>
+                        <Button className='btn btn-primary2 align-items-center d-flex justify-content-center w-100 mt-3 btn-41'>
+                            <i className='icon-Visit-Summary fs-21 me-2'></i>
+                            Visit Summary
+                        </Button>
+                    </Link>
                 }
             </div>
         </>

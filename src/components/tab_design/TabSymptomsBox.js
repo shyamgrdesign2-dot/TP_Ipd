@@ -381,7 +381,7 @@ function TabSymptomsBox() {
                 return {
                     key: Math.random(),
                     value: `${sinceValue} ${option.value}`,
-                    label: <>{`${sinceValue} ${option.label}`}</>,
+                    label: <>{`${sinceValue}${option.label}`}</>,
                 };
             });
             setSinceOptions(options);
@@ -390,7 +390,7 @@ function TabSymptomsBox() {
                 return {
                     key: Math.random(),
                     value: `${inputSince} ${option.value}`,
-                    label: <>{`${inputSince} ${option.label}`}</>,
+                    label: <>{`${inputSince}${option.label}`}</>,
                 };
             });
             setSinceOptions(options);
@@ -416,7 +416,7 @@ function TabSymptomsBox() {
                     return {
                         key: Math.random(),
                         value: `${updateQuery} ${option.value}`,
-                        label: <>{`${updateQuery} ${option.label}`}</>,
+                        label: <>{`${updateQuery}${option.label}`}</>,
                     };
                 });
                 setSinceOptions(options);

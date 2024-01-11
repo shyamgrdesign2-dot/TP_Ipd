@@ -130,6 +130,14 @@ function HeaderPrescription() {
         }
     }
 
+    const checkDataFillOrNot = () => {
+        if (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || medicationData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || vitalsData.length > 0) {
+            showHideModal()
+        } else {
+            navigate(-1)
+        }
+    }
+
     return (
         <Navbar className="justify-content-between headerprescription p-0">
             <Container fluid className='h-100 gx-0 w-100'>
@@ -137,7 +145,7 @@ function HeaderPrescription() {
                     <Col lg="auto" className='h-100'>
                         <div className='align-items-center d-flex h-100'>
                             <div className='border-end h-100 text-center'>
-                                <div onClick={showHideModal} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                                <div onClick={checkDataFillOrNot} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
                                     <i className='icon-right'></i>
                                 </div>
                                 <CommonModal

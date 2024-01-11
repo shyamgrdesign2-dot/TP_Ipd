@@ -120,7 +120,7 @@ function PrescriptionPrintView() {
                                     <span className="fw-semibold">Print</span>
                                     <i className="icon-right iconrotate90 ms-auto"></i>
                                 </Button>
-                                <Button
+                                {/* <Button
 
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
@@ -128,7 +128,7 @@ function PrescriptionPrintView() {
                                 >
                                     <span className="fw-semibold">Create Bill</span>
                                     <i className="icon-right iconrotate90 ms-auto"></i>
-                                </Button>
+                                </Button> */}
                                 <Button
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"

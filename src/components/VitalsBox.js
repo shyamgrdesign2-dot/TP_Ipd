@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 
 import { useSelector, useDispatch } from "react-redux";
 // import { v4 as uuidv4 } from 'uuid';
-
+import { MESSAGE_KEY } from "../utils/constants";
 import { onlyDecimalFormat } from "../utils/utils";
 
 import CashManagerContext from '../context/CashManagerContext';
@@ -25,7 +25,7 @@ function VitalsBox(props) {
     } = useSelector((state) => state.vitals);
     const dispatch = useDispatch();
 
-    const { state } = useContext(CashManagerContext);
+    const { patient_data } = useContext(CashManagerContext);
     const [vitalsData, setVitalsData] = useState([]);
 
     useEffect(() => {
@@ -78,8 +78,8 @@ function VitalsBox(props) {
         const calBMI = (weight / height / height) * 10000
         bmi = !isFinite(calBMI) ? '' : calBMI.toFixed(2);
 
-        var age = state != undefined && state.ageYears != undefined ? state.ageYears : 0
-        if (state != undefined && state.pm_gender == 'Male') {
+        var age = patient_data != undefined && patient_data.ageYears != undefined ? patient_data.ageYears : 0
+        if (patient_data != undefined && patient_data.pm_gender == 'Male') {
             const calBMR = (10 * weight) + (6.25 * height) - (5 * age) + 5;
             bmr = !isFinite(calBMR) ? '' : calBMR.toFixed(2);
         } else {
@@ -128,15 +128,22 @@ function VitalsBox(props) {
 
     const onAddUpdateClicked = async () => {
         var sendData = {
-            patient_unique_id: state != undefined ? state.patient_unique_id : 0,
-            pm_pid: state != undefined ? state.pm_pid : 0,
-            pm_id: state != undefined ? state.pm_id : 0,
-            pam_id: state != undefined && state.pam_id != undefined ? state.pam_id : 0,
+            patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
+            pm_pid: patient_data != undefined ? patient_data.pm_pid : 0,
+            pm_id: patient_data != undefined ? patient_data.pm_id : 0,
+            pam_id: patient_data != undefined && patient_data.pam_id != undefined ? patient_data.pam_id : 0,
             data: vitalsData,
         };
         const action = await dispatch(addUpdateVitals(sendData));
         if (action.meta.requestStatus == "fulfilled") {
             handleCollapsed(1)
+        } else {
+            messageApi.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
         }
     }
 
@@ -172,13 +179,13 @@ function VitalsBox(props) {
                             <Input className='inputheight41-group' inputMode="numeric" value={item.weight} addonAfter={'kgs'} onChange={(e) => onChangeInput(e.target.value, i, 8)} />
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14 '>{`${item.bmi != '' ? item.bmi : '--'} kg/m²`}</div>
+                            <div className='fs-14 '>{`${item.bmi != '' && (item.height && item.weight) ? item.bmi : '--'} kg/m²`}</div>
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14'>{`${item.bmr != '' ? item.bmr : '--'} kcals`}</div>
+                            <div className='fs-14'>{`${item.bmr != '' && (item.height && item.weight) ? item.bmr : '--'} kcals`}</div>
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14'>{`${item.bsa != '' ? item.bsa : '--'} m²`}</div>
+                            <div className='fs-14'>{`${item.bsa != '' && (item.height && item.weight) ? item.bsa : '--'} m²`}</div>
                         </div>
                     </div>
                 );
@@ -202,7 +209,7 @@ function VitalsBox(props) {
                         </Button>
                         <div className="modal-title">Vitals</div>
                     </div>
-                    <Button onClick={onAddUpdateClicked} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading}>
+                    <Button onClick={onAddUpdateClicked} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading} disabled={vitalsData.length > 0 ? false : true}>
                         Done
                     </Button>
                 </div>

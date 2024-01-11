@@ -579,7 +579,7 @@ function TabMedicationBox() {
                 return {
                     key: Math.random(),
                     value: option.value,
-                    label: <>{`${sinceValue} ${option.label}`}</>,
+                    label: <>{`${sinceValue}${option.label}`}</>,
                 };
             });
             setSinceOptions(options);
@@ -588,7 +588,7 @@ function TabMedicationBox() {
                 return {
                     key: Math.random(),
                     value: option.value,
-                    label: <>{`${inputSince} ${option.label}`}</>,
+                    label: <>{`${inputSince}${option.label}`}</>,
                 };
             });
             setSinceOptions(options);
@@ -614,7 +614,7 @@ function TabMedicationBox() {
                     return {
                         key: Math.random(),
                         value: option.value,
-                        label: <>{`${updateQuery} ${option.label}`}</>,
+                        label: <>{`${updateQuery}${option.label}`}</>,
                     };
                 });
                 setSinceOptions(options);
@@ -746,7 +746,7 @@ function TabMedicationBox() {
                                             </BSButton>
                                         )}
                                         <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={childDrawerData.tmf_block} onClick={() => !childDrawerData.tcm_tmm_freq_morning && morningClick()}>
-                                            <Input placeholder="Morning" value={childDrawerData.tcm_tmm_freq_morning ? childDrawerData.tcm_tmm_freq_morning : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputMorningChild} />
+                                            <Input placeholder="Morning" inputMode="numeric" value={childDrawerData.tcm_tmm_freq_morning ? childDrawerData.tcm_tmm_freq_morning : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputMorningChild} />
                                         </BSButton>
                                         {childDrawerData.tcm_tmm_freq_morning != undefined && childDrawerData.tcm_tmm_freq_morning != 0 && (
                                             <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={childDrawerData.tmf_block} onClick={morningIncrement}>
@@ -763,7 +763,7 @@ function TabMedicationBox() {
                                             </BSButton>
                                         )}
                                         <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={childDrawerData.tmf_block} onClick={() => !childDrawerData.tcm_tmm_freq_afternoon && afternoonClick()}>
-                                            <Input placeholder="Afternoon" value={childDrawerData.tcm_tmm_freq_afternoon ? childDrawerData.tcm_tmm_freq_afternoon : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputAfternoonChild} />
+                                            <Input placeholder="Afternoon" inputMode="numeric" value={childDrawerData.tcm_tmm_freq_afternoon ? childDrawerData.tcm_tmm_freq_afternoon : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputAfternoonChild} />
                                         </BSButton>
                                         {childDrawerData.tcm_tmm_freq_afternoon != undefined && childDrawerData.tcm_tmm_freq_afternoon != 0 && (
                                             <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={childDrawerData.tmf_block} onClick={afternoonIncrement}>
@@ -780,7 +780,7 @@ function TabMedicationBox() {
                                             </BSButton>
                                         )}
                                         <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={childDrawerData.tmf_block} onClick={() => !childDrawerData.tcm_tmm_freq_evening && eveningClick()}>
-                                            <Input placeholder="Evening" value={childDrawerData.tcm_tmm_freq_evening ? childDrawerData.tcm_tmm_freq_evening : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputEveningChild} />
+                                            <Input placeholder="Evening" inputMode="numeric" value={childDrawerData.tcm_tmm_freq_evening ? childDrawerData.tcm_tmm_freq_evening : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputEveningChild} />
                                         </BSButton>
                                         {childDrawerData.tcm_tmm_freq_evening != undefined && childDrawerData.tcm_tmm_freq_evening != 0 && (
                                             <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={childDrawerData.tmf_block} onClick={eveningIncrement}>
@@ -797,7 +797,7 @@ function TabMedicationBox() {
                                             </BSButton>
                                         )}
                                         <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={childDrawerData.tmf_block} onClick={() => !childDrawerData.tcm_tmm_freq_night && nightClick()}>
-                                            <Input placeholder="Night" value={childDrawerData.tcm_tmm_freq_night ? childDrawerData.tcm_tmm_freq_night : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputNightChild} />
+                                            <Input placeholder="Night" inputMode="numeric" value={childDrawerData.tcm_tmm_freq_night ? childDrawerData.tcm_tmm_freq_night : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputNightChild} />
                                         </BSButton>
                                         {childDrawerData.tcm_tmm_freq_night != undefined && childDrawerData.tcm_tmm_freq_night != 0 && (
                                             <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={childDrawerData.tmf_block} onClick={nightIncrement}>

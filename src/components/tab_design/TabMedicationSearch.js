@@ -324,7 +324,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 return {
                     key: Math.random(),
                     value: option.value,
-                    label: <>{`${sinceValue} ${option.label}`}</>,
+                    label: <>{`${sinceValue}${option.label}`}</>,
                 };
             });
             setSinceOptions(options);
@@ -333,7 +333,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 return {
                     key: Math.random(),
                     value: option.value,
-                    label: <>{`${inputSince} ${option.label}`}</>,
+                    label: <>{`${inputSince}${option.label}`}</>,
                 };
             });
             setSinceOptions(options);
@@ -361,7 +361,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                     return {
                         key: Math.random(),
                         value: option.value,
-                        label: <>{`${updateQuery} ${option.label}`}</>,
+                        label: <>{`${updateQuery}${option.label}`}</>,
                     };
                 });
                 setSinceOptions(options);
@@ -482,7 +482,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                                 </BSButton>
                                             )}
                                             <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={() => !medicationData[selectedIndex].tcm_tmm_freq_morning && morningClick()}>
-                                                <Input placeholder="Morning" value={medicationData[selectedIndex].tcm_tmm_freq_morning ? medicationData[selectedIndex].tcm_tmm_freq_morning : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputMorningChild} />
+                                                <Input placeholder="Morning" inputMode="numeric" value={medicationData[selectedIndex].tcm_tmm_freq_morning ? medicationData[selectedIndex].tcm_tmm_freq_morning : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputMorningChild} />
                                             </BSButton>
                                             {medicationData[selectedIndex].tcm_tmm_freq_morning != undefined && medicationData[selectedIndex].tcm_tmm_freq_morning != 0 && (
                                                 <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={morningIncrement}>
@@ -499,7 +499,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                                 </BSButton>
                                             )}
                                             <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={() => !medicationData[selectedIndex].tcm_tmm_freq_afternoon && afternoonClick()}>
-                                                <Input placeholder="Afternoon" value={medicationData[selectedIndex].tcm_tmm_freq_afternoon ? medicationData[selectedIndex].tcm_tmm_freq_afternoon : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputAfternoonChild} />
+                                                <Input placeholder="Afternoon" inputMode="numeric" value={medicationData[selectedIndex].tcm_tmm_freq_afternoon ? medicationData[selectedIndex].tcm_tmm_freq_afternoon : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputAfternoonChild} />
                                             </BSButton>
                                             {medicationData[selectedIndex].tcm_tmm_freq_afternoon != undefined && medicationData[selectedIndex].tcm_tmm_freq_afternoon != 0 && (
                                                 <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={afternoonIncrement}>
@@ -516,7 +516,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                                 </BSButton>
                                             )}
                                             <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={() => !medicationData[selectedIndex].tcm_tmm_freq_evening && eveningClick()}>
-                                                <Input placeholder="Evening" value={medicationData[selectedIndex].tcm_tmm_freq_evening ? medicationData[selectedIndex].tcm_tmm_freq_evening : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputEveningChild} />
+                                                <Input placeholder="Evening" inputMode="numeric" value={medicationData[selectedIndex].tcm_tmm_freq_evening ? medicationData[selectedIndex].tcm_tmm_freq_evening : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputEveningChild} />
                                             </BSButton>
                                             {medicationData[selectedIndex].tcm_tmm_freq_evening != undefined && medicationData[selectedIndex].tcm_tmm_freq_evening != 0 && (
                                                 <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={eveningIncrement}>
@@ -533,7 +533,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                                 </BSButton>
                                             )}
                                             <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={() => !medicationData[selectedIndex].tcm_tmm_freq_night && nightClick()}>
-                                                <Input placeholder="Night" value={medicationData[selectedIndex].tcm_tmm_freq_night ? medicationData[selectedIndex].tcm_tmm_freq_night : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputNightChild} />
+                                                <Input placeholder="Night" inputMode="numeric" value={medicationData[selectedIndex].tcm_tmm_freq_night ? medicationData[selectedIndex].tcm_tmm_freq_night : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputNightChild} />
                                             </BSButton>
                                             {medicationData[selectedIndex].tcm_tmm_freq_night != undefined && medicationData[selectedIndex].tcm_tmm_freq_night != 0 && (
                                                 <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={nightIncrement}>
