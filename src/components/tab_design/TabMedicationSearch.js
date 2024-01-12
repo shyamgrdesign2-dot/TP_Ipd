@@ -401,10 +401,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
     const onChangeSinceChild = useCallback(
         (key) => {
-            if (hasNumber(key)) {
+            // if (hasNumber(key)) {
                 medicationData[selectedIndex].tmm_duration_type = key;
                 setMedicationData((prev) => [...prev]);
-            }
+            // }
         },
         [selectedIndex, medicationData]
     );
@@ -441,8 +441,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                         <Select
                                             className="autocomplete-custom w-100 popinput inputheight38"
                                             placeholder="Select"
-                                            defaultValue={medicationData[selectedIndex].medicineUnit ? medicationData[selectedIndex].medicineUnit.findIndex(e => e.value == medicationData[selectedIndex].tmm_unit) != -1 ? medicationData[selectedIndex].tmm_unit : null : null}
-                                            value={medicationData[selectedIndex].medicineUnit ? medicationData[selectedIndex].medicineUnit.findIndex(e => e.value == medicationData[selectedIndex].tmm_unit) != -1 ? medicationData[selectedIndex].tmm_unit : null : null}
+                                            defaultValue={medicationData[selectedIndex].medicineUnit ? medicationData[selectedIndex].medicineUnit.findIndex(e => e.value == medicationData[selectedIndex].tmm_unit) != -1 ? parseInt(medicationData[selectedIndex].tmm_unit) : null : null}
+                                            value={medicationData[selectedIndex].medicineUnit ? medicationData[selectedIndex].medicineUnit.findIndex(e => e.value == medicationData[selectedIndex].tmm_unit) != -1 ? parseInt(medicationData[selectedIndex].tmm_unit) : null : null}
                                             onSelect={onSelectMedicineUnitChild}
                                             options={medicationData[selectedIndex].medicineUnit}
                                         />
@@ -456,8 +456,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                         <Select
                                             className="autocomplete-custom w-100 popinput inputheight38"
                                             placeholder="Select"
-                                            defaultValue={frequencyList ? frequencyList.findIndex(e => e.value == medicationData[selectedIndex].tmm_freq_type) != -1 ? medicationData[selectedIndex].tmm_freq_type : null : null}
-                                            value={frequencyList ? frequencyList.findIndex(e => e.value == medicationData[selectedIndex].tmm_freq_type) != -1 ? medicationData[selectedIndex].tmm_freq_type : null : null}
+                                            defaultValue={frequencyList ? frequencyList.findIndex(e => e.value == medicationData[selectedIndex].tmm_freq_type) != -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
+                                            value={frequencyList ? frequencyList.findIndex(e => e.value == medicationData[selectedIndex].tmm_freq_type) != -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
                                             onSelect={onSelectMedicineFrequencyChild}
                                             options={frequencyList}
                                         />

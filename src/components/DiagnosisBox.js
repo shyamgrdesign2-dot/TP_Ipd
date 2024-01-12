@@ -444,7 +444,7 @@ function DiagnosisBox() {
               <div className="fontroboto fw-medium">
                 <AutoComplete
                   defaultValue={item.tds_name}
-                  value={item.tds_name}
+                  // value={item.tds_name}
                   placeholder="Diagnosis Name"
                   bordered={false}
                   defaultOpen={false}
@@ -475,6 +475,7 @@ function DiagnosisBox() {
               <Select
                 className="autocomplete-custom w-100 inputborder"
                 placeholder="Status"
+                defaultValue={item.severity}
                 onSelect={(data) => onSelectStatusChild(data, index)}
                 options={STATUS_LIST}
               />
@@ -483,6 +484,7 @@ function DiagnosisBox() {
               <Input
                 className="notesinput border-0"
                 placeholder="Notes"
+                defaultValue={item.note}
                 onChange={(e) => onChangeNoteChild(e, index)}
               />
             </Col>

@@ -432,7 +432,7 @@ function SymptomsBox() {
               <div className="fontroboto fw-medium">
                 <AutoComplete
                   defaultValue={item.symptom_name}
-                  value={item.symptom_name}
+                  // value={item.symptom_name}
                   placeholder="Symptom Name"
                   bordered={false}
                   defaultOpen={false}
@@ -463,6 +463,7 @@ function SymptomsBox() {
               <Select
                 className="autocomplete-custom w-100 inputborder"
                 placeholder="Severity"
+                defaultValue={item.severity}
                 onSelect={(data) => onSelectSeverityChild(data, index)}
                 options={SEVERITY_LIST}
               />
@@ -471,6 +472,7 @@ function SymptomsBox() {
               <Input
                 className="notesinput border-0"
                 placeholder="Notes"
+                defaultValue={item.note}
                 onChange={(e) => onChangeNoteChild(e, index)}
               />
             </Col>

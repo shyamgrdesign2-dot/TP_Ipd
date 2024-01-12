@@ -552,7 +552,7 @@ function AppointmentData() {
                                         defaultValue={dayjs(getFormattedDate(date.startDate), dateFormat)}
                                         value={
                                             date.startDate === date.endDate
-                                                ? dayjs(getFormattedDate(date.startDate), "YYYY-MM-DD")
+                                                ? dayjs(getFormattedDate(date.startDate), dateFormat)
                                                 : ""
                                         }
                                         onChange={onDateChange}

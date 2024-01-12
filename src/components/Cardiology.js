@@ -12,6 +12,8 @@ import Investigationicon from "../assets/images/Lab.svg";
 import notesicon from '../assets/images/notes.svg';
 import calenderBlank from '../assets/images/calenderBlank.svg';
 
+import { hasNumber } from '../utils/utils'
+
 function Cardiology(props) {
 
     const navigate = useNavigate();
@@ -20,59 +22,63 @@ function Cardiology(props) {
     const [filteredInfo, setFilteredInfo] = useState({});
     const [setSortedInfo] = useState({});
 
-    const [data, setData] = useState([
-        {
-            key: Math.random(),
-            name: 'John Brown',
-            time: '10:30 am',
-            date: '9th Oct 2023',
-            gender: 'Female',
-            visittype: 'new',
-        },
-        {
-            key: Math.random(),
-            name: 'Jim Green',
-            time: '10:30 am',
-            date: '9th Oct 2023',
-            gender: 'Female',
-            visittype: 'new',
-        },
-        {
-            key: Math.random(),
-            name: 'Joe Black',
-            time: '10:30 am',
-            date: '9th Oct 2023',
-            gender: 'Male',
-            visittype: 'Follow Up',
-        },
-        {
-            key: Math.random(),
-            name: 'Jim Red',
-            time: '10:30 am',
-            date: '9th Oct 2023',
-            gender: 'Male',
-            visittype: 'new',
-        },
-        {
-            key: Math.random(),
-            name: 'Jim Red',
-            time: '10:30 am',
-            date: '9th Oct 2023',
-            gender: 'Female',
-            visittype: 'Follow Up',
-        }
-    ]);
+    // const [data, setData] = useState([
+    //     {
+    //         key: Math.random(),
+    //         name: 'Pan 40 Tablet',
+    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
+    //         duration: '3 Days',
+    //         qty: '3',
+    //         note: 'Lorem ipsum dolor',
+    //     },
+    //     {
+    //         key: Math.random(),
+    //         name: 'Pan 40 Tablet',
+    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
+    //         duration: '3 Days',
+    //         qty: '3',
+    //         note: 'Lorem ipsum dolor',
+    //     },
+    //     {
+    //         key: Math.random(),
+    //         name: 'Pan 40 Tablet',
+    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
+    //         duration: '3 Days',
+    //         qty: '3',
+    //         note: 'Follow Up',
+    //     },
+    //     {
+    //         key: Math.random(),
+    //         name: 'Pan 40 Tablet',
+    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
+    //         duration: '3 Days',
+    //         qty: '3',
+    //         note: 'Lorem ipsum dolor',
+    //     },
+    //     {
+    //         key: Math.random(),
+    //         name: 'Pan 40 Tablet',
+    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
+    //         duration: '3 Days',
+    //         qty: '3',
+    //         note: 'Follow Up',
+    //     }
+    // ]);
 
     const items = [
         {
-            label: 'Print Rx',
+            label: <div onClick={onPrintRxUrlClick}>Print Rx</div>,
             key: 'printrx',
         },
-        {
-            label: 'Saved as a Template',
-            key: 'SavedasTemplate',
-        }
+        // {
+        //     label: 'Saved as a Template',
+        //     key: 'SavedasTemplate',
+        // }
     ];
+
+    async function onPrintRxUrlClick() {
+        await window.open(viewCaseManagerData?.print_rx_url);
+    };
 
     const handleChange = (pagination, filters, sorter) => {
         console.log('Various parameters', pagination, filters, sorter);
@@ -82,27 +88,69 @@ function Cardiology(props) {
 
     const columns = [
         {
+            title: 'Rx',
+            dataIndex: 'rx',
+            key: 'rx',
+            width: '40px',
+            render: (text, record, index) => (
+                <div>
+                    <span>{index + 1}</span>
+                </div>
+            ),
+        },
+        {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            ellipsis: true,
+            render: (text, record) => (
+                <div className='lh-base'>
+                    <div className='fw-medium'>{record.tmm_medicine_name}</div>
+                    <small>{record.tmm_generic}</small>
+                </div>
+            ),
         },
         {
-            title: 'Visit Type',
-            dataIndex: 'visittype',
-            key: 'visittype',
-            ellipsis: true,
+            title: 'Time & Frequency',
+            dataIndex: 'TimeFrequency',
+            key: 'TimeFrequency',
+            render: (text, record) => (
+                <div className='lh-base'>
+                    {`${hasNumber(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${hasNumber(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${hasNumber(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${hasNumber(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} (Once a day)`}
+                    <div>After food</div>
+                </div>
+            ),
         },
         {
-            title: 'Slot',
-            dataIndex: 'time',
-            key: 'time',
-            filteredValue: filteredInfo.time || null,
+            title: 'Duration',
+            dataIndex: 'duration',
+            key: 'duration',
             ellipsis: true,
+            width: '70px',
+            render: (text, record) => (
+                <div>{`${record.tmm_days} - ${record.tmm_duration_type}`}</div>
+            ),
+        },
+        {
+            title: 'QTY',
+            dataIndex: 'qty',
+            key: 'qty',
+            width: '45px',
+            render: (text, record) => (
+                <div>{`${record.tmm_dosage ? record.tmm_dosage : '-'}`}</div>
+            ),
+        },
+        {
+            title: 'Note',
+            dataIndex: 'note',
+            key: 'note',
+            ellipsis: true,
+            render: (text, record) => (
+                <div>{`${record.tmm_remarks ? record.tmm_remarks : '-'}`}</div>
+            ),
         },
     ];
 
-    const printContent = async () => {
+    const onPrintUrlClick = async () => {
         await window.open(viewCaseManagerData?.print_url);
     };
 
@@ -135,7 +183,7 @@ function Cardiology(props) {
                                         >
                                             <i className="icon-Edit"></i>
                                         </button>
-                                        <button className="btn p-0 ms-3" onClick={printContent}>
+                                        <button className="btn p-0 ms-3" onClick={onPrintUrlClick}>
                                             <i className="icon-Print"></i>
                                         </button>
                                         <Dropdown className='btn btn-outline btn-more ms-1' menu={{ items, }} trigger={['click']}>
@@ -149,7 +197,7 @@ function Cardiology(props) {
                             <Card.Body className='p-0 cardbody-data'>
 
                                 <div>
-                                    <div className='p-3'>
+                                    <div className='p-3 pb-0'>
                                         {viewCaseManagerData.symptoms.length > 0 && (
                                             <div className='d-flex align-items-start mb-4'>
                                                 <img className='me-2' src={Symptomsicon} alt="Symptoms" />
@@ -195,18 +243,22 @@ function Cardiology(props) {
                                                 </div>
                                             </div>
                                         )}
-                                        {/* <div>
-<div className='d-flex align-items-center'>
-<img className='me-2' src={Medicationicon} alt="Medication" />
-<div>
-<div className='title'>Medication</div>
-</div>
-</div>
-<div className='border-top border-bottom mt-2'>
-<Table className='table-border' columns={columns} dataSource={data} onChange={handleChange} pagination={false} />
-</div>
-</div> */}
+                                        {viewCaseManagerData.medicine.length > 0 && (
+                                            <div className='d-flex align-items-center'>
+                                                <img className='me-2' src={Medicationicon} alt="Medication" />
+                                                <div>
+                                                    <div className='title'>Medication</div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
+                                    {viewCaseManagerData.medicine.length > 0 && (
+                                        <div>
+                                            <div className='border-top border-bottom mt-2'>
+                                                <Table className='table-border patient-medication' columns={columns} dataSource={viewCaseManagerData.medicine} onChange={handleChange} pagination={false} />
+                                            </div>
+                                        </div>
+                                    )}
                                     <div className='p-3'>
                                         {viewCaseManagerData.advice.length > 0 && (
                                             <div className='d-flex align-items-start mb-4'>

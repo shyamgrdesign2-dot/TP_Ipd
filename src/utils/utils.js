@@ -71,8 +71,9 @@ export const getFormattedDate = (date) => {
   if (!date) {
     return "";
   }
-  const dateObj = new Date(date + " UTC");
-  return moment(dateObj).format("YYYY-MM-DD");
+  // const dateObj = new Date(date + " UTC");
+  // return moment(dateObj).format("YYYY-MM-DD");
+  return moment(date).format("YYYY-MM-DD");
 };
 
 const getTime = (date) => {

@@ -651,9 +651,9 @@ function TabMedicationBox() {
 
     const onChangeSinceChild = useCallback(
         (key) => {
-            if (hasNumber(key)) {
+            // if (hasNumber(key)) {
                 setChildDrawerData({ ...childDrawerData, tmm_duration_type: key })
-            }
+            // }
         },
         [childDrawerData]
     );
@@ -705,8 +705,8 @@ function TabMedicationBox() {
                                     <Select
                                         className="autocomplete-custom w-100 popinput inputheight38"
                                         placeholder="Select"
-                                        defaultValue={childDrawerData.medicineUnit ? childDrawerData.medicineUnit.findIndex(e => e.value == childDrawerData.tmm_unit) != -1 ? childDrawerData.tmm_unit : null : null}
-                                        value={childDrawerData.medicineUnit ? childDrawerData.medicineUnit.findIndex(e => e.value == childDrawerData.tmm_unit) != -1 ? childDrawerData.tmm_unit : null : null}
+                                        defaultValue={childDrawerData.medicineUnit ? childDrawerData.medicineUnit.findIndex(e => e.value == childDrawerData.tmm_unit) != -1 ? parseInt(childDrawerData.tmm_unit) : null : null}
+                                        value={childDrawerData.medicineUnit ? childDrawerData.medicineUnit.findIndex(e => e.value == childDrawerData.tmm_unit) != -1 ? parseInt(childDrawerData.tmm_unit) : null : null}
                                         onSelect={onSelectMedicineUnitChild}
                                         options={childDrawerData.medicineUnit}
                                     />
@@ -720,8 +720,8 @@ function TabMedicationBox() {
                                     <Select
                                         className="autocomplete-custom w-100 popinput inputheight38"
                                         placeholder="Select"
-                                        defaultValue={frequencyList ? frequencyList.findIndex(e => e.value == childDrawerData.tmm_freq_type) != -1 ? childDrawerData.tmm_freq_type : null : null}
-                                        value={frequencyList ? frequencyList.findIndex(e => e.value == childDrawerData.tmm_freq_type) != -1 ? childDrawerData.tmm_freq_type : null : null}
+                                        defaultValue={frequencyList ? frequencyList.findIndex(e => e.value == childDrawerData.tmm_freq_type) != -1 ? parseInt(childDrawerData.tmm_freq_type) : null : null}
+                                        value={frequencyList ? frequencyList.findIndex(e => e.value == childDrawerData.tmm_freq_type) != -1 ? parseInt(childDrawerData.tmm_freq_type) : null : null}
                                         onSelect={onSelectMedicineFrequencyChild}
                                         options={frequencyList}
                                     />
