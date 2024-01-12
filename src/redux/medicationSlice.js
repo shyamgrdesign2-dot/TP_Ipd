@@ -222,7 +222,7 @@ const medicationSlice = createSlice({
       .addCase(showMedicineTime.fulfilled, (state, action) => {
         const updatedData = action.payload.map((e) => {
           return {
-            key: Math.random(),
+            key: JSON.stringify({ ...e }),
             value: e.tmt_id,
             label: <>{e.tmt_title}</>,
           };

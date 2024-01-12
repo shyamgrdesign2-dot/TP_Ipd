@@ -94,7 +94,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 const updatedData = action.payload.map(e => {
                     const medicineUnit = e?.medicineUnit.map((e1) => {
                         return {
-                            key: Math.random(),
+                            key: JSON.stringify({ ...e1 }),
                             value: e1.tmu_id,
                             label: <>{e1.tmu_title}</>,
                         };
@@ -136,7 +136,13 @@ function TabMedicationSearch({ passIndex, onClose }) {
                             setSelectedIndex(index)
                             setSinceValue(item.tmm_days ? parseInt(item.tmm_days) : 1)
                         }}>
-                            <div className="text-truncate">{item.tmm_medicine_name}</div>
+                            <div className="text-truncate">{item.tmm_medicine_name}
+                                {(item.tmm_dosage || item.tmm_unit_name || (item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != '') || (item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != '') || (item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != '') || (item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != '') || item.tmm_time_name) ? (
+                                    <div className="text-truncate small">{`${item.tmm_dosage ? item.tmm_dosage + ' ' : ''}${item.tmm_unit_name ? item.tmm_unit_name + ' | ' : ''}${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != '' ? item.tcm_tmm_freq_morning + ' - ' : '0 -'}${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != '' ? item.tcm_tmm_freq_afternoon + ' - ' : '0 -'}${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != '' ? item.tcm_tmm_freq_evening + ' - ' : '0 -'}${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != '' ? item.tcm_tmm_freq_night + ' | ' : '0 |'}${item.tmm_time_name ? item.tmm_time_name : ''}`}</div>
+                                ) : (
+                                    <div className="text-truncate small">Add Details</div>
+                                )}
+                            </div>
                         </div>
                         <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
                             <i className="icon-Cross"></i>
@@ -158,9 +164,14 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
     const onSelectMedicineUnitChild = useCallback(
         (data) => {
-            medicationData[selectedIndex].tmm_unit = data;
-            medicationData[selectedIndex].tmu_id = data;
-            setMedicationData((prev) => [...prev]);
+            const obj = medicationData[selectedIndex].medicineUnit ? medicationData[selectedIndex].medicineUnit.find(e => e.value == data) : null
+            if (obj && obj != undefined) {
+                const objParse = JSON.parse(obj.key)
+                medicationData[selectedIndex].tmm_unit = objParse.tmu_id;
+                medicationData[selectedIndex].tmm_unit_name = objParse.tmu_title;
+                medicationData[selectedIndex].tmu_id = objParse.tmu_id;
+                setMedicationData((prev) => [...prev]);
+            }
         },
         [selectedIndex, medicationData]
     );
@@ -171,6 +182,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             if (obj != undefined) {
                 const objParse = JSON.parse(obj.key)
                 medicationData[selectedIndex].tmm_freq_type = objParse.tmf_id;
+                medicationData[selectedIndex].tmm_freq_type_name = objParse.tmf_title;
                 medicationData[selectedIndex].tmf_block = objParse.tmf_block;
                 setMedicationData((prev) => [...prev]);
             }
@@ -312,8 +324,13 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
     const onSelectMedicineTimingChild = useCallback(
         (data) => {
-            medicationData[selectedIndex].tmm_time = data;
-            setMedicationData((prev) => [...prev]);
+            const obj = timingList.find(e => e.value == data)
+            if (obj != undefined) {
+                const objParse = JSON.parse(obj.key)
+                medicationData[selectedIndex].tmm_time = objParse.tmt_id;
+                medicationData[selectedIndex].tmm_time_name = objParse.tmt_title;
+                setMedicationData((prev) => [...prev]);
+            }
         },
         [selectedIndex, medicationData]
     );
@@ -390,7 +407,6 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
     const onChangeSegmentedSinceChild = useCallback(
         (key) => {
-            console.log(key)
             setSinceValue(key)
             medicationData[selectedIndex].tmm_days = key != -1 ? key : 0;
             medicationData[selectedIndex].tmm_duration_type = '';
@@ -402,8 +418,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
     const onChangeSinceChild = useCallback(
         (key) => {
             // if (hasNumber(key)) {
-                medicationData[selectedIndex].tmm_duration_type = key;
-                setMedicationData((prev) => [...prev]);
+            medicationData[selectedIndex].tmm_duration_type = key;
+            setMedicationData((prev) => [...prev]);
             // }
         },
         [selectedIndex, medicationData]

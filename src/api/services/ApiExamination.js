@@ -21,8 +21,14 @@ ApiExamination.getExaminationTemplates = function (query) {
   return api.get(`/api/v1/examination/listTemplate`, baseUrl);
 };
 
+// ApiExamination.getFrequentlySearchedExamination = function () {
+//   return api.get(`/api/v1/examination/frequentlyExamination`, baseUrl);
+// };
+
 ApiExamination.getFrequentlySearchedExamination = function () {
-  return api.get(`/api/v1/examination/frequentlyExamination`, baseUrl);
+  return api.post(`/api/v1/examination/searchExamination`, {
+      search: "CD Title"
+  }, baseUrl);
 };
 
 ApiExamination.searchExamination = function (query) {

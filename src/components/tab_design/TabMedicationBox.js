@@ -107,7 +107,7 @@ function TabMedicationBox() {
                 const updatedData = action.payload.map(e => {
                     const medicineUnit = e?.medicineUnit.map((e1) => {
                         return {
-                            key: Math.random(),
+                            key: JSON.stringify({ ...e1 }),
                             value: e1.tmu_id,
                             label: <>{e1.tmu_title}</>,
                         };
@@ -178,7 +178,7 @@ function TabMedicationBox() {
             const updatedData = action.payload.map(e => {
                 const medicineUnit = e?.medicineUnit.map((e1) => {
                     return {
-                        key: Math.random(),
+                        key: JSON.stringify({ ...e1 }),
                         value: e1.tmu_id,
                         label: <>{e1.tmu_title}</>,
                     };
@@ -286,7 +286,13 @@ function TabMedicationBox() {
                 return (
                     <div key={index} style={{ width: item.tmm_medicine_name.length > 12 && item.tmm_medicine_name.length < 24 ? `${item.tmm_medicine_name.length * 10.5}px` : item.tmm_medicine_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active">
                         <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
-                            <div className="text-truncate">{item.tmm_medicine_name}</div>
+                            <div className="text-truncate">{item.tmm_medicine_name}
+                                {(item.tmm_dosage || item.tmm_unit_name || (item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != '') || (item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != '') || (item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != '') || (item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != '') || item.tmm_time_name) ? (
+                                    <div className="text-truncate small">{`${item.tmm_dosage ? item.tmm_dosage + ' ' : ''}${item.tmm_unit_name ? item.tmm_unit_name + ' | ' : ''}${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != '' ? item.tcm_tmm_freq_morning + ' - ' : '0 -'}${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != '' ? item.tcm_tmm_freq_afternoon + ' - ' : '0 -'}${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != '' ? item.tcm_tmm_freq_evening + ' - ' : '0 -'}${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != '' ? item.tcm_tmm_freq_night + ' | ' : '0 |'}${item.tmm_time_name ? item.tmm_time_name : ''}`}</div>
+                                ) : (
+                                    <div className="text-truncate small">Add Details</div>
+                                )}
+                            </div>
                         </div>
                         <Button type="text" className="border-start rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
                             <i className="icon-Cross"></i>
@@ -410,7 +416,11 @@ function TabMedicationBox() {
 
     const onSelectMedicineUnitChild = useCallback(
         (data) => {
-            setChildDrawerData({ ...childDrawerData, tmm_unit: data, tmu_id: data })
+            const obj = childDrawerData.medicineUnit ? childDrawerData.medicineUnit.find(e => e.value == data) : null
+            if (obj && obj != undefined) {
+                const objParse = JSON.parse(obj.key)
+                setChildDrawerData({ ...childDrawerData, tmm_unit: objParse.tmu_id, tmm_unit_name: objParse.tmu_title, tmu_id: objParse.tmu_id })
+            }
         },
         [childDrawerData]
     );
@@ -420,7 +430,7 @@ function TabMedicationBox() {
             const obj = frequencyList.find(e => e.value == data)
             if (obj != undefined) {
                 const objParse = JSON.parse(obj.key)
-                setChildDrawerData({ ...childDrawerData, tmm_freq_type: objParse.tmf_id, tmf_block: objParse.tmf_block })
+                setChildDrawerData({ ...childDrawerData, tmm_freq_type: objParse.tmf_id, tmm_freq_type_name: objParse.tmf_title, tmf_block: objParse.tmf_block })
             }
         },
         [childDrawerData]
@@ -568,7 +578,11 @@ function TabMedicationBox() {
 
     const onSelectMedicineTimingChild = useCallback(
         (data) => {
-            setChildDrawerData({ ...childDrawerData, tmm_time: data })
+            const obj = timingList.find(e => e.value == data)
+            if (obj != undefined) {
+                const objParse = JSON.parse(obj.key)
+                setChildDrawerData({ ...childDrawerData, tmm_time: objParse.tmt_id, tmm_time_name: objParse.tmt_title })
+            }
         },
         [childDrawerData]
     );
@@ -652,7 +666,7 @@ function TabMedicationBox() {
     const onChangeSinceChild = useCallback(
         (key) => {
             // if (hasNumber(key)) {
-                setChildDrawerData({ ...childDrawerData, tmm_duration_type: key })
+            setChildDrawerData({ ...childDrawerData, tmm_duration_type: key })
             // }
         },
         [childDrawerData]
