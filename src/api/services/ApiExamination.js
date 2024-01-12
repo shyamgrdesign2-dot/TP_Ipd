@@ -6,11 +6,11 @@ const baseUrl = { customBaseUrl: config.examination_api_url }
 const ApiExamination = {};
 
 ApiExamination.addTemplate = function (template) {
-    return api.post(`/api/v1/examination/addTemplate`, template, baseUrl);
+  return api.post(`/api/v1/examination/addTemplate`, template, baseUrl);
 };
 
 ApiExamination.updateTemplate = function (template) {
-    return api.post(`/api/v1/examination/editTemplate`, template, baseUrl);
+  return api.post(`/api/v1/examination/editTemplate`, template, baseUrl);
 };
 
 ApiExamination.deleteTemplate = function (templateId) {
@@ -22,14 +22,12 @@ ApiExamination.getExaminationTemplates = function (query) {
 };
 
 ApiExamination.getFrequentlySearchedExamination = function () {
-  return api.post(`/api/v1/examination/searchExamination`, {
-      search: "CD Title"
-  }, baseUrl);
+  return api.get(`/api/v1/examination/frequentlyExamination`, baseUrl);
 };
 
 ApiExamination.searchExamination = function (query) {
   return api.post(`/api/v1/examination/searchExamination`, {
-      search: query
+    search: query
   }, baseUrl);
 };
 

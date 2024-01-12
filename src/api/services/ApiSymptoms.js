@@ -6,11 +6,11 @@ const baseUrl = { customBaseUrl: config.symptoms_api_url }
 const ApiSymptoms = {};
 
 ApiSymptoms.addTemplate = function (template) {
-    return api.post(`/api/v1/symptoms/addTemplate`, template, baseUrl);
+  return api.post(`/api/v1/symptoms/addTemplate`, template, baseUrl);
 };
 
 ApiSymptoms.updateTemplate = function (template) {
-    return api.post(`/api/v1/symptoms/editTemplate`, template, baseUrl);
+  return api.post(`/api/v1/symptoms/editTemplate`, template, baseUrl);
 };
 
 ApiSymptoms.deleteTemplate = function (templateId) {
@@ -22,14 +22,12 @@ ApiSymptoms.getSymptomsTemplates = function (query) {
 };
 
 ApiSymptoms.getFrequentlySearchedSymptoms = function () {
-  return api.post(`/api/v1/symptoms/searchSymptoms`, {
-      search: "CD Title"
-  }, baseUrl);
+  return api.get(`/api/v1/symptoms/frequentlySymptoms`, baseUrl);
 };
 
 ApiSymptoms.searchSymptoms = function (query) {
   return api.post(`/api/v1/symptoms/searchSymptoms`, {
-      search: query
+    search: query
   }, baseUrl);
 };
 
