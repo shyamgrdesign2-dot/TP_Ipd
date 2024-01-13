@@ -30,8 +30,8 @@ function TabMedicationBox() {
         selectedMedicationList,
         parentOptionsList,
         templates,
-        frequencyList,
         timingList,
+        frequencyList,
         loading,
     } = useSelector((state) => state.medication);
     const dispatch = useDispatch();
@@ -58,8 +58,6 @@ function TabMedicationBox() {
     const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
 
     const [selectedIndex, setSelectedIndex] = useState(null);
-    const [frequencyData, setFrequencyData] = useState([]);
-    const [timingData, setTimingData] = useState([]);
     const SINCE_OPTIONS = [
         { value: "day(s)", label: "D" },
         { value: "week(s)", label: "W" },
@@ -91,28 +89,6 @@ function TabMedicationBox() {
         setAllTemplates(templates);
     }, [templates]);
 
-    useEffect(() => {
-        const updatedData = frequencyList.map((e) => {
-            return {
-                key: Math.random(),
-                value: e.tmf_id,
-                label: <>{e.tmf_title}</>,
-            };
-        });
-        setFrequencyData(updatedData)
-    }, [frequencyList]);
-
-    useEffect(() => {
-        const updatedData = timingList.map((e) => {
-            return {
-                key: Math.random(),
-                value: e.tmt_id,
-                label: <>{e.tmt_title}</>,
-            };
-        });
-        setTimingData(updatedData)
-    }, [timingList]);
-
     const onRemoveRow = (index) => {
         medicationData.splice(index, 1);
         setMedicationData((prev) => [...prev]);
@@ -136,19 +112,7 @@ function TabMedicationBox() {
                             label: <>{e1.tmu_title}</>,
                         };
                     });
-
-                    const unitObj = medicineUnit ? medicineUnit.find(x => x.value == e.tmm_unit) : null
-                    const frequencyObj = frequencyList.find(x => x.tmf_id == e.tmm_freq_type)
-                    const timingObj = timingList.find(x => x.tmt_id == e.tmm_time)
-
-                    return {
-                        ...e,
-                        tmm_unit_name: unitObj && unitObj != undefined ? JSON.parse(unitObj.key).tmu_title : "",
-                        tmm_freq_type_name: frequencyObj != undefined ? frequencyObj.tmf_title : "",
-                        tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
-                        medicineUnit: medicineUnit,
-                        unique_id: uuidv4()
-                    }
+                    return { ...e, medicineUnit: medicineUnit, unique_id: uuidv4() }
                 })
                 medicationData.push({
                     ...updatedData[0],
@@ -219,19 +183,7 @@ function TabMedicationBox() {
                         label: <>{e1.tmu_title}</>,
                     };
                 });
-
-                const unitObj = medicineUnit ? medicineUnit.find(x => x.value == e.tmm_unit) : null
-                const frequencyObj = frequencyList.find(x => x.tmf_id == e.tmm_freq_type)
-                const timingObj = timingList.find(x => x.tmt_id == e.tmm_time)
-
-                return {
-                    ...e,
-                    tmm_unit_name: unitObj && unitObj != undefined ? JSON.parse(unitObj.key).tmu_title : "",
-                    tmm_freq_type_name: frequencyObj != undefined ? frequencyObj.tmf_title : "",
-                    tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
-                    medicineUnit: medicineUnit,
-                    unique_id: uuidv4()
-                }
+                return { ...e, medicineUnit: medicineUnit, unique_id: uuidv4() }
             })
             setMedicationData([...medicationData, ...updatedData]);
             handleDrawerTemplate();
@@ -475,9 +427,10 @@ function TabMedicationBox() {
 
     const onSelectMedicineFrequencyChild = useCallback(
         (data) => {
-            const obj = frequencyList.find(e => e.tmf_id == data)
+            const obj = frequencyList.find(e => e.value == data)
             if (obj != undefined) {
-                setChildDrawerData({ ...childDrawerData, tmm_freq_type: obj.tmf_id, tmm_freq_type_name: obj.tmf_title, tmf_block: obj.tmf_block })
+                const objParse = JSON.parse(obj.key)
+                setChildDrawerData({ ...childDrawerData, tmm_freq_type: objParse.tmf_id, tmm_freq_type_name: objParse.tmf_title, tmf_block: objParse.tmf_block })
             }
         },
         [childDrawerData]
@@ -625,9 +578,10 @@ function TabMedicationBox() {
 
     const onSelectMedicineTimingChild = useCallback(
         (data) => {
-            const obj = timingList.find(e => e.tmt_id == data)
+            const obj = timingList.find(e => e.value == data)
             if (obj != undefined) {
-                setChildDrawerData({ ...childDrawerData, tmm_time: obj.tmt_id, tmm_time_name: obj.tmt_title })
+                const objParse = JSON.parse(obj.key)
+                setChildDrawerData({ ...childDrawerData, tmm_time: objParse.tmt_id, tmm_time_name: objParse.tmt_title })
             }
         },
         [childDrawerData]
@@ -780,20 +734,20 @@ function TabMedicationBox() {
                                     <Select
                                         className="autocomplete-custom w-100 popinput inputheight38"
                                         placeholder="Select"
-                                        defaultValue={frequencyList ? frequencyList.findIndex(e => e.tmf_id == childDrawerData.tmm_freq_type) != -1 ? parseInt(childDrawerData.tmm_freq_type) : null : null}
-                                        value={frequencyList ? frequencyList.findIndex(e => e.tmf_id == childDrawerData.tmm_freq_type) != -1 ? parseInt(childDrawerData.tmm_freq_type) : null : null}
+                                        defaultValue={frequencyList ? frequencyList.findIndex(e => e.value == childDrawerData.tmm_freq_type) != -1 ? parseInt(childDrawerData.tmm_freq_type) : null : null}
+                                        value={frequencyList ? frequencyList.findIndex(e => e.value == childDrawerData.tmm_freq_type) != -1 ? parseInt(childDrawerData.tmm_freq_type) : null : null}
                                         onSelect={onSelectMedicineFrequencyChild}
-                                        options={frequencyData}
+                                        options={frequencyList}
                                     />
                                 </Col>
                                 <Col md={12}>
                                     <Select
                                         className="autocomplete-custom w-100 popinput inputheight38"
                                         placeholder="Select"
-                                        defaultValue={timingList ? timingList.findIndex(e => e.tmt_id == childDrawerData.tmm_time) != -1 ? parseInt(childDrawerData.tmm_time) : null : null}
-                                        value={timingList ? timingList.findIndex(e => e.tmt_id == childDrawerData.tmm_time) != -1 ? parseInt(childDrawerData.tmm_time) : null : null}
+                                        defaultValue={timingList ? timingList.findIndex(e => e.value == childDrawerData.tmm_time) != -1 ? parseInt(childDrawerData.tmm_time) : null : null}
+                                        value={timingList ? timingList.findIndex(e => e.value == childDrawerData.tmm_time) != -1 ? parseInt(childDrawerData.tmm_time) : null : null}
                                         onSelect={onSelectMedicineTimingChild}
-                                        options={timingData}
+                                        options={timingList}
                                     />
                                 </Col>
                             </Row>
@@ -933,7 +887,7 @@ function TabMedicationBox() {
                     </div>
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
-                    {parentDrawer && (<TabMedicationSearch passIndex={selectedIndex} onClose={handleDrawerParent} frequencyData={frequencyData} timingData={timingData} />)}
+                    {parentDrawer && (<TabMedicationSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
                 </Drawer>
                 <div className="d-flex flex-wrap p-14-pb0">
                     {parentOptionsList.length > 0 &&

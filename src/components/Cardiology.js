@@ -115,8 +115,8 @@ function Cardiology(props) {
             key: 'TimeFrequency',
             render: (text, record) => (
                 <div className='lh-base'>
-                    {`${hasNumber(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${hasNumber(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${hasNumber(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${hasNumber(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} (Once a day)`}
-                    <div>After food</div>
+                    {`${hasNumber(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${hasNumber(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${hasNumber(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${hasNumber(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} (${record.tmm_freq_type_name})`}
+                    <div>{record.tmm_time_name}</div>
                 </div>
             ),
         },

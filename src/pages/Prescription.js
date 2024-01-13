@@ -29,8 +29,10 @@ function Prescription() {
   const [investigationData, setInvestigationData] = useState([]);
   const [medicationData, setMedicationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
+  const [followUpDate, setFollowUpDate] = useState(null);
+  const [additionalNote, setAdditionalNote] = useState('');
 
-  const contextApi = { patient_data, tcmId, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData };
+  const contextApi = { patient_data, tcmId, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote };
 
   const [collapsedFlag, setCollapsedFlag] = useState(1);
   const [vitalDrawer, setVitalDrawer] = useState(false);

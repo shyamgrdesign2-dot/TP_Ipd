@@ -16,14 +16,14 @@ import {
 
 import TabSearchHeader from "./TabSearchHeader";
 
-function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) {
+function TabMedicationSearch({ passIndex, onClose }) {
 
     const [messageApi, contextHolder] = message.useMessage();
     const {
         parentOptionsList,
         childOptionsList,
-        frequencyList,
         timingList,
+        frequencyList,
     } = useSelector((state) => state.medication);
     const dispatch = useDispatch();
 
@@ -99,24 +99,11 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                             label: <>{e1.tmu_title}</>,
                         };
                     });
-
-                    const unitObj = medicineUnit ? medicineUnit.find(x => x.value == e.tmm_unit) : null
-                    const frequencyObj = frequencyList.find(x => x.tmf_id == e.tmm_freq_type)
-                    const timingObj = timingList.find(x => x.tmt_id == e.tmm_time)
-
-                    return {
-                        ...e,
-                        tmm_unit_name: unitObj && unitObj != undefined ? JSON.parse(unitObj.key).tmu_title : "",
-                        tmm_freq_type_name: frequencyObj != undefined ? frequencyObj.tmf_title : "",
-                        tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
-                        medicineUnit: medicineUnit,
-                        unique_id: uuidv4()
-                    }
+                    return { ...e, medicineUnit: medicineUnit, unique_id: uuidv4() }
                 })
                 medicationData.push({
                     ...updatedData[0],
                 });
-                console.log(medicationData)
                 setMedicationData((prev) => [...prev]);
                 setSelectedIndex(medicationData.length - 1);
                 setSinceValue(1)
@@ -191,11 +178,12 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
 
     const onSelectMedicineFrequencyChild = useCallback(
         (data) => {
-            const obj = frequencyList.find(e => e.tmf_id == data)
+            const obj = frequencyList.find(e => e.value == data)
             if (obj != undefined) {
-                medicationData[selectedIndex].tmm_freq_type = obj.tmf_id;
-                medicationData[selectedIndex].tmm_freq_type_name = obj.tmf_title;
-                medicationData[selectedIndex].tmf_block = obj.tmf_block;
+                const objParse = JSON.parse(obj.key)
+                medicationData[selectedIndex].tmm_freq_type = objParse.tmf_id;
+                medicationData[selectedIndex].tmm_freq_type_name = objParse.tmf_title;
+                medicationData[selectedIndex].tmf_block = objParse.tmf_block;
                 setMedicationData((prev) => [...prev]);
             }
         },
@@ -336,10 +324,11 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
 
     const onSelectMedicineTimingChild = useCallback(
         (data) => {
-            const obj = timingList.find(e => e.tmt_id == data)
+            const obj = timingList.find(e => e.value == data)
             if (obj != undefined) {
-                medicationData[selectedIndex].tmm_time = obj.tmt_id;
-                medicationData[selectedIndex].tmm_time_name = obj.tmt_title;
+                const objParse = JSON.parse(obj.key)
+                medicationData[selectedIndex].tmm_time = objParse.tmt_id;
+                medicationData[selectedIndex].tmm_time_name = objParse.tmt_title;
                 setMedicationData((prev) => [...prev]);
             }
         },
@@ -483,20 +472,20 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                                         <Select
                                             className="autocomplete-custom w-100 popinput inputheight38"
                                             placeholder="Select"
-                                            defaultValue={frequencyList ? frequencyList.findIndex(e => e.tmf_id == medicationData[selectedIndex].tmm_freq_type) != -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
-                                            value={frequencyList ? frequencyList.findIndex(e => e.tmf_id == medicationData[selectedIndex].tmm_freq_type) != -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
+                                            defaultValue={frequencyList ? frequencyList.findIndex(e => e.value == medicationData[selectedIndex].tmm_freq_type) != -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
+                                            value={frequencyList ? frequencyList.findIndex(e => e.value == medicationData[selectedIndex].tmm_freq_type) != -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
                                             onSelect={onSelectMedicineFrequencyChild}
-                                            options={frequencyData}
+                                            options={frequencyList}
                                         />
                                     </Col>
                                     <Col md={12}>
                                         <Select
                                             className="autocomplete-custom w-100 popinput inputheight38"
                                             placeholder="Select"
-                                            defaultValue={timingList ? timingList.findIndex(e => e.tmt_id == medicationData[selectedIndex].tmm_time) != -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
-                                            value={timingList ? timingList.findIndex(e => e.tmt_id == medicationData[selectedIndex].tmm_time) != -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
+                                            defaultValue={timingList ? timingList.findIndex(e => e.value == medicationData[selectedIndex].tmm_time) != -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
+                                            value={timingList ? timingList.findIndex(e => e.value == medicationData[selectedIndex].tmm_time) != -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
                                             onSelect={onSelectMedicineTimingChild}
-                                            options={timingData}
+                                            options={timingList}
                                         />
                                     </Col>
                                 </Row>

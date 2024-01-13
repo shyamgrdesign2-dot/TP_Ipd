@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import { Layout, Drawer } from 'antd';
+import { Layout, Drawer, DatePicker, Input, Button, Col, Row } from 'antd';
 import { Content } from "antd/es/layout/layout";
 
 import CashManagerContext from '../../context/CashManagerContext';
@@ -11,6 +11,7 @@ import TabDiagnosisBox from "../../components/tab_design/TabDiagnosisBox";
 import TabMedicationBox from "../../components/tab_design/TabMedicationBox";
 import TabAdviceBox from "../../components/tab_design/TabAdviceBox";
 import TabInvestigationBox from "../../components/tab_design/TabInvestigationBox";
+import TabFollowUpBox from "../../components/tab_design/TabFollowUpBox";
 
 import VitalsBox from "../../components/VitalsBox";
 import TabVitalsList from "../../components/tab_design/TabVitalsList";
@@ -35,8 +36,10 @@ function TabPrescription() {
     const [investigationData, setInvestigationData] = useState([]);
     const [medicationData, setMedicationData] = useState([]);
     const [vitalsData, setVitalsData] = useState([]);
+    const [followUpDate, setFollowUpDate] = useState(null);
+    const [additionalNote, setAdditionalNote] = useState('');
 
-    const contextApi = { patient_data, tcmId, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData };
+    const contextApi = { patient_data, tcmId, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote };
 
     const [collapsed, setCollapsed] = useState(false);
     const [collapsedFlag, setCollapsedFlag] = useState(1);
@@ -135,6 +138,7 @@ function TabPrescription() {
                                 <TabMedicationBox />
                                 <TabAdviceBox />
                                 <TabInvestigationBox />
+                                <TabFollowUpBox />
                             </Content>
                         </div>
                     </Layout>

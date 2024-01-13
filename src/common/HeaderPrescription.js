@@ -26,7 +26,7 @@ function HeaderPrescription() {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
-    const { patient_data, tcmId, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData } = useContext(CashManagerContext);
+    const { patient_data, tcmId, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -44,6 +44,8 @@ function HeaderPrescription() {
         setInvestigationData([])
         setMedicationData([])
         // setVitalsData([])
+        setFollowUpDate(null)
+        setAdditionalNote('')
     }
     // const languageItems = [
     //     {
@@ -113,7 +115,9 @@ function HeaderPrescription() {
                 medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
                 advice: adviceData,
                 investigation: investigationData,
-                vitals: vitalsData
+                vitals: vitalsData,
+                follow_up_date: followUpDate,
+                visit_advice: additionalNote,
             }
 
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))

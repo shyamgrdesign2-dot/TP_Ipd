@@ -43,12 +43,12 @@ ApiMedication.searchMedication = function (query) {
   }, baseUrl);
 };
 
-ApiMedication.showMedicineTime = function () {
-  return api.get(`/api/v1/medicine/showMedicineTime`, baseUrl);
-};
-
 ApiMedication.showMedicineFrequency = function () {
   return api.get(`/api/v1/medicine/showMedicineFrequency`, baseUrl);
+};
+
+ApiMedication.showMedicineTime = function () {
+  return api.get(`/api/v1/medicine/showMedicineTime`, baseUrl);
 };
 
 export default ApiMedication;

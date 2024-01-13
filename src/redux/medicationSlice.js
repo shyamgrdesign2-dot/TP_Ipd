@@ -115,19 +115,6 @@ export const searchMedication = createAsyncThunk(
   }
 );
 
-export const showMedicineTime = createAsyncThunk(
-  "medication/showMedicineTime",
-  async () => {
-    let result = {};
-    result = await ApiMedication.showMedicineTime();
-    if (result.status) {
-      return result.data;
-    } else {
-      throw Error(result.error);
-    }
-  }
-);
-
 export const showMedicineFrequency = createAsyncThunk(
   "medication/showMedicineFrequency",
   async () => {
@@ -141,6 +128,18 @@ export const showMedicineFrequency = createAsyncThunk(
   }
 );
 
+export const showMedicineTime = createAsyncThunk(
+  "medication/showMedicineTime",
+  async () => {
+    let result = {};
+    result = await ApiMedication.showMedicineTime();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
 
 const medicationSlice = createSlice({
   name: "medication",
@@ -219,31 +218,31 @@ const medicationSlice = createSlice({
           state.childOptionsList = [];
         }
       })
-      .addCase(showMedicineTime.fulfilled, (state, action) => {
-        const updatedData = action.payload.map((e) => {
-          return {
-            key: JSON.stringify({ ...e }),
-            value: e.tmt_id,
-            label: <>{e.tmt_title}</>,
-          };
-        });
-        state.timingList = updatedData;
-      })
-      .addCase(showMedicineTime.rejected, (state) => {
-        state.timingList = [];
-      })
       .addCase(showMedicineFrequency.fulfilled, (state, action) => {
-        const updatedData = action.payload.map((e) => {
-          return {
-            key: JSON.stringify({ ...e }),
-            value: e.tmf_id,
-            label: <>{e.tmf_title}</>,
-          };
-        });
-        state.frequencyList = updatedData;
+        // const updatedData = action.payload.map((e) => {
+        //   return {
+        //     key: JSON.stringify({ ...e }),
+        //     value: e.tmf_id,
+        //     label: <>{e.tmf_title}</>,
+        //   };
+        // });
+        state.frequencyList = action.payload;
       })
       .addCase(showMedicineFrequency.rejected, (state) => {
         state.frequencyList = [];
+      })
+      .addCase(showMedicineTime.fulfilled, (state, action) => {
+        // const updatedData = action.payload.map((e) => {
+        //   return {
+        //     key: JSON.stringify({ ...e }),
+        //     value: e.tmt_id,
+        //     label: <>{e.tmt_title}</>,
+        //   };
+        // });
+        state.timingList = action.payload;
+      })
+      .addCase(showMedicineTime.rejected, (state) => {
+        state.timingList = [];
       });
   },
 });
