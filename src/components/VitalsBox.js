@@ -13,6 +13,7 @@ import {
     addUpdateVitals,
     getVitals,
 } from "../redux/vitalsSlice";
+import moment from "moment";
 
 function VitalsBox(props) {
 
@@ -34,6 +35,30 @@ function VitalsBox(props) {
         });
         setVitalsData(updatedData);
     }, [vitalsTodayList]);
+
+    useEffect(() => {
+        if (vitalsData.length == 0) {
+            let cal = calculate('', '');
+            vitalsData.push({
+                date: moment().format("YYYY-MM-DD"),
+                dev_unique_id: 0,
+                tcv_id: 0,
+                tcbc_id: 0,
+                temp: '',
+                pres: '',
+                resp_rate: '',
+                systolic: '',
+                diastolic: '',
+                spo2: '',
+                height: '',
+                weight: '',
+                bmi: cal.bmi,
+                bmr: cal.bmr,
+                bsa: cal.bsa,
+            });
+            setVitalsData((prev) => [...prev]);
+        }
+    }, [vitalsData]);
 
     const onChange = useCallback(
         (date, dateString) => {
@@ -76,19 +101,19 @@ function VitalsBox(props) {
         }
 
         const calBMI = (weight / height / height) * 10000
-        bmi = !isFinite(calBMI) ? '' : calBMI.toFixed(2);
+        bmi = weight && height ? isFinite(calBMI) ? calBMI.toFixed(2) : '' : '';
 
         var age = patient_data != undefined && patient_data.ageYears != undefined ? patient_data.ageYears : 0
         if (patient_data != undefined && patient_data.pm_gender == 'Male') {
             const calBMR = (10 * weight) + (6.25 * height) - (5 * age) + 5;
-            bmr = !isFinite(calBMR) ? '' : calBMR.toFixed(2);
+            bmr = weight && height ? isFinite(calBMR) ? calBMR.toFixed(2) : '' : '';
         } else {
             const calBMR = (10 * weight) + (6.25 * height) - (5 * age) - 161;
-            bmr = !isFinite(calBMR) ? '' : calBMR.toFixed(2);
+            bmr = weight && height ? isFinite(calBMR) ? calBMR.toFixed(2) : '' : '';
         }
 
         const calBSA = Math.sqrt(height * weight / 3600);
-        bsa = !isFinite(calBSA) ? '' : calBSA.toFixed(2);
+        bsa = weight && height ? isFinite(calBSA) ? calBSA.toFixed(2) : '' : '';
 
         return { bmi: bmi, bmr: bmr, bsa: bsa }
     }
@@ -179,13 +204,13 @@ function VitalsBox(props) {
                             <Input className='inputheight41-group' inputMode="numeric" value={item.weight} addonAfter={'kgs'} onChange={(e) => onChangeInput(e.target.value, i, 8)} />
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14 '>{`${item.bmi != '' && (item.height && item.weight) ? item.bmi : '--'} kg/m²`}</div>
+                            <div className='fs-14 '>{`${item.bmi != '' ? item.bmi : '--'} kg/m²`}</div>
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14'>{`${item.bmr != '' && (item.height && item.weight) ? item.bmr : '--'} kcals`}</div>
+                            <div className='fs-14'>{`${item.bmr != '' ? item.bmr : '--'} kcals`}</div>
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14'>{`${item.bsa != '' && (item.height && item.weight) ? item.bsa : '--'} m²`}</div>
+                            <div className='fs-14'>{`${item.bsa != '' ? item.bsa : '--'} m²`}</div>
                         </div>
                     </div>
                 );

@@ -63,6 +63,9 @@ function TabPrescription() {
             if (caseManagerData.investigation.length > 0) {
                 setInvestigationData(caseManagerData.investigation)
             }
+            if (caseManagerData.vitals.length > 0) {
+                setVitalsData(caseManagerData.vitals)
+            }
             if (caseManagerData.medicine.length > 0) {
                 setMedicationData(caseManagerData.medicine)
             }
@@ -88,7 +91,7 @@ function TabPrescription() {
                 <div className='w-100 bg-body wrapper2 custom-scroll prescription-wrapper p-0'>
                     <Layout>
                         <div className="prescription-sidebar">
-                            <button type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && handleDrawerVital()}>
+                            <button type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length == 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
                                 <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                     <img src={vitalsWhite} alt="Vitals" />
                                 </div>

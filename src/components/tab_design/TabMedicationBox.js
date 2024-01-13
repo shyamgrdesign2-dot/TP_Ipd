@@ -19,6 +19,7 @@ import {
     getFrequentlySearchedMedication,
     showMedicineTime,
     showMedicineFrequency,
+    getLoadPreviousRx,
 } from "../../redux/medicationSlice";
 
 import TabMedicationSearch from "../../components/tab_design/TabMedicationSearch";
@@ -205,6 +206,43 @@ function TabMedicationBox() {
             setMatchedTemplates(filteredTemplates);
         } else {
             setMatchedTemplates(templates);
+        }
+    };
+
+    const loadPreviousRxClick = async () => {
+        const action = await dispatch(getLoadPreviousRx());
+        if (action.meta.requestStatus == "fulfilled") {
+            const updatedData = action.payload.map(e => {
+                const medicineUnit = e?.medicineUnit.map((e1) => {
+                    return {
+                        key: JSON.stringify({ ...e1 }),
+                        value: e1.tmu_id,
+                        label: <>{e1.tmu_title}</>,
+                    };
+                });
+
+                const unitObj = medicineUnit ? medicineUnit.find(x => x.value == e.tmm_unit) : null
+                const frequencyObj = frequencyList.find(x => x.tmf_id == e.tmm_freq_type)
+                const timingObj = timingList.find(x => x.tmt_id == e.tmm_time)
+
+                return {
+                    ...e,
+                    tmm_unit_name: unitObj && unitObj != undefined ? JSON.parse(unitObj.key).tmu_title : "",
+                    tmm_freq_type_name: frequencyObj != undefined ? frequencyObj.tmf_title : "",
+                    tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
+                    medicineUnit: medicineUnit,
+                    unique_id: uuidv4()
+                }
+            })
+            setMedicationData([...medicationData, ...updatedData]);
+            handleDrawerTemplate();
+        } else {
+            messageApi.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
         }
     };
 
@@ -908,7 +946,7 @@ function TabMedicationBox() {
                     </div>
 
                     <div className="d-flex align-items-center">
-                        <button className='btn d-flex align-items-center btn-text'> <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span></button>
+                        <button className='btn d-flex align-items-center btn-text' onClick={loadPreviousRxClick}> <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span></button>
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerTemplate}> <i className="icon-template me-2"></i> <span>Templates</span></button>
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerSave}> <i className="icon-save me-2"></i> <span>Save</span></button>
                     </div>

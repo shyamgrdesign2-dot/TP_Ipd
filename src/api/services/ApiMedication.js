@@ -51,4 +51,8 @@ ApiMedication.showMedicineTime = function () {
   return api.get(`/api/v1/medicine/showMedicineTime`, baseUrl);
 };
 
+ApiMedication.getLoadPreviousRx = function () {
+  return api.get(`/api/v1/medicine/getLoadPreviousRx`, baseUrl);
+};
+
 export default ApiMedication;

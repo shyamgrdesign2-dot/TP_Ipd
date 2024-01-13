@@ -43,7 +43,7 @@ function HeaderPrescription() {
         setAdviceData([])
         setInvestigationData([])
         setMedicationData([])
-        // setVitalsData([])
+        setVitalsData([])
         setFollowUpDate(null)
         setAdditionalNote('')
     }
