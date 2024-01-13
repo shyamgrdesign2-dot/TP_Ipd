@@ -141,6 +141,19 @@ export const showMedicineTime = createAsyncThunk(
   }
 );
 
+export const getLoadPreviousRx = createAsyncThunk(
+  "medication/getLoadPreviousRx",
+  async () => {
+    let result = {};
+    result = await ApiMedication.getLoadPreviousRx();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 const medicationSlice = createSlice({
   name: "medication",
   initialState,
