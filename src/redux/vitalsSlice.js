@@ -45,7 +45,6 @@ const vitalsSlice = createSlice({
             })
             .addCase(addUpdateVitals.fulfilled, (state, action) => {
                 state.loading = false;
-                console.log(action.payload)
                 state.vitalsTodayList = action.payload;
             })
             .addCase(addUpdateVitals.rejected, (state) => {
@@ -56,8 +55,7 @@ const vitalsSlice = createSlice({
             })
             .addCase(getVitals.fulfilled, (state, action) => {
                 state.loading = false;
-                state.vitalsTodayList = action.payload.today_data;
-                state.vitalsPastList = action.payload.past_data;
+                state.vitalsPastList = action.payload;
             })
             .addCase(getVitals.rejected, (state) => {
                 state.loading = false;
