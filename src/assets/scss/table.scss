@@ -14,7 +14,9 @@ body {
             letter-spacing: 0.1px;
         }
     }
-
+    .ant-table-filter-column, .ant-table-column-sorters {
+        float: left;
+    } 
     .ant-table {
         .btn.btn-more {
             font-size: 20px;

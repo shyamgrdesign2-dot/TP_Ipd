@@ -189,10 +189,10 @@ function VitalsBox(props) {
                             <Input className='inputheight41-group' inputMode="numeric" value={item.resp_rate} addonAfter={'/min'} onChange={(e) => onChangeInput(e.target.value, i, 3)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' inputMode="numeric" value={item.systolic} addonAfter={'mmhg'} onChange={(e) => onChangeInput(e.target.value, i, 4)} />
+                            <Input className='inputheight41-group' inputMode="numeric" value={item.systolic} addonAfter={'mmHg'} onChange={(e) => onChangeInput(e.target.value, i, 4)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' inputMode="numeric" value={item.diastolic} addonAfter={'mmhg'} onChange={(e) => onChangeInput(e.target.value, i, 5)} />
+                            <Input className='inputheight41-group' inputMode="numeric" value={item.diastolic} addonAfter={'mmHg'} onChange={(e) => onChangeInput(e.target.value, i, 5)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' inputMode="numeric" value={item.spo2} addonAfter={'%'} onChange={(e) => onChangeInput(e.target.value, i, 6)} />
