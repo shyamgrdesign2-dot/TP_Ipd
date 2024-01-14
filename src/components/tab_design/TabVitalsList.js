@@ -64,11 +64,11 @@ function TabVitalsList(props) {
                                 <div className="fontroboto">{item.resp_rate}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Systolic(mmhg)</div>
+                                <div className="fontroboto">Systolic(mmHg)</div>
                                 <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[0] : ''}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Diastolic(mmhg)</div>
+                                <div className="fontroboto">Diastolic(mmHg)</div>
                                 <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[1] : ''}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
@@ -113,11 +113,11 @@ function TabVitalsList(props) {
                                 <div className="fontroboto">{item.resp_rate}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Systolic(mmhg)</div>
+                                <div className="fontroboto">Systolic(mmHg)</div>
                                 <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[0] : ''}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Diastolic(mmhg)</div>
+                                <div className="fontroboto">Diastolic(mmHg)</div>
                                 <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[1] : ''}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">

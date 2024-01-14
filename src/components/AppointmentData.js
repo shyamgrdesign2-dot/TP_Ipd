@@ -316,7 +316,7 @@ function AppointmentData() {
             },
             render: (text, record) => (
                 <div>
-                    <span>{record.apTime} </span> <br /> <small> {record.apDate}</small>
+                    <span className="text-lowercase">{record.apTime} </span> <br /> <small> {record.apDate}</small>
                 </div>
             ),
         },

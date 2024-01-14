@@ -322,4 +322,27 @@ body {
     .bg-selected {
         background-color: $drawerHeaderColor;
     }
+    .anticon-filter {
+        svg {
+            display: none;
+        }
+        &:after {
+            content: "\e928";
+            font-family: "icomoon" !important;
+            font-size: 18px;
+            font-weight: 400;
+        }
+    }
+    .ant-table-column-sorter-inner {
+        .anticon svg {
+            display: none;
+        }
+        &:after {
+            content: "\e927";
+            font-family: "icomoon" !important;
+            font-size: 18px;
+            margin-left: 5px;
+            font-weight: 400;
+        }
+    }
 }

@@ -24,11 +24,11 @@ function VitalsBodyComposition({ loading, passVitals }) {
         },
         {
             key: '4',
-            name: `Systolic (mmhg)`,
+            name: `Systolic (mmHg)`,
         },
         {
             key: '5',
-            name: `Diastolic (mmhg)`,
+            name: `Diastolic (mmHg)`,
         },
         {
             key: '6',
