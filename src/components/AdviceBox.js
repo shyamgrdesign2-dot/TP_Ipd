@@ -392,7 +392,7 @@ function AdviceBox() {
                     className="text-truncate w-100"
                     onClick={() => onTemplateSelected(template)}
                   >
-                    <div className="title">{template.tat_template_name}</div>
+                    <div className="title text-main2">{template.tat_template_name}</div>
                     <div className="text-truncate">
                       {template.advices.map((item, ii) => {
                         return (

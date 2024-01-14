@@ -405,7 +405,7 @@ function TabMedicationBox() {
                                         <div className="align-items-center d-flex text-truncate w-100" onClick={() => onTemplateSelected(template.tmtd_id)}>
                                             <div className="round-box"><i className="icon-template"></i></div>
                                             <div className="text-truncate w-100">
-                                                <div className="title">{template.tmtd_template_name}</div>
+                                                <div className="title text-main2">{template.tmtd_template_name}</div>
                                             </div>
                                         </div>
                                         <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => onDeleteTemplateClicked(template.tmtd_id)}>

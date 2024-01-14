@@ -265,7 +265,7 @@ function TabExaminationBox() {
                                         <div className="align-items-center d-flex text-truncate w-100" onClick={() => onTemplateSelected(template)}>
                                             <div className="round-box"><i className="icon-template"></i></div>
                                             <div className="text-truncate w-100">
-                                                <div className="title">{template.tet_template_name}</div>
+                                                <div className="title text-main2">{template.tet_template_name}</div>
                                                 <div className="text-truncate">
                                                     {template.examination.map((item, ii) => {
                                                         return (

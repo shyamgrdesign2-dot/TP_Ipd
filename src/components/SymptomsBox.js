@@ -532,7 +532,7 @@ function SymptomsBox() {
                     className="text-truncate w-100"
                     onClick={() => onTemplateSelected(template)}
                   >
-                    <div className="title">{template.tst_template_name}</div>
+                    <div className="title text-main2">{template.tst_template_name}</div>
                     <div className="text-truncate">
                       {template.symptoms.map((item, ii) => {
                         return (

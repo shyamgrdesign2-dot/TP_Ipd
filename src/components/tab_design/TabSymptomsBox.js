@@ -279,7 +279,7 @@ function TabSymptomsBox() {
                                         <div className="align-items-center d-flex text-truncate w-100" onClick={() => onTemplateSelected(template)}>
                                             <div className="round-box"><i className="icon-template"></i></div>
                                             <div className="text-truncate w-100">
-                                                <div className="title">{template.tst_template_name}</div>
+                                                <div className="title text-main2">{template.tst_template_name}</div>
                                                 <div className="text-truncate">
                                                     {template.symptoms.map((item, ii) => {
                                                         return (
