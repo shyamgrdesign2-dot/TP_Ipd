@@ -455,7 +455,7 @@ function ExaminationBox() {
                     className="text-truncate w-100"
                     onClick={() => onTemplateSelected(template)}
                   >
-                    <div className="title">{template.tet_template_name}</div>
+                    <div className="title text-main2">{template.tet_template_name}</div>
                     <div className="text-truncate">
                       {template.examination.map((item, ii) => {
                         return (

@@ -544,7 +544,7 @@ function DiagnosisBox() {
                     className="text-truncate w-100"
                     onClick={() => onTemplateSelected(template)}
                   >
-                    <div className="title">{template.tdt_template_name}</div>
+                    <div className="title text-main2">{template.tdt_template_name}</div>
                     <div className="text-truncate">
                       {template.diagnosis.map((item, ii) => {
                         return (

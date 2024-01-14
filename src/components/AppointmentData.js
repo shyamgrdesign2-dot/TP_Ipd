@@ -279,7 +279,7 @@ function AppointmentData() {
                     <span className="text-primary">{record.pm_fullname}</span>
                     <br />
                     <small>
-                        {record.pm_gender}, {record.ageYears}
+                        {record.pm_gender}, {record.ageYears}y
                     </small>
                 </div>
             ),
@@ -478,10 +478,13 @@ function AppointmentData() {
                     <>
                         <div className="d-flex align-items-center">
                             <i className="icon-patients me-2" />
-                            <span>
-                                {appointmentSelectedFromMenu?.pm_fullname} (
-                                {appointmentSelectedFromMenu?.pm_gender},{" "}
-                                {appointmentSelectedFromMenu?.ageYears}y)
+                            <span className="title-common fontroboto">
+                                {appointmentSelectedFromMenu?.pm_fullname}
+                                <span className="fw-normal ms-2">
+                                    (
+                                    {appointmentSelectedFromMenu?.pm_gender},{" "}
+                                    {appointmentSelectedFromMenu?.ageYears}y)
+                                </span>
                             </span>
                         </div>
                     </>
@@ -623,7 +626,7 @@ function AppointmentData() {
                             className="btn-41 px-4"
                             loading={loading}
                             disabled={!endVisitReason}>
-                            Save
+                            Done
                         </Button>
                     </Space>
                 }
