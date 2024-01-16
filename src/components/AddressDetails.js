@@ -65,12 +65,12 @@ function AddressDetails({ form }) {
         <>
             {!isMobile && (
                 <div className="d-flex justify-content-between">
-                    <div className="title">Personal Details</div>
+                    <div className="title">Address Details</div>
                     <Button
                         className="border-0 shadow-none"
                         onClick={() => setShowDetails(!showDetails)}>
                         <div className="title align-items-center d-flex">
-                            <i className={`${showDetails ? 'icon-minus' : 'icon-Add'} me-2`} /> {showDetails ? 'Show Less' : 'Add Details'}
+                            <i className={`${showDetails ? 'icon-minus' : 'icon-Add'} me-2`} /> <span className="text-decoration-underline"> {showDetails ? 'Show Less' : 'Add Details'} </span>
                         </div>
                     </Button>
                 </div>
@@ -83,7 +83,7 @@ function AddressDetails({ form }) {
                                 // rules={rules.pincode}
                             >
                                 <Input
-                                    placeholder="Enter Pin Code"
+                                    placeholder="Pincode"
                                     type="number"
                                     maxLength={6}
                                     onChange={onChange}
@@ -104,7 +104,7 @@ function AddressDetails({ form }) {
                         </Col>
                         <Col xs={24} sm={24} md={12} lg={12}>
                             <Form.Item name="pm_address" label="Street Address">
-                                <Input placeholder="Address" />
+                                <Input placeholder="Street Address" />
                             </Form.Item>
                         </Col>
                     </Row>

@@ -6,7 +6,7 @@ import { makeDefaultLogo } from "../utils/utils";
 
 function SidebarPatient({ collapsed, patient_data }) {
     const menu = [
-        { icon_name: 'icon-Visit-Summary', short_title: 'Visit', long_title: 'Visit Summary' },
+        { icon_name: 'icon-Visit-Summary-Fill', short_title: 'Visit', long_title: 'Visit Summary' },
         // { icon_name: 'icon-Report', short_title: 'Reports', long_title: 'Medical Reports (3)' },
         // { icon_name: 'icon-Discharge-Summary', short_title: 'Discharge', long_title: 'Discharge Summary' },
         // { icon_name: 'icon-Medical-Certificate', short_title: 'Certificate', long_title: 'Medical Certificate' },

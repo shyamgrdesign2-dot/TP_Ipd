@@ -132,9 +132,6 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                             <span className="text-truncate-twolines">{selectedIndex != null && investigationData[selectedIndex].investigation_name}</span>
                         </div>
                         <div className="p-4">
-                            <label className="title-common">
-                                Add Details
-                            </label>
                             <Input.TextArea value={selectedIndex != null && investigationData[selectedIndex].note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                         </div>
                     </div>

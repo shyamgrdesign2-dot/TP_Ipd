@@ -394,7 +394,7 @@ function InvestigationBox() {
             <Col lg={14} md={14} sm={13} xs={13} className="border-end">
               <Input
                 className="notesinput border-0"
-                placeholder="Notes"
+                placeholder="Instruction"
                 defaultValue={item.note}
                 onChange={(e) => onChangeNoteChild(e, index)}
               />

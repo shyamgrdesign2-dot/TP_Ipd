@@ -538,3 +538,6 @@ body {
         }
     }
 }
+.ant-picker .ant-picker-input >input:hover, .ant-picker:hover {
+    border-color: $theme;
+}

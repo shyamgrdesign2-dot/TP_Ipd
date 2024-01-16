@@ -6,7 +6,8 @@ import moment from "moment";
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
 import { onlyNumberFormat, getFormattedDate } from "../../utils/utils";
-import Symptomsicon from "../../assets/images/Symptoms.svg";
+import Notes from "../../assets/images/notes.svg";
+import followUp from "../../assets/images/followup.svg";
 
 const dateFormat = 'YYYY-MM-DD'
 
@@ -70,11 +71,14 @@ function TabFollowUpBox() {
                     <Row gutter={30}>
                         <Col md={7}>
                             <div className="d-flex align-items-center mb-14">
-                                <img className='me-2' src={Symptomsicon} alt="Symptoms" />
+                                <img className='me-2' src={followUp} alt="Symptoms" />
                                 <div className="title-common">Follow-up</div>
                             </div>
                             {/* <DatePicker className="w-100" /> */}
-                            <Input className="w-100" placeholder="e.g. 3 Days" value={followUpInput} inputMode="numeric" onChange={onChangeFollowUp} allowClear />
+                            <div className="d-flex">
+                                <Input className="w-100" placeholder="e.g. 3 Days" value={followUpInput} inputMode="numeric" onChange={onChangeFollowUp} allowClear />
+                                <DatePicker inputReadOnly/>
+                            </div>
                             {followUpDate && (
                                 <div className="title fontroboto mt-2">
                                     {moment(followUpDate).format('dddd, Do MMMM YYYY')}
@@ -91,7 +95,7 @@ function TabFollowUpBox() {
                         </Col>
                         <Col md={17}>
                             <div className="d-flex align-items-center mb-14">
-                                <img className='me-2' src={Symptomsicon} alt="Symptoms" />
+                                <img className='me-2' src={Notes} alt="Symptoms" />
                                 <div className="title-common">Additional Notes</div>
                             </div>
                             <div className="textarea-save">

@@ -137,7 +137,7 @@ function PersonalDetails({ form }) {
                         className="border-0 shadow-none"
                         onClick={() => setShowDetails(!showDetails)}>
                         <div className="title align-items-center d-flex">
-                            <i className={`${showDetails ? 'icon-minus' : 'icon-Add'} me-2`} /> {showDetails ? 'Show Less' : 'Add Details'}
+                            <i className={`${showDetails ? 'icon-minus' : 'icon-Add'} me-2`} /> <span className="text-decoration-underline">{showDetails ? 'Show Less' : 'Add Details'}</span>
                         </div>
                     </Button>
                 </div>
@@ -195,7 +195,7 @@ function PersonalDetails({ form }) {
                                     <Input
                                         className="w-48"
                                         type="number"
-                                        placeholder="Years"
+                                        placeholder="Year"
                                         value={ageYearsMonths?.years}
                                         onChange={(e) => {
                                             setAgeYearsMonths({

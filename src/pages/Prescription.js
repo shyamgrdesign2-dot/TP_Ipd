@@ -84,7 +84,7 @@ function Prescription() {
                 <div className="d-flex align-items-center justify-content-between">
                   <div className="d-flex align-items-center">
                     <img src={vitals} alt="vitals" className="me-3" />
-                    <div className="title-common">Vitals & Calculator</div>
+                    <div className="title-common">Vitals & Body Composition</div>
                   </div>
                   <button className="btn d-flex align-items-center btn-text" onClick={handleDrawerVital}>
                     {" "}

@@ -164,11 +164,11 @@ function Cardiology(props) {
                                 <div className='d-flex align-items-center justify-content-between'>
                                     <div>
                                         <div className='title2'>{`${viewCaseManagerData?.doctor_data?.doctor_name} | ${viewCaseManagerData?.doctor_data?.dp_name}`}</div>
-                                        <div className='subtitle'>{viewCaseManagerData?.showConsultationDateTime}</div>
+                                        <div className='subtitle text-lowercase'>{viewCaseManagerData?.showConsultationDateTime}</div>
                                     </div>
-                                    <div>
-                                        <Button className="btn border rounded-3 p-1 me-2 antdesable-custom" onClick={nextPress} disabled={viewCaseManagerData?.next_tcm_id ? false : true}>
-                                            <i className="icon-right"></i>
+                                    <div className='align-items-center d-flex'>
+                                        <Button className="btn border rounded-3 px-1 me-2 antdesable-custom" onClick={nextPress} disabled={viewCaseManagerData?.next_tcm_id ? false : true}>
+                                            <i className="icon-right d-block"></i>
                                         </Button>
                                         {`${tcmData.page}/${viewCaseManagerData?.total_consultation}`}
                                         <Button className="btn border rounded-3 antdesable-custom p-1 ms-2" onClick={prevPress} disabled={viewCaseManagerData?.prev_tcm_id ? false : true}>

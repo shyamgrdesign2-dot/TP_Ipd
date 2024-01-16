@@ -393,9 +393,6 @@ function TabInvestigationBox() {
                         </div>
                     </Card>
                     <div className="p-4">
-                        <label className="title-common">
-                            Add Details
-                        </label>
                         <Input.TextArea value={childDrawerData.note != undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                     </div>
                 </>
