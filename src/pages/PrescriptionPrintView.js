@@ -1,12 +1,20 @@
 import React, { useState, useCallback } from "react";
-import { useLocation } from 'react-router-dom';
-import { Col, Row, Select, Button } from "antd";
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Col, Row, Select, Button, message } from "antd";
 import { isMobile } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 
 import messageSent from '../assets/images/message-sent.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
+
+import { MESSAGE_KEY } from "../utils/constants";
+
+import { useSelector, useDispatch } from "react-redux";
+
+import {
+    viewCaseManager,
+} from "../redux/caseManagerSlice";
 
 const LANGUAGE_LIST = [
     {
@@ -52,7 +60,15 @@ const LANGUAGE_LIST = [
 ]
 function PrescriptionPrintView() {
 
+    const {
+        loading,
+    } = useSelector((state) => state.caseManager);
+    const dispatch = useDispatch();
+
+    const navigate = useNavigate();
+
     const { state } = useLocation();
+    const { patient_data } = state
 
     const [selectedLang, setSelectedLang] = useState(1);
 
@@ -75,24 +91,43 @@ function PrescriptionPrintView() {
 
     const handleDownload = async () => {
         try {
-          const response = await axios({
-            // url: "https://morth.nic.in/sites/default/files/dd12-13_0.pdf",
-            url:printUrl,
-            method: 'GET',
-            responseType: 'blob', // Important for binary data
-          });
-      
-          const blob = new Blob([response.data], { type: response.headers['content-type'] });
-          saveAs(blob, `${Date.now()}.pdf`);
+            const response = await axios({
+                // url: "https://morth.nic.in/sites/default/files/dd12-13_0.pdf",
+                url: printUrl,
+                method: 'GET',
+                responseType: 'blob', // Important for binary data
+            });
+
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+            saveAs(blob, `${Date.now()}.pdf`);
         } catch (error) {
-          console.error('Error downloading file:', error);
-          // Handle errors gracefully, e.g., display an error message to the user
+            console.error('Error downloading file:', error);
+            // Handle errors gracefully, e.g., display an error message to the user
         }
-      };
+    };
+
+    const onEditPrescriptionClick = async () => {
+        var sendData = {
+            patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
+            tcm_id: state.tcm_id
+        }
+        const action = await dispatch(viewCaseManager(sendData));
+        if (action.meta.requestStatus == "fulfilled") {
+            navigate("/prescription", { replace: true, state: { patient_data: patient_data, caseManagerData: action.payload } })
+        } else {
+            message.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
+        }
+
+    };
 
     return (
         <>
-            <HeaderPrescriptionPrint state={state} />
+            <HeaderPrescriptionPrint patient_data={patient_data} />
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 custom-scroll prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
@@ -142,6 +177,8 @@ function PrescriptionPrintView() {
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
                                     icon={<i className="icon-Edit"></i>}
+                                    onClick={onEditPrescriptionClick}
+                                    loading={loading}
                                 >
                                     <span className="fw-semibold">Edit Prescription</span>
                                     <i className="icon-right iconrotate90 ms-auto"></i>

@@ -22,10 +22,14 @@ ApiInvestigation.getInvestigationTemplates = function (query) {
 };
 
 ApiInvestigation.getFrequentlySearchedInvestigation = function () {
-  return api.post(`/api/v1/investigation/searchInvestigation`, {
-      search: "li"
-  }, baseUrl);
+  return api.get(`/api/v1/investigation/frequentlyInvestigation`, baseUrl);
 };
+
+// ApiInvestigation.getFrequentlySearchedInvestigation = function () {
+//   return api.post(`/api/v1/investigation/searchInvestigation`, {
+//       search: "li"
+//   }, baseUrl);
+// };
 
 ApiInvestigation.searchInvestigation = function (query) {
   return api.post(`/api/v1/investigation/searchInvestigation`, {

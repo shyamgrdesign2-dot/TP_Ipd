@@ -122,7 +122,7 @@ function HeaderPrescription() {
 
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
             if (action.meta.requestStatus == "fulfilled") {
-                navigate('/prescription_print_view', { state: { ...action.payload, ...patient_data } })
+                navigate('/prescription_print_view', { state: { ...action.payload, patient_data: patient_data } })
             } else {
                 message.open({
                     MESSAGE_KEY,

@@ -21,15 +21,15 @@ ApiSymptoms.getSymptomsTemplates = function (query) {
   return api.get(`/api/v1/symptoms/listTemplate`, baseUrl);
 };
 
-// ApiSymptoms.getFrequentlySearchedSymptoms = function () {
-//   return api.get(`/api/v1/symptoms/frequentlySymptoms`, baseUrl);
-// };
-
 ApiSymptoms.getFrequentlySearchedSymptoms = function () {
-  return api.post(`/api/v1/symptoms/searchSymptoms`, {
-      search: "CD Title"
-  }, baseUrl);
+  return api.get(`/api/v1/symptoms/frequentlySymptoms`, baseUrl);
 };
+
+// ApiSymptoms.getFrequentlySearchedSymptoms = function () {
+//   return api.post(`/api/v1/symptoms/searchSymptoms`, {
+//       search: "CD Title"
+//   }, baseUrl);
+// };
 
 ApiSymptoms.searchSymptoms = function (query) {
   return api.post(`/api/v1/symptoms/searchSymptoms`, {

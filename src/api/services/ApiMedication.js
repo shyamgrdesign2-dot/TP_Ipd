@@ -32,10 +32,14 @@ ApiMedication.getMedicineDetails = function (query) {
 };
 
 ApiMedication.getFrequentlySearchedMedication = function () {
-  return api.post(`/api/v1/medicine/searchMedicine`, {
-    search: "dolo"
-  }, baseUrl);
+  return api.get(`/api/v1/medicine/frequentlyMedicine`, baseUrl);
 };
+
+// ApiMedication.getFrequentlySearchedMedication = function () {
+//   return api.post(`/api/v1/medicine/searchMedicine`, {
+//     search: "dolo"
+//   }, baseUrl);
+// };
 
 ApiMedication.searchMedication = function (query) {
   return api.post(`/api/v1/medicine/searchMedicine`, {
@@ -51,8 +55,8 @@ ApiMedication.showMedicineTime = function () {
   return api.get(`/api/v1/medicine/showMedicineTime`, baseUrl);
 };
 
-ApiMedication.getLoadPreviousRx = function () {
-  return api.get(`/api/v1/medicine/getLoadPreviousRx`, baseUrl);
+ApiMedication.getLoadPreviousRx = function (data) {
+  return api.post(`/api/v1/medicine/getLoadPreviousRx`, data, baseUrl);
 };
 
 export default ApiMedication;
