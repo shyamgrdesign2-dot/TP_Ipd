@@ -22,10 +22,14 @@ ApiDiagnosis.getDiagnosisTemplates = function (query) {
 };
 
 ApiDiagnosis.getFrequentlySearchedDiagnosis = function () {
-    return api.post(`/api/v1/diagnosis/searchDiagnosis`, {
-        search: "ches"
-    }, baseUrl);
+  return api.get(`/api/v1/diagnosis/frequentlyDiagnosis`, baseUrl);
 };
+
+// ApiDiagnosis.getFrequentlySearchedDiagnosis = function () {
+//     return api.post(`/api/v1/diagnosis/searchDiagnosis`, {
+//         search: "ches"
+//     }, baseUrl);
+// };
 
 ApiDiagnosis.searchDiagnosis = function (query) {
     return api.post(`/api/v1/diagnosis/searchDiagnosis`, {

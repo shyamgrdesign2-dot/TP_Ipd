@@ -143,9 +143,9 @@ export const showMedicineTime = createAsyncThunk(
 
 export const getLoadPreviousRx = createAsyncThunk(
   "medication/getLoadPreviousRx",
-  async () => {
+  async (data) => {
     let result = {};
-    result = await ApiMedication.getLoadPreviousRx();
+    result = await ApiMedication.getLoadPreviousRx(data);
     if (result.status) {
       return result.data;
     } else {

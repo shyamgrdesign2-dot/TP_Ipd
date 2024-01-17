@@ -39,7 +39,6 @@ function Prescription() {
 
   useEffect(() => {
     if (caseManagerData != undefined) {
-      // setVitalsData(caseManagerData.vitals)
       if (caseManagerData.symptoms.length > 0) {
         setSymptomsData(caseManagerData.symptoms)
       }
@@ -55,8 +54,17 @@ function Prescription() {
       if (caseManagerData.investigation.length > 0) {
         setInvestigationData(caseManagerData.investigation)
       }
+      if (caseManagerData.vitals.length > 0) {
+        setVitalsData(caseManagerData.vitals)
+      }
       if (caseManagerData.medicine.length > 0) {
         setMedicationData(caseManagerData.medicine)
+      }
+      if (caseManagerData.follow_up_date != undefined && caseManagerData.follow_up_date) {
+        setFollowUpDate(caseManagerData.follow_up_date)
+      }
+      if (caseManagerData.visit_advice != undefined && caseManagerData.visit_advice) {
+        setAdditionalNote(caseManagerData.visit_advice)
       }
     }
   }, []);

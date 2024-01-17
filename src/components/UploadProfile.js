@@ -13,7 +13,7 @@ function UploadProfile({ form }) {
       console.log(fileUrl)
       setFile(fileUrl);
       form.setFieldsValue({
-        pm_image: fileUrl,
+        pm_image: e.target.files[0],
       });
     }
   }

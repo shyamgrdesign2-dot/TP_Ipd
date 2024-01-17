@@ -37,7 +37,7 @@ function TabMedicationBox() {
     } = useSelector((state) => state.medication);
     const dispatch = useDispatch();
 
-    const { medicationData, setMedicationData } = useContext(CashManagerContext);
+    const { patient_data, medicationData, setMedicationData } = useContext(CashManagerContext);
     // const [ medicationData, setMedicationData] = useState([]);
 
     const [parentDrawer, setParentDrawer] = useState(false);
@@ -210,7 +210,10 @@ function TabMedicationBox() {
     };
 
     const loadPreviousRxClick = async () => {
-        const action = await dispatch(getLoadPreviousRx());
+        var sendData = {
+            patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0
+        }
+        const action = await dispatch(getLoadPreviousRx(sendData));
         if (action.meta.requestStatus == "fulfilled") {
             const updatedData = action.payload.map(e => {
                 const medicineUnit = e?.medicineUnit.map((e1) => {

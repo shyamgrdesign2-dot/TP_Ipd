@@ -475,7 +475,7 @@ function DiagnosisBox() {
               <Select
                 className="autocomplete-custom w-100 inputborder"
                 placeholder="Status"
-                defaultValue={item.severity}
+                defaultValue={item.status}
                 onSelect={(data) => onSelectStatusChild(data, index)}
                 options={STATUS_LIST}
               />
