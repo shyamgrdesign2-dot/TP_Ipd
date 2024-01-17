@@ -412,7 +412,9 @@ function TabAdviceBox() {
                     </Drawer>
                 </div>
                 <div className={adviceData.length > 0 ? "p-14" : "p-14-pb0"}>
-                    {TABLE_ADVICE}
+                    <div className="overflow-y-auto" style={{maxHeight: '200px'}}>
+                        {TABLE_ADVICE}
+                    </div>
                     <Drawer closeIcon={false} placement="right" onClose={handleDrawerChild} open={childDrawer} className="modalWidth-563" width="auto">
                         {CHILD_DRAWER_DATA}
                     </Drawer>
@@ -426,7 +428,7 @@ function TabAdviceBox() {
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
                     {parentDrawer && (<TabAdviceSearch onClose={handleDrawerParent} />)}
                 </Drawer>
-                <div className="d-flex flex-wrap p-14-pb0">
+                <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{maxHeight: '114px'}}>
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.map((item, i) => {
                             return (

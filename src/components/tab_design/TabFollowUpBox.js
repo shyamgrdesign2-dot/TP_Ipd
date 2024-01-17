@@ -74,9 +74,8 @@ function TabFollowUpBox() {
                                 <img className='me-2' src={followUp} alt="Symptoms" />
                                 <div className="title-common">Follow-up</div>
                             </div>
-                            {/* <DatePicker className="w-100" /> */}
-                            <div className="d-flex">
-                                <Input className="w-100" placeholder="e.g. 3 Days" value={followUpInput} inputMode="numeric" onChange={onChangeFollowUp} allowClear />
+                            <div className="d-flex calender-merge-input">
+                                <Input className="w-100 calnder-input1" placeholder="e.g. 3 Days" value={followUpInput} inputMode="numeric" onChange={onChangeFollowUp} allowClear />
                                 <DatePicker inputReadOnly/>
                             </div>
                             {followUpDate && (
@@ -88,7 +87,7 @@ function TabFollowUpBox() {
                                 {dateOptions.length > 0 &&
                                     dateOptions.map((item, i) => {
                                         return (
-                                            <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onOptionPress(item)}>{item.label}</Button>
+                                            <Button key={i} type="text" className="btn btn-primary2 btn-fw-bold mb-14 me-14" onClick={() => onOptionPress(item)}>{item.label}</Button>
                                         )
                                     })}
                             </div>

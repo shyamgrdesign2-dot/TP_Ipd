@@ -3,7 +3,12 @@ body {
         font-family: "Poppins" !important;
         font-size: 14px;
         font-style: normal;
-        font-weight: 500;
+        font-weight: 600;
+        &.btn-fw-bold.btn-primary2 {
+            span {
+                font-weight: 600 !important;
+            }
+        }
         &.antdesable-custom {
             i {
                 font-size: 19px;
@@ -103,8 +108,7 @@ body {
             border: 1px solid $bordercolor !important;
             height: 33px;
             background-color: $white;
-            font-weight: 500;
-            
+            font-weight: 500 !important;
             i {
                 font-size: 19px;
             }
@@ -120,7 +124,7 @@ body {
                 letter-spacing: 0.1px;
                 color: $theme !important;
                 font-size: 14px;
-                font-weight: 500;
+                font-weight: 500 !important;
             }
 
             i {
@@ -145,7 +149,7 @@ body {
             border-radius: 10px;
             background-color: $theme;
             height: 33px;
-            font-weight: 500;
+            font-weight: 500 !important;
             i {
                 font-size: 19px;
             }
@@ -161,7 +165,7 @@ body {
                 letter-spacing: 0.1px;
                 color: $white !important;
                 font-size: 14px;
-                font-weight: 500;
+                font-weight: 500 !important;
             }
 
             i {
@@ -197,7 +201,7 @@ body {
             span {
                 color: $theme !important;
                 font-size: 14px;
-                font-weight: 500;
+                
             }
 
             &:hover {
@@ -235,6 +239,10 @@ body {
 
         &.btn-41 {
             height: 41px;
+            font-weight: 600 !important;
+            span {
+                font-weight: 600 !important;
+            }
         }
 
         &.btnclose {
