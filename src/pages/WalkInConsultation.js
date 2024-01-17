@@ -207,7 +207,7 @@ function WalkInConsultation() {
             <div
                 className={`${!isMobile && "border rounded-4 appointment-wrap"} p-4`}
             >
-                <label className="mb-2 fontroboto fs-14 fw-medium">
+                <label className="mb-2 fontroboto fs-16 fw-medium">
                     {" "}
                     Enter Patient’s Name, Phone number or Id
                 </label>{" "}

@@ -437,7 +437,7 @@ function TabInvestigationBox() {
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
                     {parentDrawer && (<TabInvestigationSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
                 </Drawer>
-                <div className="d-flex flex-wrap p-14-pb0">
+                <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{maxHeight: '114px'}}>
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.map((item, i) => {
                             return (
