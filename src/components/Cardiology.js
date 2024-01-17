@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Card from 'react-bootstrap/Card';
-import { Table, Dropdown, Button } from 'antd';
+import { Table, Dropdown, Button, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import Symptomsicon from '../assets/images/Symptoms.svg';
@@ -156,46 +156,51 @@ function Cardiology(props) {
 
     return (
         <div className="appointment-wrap PatientDetailswrap m-0">
-            {!loading && (
-                <Card className=''>
-                    {viewCaseManagerData ? (
-                        <>
-                            <Card.Header className='bg-white py-3'>
-                                <div className='d-flex align-items-center justify-content-between'>
-                                    <div>
-                                        <div className='title2'>{`${viewCaseManagerData?.doctor_data?.doctor_name} | ${viewCaseManagerData?.doctor_data?.dp_name}`}</div>
-                                        <div className='subtitle text-lowercase'>{viewCaseManagerData?.showConsultationDateTime}</div>
-                                    </div>
-                                    <div className='align-items-center d-flex'>
-                                        <Button className="btn border rounded-3 px-1 me-2 antdesable-custom" onClick={nextPress} disabled={viewCaseManagerData?.next_tcm_id ? false : true}>
-                                            <i className="icon-right d-block"></i>
-                                        </Button>
-                                        {`${tcmData.page}/${viewCaseManagerData?.total_consultation}`}
-                                        <Button className="btn border rounded-3 antdesable-custom p-1 ms-2" onClick={prevPress} disabled={viewCaseManagerData?.prev_tcm_id ? false : true}>
-                                            <i className="icon-right" style={{ display: 'block', transform: `rotate(180deg)` }}></i>
-                                        </Button>
-                                    </div>
-                                    <div>
-                                        <button className="btn p-0 ms-3"
-                                            onClick={() =>
-                                                navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: viewCaseManagerData } })
-                                            }
-                                        >
-                                            <i className="icon-Edit"></i>
-                                        </button>
-                                        <button className="btn p-0 ms-3" onClick={onPrintUrlClick}>
-                                            <i className="icon-Print"></i>
-                                        </button>
-                                        <Dropdown className='btn btn-outline btn-more ms-1' menu={{ items, }} trigger={['click']}>
-                                            <a onClick={(e) => e.preventDefault()}>
-                                                <i className='icon-More'></i>
-                                            </a>
-                                        </Dropdown>
-                                    </div>
+            <Card className=''>
+                {viewCaseManagerData ? (
+                    <>
+                        <Card.Header className='bg-white py-3'>
+                            <div className='d-flex align-items-center justify-content-between'>
+                                <div>
+                                    <div className='title2'>{`${viewCaseManagerData?.doctor_data?.doctor_name} | ${viewCaseManagerData?.doctor_data?.dp_name}`}</div>
+                                    <div className='subtitle text-lowercase'>{viewCaseManagerData?.showConsultationDateTime}</div>
                                 </div>
-                            </Card.Header>
+                                <div className='align-items-center d-flex'>
+                                    <Button className="btn border rounded-3 px-1 me-2 antdesable-custom" onClick={nextPress} disabled={viewCaseManagerData?.next_tcm_id ? false : true}>
+                                        <i className="icon-right d-block"></i>
+                                    </Button>
+                                    {`${tcmData.page}/${viewCaseManagerData?.total_consultation}`}
+                                    <Button className="btn border rounded-3 antdesable-custom p-1 ms-2" onClick={prevPress} disabled={viewCaseManagerData?.prev_tcm_id ? false : true}>
+                                        <i className="icon-right" style={{ display: 'block', transform: `rotate(180deg)` }}></i>
+                                    </Button>
+                                </div>
+                                <div>
+                                    <button className="btn p-0 ms-3"
+                                        onClick={() =>
+                                            navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: viewCaseManagerData } })
+                                        }
+                                    >
+                                        <i className="icon-Edit"></i>
+                                    </button>
+                                    <button className="btn p-0 ms-3" onClick={onPrintUrlClick}>
+                                        <i className="icon-Print"></i>
+                                    </button>
+                                    <Dropdown className='btn btn-outline btn-more ms-1' menu={{ items, }} trigger={['click']}>
+                                        <a onClick={(e) => e.preventDefault()}>
+                                            <i className='icon-More'></i>
+                                        </a>
+                                    </Dropdown>
+                                </div>
+                            </div>
+                        </Card.Header>
+                        {loading ? (
+                            <div className='d-flex flex-column justify-content-center' style={{ "height": "calc(100vh - 218px)"}}>
+                                <div className='align-items-center text-center'>
+                                    <Spin />
+                                </div>
+                            </div>
+                        ) : (
                             <Card.Body className='p-0 cardbody-data'>
-
                                 <div>
                                     <div className='p-3 pb-0'>
                                         {viewCaseManagerData.symptoms.length > 0 && (
@@ -299,11 +304,16 @@ function Cardiology(props) {
 </div> */}
                                     </div>
                                 </div>
-
                             </Card.Body>
-                        </>
-                    ) : (
-                        <div className='d-flex flex-column justify-content-center' style={{ "height": "calc(100vh - 118px)" }}>
+                        )}
+                    </>
+                ) : (
+                    <div className='d-flex flex-column justify-content-center' style={{ "height": "calc(100vh - 118px)" }}>
+                        {loading ? (
+                            <div className='align-items-center text-center'>
+                                <Spin />
+                            </div>
+                        ) : (
                             <div className='align-items-center text-center'>
                                 <img src={calenderBlank} width={57} height={62} alt="No vital & body composition saved for the patient!" />
                                 <p className='mt-4 fontroboto'>No any visit found for this patient yet</p>
@@ -311,10 +321,10 @@ function Cardiology(props) {
                                     navigate("/prescription", { state: { patient_data: patient_data } })
                                 } className="btn btn-primary3 btn-text-white px-5 btn-41">Start New Visit</Button>
                             </div>
-                        </div>
-                    )}
-                </Card>
-            )}
+                        )}
+                    </div>
+                )}
+            </Card>
         </div>
     )
 }

@@ -12,13 +12,13 @@ import {
 function VitalsList() {
 
     const {
-        vitalsTodayList,
+        selectedVitalsList,
         vitalsPastList,
         loading,
     } = useSelector((state) => state.vitals);
     const dispatch = useDispatch();
 
-    const { state, setVitalsData } = useContext(CashManagerContext);
+    const { state, vitalsData, setVitalsData } = useContext(CashManagerContext);
 
     useEffect(() => {
         var sendData = {
@@ -28,19 +28,19 @@ function VitalsList() {
         dispatch(getVitals(sendData));
     }, []);
 
-    useEffect(() => {
-        const updatedData = vitalsTodayList.map((e, i) => {
-            return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
-        });
-        setVitalsData(updatedData);
-    }, [vitalsTodayList]);
+    // useEffect(() => {
+    //     const updatedData = selectedVitalsList.map((e, i) => {
+    //         return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
+    //     });
+    //     setVitalsData(updatedData);
+    // }, [selectedVitalsList]);
 
     const TODAY_VITALS = useMemo(() => {
         return (
-            vitalsTodayList.length > 0 &&
-            vitalsTodayList.map((item, i) => {
+            vitalsData.length > 0 &&
+            vitalsData.map((item, i) => {
                 return (
-                    <div key={i} className={`${vitalsTodayList.length - 1 != i && 'border-bottom'} pt-3 vitals-height input-readonly`}>
+                    <div key={i} className={`${vitalsData.length - 1 != i && 'border-bottom'} pt-3 vitals-height input-readonly`}>
                         <div className="title-sami mb-3">
                             {item.date}
                         </div>
@@ -80,11 +80,11 @@ function VitalsList() {
                 );
             })
         );
-    }, [vitalsTodayList]);
+    }, [vitalsData]);
 
     return (
         <>
-            <div className="overflow-y-auto" style={{ height: `${vitalsTodayList.length > 0 && "250px"}` }}>
+            <div className="overflow-y-auto" style={{ height: `${vitalsData.length > 0 && "250px"}` }}>
                 {TODAY_VITALS}
             </div>
         </>
