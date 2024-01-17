@@ -63,7 +63,10 @@ function TabPrescription() {
                 setInvestigationData(caseManagerData.investigation)
             }
             if (caseManagerData.vitals.length > 0) {
-                setVitalsData(caseManagerData.vitals)
+                const updatedData = caseManagerData.vitals.map((e, i) => {
+                    return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
+                });
+                setVitalsData(updatedData)
             }
             if (caseManagerData.medicine.length > 0) {
                 setMedicationData(caseManagerData.medicine)
@@ -85,7 +88,7 @@ function TabPrescription() {
     //Handle Sider
     const handleCollapsed = useCallback((flag) => {
         setCollapsedFlag(flag);
-        setCollapsed(!collapsed)
+        !collapsed && setCollapsed(!collapsed)
         setVitalDrawer(!vitalDrawer);
     }, [collapsedFlag, collapsed, vitalDrawer]);
 

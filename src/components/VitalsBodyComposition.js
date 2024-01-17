@@ -1,6 +1,6 @@
 import React from 'react';
 import Card from 'react-bootstrap/Card';
-import { Table } from 'antd';
+import { Table, Spin } from 'antd';
 
 import vitals from '../assets/images/Vitals.svg';
 // import arrowright from '../assets/images/arrow-box-right.svg';
@@ -85,20 +85,24 @@ function VitalsBodyComposition({ loading, passVitals }) {
                         Vitals & Body Composition
                     </div>
                 </Card.Header>
-                {!loading && (
-                    <Card.Body className='p-0'>
-                        {passVitals && passVitals.length > 0 ? (
-                            <Table dataSource={initialRows} columns={columns} pagination={false} />
-                        ) : (
-                            <div className='d-flex flex-column justify-content-center' style={{ minHeight: "300px" }}>
+                <Card.Body className='p-0'>
+                    {passVitals && passVitals.length > 0 ? (
+                        <Table dataSource={initialRows} columns={columns} pagination={false} loading={loading} />
+                    ) : (
+                        <div className='d-flex flex-column justify-content-center' style={{ minHeight: "300px" }}>
+                            {loading ? (
+                                <div className='align-items-center text-center'>
+                                    <Spin />
+                                </div>
+                            ) : (
                                 <div className='align-items-center text-center'>
                                     <img src={heartBeat} width={57} height={52} alt="No vital & body composition saved for the patient!" />
                                     <p className='mt-4 fontroboto'>No vital & body composition saved <br /> for the patient!</p>
                                 </div>
-                            </div>
-                        )}
-                    </Card.Body>
-                )}
+                            )}
+                        </div>
+                    )}
+                </Card.Body>
             </Card>
         </div>
     )

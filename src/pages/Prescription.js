@@ -55,7 +55,10 @@ function Prescription() {
         setInvestigationData(caseManagerData.investigation)
       }
       if (caseManagerData.vitals.length > 0) {
-        setVitalsData(caseManagerData.vitals)
+        const updatedData = caseManagerData.vitals.map((e, i) => {
+          return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
+        });
+        setVitalsData(updatedData)
       }
       if (caseManagerData.medicine.length > 0) {
         setMedicationData(caseManagerData.medicine)
@@ -94,6 +97,7 @@ function Prescription() {
                     <img src={vitals} alt="vitals" className="me-3" />
                     <div className="title-common">Vitals & Body Composition</div>
                   </div>
+                  {console.log(vitalsData)}
                   <button className="btn d-flex align-items-center btn-text" onClick={handleDrawerVital}>
                     {" "}
                     <i className={`${vitalsData.length > 0 ? 'icon-Edit' : 'icon-Add'} me-1 fs-5`}></i> <span>{`${vitalsData.length > 0 ? 'Edit' : 'Add'}`}</span>

@@ -21,25 +21,27 @@ function VitalsBox(props) {
 
     const [messageApi, contextHolder] = message.useMessage();
     const {
-        vitalsTodayList,
+        selectedVitalsList,
         loading,
     } = useSelector((state) => state.vitals);
     const dispatch = useDispatch();
 
-    const { patient_data } = useContext(CashManagerContext);
-    const [vitalsData, setVitalsData] = useState([]);
+    const { patient_data, vitalsData, setVitalsData } = useContext(CashManagerContext);
+    const [childVitalsData, setChildVitalsData] = useState([...vitalsData]);
 
     useEffect(() => {
-        const updatedData = vitalsTodayList.map((e, i) => {
-            return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
-        });
-        setVitalsData(updatedData);
-    }, [vitalsTodayList]);
+        if (selectedVitalsList.length > 0) {
+            const updatedData = selectedVitalsList.map((e, i) => {
+                return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
+            });
+            setVitalsData(updatedData);
+        }
+    }, [selectedVitalsList]);
 
     useEffect(() => {
-        if (vitalsData.length == 0) {
+        if (childVitalsData.length == 0) {
             let cal = calculate('', '');
-            vitalsData.push({
+            childVitalsData.push({
                 date: moment().format("YYYY-MM-DD"),
                 dev_unique_id: 0,
                 tcv_id: 0,
@@ -56,14 +58,14 @@ function VitalsBox(props) {
                 bmr: cal.bmr,
                 bsa: cal.bsa,
             });
-            setVitalsData((prev) => [...prev]);
+            setChildVitalsData((prev) => [...prev]);
         }
-    }, [vitalsData]);
+    }, [childVitalsData]);
 
     const onChange = useCallback(
         (date, dateString) => {
             let cal = calculate('', '');
-            vitalsData.push({
+            childVitalsData.push({
                 date: dateString,
                 dev_unique_id: 0,
                 tcv_id: 0,
@@ -80,9 +82,9 @@ function VitalsBox(props) {
                 bmr: cal.bmr,
                 bsa: cal.bsa,
             });
-            setVitalsData((prev) => [...prev]);
+            setChildVitalsData((prev) => [...prev]);
         },
-        [vitalsData]
+        [childVitalsData]
     );
 
     const calculate = (H, W) => {
@@ -122,33 +124,33 @@ function VitalsBox(props) {
         (value, i, flag) => {
             const updateValue = onlyDecimalFormat(value);
             if (flag === 1) {
-                vitalsData[i].temp = updateValue;
+                childVitalsData[i].temp = updateValue;
             } else if (flag === 2) {
-                vitalsData[i].pres = updateValue;
+                childVitalsData[i].pres = updateValue;
             } else if (flag === 3) {
-                vitalsData[i].resp_rate = updateValue;
+                childVitalsData[i].resp_rate = updateValue;
             } else if (flag === 4) {
-                vitalsData[i].systolic = updateValue;
+                childVitalsData[i].systolic = updateValue;
             } else if (flag === 5) {
-                vitalsData[i].diastolic = updateValue;
+                childVitalsData[i].diastolic = updateValue;
             } else if (flag === 6) {
-                vitalsData[i].spo2 = updateValue;
+                childVitalsData[i].spo2 = updateValue;
             } else if (flag === 7) {
-                vitalsData[i].height = updateValue;
-                let cal = calculate(updateValue, vitalsData[i].weight);
-                vitalsData[i].bmi = cal.bmi;
-                vitalsData[i].bmr = cal.bmr;
-                vitalsData[i].bsa = cal.bsa;
+                childVitalsData[i].height = updateValue;
+                let cal = calculate(updateValue, childVitalsData[i].weight);
+                childVitalsData[i].bmi = cal.bmi;
+                childVitalsData[i].bmr = cal.bmr;
+                childVitalsData[i].bsa = cal.bsa;
             } else if (flag === 8) {
-                vitalsData[i].weight = updateValue;
-                let cal = calculate(vitalsData[i].height, updateValue);
-                vitalsData[i].bmi = cal.bmi;
-                vitalsData[i].bmr = cal.bmr;
-                vitalsData[i].bsa = cal.bsa;
+                childVitalsData[i].weight = updateValue;
+                let cal = calculate(childVitalsData[i].height, updateValue);
+                childVitalsData[i].bmi = cal.bmi;
+                childVitalsData[i].bmr = cal.bmr;
+                childVitalsData[i].bsa = cal.bsa;
             }
-            setVitalsData((prev) => [...prev]);
+            setChildVitalsData((prev) => [...prev]);
         },
-        [vitalsData]
+        [childVitalsData]
     );
 
     const onAddUpdateClicked = async () => {
@@ -157,7 +159,7 @@ function VitalsBox(props) {
             pm_pid: patient_data != undefined ? patient_data.pm_pid : 0,
             pm_id: patient_data != undefined ? patient_data.pm_id : 0,
             pam_id: patient_data != undefined && patient_data.pam_id != undefined ? patient_data.pam_id : 0,
-            data: vitalsData,
+            data: childVitalsData,
         };
         const action = await dispatch(addUpdateVitals(sendData));
         if (action.meta.requestStatus == "fulfilled") {
@@ -174,8 +176,8 @@ function VitalsBox(props) {
 
     const TABLE_VITALS = useMemo(() => {
         return (
-            vitalsData.length > 0 &&
-            vitalsData.map((item, i) => {
+            childVitalsData.length > 0 &&
+            childVitalsData.map((item, i) => {
                 return (
                     <div key={i} className='vitals-wrap-body w-100 vitals-child-width'>
                         <div className='vitals-head rounded-start-0 w-100'>{item.date}</div>
@@ -216,7 +218,7 @@ function VitalsBox(props) {
                 );
             })
         );
-    }, [vitalsData]);
+    }, [childVitalsData]);
 
     const disabledDate = (current) => {
         // Can not select days before today and today
@@ -234,7 +236,7 @@ function VitalsBox(props) {
                         </Button>
                         <div className="modal-title">Vitals</div>
                     </div>
-                    <Button onClick={onAddUpdateClicked} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading} disabled={vitalsData.length > 0 ? false : true}>
+                    <Button onClick={onAddUpdateClicked} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading} disabled={childVitalsData.length > 0 ? false : true}>
                         Done
                     </Button>
                 </div>
@@ -250,7 +252,7 @@ function VitalsBox(props) {
                         <span className="text-decoration-underline fw-medium"> Add or Configure </span>
                     </div> */}
                 </div>
-                {vitalsData.length > 0 && (
+                {childVitalsData.length > 0 && (
                     <div className='px-20'>
                         <div className='vitals-wrapper w-100'>
                             <div className='vitals-wrap-body vitals-parent-width'>
