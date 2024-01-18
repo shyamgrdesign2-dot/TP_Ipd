@@ -148,7 +148,7 @@ function PrescriptionPrintView() {
     return (
         <>
             <HeaderPrescriptionPrint patient_data={patient_data} />
-            <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 custom-scroll prescription-wrapper`}>
+            <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={7} lg={7} xl={5}>

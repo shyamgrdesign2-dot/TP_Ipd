@@ -421,10 +421,13 @@ function AppointmentData() {
                             <div className="d-flex align-items-center">
                                 <i className="icon-patients me-2" />
 
-                                <span className="fw-medium">
-                                    {appointmentSelectedFromMenu?.pm_fullname} (
-                                    {appointmentSelectedFromMenu?.pm_gender},{" "}
-                                    {appointmentSelectedFromMenu?.ageYears}y)
+                                <span className="title-common fontroboto">
+                                    {appointmentSelectedFromMenu?.pm_fullname}
+                                    <span className="fw-normal ms-2">
+                                        (
+                                        {appointmentSelectedFromMenu?.pm_gender},{" "}
+                                        {appointmentSelectedFromMenu?.ageYears}y)
+                                    </span>
                                 </span>
                             </div>
                             <div className="mt-2 d-flex align-items-center">

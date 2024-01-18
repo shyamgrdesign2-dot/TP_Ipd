@@ -151,9 +151,11 @@ function WalkInConsultation() {
                         <div className="border bg-body rounded-10px p-2 patient-details">
                             <div className="d-flex align-items-center">
                                 <i className="icon-patients me-2" />
-                                <span className="fw-medium">
+                                <span className="title-common fontroboto">
                                     {clickedPatient?.pm_first_name} {clickedPatient?.pm_last_name}{" "}
-                                    ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y)
+                                    <span className="fw-normal ms-2">
+                                        ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y)
+                                    </span>
                                 </span>
                             </div>
                             <div className="mt-2 d-flex align-items-center">
@@ -219,7 +221,7 @@ function WalkInConsultation() {
                         options={searchOptions}
                         className="autocomplete-custom w-100"
                         onSelect={onSelect}
-                        defaultActiveFirstOption={true}
+                        // defaultActiveFirstOption={true}
                         defaultOpen
                         autoFocus
                         popupClassName={"walkincomplete"}

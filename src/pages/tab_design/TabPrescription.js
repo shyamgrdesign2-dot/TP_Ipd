@@ -96,7 +96,7 @@ function TabPrescription() {
         <CashManagerContext.Provider value={contextApi}>
             <>
                 <HeaderPrescription />
-                <div className='w-100 bg-body wrapper2 custom-scroll prescription-wrapper p-0'>
+                <div className='w-100 bg-body wrapper2 prescription-wrapper p-0'>
                     <Layout>
                         <div className="prescription-sidebar">
                             <button type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length == 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>

@@ -22,7 +22,7 @@ function AppointmentList() {
       {(!isMobile || locationPath == "/") && <Header locationPath={locationPath} />}
       <div className="d-flex">
         {(!isMobile || locationPath == "/") && <SidebarDoctor />}
-        <div className="w-100 bg-body wrapper custom-scroll">
+        <div className="w-100 bg-body wrapper">
           {(!isMobile || locationPath == "/") && (
             <Welcome
               locationPath={locationPath}

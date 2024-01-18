@@ -89,7 +89,7 @@ function Prescription() {
     <CashManagerContext.Provider value={contextApi}>
       <>
         <HeaderPrescription />
-        <div className="w-100 bg-body wrapper2 custom-scroll prescription-wrapper">
+        <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
             <div className="col-lg-4 col-md-12 col-12">
