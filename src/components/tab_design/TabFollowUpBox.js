@@ -110,7 +110,7 @@ function TabFollowUpBox() {
             <div className="prescription-box-sm p-20px">
                 <div className="p-14-pb0">
                     <Row gutter={30}>
-                        <Col md={7}>
+                        <Col md={8}>
                             <div className="d-flex align-items-center mb-14">
                                 <img className='me-2' src={followUp} alt="Symptoms" />
                                 <div className="title-common">Follow-up</div>
@@ -133,7 +133,7 @@ function TabFollowUpBox() {
                                     })}
                             </div>
                         </Col>
-                        <Col md={17}>
+                        <Col md={16}>
                             <div className="d-flex align-items-center mb-14">
                                 <img className='me-2' src={Notes} alt="Symptoms" />
                                 <div className="title-common">Additional Notes</div>

@@ -217,7 +217,7 @@ function HeaderPrescription() {
                                 </Button>
                             </div>
 
-                            <Button className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={onEndVisitClick} loading={loading}>
+                            <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={onEndVisitClick} loading={loading}>
                                 <i className='icon-exit me-2'></i>
                                 End Visit
                             </Button>

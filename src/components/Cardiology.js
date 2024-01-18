@@ -67,7 +67,7 @@ function Cardiology(props) {
 
     const items = [
         {
-            label: <div onClick={onPrintRxUrlClick}>Print Rx</div>,
+            label: <div onClick={onPrintRxUrlClick}>Print Medicines Only</div>,
             key: 'printrx',
         },
         // {
