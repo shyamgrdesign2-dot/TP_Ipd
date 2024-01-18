@@ -587,7 +587,7 @@ body {
                 border-color: $theme;
             }
 
-            input {
+            input, .ant-picker-clear {
                 display: none;
             }
         }

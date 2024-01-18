@@ -4,7 +4,7 @@ import { Col, Row, Select, Button, message } from "antd";
 import { isMobile } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
-import {useReactToPrint} from 'react-to-print';
+import { useReactToPrint } from 'react-to-print';
 
 import { PDFReader } from 'reactjs-pdf-reader';
 
@@ -87,7 +87,7 @@ function PrescriptionPrintView() {
     }, [divRef]);
 
     const printContent = useReactToPrint({
-        content: () => printRef.current,   
+        content: () => printRef.current,
     });
 
     // const printContent = async () => {
@@ -204,11 +204,11 @@ function PrescriptionPrintView() {
                                     <i className="icon-right iconrotate90 ms-auto"></i>
                                 </Button>
                             </div>
-                            <div className="bg-body d-flex p-3 rounded-10px border" style={{ visibility: 'hidden' }}>
+                            <div className="bg-body d-flex p-3 rounded-10px border">
                                 <img src={messageSent} alt="whatsapp Message" className='align-self-baseline me-3' />
                                 <div className="fontroboto title-common">
                                     <div className="fw-normal fontroboto mb-2">WhatsApp & SMS Sent to </div>
-                                    +91 7894561230
+                                    {patient_data != undefined ? `+91 ${patient_data.pm_contact_no}` : '-'}
                                 </div>
                             </div>
                         </div>

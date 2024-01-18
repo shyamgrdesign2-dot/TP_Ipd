@@ -432,7 +432,7 @@ function TabAdviceBox() {
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.map((item, i) => {
                             return (
-                                <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.advice_name}</Button>
+                                <Button key={i} type="text" style={{ width: item.advice_name.length > 26 && '250px' }} className={`${item.advice_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.advice_name}</Button>
                             )
                         })}
                 </div>

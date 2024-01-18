@@ -52,7 +52,7 @@ function PersonalDetails({ form }) {
             //     required: true,
             //     message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div>,
             // },
-            { validator: validateFullName,message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div> },
+            { validator: validateFullName, message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div> },
         ],
         mobile_no: [
             // {
@@ -91,7 +91,8 @@ function PersonalDetails({ form }) {
 
     const disabledDate = (current) => {
         // Can not select days before today and today
-        return current && current > dayjs().endOf("day");
+        // return current && current > dayjs().endOf("day");
+        return current && current >= moment().add(1, 'days').startOf('day');
     };
 
     useEffect(() => {
@@ -194,19 +195,21 @@ function PersonalDetails({ form }) {
                                 <div className="justify-content-between d-flex">
                                     <Input
                                         className="w-48"
-                                        type="number"
+                                        type="numeric"
                                         placeholder="Year"
+                                        maxLength={3}
                                         value={ageYearsMonths?.years}
                                         onChange={(e) => {
-                                            setAgeYearsMonths({
-                                                ...ageYearsMonths,
-                                                years: Math.abs(e.target.value),
-                                            });
+                                            Math.abs(e.target.value) <= 150 &&
+                                                setAgeYearsMonths({
+                                                    ...ageYearsMonths,
+                                                    years: Math.abs(e.target.value),
+                                                });
                                         }}
                                     />
                                     <Input
                                         className="w-48"
-                                        type="number"
+                                        type="numeric"
                                         placeholder="Months"
                                         maxLength={2}
                                         value={ageYearsMonths?.months}

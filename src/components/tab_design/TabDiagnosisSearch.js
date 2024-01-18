@@ -339,7 +339,8 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                                                         <Button
                                                             key={i}
                                                             type="text"
-                                                            className="btn btn-primary2 chips-custom mb-14 me-14"
+                                                            style={{ width: item.value.length > 26 && '250px' }} 
+                                                            className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
                                                             onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
                                                             {item.value}
                                                         </Button>
@@ -350,7 +351,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                                             parentOptionsList.length > 0 &&
                                             parentOptionsList.map((item, i) => {
                                                 return (
-                                                    <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.tds_name}</Button>
+                                                    <Button key={i} type="text" style={{ width: item.tds_name.length > 26 && '250px' }} className={`${item.tds_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.tds_name}</Button>
                                                 )
                                             })
                                         )}

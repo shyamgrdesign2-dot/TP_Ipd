@@ -378,7 +378,7 @@ function InvestigationBox() {
               <div className="fontroboto fw-medium">
                 <AutoComplete
                   defaultValue={item.investigation_name}
-                  // value={item.investigation_name}
+                  value={item.investigation_name}
                   placeholder="Investigation Name"
                   bordered={false}
                   defaultOpen={false}
@@ -396,6 +396,7 @@ function InvestigationBox() {
                 className="notesinput border-0"
                 placeholder="Instruction"
                 defaultValue={item.note}
+                value={item.note}
                 onChange={(e) => onChangeNoteChild(e, index)}
               />
             </Col>

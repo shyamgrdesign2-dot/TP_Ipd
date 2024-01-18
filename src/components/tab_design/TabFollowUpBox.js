@@ -5,7 +5,8 @@ import moment from "moment";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
-import { onlyNumberFormat, getFormattedDate } from "../../utils/utils";
+import { getFormattedDate, onlyNumberFormat } from "../../utils/utils";
+import dayjs from "dayjs";
 import Notes from "../../assets/images/notes.svg";
 import followUp from "../../assets/images/followup.svg";
 
@@ -49,13 +50,45 @@ function TabFollowUpBox() {
         [followUpInput, dateOptions]
     );
 
-    const onOptionPress = useCallback(
-        (e) => {
-            setFollowUpInput(e.label)
-            setFollowUpDate(getFormattedDate(moment(moment().format(dateFormat)).subtract(parseInt(e.value), e.unit).format(dateFormat)))
-        },
-        [followUpDate]
-    );
+    const disabledDate = (current) => {
+        // Can not select days before today and today
+        return current && current < moment().startOf('day');
+    };
+
+    const onDateChanged = (date, dateString) => {
+        if (dateString) {
+            const dateB = moment(dateString);
+            const dateC = moment().format(dateFormat);
+
+            console.log(`Difference is ${dateB.diff(dateC, 'days')} day(s)`);
+            console.log(`Difference is ${dateB.diff(dateC, 'weeks')} week(s)`);
+            console.log(`Difference is ${dateB.diff(dateC, 'months')} month(s)`);
+
+            const days = dateB.diff(dateC, 'days');
+            const weeks = dateB.diff(dateC, 'weeks');
+            const months = dateB.diff(dateC, 'months');
+
+            // const days = moment.duration(dateB.diff(dateC)).asDays();
+            // const weeks = moment.duration(dateB.diff(dateC)).asWeeks();
+            // const months = moment.duration(dateB.diff(dateC)).asMonths();
+
+            if (months > 0) {
+                setFollowUpInput(`${months} Months`)
+            } else if (weeks > 0) {
+                setFollowUpInput(`${weeks} Weeks`)
+            } else {
+                setFollowUpInput(`${days} Days`)
+            }
+            setFollowUpDate(getFormattedDate(moment(moment().format(dateFormat)).add(days, 'day').format(dateFormat)))
+            setDateOptions([]);
+        }
+    };
+
+    const onOptionPress = (e) => {
+        setDateOptions([]);
+        setFollowUpInput(e.label)
+        setFollowUpDate(getFormattedDate(moment(moment().format(dateFormat)).add(parseInt(e.value), e.unit).format(dateFormat)))
+    };
 
     const onChangeNote = useCallback(
         (e) => {
@@ -84,7 +117,7 @@ function TabFollowUpBox() {
                             </div>
                             <div className="d-flex calender-merge-input">
                                 <Input className="w-100 calnder-input1" placeholder="e.g. 3 Days" value={followUpInput} inputMode="numeric" onChange={onChangeFollowUp} allowClear />
-                                <DatePicker inputReadOnly />
+                                <DatePicker inputReadOnly disabledDate={disabledDate} onChange={onDateChanged} />
                             </div>
                             {followUpDate && (
                                 <div className="title fontroboto mt-2">
@@ -106,7 +139,7 @@ function TabFollowUpBox() {
                                 <div className="title-common">Additional Notes</div>
                             </div>
                             <div className="textarea-save">
-                                <Input.TextArea placeholder="Enter any specific note here" onFocus={onSaveButtonClick}value={additionalNote} className="textareaPlaceholder fontroboto text-main" rows={3} onChange={onChangeNote} />
+                                <Input.TextArea placeholder="Enter any specific note here" onFocus={onSaveButtonClick} value={additionalNote} className="textareaPlaceholder fontroboto text-main" rows={3} onChange={onChangeNote} />
                                 {saveButton && (
                                     <Button className="d-flex align-items-center textarea-save-btn" onClick={onSaveButtonClick}>
                                         <i className="icon-check"></i>

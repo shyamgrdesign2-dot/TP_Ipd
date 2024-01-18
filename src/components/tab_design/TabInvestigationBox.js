@@ -441,7 +441,7 @@ function TabInvestigationBox() {
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.map((item, i) => {
                             return (
-                                <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.investigation_name}</Button>
+                                <Button key={i} type="text" style={{ width: item.investigation_name.length > 26 && '250px' }} className={`${item.investigation_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.investigation_name}</Button>
                             )
                         })}
                 </div>

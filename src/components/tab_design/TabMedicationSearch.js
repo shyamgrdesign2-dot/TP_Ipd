@@ -645,7 +645,8 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                                                     <Button
                                                         key={i}
                                                         type="text"
-                                                        className="btn btn-primary2 chips-custom mb-14 me-14"
+                                                        style={{ width: item.value.length > 26 && '250px' }} 
+                                                        className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
                                                         onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
                                                         {item.value}
                                                     </Button>
@@ -656,7 +657,7 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                                             parentOptionsList.length > 0 &&
                                             parentOptionsList.map((item, i) => {
                                                 return (
-                                                    <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onSelectParent(item)}>{item.tmm_medicine_name}</Button>
+                                                    <Button key={i} type="text" style={{ width: item.tmm_medicine_name.length > 26 && '250px' }} className={`${item.tmm_medicine_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent(item)}>{item.tmm_medicine_name}</Button>
                                                 )
                                             })
                                         )}

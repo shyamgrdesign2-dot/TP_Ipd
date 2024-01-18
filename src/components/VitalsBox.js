@@ -222,7 +222,8 @@ function VitalsBox(props) {
 
     const disabledDate = (current) => {
         // Can not select days before today and today
-        return current && current > dayjs().endOf("day");
+        // return current && current > dayjs().endOf("day");
+        return current && current >= moment().add(1, 'days').startOf('day');
     };
 
     return (

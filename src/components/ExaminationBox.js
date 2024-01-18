@@ -378,7 +378,7 @@ function ExaminationBox() {
               <div className="fontroboto fw-medium">
                 <AutoComplete
                   defaultValue={item.examination_name}
-                  // value={item.examination_name}
+                  value={item.examination_name}
                   placeholder="Examination Name"
                   bordered={false}
                   defaultOpen={false}
@@ -396,6 +396,7 @@ function ExaminationBox() {
                 className="notesinput border-0"
                 placeholder="Notes"
                 defaultValue={item.note}
+                value={item.note}
                 onChange={(e) => onChangeNoteChild(e, index)}
               />
             </Col>
