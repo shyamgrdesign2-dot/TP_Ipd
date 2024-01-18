@@ -13,6 +13,8 @@ import ExaminationBox from "../components/ExaminationBox";
 import DiagnosisBox from "../components/DiagnosisBox";
 import AdviceBox from "../components/AdviceBox";
 import InvestigationBox from "../components/InvestigationBox";
+import TabFollowUpBox from "../components/tab_design/TabFollowUpBox";
+
 import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
 
@@ -121,6 +123,7 @@ function Prescription() {
               <DiagnosisBox />
               <AdviceBox />
               <InvestigationBox />
+              <TabFollowUpBox />
             </div>
           </div>
         </div>

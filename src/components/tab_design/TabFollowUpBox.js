@@ -17,6 +17,7 @@ function TabFollowUpBox() {
 
     const { followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
     const [followUpInput, setFollowUpInput] = useState('');
+    const [saveButton, setSaveButton] = useState(false);
 
     const [dateOptions, setDateOptions] = useState([
         { value: '2', unit: 'day', label: "2 Days" },
@@ -63,6 +64,13 @@ function TabFollowUpBox() {
         [additionalNote]
     );
 
+    const onSaveButtonClick = useCallback(
+        () => {
+            setSaveButton(!saveButton)
+        },
+        [saveButton]
+    );
+
     return (
         <>
             {contextHolder}
@@ -76,7 +84,7 @@ function TabFollowUpBox() {
                             </div>
                             <div className="d-flex calender-merge-input">
                                 <Input className="w-100 calnder-input1" placeholder="e.g. 3 Days" value={followUpInput} inputMode="numeric" onChange={onChangeFollowUp} allowClear />
-                                <DatePicker inputReadOnly/>
+                                <DatePicker inputReadOnly />
                             </div>
                             {followUpDate && (
                                 <div className="title fontroboto mt-2">
@@ -98,11 +106,13 @@ function TabFollowUpBox() {
                                 <div className="title-common">Additional Notes</div>
                             </div>
                             <div className="textarea-save">
-                                <Input.TextArea placeholder="Enter any specific note here" value={additionalNote} className="textareaPlaceholder fontroboto text-main" rows={3} onChange={onChangeNote} />
-                                {/* <Button className="d-flex align-items-center textarea-save-btn">
-                                    <i className="icon-check"></i>
-                                    <a className="text-decoration-underline">Save</a>
-                                </Button> */}
+                                <Input.TextArea placeholder="Enter any specific note here" onFocus={onSaveButtonClick}value={additionalNote} className="textareaPlaceholder fontroboto text-main" rows={3} onChange={onChangeNote} />
+                                {saveButton && (
+                                    <Button className="d-flex align-items-center textarea-save-btn" onClick={onSaveButtonClick}>
+                                        <i className="icon-check"></i>
+                                        <a className="text-decoration-underline">Save</a>
+                                    </Button>
+                                )}
                             </div>
                         </Col>
                     </Row>
