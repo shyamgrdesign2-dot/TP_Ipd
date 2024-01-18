@@ -1,9 +1,12 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Col, Row, Select, Button, message } from "antd";
 import { isMobile } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
+import {useReactToPrint} from 'react-to-print';
+
+import { PDFReader } from 'reactjs-pdf-reader';
 
 import messageSent from '../assets/images/message-sent.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
@@ -60,6 +63,9 @@ const LANGUAGE_LIST = [
 ]
 function PrescriptionPrintView() {
 
+    const divRef = useRef(null);
+    const printRef = useRef();
+
     const {
         loading,
     } = useSelector((state) => state.caseManager);
@@ -75,10 +81,24 @@ function PrescriptionPrintView() {
     const [printUrl, setPrintUrl] = useState(state != undefined ? `${state.print_url}` : null);
     const [printRxUrl, setPrintRxUrl] = useState(state != undefined ? `${state.print_rx_url}` : null);
 
-    const printContent = async () => {
-        const printWindow = await window.open(printUrl);
-        printWindow.print();
-    };
+    const [divWidth, setDivWidth] = useState(0);
+    useEffect(() => {
+        setDivWidth(divRef.current.offsetWidth);
+    }, [divRef]);
+
+    const printContent = useReactToPrint({
+        content: () => printRef.current,   
+    });
+
+    // const printContent = async () => {
+    //     {(/Android/i.test(navigator.userAgent)) ? (
+    //         window.open(printUrl, '_blank')
+    //     ) : (
+    //         <embed className="printBox" src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed>
+    //     )}
+    //     const printWindow = await window.open('https://www.aeee.in/wp-content/uploads/2020/08/Sample-pdf.pdf');
+    //     printWindow.print();
+    // };
 
     const onSelect = useCallback(
         (data) => {
@@ -206,9 +226,15 @@ function PrescriptionPrintView() {
                                     />
                                 </div>
                             </div>
-                            <div className="border rounded-20px bg-white mt-20">
-                                <div className="printheight">
-                                    <embed className="printBox" src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed>
+                            <div className="border rounded-20px bg-white mt-20 overflow-hidden">
+                                <div ref={divRef} className="printheight">
+                                    <PDFReader ref={printRef} className="printBox" width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} />
+                                    {/* <embed className="printBox" src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`}></embed> */}
+                                    {/* <iframe
+                                        src="https://pms-upgrade.azurewebsites.net/case_manager/pdf_casemanager_send.php?pdf_id=MTI3Njgx&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ=#toolbar=0&navpanes=0&scrollbar=0"
+                                        height="100%" width="100%"
+                                        title="PDF Viewer"
+                                    ></iframe> */}
                                 </div>
                             </div>
                         </div>

@@ -11,6 +11,7 @@ export default {
   casemanager_api_url: `https://casemanager-webservice.azurewebsites.net`,
 
 
+
   //UAT
   // appointment_api_url: `https://master-uat-webservice.azurewebsites.net`,
   // symptoms_api_url: `https://symptoms-uat.azurewebsites.net`,
