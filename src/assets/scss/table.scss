@@ -1,19 +1,86 @@
-body{
+body {
     table tbody tr {
         th {
             font-size: 12px;
             font-style: normal;
             font-weight: 600;
         }
+
         td {
             font-size: 16px;
             font-style: normal;
             font-weight: 500;
             line-height: normal;
             letter-spacing: 0.1px;
-            &:first-child {
-                span {
-                    color: $theme !important;
+        }
+    }
+    .ant-table-filter-column, .ant-table-column-sorters {
+        float: left;
+    } 
+    .ant-table {
+        .btn.btn-more {
+            font-size: 20px;
+            padding: 0;
+            line-height: 0;
+        }
+
+        thead.ant-table-thead {
+            th {
+                padding: 7.5px 16px;
+                border-bottom: 0;
+                background-color: #F1F1F5;
+                font-size: 12px;
+                text-transform: uppercase;
+
+                &:first-child {
+                    border-bottom-left-radius: 8px;
+                }
+
+                &:last-child {
+                    border-bottom-right-radius: 8px;
+                }
+            }
+        }
+
+        tbody.ant-table-tbody {
+            td {
+                padding: 9px 16px;
+                border-bottom: 0;
+            }
+        }
+    }
+    .patient-medication .ant-table {
+        .ant-table-thead {
+            th {
+                padding: 5px 9px;
+            }
+        }
+        .ant-table-tbody {
+            td {
+                padding: 8px 9px;
+               div {
+                font-size: 13px;
+                font-family: 'roboto' !important;
+               }
+               small {
+                font-size: 11.5px;
+               }
+            }
+        }
+    }
+    .table-border {
+        .ant-table {
+            tbody.ant-table-tbody {
+                tr {
+                    td {
+                        border-bottom: 1px solid $bordercolor !important;
+                    }
+
+                    &:last-child {
+                        td {
+                            border-bottom: transparent !important;
+                        }
+                    }
                 }
             }
         }

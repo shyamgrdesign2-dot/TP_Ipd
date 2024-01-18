@@ -1,0 +1,625 @@
+import React, { useState, useEffect, useCallback, useMemo, useContext } from "react";
+import {
+  AutoComplete,
+  Input,
+  Button,
+  Row,
+  Col,
+  Select,
+  Popover,
+  Tabs,
+  Spin,
+  message
+} from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
+import { useSelector, useDispatch } from "react-redux";
+import { v4 as uuidv4 } from 'uuid';
+
+import CashManagerContext from '../context/CashManagerContext';
+import { MESSAGE_KEY } from "../utils/constants";
+import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
+import Examinationicon from "../assets/images/Examination.svg";
+import {
+  addTemplate,
+  updateTemplate,
+  deleteTemplate,
+  getExaminationTemplates,
+  getFrequentlySearchedExamination,
+  searchExamination
+} from "../redux/examinationSlice";
+
+function ExaminationBox() {
+  const [messageApi, contextHolder] = message.useMessage();
+  const {
+    selectedExaminationList,
+    parentOptionsList,
+    childOptionsList,
+    templates,
+    loading,
+  } = useSelector((state) => state.examination);
+  const dispatch = useDispatch();
+
+  const { examinationData, setExaminationData } = useContext(CashManagerContext);
+  // const [ examinationData, setExaminationData] = useState([]);
+
+  //PopOver1
+  const [popOver1, setPopOver1] = useState(false);
+  const [allTemplates, setAllTemplates] = useState([]);
+  const [matchedTemplates, setMatchedTemplates] = useState([]);
+  const [searchParentQuery, setSearchParentQuery] = useState("");
+  const [parentSearchOptions, setParentSearchOptions] = useState([]);
+
+  const [searchChildQuery, setSearchChildQuery] = useState(null);
+  const [childSearchOptions, setChildSearchOptions] = useState([]);
+
+  //PopOver2
+  const [popOver2, setPopOver2] = useState(false);
+  const [inputTemplateName, setInputTemplateName] = useState(null);
+  const TAB_ADD_TEMPLATE = 1;
+  const TAB_UPDATE_TEMPLATE = 2;
+  const ADD_EDIT_TEMPLATE_TABS = [
+    { key: TAB_ADD_TEMPLATE, label: "New Template" },
+    { key: TAB_UPDATE_TEMPLATE, label: "Update Template" },
+  ];
+  const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
+
+  useEffect(() => {
+    if (selectedExaminationList.length > 0) {
+      const updatedData = examinationData.map((e, i) => {
+        return { ...e, ...selectedExaminationList[i] };
+      });
+      setExaminationData(updatedData);
+    }
+  }, [selectedExaminationList]);
+
+  useEffect(() => {
+    dispatch(getExaminationTemplates());
+  }, []);
+
+  useEffect(() => {
+    setMatchedTemplates(templates);
+    setAllTemplates(templates);
+  }, [templates]);
+
+  //Parent AutoComplete
+  useEffect(() => {
+    if (searchParentQuery) {
+      const timeOutId = setTimeout(() => {
+        dispatch(
+          searchExamination({ searchQuery: searchParentQuery, type: "parent" })
+        );
+      }, 500);
+      return () => {
+        clearTimeout(timeOutId);
+      };
+    } else {
+      dispatch(getFrequentlySearchedExamination());
+    }
+  }, [searchParentQuery]);
+
+  useEffect(() => {
+    const data = [];
+    parentOptionsList.map((e) => {
+      return data.push({
+        key: JSON.stringify({ ...e, unique_id: uuidv4() }),
+        value: e.examination_name,
+        label: <div>{e.examination_name}</div>,
+      });
+    });
+    if (searchParentQuery.length == 0) {
+      data.unshift({
+        key: -1,
+        label: (
+          <>
+            <div>FREQUENTLY USED</div>
+          </>
+        ),
+      });
+    } else {
+      searchParentQuery &&
+        data.push({
+          key: JSON.stringify({
+            unique_id: uuidv4(),
+            change: 1,
+            examination_name: searchParentQuery
+          }),
+          value: searchParentQuery,
+          label: (
+            <>
+              <div>{searchParentQuery}</div>
+            </>
+          ),
+        });
+    }
+    setParentSearchOptions(data);
+  }, [parentOptionsList]);
+
+  const onSearchParent = useCallback(
+    (query) => {
+      setSearchParentQuery(removeBeforeWhiteSpace(query));
+    },
+    [searchParentQuery]
+  );
+
+  const onSelectParent = useCallback(
+    (data, e) => {
+      examinationData.push({
+        ...JSON.parse(e.key),
+        note: "",
+      });
+      setExaminationData((prev) => [...prev]);
+      setSearchParentQuery("");
+    },
+    [searchParentQuery, examinationData]
+  );
+
+  //Child AutoComplete
+  useEffect(() => {
+    if (searchChildQuery) {
+      const timeOutId = setTimeout(() => {
+        dispatch(
+          searchExamination({
+            searchQuery: searchChildQuery.query,
+            type: "child",
+          })
+        );
+      }, 500);
+      return () => {
+        clearTimeout(timeOutId);
+      };
+    }
+  }, [searchChildQuery]);
+
+  useEffect(() => {
+    const data = [];
+    childOptionsList.map((e) => {
+      return data.push({
+        key: JSON.stringify({ ...e, unique_id: uuidv4() }),
+        value: e.examination_name,
+        label: <div>{e.examination_name}</div>,
+      });
+    });
+    if (searchChildQuery?.query) {
+      data.push({
+        key: JSON.stringify({
+          ...examinationData[searchChildQuery.index],
+          unique_id: uuidv4(),
+          change: 1,
+          examination_name: searchChildQuery.query
+        }),
+        value: searchChildQuery.query,
+        label: (
+          <>
+            <div>{searchChildQuery.query}</div>
+          </>
+        ),
+      });
+    }
+    setChildSearchOptions(data);
+  }, [childOptionsList]);
+
+  const onFocusChid = (i) => {
+    setSearchChildQuery({ query: examinationData[i].examination_name, index: i });
+    dispatch(
+      searchExamination({ searchQuery: examinationData[i].examination_name, type: "child" })
+    );
+  };
+
+  const onSearchChild = useCallback(
+    (query, i) => {
+      const updateQuery = removeBeforeWhiteSpace(query)
+      examinationData[i] = {
+        ...examinationData[i],
+        change: 1,
+        examination_name: updateQuery
+      };
+      setExaminationData((prev) => [...prev]);
+      setSearchChildQuery({ query: updateQuery, index: i });
+    },
+    [searchChildQuery, examinationData]
+  );
+
+  const onSelectChild = useCallback(
+    (data, e, i) => {
+      examinationData[i] = { ...examinationData[i], ...JSON.parse(e.key) };
+      setExaminationData((prev) => [...prev]);
+      setSearchChildQuery({ query: JSON.parse(e.key).examination_name, index: i });
+    },
+    [searchChildQuery, examinationData]
+  );
+
+  const onChangeNoteChild = useCallback(
+    (e, i) => {
+      examinationData[i].note = e.target.value;
+      setExaminationData((prev) => [...prev]);
+    },
+    [examinationData]
+  );
+
+  const onRemoveRow = (index) => {
+    examinationData.splice(index, 1);
+    setExaminationData((prev) => [...prev]);
+  };
+
+  //PopOver1 function
+  const showHideTemplatesListPopover = useCallback(() => {
+    setPopOver1(!popOver1);
+  }, [popOver1]);
+
+  const onSearch = (e) => {
+    const searchQuery = e.target.value;
+    if (searchQuery) {
+      let filteredTemplates = templates.filter((template) => {
+        return template.tet_template_name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
+      });
+      setMatchedTemplates(filteredTemplates);
+    } else {
+      setMatchedTemplates(templates);
+    }
+  };
+
+  const onTemplateSelected = (template) => {
+    const updatedData = template.examination.map(e => {
+      return { ...e, unique_id: uuidv4(), note: "" }
+    })
+    setExaminationData([...examinationData, ...updatedData]);
+    showHideTemplatesListPopover();
+  };
+
+  const onDeleteTemplateClicked = (tet_id) => {
+    dispatch(deleteTemplate(tet_id));
+  };
+
+  //PopOver2 function
+  const showHideSaveTemplatePopOver = useCallback(() => {
+    setInputTemplateName(null);
+    setPopOver2(!popOver2);
+  }, [popOver2]);
+
+  const onTabChange = useCallback(
+    (key) => {
+      setInputTemplateName(null);
+      setTabChange(key);
+    },
+    [tabChange]
+  );
+
+  const onChangeSaveTemplate = useCallback(
+    (e) => {
+      const updateQuery = removeBeforeWhiteSpace(e.target.value)
+      setInputTemplateName(updateQuery);
+    },
+    [inputTemplateName]
+  );
+
+  const onAddTemplateClicked = async () => {
+    if (examinationData.length == 0) {
+      messageApi.open({
+        MESSAGE_KEY,
+        type: 'warning',
+        content: 'At least 1 examination added',
+        duration: 2
+      });
+    } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
+      messageApi.open({
+        MESSAGE_KEY,
+        type: 'warning',
+        content: 'Please fillup examination name',
+        duration: 2
+      });
+    } else {
+      var sendData = {
+        tet_template_name: inputTemplateName,
+        examination: examinationData,
+      };
+      const action = await dispatch(addTemplate(sendData));
+      if (action.meta.requestStatus == "fulfilled") {
+        setInputTemplateName(null);
+        showHideSaveTemplatePopOver();
+      }
+    }
+  };
+
+  const onSearchTemplate = useCallback(() => {
+    setInputTemplateName(null);
+  }, [inputTemplateName]);
+
+  const onSelectTemplate = useCallback(
+    (data, e) => {
+      setInputTemplateName(e.key);
+    },
+    [inputTemplateName]
+  );
+
+  const onUpdateTemplateClicked = async () => {
+    if (examinationData.length == 0) {
+      messageApi.open({
+        MESSAGE_KEY,
+        type: 'warning',
+        content: 'At least 1 examination added',
+        duration: 2
+      });
+    } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
+      messageApi.open({
+        MESSAGE_KEY,
+        type: 'warning',
+        content: 'Please fillup examination name',
+        duration: 2
+      });
+    } else {
+      var data = JSON.parse(inputTemplateName);
+      var sendData = {
+        tet_id: data.tet_id,
+        tet_template_name: data.tet_template_name,
+        examination: examinationData,
+      };
+      const action = await dispatch(updateTemplate(sendData));
+      if (action.meta.requestStatus == "fulfilled") {
+        setInputTemplateName(null);
+        showHideSaveTemplatePopOver();
+      }
+    }
+  };
+
+  //Child Componet
+  const TABLE_EXAMINATION = useMemo(() => {
+    return (
+      examinationData.length > 0 &&
+      examinationData.map((item, index) => {
+        return (
+          <Row
+            key={index}
+            gutter={[0]}
+            className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
+          >
+            <Col lg={9} md={9} sm={9} xs={9} className="border-end">
+              <div className="fontroboto fw-medium">
+                <AutoComplete
+                  defaultValue={item.examination_name}
+                  value={item.examination_name}
+                  placeholder="Examination Name"
+                  bordered={false}
+                  defaultOpen={false}
+                  onSearch={(query) => onSearchChild(query, index)}
+                  onFocus={() => onFocusChid(index)}
+                  options={childSearchOptions}
+                  className="autocomplete-custom w-100 inputborder"
+                  defaultActiveFirstOption={true}
+                  onSelect={(data, e) => onSelectChild(data, e, index)}
+                />
+              </div>
+            </Col>
+            <Col lg={14} md={14} sm={13} xs={13} className="border-end">
+              <Input
+                className="notesinput border-0"
+                placeholder="Notes"
+                defaultValue={item.note}
+                value={item.note}
+                onChange={(e) => onChangeNoteChild(e, index)}
+              />
+            </Col>
+            <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+              <Button
+                className="btn py-0 btn-delete-prescription px-0"
+                onClick={() => onRemoveRow(index)}
+              >
+                <i className="icon-delete"></i>
+              </Button>
+            </Col>
+          </Row>
+        );
+      })
+    );
+  }, [examinationData, childSearchOptions]);
+
+  //Template Componet
+  const TEMPLATE_CONTENT = useCallback(() => {
+    return (
+      <>
+        <div className="pop-header" key="examination-template">
+          <div className="align-items-center d-flex justify-content-between">
+            <div className="title-common">Examination Templates</div>
+            <Button
+              className="btn btn-delete-prescription p-0"
+              onClick={showHideTemplatesListPopover}
+            >
+              <i className="icon-Cross" />
+            </Button>
+          </div>
+          <div className="mt-3" key="examination-template-search">
+            <Input
+              allowClear
+              className="popinput"
+              onChange={onSearch}
+              placeholder="Search Templates"
+              prefix={<i className="icon-search me-2" />}
+            />
+          </div>
+        </div>
+        <div className="pop-body">
+          {matchedTemplates.length > 0 &&
+            matchedTemplates.map((template, i) => {
+              return (
+                <div
+                  className="align-items-center d-flex medicine-templates"
+                  key={i}
+                >
+                  <div
+                    className="round-box"
+                    onClick={() => onTemplateSelected(template)}
+                  >
+                    <i className="icon-template"></i>
+                  </div>
+                  <div
+                    className="text-truncate w-100"
+                    onClick={() => onTemplateSelected(template)}
+                  >
+                    <div className="title text-main2">{template.tet_template_name}</div>
+                    <div className="text-truncate">
+                      {template.examination.map((item, ii) => {
+                        return (
+                          <span key={ii}>{`${item.examination_name}${template.examination.length - 1 != ii ? ", " : ""
+                            }`}</span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <Button
+                    className="btn btn-delete-prescription p-0 ms-2"
+                    onClick={() => onDeleteTemplateClicked(template.tet_id)}
+                  >
+                    {template.loading ? (
+                      <Spin
+                        indicator={
+                          <LoadingOutlined style={{ fontSize: 22 }} spin />
+                        }
+                      />
+                    ) : (
+                      <i className="icon-delete"></i>
+                    )}
+                  </Button>
+                </div>
+              );
+            })}
+        </div>
+      </>
+    );
+  }, [popOver1, matchedTemplates]);
+
+  //Save Componet
+  const SAVE_CONTENT = useCallback(() => {
+    return (
+      <>
+        <div className="d-flex justify-content-between align-items-center border-bottom templatepopover">
+          <Tabs
+            defaultActiveKey={TAB_ADD_TEMPLATE}
+            items={ADD_EDIT_TEMPLATE_TABS}
+            onChange={onTabChange}
+            className="w-100"
+          />
+          <Button
+            className="btn btn-delete-prescription"
+            onClick={showHideSaveTemplatePopOver}
+          >
+            <i className="icon-Cross"></i>
+          </Button>
+        </div>
+        {tabChange === TAB_ADD_TEMPLATE ? (
+          <div className="pop-header d-flex">
+            <Input
+              allowClear
+              value={inputTemplateName && inputTemplateName}
+              className="popinput inputheight41"
+              placeholder="Template Name"
+              onChange={onChangeSaveTemplate}
+            />
+            <Button
+              className="btn btn-primary3 btn-41 ms-3"
+              loading={loading}
+              disabled={inputTemplateName ? false : true}
+              onClick={onAddTemplateClicked}
+            >
+              {" Save "}
+            </Button>
+          </div>
+        ) : (
+          <div className="pop-header d-flex">
+            <Select
+              showSearch
+              value={inputTemplateName && inputTemplateName.tet_template_name}
+              className="autocomplete-custom w-100 popinput inputheight41"
+              placeholder="Select Template"
+              onSearch={onSearchTemplate}
+              onSelect={onSelectTemplate}
+              options={allTemplates.map((template) => {
+                return {
+                  key: JSON.stringify(template),
+                  value: template.tet_template_name,
+                  label: (
+                    <div key={template.tet_id}>
+                      {template.tet_template_name}
+                    </div>
+                  ),
+                };
+              })}
+            />
+            <Button
+              className="btn btn-primary3 btn-41 ms-3"
+              loading={loading}
+              disabled={inputTemplateName ? false : true}
+              onClick={onUpdateTemplateClicked}
+            >
+              {" Update "}
+            </Button>
+          </div>
+        )}
+      </>
+    );
+  }, [tabChange, popOver2, inputTemplateName, loading, allTemplates]);
+
+  return (
+    <>
+      {contextHolder}
+      <div className="prescription-box-sm">
+        <div className="d-flex align-items-center justify-content-between p-14-pb0">
+          <div className="d-flex align-items-center">
+            <img className="me-2" src={Examinationicon} alt="Examination" />
+            <div className="title-common">Examination</div>
+          </div>
+          <div className="d-flex align-items-center">
+            <Popover
+              open={popOver1}
+              onOpenChange={showHideTemplatesListPopover}
+              content={TEMPLATE_CONTENT}
+
+              trigger="click"
+              overlayClassName="pop-350 pp-0"
+              placement="bottom"
+            >
+              <button className="btn d-flex align-items-center btn-text">
+                {" "}
+                <i className="icon-template me-2"></i> <span>Templates</span>
+              </button>
+            </Popover>
+            <Popover
+              open={popOver2}
+              onOpenChange={showHideSaveTemplatePopOver}
+              content={SAVE_CONTENT}
+              trigger="click"
+              overlayClassName="pop-450 pp-0"
+              placement="bottom"
+            >
+              <button className="btn d-flex align-items-center btn-text">
+                {" "}
+                <i className="icon-save me-2"></i> <span>Save</span>
+              </button>
+            </Popover>
+          </div>
+        </div>
+
+        {TABLE_EXAMINATION}
+
+        <div className="p-14">
+          <AutoComplete
+            // defaultValue={searchParentQuery}
+            value={searchParentQuery}
+            onSearch={onSearchParent}
+            options={parentSearchOptions}
+            className="autocomplete-custom w-100"
+            onSelect={onSelectParent}
+            defaultActiveFirstOption={true}
+          >
+            <Input
+              placeholder="Search Examinations"
+              prefix={<i className="icon-search"></i>}
+            />
+          </AutoComplete>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default React.memo(ExaminationBox);

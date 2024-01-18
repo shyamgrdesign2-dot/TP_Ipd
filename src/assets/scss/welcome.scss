@@ -2,20 +2,17 @@
     background-color: #FED15E;
     width: 100%;
     height: max-content;
-    padding: 29px 30px;
+    padding: 20px 30px;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     z-index: 0;
-    .bg-welcome:after {
-        background-image: url(../images/bg-welcome.png);
-        content: "";
-        left: 20%;
-        position: absolute;
-        width: 246px;
-        height: 145px;
-        background-repeat: no-repeat;
-        bottom: 37px;
-        z-index: -1;
+    .welcomeig {
+        margin-bottom: -65px;
+        margin-top: -30px;
+        @media only screen and (max-width: 1400px) {
+            margin-top: -25px;
+            max-width: 200px;
+        }
     }
     h1 {
         font-size: 24px;
@@ -29,6 +26,9 @@
         font-size: 12px;
         font-weight: 600;
         color: $welcomecolor !important;
+        @media only screen and (max-width: 1400px) {
+            margin-bottom: 5px;
+        }
     }
     .btn {
         height: 41px;

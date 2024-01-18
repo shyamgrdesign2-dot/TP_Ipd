@@ -1,84 +1,21 @@
-//common variables
 $grayColor: #A2A2A8;
 $white: #fff;
 $theme: #4B4AD5;
+$alerText: #FC5A5A;
+$main2: #44444F;
 $maincolor: #454551;
 $welcomecolor: #171725;
-// $lightthemesecondary: #B122FF;
 $br-theme: 6px;
 $boxshadowtheme: 0px -1px 0px 0px #E2E2EA inset;
 $boxshadowsidebar: -1px 0px 0px 0px #E2E2EA inset;
 $bgbody: #FAFAFB;
+$drawerHeaderColor: #F1F1F5;
 $themelight: #f3fbfb;
 $themehover: #3030c2;
-$themesecondary: #B122FF;
+$themesecondary: #A461D8;
+$themesecondarylight: #BA7DE9;
 $darkthemesecondary: #f5d244;
 $bordercolor: #E2E2EA;
-$themedark: #00a7a7;
-$red: #F14444;
-$darkred: #de3434;
-$dull: #bc9f82;
-$whitehover: #dfdfdf;
-$darkwhite: #FFEBEB;
-$textgray: #333e45;
-$darkgray: #666666;
-$gray: #999;
-$bggray: #f1f1f1;
-$lightgray: #949494;
-$xlightgray: #F4F4F4;
-$font-size-sm: 15px;
-$title-size-sm: 1.6rem;
-$green: #00C48C;
-$hover-green: #8fd49e;
-$darkgreen: #054a4a;
-$blue: #22224a;
-$darkblue: #151538;
-$bluergb: 122, 183, 230;
-$lightyellow: #e6e6a8;
-$purple: #760FB2;
-$extralightgray: #f5f5f5;
-$purplelight: #ccccea;
-$purpledark: #8c8ca0;
-$orange: #FF9F55;
-$font-size-md: 22px;
-$font-regular: sfproregular;
-$font-medium: sfprobold;
-$font-semibold: sfprosemibold;
-$font-bold: sfprobold;
-$bold: 700;
-$semibold: 600;
-$regular: 400;
-$light: 300;
-$box-md-padding: 25px 20px;
-$thumb-img-md-width: 45px;
-$thumb-img-md-height: 45px;
-$profile-thumb-width: 40px;
-$profile-thumb-height: 40px;
-
-$nav-link-font-size: 16px;
-
-$media-max-width-1024: 1024.98px;
-$media-min-width-992: 992px;
-$media-max-width-991: 991.98px;
-$media-max-width-767: 767.98px;
-//header variables
-
-$hr-bg: rgb(170, 170, 170, 0.4);
-$icon-bg: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z'%3E%3C/path%3E%3C/svg%3E";
-$border-bottom-color: rgb(210, 212, 215, 0.27);
-$border-top-color: #ddd;
-
-// link colors
-$link-color-darkgray: #545454;
-$link-color-theme: $theme;
-$link-color-themesecondary: $themesecondary;
-$link-color-red: $red;
-$link-color-darkred: $darkred;
-$link-color-maincolor: $maincolor;
-$link-color-gray: #545454;
-$link-color-lightgray: #999;
-
-$font-size-18px: 18px;
 
 :export {
     grayColor: $grayColor;

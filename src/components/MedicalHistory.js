@@ -12,10 +12,10 @@ function MedicalHistory() {
                 <Card.Header className='bg-white py-3'>
                     <div className='d-flex align-items-center justify-content-between'>
                         <div>
-                            <img src={MedicalHistoryicon} alt="vitals" className='me-3' />
-                            Lab Parameters
+                            <img src={MedicalHistoryicon} alt="Medical History" className='me-3' />
+                            Medical History
                         </div>
-                        <a href="#">
+                        <a>
                             <img src={arrowright} alt="vitals" />
                         </a>
                     </div>

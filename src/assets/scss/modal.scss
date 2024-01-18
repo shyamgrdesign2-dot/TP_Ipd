@@ -18,3 +18,92 @@
         }
     }
 }
+body {
+    .ant-drawer {
+        .ant-drawer-header {
+            padding: 12px 20px;
+            .ant-drawer-close {
+                margin-inline-end: 10px;
+                font-size: 20px;
+                padding: 0;
+            }
+            .ant-drawer-title {
+                font-size: 24px;
+                font-weight: 600;
+                line-height: 36px;
+                letter-spacing: 0.1px;
+            }
+        }
+        .ant-drawer-body {
+            padding: 0;
+            background-color: $bgbody;
+            .tab-template-height {
+                height: calc(100vh - 120px);
+                overflow-y: auto;
+            }
+            .medicine-templates {
+                &:hover {
+                    background-color: $white;
+                }
+            }
+        }
+        .ant-drawer-content{
+            &.modalWidth-563{
+                width: 563px !important;
+            }
+            &.modalWidth-645 {
+                width: 645px;
+            }
+            &.modalWidth-700 {
+                width: 700px;
+            }
+        }
+        .ant-card{
+            &.search-modalCard {
+                border-radius: 0;
+                box-shadow: none;
+                .ant-card-body {
+                    padding: 0;
+                    height: 100%;
+                }
+                .modalcard-body {
+                    height: calc(100vh - 74px);
+                    overflow-y: auto;
+                    .selectedchip-header {
+                        height: 60px;
+                        background-color: $drawerHeaderColor;
+                        span {
+                            font-size: 18px;
+                            line-height: 25px;
+                            font-weight: 600;
+                            letter-spacing: 0.1px;
+                            color: $maincolor !important;
+                            margin-right: 15px;
+                        }
+                    }
+                }
+            }
+        } 
+        .searchdrawer-content {
+            .ant-card {
+                background: $bgbody !important;
+            }
+        }
+    }
+    .modalCard-header {
+        height: 60px;
+        border-bottom: 1px solid $bordercolor;
+        background-color: $white;
+        &.h-74 {
+            height: 74px;
+        }
+    }
+    .modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 25px;
+        letter-spacing: 0.1px;
+        color: $maincolor !important;
+        margin-right: 15px;
+    }
+}

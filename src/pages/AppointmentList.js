@@ -1,39 +1,43 @@
-import React, { useState } from "react";
-import { Routes, Route } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { isMobile } from "react-device-detect";
 
-import Header from '../common/Header';
-import SidebarDoctor from '../common/SidebarDoctor'
-import Welcome from '../common/Welcome'
-import Appointment from '../components/Appointment'
-import WalkInConsultation from '../components/WalkInConsultation'
+import Header from "../common/Header";
+import SidebarDoctor from "../common/SidebarDoctor";
+import Welcome from "../common/Welcome";
+import Appointment from "../components/AppointmentData";
+import AddNewPatient from "./AddNewPatient";
+import WalkInConsultation from "./WalkInConsultation";
 
 function AppointmentList() {
+  let location = useLocation();
+  const [locationPath, setLocationPath] = useState("/");
 
-    const [flag, setFlag] = useState(0);
+  useEffect(() => {
+    setLocationPath(location.pathname);
+  }, [location]);
 
-    return (
-        <>
-            <Header />
-            <div className='d-flex'>
-                <SidebarDoctor />
-                <div className='w-100 bg-body wrapper custom-scroll'>
-                    <Welcome
-                        title={'Welcome Dr. Mihir!'}
-                        subTitle={'Your Appointments'}
-                        backVisible={false}
-                        buttonIcon={'icon-Add me-2'}
-                        firstButtonName={'Add New Appointment'}
-                        firstButtonPath={'/'}
-                        secondButtonName={'Star Walk-In Consultation'}
-                        secondButtonPath={'/walk_in_consultation'}/>
-                    <Routes>
-                        <Route path="/" element={<Appointment />} />
-                        <Route path="walk_in_consultation" element={<WalkInConsultation />} />
-                    </Routes>
-                </div>
-            </div>
-        </>
-    );
+  return (
+    <>
+      {(!isMobile || locationPath == "/") && <Header locationPath={locationPath} />}
+      <div className="d-flex">
+        {(!isMobile || locationPath == "/") && <SidebarDoctor />}
+        <div className="w-100 bg-body wrapper custom-scroll">
+          {(!isMobile || locationPath == "/") && (
+            <Welcome
+              locationPath={locationPath}
+              backVisible={locationPath == "/" ? false : true}
+            />
+          )}
+          <Routes>
+            <Route path="/" element={<Appointment />} />
+            <Route path="walk_in_consultation" element={<WalkInConsultation />} />
+            <Route path="add_new_patient" element={<AddNewPatient />} />
+          </Routes>
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default AppointmentList;

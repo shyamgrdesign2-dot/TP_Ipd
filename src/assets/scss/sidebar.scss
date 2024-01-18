@@ -1,22 +1,25 @@
-.SidebarDoctor {
-    box-shadow: $boxshadowsidebar;
-    width: 110px;
-    min-width: 110px;
-    height: calc(100vh - 56px);
-    .nav-item {
-        padding: 18px 0;
-        text-align: center;
+body {
+    .SidebarDoctor {
+        box-shadow: $boxshadowsidebar;
+        width: 100%;
+        max-width: 110px;
+        height: calc(100vh - 56px);
+        padding: 20px 0;
+        @media only screen and (max-width: 1400px) {
+            max-width: 80px;
+        }
         a {
+            display: block;
+            padding: 4px 0;
+            margin: 0 0 30px 0;
+            text-align: center;
             font-size: 12px;
             font-style: normal;
             font-weight: 500;
             position: relative;
-            @media only screen and (max-width: 1300px) {
-                font-size: 11px;
-            }
             i {
                 font-size: 25px;
-                fill: #A2A2A8;
+                color: $grayColor;
             }
             &:after{
                 height: 100%;
@@ -49,8 +52,6 @@
             height: 24px;
         }
     }
-}
-body {
     .ant-layout-sider {
         box-shadow: $boxshadowsidebar;
         flex: 0 0 253px !important;
@@ -59,6 +60,24 @@ body {
         width: 253px !important;
         background: $white !important;
         padding: 10px 0;
+        &.tabsider {
+            flex: 0 0 230px !important;
+            max-width: 230px !important;
+            min-width: 230px !important;
+            width: 230px !important;
+            background-color: $white !important;
+            padding: 0;
+            box-shadow: none;
+        }
+        &.tabsider1 {
+            flex: 0 !important;
+            max-width: 0 !important;
+            min-width: 0 !important;
+            width: 0 !important;
+            background-color: transparent !important;
+            padding: 0;
+            display: none;
+        }
         .nav-item {
             padding: 0;
             a {
@@ -104,24 +123,8 @@ body {
             }
         }
         hr {
-            border-color: #ababab;
-        }
-        .patientProfile {
-            background-color: #A2A2A8;
-            width: 40px;
-            min-width: 40px;
-            height: 40px;
-            min-height: 40px;
-            color: $white !important;
-            align-items: center;
-            display: flex;
-            justify-content: center;
-        }
-        .patientName {
-            color: $welcomecolor !important;
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 600;
+            border-color: $bordercolor;
+            opacity: 1;
         }
         p {
             font-size: 12px;
@@ -184,24 +187,8 @@ body {
             }
         }
         hr {
-            border-color: #ababab;
-        }
-        .patientProfile {
-            background-color: #A2A2A8;
-            width: 40px;
-            min-width: 40px;
-            height: 40px;
-            min-height: 40px;
-            color: $white !important;
-            align-items: center;
-            display: flex;
-            justify-content: center;
-        }
-        .patientName {
-            color: $welcomecolor !important;
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 600;
+            border-color: $bordercolor;
+            opacity: 1;
         }
         p {
             font-size: 12px;
@@ -223,5 +210,46 @@ body {
             top: -1px;
             z-index: -1;
         } 
+    }
+    .patientProfile {
+        background-color: #A2A2A8;
+        width: 40px;
+        min-width: 40px;
+        height: 40px;
+        min-height: 40px;
+        color: $white !important;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+    }
+    .patientName {
+        color: $welcomecolor !important;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 600;
+    }
+    .prescription-sidebar {
+        height: calc(100vh - 60px); 
+        background-color: $themesecondary;
+        width: 64px;
+        min-width: 64px;
+        padding: 10px 0;
+        text-align: center;
+        .prescription-tab-button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+        }
+        label {
+            font-family: 'Roboto';
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 18px;
+            letter-spacing: 0.1px;
+        }
     }
 }
