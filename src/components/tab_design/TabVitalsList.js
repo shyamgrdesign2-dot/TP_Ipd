@@ -8,6 +8,9 @@ import CashManagerContext from '../../context/CashManagerContext';
 import {
     getVitals,
 } from "../../redux/vitalsSlice";
+import moment from "moment";
+
+const showDateFormat = 'DD MMM, YY'
 
 function TabVitalsList(props) {
 
@@ -44,7 +47,7 @@ function TabVitalsList(props) {
                 return (
                     <div key={i} className="p-10 border-bottom pb-0">
                         <div className="title-sami">
-                            {item.date}
+                            {moment(item.date).format(showDateFormat)}
                         </div>
                         <div className="py-3">
                             {/* <div className="d-flex align-items-center justify-content-between mb-12">
@@ -83,6 +86,18 @@ function TabVitalsList(props) {
                                 <div className="fontroboto">Weight</div>
                                 <div className="fontroboto">{item.weight ? item.weight : '-'}</div>
                             </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">BMI</div>
+                                <div className="fontroboto">{item.bmi ? item.bmi : '-'}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">BMR</div>
+                                <div className="fontroboto">{item.bmr ? item.bmr : '-'}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">BSA</div>
+                                <div className="fontroboto">{item.bsa ? item.bsa : '-'}</div>
+                            </div>
                         </div>
                     </div>
                 );
@@ -97,7 +112,7 @@ function TabVitalsList(props) {
                 return (
                     <div key={i} className="p-10 border-bottom pb-0">
                         <div className="title-sami">
-                            {item.date}
+                            {moment(item.date).format(showDateFormat)}
                         </div>
                         <div className="py-3">
                             <div className="d-flex align-items-center justify-content-between mb-12">
@@ -131,6 +146,18 @@ function TabVitalsList(props) {
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">Weight</div>
                                 <div className="fontroboto">{item.weight ? item.weight : '-'}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">BMI</div>
+                                <div className="fontroboto">{item.bmi ? item.bmi : '-'}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">BMR</div>
+                                <div className="fontroboto">{item.bmr ? item.bmr : '-'}</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">BSA</div>
+                                <div className="fontroboto">{item.bsa ? item.bsa : '-'}</div>
                             </div>
                         </div>
                     </div>

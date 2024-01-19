@@ -16,7 +16,6 @@ import {
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 
-import { getFormattedDate } from "../utils/utils";
 import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../utils/constants";
 import noData from "../assets/images/nodata-found.svg";
 import CommonModal from "../common/CommonModal";
@@ -33,6 +32,7 @@ import {
 const { TextArea } = Input;
 
 const dateFormat = 'YYYY-MM-DD'
+const showDateFormat = 'DD-MM-YYYY'
 
 function AppointmentData() {
 
@@ -42,8 +42,8 @@ function AppointmentData() {
     const dispatch = useDispatch();
 
     const [date, setDate] = useState({
-        startDate: getFormattedDate(moment().format(dateFormat)),
-        endDate: getFormattedDate(moment().format(dateFormat)),
+        startDate: moment().format(dateFormat),
+        endDate: moment().format(dateFormat),
     });
     const [searchQuery, setSearchQuery] = useState('');
     const [pageNo, setPageNo] = useState(0);
@@ -145,8 +145,8 @@ function AppointmentData() {
             if (dateString) {
                 setPageNo(0)
                 setDate({
-                    startDate: getFormattedDate(dateString),
-                    endDate: getFormattedDate(dateString),
+                    startDate: moment(dateString,showDateFormat).format(dateFormat),
+                    endDate: moment(dateString,showDateFormat).format(dateFormat),
                 });
             }
         },
@@ -157,8 +157,8 @@ function AppointmentData() {
         () => {
             setPageNo(0)
             setDate({
-                startDate: getFormattedDate(moment(date.startDate).subtract(1, 'day').format(dateFormat)),
-                endDate: getFormattedDate(moment(date.endDate).subtract(1, 'day').format(dateFormat)),
+                startDate: moment(date.startDate).subtract(1, 'day').format(dateFormat),
+                endDate: moment(date.endDate).subtract(1, 'day').format(dateFormat),
             })
         },
         [date]);
@@ -167,8 +167,8 @@ function AppointmentData() {
         () => {
             setPageNo(0)
             setDate({
-                startDate: getFormattedDate(moment(date.startDate).add(1, 'day').format(dateFormat)),
-                endDate: getFormattedDate(moment(date.endDate).add(1, 'day').format(dateFormat)),
+                startDate: moment(date.startDate).add(1, 'day').format(dateFormat),
+                endDate: moment(date.endDate).add(1, 'day').format(dateFormat),
             })
         },
         [date]);
@@ -176,19 +176,19 @@ function AppointmentData() {
     const handleDateChange = useCallback(
         (value) => {
             const updatedate = {
-                startDate: getFormattedDate(moment().format(dateFormat)),
-                endDate: getFormattedDate(moment().format(dateFormat)),
+                startDate: moment().format(dateFormat),
+                endDate: moment().format(dateFormat),
             }
             setPageNo(0)
             if (value == 2) {
                 setDate({
-                    startDate: getFormattedDate(moment(updatedate.startDate).format(dateFormat)),
-                    endDate: getFormattedDate(moment(updatedate.endDate).add(7, 'day').format(dateFormat)),
+                    startDate: moment(updatedate.startDate).format(dateFormat),
+                    endDate: moment(updatedate.endDate).add(7, 'day').format(dateFormat),
                 })
             } else if (value == 3) {
                 setDate({
-                    startDate: getFormattedDate(moment(updatedate.startDate).format(dateFormat)),
-                    endDate: getFormattedDate(moment(updatedate.endDate).add(30, 'day').format(dateFormat)),
+                    startDate: moment(updatedate.startDate).format(dateFormat),
+                    endDate: moment(updatedate.endDate).add(30, 'day').format(dateFormat),
                 })
             } else {
                 setDate(updatedate)
@@ -553,12 +553,12 @@ function AppointmentData() {
                                 <Button variant="outline-light" className="p-0 antround-0">
                                     <DatePicker
                                         inputReadOnly
-                                        format={dateFormat}
+                                        format={showDateFormat}
                                         disabled={date.startDate != date.endDate}
-                                        defaultValue={dayjs(getFormattedDate(date.startDate), dateFormat)}
+                                        defaultValue={dayjs(moment(date.startDate).format(showDateFormat), showDateFormat)}
                                         value={
                                             date.startDate === date.endDate
-                                                ? dayjs(getFormattedDate(date.startDate), dateFormat)
+                                                ? dayjs(moment(date.startDate).format(showDateFormat), showDateFormat)
                                                 : ""
                                         }
                                         onChange={onDateChange}
