@@ -71,10 +71,10 @@ function TabPrescription() {
             if (caseManagerData.medicine.length > 0) {
                 setMedicationData(caseManagerData.medicine)
             }
-            if (caseManagerData.follow_up_date != undefined && caseManagerData.follow_up_date) {
+            if (caseManagerData.follow_up_date) {
                 setFollowUpDate(caseManagerData.follow_up_date)
             }
-            if (caseManagerData.visit_advice != undefined && caseManagerData.visit_advice) {
+            if (caseManagerData.visit_advice) {
                 setAdditionalNote(caseManagerData.visit_advice)
             }
         }

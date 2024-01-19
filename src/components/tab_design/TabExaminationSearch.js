@@ -77,6 +77,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
             });
             setExaminationData((prev) => [...prev]);
             setSelectedIndex(examinationData.length - 1);
+            setSearchChildQuery("")
         },
         [examinationData, selectedIndex]
     );

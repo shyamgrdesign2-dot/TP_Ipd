@@ -76,6 +76,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
                 ...e,
             });
             setAdviceData((prev) => [...prev]);
+            setSearchChildQuery("")
         },
         [adviceData]
     );

@@ -77,6 +77,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
             });
             setInvestigationData((prev) => [...prev]);
             setSelectedIndex(investigationData.length - 1);
+            setSearchChildQuery("")
         },
         [investigationData, selectedIndex]
     );

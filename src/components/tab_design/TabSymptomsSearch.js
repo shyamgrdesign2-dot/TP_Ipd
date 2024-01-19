@@ -93,6 +93,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
             setSymptomsData((prev) => [...prev]);
             setSelectedIndex(symptomsData.length - 1);
             setSinceValue(1)
+            setSearchChildQuery("")
         },
         [symptomsData, selectedIndex, sinceValue]
     );

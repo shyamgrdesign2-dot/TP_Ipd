@@ -48,6 +48,16 @@ function PatientDetails() {
             tcm_id: tcmData.tcm_id
         }
         dispatch(viewCaseManager(sendData));
+        // const timeOutId = setTimeout(() => {
+        //     var sendData = {
+        //         patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
+        //         tcm_id: tcmData.tcm_id
+        //     }
+        //     dispatch(viewCaseManager(sendData));
+        // }, 500);
+        // return () => {
+        //     clearTimeout(timeOutId);
+        // };
     }, [tcmData]);
 
     const nextPress = () => {
@@ -55,7 +65,7 @@ function PatientDetails() {
     }
 
     const prevPress = () => {
-        setTcmData({ tcm_id: viewCaseManagerData?.prev_tcm_id, page: tcmData.page += 1 })
+        setTcmData({ tcm_id: viewCaseManagerData?.prev_tcm_id, page:  (tcmData.page += 1) })
     }
 
     return (

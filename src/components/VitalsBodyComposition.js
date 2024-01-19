@@ -66,14 +66,14 @@ function VitalsBodyComposition({ loading, passVitals }) {
     const columns = [...initialColumns, ...dateColumns];
 
     passVitals && passVitals.length > 0 && passVitals.map((item, index) => {
-        initialRows[0][item.date] = item.temp
-        initialRows[1][item.date] = item.pres
-        initialRows[2][item.date] = item.resp_rate
-        initialRows[3][item.date] = item.blood_press ? item.blood_press.split('/')[0] : ''
-        initialRows[4][item.date] = item.blood_press ? item.blood_press.split('/')[1] : ''
-        initialRows[5][item.date] = item.spo2
-        initialRows[6][item.date] = item.height
-        initialRows[7][item.date] = item.weight
+        initialRows[0][item.date] = item.temp ? item.temp : '-'
+        initialRows[1][item.date] = item.pres ? item.pres : '-'
+        initialRows[2][item.date] = item.resp_rate ? item.resp_rate : '-'
+        initialRows[3][item.date] = item.blood_press ? item.blood_press.split('/')[0] : '-'
+        initialRows[4][item.date] = item.blood_press ? item.blood_press.split('/')[1] : '-'
+        initialRows[5][item.date] = item.spo2 ? item.spo2 : '-'
+        initialRows[6][item.date] = item.height ? item.height : '-'
+        initialRows[7][item.date] = item.weight ? item.weight : '-'
     });
 
     return (

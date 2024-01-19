@@ -94,6 +94,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
             setDiagnosisData((prev) => [...prev]);
             setSelectedIndex(diagnosisData.length - 1);
             setSinceValue(1)
+            setSearchChildQuery("")
         },
         [diagnosisData, selectedIndex, sinceValue]
     );

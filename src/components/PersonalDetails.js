@@ -52,14 +52,14 @@ function PersonalDetails({ form }) {
             //     required: true,
             //     message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div>,
             // },
-            { validator: validateFullName, message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div> },
+            { required: true, validator: validateFullName, message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div> },
         ],
         mobile_no: [
             // {
             //     required: true,
             //     message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Enter a valid mobile number</div>,
             // },
-            { validator: validateMobileNumber, message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Enter a valid 10-digit mobile number</div> },
+            { required: true, validator: validateMobileNumber, message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Enter a valid 10-digit mobile number</div> },
         ],
         gender: [
             {

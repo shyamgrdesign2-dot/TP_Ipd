@@ -120,6 +120,7 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                 setMedicationData((prev) => [...prev]);
                 setSelectedIndex(medicationData.length - 1);
                 setSinceValue(1)
+                setSearchChildQuery("")
             } else {
                 messageApi.open({
                     MESSAGE_KEY,

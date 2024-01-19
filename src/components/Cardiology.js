@@ -166,11 +166,12 @@ function Cardiology(props) {
                                     <div className='subtitle text-lowercase'>{viewCaseManagerData?.showConsultationDateTime}</div>
                                 </div>
                                 <div className='align-items-center d-flex'>
-                                    <Button className="btn border rounded-3 px-1 me-2 antdesable-custom" onClick={nextPress} disabled={viewCaseManagerData?.next_tcm_id ? false : true}>
+                                    <Button className="btn border rounded-3 px-1 me-2 antdesable-custom" onClick={nextPress} disabled={!loading && tcmData.page > 1 && viewCaseManagerData?.next_tcm_id ? false : true}>
                                         <i className="icon-right d-block"></i>
                                     </Button>
                                     {`${tcmData.page}/${viewCaseManagerData?.total_consultation}`}
-                                    <Button className="btn border rounded-3 antdesable-custom p-1 ms-2" onClick={prevPress} disabled={viewCaseManagerData?.prev_tcm_id ? false : true}>
+                                    <Button className="btn border rounded-3 antdesable-custom p-1 ms-2" onClick={prevPress}
+                                        disabled={!loading && tcmData.page < viewCaseManagerData?.total_consultation && viewCaseManagerData?.prev_tcm_id ? false : true}>
                                         <i className="icon-right" style={{ display: 'block', transform: `rotate(180deg)` }}></i>
                                     </Button>
                                 </div>
@@ -194,7 +195,7 @@ function Cardiology(props) {
                             </div>
                         </Card.Header>
                         {loading ? (
-                            <div className='d-flex flex-column justify-content-center' style={{ "height": "calc(100vh - 218px)"}}>
+                            <div className='d-flex flex-column justify-content-center' style={{ "height": "calc(100vh - 218px)" }}>
                                 <div className='align-items-center text-center'>
                                     <Spin />
                                 </div>
@@ -294,14 +295,15 @@ function Cardiology(props) {
                                                 </div>
                                             </div>
                                         )}
-                                        {/* Use This in 2nd Version */}
-                                        {/* <div className='d-flex align-items-start mb-4'>
-<img className='me-2' src={notesicon} alt="Doctor Note" />
-<div>
-<div className='title'>Doctor Note</div>
-<label>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt</label>
-</div>
-</div> */}
+                                        {viewCaseManagerData.visit_advice && (
+                                            <div className='d-flex align-items-start mb-4'>
+                                                <img className='me-2' src={notesicon} alt="Doctor Note" />
+                                                <div>
+                                                    <div className='title'>Doctor Note</div>
+                                                    <label>{viewCaseManagerData.visit_advice}</label>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </Card.Body>
