@@ -243,7 +243,7 @@ const appointmentsSlice = createSlice({
                 state.error = action.error.message
             })
             .addCase(listSalutation.pending, (state) => {
-                state.loading = true;
+                // state.loading = true;
             })
             .addCase(listSalutation.fulfilled, (state, action) => {
                 state.loading = false;
