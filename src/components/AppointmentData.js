@@ -495,7 +495,7 @@ function AppointmentData() {
                 onCancel={handleEndVisitReasonModal}
                 modalBody={
                     <>
-                        <div className="mb-2">End Visit Reason</div>
+                        <div className="mb-2 fw-medium fs-16">End Visit Reason</div>
                         <div className="border bg-body rounded-10px p-3 patient-details">
                             {appointmentSelectedFromMenu?.tpvl_remarks}
                         </div>

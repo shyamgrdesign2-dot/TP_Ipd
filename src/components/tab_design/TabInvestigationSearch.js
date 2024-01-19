@@ -149,6 +149,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                     placeholder="Search Lab Investigation"
                     searchQuery={searchChildQuery}
                     onSearchParent={onSearchParent}
+                    disabled={investigationData.length > 0 ? false : true}
                     onClose={onClose} />
                 <div className="modalcard-body">
                     <Row gutter={0} className="h-100">

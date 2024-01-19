@@ -253,7 +253,7 @@ function Cardiology(props) {
                                             <div className='d-flex align-items-center'>
                                                 <img className='me-2' src={Medicationicon} alt="Medication" />
                                                 <div>
-                                                    <div className='title'>Medication</div>
+                                                    <div className='title'>Medication (Rx)</div>
                                                 </div>
                                             </div>
                                         )}
