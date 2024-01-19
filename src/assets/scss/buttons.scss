@@ -260,6 +260,11 @@ body {
             height: 36px !important;
             padding: 5px 10px !important;
             &.chips-addCustom {
+                white-space: normal;
+                text-align: left;
+                span {
+                    display: contents;
+                }
                 a {
                     color: $theme !important;
                     font-weight: normal;
@@ -272,6 +277,9 @@ body {
                     a, span, i {
                         color: $theme !important;
                     }
+                }
+                &.chips-height {
+                 height: auto !important;   
                 }
             }
             span {
