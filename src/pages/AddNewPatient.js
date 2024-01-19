@@ -58,7 +58,7 @@ function AddNewPatient() {
                         <Row className="justify-content-between">
                             <Col lg={8} md={12}>
                                 {isMobile ? (
-                                    <>
+                                    <div className="tabs-patient">
                                         <Tabs defaultActiveKey="1">
                                             <TabPane tab="Personal Details" key="1">
                                                 <PersonalDetails form={form} />
@@ -67,7 +67,7 @@ function AddNewPatient() {
                                                 <AddressDetails form={form} />
                                             </TabPane>
                                         </Tabs>
-                                    </>
+                                    </div>
                                 ) : (
                                     <>
                                         <PersonalDetails form={form} />

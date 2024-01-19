@@ -602,3 +602,13 @@ body {
         border-color: $theme !important;
     }
 }
+.tabs-patient {
+    .ant-tabs-tab-active {
+        .ant-tabs-tab-btn {
+            color: $theme !important;
+        }
+    }
+    .ant-tabs .ant-tabs-ink-bar {
+        background-color: $theme;
+    }
+}
