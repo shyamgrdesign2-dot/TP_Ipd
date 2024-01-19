@@ -192,9 +192,11 @@ function TabVitalsList(props) {
                     </Button>
                 </div>
                 {TODAY_VITALS}
-                <div>
-                    <Collapse items={accordionItems} className="prescriptiontab-accordian" expandIconPosition={'end'} />
-                </div>
+                {vitalsPastList.length > 0 && (
+                    <div>
+                        <Collapse items={accordionItems} className="prescriptiontab-accordian" expandIconPosition={'end'} />
+                    </div>
+                )}
             </div>
         </>
     );

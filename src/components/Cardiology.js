@@ -176,7 +176,7 @@ function Cardiology(props) {
                                     </Button>
                                 </div>
                                 <div>
-                                    <button className="btn p-0 ms-3"
+                                    <button className="btn p-0 ms-3" style={{ visibility: viewCaseManagerData?.doctor_data?.editCase ? 'visible' : 'hidden' }}
                                         onClick={() =>
                                             navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: viewCaseManagerData } })
                                         }

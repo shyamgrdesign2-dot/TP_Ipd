@@ -231,7 +231,7 @@ function PersonalDetails({ form }) {
                                 <DatePicker
                                     className="w-100"
                                     inputReadOnly
-                                    placeholder={showDateFormat}
+                                    placeholder={showDateFormat.toLowerCase()}
                                     format={showDateFormat}
                                     onChange={onBirthDateChanged}
                                     disabledDate={disabledDate}
