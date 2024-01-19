@@ -302,6 +302,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                 <TabSearchHeader
                     placeholder="Search Diagnosis"
                     searchQuery={searchChildQuery}
+                    disabled={diagnosisData.length > 0 ? false : true}
                     onSearchParent={onSearchParent}
                     onClose={onClose} />
                 <div className="modalcard-body">

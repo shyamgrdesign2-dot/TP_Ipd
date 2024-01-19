@@ -929,7 +929,7 @@ function TabMedicationBox() {
                             />
                         </div>
                         <label className="title-common mb-1">
-                            Add Details
+                        Note
                         </label>
                         <Input.TextArea value={childDrawerData.tmm_remarks ? childDrawerData.tmm_remarks : ''} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                     </div>

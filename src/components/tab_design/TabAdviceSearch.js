@@ -148,6 +148,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
                 <TabSearchHeader
                     placeholder="Search Advices"
                     searchQuery={searchChildQuery}
+                    disabled={adviceData.length > 0 ? false : true}
                     onSearchParent={onSearchParent}
                     onClose={onClose} />
                 <div className="modalcard-body">

@@ -151,6 +151,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
                     placeholder="Search Examinations"
                     searchQuery={searchChildQuery}
                     onSearchParent={onSearchParent}
+                    disabled={examinationData.length > 0 ? false : true}
                     onClose={onClose} />
                 <div className="modalcard-body">
                     <Row gutter={0} className="h-100">

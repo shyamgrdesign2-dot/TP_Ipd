@@ -302,6 +302,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                     placeholder="Search Symptoms / Chief Complaints"
                     searchQuery={searchChildQuery}
                     onSearchParent={onSearchParent}
+                    disabled={symptomsData.length > 0 ? false : true}
                     onClose={onClose} />
                 <div className="modalcard-body">
                     <Row gutter={0} className="h-100">
@@ -338,7 +339,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                                         <Button
                                                             key={i}
                                                             type="text"
-                                                            style={{ width: item.value.length > 26 && '250px' }} 
+                                                            style={{ width: item.value.length > 26 && '250px' }}
                                                             className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
                                                             onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
                                                             {item.value}

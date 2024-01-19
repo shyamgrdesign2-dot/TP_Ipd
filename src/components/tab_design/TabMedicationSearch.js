@@ -413,7 +413,7 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
         { value: 3, label: 3 },
         { value: 4, label: 4 },
         { value: 5, label: 5 },
-        { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" value={inputSince} inputMode="numeric" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
+        // { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" value={inputSince} inputMode="numeric" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
     ];
 
     const onChangeSegmentedSinceChild = useCallback(
@@ -591,7 +591,7 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                                 />
                             </div>
                             <label className="title-common mb-1">
-                                Add Details
+                             Note
                             </label>
                             <Input.TextArea value={medicationData[selectedIndex].tmm_remarks ? medicationData[selectedIndex].tmm_remarks : ''} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                         </div>
@@ -606,9 +606,10 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
             {contextHolder}
             <Card bordered={false} className="search-modalCard h-100">
                 <TabSearchHeader
-                    placeholder="Search Medicines by Name, Brand or generic"
+                    placeholder="Search Medicines by Name, Brand or Generic"
                     searchQuery={searchChildQuery}
                     onSearchParent={onSearchParent}
+                    disabled={medicationData.length > 0 ? false : true}
                     onClose={onClose} />
                 <div className="modalcard-body">
                     <Row gutter={0} className="h-100">
