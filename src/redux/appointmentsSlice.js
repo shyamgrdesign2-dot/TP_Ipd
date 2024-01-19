@@ -237,8 +237,10 @@ const appointmentsSlice = createSlice({
                 state.loading = false;
                 state.patients = action.payload;
             })
-            .addCase(searchPatients.rejected, (state) => {
+            .addCase(searchPatients.rejected, (state,action) => {
                 state.loading = false;
+                state.patients = []
+                state.error = action.error.message
             })
             .addCase(listSalutation.pending, (state) => {
                 state.loading = true;
