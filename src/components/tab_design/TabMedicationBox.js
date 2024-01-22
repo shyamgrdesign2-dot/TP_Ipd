@@ -146,6 +146,7 @@ function TabMedicationBox() {
                         ...e,
                         tmm_unit_name: unitObj && unitObj != undefined ? JSON.parse(unitObj.key).tmu_title : "",
                         tmm_freq_type_name: frequencyObj != undefined ? frequencyObj.tmf_title : "",
+                        tmf_block_val: frequencyObj != undefined ? frequencyObj.tmf_block_val : "",
                         tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
                         medicineUnit: medicineUnit,
                         unique_id: uuidv4()
@@ -232,6 +233,7 @@ function TabMedicationBox() {
                     ...e,
                     tmm_unit_name: unitObj && unitObj != undefined ? JSON.parse(unitObj.key).tmu_title : "",
                     tmm_freq_type_name: frequencyObj != undefined ? frequencyObj.tmf_title : "",
+                    tmf_block_val: frequencyObj != undefined ? frequencyObj.tmf_block_val : "",
                     tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
                     medicineUnit: medicineUnit,
                     unique_id: uuidv4()
@@ -377,7 +379,7 @@ function TabMedicationBox() {
                         <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
                             <div className="text-truncate">{item.tmm_medicine_name}
                                 {(item.tmm_dosage || item.tmm_unit_name) ? (
-                                    <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + ' | ' : ''}${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != '' ? item.tcm_tmm_freq_morning + ' - ' : '0 -'}${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != '' ? item.tcm_tmm_freq_afternoon + ' - ' : '0 -'}${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != '' ? item.tcm_tmm_freq_evening + ' - ' : '0 -'}${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != '' ? item.tcm_tmm_freq_night + ' | ' : '0 |'}${item.tmm_time_name ? item.tmm_time_name : ''}`}</div>
+                                    <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + ' | ' : ''}${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_morning + ' - ' : '0 -'}${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_afternoon + ' - ' : '0 -'}${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_evening + ' - ' : '0 -'}${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_night + ' | ' : '0 |'}${item.tmm_time_name ? item.tmm_time_name : ''}`}</div>
                                 ) : (
                                     <div className="text-truncate small">Add Details</div>
                                 )}
@@ -518,7 +520,14 @@ function TabMedicationBox() {
         (data) => {
             const obj = frequencyList.find(e => e.tmf_id == data)
             if (obj != undefined) {
-                setChildDrawerData({ ...childDrawerData, tmm_freq_type: obj.tmf_id, tmm_freq_type_name: obj.tmf_title, tmf_block: obj.tmf_block })
+                if (obj.tmf_block != 0) {
+                    setChildDrawerData({
+                        ...childDrawerData, tmm_freq_type: obj.tmf_id, tmm_freq_type_name: obj.tmf_title, tmf_block: obj.tmf_block, tmf_block_val: obj.tmf_block_val,
+                        tcm_tmm_freq_morning: 0, tcm_tmm_freq_afternoon: 0, tcm_tmm_freq_evening: 0, tcm_tmm_freq_night: 0
+                    })
+                } else {
+                    setChildDrawerData({ ...childDrawerData, tmm_freq_type: obj.tmf_id, tmm_freq_type_name: obj.tmf_title, tmf_block: obj.tmf_block, tmf_block_val: obj.tmf_block_val })
+                }
             }
         },
         [childDrawerData]
@@ -929,7 +938,7 @@ function TabMedicationBox() {
                             />
                         </div>
                         <label className="title-common mb-1">
-                        Note
+                            Note
                         </label>
                         <Input.TextArea value={childDrawerData.tmm_remarks ? childDrawerData.tmm_remarks : ''} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                     </div>
@@ -976,7 +985,7 @@ function TabMedicationBox() {
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
                     {parentDrawer && (<TabMedicationSearch passIndex={selectedIndex} onClose={handleDrawerParent} frequencyData={frequencyData} timingData={timingData} />)}
                 </Drawer>
-                <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{maxHeight: '114px'}}>
+                <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.map((item, i) => {
                             return (

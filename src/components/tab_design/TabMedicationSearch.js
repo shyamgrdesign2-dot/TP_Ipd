@@ -108,6 +108,7 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                         ...e,
                         tmm_unit_name: unitObj && unitObj != undefined ? JSON.parse(unitObj.key).tmu_title : "",
                         tmm_freq_type_name: frequencyObj != undefined ? frequencyObj.tmf_title : "",
+                        tmf_block_val: frequencyObj != undefined ? frequencyObj.tmf_block_val : "",
                         tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
                         medicineUnit: medicineUnit,
                         unique_id: uuidv4()
@@ -152,7 +153,7 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                         }}>
                             <div className="text-truncate">{item.tmm_medicine_name}
                                 {(item.tmm_dosage || item.tmm_unit_name) ? (
-                                    <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + ' | ' : ''}${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != '' ? item.tcm_tmm_freq_morning + ' - ' : '0 -'}${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != '' ? item.tcm_tmm_freq_afternoon + ' - ' : '0 -'}${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != '' ? item.tcm_tmm_freq_evening + ' - ' : '0 -'}${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != '' ? item.tcm_tmm_freq_night + ' | ' : '0 |'}${item.tmm_time_name ? item.tmm_time_name : ''}`}</div>
+                                    <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + ' | ' : ''}${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_morning + ' - ' : '0 -'}${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_afternoon + ' - ' : '0 -'}${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_evening + ' - ' : '0 -'}${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_night + ' | ' : '0 |'}${item.tmm_time_name ? item.tmm_time_name : ''}`}</div>
                                 ) : (
                                     <div className="text-truncate small">Add Details</div>
                                 )}
@@ -197,6 +198,13 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                 medicationData[selectedIndex].tmm_freq_type = obj.tmf_id;
                 medicationData[selectedIndex].tmm_freq_type_name = obj.tmf_title;
                 medicationData[selectedIndex].tmf_block = obj.tmf_block;
+                medicationData[selectedIndex].tmf_block_val = obj.tmf_block_val;
+                if (obj.tmf_block != 0) {
+                    medicationData[selectedIndex].tcm_tmm_freq_morning = 0;
+                    medicationData[selectedIndex].tcm_tmm_freq_afternoon = 0;
+                    medicationData[selectedIndex].tcm_tmm_freq_evening = 0;
+                    medicationData[selectedIndex].tcm_tmm_freq_night = 0;
+                }
                 setMedicationData((prev) => [...prev]);
             }
         },
@@ -592,7 +600,7 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                                 />
                             </div>
                             <label className="title-common mb-1">
-                             Note
+                                Note
                             </label>
                             <Input.TextArea value={medicationData[selectedIndex].tmm_remarks ? medicationData[selectedIndex].tmm_remarks : ''} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                         </div>
@@ -647,7 +655,7 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                                                     <Button
                                                         key={i}
                                                         type="text"
-                                                        style={{ width: item.value.length > 26 && '250px' }} 
+                                                        style={{ width: item.value.length > 26 && '250px' }}
                                                         className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
                                                         onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
                                                         {item.value}

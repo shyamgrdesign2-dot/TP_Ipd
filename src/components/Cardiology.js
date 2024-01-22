@@ -22,49 +22,6 @@ function Cardiology(props) {
     const [filteredInfo, setFilteredInfo] = useState({});
     const [setSortedInfo] = useState({});
 
-    // const [data, setData] = useState([
-    //     {
-    //         key: Math.random(),
-    //         name: 'Pan 40 Tablet',
-    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
-    //         duration: '3 Days',
-    //         qty: '3',
-    //         note: 'Lorem ipsum dolor',
-    //     },
-    //     {
-    //         key: Math.random(),
-    //         name: 'Pan 40 Tablet',
-    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
-    //         duration: '3 Days',
-    //         qty: '3',
-    //         note: 'Lorem ipsum dolor',
-    //     },
-    //     {
-    //         key: Math.random(),
-    //         name: 'Pan 40 Tablet',
-    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
-    //         duration: '3 Days',
-    //         qty: '3',
-    //         note: 'Follow Up',
-    //     },
-    //     {
-    //         key: Math.random(),
-    //         name: 'Pan 40 Tablet',
-    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
-    //         duration: '3 Days',
-    //         qty: '3',
-    //         note: 'Lorem ipsum dolor',
-    //     },
-    //     {
-    //         key: Math.random(),
-    //         name: 'Pan 40 Tablet',
-    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
-    //         duration: '3 Days',
-    //         qty: '3',
-    //         note: 'Follow Up',
-    //     }
-    // ]);
-
     const items = [
         {
             label: <div onClick={onPrintRxUrlClick}>Print Medicines Only</div>,
@@ -115,7 +72,7 @@ function Cardiology(props) {
             key: 'TimeFrequency',
             render: (text, record) => (
                 <div className='lh-base'>
-                    {`${hasNumber(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${hasNumber(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${hasNumber(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${hasNumber(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} (${record.tmm_freq_type_name})`}
+                    {hasNumber(record.tmf_block) && record.tmf_block == 0 ? `${hasNumber(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${hasNumber(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${hasNumber(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${hasNumber(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} (${record.tmm_freq_type_name})` : `0-0-0-0 (${record.tmm_freq_type_name})`}
                     <div>{record.tmm_time_name}</div>
                 </div>
             ),
@@ -127,7 +84,7 @@ function Cardiology(props) {
             ellipsis: true,
             width: '70px',
             render: (text, record) => (
-                <div>{`${record.tmm_days} - ${record.tmm_duration_type}`}</div>
+                <div>{hasNumber(record.tmm_days) ? `${record.tmm_days} - ${record.tmm_duration_type}` : `-`}</div>
             ),
         },
         {
@@ -149,6 +106,7 @@ function Cardiology(props) {
             ),
         },
     ];
+
 
     const onPrintUrlClick = async () => {
         await window.open(viewCaseManagerData?.print_url);
