@@ -143,6 +143,7 @@ function Header({ locationPath }) {
                 <img
                   src={profile?.um_image ?? defaultprofile}
                   alt="Profile"
+                  className="rounded-circle"
                   style={{ width: "35px" }}
                 />
               ) : (

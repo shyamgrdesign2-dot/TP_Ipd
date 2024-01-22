@@ -12,13 +12,18 @@ import {
     Dropdown,
     Input,
     Button,
+    message
 } from "antd";
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 
 import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../utils/constants";
 import noData from "../assets/images/nodata-found.svg";
+import visitEnd from '../assets/images/end-visit.svg';
+import ImgcancelEnd from '../assets/images/cancel-visit.svg';
+import imgCloseVisit from '../assets/images/close-visit.svg';
 import CommonModal from "../common/CommonModal";
+import { MESSAGE_KEY } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -460,6 +465,22 @@ function AppointmentData() {
                                         const action = await dispatch(cancelAppointments(sendData));
                                         if (action.meta.requestStatus == "fulfilled") {
                                             handleConfirmationModal()
+                                            message.open({
+                                                MESSAGE_KEY,
+                                                type: '',
+                                                className: 'message-appointment',
+                                                content: (
+                                                    <div className='d-flex align-items-center'>
+                                                        <img src={ImgcancelEnd} className='me-3' />
+                                                        <div>
+                                                            <div className='title-common text-start fontroboto'>Appointment Cancelled Successfully</div>
+                                                            <div className='fontroboto text-start fw-normal mt-1'>View cancelled appointments in Cancelled tab.</div>
+                                                        </div>
+                                                        <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                                                    </div>
+                                                ),
+                                                duration: 5,
+                                            });
                                         }
                                     }}>
                                     Yes, Cancel Appointment{" "}
@@ -517,6 +538,24 @@ function AppointmentData() {
         if (action.meta.requestStatus == "fulfilled") {
             setEndVisitReason('')
             handleEndVisitReasonDrawer()
+
+            message.open({
+                MESSAGE_KEY,
+                type: '',
+                className: 'message-appointment',
+                content: (
+                    <div className='d-flex align-items-center'>
+                        <img src={visitEnd} className='me-3' />
+                        <div>
+                            <div className='title-common fontroboto'>{`${appointmentSelectedFromMenu?.pm_first_name}’s visit end successfully.`}</div>
+                            <div className='fontroboto text-start fw-normal mt-1'>View end visits in Finished tab.</div>
+                        </div>
+                        <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                    </div>
+                ),
+                duration: 5,
+            });
+
         }
     }
 

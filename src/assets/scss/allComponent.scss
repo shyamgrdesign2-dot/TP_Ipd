@@ -617,3 +617,13 @@ body {
         background-color: $theme;
     }
 }
+.ant-message-notice-wrapper .message-appointment {
+    .ant-message-notice-content {
+        background: rgba(23, 23, 37, 0.90);
+        border-radius: 10px;
+        padding: 15px;
+        div {
+            color: $white !important;
+        }
+    }
+}

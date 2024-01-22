@@ -41,6 +41,18 @@ function VitalsBodyComposition({ loading, passVitals }) {
         {
             key: '8',
             name: `Weight (kgs)`,
+        },
+        {
+            key: '9',
+            name: `BMI (kg/m²)`,
+        },
+        {
+            key: '10',
+            name: `BMR (kcals)`,
+        },
+        {
+            key: '11',
+            name: `BSA (m²)`,
         }
     ];
 
@@ -74,6 +86,9 @@ function VitalsBodyComposition({ loading, passVitals }) {
         initialRows[5][item.date] = item.spo2 ? item.spo2 : '-'
         initialRows[6][item.date] = item.height ? item.height : '-'
         initialRows[7][item.date] = item.weight ? item.weight : '-'
+        initialRows[8][item.date] = item.bmi ? item.bmi : '-'
+        initialRows[9][item.date] = item.bmr ? item.bmr : '-'
+        initialRows[10][item.date] = item.bsa ? item.bsa : '-'
     });
 
     return (

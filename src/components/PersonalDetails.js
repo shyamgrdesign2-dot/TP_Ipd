@@ -38,11 +38,15 @@ function PersonalDetails({ form }) {
     };
 
     const validateFullName = (_, value) => {
-        const updateQuery = removeBeforeWhiteSpace(value);
-        form.setFieldsValue({
-            pm_fullname: updateQuery,
-        });
-        return Promise.resolve();
+        if (!value) {
+            return Promise.reject('Please enter full name');
+        } else {
+            const updateQuery = removeBeforeWhiteSpace(value);
+            form.setFieldsValue({
+                pm_fullname: updateQuery,
+            });
+            return Promise.resolve();
+        }
     };
 
     // Form Rules
