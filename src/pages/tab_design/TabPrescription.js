@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { Layout, Drawer, DatePicker, Input, Button, Col, Row } from 'antd';
 import { Content } from "antd/es/layout/layout";
+import moment from 'moment';
 
 import CashManagerContext from '../../context/CashManagerContext';
 import HeaderPrescription from "../../common/HeaderPrescription";
@@ -28,6 +29,7 @@ function TabPrescription() {
     const { state } = useLocation();
     const { patient_data, caseManagerData } = state
     const tcmId = caseManagerData != undefined ? caseManagerData.tcm_id : 0
+    const consultationDate = caseManagerData != undefined ? caseManagerData.consultation_date : moment().format('YYYY-MM-DD HH:mm:ss')
 
     const [symptomsData, setSymptomsData] = useState([]);
     const [examinationData, setExaminationData] = useState([]);
@@ -39,7 +41,7 @@ function TabPrescription() {
     const [followUpDate, setFollowUpDate] = useState(null);
     const [additionalNote, setAdditionalNote] = useState('');
 
-    const contextApi = { patient_data, tcmId, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote };
+    const contextApi = { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote };
 
     const [collapsed, setCollapsed] = useState(false);
     const [collapsedFlag, setCollapsedFlag] = useState(1);
@@ -71,10 +73,10 @@ function TabPrescription() {
             if (caseManagerData.medicine.length > 0) {
                 setMedicationData(caseManagerData.medicine)
             }
-            if (caseManagerData.follow_up_date != undefined && caseManagerData.follow_up_date) {
+            if (caseManagerData.follow_up_date) {
                 setFollowUpDate(caseManagerData.follow_up_date)
             }
-            if (caseManagerData.visit_advice != undefined && caseManagerData.visit_advice) {
+            if (caseManagerData.visit_advice) {
                 setAdditionalNote(caseManagerData.visit_advice)
             }
         }
@@ -96,7 +98,7 @@ function TabPrescription() {
         <CashManagerContext.Provider value={contextApi}>
             <>
                 <HeaderPrescription />
-                <div className='w-100 bg-body wrapper2 custom-scroll prescription-wrapper p-0'>
+                <div className='w-100 bg-body wrapper2 prescription-wrapper p-0'>
                     <Layout>
                         <div className="prescription-sidebar">
                             <button type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length == 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>

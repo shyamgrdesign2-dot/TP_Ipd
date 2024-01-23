@@ -41,6 +41,18 @@ function VitalsBodyComposition({ loading, passVitals }) {
         {
             key: '8',
             name: `Weight (kgs)`,
+        },
+        {
+            key: '9',
+            name: `BMI (kg/m²)`,
+        },
+        {
+            key: '10',
+            name: `BMR (kcals)`,
+        },
+        {
+            key: '11',
+            name: `BSA (m²)`,
         }
     ];
 
@@ -66,14 +78,17 @@ function VitalsBodyComposition({ loading, passVitals }) {
     const columns = [...initialColumns, ...dateColumns];
 
     passVitals && passVitals.length > 0 && passVitals.map((item, index) => {
-        initialRows[0][item.date] = item.temp
-        initialRows[1][item.date] = item.pres
-        initialRows[2][item.date] = item.resp_rate
-        initialRows[3][item.date] = item.blood_press ? item.blood_press.split('/')[0] : ''
-        initialRows[4][item.date] = item.blood_press ? item.blood_press.split('/')[1] : ''
-        initialRows[5][item.date] = item.spo2
-        initialRows[6][item.date] = item.height
-        initialRows[7][item.date] = item.weight
+        initialRows[0][item.date] = item.temp ? item.temp : '-'
+        initialRows[1][item.date] = item.pres ? item.pres : '-'
+        initialRows[2][item.date] = item.resp_rate ? item.resp_rate : '-'
+        initialRows[3][item.date] = item.blood_press ? item.blood_press.split('/')[0] ? item.blood_press.split('/')[0] : '-' : '-'
+        initialRows[4][item.date] = item.blood_press ? item.blood_press.split('/')[1] ? item.blood_press.split('/')[1] : '-' : '-'
+        initialRows[5][item.date] = item.spo2 ? item.spo2 : '-'
+        initialRows[6][item.date] = item.height ? item.height : '-'
+        initialRows[7][item.date] = item.weight ? item.weight : '-'
+        initialRows[8][item.date] = item.bmi ? item.bmi : '-'
+        initialRows[9][item.date] = item.bmr ? item.bmr : '-'
+        initialRows[10][item.date] = item.bsa ? item.bsa : '-'
     });
 
     return (

@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { Form, Input, Button, Select, DatePicker, Radio, Row, Col, InputNumber } from "antd";
-import {
-    calculateAge,
-    getFormattedDate,
-} from "../utils/utils";
+import { calculateAge } from "../utils/utils";
 import dayjs from "dayjs";
 import moment from "moment";
 import { isMobile } from "react-device-detect";
@@ -15,6 +12,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { listSalutation } from "../redux/appointmentsSlice";
 
 const { Option } = Select;
+
+const dateFormat = 'YYYY-MM-DD'
+const showDateFormat = 'DD-MM-YYYY'
 
 function PersonalDetails({ form }) {
 
@@ -38,11 +38,15 @@ function PersonalDetails({ form }) {
     };
 
     const validateFullName = (_, value) => {
-        const updateQuery = removeBeforeWhiteSpace(value);
-        form.setFieldsValue({
-            pm_fullname: updateQuery,
-        });
-        return Promise.resolve();
+        if (!value) {
+            return Promise.reject('Please enter full name');
+        } else {
+            const updateQuery = removeBeforeWhiteSpace(value);
+            form.setFieldsValue({
+                pm_fullname: updateQuery,
+            });
+            return Promise.resolve();
+        }
     };
 
     // Form Rules
@@ -52,14 +56,14 @@ function PersonalDetails({ form }) {
             //     required: true,
             //     message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div>,
             // },
-            { validator: validateFullName, message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div> },
+            { required: true, validator: validateFullName, message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please enter full name</div> },
         ],
         mobile_no: [
             // {
             //     required: true,
             //     message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Enter a valid mobile number</div>,
             // },
-            { validator: validateMobileNumber, message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Enter a valid 10-digit mobile number</div> },
+            { required: true, validator: validateMobileNumber, message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Enter a valid 10-digit mobile number</div> },
         ],
         gender: [
             {
@@ -81,7 +85,7 @@ function PersonalDetails({ form }) {
         if (dateString) {
             setBirthDate(dateString);
             // const remaingDate = moment(dateString).add(1, 'day').format('YYYY-MM-DD')
-            const age = calculateAge(getFormattedDate(dateString));
+            const age = calculateAge(moment(dateString, showDateFormat).format(dateFormat));
             form.setFieldsValue({
                 dobYearsMonths: age.years,
             });
@@ -124,7 +128,7 @@ function PersonalDetails({ form }) {
 
             setBirthDate(newDate);
             form.setFieldsValue({
-                pm_dob: dayjs(getFormattedDate(newDate), "YYYY-MM-DD"),
+                pm_dob: dayjs(moment(newDate).format(dateFormat), "YYYY-MM-DD"),
             });
         }
     }, [ageYearsMonths]);
@@ -195,7 +199,7 @@ function PersonalDetails({ form }) {
                                 <div className="justify-content-between d-flex">
                                     <Input
                                         className="w-48"
-                                        type="numeric"
+                                        type="number"
                                         placeholder="Year"
                                         maxLength={3}
                                         value={ageYearsMonths?.years}
@@ -209,7 +213,7 @@ function PersonalDetails({ form }) {
                                     />
                                     <Input
                                         className="w-48"
-                                        type="numeric"
+                                        type="number"
                                         placeholder="Months"
                                         maxLength={2}
                                         value={ageYearsMonths?.months}
@@ -231,12 +235,13 @@ function PersonalDetails({ form }) {
                                 <DatePicker
                                     className="w-100"
                                     inputReadOnly
-                                    placeholder="YYYY-MM-DD"
+                                    placeholder={showDateFormat.toLowerCase()}
+                                    format={showDateFormat}
                                     onChange={onBirthDateChanged}
                                     disabledDate={disabledDate}
                                     value={
                                         birthDate
-                                            ? dayjs(getFormattedDate(birthDate), "YYYY-MM-DD")
+                                            ? dayjs(moment(birthDate).format(showDateFormat), showDateFormat)
                                             : null
                                     }
                                 />

@@ -77,10 +77,10 @@ function AddressDetails({ form }) {
             )}
             {showDetails && (
                 <>
-                    <Row className="mt-3" gutter={{ xs: 8, sm: 18, md: 40, lg: 94 }}>
+                    <Row className={!isMobile && "mt-3"} gutter={{ xs: 8, sm: 18, md: 40, lg: 94 }}>
                         <Col xs={24} sm={24} md={12} lg={12}>
                             <Form.Item name="pm_pincode" label="Pincode"
-                                // rules={rules.pincode}
+                            // rules={rules.pincode}
                             >
                                 <Input
                                     placeholder="Pincode"

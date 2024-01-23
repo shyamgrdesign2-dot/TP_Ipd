@@ -148,7 +148,7 @@ function PrescriptionPrintView() {
     return (
         <>
             <HeaderPrescriptionPrint patient_data={patient_data} />
-            <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 custom-scroll prescription-wrapper`}>
+            <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={7} lg={7} xl={5}>
@@ -229,7 +229,7 @@ function PrescriptionPrintView() {
                             <div className="border rounded-20px bg-white mt-20 overflow-hidden">
                                 <div ref={divRef} className="printheight">
                                     <PDFReader ref={printRef} className="printBox" width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} />
-                                    {/* <embed className="printBox" src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`}></embed> */}
+                                    {/* <embed className="printBox" ref={printRef} src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed> */}
                                     {/* <iframe
                                         src="https://pms-upgrade.azurewebsites.net/case_manager/pdf_casemanager_send.php?pdf_id=MTI3Njgx&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ=#toolbar=0&navpanes=0&scrollbar=0"
                                         height="100%" width="100%"

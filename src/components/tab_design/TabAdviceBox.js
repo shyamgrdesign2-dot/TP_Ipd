@@ -82,7 +82,7 @@ function TabAdviceBox() {
 
     const onSelectParent = useCallback(
         (e) => {
-            adviceData.push({
+            adviceData.unshift({
                 ...e,
             });
             setAdviceData((prev) => [...prev]);

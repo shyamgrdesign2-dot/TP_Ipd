@@ -77,6 +77,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
             });
             setInvestigationData((prev) => [...prev]);
             setSelectedIndex(investigationData.length - 1);
+            setSearchChildQuery("")
         },
         [investigationData, selectedIndex]
     );
@@ -148,6 +149,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                     placeholder="Search Lab Investigation"
                     searchQuery={searchChildQuery}
                     onSearchParent={onSearchParent}
+                    disabled={investigationData.length > 0 ? false : true}
                     onClose={onClose} />
                 <div className="modalcard-body">
                     <Row gutter={0} className="h-100">
@@ -167,7 +169,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                                     <div className="title2">
                                         {searchChildQuery.length > 0 ? 'Searched' : 'Frequently Used'}
                                     </div>
-                                    <div className="mt-3 d-flex flex-wrap">
+                                    <div className="mt-3">
                                         {searchChildQuery.length > 0 ? (
                                             childSearchOptions.length > 0 &&
                                             childSearchOptions.map((item, i) => {
@@ -176,7 +178,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                                                         <Button
                                                             key={i}
                                                             type="text"
-                                                            className="btn btn-primary2 chips-custom mb-14 me-14 d-flex align-items-center chips-addCustom"
+                                                            className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height"
                                                             onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
                                                             {item.value} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
                                                         </Button>

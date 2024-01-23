@@ -8,6 +8,9 @@ import CashManagerContext from '../context/CashManagerContext';
 import {
     getVitals,
 } from "../redux/vitalsSlice";
+import moment from "moment";
+
+const showDateFormat = 'DD MMM, YY'
 
 function VitalsList() {
 
@@ -42,7 +45,7 @@ function VitalsList() {
                 return (
                     <div key={i} className={`${vitalsData.length - 1 != i && 'border-bottom'} pt-3 vitals-height input-readonly`}>
                         <div className="title-sami mb-3">
-                            {item.date}
+                            {moment(item.date).format(showDateFormat)}
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">Temperature</div>
@@ -75,6 +78,18 @@ function VitalsList() {
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">Weight</div>
                             <Input className='inputheight41-group mx-2' value={item.weight} addonAfter={'kgs'} readOnly />
+                        </div>
+                        <div className="d-flex align-items-center justify-content-between mb-12">
+                            <div className="fontroboto">BMI</div>
+                            <Input className='inputheight41-group mx-2' value={item.bmi} addonAfter={'kg/m²'} readOnly />
+                        </div>
+                        <div className="d-flex align-items-center justify-content-between mb-12">
+                            <div className="fontroboto">BMR</div>
+                            <Input className='inputheight41-group mx-2' value={item.bmr} addonAfter={'kcals'} readOnly />
+                        </div>
+                        <div className="d-flex align-items-center justify-content-between mb-12">
+                            <div className="fontroboto">BSA</div>
+                            <Input className='inputheight41-group mx-2' value={item.bsa} addonAfter={'m²'} readOnly />
                         </div>
                     </div>
                 );

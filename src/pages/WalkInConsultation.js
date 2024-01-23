@@ -17,6 +17,24 @@ function WalkInConsultation() {
     const [searchOptions, setSearchOptions] = useState([]);
     const [clickedPatient, setClickedPatient] = useState(null);
 
+    const BoldWordInName = ({ name, boldWord }) => {
+        // Split the name into parts based on the bold word
+        const parts = name.split(new RegExp(`(${boldWord})`, 'i'));
+
+        // Map through the parts and apply different styles to the bold word
+        const formattedName = parts.map((part, index) => {
+            if (part.toLowerCase() === boldWord.toLowerCase()) {
+                // If the part matches the bold word, render it in bold
+                return <span key={index} className="fw-medium">{part}</span>;
+            } else {
+                // Otherwise, render it normally
+                return <span key={index}>{part}</span>;
+            }
+        });
+
+        return formattedName;
+    };
+
     const PatientPlank = (patient) => {
         return (
             <>
@@ -24,10 +42,15 @@ function WalkInConsultation() {
                     <div className="d-flex align-items-center">
                         <div className="list-patientName d-flex align-items-center me-4">
                             <i className="icon-patients backbar me-2"></i>{" "}
-                            <span className="fw-medium">
+                            {/* <span className="fw-medium">
                                 {patient.pm_salutation && patient.pm_salutation}{" "}
                                 {patient.pm_first_name} {patient.pm_last_name} (
                                 {patient.pm_gender}, {patient.ageYears}y)
+                            </span> */}
+                            <span>
+                                {patient.pm_salutation && patient.pm_salutation}{" "}
+                                <BoldWordInName name={patient.pm_fullname} boldWord={searchQuery} />{" "}
+                                ({patient.pm_gender}, {patient.ageYears}y)
                             </span>
                         </div>
                         <div className="list-patientName d-flex align-items-center me-4">
@@ -151,9 +174,11 @@ function WalkInConsultation() {
                         <div className="border bg-body rounded-10px p-2 patient-details">
                             <div className="d-flex align-items-center">
                                 <i className="icon-patients me-2" />
-                                <span className="fw-medium">
-                                    {clickedPatient?.pm_first_name} {clickedPatient?.pm_last_name}{" "}
-                                    ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y)
+                                <span className="title-common fontroboto">
+                                    {clickedPatient?.pm_fullname}{" "}
+                                    <span className="fw-normal ms-2">
+                                        ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y)
+                                    </span>
                                 </span>
                             </div>
                             <div className="mt-2 d-flex align-items-center">
@@ -219,7 +244,7 @@ function WalkInConsultation() {
                         options={searchOptions}
                         className="autocomplete-custom w-100"
                         onSelect={onSelect}
-                        defaultActiveFirstOption={true}
+                        // defaultActiveFirstOption={true}
                         defaultOpen
                         autoFocus
                         popupClassName={"walkincomplete"}

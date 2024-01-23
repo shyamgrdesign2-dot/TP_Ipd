@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { Col, Row } from "react-bootstrap";
-import { Form, Tabs, Button } from "antd";
+import { Form, Tabs, Button, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+
+import { MESSAGE_KEY } from "../utils/constants";
 
 import TabHeader from "../components/tab_design/TabHeader";
 import PersonalDetails from "../components/PersonalDetails";
@@ -34,6 +36,13 @@ function AddNewPatient() {
             const action = await dispatch(addPatient(finalValues));
             if (action.meta.requestStatus == "fulfilled") {
                 navigate("/prescription", { state: { patient_data: action.payload } })
+            } else {
+                message.open({
+                    MESSAGE_KEY,
+                    type: 'warning',
+                    content: action.error.message,
+                    duration: 2
+                });
             }
         }).catch(info => {
             console.log('info', info)
@@ -58,7 +67,7 @@ function AddNewPatient() {
                         <Row className="justify-content-between">
                             <Col lg={8} md={12}>
                                 {isMobile ? (
-                                    <>
+                                    <div className="tabs-patient">
                                         <Tabs defaultActiveKey="1">
                                             <TabPane tab="Personal Details" key="1">
                                                 <PersonalDetails form={form} />
@@ -67,7 +76,7 @@ function AddNewPatient() {
                                                 <AddressDetails form={form} />
                                             </TabPane>
                                         </Tabs>
-                                    </>
+                                    </div>
                                 ) : (
                                     <>
                                         <PersonalDetails form={form} />
@@ -85,7 +94,7 @@ function AddNewPatient() {
                         <>
                             <hr className="my-0" />
                             <div className="text-end p-20">
-                                <button className="btn btn-text text-decoration-underline me-3" onClick={() => navigate(-1)}>
+                                <button type="button" className="btn btn-text text-decoration-underline me-3" onClick={() => navigate(-1)}>
                                     Cancel
                                 </button>
                                 <Button

@@ -463,8 +463,8 @@ function SymptomsBox() {
               <Select
                 className="autocomplete-custom w-100 inputborder"
                 placeholder="Severity"
-                defaultValue={item.severity}
-                value={item.severity}
+                defaultValue={item.severity != "" ? item.severity : null}
+                value={item.severity != "" ? item.severity : null}
                 onSelect={(data) => onSelectSeverityChild(data, index)}
                 options={SEVERITY_LIST}
               />

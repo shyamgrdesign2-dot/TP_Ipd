@@ -22,52 +22,9 @@ function Cardiology(props) {
     const [filteredInfo, setFilteredInfo] = useState({});
     const [setSortedInfo] = useState({});
 
-    // const [data, setData] = useState([
-    //     {
-    //         key: Math.random(),
-    //         name: 'Pan 40 Tablet',
-    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
-    //         duration: '3 Days',
-    //         qty: '3',
-    //         note: 'Lorem ipsum dolor',
-    //     },
-    //     {
-    //         key: Math.random(),
-    //         name: 'Pan 40 Tablet',
-    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
-    //         duration: '3 Days',
-    //         qty: '3',
-    //         note: 'Lorem ipsum dolor',
-    //     },
-    //     {
-    //         key: Math.random(),
-    //         name: 'Pan 40 Tablet',
-    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
-    //         duration: '3 Days',
-    //         qty: '3',
-    //         note: 'Follow Up',
-    //     },
-    //     {
-    //         key: Math.random(),
-    //         name: 'Pan 40 Tablet',
-    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
-    //         duration: '3 Days',
-    //         qty: '3',
-    //         note: 'Lorem ipsum dolor',
-    //     },
-    //     {
-    //         key: Math.random(),
-    //         name: 'Pan 40 Tablet',
-    //         TimeFrequency: '1-0-0-0 (Once a day) After Food',
-    //         duration: '3 Days',
-    //         qty: '3',
-    //         note: 'Follow Up',
-    //     }
-    // ]);
-
     const items = [
         {
-            label: <div onClick={onPrintRxUrlClick}>Print Rx</div>,
+            label: <div onClick={onPrintRxUrlClick}>Print Medicines Only</div>,
             key: 'printrx',
         },
         // {
@@ -115,7 +72,7 @@ function Cardiology(props) {
             key: 'TimeFrequency',
             render: (text, record) => (
                 <div className='lh-base'>
-                    {`${hasNumber(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${hasNumber(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${hasNumber(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${hasNumber(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} (${record.tmm_freq_type_name})`}
+                    {hasNumber(record.tmf_block) && record.tmf_block == 0 ? `${hasNumber(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${hasNumber(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${hasNumber(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${hasNumber(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} (${record.tmm_freq_type_name})` : `0-0-0-0 (${record.tmm_freq_type_name})`}
                     <div>{record.tmm_time_name}</div>
                 </div>
             ),
@@ -127,7 +84,7 @@ function Cardiology(props) {
             ellipsis: true,
             width: '70px',
             render: (text, record) => (
-                <div>{`${record.tmm_days} - ${record.tmm_duration_type}`}</div>
+                <div>{hasNumber(record.tmm_days) ? `${record.tmm_days} - ${record.tmm_duration_type}` : `-`}</div>
             ),
         },
         {
@@ -136,7 +93,7 @@ function Cardiology(props) {
             key: 'qty',
             width: '45px',
             render: (text, record) => (
-                <div>{`${record.tmm_dosage ? record.tmm_dosage : '-'}`}</div>
+                <div>{`${record.display_qty ? record.display_qty : '-'}`}</div>
             ),
         },
         {
@@ -149,6 +106,7 @@ function Cardiology(props) {
             ),
         },
     ];
+
 
     const onPrintUrlClick = async () => {
         await window.open(viewCaseManagerData?.print_url);
@@ -166,16 +124,17 @@ function Cardiology(props) {
                                     <div className='subtitle text-lowercase'>{viewCaseManagerData?.showConsultationDateTime}</div>
                                 </div>
                                 <div className='align-items-center d-flex'>
-                                    <Button className="btn border rounded-3 px-1 me-2 antdesable-custom" onClick={nextPress} disabled={viewCaseManagerData?.next_tcm_id ? false : true}>
+                                    <Button className="btn border rounded-3 px-1 me-2 antdesable-custom" onClick={nextPress} disabled={!loading && tcmData.page > 1 && viewCaseManagerData?.next_tcm_id ? false : true}>
                                         <i className="icon-right d-block"></i>
                                     </Button>
                                     {`${tcmData.page}/${viewCaseManagerData?.total_consultation}`}
-                                    <Button className="btn border rounded-3 antdesable-custom p-1 ms-2" onClick={prevPress} disabled={viewCaseManagerData?.prev_tcm_id ? false : true}>
+                                    <Button className="btn border rounded-3 antdesable-custom p-1 ms-2" onClick={prevPress}
+                                        disabled={!loading && tcmData.page < viewCaseManagerData?.total_consultation && viewCaseManagerData?.prev_tcm_id ? false : true}>
                                         <i className="icon-right" style={{ display: 'block', transform: `rotate(180deg)` }}></i>
                                     </Button>
                                 </div>
                                 <div>
-                                    <button className="btn p-0 ms-3"
+                                    <button className="btn p-0 ms-3" style={{ visibility: viewCaseManagerData?.doctor_data?.editCase ? 'visible' : 'hidden' }}
                                         onClick={() =>
                                             navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: viewCaseManagerData } })
                                         }
@@ -194,7 +153,7 @@ function Cardiology(props) {
                             </div>
                         </Card.Header>
                         {loading ? (
-                            <div className='d-flex flex-column justify-content-center' style={{ "height": "calc(100vh - 218px)"}}>
+                            <div className='d-flex flex-column justify-content-center' style={{ "height": "calc(100vh - 218px)" }}>
                                 <div className='align-items-center text-center'>
                                     <Spin />
                                 </div>
@@ -252,7 +211,7 @@ function Cardiology(props) {
                                             <div className='d-flex align-items-center'>
                                                 <img className='me-2' src={Medicationicon} alt="Medication" />
                                                 <div>
-                                                    <div className='title'>Medication</div>
+                                                    <div className='title'>Medication (Rx)</div>
                                                 </div>
                                             </div>
                                         )}
@@ -294,14 +253,15 @@ function Cardiology(props) {
                                                 </div>
                                             </div>
                                         )}
-                                        {/* Use This in 2nd Version */}
-                                        {/* <div className='d-flex align-items-start mb-4'>
-<img className='me-2' src={notesicon} alt="Doctor Note" />
-<div>
-<div className='title'>Doctor Note</div>
-<label>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt</label>
-</div>
-</div> */}
+                                        {viewCaseManagerData.visit_advice && (
+                                            <div className='d-flex align-items-start mb-4'>
+                                                <img className='me-2' src={notesicon} alt="Doctor Note" />
+                                                <div>
+                                                    <div className='title'>Doctor Note</div>
+                                                    <label>{viewCaseManagerData.visit_advice}</label>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </Card.Body>

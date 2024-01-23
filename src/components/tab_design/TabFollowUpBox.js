@@ -97,9 +97,15 @@ function TabFollowUpBox() {
         [additionalNote]
     );
 
+    const onFocusClick = useCallback(
+        () => {
+            setSaveButton(true)
+        },
+        [saveButton]
+    );
     const onSaveButtonClick = useCallback(
         () => {
-            setSaveButton(!saveButton)
+            setSaveButton(false)
         },
         [saveButton]
     );
@@ -110,7 +116,7 @@ function TabFollowUpBox() {
             <div className="prescription-box-sm p-20px">
                 <div className="p-14-pb0">
                     <Row gutter={30}>
-                        <Col md={7}>
+                        <Col md={8}>
                             <div className="d-flex align-items-center mb-14">
                                 <img className='me-2' src={followUp} alt="Symptoms" />
                                 <div className="title-common">Follow-up</div>
@@ -133,13 +139,13 @@ function TabFollowUpBox() {
                                     })}
                             </div>
                         </Col>
-                        <Col md={17}>
+                        <Col md={16}>
                             <div className="d-flex align-items-center mb-14">
                                 <img className='me-2' src={Notes} alt="Symptoms" />
                                 <div className="title-common">Additional Notes</div>
                             </div>
                             <div className="textarea-save">
-                                <Input.TextArea placeholder="Enter any specific note here" onFocus={onSaveButtonClick} value={additionalNote} className="textareaPlaceholder fontroboto text-main" rows={3} onChange={onChangeNote} />
+                                <Input.TextArea placeholder="Enter any specific note here" onFocus={onFocusClick} onBlur={onSaveButtonClick}value={additionalNote} className="textareaPlaceholder fontroboto text-main" rows={3} onChange={onChangeNote} />
                                 {saveButton && (
                                     <Button className="d-flex align-items-center textarea-save-btn" onClick={onSaveButtonClick}>
                                         <i className="icon-check"></i>

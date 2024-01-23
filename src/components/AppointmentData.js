@@ -12,14 +12,18 @@ import {
     Dropdown,
     Input,
     Button,
+    message
 } from "antd";
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 
-import { getFormattedDate } from "../utils/utils";
 import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../utils/constants";
 import noData from "../assets/images/nodata-found.svg";
+import visitEnd from '../assets/images/end-visit.svg';
+import ImgcancelEnd from '../assets/images/cancel-visit.svg';
+import imgCloseVisit from '../assets/images/close-visit.svg';
 import CommonModal from "../common/CommonModal";
+import { MESSAGE_KEY } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -33,6 +37,7 @@ import {
 const { TextArea } = Input;
 
 const dateFormat = 'YYYY-MM-DD'
+const showDateFormat = 'DD-MM-YYYY'
 
 function AppointmentData() {
 
@@ -42,8 +47,8 @@ function AppointmentData() {
     const dispatch = useDispatch();
 
     const [date, setDate] = useState({
-        startDate: getFormattedDate(moment().format(dateFormat)),
-        endDate: getFormattedDate(moment().format(dateFormat)),
+        startDate: moment().format(dateFormat),
+        endDate: moment().format(dateFormat),
     });
     const [searchQuery, setSearchQuery] = useState('');
     const [pageNo, setPageNo] = useState(0);
@@ -81,10 +86,13 @@ function AppointmentData() {
     const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
 
     const calanderOptions = [
-        { value: '1', label: "Today" },
-        { value: '2', label: "Next 7 Days" },
-        { value: '3', label: "Next 30 Days" },
+        { value: 1, label: "Today" },
+        { value: 2, label: "Next 7 Days" },
+        { value: 3, label: "Next 30 Days" },
+        { value: 4, label: "Last 7 Days" },
+        { value: 5, label: "Last 30 Days" },
     ];
+    const [selectedCalanderOptions, setSelectedCalanderOptions] = useState(1);
 
     const segmentedList = [
         { value: 1, icon: <i className="icon-List"></i> },
@@ -102,31 +110,50 @@ function AppointmentData() {
     }, []);
 
     useEffect(() => {
-        var sendData = {
-            startDate: date.startDate,
-            endDate: date.endDate,
-            apStatue: selectedTab,
-            filterVisitType: visitTypeFilters,
-            page: pageNo,
-            search: searchQuery
-        }
-        // console.log(sendData)
-        if (searchQuery) {
-            const timeOutId = setTimeout(() => {
-                dispatch(getAllAppointment(sendData));
-            }, 500);
-            return () => {
-                clearTimeout(timeOutId);
-            };
-        } else {
+        const timeOutId = setTimeout(() => {
+            var sendData = {
+                startDate: date.startDate,
+                endDate: date.endDate,
+                apStatue: selectedTab,
+                filterVisitType: visitTypeFilters,
+                page: pageNo,
+                search: searchQuery
+            }
+            // console.log(sendData)
             dispatch(getAllAppointment(sendData));
-        }
+            // if (searchQuery) {
+            //     const searchTimeOutId = setTimeout(() => {
+            //         dispatch(getAllAppointment(sendData));
+            //     }, 500);
+            //     return () => {
+            //         clearTimeout(searchTimeOutId);
+            //     };
+            // } else {
+            //     dispatch(getAllAppointment(sendData));
+            // }
+        }, 500);
+        return () => {
+            clearTimeout(timeOutId);
+        };
     }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters]);
+
+    useEffect(() => {
+        if (moment(moment(date.startDate).format(dateFormat)).isSame(moment().format(dateFormat), 'day')) {
+            setSelectedCalanderOptions(1)
+        } else {
+            setSelectedCalanderOptions(null)
+        }
+    }, [date]);
 
     const onChange = useCallback(
         (key) => {
             setPageNo(0)
             setVisitTypeFilters('')
+            setDate({
+                startDate: moment().format(dateFormat),
+                endDate: moment().format(dateFormat),
+            })
+            setSelectedCalanderOptions(1)
             setSelectedTab(key);
         },
         [selectedTab]
@@ -145,8 +172,8 @@ function AppointmentData() {
             if (dateString) {
                 setPageNo(0)
                 setDate({
-                    startDate: getFormattedDate(dateString),
-                    endDate: getFormattedDate(dateString),
+                    startDate: moment(dateString, showDateFormat).format(dateFormat),
+                    endDate: moment(dateString, showDateFormat).format(dateFormat),
                 });
             }
         },
@@ -157,44 +184,72 @@ function AppointmentData() {
         () => {
             setPageNo(0)
             setDate({
-                startDate: getFormattedDate(moment(date.startDate).subtract(1, 'day').format(dateFormat)),
-                endDate: getFormattedDate(moment(date.endDate).subtract(1, 'day').format(dateFormat)),
+                startDate: moment(date.startDate).subtract(1, 'day').format(dateFormat),
+                endDate: moment(date.endDate).subtract(1, 'day').format(dateFormat),
             })
         },
         [date]);
 
     const nextDatePress = useCallback(
         () => {
-            setPageNo(0)
-            setDate({
-                startDate: getFormattedDate(moment(date.startDate).add(1, 'day').format(dateFormat)),
-                endDate: getFormattedDate(moment(date.endDate).add(1, 'day').format(dateFormat)),
-            })
+            if (selectedTab !== TAB_QUEUE) {
+                if (!moment(moment(date.startDate).format(dateFormat)).isSame(moment().format(dateFormat), 'day')) {
+                    setPageNo(0)
+                    setDate({
+                        startDate: moment(date.startDate).add(1, 'day').format(dateFormat),
+                        endDate: moment(date.endDate).add(1, 'day').format(dateFormat),
+                    })
+                } else {
+                    message.open({
+                        MESSAGE_KEY,
+                        type: 'warning',
+                        content: `Can't select next date`,
+                        duration: 5,
+                    });
+                }
+            } else {
+                setPageNo(0)
+                setDate({
+                    startDate: moment(date.startDate).add(1, 'day').format(dateFormat),
+                    endDate: moment(date.endDate).add(1, 'day').format(dateFormat),
+                })
+            }
         },
         [date]);
 
     const handleDateChange = useCallback(
         (value) => {
+            setSelectedCalanderOptions(value)
             const updatedate = {
-                startDate: getFormattedDate(moment().format(dateFormat)),
-                endDate: getFormattedDate(moment().format(dateFormat)),
+                startDate: moment().format(dateFormat),
+                endDate: moment().format(dateFormat),
             }
             setPageNo(0)
-            if (value == 2) {
+            if (value === 2) {
                 setDate({
-                    startDate: getFormattedDate(moment(updatedate.startDate).format(dateFormat)),
-                    endDate: getFormattedDate(moment(updatedate.endDate).add(7, 'day').format(dateFormat)),
+                    startDate: moment(updatedate.startDate).format(dateFormat),
+                    endDate: moment(updatedate.endDate).add(7, 'day').format(dateFormat),
                 })
-            } else if (value == 3) {
+            } else if (value === 3) {
                 setDate({
-                    startDate: getFormattedDate(moment(updatedate.startDate).format(dateFormat)),
-                    endDate: getFormattedDate(moment(updatedate.endDate).add(30, 'day').format(dateFormat)),
+                    startDate: moment(updatedate.startDate).format(dateFormat),
+                    endDate: moment(updatedate.endDate).add(30, 'day').format(dateFormat),
+                })
+            } else if (value === 4) {
+                setDate({
+                    startDate: moment(updatedate.startDate).subtract(7, 'day').format(dateFormat),
+                    endDate: moment(updatedate.endDate).format(dateFormat),
+                })
+            } else if (value === 5) {
+                setDate({
+                    startDate: moment(updatedate.startDate).subtract(30, 'day').format(dateFormat),
+                    endDate: moment(updatedate.endDate).format(dateFormat),
                 })
             } else {
                 setDate(updatedate)
             }
         },
-        [date]
+        [selectedCalanderOptions, date]
     );
 
     const segmentedChange = useCallback(
@@ -421,10 +476,13 @@ function AppointmentData() {
                             <div className="d-flex align-items-center">
                                 <i className="icon-patients me-2" />
 
-                                <span className="fw-medium">
-                                    {appointmentSelectedFromMenu?.pm_fullname} (
-                                    {appointmentSelectedFromMenu?.pm_gender},{" "}
-                                    {appointmentSelectedFromMenu?.ageYears}y)
+                                <span className="title-common fontroboto">
+                                    {appointmentSelectedFromMenu?.pm_fullname}
+                                    <span className="fw-normal ms-2">
+                                        (
+                                        {appointmentSelectedFromMenu?.pm_gender},{" "}
+                                        {appointmentSelectedFromMenu?.ageYears}y)
+                                    </span>
                                 </span>
                             </div>
                             <div className="mt-2 d-flex align-items-center">
@@ -457,6 +515,22 @@ function AppointmentData() {
                                         const action = await dispatch(cancelAppointments(sendData));
                                         if (action.meta.requestStatus == "fulfilled") {
                                             handleConfirmationModal()
+                                            message.open({
+                                                MESSAGE_KEY,
+                                                type: '',
+                                                className: 'message-appointment',
+                                                content: (
+                                                    <div className='d-flex align-items-center'>
+                                                        <img src={ImgcancelEnd} className='me-3' />
+                                                        <div>
+                                                            <div className='title-common text-start fontroboto'>Appointment Cancelled Successfully</div>
+                                                            <div className='fontroboto text-start fw-normal mt-1'>View cancelled appointments in Cancelled tab.</div>
+                                                        </div>
+                                                        <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                                                    </div>
+                                                ),
+                                                duration: 5,
+                                            });
                                         }
                                     }}>
                                     Yes, Cancel Appointment{" "}
@@ -492,7 +566,7 @@ function AppointmentData() {
                 onCancel={handleEndVisitReasonModal}
                 modalBody={
                     <>
-                        <div className="mb-2">End Visit Reason</div>
+                        <div className="mb-2 fw-medium fs-16">End Visit Reason</div>
                         <div className="border bg-body rounded-10px p-3 patient-details">
                             {appointmentSelectedFromMenu?.tpvl_remarks}
                         </div>
@@ -514,8 +588,32 @@ function AppointmentData() {
         if (action.meta.requestStatus == "fulfilled") {
             setEndVisitReason('')
             handleEndVisitReasonDrawer()
+
+            message.open({
+                MESSAGE_KEY,
+                type: '',
+                className: 'message-appointment',
+                content: (
+                    <div className='d-flex align-items-center'>
+                        <img src={visitEnd} className='me-3' />
+                        <div>
+                            <div className='title-common fontroboto'>{`${appointmentSelectedFromMenu?.pm_first_name}’s visit end successfully.`}</div>
+                            <div className='fontroboto text-start fw-normal mt-1'>View end visits in Finished tab.</div>
+                        </div>
+                        <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                    </div>
+                ),
+                duration: 5,
+            });
+
         }
     }
+
+    const disabledDate = (current) => {
+        // Can not select days before today and today
+        // return current && current > dayjs().endOf("day");
+        return current && current >= moment().add(1, 'days').startOf('day');
+    };
 
     return (
         <div className="border rounded-4 appointment-wrap dateborder">
@@ -530,7 +628,7 @@ function AppointmentData() {
                     <Col xl={4} lg={4}>
                         <Input
                             value={searchQuery}
-                            placeholder="Search by patient name"
+                            placeholder="Search patient by name and mobile number"
                             className="inputheight38"
                             prefix={<i className="icon-search" />}
                             suffix={searchQuery.length > 0 && <i className="icon-Cross" onClick={() => onSearch('')}></i>}
@@ -550,12 +648,13 @@ function AppointmentData() {
                                 <Button variant="outline-light" className="p-0 antround-0">
                                     <DatePicker
                                         inputReadOnly
-                                        format={dateFormat}
+                                        format={showDateFormat}
                                         disabled={date.startDate != date.endDate}
-                                        defaultValue={dayjs(getFormattedDate(date.startDate), dateFormat)}
+                                        disabledDate={selectedTab !== TAB_QUEUE && disabledDate}
+                                        defaultValue={dayjs(moment(date.startDate).format(showDateFormat), showDateFormat)}
                                         value={
                                             date.startDate === date.endDate
-                                                ? dayjs(getFormattedDate(date.startDate), dateFormat)
+                                                ? dayjs(moment(date.startDate).format(showDateFormat), showDateFormat)
                                                 : ""
                                         }
                                         onChange={onDateChange}
@@ -571,9 +670,10 @@ function AppointmentData() {
                                 </Button>
                             </ButtonGroup>
                             <Select
-                                placeholder="Today"
+                                placeholder="Select Period"
                                 className="ms-3 appointmentselect"
-                                options={calanderOptions}
+                                value={selectedCalanderOptions}
+                                options={selectedTab === TAB_QUEUE ? calanderOptions.filter(e => [1, 2, 3].includes(e.value)) : calanderOptions.filter(e => [1, 4, 5].includes(e.value))}
                                 onChange={handleDateChange}
                             />
                             {/* <Segmented

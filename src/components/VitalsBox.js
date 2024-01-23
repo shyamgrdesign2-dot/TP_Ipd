@@ -15,6 +15,9 @@ import {
 } from "../redux/vitalsSlice";
 import moment from "moment";
 
+const dateFormat = 'YYYY-MM-DD'
+const showDateFormat = 'DD MMM, YY'
+
 function VitalsBox(props) {
 
     const { handleDrawerVital, handleCollapsed } = props
@@ -42,7 +45,7 @@ function VitalsBox(props) {
         if (childVitalsData.length == 0) {
             let cal = calculate('', '');
             childVitalsData.push({
-                date: moment().format("YYYY-MM-DD"),
+                date: moment().format(dateFormat),
                 dev_unique_id: 0,
                 tcv_id: 0,
                 tcbc_id: 0,
@@ -180,7 +183,7 @@ function VitalsBox(props) {
             childVitalsData.map((item, i) => {
                 return (
                     <div key={i} className='vitals-wrap-body w-100 vitals-child-width'>
-                        <div className='vitals-head rounded-start-0 w-100'>{item.date}</div>
+                        <div className='vitals-head rounded-start-0 w-100'>{moment(item.date).format(showDateFormat)}</div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.temp} addonAfter={'Frh'} onChange={(e) => onChangeInput(e.target.value, i, 1)} />
                         </div>

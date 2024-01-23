@@ -255,6 +255,7 @@
     max-height: 185px;
     width: 185px;
     border-radius: 100%;
+    object-fit: cover;
 }
 
 .printheight {
@@ -340,7 +341,7 @@
         }
 
         .btn-close-chips {
-            border-left: 1px solid $white;
+            border-left: 1px solid rgba(250, 250, 251, 0.3);
 
             i {
                 color: $white !important;
@@ -360,7 +361,7 @@
         min-width: 45px;
         max-width: 45px;
         color: $theme !important;
-        border-left: 1px solid $theme;
+        border-left: 1px solid rgba(75, 74, 213, 0.3);
 
         i {
             line-height: 1.5 !important;
@@ -580,6 +581,7 @@ body {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         border-left: 0;
+
         .ant-picker-input {
 
             input:hover,
@@ -587,18 +589,41 @@ body {
                 border-color: $theme;
             }
 
-            input, .ant-picker-clear {
+            input,
+            .ant-picker-clear {
                 display: none;
             }
         }
     }
+
     .calnder-input1 {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
     }
 }
+
 .ant-picker {
     &:hover {
         border-color: $theme !important;
+    }
+}
+.tabs-patient {
+    .ant-tabs-tab-active {
+        .ant-tabs-tab-btn {
+            color: $theme !important;
+        }
+    }
+    .ant-tabs .ant-tabs-ink-bar {
+        background-color: $theme;
+    }
+}
+.ant-message-notice-wrapper .message-appointment {
+    .ant-message-notice-content {
+        background: rgba(23, 23, 37, 0.90);
+        border-radius: 10px;
+        padding: 15px;
+        div {
+            color: $white !important;
+        }
     }
 }
