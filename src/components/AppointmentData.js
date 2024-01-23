@@ -46,6 +46,7 @@ function AppointmentData() {
     const { queueCount, finishedCount, cancelledCount, appointmentsData, caseTypes, loading, setOnLoad } = useSelector((state) => state.records);
     const dispatch = useDispatch();
 
+    const [timeOutId, setTimeOutId] = useState(null)
     const [date, setDate] = useState({
         startDate: moment().format(dateFormat),
         endDate: moment().format(dateFormat),
@@ -86,10 +87,13 @@ function AppointmentData() {
     const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
 
     const calanderOptions = [
-        { value: '1', label: "Today" },
-        { value: '2', label: "Next 7 Days" },
-        { value: '3', label: "Next 30 Days" },
+        { value: 1, label: "Today" },
+        { value: 2, label: "Next 7 Days" },
+        { value: 3, label: "Next 30 Days" },
+        { value: 4, label: "Last 7 Days" },
+        { value: 5, label: "Last 30 Days" },
     ];
+    const [selectedCalanderOptions, setSelectedCalanderOptions] = useState(1);
 
     const segmentedList = [
         { value: 1, icon: <i className="icon-List"></i> },
@@ -107,31 +111,42 @@ function AppointmentData() {
     }, []);
 
     useEffect(() => {
-        var sendData = {
-            startDate: date.startDate,
-            endDate: date.endDate,
-            apStatue: selectedTab,
-            filterVisitType: visitTypeFilters,
-            page: pageNo,
-            search: searchQuery
-        }
-        // console.log(sendData)
-        if (searchQuery) {
-            const timeOutId = setTimeout(() => {
-                dispatch(getAllAppointment(sendData));
-            }, 500);
-            return () => {
-                clearTimeout(timeOutId);
-            };
-        } else {
+        const timeOutId = setTimeout(() => {
+            var sendData = {
+                startDate: date.startDate,
+                endDate: date.endDate,
+                apStatue: selectedTab,
+                filterVisitType: visitTypeFilters,
+                page: pageNo,
+                search: searchQuery
+            }
+            // console.log(sendData)
             dispatch(getAllAppointment(sendData));
-        }
+            // if (searchQuery) {
+            //     const searchTimeOutId = setTimeout(() => {
+            //         dispatch(getAllAppointment(sendData));
+            //     }, 500);
+            //     return () => {
+            //         clearTimeout(searchTimeOutId);
+            //     };
+            // } else {
+            //     dispatch(getAllAppointment(sendData));
+            // }
+        }, 500);
+        return () => {
+            clearTimeout(timeOutId);
+        };
     }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters]);
 
     const onChange = useCallback(
         (key) => {
             setPageNo(0)
             setVisitTypeFilters('')
+            setDate({
+                startDate: moment().format(dateFormat),
+                endDate: moment().format(dateFormat),
+            })
+            setSelectedCalanderOptions(1)
             setSelectedTab(key);
         },
         [selectedTab]
@@ -150,8 +165,8 @@ function AppointmentData() {
             if (dateString) {
                 setPageNo(0)
                 setDate({
-                    startDate: moment(dateString,showDateFormat).format(dateFormat),
-                    endDate: moment(dateString,showDateFormat).format(dateFormat),
+                    startDate: moment(dateString, showDateFormat).format(dateFormat),
+                    endDate: moment(dateString, showDateFormat).format(dateFormat),
                 });
             }
         },
@@ -170,36 +185,64 @@ function AppointmentData() {
 
     const nextDatePress = useCallback(
         () => {
-            setPageNo(0)
-            setDate({
-                startDate: moment(date.startDate).add(1, 'day').format(dateFormat),
-                endDate: moment(date.endDate).add(1, 'day').format(dateFormat),
-            })
+            if (selectedTab !== TAB_QUEUE) {
+                if (!moment(moment(date.startDate).format(dateFormat)).isSame(moment().format(dateFormat), 'day')) {
+                    setPageNo(0)
+                    setDate({
+                        startDate: moment(date.startDate).add(1, 'day').format(dateFormat),
+                        endDate: moment(date.endDate).add(1, 'day').format(dateFormat),
+                    })
+                } else {
+                    message.open({
+                        MESSAGE_KEY,
+                        type: 'warning',
+                        content: `Can't select next date`,
+                        duration: 5,
+                    });
+                }
+            } else {
+                setPageNo(0)
+                setDate({
+                    startDate: moment(date.startDate).add(1, 'day').format(dateFormat),
+                    endDate: moment(date.endDate).add(1, 'day').format(dateFormat),
+                })
+            }
         },
         [date]);
 
     const handleDateChange = useCallback(
         (value) => {
+            setSelectedCalanderOptions(value)
             const updatedate = {
                 startDate: moment().format(dateFormat),
                 endDate: moment().format(dateFormat),
             }
             setPageNo(0)
-            if (value == 2) {
+            if (value === 2) {
                 setDate({
                     startDate: moment(updatedate.startDate).format(dateFormat),
                     endDate: moment(updatedate.endDate).add(7, 'day').format(dateFormat),
                 })
-            } else if (value == 3) {
+            } else if (value === 3) {
                 setDate({
                     startDate: moment(updatedate.startDate).format(dateFormat),
                     endDate: moment(updatedate.endDate).add(30, 'day').format(dateFormat),
+                })
+            } else if (value === 4) {
+                setDate({
+                    startDate: moment(updatedate.startDate).subtract(7, 'day').format(dateFormat),
+                    endDate: moment(updatedate.endDate).format(dateFormat),
+                })
+            } else if (value === 5) {
+                setDate({
+                    startDate: moment(updatedate.startDate).subtract(30, 'day').format(dateFormat),
+                    endDate: moment(updatedate.endDate).format(dateFormat),
                 })
             } else {
                 setDate(updatedate)
             }
         },
-        [date]
+        [selectedCalanderOptions, date]
     );
 
     const segmentedChange = useCallback(
@@ -559,6 +602,12 @@ function AppointmentData() {
         }
     }
 
+    const disabledDate = (current) => {
+        // Can not select days before today and today
+        // return current && current > dayjs().endOf("day");
+        return current && current >= moment().add(1, 'days').startOf('day');
+    };
+
     return (
         <div className="border rounded-4 appointment-wrap dateborder">
             <Tabs
@@ -594,6 +643,7 @@ function AppointmentData() {
                                         inputReadOnly
                                         format={showDateFormat}
                                         disabled={date.startDate != date.endDate}
+                                        disabledDate={selectedTab !== TAB_QUEUE && disabledDate}
                                         defaultValue={dayjs(moment(date.startDate).format(showDateFormat), showDateFormat)}
                                         value={
                                             date.startDate === date.endDate
@@ -615,7 +665,8 @@ function AppointmentData() {
                             <Select
                                 placeholder="Today"
                                 className="ms-3 appointmentselect"
-                                options={calanderOptions}
+                                value={selectedCalanderOptions}
+                                options={selectedTab === TAB_QUEUE ? calanderOptions.filter(e => [1, 2, 3].includes(e.value)) : calanderOptions.filter(e => [1, 4, 5].includes(e.value))}
                                 onChange={handleDateChange}
                             />
                             {/* <Segmented
