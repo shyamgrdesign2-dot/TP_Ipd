@@ -137,6 +137,14 @@ function AppointmentData() {
         };
     }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters]);
 
+    useEffect(() => {
+        if (moment(moment(date.startDate).format(dateFormat)).isSame(moment().format(dateFormat), 'day')) {
+            setSelectedCalanderOptions(1)
+        } else {
+            setSelectedCalanderOptions(null)
+        }
+    }, [date]);
+
     const onChange = useCallback(
         (key) => {
             setPageNo(0)
@@ -662,7 +670,7 @@ function AppointmentData() {
                                 </Button>
                             </ButtonGroup>
                             <Select
-                                placeholder="Today"
+                                placeholder="Select Period"
                                 className="ms-3 appointmentselect"
                                 value={selectedCalanderOptions}
                                 options={selectedTab === TAB_QUEUE ? calanderOptions.filter(e => [1, 2, 3].includes(e.value)) : calanderOptions.filter(e => [1, 4, 5].includes(e.value))}

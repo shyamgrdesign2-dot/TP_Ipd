@@ -49,7 +49,7 @@ function WalkInConsultation() {
                             </span> */}
                             <span>
                                 {patient.pm_salutation && patient.pm_salutation}{" "}
-                                <BoldWordInName name={`${patient.pm_first_name} ${patient.pm_last_name}`} boldWord={searchQuery} />{" "}
+                                <BoldWordInName name={patient.pm_fullname} boldWord={searchQuery} />{" "}
                                 ({patient.pm_gender}, {patient.ageYears}y)
                             </span>
                         </div>
@@ -175,7 +175,7 @@ function WalkInConsultation() {
                             <div className="d-flex align-items-center">
                                 <i className="icon-patients me-2" />
                                 <span className="title-common fontroboto">
-                                    {clickedPatient?.pm_first_name} {clickedPatient?.pm_last_name}{" "}
+                                    {clickedPatient?.pm_fullname}{" "}
                                     <span className="fw-normal ms-2">
                                         ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y)
                                     </span>
