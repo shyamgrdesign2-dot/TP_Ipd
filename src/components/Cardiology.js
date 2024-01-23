@@ -93,7 +93,7 @@ function Cardiology(props) {
             key: 'qty',
             width: '45px',
             render: (text, record) => (
-                <div>{`${record.tmm_dosage ? record.tmm_dosage : '-'}`}</div>
+                <div>{`${record.display_qty ? record.display_qty : '-'}`}</div>
             ),
         },
         {
