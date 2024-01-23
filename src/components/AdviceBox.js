@@ -191,7 +191,7 @@ function AdviceBox() {
   );
 
   function onClickParent() {
-    const data = [...adviceData, ...adviceDataCheck]
+    const data = [...adviceDataCheck, ...adviceData]
     setAdviceData(data);
     setAdviceDataCheck([])
     setSearchQuery("");

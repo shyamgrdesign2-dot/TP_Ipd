@@ -419,6 +419,10 @@ body {
     }
     .btn-delete-prescription {
         box-shadow: none;
+        i {
+            color: $grayColor;
+            font-size: 21px;
+        }
         &:hover {
             border-color: transparent !important;
             i {

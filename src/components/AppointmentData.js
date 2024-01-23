@@ -572,7 +572,7 @@ function AppointmentData() {
                     <Col xl={4} lg={4}>
                         <Input
                             value={searchQuery}
-                            placeholder="Search by patient name"
+                            placeholder="Search patient by name and mobile number"
                             className="inputheight38"
                             prefix={<i className="icon-search" />}
                             suffix={searchQuery.length > 0 && <i className="icon-Cross" onClick={() => onSearch('')}></i>}

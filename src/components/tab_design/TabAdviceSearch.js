@@ -72,7 +72,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
 
     const onSelectParent = useCallback(
         (e) => {
-            adviceData.push({
+            adviceData.unshift({
                 ...e,
             });
             setAdviceData((prev) => [...prev]);

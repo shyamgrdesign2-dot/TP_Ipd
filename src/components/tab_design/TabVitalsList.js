@@ -68,11 +68,11 @@ function TabVitalsList(props) {
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">Systolic (mmHg)</div>
-                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[0] : '-'}</div>
+                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[0] ? item.blood_press.split('/')[0] : '-' : '-'}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">Diastolic (mmHg)</div>
-                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[1] : '-'}</div>
+                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[1] ? item.blood_press.split('/')[1] : '-' : '-'}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">SPO2 (%)</div>
@@ -129,11 +129,11 @@ function TabVitalsList(props) {
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">Systolic (mmHg)</div>
-                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[0] : '-'}</div>
+                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[0] ? item.blood_press.split('/')[0] : '-' : '-'}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">Diastolic (mmHg)</div>
-                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[1] : '-'}</div>
+                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[1] ? item.blood_press.split('/')[1] : '-' : '-'}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">SPO2 (%)</div>

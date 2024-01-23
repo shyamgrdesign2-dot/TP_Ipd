@@ -61,7 +61,7 @@ function SidebarPatient({ collapsed, patient_data }) {
                             <div className='patientName d-flex align-items-center'> <div className='text-truncate pt-2px'>{`${patient_data != undefined ? patient_data.pm_fullname : "Hello Guest"}`}</div>
                                 <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right'></i></button>
                             </div>
-                            <p className='mb-0'>{`${patient_data != undefined ? patient_data.pm_gender[0].toUpperCase() : "M"}, ${patient_data != undefined ? patient_data.ageYears : 30}y, ${patient_data != undefined ? patient_data.pm_contact_no : "000000"}`}</p>
+                            <p className='mb-0'>{`${patient_data != undefined ? patient_data.pm_gender[0].toUpperCase() : "M"}, ${patient_data != undefined ? patient_data.ageYears : 30}y,`}</p>
                         </div>
                     )}
                 </div>
