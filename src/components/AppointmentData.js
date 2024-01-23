@@ -46,7 +46,6 @@ function AppointmentData() {
     const { queueCount, finishedCount, cancelledCount, appointmentsData, caseTypes, loading, setOnLoad } = useSelector((state) => state.records);
     const dispatch = useDispatch();
 
-    const [timeOutId, setTimeOutId] = useState(null)
     const [date, setDate] = useState({
         startDate: moment().format(dateFormat),
         endDate: moment().format(dateFormat),
