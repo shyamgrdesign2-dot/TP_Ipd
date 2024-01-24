@@ -241,6 +241,10 @@ body {
             .ant-select-selection-item {
                 font-weight: 500 !important;
             }
+            .ant-select-selector .ant-select-selection-placeholder {
+                color: $grayColor !important;
+                font-weight: 400;
+            }
         }
         .ant-select-selection-placeholder {
             color: $maincolor !important;
