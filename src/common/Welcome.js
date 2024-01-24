@@ -37,7 +37,7 @@ function Welcome(props) {
         <div className="bg-welcome d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             {backVisible && (
-              <div onClick={() => navigate("/", { replace: true })} className="lh-1 me-1 px-2 text-dark cursor-pointer">
+              <div onClick={() => locationPath == "/walk_in_consultation" ? navigate(-1) : navigate(-2)} className="lh-1 me-1 px-2 text-dark cursor-pointer">
                 <i className="fs-3 icon-right"></i>
               </div>
             )}

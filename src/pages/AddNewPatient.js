@@ -94,7 +94,7 @@ function AddNewPatient() {
                         <>
                             <hr className="my-0" />
                             <div className="text-end p-20">
-                                <button type="button" className="btn btn-text text-decoration-underline me-3" onClick={() => navigate(-1)}>
+                                <button type="button" className="btn btn-text text-decoration-underline me-3" onClick={() => navigate(-2)}>
                                     Cancel
                                 </button>
                                 <Button

@@ -121,7 +121,7 @@ function HeaderPrescription() {
 
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
             if (action.meta.requestStatus == "fulfilled") {
-                navigate('/prescription_print_view', { state: { ...action.payload, patient_data: patient_data } })
+                navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
             } else {
                 message.open({
                     MESSAGE_KEY,
@@ -137,7 +137,7 @@ function HeaderPrescription() {
         if (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || medicationData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || vitalsData.length > 0) {
             showHideModal()
         } else {
-            navigate(-1)
+            navigate('/', { replace: true });
         }
     }
 

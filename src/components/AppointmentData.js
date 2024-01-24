@@ -138,10 +138,12 @@ function AppointmentData() {
     }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters]);
 
     useEffect(() => {
-        if (moment(moment(date.startDate).format(dateFormat)).isSame(moment().format(dateFormat), 'day')) {
-            setSelectedCalanderOptions(1)
-        } else {
-            setSelectedCalanderOptions(null)
+        if (date.startDate === date.endDate) {
+            if (moment(moment(date.startDate).format(dateFormat)).isSame(moment().format(dateFormat), 'day')) {
+                setSelectedCalanderOptions(1)
+            } else {
+                setSelectedCalanderOptions(null)
+            }
         }
     }, [date]);
 
