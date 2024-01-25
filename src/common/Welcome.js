@@ -42,8 +42,10 @@ function Welcome(props) {
               </div>
             )}
             <div>
-              {locationPath == "/add_new_patient" ? (
+              {locationPath == "/add_patient" ? (
                 <h1>Add New Patient</h1>
+              ):locationPath == "/edit_patient" ? (
+                <h1>Edit Patient Details</h1>
               ) : locationPath == "/walk_in_consultation" ? (
                 <h1>Start Walk-In Consultation</h1>
               ) : (

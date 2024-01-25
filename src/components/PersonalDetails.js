@@ -20,13 +20,20 @@ function PersonalDetails({ form }) {
 
     const [showDetails, setShowDetails] = useState(true);
     const [ageYearsMonths, setAgeYearsMonths] = useState(null);
-    const [birthDate, setBirthDate] = useState(null);
+    // const [birthDate, setBirthDate] = useState(null);
 
     const dispatch = useDispatch();
     const { salutationData, loading } = useSelector((state) => state.records);
 
     useEffect(() => {
         dispatch(listSalutation());
+    }, []);
+
+    useEffect(() => {
+        if (form.getFieldsValue().dobYearsMonths != undefined) {
+            const age = calculateAge(moment(form.getFieldsValue().dobYearsMonths).format(dateFormat));
+            setAgeYearsMonths(age);
+        }
     }, []);
 
     const validateMobileNumber = (_, value) => {
@@ -83,11 +90,11 @@ function PersonalDetails({ form }) {
 
     const onBirthDateChanged = (date, dateString) => {
         if (dateString) {
-            setBirthDate(dateString);
+            // setBirthDate(dateString);
             // const remaingDate = moment(dateString).add(1, 'day').format('YYYY-MM-DD')
             const age = calculateAge(moment(dateString, showDateFormat).format(dateFormat));
             form.setFieldsValue({
-                dobYearsMonths: age.years,
+                dobYearsMonths: dateString,
             });
             setAgeYearsMonths(age);
         }
@@ -126,9 +133,9 @@ function PersonalDetails({ form }) {
                     : 0
             ));
 
-            setBirthDate(newDate);
+            // setBirthDate(newDate);
             form.setFieldsValue({
-                pm_dob: dayjs(moment(newDate).format(dateFormat), "YYYY-MM-DD"),
+                pm_dob: dayjs(moment(newDate).format(dateFormat), dateFormat),
             });
         }
     }, [ageYearsMonths]);
@@ -239,11 +246,11 @@ function PersonalDetails({ form }) {
                                     format={showDateFormat}
                                     onChange={onBirthDateChanged}
                                     disabledDate={disabledDate}
-                                    value={
-                                        birthDate
-                                            ? dayjs(moment(birthDate).format(showDateFormat), showDateFormat)
-                                            : null
-                                    }
+                                // value={
+                                //     birthDate
+                                //         ? dayjs(moment(birthDate).format(showDateFormat), showDateFormat)
+                                //         : null
+                                // }
                                 />
                             </Form.Item>
                         </Col>

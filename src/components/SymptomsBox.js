@@ -467,6 +467,8 @@ function SymptomsBox() {
                 value={item.severity != "" ? item.severity : null}
                 onSelect={(data) => onSelectSeverityChild(data, index)}
                 options={SEVERITY_LIST}
+                onClear={() => onSelectSeverityChild("", index)}
+                allowClear
               />
             </Col>
             <Col lg={8} md={8} sm={7} xs={7} className="border-end">

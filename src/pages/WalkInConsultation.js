@@ -91,7 +91,7 @@ function WalkInConsultation() {
 
     const AddPatientPlank = () => {
         return (
-            <Link to="/add_new_patient">
+            <Link to="/add_patient">
                 <Button
                     type="text"
                     className="btn btn-primary1 btn-41 align-items-center d-flex"
@@ -155,7 +155,7 @@ function WalkInConsultation() {
         (data, e) => {
             e.key != -1
                 ? setClickedPatient(JSON.parse(e.key))
-                : navigate("/add_new_patient");
+                : navigate("/add_patient");
         },
         [clickedPatient]
     );

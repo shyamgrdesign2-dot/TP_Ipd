@@ -2,6 +2,8 @@ import React from 'react';
 import Nav from 'react-bootstrap/Nav';
 import { Button, Popover } from 'antd';
 import { isMobile } from 'react-device-detect';
+import { Link } from 'react-router-dom';
+
 import { makeDefaultLogo } from "../utils/utils";
 
 function SidebarPatient({ collapsed, patient_data }) {
@@ -31,15 +33,12 @@ function SidebarPatient({ collapsed, patient_data }) {
                 </div>
             </div>
             <div>
-                <Button className='btn btn-primary2 d-flex justify-content-center align-items-center w-100 mt-3 btn-41'>
-                    <i className='icon-Edit me-2 fs-21'></i>
-                    Edit Profile
-                </Button>
-                <Button className='btn btn-primary2 align-items-center d-flex justify-content-center w-100 mt-3 btn-41'>
-                    <i className='icon-Visit-Summary fs-21 me-2'></i>
-                    Visit Summary
-                </Button>
-
+                <Link to="/edit_patient" replace={true} state={{ patient_data: patient_data }}>
+                    <Button className='btn btn-primary2 d-flex justify-content-center align-items-center w-100 mt-3 btn-41'>
+                        <i className='icon-Edit me-2 fs-21'></i>
+                        Edit Profile
+                    </Button>
+                </Link>
             </div>
         </>
     )

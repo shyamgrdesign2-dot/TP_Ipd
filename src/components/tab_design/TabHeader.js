@@ -2,7 +2,10 @@ import React from "react";
 import { Button } from 'antd';
 import { Link, useNavigate } from "react-router-dom";
 
-function TabHeader({ flag, title, loading, onClick }) {
+const ADD = 'ADD'
+const EDIT = 'EDIT'
+
+function TabHeader({ flag, mode = ADD, title, loading, onClick }) {
     const navigate = useNavigate();
     return (
         <div className='modalCard-header align-items-center d-flex'>
@@ -13,18 +16,24 @@ function TabHeader({ flag, title, loading, onClick }) {
             </div>
             <div className="w-100 px-20 title-common">{title}</div>
             {flag === 1 ? (
-                <Link to='/add_new_patient'>
+                <Link to='/add_patient'>
                     <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center' icon={<i className="icon-Add"></i>}>
                         Add New Patient
                     </Button>
                 </Link>
             ) : (
-                <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center' loading={loading} onClick={onClick}>
-                    Add Patient to Consult
-                </Button>
+                mode === EDIT ? (
+                    <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center' loading={loading} onClick={onClick}>
+                        Save
+                    </Button>
+                ) : (
+                    <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center' loading={loading} onClick={onClick}>
+                        Add Patient to Consult
+                    </Button>
+                )
             )}
 
-        </div>
+        </div >
     );
 }
 

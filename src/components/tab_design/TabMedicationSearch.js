@@ -624,7 +624,7 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                     <Row gutter={0} className="h-100">
                         <Col md={14}>
                             <div className="bg-white h-100 p-14">
-                                {medicationData.length > 0 && (
+                                {medicationData.length > 0 && !searchChildQuery && (
                                     <>
                                         <div className="title2">
                                             Added
@@ -641,7 +641,7 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                                     <div className="mt-3 d-flex flex-wrap">
                                         {searchChildQuery.length > 0 ? (
                                             childSearchOptions.length > 0 &&
-                                            childSearchOptions.map((item, i) => {
+                                            childSearchOptions.filter(e => ![...medicationData.map(e1 => e1.tmm_medicine_name)].includes(e.value)).map((item, i) => {
                                                 return (
                                                     // i === childSearchOptions.length - 1 ? (
                                                     //     <Button
@@ -665,7 +665,7 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                                             })
                                         ) : (
                                             parentOptionsList.length > 0 &&
-                                            parentOptionsList.map((item, i) => {
+                                            parentOptionsList.filter(e => ![...medicationData.map(e1 => e1.tmm_medicine_name)].includes(e.tmm_medicine_name)).map((item, i) => {
                                                 return (
                                                     <Button key={i} type="text" style={{ width: item.tmm_medicine_name.length > 26 && '250px' }} className={`${item.tmm_medicine_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent(item)}>{item.tmm_medicine_name}</Button>
                                                 )
