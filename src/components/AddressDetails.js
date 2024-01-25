@@ -92,14 +92,14 @@ function AddressDetails({ form }) {
                         </Col>
                         <Col xs={24} sm={24} md={12} lg={12}>
                             <Form.Item name="pm_city" label="City">
-                                <Input placeholder={"City"} disabled />
+                                <Input placeholder={"City"} />
                             </Form.Item>
                         </Col>
                     </Row>
                     <Row className="mt-3" gutter={{ xs: 8, sm: 18, md: 40, lg: 94 }}>
                         <Col xs={24} sm={24} md={12} lg={12}>
                             <Form.Item name="pm_state" label="State">
-                                <Input placeholder={"State"} disabled />
+                                <Input placeholder={"State"} />
                             </Form.Item>
                         </Col>
                         <Col xs={24} sm={24} md={12} lg={12}>

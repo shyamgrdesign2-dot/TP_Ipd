@@ -121,6 +121,11 @@ body {
             font-weight: 400;
         }
     }
+    .ant-picker-input{
+        input::placeholder {
+            color: $grayColor !important;
+        }
+    }
     .bg-body {
         background-color: $bgbody !important;
     }
