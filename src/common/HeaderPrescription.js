@@ -176,7 +176,7 @@ function HeaderPrescription() {
                                             </div>
                                             <div className="mt-4">
                                                 <div className="d-flex align-items-center mt-2 justify-content-end">
-                                                    <div onClick={() => navigate(-1)} className="me-4 text-decoration-underline btn p-0 text-main">
+                                                    <div onClick={() => navigate('/', { replace: true })} className="me-4 text-decoration-underline btn p-0 text-main">
                                                         Yes Leave
                                                     </div>
                                                     <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 px-4">

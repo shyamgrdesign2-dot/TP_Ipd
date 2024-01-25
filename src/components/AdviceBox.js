@@ -464,7 +464,7 @@ function AdviceBox() {
           <div className="pop-header d-flex">
             <Select
               showSearch
-              value={inputTemplateName && inputTemplateName.tat_template_name}
+              value={inputTemplateName && JSON.parse(inputTemplateName).tat_template_name}
               className="autocomplete-custom w-100 popinput inputheight41"
               placeholder="Select Template"
               onSearch={onSearchTemplate}

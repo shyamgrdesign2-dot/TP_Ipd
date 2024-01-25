@@ -81,17 +81,16 @@ function Cardiology(props) {
             title: 'Duration',
             dataIndex: 'duration',
             key: 'duration',
-            ellipsis: true,
-            width: '70px',
+            width: '82px',
             render: (text, record) => (
                 <div>{hasNumber(record.tmm_days) ? `${record.tmm_days} - ${record.tmm_duration_type}` : `-`}</div>
             ),
         },
         {
-            title: 'QTY',
+            title: 'QTY.',
             dataIndex: 'qty',
             key: 'qty',
-            width: '45px',
+            width: '50px',
             render: (text, record) => (
                 <div>{`${record.display_qty ? record.display_qty : '-'}`}</div>
             ),
@@ -100,7 +99,6 @@ function Cardiology(props) {
             title: 'Note',
             dataIndex: 'note',
             key: 'note',
-            ellipsis: true,
             render: (text, record) => (
                 <div>{`${record.tmm_remarks ? record.tmm_remarks : '-'}`}</div>
             ),

@@ -55,11 +55,13 @@ function WalkInConsultation() {
                         </div>
                         <div className="list-patientName d-flex align-items-center me-4">
                             <i className="icon-phone backbar me-2"></i>
-                            <span>{patient.pm_contact_no}</span>
+                            {/* <span>{patient.pm_contact_no}</span> */}
+                            <BoldWordInName name={patient.pm_contact_no} boldWord={searchQuery} />
                         </div>
                         <div className="list-patientName d-flex align-items-center me-4">
                             <i className="icon-Id backbar me-2"></i>
-                            <span>{patient.pm_pid}</span>
+                            {/* <span>{patient.pm_pid}</span> */}
+                            <BoldWordInName name={patient.pm_pid} boldWord={searchQuery} />
                         </div>
                     </div>
                     <div className="d-flex align-items-center">
@@ -246,8 +248,9 @@ function WalkInConsultation() {
                         onSelect={onSelect}
                         // defaultActiveFirstOption={true}
                         defaultOpen
+                        listHeight={isMobile ? window.innerHeight - 180 : 300}
                         autoFocus
-                        popupClassName={"walkincomplete"}
+                        popupClassName={`walkincomplete ${isMobile && 'walkincomplete-mobile'}`}
                     >
                         <Input
                             placeholder="Search by Patient’s Name, Phone number or Id"

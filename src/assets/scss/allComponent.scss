@@ -562,7 +562,7 @@ body {
     .walkincomplete {
         padding: 0;
 
-        @media only screen and (max-width: 1400px) {
+        &.walkincomplete-mobile {
             box-shadow: none;
             background-color: transparent;
         }
