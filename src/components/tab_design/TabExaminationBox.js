@@ -240,7 +240,7 @@ function TabExaminationBox() {
                                 )}
                             </div>
                         </div>
-                        <Button type="text" className="border-start rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
+                        <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
                             <i className="icon-Cross"></i>
                         </Button>
                     </div>
@@ -329,7 +329,7 @@ function TabExaminationBox() {
                     <div className="medicine-templates d-flex">
                         <Select
                             showSearch
-                            value={inputTemplateName && inputTemplateName.tet_template_name}
+                            value={inputTemplateName && JSON.parse(inputTemplateName).tet_template_name}
                             className="autocomplete-custom w-100 popinput inputheight41"
                             placeholder="Select Template"
                             onSearch={onSearchTemplate}

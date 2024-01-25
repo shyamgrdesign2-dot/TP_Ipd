@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import moment from "moment";
 import { isMobile } from "react-device-detect";
 
+import { ADD, EDIT } from "../utils/constants";
 import { removeBeforeWhiteSpace } from "../utils/utils"
 
 import { useDispatch, useSelector } from "react-redux";
@@ -16,25 +17,36 @@ const { Option } = Select;
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD-MM-YYYY'
 
-function PersonalDetails({ form }) {
+function PersonalDetails({ form, mode = ADD }) {
 
     const [showDetails, setShowDetails] = useState(true);
     const [ageYearsMonths, setAgeYearsMonths] = useState(null);
-    // const [birthDate, setBirthDate] = useState(null);
 
     const dispatch = useDispatch();
-    const { salutationData, loading } = useSelector((state) => state.records);
+    const { salutationData, patients_details, loading } = useSelector((state) => state.records);
 
     useEffect(() => {
         dispatch(listSalutation());
     }, []);
 
     useEffect(() => {
-        if (form.getFieldsValue().dobYearsMonths != undefined) {
-            const age = calculateAge(moment(form.getFieldsValue().dobYearsMonths).format(dateFormat));
+        if (patients_details && mode === EDIT) {
+            form.setFieldsValue({
+                pm_fullname: patients_details.pm_fullname,
+                pm_salutation: patients_details.pm_salutation,
+                pm_contact_no: patients_details.pm_contact_no,
+                pm_gender: `${patients_details.pm_gender.charAt(0).toUpperCase()}${patients_details.pm_gender.slice(1)}`,
+                pm_dob: moment(patients_details.pm_dob).format(dateFormat),
+                pm_dob_show: dayjs(moment(patients_details.pm_dob).format(dateFormat), dateFormat),
+                pm_pincode: patients_details.pm_pincode,
+                pm_city: patients_details.pm_city,
+                pm_state: patients_details.pm_state,
+                pm_address: patients_details.pm_address,
+            });
+            const age = calculateAge(moment(patients_details.pm_dob).format(dateFormat));
             setAgeYearsMonths(age);
         }
-    }, []);
+    }, [patients_details]);
 
     const validateMobileNumber = (_, value) => {
         const mobileNumberRegex = /^[0-9]{10}$/; // 10-digit number validation regex
@@ -78,7 +90,7 @@ function PersonalDetails({ form }) {
                 message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please select gender</div>,
             },
         ],
-        dobYearsMonths: [
+        dob: [
             {
                 required: true,
                 message: <div className="align-items-center d-flex"><i className="icon-info me-2 fs-18"></i> Please fill age in years & months</div>,
@@ -86,16 +98,13 @@ function PersonalDetails({ form }) {
         ],
     };
 
-
-
     const onBirthDateChanged = (date, dateString) => {
         if (dateString) {
-            // setBirthDate(dateString);
             // const remaingDate = moment(dateString).add(1, 'day').format('YYYY-MM-DD')
             const age = calculateAge(moment(dateString, showDateFormat).format(dateFormat));
-            form.setFieldsValue({
-                dobYearsMonths: dateString,
-            });
+            // form.setFieldsValue({
+            //     pm_dob: moment(dateString),
+            // });
             setAgeYearsMonths(age);
         }
     };
@@ -133,9 +142,8 @@ function PersonalDetails({ form }) {
                     : 0
             ));
 
-            // setBirthDate(newDate);
             form.setFieldsValue({
-                pm_dob: dayjs(moment(newDate).format(dateFormat), dateFormat),
+                pm_dob: moment(newDate).format(dateFormat)
             });
         }
     }, [ageYearsMonths]);
@@ -199,9 +207,9 @@ function PersonalDetails({ form }) {
                     <Row className="align-items-center" gutter={{ xs: 0, sm: 0, lg: 0 }}>
                         <Col xs={24} sm={24} md={11} lg={11}>
                             <Form.Item
-                                name="dobYearsMonths"
+                                name="pm_dob"
                                 label="Age In Years & Months"
-                                rules={rules.dobYearsMonths}
+                                rules={rules.dob}
                             >
                                 <div className="justify-content-between d-flex">
                                     <Input
@@ -211,11 +219,15 @@ function PersonalDetails({ form }) {
                                         maxLength={3}
                                         value={ageYearsMonths?.years}
                                         onChange={(e) => {
-                                            Math.abs(e.target.value) <= 150 &&
+                                            if (Math.abs(e.target.value) <= 150) {
                                                 setAgeYearsMonths({
                                                     ...ageYearsMonths,
                                                     years: Math.abs(e.target.value),
                                                 });
+                                                form.setFieldsValue({
+                                                    pm_dob_show: "",
+                                                });
+                                            }
                                         }}
                                     />
                                     <Input
@@ -229,6 +241,9 @@ function PersonalDetails({ form }) {
                                                 ...ageYearsMonths,
                                                 months: Math.abs(e.target.value),
                                             });
+                                            form.setFieldsValue({
+                                                pm_dob_show: "",
+                                            });
                                         }}
                                     />
                                 </div>
@@ -238,7 +253,7 @@ function PersonalDetails({ form }) {
                             <div className="or text-center mt-2">OR</div>
                         </Col>
                         <Col xs={24} sm={24} md={11} lg={11}>
-                            <Form.Item name="pm_dob" label="Date of Birth">
+                            <Form.Item name="pm_dob_show" label="Date of Birth">
                                 <DatePicker
                                     className="w-100"
                                     inputReadOnly
@@ -246,11 +261,6 @@ function PersonalDetails({ form }) {
                                     format={showDateFormat}
                                     onChange={onBirthDateChanged}
                                     disabledDate={disabledDate}
-                                // value={
-                                //     birthDate
-                                //         ? dayjs(moment(birthDate).format(showDateFormat), showDateFormat)
-                                //         : null
-                                // }
                                 />
                             </Form.Item>
                         </Col>

@@ -528,7 +528,7 @@ function ExaminationBox() {
           <div className="pop-header d-flex">
             <Select
               showSearch
-              value={inputTemplateName && inputTemplateName.tet_template_name}
+              value={inputTemplateName && JSON.parse(inputTemplateName).tet_template_name}
               className="autocomplete-custom w-100 popinput inputheight41"
               placeholder="Select Template"
               onSearch={onSearchTemplate}

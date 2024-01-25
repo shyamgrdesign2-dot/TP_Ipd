@@ -15,6 +15,7 @@ const initialState = {
     salutationData: [],
     pincodeInfo: {},
     patients: null,
+    patients_details: null
 };
 
 export const getCaseTypes = createAsyncThunk(
@@ -308,6 +309,18 @@ const appointmentsSlice = createSlice({
             })
             .addCase(editPatient.rejected, (state) => {
                 state.loading = false;
+            })
+            .addCase(viewPatient.pending, (state) => {
+                state.loading = true;
+                state.patients_details = null
+            })
+            .addCase(viewPatient.fulfilled, (state, action) => {
+                state.loading = false;
+                state.patients_details = action.payload
+            })
+            .addCase(viewPatient.rejected, (state) => {
+                state.loading = false;
+                state.patients_details = null
             })
     },
 });
