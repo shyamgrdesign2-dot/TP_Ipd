@@ -240,7 +240,6 @@ function TabMedicationBox() {
                 }
             })
             setMedicationData([...medicationData, ...updatedData]);
-            handleDrawerTemplate();
         } else {
             messageApi.open({
                 MESSAGE_KEY,
