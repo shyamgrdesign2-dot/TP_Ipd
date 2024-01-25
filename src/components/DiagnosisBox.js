@@ -479,6 +479,8 @@ function DiagnosisBox() {
                 value={item.status != "" ? item.status : null}
                 onSelect={(data) => onSelectStatusChild(data, index)}
                 options={STATUS_LIST}
+                onClear={() => onSelectStatusChild("", index)}
+                allowClear
               />
             </Col>
             <Col lg={8} md={8} sm={7} xs={7} className="border-end">

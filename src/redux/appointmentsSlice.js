@@ -141,7 +141,40 @@ export const addPatient = createAsyncThunk(
 
         try {
             const result = await ApiAppointments.addPatient(formData);
-            console.log("result: ", result);
+            if (result.status) {
+                return result.data;
+            } else {
+                throw Error(result.error);
+            }
+        } catch (error) {
+            console.log("error: ", error);
+            throw Error(error);
+        }
+    }
+);
+
+export const editPatient = createAsyncThunk(
+    "records/editPatient",
+    async (data) => {
+        try {
+            const result = await ApiAppointments.editPatient(data);
+            if (result.status) {
+                return result.data;
+            } else {
+                throw Error(result.error);
+            }
+        } catch (error) {
+            console.log("error: ", error);
+            throw Error(error);
+        }
+    }
+);
+
+export const viewPatient = createAsyncThunk(
+    "records/viewPatient",
+    async (data) => {
+        try {
+            const result = await ApiAppointments.viewPatient(data);
             if (result.status) {
                 return result.data;
             } else {
@@ -237,7 +270,7 @@ const appointmentsSlice = createSlice({
                 state.loading = false;
                 state.patients = action.payload;
             })
-            .addCase(searchPatients.rejected, (state,action) => {
+            .addCase(searchPatients.rejected, (state, action) => {
                 state.loading = false;
                 state.patients = []
                 state.error = action.error.message
@@ -263,11 +296,18 @@ const appointmentsSlice = createSlice({
             })
             .addCase(addPatient.fulfilled, (state, action) => {
                 state.loading = false;
-                state.patientDetals = action.payload;
             })
             .addCase(addPatient.rejected, (state) => {
                 state.loading = false;
-                state.patientDetals = null;
+            })
+            .addCase(editPatient.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(editPatient.fulfilled, (state, action) => {
+                state.loading = false;
+            })
+            .addCase(editPatient.rejected, (state) => {
+                state.loading = false;
             })
     },
 });

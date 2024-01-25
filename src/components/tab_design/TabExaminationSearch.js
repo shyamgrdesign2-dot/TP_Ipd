@@ -158,7 +158,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
                     <Row gutter={0} className="h-100">
                         <Col md={14}>
                             <div className="bg-white h-100 p-14">
-                                {examinationData.length > 0 && (
+                                {examinationData.length > 0 && !searchChildQuery && (
                                     <>
                                         <div className="title2">
                                             Added
@@ -175,7 +175,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
                                     <div className="mt-3">
                                         {searchChildQuery.length > 0 ? (
                                             childSearchOptions.length > 0 &&
-                                            childSearchOptions.map((item, i) => {
+                                            childSearchOptions.filter(e => ![...examinationData.map(e1 => e1.examination_name)].includes(e.value)).map((item, i) => {
                                                 return (
                                                     i === childSearchOptions.length - 1 ? (
                                                         <Button
@@ -199,7 +199,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
                                             })
                                         ) : (
                                             parentOptionsList.length > 0 &&
-                                            parentOptionsList.map((item, i) => {
+                                            parentOptionsList.filter(e => ![...examinationData.map(e1 => e1.examination_name)].includes(e.examination_name)).map((item, i) => {
                                                 return (
                                                     <Button key={i} type="text" style={{ width: item.examination_name.length > 26 && '250px' }} className={`${item.examination_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.examination_name}</Button>
                                                 )

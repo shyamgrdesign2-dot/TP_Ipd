@@ -309,7 +309,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                     <Row gutter={0} className="h-100">
                         <Col md={14}>
                             <div className="bg-white h-100 p-14">
-                                {symptomsData.length > 0 && (
+                                {symptomsData.length > 0 && !searchChildQuery && (
                                     <>
                                         <div className="title2">
                                             Added
@@ -326,7 +326,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                     <div className="mt-3">
                                         {searchChildQuery.length > 0 ? (
                                             childSearchOptions.length > 0 &&
-                                            childSearchOptions.map((item, i) => {
+                                            childSearchOptions.filter(e => ![...symptomsData.map(e1 => e1.symptom_name)].includes(e.value)).map((item, i) => {
                                                 return (
                                                     i === childSearchOptions.length - 1 ? (
                                                         <Button
@@ -349,8 +349,9 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                                 )
                                             })
                                         ) : (
+
                                             parentOptionsList.length > 0 &&
-                                            parentOptionsList.map((item, i) => {
+                                            parentOptionsList.filter(e => ![...symptomsData.map(e1 => e1.symptom_name)].includes(e.symptom_name)).map((item, i) => {
                                                 return (
                                                     <Button key={i} type="text" style={{ width: item.symptom_name.length > 26 && '250px' }} className={`${item.symptom_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.symptom_name}</Button>
                                                 )

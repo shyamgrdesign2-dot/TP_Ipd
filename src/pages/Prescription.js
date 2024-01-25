@@ -101,7 +101,6 @@ function Prescription() {
                     <img src={vitals} alt="vitals" className="me-3" />
                     <div className="title-common">Vitals & Body Composition</div>
                   </div>
-                  {console.log(vitalsData)}
                   <button className="btn d-flex align-items-center btn-text" onClick={handleDrawerVital}>
                     {" "}
                     <i className={`${vitalsData.length > 0 ? 'icon-Edit' : 'icon-Add'} me-1 fs-5`}></i> <span>{`${vitalsData.length > 0 ? 'Edit' : 'Add'}`}</span>

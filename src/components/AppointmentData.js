@@ -227,7 +227,9 @@ function AppointmentData() {
                 endDate: moment().format(dateFormat),
             }
             setPageNo(0)
-            if (value === 2) {
+            if (value === 1) {
+                setDate(updatedate)
+            }else if (value === 2) {
                 setDate({
                     startDate: moment(updatedate.startDate).format(dateFormat),
                     endDate: moment(updatedate.endDate).add(7, 'day').format(dateFormat),
@@ -248,7 +250,7 @@ function AppointmentData() {
                     endDate: moment(updatedate.endDate).format(dateFormat),
                 })
             } else {
-                setDate(updatedate)
+                setDate(null)
             }
         },
         [selectedCalanderOptions, date]
@@ -651,11 +653,12 @@ function AppointmentData() {
                                     <DatePicker
                                         inputReadOnly
                                         format={showDateFormat}
-                                        disabled={date.startDate != date.endDate}
+                                        placeholder={showDateFormat.toLowerCase()}
+                                        // disabled={date.startDate != date.endDate}
                                         disabledDate={selectedTab !== TAB_QUEUE && disabledDate}
                                         defaultValue={dayjs(moment(date.startDate).format(showDateFormat), showDateFormat)}
                                         value={
-                                            date.startDate === date.endDate
+                                            date.startDate == date.endDate
                                                 ? dayjs(moment(date.startDate).format(showDateFormat), showDateFormat)
                                                 : ""
                                         }

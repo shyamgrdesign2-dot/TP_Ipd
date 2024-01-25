@@ -6,7 +6,7 @@ function SidebarDoctor() {
     return (
         <>
             <div className="SidebarDoctor">
-                <NavLink to="/" className={({ isActive, isPending }) =>
+                <NavLink to="/" replace={true} className={({ isActive, isPending }) =>
                     isPending ? "pending" : isActive ? "active" : ""
                 }>
                     <i className='icon-calendarfill'></i>
