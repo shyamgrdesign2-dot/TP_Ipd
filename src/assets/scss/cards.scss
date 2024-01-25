@@ -86,7 +86,10 @@ body {
                             line-height: 26px;
                             letter-spacing: 0.1px;
                             border-right: 1px solid $bordercolor;
-
+                            word-break: break-all;
+                            &:nth-child(2) {
+                                word-break: normal;
+                            }
                             &:last-child {
                                 border: transparent;
                             }
