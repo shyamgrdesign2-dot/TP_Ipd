@@ -229,7 +229,7 @@ function AppointmentData() {
             setPageNo(0)
             if (value === 1) {
                 setDate(updatedate)
-            }else if (value === 2) {
+            } else if (value === 2) {
                 setDate({
                     startDate: moment(updatedate.startDate).format(dateFormat),
                     endDate: moment(updatedate.endDate).add(7, 'day').format(dateFormat),
@@ -627,8 +627,8 @@ function AppointmentData() {
                 onChange={onChange}
                 activeKey={selectedTab}
             />
-            <div className="p-4 appointment-data">
-                <Row className="justify-content-between align-items-center mb-3">
+            <div className="appointment-data">
+                <Row className="justify-content-between align-items-center my-3 px-4">
                     <Col xl={4} lg={4}>
                         <Input
                             value={searchQuery}
@@ -694,6 +694,7 @@ function AppointmentData() {
                     <div>
                         <>
                             <Table
+                                className="px-xl-4 px-0"
                                 columns={columns}
                                 dataSource={appointmentsData}
                                 onChange={handleChange}

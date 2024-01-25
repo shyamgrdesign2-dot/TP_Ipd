@@ -101,6 +101,20 @@
             position: sticky;
             top: 0;
             z-index: 9;
+
+            th {
+                @media only screen and (max-width: 1400px) {
+                    &:first-child {
+                        border-start-start-radius: 0 !important;
+                        border-bottom-left-radius: 0 !important
+                    }
+
+                    &:last-child {
+                        border-bottom-right-radius: 0 !important;
+                        border-start-end-radius: 0 !important
+                    }
+                }
+            }
         }
 
         tr td div {
@@ -268,8 +282,9 @@
     overflow-y: auto;
     overflow-x: hidden;
 
-    .printBox {
-        border-radius: 20px;
+    #my-pdf {
+        z-index: 1;
+        position: relative;
     }
 }
 
@@ -547,6 +562,11 @@ body {
     .walkincomplete {
         padding: 0;
 
+        @media only screen and (max-width: 1400px) {
+            box-shadow: none;
+            background-color: transparent;
+        }
+
         .ant-select-item {
             padding: 0;
         }
@@ -607,29 +627,34 @@ body {
         border-color: $theme !important;
     }
 }
+
 .tabs-patient {
     .ant-tabs-tab-active {
         .ant-tabs-tab-btn {
             color: $theme !important;
         }
     }
+
     .ant-tabs .ant-tabs-ink-bar {
         background-color: $theme;
     }
 }
+
 .ant-message-notice-wrapper .message-appointment {
     .ant-message-notice-content {
         background: rgba(23, 23, 37, 0.90);
         border-radius: 10px;
         padding: 15px;
+
         div {
             color: $white !important;
         }
     }
 }
+
 .appointment-date-group .ant-picker .ant-picker-input span.ant-picker-suffix,
 .ant-picker.ant-picker-range span.ant-picker-suffix {
-  margin-left: 1px;
-  margin-right: 10px;
-  order: -1;
+    margin-left: 1px;
+    margin-right: 10px;
+    order: -1;
 }

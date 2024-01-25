@@ -269,4 +269,4 @@ function WalkInConsultation() {
         </>
     );
 }
-export default WalkInConsultation;
+export default React.memo(WalkInConsultation);
