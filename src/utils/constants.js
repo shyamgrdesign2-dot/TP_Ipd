@@ -8,3 +8,6 @@ export const PAGE_SIZE = 10;
 export const TAB_QUEUE = 0;
 export const TAB_FINISHED = 3;
 export const TAB_CANCELLED = 4;
+
+export const ADD = 'ADD'
+export const EDIT = 'EDIT'

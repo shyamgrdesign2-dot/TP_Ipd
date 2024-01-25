@@ -2,8 +2,7 @@ import React from "react";
 import { Button } from 'antd';
 import { Link, useNavigate } from "react-router-dom";
 
-const ADD = 'ADD'
-const EDIT = 'EDIT'
+import { ADD, EDIT } from "../../utils/constants";
 
 function TabHeader({ flag, mode = ADD, title, loading, onClick }) {
     const navigate = useNavigate();
