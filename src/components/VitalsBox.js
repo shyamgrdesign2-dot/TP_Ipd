@@ -30,7 +30,7 @@ function VitalsBox(props) {
     const dispatch = useDispatch();
 
     const { patient_data, vitalsData, setVitalsData } = useContext(CashManagerContext);
-    const [childVitalsData, setChildVitalsData] = useState([...vitalsData]);
+    const [childVitalsData, setChildVitalsData] = useState([]);
 
     useEffect(() => {
         if (selectedVitalsList.length > 0) {
@@ -38,8 +38,14 @@ function VitalsBox(props) {
                 return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
             });
             setVitalsData(updatedData);
+        }else{
+            setVitalsData([]);
         }
     }, [selectedVitalsList]);
+
+    useEffect(() => {
+        setChildVitalsData([...vitalsData])
+    }, [vitalsData]);
 
     useEffect(() => {
         if (childVitalsData.length == 0) {

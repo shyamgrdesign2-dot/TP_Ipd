@@ -69,5 +69,13 @@ ApiAppointments.addPatient = function (formData) {
   return api.post(`/api/v1/appointment/addPatient`, formData, baseUrl);
 };
 
+ApiAppointments.editPatient = function (data) {
+  return api.post(`/api/v1/appointment/editPatient`, data, baseUrl);
+};
+
+ApiAppointments.viewPatient = function (data) {
+  return api.post(`/api/v1/appointment/viewPatient`, data, baseUrl);
+};
+
 
 export default ApiAppointments;

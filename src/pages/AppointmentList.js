@@ -7,6 +7,7 @@ import SidebarDoctor from "../common/SidebarDoctor";
 import Welcome from "../common/Welcome";
 import Appointment from "../components/AppointmentData";
 import AddNewPatient from "./AddNewPatient";
+import EditNewPatient from "./EditNewPatient";
 import WalkInConsultation from "./WalkInConsultation";
 
 function AppointmentList() {
@@ -32,7 +33,8 @@ function AppointmentList() {
           <Routes>
             <Route path="/" element={<Appointment />} />
             <Route path="walk_in_consultation" element={<WalkInConsultation />} />
-            <Route path="add_new_patient" element={<AddNewPatient />} />
+            <Route path="add_patient" element={<AddNewPatient />} />
+            <Route path="edit_patient" element={<EditNewPatient />} />
           </Routes>
         </div>
       </div>

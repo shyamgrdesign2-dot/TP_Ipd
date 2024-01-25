@@ -59,7 +59,7 @@ function WalkInConsultation() {
                         </div>
                         <div className="list-patientName d-flex align-items-center me-4">
                             <i className="icon-Id backbar me-2"></i>
-                            <span>{patient.patient_unique_id}</span>
+                            <span>{patient.pm_pid}</span>
                         </div>
                     </div>
                     <div className="d-flex align-items-center">
@@ -91,7 +91,7 @@ function WalkInConsultation() {
 
     const AddPatientPlank = () => {
         return (
-            <Link to="/add_new_patient">
+            <Link to="/add_patient">
                 <Button
                     type="text"
                     className="btn btn-primary1 btn-41 align-items-center d-flex"
@@ -155,7 +155,7 @@ function WalkInConsultation() {
         (data, e) => {
             e.key != -1
                 ? setClickedPatient(JSON.parse(e.key))
-                : navigate("/add_new_patient");
+                : navigate("/add_patient");
         },
         [clickedPatient]
     );
@@ -186,7 +186,7 @@ function WalkInConsultation() {
                                 <span>{clickedPatient?.pm_contact_no}</span>
                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 <i className="icon-Id me-2" />{" "}
-                                <span>{clickedPatient?.patient_unique_id}</span>
+                                <span>{clickedPatient?.pm_pid}</span>
                             </div>
                         </div>
                         <div className="mt-4">
@@ -269,4 +269,4 @@ function WalkInConsultation() {
         </>
     );
 }
-export default WalkInConsultation;
+export default React.memo(WalkInConsultation);

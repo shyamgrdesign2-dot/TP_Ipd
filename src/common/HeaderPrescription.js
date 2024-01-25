@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext } from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
-import { Button, Dropdown, message } from 'antd';
+import { Button, Dropdown, message, Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import CashManagerContext from "../context/CashManagerContext";
@@ -87,6 +87,13 @@ function HeaderPrescription() {
                 content: 'Please fillup diagnosis name',
                 duration: 2
             });
+        } else if (medicationData.length > 0 && medicationData.filter((e) => e.tmm_medicine_name == "").length > 0) {
+            message.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: 'Please fillup medication name',
+                duration: 2
+            });
         } else if (adviceData.length > 0 && adviceData.filter(e => e.advice_name == "").length > 0) {
             message.open({
                 MESSAGE_KEY,
@@ -121,7 +128,7 @@ function HeaderPrescription() {
 
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
             if (action.meta.requestStatus == "fulfilled") {
-                navigate('/prescription_print_view', { state: { ...action.payload, patient_data: patient_data } })
+                navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
             } else {
                 message.open({
                     MESSAGE_KEY,
@@ -137,7 +144,7 @@ function HeaderPrescription() {
         if (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || medicationData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || vitalsData.length > 0) {
             showHideModal()
         } else {
-            navigate(-1)
+            navigate('/', { replace: true });
         }
     }
 
@@ -208,18 +215,21 @@ function HeaderPrescription() {
                                     <i className='icon-right iconrotate270 ms-1'></i>
                                 </a>
                             </Dropdown> */}
+                            {/* <Tooltip placement="bottom" title="Ready to print? Please enter your prescription details.">
+                                <div onClick={() => window.print()}>
+                                    <Button className='btn align-items-center d-flex btn-41 btn-input me-20'>
+                                        <i className='icon-Print me-2'></i>
+                                        Print
+                                    </Button>
+                                </div>
+                            </Tooltip> */}
 
-                            <div onClick={() => window.print()}>
-                                <Button className='btn align-items-center d-flex btn-41 btn-input me-20'>
-                                    <i className='icon-Print me-2'></i>
-                                    Print
+                            <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || followUpDate || additionalNote) ? "" : "Please fill your prescription to end visit."}>
+                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || followUpDate || additionalNote) && onEndVisitClick()} loading={loading}>
+                                    <i className='icon-exit me-2'></i>
+                                    End Visit
                                 </Button>
-                            </div>
-
-                            <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={onEndVisitClick} loading={loading}>
-                                <i className='icon-exit me-2'></i>
-                                End Visit
-                            </Button>
+                            </Tooltip>
 
                             <Dropdown className='btn btn-outline btn-more p-0' menu={{ items }} trigger={['click']}>
                                 <a onClick={(e) => e.preventDefault()}>

@@ -138,10 +138,12 @@ function AppointmentData() {
     }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters]);
 
     useEffect(() => {
-        if (moment(moment(date.startDate).format(dateFormat)).isSame(moment().format(dateFormat), 'day')) {
-            setSelectedCalanderOptions(1)
-        } else {
-            setSelectedCalanderOptions(null)
+        if (date.startDate === date.endDate) {
+            if (moment(moment(date.startDate).format(dateFormat)).isSame(moment().format(dateFormat), 'day')) {
+                setSelectedCalanderOptions(1)
+            } else {
+                setSelectedCalanderOptions(null)
+            }
         }
     }, [date]);
 
@@ -225,7 +227,9 @@ function AppointmentData() {
                 endDate: moment().format(dateFormat),
             }
             setPageNo(0)
-            if (value === 2) {
+            if (value === 1) {
+                setDate(updatedate)
+            } else if (value === 2) {
                 setDate({
                     startDate: moment(updatedate.startDate).format(dateFormat),
                     endDate: moment(updatedate.endDate).add(7, 'day').format(dateFormat),
@@ -246,7 +250,7 @@ function AppointmentData() {
                     endDate: moment(updatedate.endDate).format(dateFormat),
                 })
             } else {
-                setDate(updatedate)
+                setDate(null)
             }
         },
         [selectedCalanderOptions, date]
@@ -490,7 +494,7 @@ function AppointmentData() {
                                 <span>{appointmentSelectedFromMenu?.pm_contact_no}</span>
                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 <i className="icon-Id me-2" />{" "}
-                                <span>{appointmentSelectedFromMenu?.patient_unique_id}</span>
+                                <span>{appointmentSelectedFromMenu?.pm_pid}</span>
                             </div>
                         </div>
                         <div className="mt-4">
@@ -623,8 +627,8 @@ function AppointmentData() {
                 onChange={onChange}
                 activeKey={selectedTab}
             />
-            <div className="p-4 appointment-data">
-                <Row className="justify-content-between align-items-center mb-3">
+            <div className="appointment-data">
+                <Row className="justify-content-between align-items-center my-3 px-4">
                     <Col xl={4} lg={4}>
                         <Input
                             value={searchQuery}
@@ -649,11 +653,12 @@ function AppointmentData() {
                                     <DatePicker
                                         inputReadOnly
                                         format={showDateFormat}
-                                        disabled={date.startDate != date.endDate}
+                                        placeholder={showDateFormat.toLowerCase()}
+                                        // disabled={date.startDate != date.endDate}
                                         disabledDate={selectedTab !== TAB_QUEUE && disabledDate}
                                         defaultValue={dayjs(moment(date.startDate).format(showDateFormat), showDateFormat)}
                                         value={
-                                            date.startDate === date.endDate
+                                            date.startDate == date.endDate
                                                 ? dayjs(moment(date.startDate).format(showDateFormat), showDateFormat)
                                                 : ""
                                         }
@@ -689,6 +694,7 @@ function AppointmentData() {
                     <div>
                         <>
                             <Table
+                                className="px-xl-4 px-0"
                                 columns={columns}
                                 dataSource={appointmentsData}
                                 onChange={handleChange}

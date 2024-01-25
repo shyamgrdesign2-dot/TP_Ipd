@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Col, Row, Select, Button, message } from "antd";
+import { Col, Row, Select, Button, message, Spin } from "antd";
 import { isMobile } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
@@ -8,6 +8,8 @@ import { useReactToPrint } from 'react-to-print';
 
 import { PDFReader } from 'reactjs-pdf-reader';
 
+import visitEnd from '../assets/images/end-visit.svg';
+import imgCloseVisit from '../assets/images/close-visit.svg';
 import messageSent from '../assets/images/message-sent.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
@@ -85,6 +87,25 @@ function PrescriptionPrintView() {
     useEffect(() => {
         setDivWidth(divRef.current.offsetWidth);
     }, [divRef]);
+
+    useEffect(() => {
+        message.open({
+            MESSAGE_KEY,
+            type: '',
+            className: 'message-appointment',
+            content: (
+                <div className='d-flex align-items-center'>
+                    <img src={visitEnd} className='me-3' />
+                    <div>
+                        <div className='title-common fontroboto'>{`${patient_data?.pm_first_name}’s visit end successfully.`}</div>
+                        <div className='fontroboto text-start fw-normal mt-1'>View end visits in Finished tab.</div>
+                    </div>
+                    <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                </div>
+            ),
+            duration: 5,
+        });
+    }, []);
 
     const printContent = useReactToPrint({
         content: () => printRef.current,
@@ -228,7 +249,8 @@ function PrescriptionPrintView() {
                             </div>
                             <div className="border rounded-20px bg-white mt-20 overflow-hidden">
                                 <div ref={divRef} className="printheight">
-                                    <PDFReader ref={printRef} className="printBox" width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} />
+                                    <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
+                                    <PDFReader key={Math.random()} ref={printRef} width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} />
                                     {/* <embed className="printBox" ref={printRef} src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed> */}
                                     {/* <iframe
                                         src="https://pms-upgrade.azurewebsites.net/case_manager/pdf_casemanager_send.php?pdf_id=MTI3Njgx&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ=#toolbar=0&navpanes=0&scrollbar=0"

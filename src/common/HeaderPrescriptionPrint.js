@@ -18,7 +18,7 @@ function HeaderPrescriptionPrint({ patient_data }) {
                         </div>
                     </div>
                 </div>
-                <Button onClick={() => navigate("/")}
+                <Button onClick={() => navigate('/', { replace: true })}
                     className='btn align-items-center d-flex btn-41 btn-primary3 me-3 px-4'>
                     Go to Appointment
                 </Button>

@@ -310,7 +310,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                     <Row gutter={0} className="h-100">
                         <Col md={14}>
                             <div className="bg-white h-100 p-14">
-                                {diagnosisData.length > 0 && (
+                                {diagnosisData.length > 0 && !searchChildQuery && (
                                     <>
                                         <div className="title2">
                                             Added
@@ -327,7 +327,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                                     <div className="mt-3">
                                         {searchChildQuery.length > 0 ? (
                                             childSearchOptions.length > 0 &&
-                                            childSearchOptions.map((item, i) => {
+                                            childSearchOptions.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.value)).map((item, i) => {
                                                 return (
                                                     i === childSearchOptions.length - 1 ? (
                                                         <Button
@@ -351,7 +351,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                                             })
                                         ) : (
                                             parentOptionsList.length > 0 &&
-                                            parentOptionsList.map((item, i) => {
+                                            parentOptionsList.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name)).map((item, i) => {
                                                 return (
                                                     <Button key={i} type="text" style={{ width: item.tds_name.length > 26 && '250px' }} className={`${item.tds_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.tds_name}</Button>
                                                 )
