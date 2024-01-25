@@ -59,7 +59,7 @@ function WalkInConsultation() {
                         </div>
                         <div className="list-patientName d-flex align-items-center me-4">
                             <i className="icon-Id backbar me-2"></i>
-                            <span>{patient.patient_unique_id}</span>
+                            <span>{patient.pm_pid}</span>
                         </div>
                     </div>
                     <div className="d-flex align-items-center">
@@ -186,7 +186,7 @@ function WalkInConsultation() {
                                 <span>{clickedPatient?.pm_contact_no}</span>
                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 <i className="icon-Id me-2" />{" "}
-                                <span>{clickedPatient?.patient_unique_id}</span>
+                                <span>{clickedPatient?.pm_pid}</span>
                             </div>
                         </div>
                         <div className="mt-4">

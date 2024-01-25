@@ -494,7 +494,7 @@ function AppointmentData() {
                                 <span>{appointmentSelectedFromMenu?.pm_contact_no}</span>
                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 <i className="icon-Id me-2" />{" "}
-                                <span>{appointmentSelectedFromMenu?.patient_unique_id}</span>
+                                <span>{appointmentSelectedFromMenu?.pm_pid}</span>
                             </div>
                         </div>
                         <div className="mt-4">
