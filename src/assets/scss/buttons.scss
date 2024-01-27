@@ -259,6 +259,15 @@ body {
         &.chips-custom {
             height: 36px !important;
             padding: 5px 10px !important;
+            &.btn-primary2 {
+                &:focus, &:hover, &:active {
+                    background-color: $white !important;
+                    border-color: $bordercolor !important;
+                    span {
+                        color: $theme !important;
+                    }
+                }
+            }
             &.chips-addCustom {
                 white-space: normal;
                 text-align: left;

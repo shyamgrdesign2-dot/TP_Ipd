@@ -248,7 +248,7 @@ function WalkInConsultation() {
                         onSelect={onSelect}
                         // defaultActiveFirstOption={true}
                         defaultOpen
-                        listHeight={isMobile ? window.innerHeight - 180 : 300}
+                        listHeight={isMobile ? window.innerHeight - 180 : 320}
                         autoFocus
                         popupClassName={`walkincomplete ${isMobile && 'walkincomplete-mobile'}`}
                     >

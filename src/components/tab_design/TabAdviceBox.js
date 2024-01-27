@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { Input, Button, Drawer, Tabs, message, Select, Card, Spin, Checkbox } from 'antd';
+import { Input, Button, Drawer, Tabs, message, Select, Card, Spin, Checkbox, Tooltip } from 'antd';
 
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -401,7 +401,9 @@ function TabAdviceBox() {
 
                     <div className="d-flex align-items-center">
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerTemplate}> <i className="icon-template me-2"></i> <span>Templates</span></button>
-                        <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerSave}> <i className="icon-save me-2"></i> <span>Save</span></button>
+                        <Tooltip placement="bottom" title={(adviceData.length > 0) ? "" : "Please enter some Symptoms to save a template"}>
+                            <button className='btn d-flex align-items-center btn-text' onClick={() => (adviceData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
+                        </Tooltip>
                     </div>
                     <Drawer title="Advice Templates" placement="right" onClose={handleDrawerTemplate} open={templateDrawer} className="modalWidth-563" width="auto">
                         {TEMPLATE_CONTENT}

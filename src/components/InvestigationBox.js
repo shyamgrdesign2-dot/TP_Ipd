@@ -9,7 +9,8 @@ import {
   Popover,
   Tabs,
   Spin,
-  message
+  message,
+  Tooltip
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -582,19 +583,22 @@ function InvestigationBox() {
                 <i className="icon-template me-2"></i> <span>Templates</span>
               </button>
             </Popover>
-            <Popover
-              open={popOver2}
-              onOpenChange={showHideSaveTemplatePopOver}
-              content={SAVE_CONTENT}
-              trigger="click"
-              overlayClassName="pop-450 pp-0"
-              placement="bottom"
-            >
-              <button className="btn d-flex align-items-center btn-text">
-                {" "}
-                <i className="icon-save me-2"></i> <span>Save</span>
-              </button>
-            </Popover>
+            <Tooltip placement="bottom" title={(investigationData.length > 0) ? "" : "Please enter some Symptoms to save a template"}>
+              <Popover
+                open={popOver2}
+                onOpenChange={() => (investigationData.length > 0) && showHideSaveTemplatePopOver()}
+                // onOpenChange={showHideSaveTemplatePopOver}
+                content={SAVE_CONTENT}
+                trigger="click"
+                overlayClassName="pop-450 pp-0"
+                placement="bottom"
+              >
+                <button className="btn d-flex align-items-center btn-text">
+                  {" "}
+                  <i className="icon-save me-2"></i> <span>Save</span>
+                </button>
+              </Popover>
+            </Tooltip>
           </div>
         </div>
 
@@ -609,6 +613,7 @@ function InvestigationBox() {
             className="autocomplete-custom w-100"
             onSelect={onSelectParent}
             defaultActiveFirstOption={true}
+            popupClassName="boxpopup"
           >
             <Input
               placeholder="Search Lab Investigation"
