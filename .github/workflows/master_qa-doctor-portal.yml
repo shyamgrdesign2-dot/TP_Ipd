@@ -12,6 +12,8 @@ on:
 jobs:
   build:
     runs-on: 'ubuntu-latest'
+    env:
+      REACT_APP_ENV: qa
 
     steps:
     - uses: actions/checkout@v2
@@ -30,8 +32,9 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: thyrocareapp.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_131af9c4a404477495185a463b2d2039 }}/doctor-portal:${{ github.sha }}
+        tags: thyrocareapp.azurecr.io/doctor-portal:${{ github.sha }}
         file: ./Dockerfile
+        build-args: REACT_APP_ENV=${{ env.REACT_APP_ENV }}  # Pass REACT_APP_ENV as a build argument
 
   deploy:
     runs-on: ubuntu-latest
@@ -48,4 +51,4 @@ jobs:
         app-name: 'qa-doctor-portal'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_0b0b31b44c574795a7a7ce1d9f0680d0 }}
-        images: 'thyrocareapp.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_131af9c4a404477495185a463b2d2039 }}/doctor-portal:${{ github.sha }}'
+        images: 'thyrocareapp.azurecr.io/doctor-portal:${{ github.sha }}'
