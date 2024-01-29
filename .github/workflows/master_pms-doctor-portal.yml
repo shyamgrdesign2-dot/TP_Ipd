@@ -12,6 +12,8 @@ on:
 jobs:
   build:
     runs-on: 'ubuntu-latest'
+    env:
+      REACT_APP_ENV: prod
 
     steps:
     - uses: actions/checkout@v2
@@ -30,8 +32,9 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: acinacr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_682345f8e44844ac8a9aeeea0b118ba3 }}/doctor-portal/prod:${{ github.sha }}
+        tags: acinacr.azurecr.io/doctor-portal/prod:${{ github.sha }}
         file: ./Dockerfile
+        build-args: REACT_APP_ENV=${{ env.REACT_APP_ENV }}  # Pass REACT_APP_ENV as a build argument
 
   deploy:
     runs-on: ubuntu-latest
@@ -48,4 +51,4 @@ jobs:
         app-name: 'pms-doctor-portal'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_b231f73668c64cd892604dffb45f1cb8 }}
-        images: 'acinacr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_682345f8e44844ac8a9aeeea0b118ba3 }}/doctor-portal/prod:${{ github.sha }}'
+        images: 'acinacr.azurecr.io/doctor-portal/prod:${{ github.sha }}'
