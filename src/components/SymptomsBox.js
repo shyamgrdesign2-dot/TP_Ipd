@@ -694,7 +694,7 @@ function SymptomsBox() {
             className="autocomplete-custom w-100"
             onSelect={onSelectParent}
             defaultActiveFirstOption={true}
-            popupClassName="boxpopup"
+            popupClassName={!searchParentQuery && "boxpopup"}
           >
             <Input
               placeholder="Search Symptoms"

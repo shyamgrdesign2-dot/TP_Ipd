@@ -299,13 +299,13 @@ function VitalsBox(props) {
                                 </div>
                                 <div className='vitals-row vitals-row-40 d-flex align-items-center'>
                                     BMR
-                                    <Tooltip placement="right" title="basal metabolic rate will be auto-calculated by entering Height and Weight">
+                                    <Tooltip placement="right" title="Basal metabolic rate will be auto-calculated by entering Height and Weight">
                                         <i className='icon-info ms-1'></i>
                                     </Tooltip>
                                 </div>
                                 <div className='vitals-row vitals-row-40 d-flex align-items-center'>
                                     BSA
-                                    <Tooltip placement="right" title="Body Surface Area will be auto-calculated by entering Height and Weight">
+                                    <Tooltip placement="right" title="Body surface area will be auto-calculated by entering Height and Weight">
                                         <i className='icon-info ms-1'></i>
                                     </Tooltip>
                                 </div>
