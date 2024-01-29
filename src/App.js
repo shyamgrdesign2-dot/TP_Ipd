@@ -25,7 +25,7 @@ function App() {
 
   useEffect(() => {
     const pathname = window.location.pathname;
-    if (pathname == '/tab_app/' && authToken) {
+    if (pathname == '/' && authToken) {
       setToken(authToken);
     }
   }, [window.location.pathname, authToken]);
