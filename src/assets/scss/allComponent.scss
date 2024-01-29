@@ -658,3 +658,17 @@ body {
     margin-right: 10px;
     order: -1;
 }
+.boxpopup {
+    .ant-select-item{
+        &:first-child {
+            div {
+                color: $grayColor !important;
+    
+            }
+            &.ant-select-item-option-active {
+                background-color: $white;
+                cursor: context-menu;
+            }
+        }
+    }
+}

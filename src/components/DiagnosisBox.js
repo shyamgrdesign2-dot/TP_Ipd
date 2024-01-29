@@ -16,6 +16,7 @@ import {
   Tabs,
   Spin,
   message,
+  Tooltip,
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -674,9 +675,12 @@ function DiagnosisBox() {
                 <i className="icon-template me-2" /> <span>Templates</span>
               </button>
             </Popover>
+            
+            <Tooltip placement="bottom" title={(diagnosisData.length > 0) ? "" : "Please enter some Symptoms to save a template"}>
             <Popover
               open={popOver2}
-              onOpenChange={showHideSaveTemplatePopOver}
+              onOpenChange={() => (diagnosisData.length > 0) && showHideSaveTemplatePopOver()}
+              // onOpenChange={showHideSaveTemplatePopOver}
               content={SAVE_CONTENT}
               trigger="click"
               overlayClassName="pop-450 pp-0"
@@ -687,6 +691,7 @@ function DiagnosisBox() {
                 <i className="icon-save me-2" /> <span>Save</span>
               </button>
             </Popover>
+            </Tooltip>
           </div>
         </div>
 
@@ -701,6 +706,7 @@ function DiagnosisBox() {
             className="autocomplete-custom w-100"
             onSelect={onSelectParent}
             defaultActiveFirstOption={true}
+            popupClassName="boxpopup"
           >
             <Input
               placeholder="Search Diagnosis"
