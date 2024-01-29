@@ -636,7 +636,7 @@ function TabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) 
                                 )}
                                 <div>
                                     <div className="title2">
-                                        {searchChildQuery.length > 0 ? 'Searched' : 'Frequently Used'}
+                                        {searchChildQuery.length > 0 ? 'Search Results' : 'Frequently Used'}
                                     </div>
                                     <div className="mt-3 d-flex flex-wrap">
                                         {searchChildQuery.length > 0 ? (
