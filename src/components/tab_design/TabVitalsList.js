@@ -88,15 +88,15 @@ function TabVitalsList(props) {
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">BMI (kg/m²)</div>
-                                <div className="fontroboto">{item.bmi ? item.bmi : '-'}</div>
+                                <div className="fontroboto">{item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">BMR (kcals)</div>
-                                <div className="fontroboto">{item.bmr ? item.bmr : '-'}</div>
+                                <div className="fontroboto">{item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">BSA (m²)</div>
-                                <div className="fontroboto">{item.bsa ? item.bsa : '-'}</div>
+                                <div className="fontroboto">{item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'}</div>
                             </div>
                         </div>
                     </div>
@@ -149,15 +149,15 @@ function TabVitalsList(props) {
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">BMI (kg/m²)</div>
-                                <div className="fontroboto">{item.bmi ? item.bmi : '-'}</div>
+                                <div className="fontroboto">{item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">BMR (kcals)</div>
-                                <div className="fontroboto">{item.bmr ? item.bmr : '-'}</div>
+                                <div className="fontroboto">{item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'}</div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">BSA (m²)</div>
-                                <div className="fontroboto">{item.bsa ? item.bsa : '-'}</div>
+                                <div className="fontroboto">{item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'}</div>
                             </div>
                         </div>
                     </div>

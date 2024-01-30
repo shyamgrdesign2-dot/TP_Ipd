@@ -8,7 +8,7 @@ function Welcome1(props) {
 
     const navigate = useNavigate();
 
-    const { locationPath, isMobile, patient_data } = props
+    const { locationPath, isMobile, patient_data, viewCaseManagerData } = props
 
     return (
         <>
@@ -25,13 +25,15 @@ function Welcome1(props) {
                     <div>
                         <div className='d-lg-flex d-block'>
                             {/* <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2"> <i className={'icon-reload me-2'}></i> {'Repeat 10th Oct Rx'}</Button> */}
-                            <Button variant="primary"
-                                className='btn-41 px-4'
-                                onClick={() =>
-                                    navigate("/prescription", { state: { patient_data: patient_data } })
-                                }>
-                                {'Start New Visit'}
-                            </Button>
+                            {viewCaseManagerData && (
+                                <Button variant="primary"
+                                    className='btn-41 px-4'
+                                    onClick={() =>
+                                        navigate("/prescription", { state: { patient_data: patient_data } })
+                                    }>
+                                    {'Start New Visit'}
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </div>

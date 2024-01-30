@@ -2,6 +2,7 @@ import React from 'react';
 import Card from 'react-bootstrap/Card';
 import { Table, Spin } from 'antd';
 
+import { onlyDecimalFormat } from "../utils/utils";
 import vitals from '../assets/images/Vitals.svg';
 // import arrowright from '../assets/images/arrow-box-right.svg';
 // import graph from '../assets/images/Graph.svg';
@@ -86,9 +87,9 @@ function VitalsBodyComposition({ loading, passVitals }) {
         initialRows[5][index] = item.spo2 ? item.spo2 : '-'
         initialRows[6][index] = item.height ? item.height : '-'
         initialRows[7][index] = item.weight ? item.weight : '-'
-        initialRows[8][index] = item.bmi ? item.bmi : '-'
-        initialRows[9][index] = item.bmr ? item.bmr : '-'
-        initialRows[10][index] = item.bsa ? item.bsa : '-'
+        initialRows[8][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'
+        initialRows[9][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
+        initialRows[10][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
     });
 
     return (
