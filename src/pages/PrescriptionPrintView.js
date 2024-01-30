@@ -113,7 +113,7 @@ function PrescriptionPrintView() {
     // });
 
     const printContent = async () => {
-        await window.open(`${printUrl}&key=print`);
+        navigate(`/prescription_print_view/?url=${printUrl}&key=print`, { replace: true, state: state })
         navigate(0, { replace: true });
     };
 
@@ -154,7 +154,7 @@ function PrescriptionPrintView() {
     // };
 
     const handleDownload = async () => {
-        await window.open(`${printUrl}&key=download`);
+        navigate(`/prescription_print_view/?url=${printUrl}&key=download`, { replace: true, state: state })
         navigate(0, { replace: true });
     };
 
