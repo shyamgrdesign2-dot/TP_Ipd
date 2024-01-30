@@ -215,13 +215,13 @@ function VitalsBox(props) {
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.weight} addonAfter={'kgs'} onChange={(e) => onChangeInput(e.target.value, i, 8)} />
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14 '>{`${item.bmi != '' ? item.bmi : '--'} kg/m²`}</div>
+                            <div className='fs-14 '>{`${item.bmi != '' ? parseFloat(item.bmi).toFixed(2) : '--'} kg/m²`}</div>
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14'>{`${item.bmr != '' ? item.bmr : '--'} kcals`}</div>
+                            <div className='fs-14'>{`${item.bmr != '' ? parseFloat(item.bmr).toFixed(2) : '--'} kcals`}</div>
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14'>{`${item.bsa != '' ? item.bsa : '--'} m²`}</div>
+                            <div className='fs-14'>{`${item.bsa != '' ? parseFloat(item.bsa).toFixed(2) : '--'} m²`}</div>
                         </div>
                     </div>
                 );
