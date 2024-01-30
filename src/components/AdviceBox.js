@@ -119,7 +119,7 @@ function AdviceBox() {
         <div className="d-flex justify-content-between align-items-center">
           <div>{searchQuery ? 'Search Results' : 'FREQUENTLY USED'}</div>
           <Button
-            className="btn btn-primary3 ms-3" onClick={onClickParent}>
+            className="btn btn-primary3 ms-3" onClick={onClickParent} disabled={adviceDataCheck.length > 0 ? false : true}>
             {`Done (${adviceDataCheck.length})`}
           </Button>
         </div>
@@ -528,7 +528,7 @@ function AdviceBox() {
                 </Button>
                 <div className="modal-title text-truncate-twolines">{'Edit Advice'}</div>
               </div>
-              <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => updateChild(childDrawerData)}>
+              <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => updateChild(childDrawerData)} disabled={childDrawerData.advice_name != undefined && childDrawerData.advice_name ? false : true}>
                 Done
               </Button>
             </div>

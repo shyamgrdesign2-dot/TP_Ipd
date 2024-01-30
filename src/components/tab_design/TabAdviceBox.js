@@ -376,7 +376,7 @@ function TabAdviceBox() {
                                 </Button>
                                 <div className="modal-title text-truncate-twolines">{'Edit Advice'}</div>
                             </div>
-                            <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => updateChild(childDrawerData)}>
+                            <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => updateChild(childDrawerData)} disabled={childDrawerData.advice_name != undefined && childDrawerData.advice_name ? false : true}>
                                 Done
                             </Button>
                         </div>
@@ -414,7 +414,7 @@ function TabAdviceBox() {
                     </Drawer>
                 </div>
                 <div className={adviceData.length > 0 ? "p-14" : "p-14-pb0"}>
-                    <div className="overflow-y-auto" style={{maxHeight: '200px'}}>
+                    <div className="overflow-y-auto" style={{ maxHeight: '200px' }}>
                         {TABLE_ADVICE}
                     </div>
                     <Drawer closeIcon={false} placement="right" onClose={handleDrawerChild} open={childDrawer} className="modalWidth-563" width="auto">
@@ -430,7 +430,7 @@ function TabAdviceBox() {
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
                     {parentDrawer && (<TabAdviceSearch onClose={handleDrawerParent} />)}
                 </Drawer>
-                <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{maxHeight: '114px'}}>
+                <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.map((item, i) => {
                             return (

@@ -36,8 +36,7 @@ function PersonalDetails({ form, mode = ADD }) {
                 pm_salutation: patients_details.pm_salutation,
                 pm_contact_no: patients_details.pm_contact_no,
                 pm_gender: `${patients_details.pm_gender.charAt(0).toUpperCase()}${patients_details.pm_gender.slice(1)}`,
-                pm_dob: moment(patients_details.pm_dob).format(dateFormat),
-                pm_dob_show: dayjs(moment(patients_details.pm_dob).format(dateFormat), dateFormat),
+                pm_dob: dayjs(moment(patients_details.pm_dob).format(dateFormat), dateFormat),
                 pm_pincode: patients_details.pm_pincode,
                 pm_city: patients_details.pm_city,
                 pm_state: patients_details.pm_state,
@@ -143,7 +142,7 @@ function PersonalDetails({ form, mode = ADD }) {
             ));
 
             form.setFieldsValue({
-                pm_dob: moment(newDate).format(dateFormat)
+                dob: moment(newDate).format(dateFormat)
             });
         }
     }, [ageYearsMonths]);
@@ -207,7 +206,7 @@ function PersonalDetails({ form, mode = ADD }) {
                     <Row className="align-items-center" gutter={{ xs: 0, sm: 0, lg: 0 }}>
                         <Col xs={24} sm={24} md={11} lg={11}>
                             <Form.Item
-                                name="pm_dob"
+                                name="dob"
                                 label="Age In Years & Months"
                                 rules={rules.dob}
                             >
@@ -225,7 +224,7 @@ function PersonalDetails({ form, mode = ADD }) {
                                                     years: Math.abs(e.target.value),
                                                 });
                                                 form.setFieldsValue({
-                                                    pm_dob_show: "",
+                                                    pm_dob: "",
                                                 });
                                             }
                                         }}
@@ -242,7 +241,7 @@ function PersonalDetails({ form, mode = ADD }) {
                                                 months: Math.abs(e.target.value),
                                             });
                                             form.setFieldsValue({
-                                                pm_dob_show: "",
+                                                pm_dob: "",
                                             });
                                         }}
                                     />
@@ -253,7 +252,7 @@ function PersonalDetails({ form, mode = ADD }) {
                             <div className="or text-center mt-2">OR</div>
                         </Col>
                         <Col xs={24} sm={24} md={11} lg={11}>
-                            <Form.Item name="pm_dob_show" label="Date of Birth">
+                            <Form.Item name="pm_dob" label="Date of Birth">
                                 <DatePicker
                                     className="w-100"
                                     inputReadOnly

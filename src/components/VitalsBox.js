@@ -44,6 +44,7 @@ function VitalsBox(props) {
     }, [selectedVitalsList]);
 
     useEffect(() => {
+        console.log(vitalsData)
         setChildVitalsData([...vitalsData])
     }, [vitalsData]);
 
@@ -73,6 +74,7 @@ function VitalsBox(props) {
 
     const onChange = useCallback(
         (date, dateString) => {
+            console.log(dateString)
             let cal = calculate('', '');
             childVitalsData.push({
                 date: dateString,
@@ -186,7 +188,7 @@ function VitalsBox(props) {
     const TABLE_VITALS = useMemo(() => {
         return (
             childVitalsData.length > 0 &&
-            childVitalsData.map((item, i) => {
+            childVitalsData.sort((a, b) => new Date(b.date) - new Date(a.date)).map((item, i) => {
                 return (
                     <div key={i} className='vitals-wrap-body w-100 vitals-child-width'>
                         <div className='vitals-head rounded-start-0 w-100'>{moment(item.date).format(showDateFormat)}</div>
@@ -215,13 +217,13 @@ function VitalsBox(props) {
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.weight} addonAfter={'kgs'} onChange={(e) => onChangeInput(e.target.value, i, 8)} />
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14 '>{`${item.bmi != '' ? item.bmi : '--'} kg/m²`}</div>
+                            <div className='fs-14 '>{`${item.bmi != '' ? parseFloat(item.bmi).toFixed(2) : '--'} kg/m²`}</div>
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14'>{`${item.bmr != '' ? item.bmr : '--'} kcals`}</div>
+                            <div className='fs-14'>{`${item.bmr != '' ? parseFloat(item.bmr).toFixed(2) : '--'} kcals`}</div>
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14'>{`${item.bsa != '' ? item.bsa : '--'} m²`}</div>
+                            <div className='fs-14'>{`${item.bsa != '' ? parseFloat(item.bsa).toFixed(2) : '--'} m²`}</div>
                         </div>
                     </div>
                 );
@@ -255,7 +257,7 @@ function VitalsBox(props) {
                         <Button className='btn btn-primary2 btn-41'>
                             Add New Date
                         </Button>
-                        <DatePicker suffixIcon={null} inputReadOnly onChange={onChange} disabledDate={disabledDate} className="calender-vitals w-100 h-100" />
+                        <DatePicker key={Math.random()} suffixIcon={null} inputReadOnly onChange={onChange} disabledDate={disabledDate} className="calender-vitals w-100 h-100" />
                     </div>
                     {/* <div className="float-end d-flex align-itms-center">
                         <i className="icon-setting me-2"></i>
