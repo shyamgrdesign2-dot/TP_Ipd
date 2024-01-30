@@ -38,8 +38,8 @@ function VitalsBox(props) {
                 return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
             });
             setVitalsData(updatedData);
-        }else{
-            setVitalsData([]);
+        } else {
+            // setVitalsData([]);
         }
     }, [selectedVitalsList]);
 
@@ -92,6 +92,7 @@ function VitalsBox(props) {
                 bsa: cal.bsa,
             });
             setChildVitalsData((prev) => [...prev]);
+            console.log(childVitalsData)
         },
         [childVitalsData]
     );
@@ -215,13 +216,13 @@ function VitalsBox(props) {
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.weight} addonAfter={'kgs'} onChange={(e) => onChangeInput(e.target.value, i, 8)} />
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14 '>{`${item.bmi != '' ? item.bmi : '--'} kg/m²`}</div>
+                            <div className='fs-14 '>{`${item.bmi != '' ? parseFloat(item.bmi).toFixed(2) : '--'} kg/m²`}</div>
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14'>{`${item.bmr != '' ? item.bmr : '--'} kcals`}</div>
+                            <div className='fs-14'>{`${item.bmr != '' ? parseFloat(item.bmr).toFixed(2) : '--'} kcals`}</div>
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
-                            <div className='fs-14'>{`${item.bsa != '' ? item.bsa : '--'} m²`}</div>
+                            <div className='fs-14'>{`${item.bsa != '' ? parseFloat(item.bsa).toFixed(2) : '--'} m²`}</div>
                         </div>
                     </div>
                 );
@@ -299,13 +300,13 @@ function VitalsBox(props) {
                                 </div>
                                 <div className='vitals-row vitals-row-40 d-flex align-items-center'>
                                     BMR
-                                    <Tooltip placement="right" title="basal metabolic rate will be auto-calculated by entering Height and Weight">
+                                    <Tooltip placement="right" title="Basal metabolic rate will be auto-calculated by entering Height and Weight">
                                         <i className='icon-info ms-1'></i>
                                     </Tooltip>
                                 </div>
                                 <div className='vitals-row vitals-row-40 d-flex align-items-center'>
                                     BSA
-                                    <Tooltip placement="right" title="Body Surface Area will be auto-calculated by entering Height and Weight">
+                                    <Tooltip placement="right" title="Body surface area will be auto-calculated by entering Height and Weight">
                                         <i className='icon-info ms-1'></i>
                                     </Tooltip>
                                 </div>

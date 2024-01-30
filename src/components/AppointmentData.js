@@ -322,6 +322,7 @@ function AppointmentData() {
             key: "srno",
             ellipsis: true,
             width: 80,
+            className: "fs-14",
             render: (text, record, index) => (
                 <div>
                     <span>{index + 1}</span>
@@ -571,7 +572,7 @@ function AppointmentData() {
                 modalBody={
                     <>
                         <div className="mb-2 fw-medium fs-16">End Visit Reason</div>
-                        <div className="border bg-body rounded-10px p-3 patient-details">
+                        <div className="border bg-body rounded-10px p-3 patient-details" style={{minHeight: 100}}>
                             {appointmentSelectedFromMenu?.tpvl_remarks}
                         </div>
                     </>
@@ -725,25 +726,23 @@ function AppointmentData() {
                 open={endVisitReasonDrawer}
                 onClose={handleEndVisitReasonDrawer}
                 extra={
-                    <Space>
-                        <Button
-                            onClick={onEndVisitClick}
-                            type="primary"
-                            className="btn-41 px-4"
-                            loading={loading}
-                            disabled={!endVisitReason}>
-                            Done
-                        </Button>
-                    </Space>
+                    <Button
+                        type='button'
+                        onClick={onEndVisitClick}
+                        className="btn-41 btn px-4 btn-primary3"
+                        loading={loading}
+                        disabled={!endVisitReason}>
+                        Done
+                    </Button>
                 }
                 key="left"
             >
                 <div className="p-4">
                     <div className="title-common mb-2">Reason</div>
                     <TextArea
-                        showCount
+                        // showCount
                         className="endreason-textarea"
-                        maxLength={100}
+                        // maxLength={100}
                         value={endVisitReason}
                         placeholder="Enter reason for end visit"
                         onChange={onEndVisitReasonChange}

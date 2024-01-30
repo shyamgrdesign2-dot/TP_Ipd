@@ -1,18 +1,26 @@
-import React, { useCallback, useState, useContext } from 'react';
+import React, { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
-import { Button, Dropdown, message, Tooltip } from 'antd';
+import { Button, Dropdown, message, Tooltip, Popover, Input, Spin, Tabs, Select, Drawer } from 'antd';
+import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from 'react-router-dom';
+import { isMobile } from 'react-device-detect';
 
 import CashManagerContext from "../context/CashManagerContext";
 import ProfilePopover from './ProfilePopover';
 import CommonModal from './CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 
+import { removeBeforeWhiteSpace } from "../utils/utils";
 import { MESSAGE_KEY } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
 
 import {
+    addTemplate,
+    updateTemplate,
+    deleteTemplate,
+    getOneClickTemplates,
+    singleOneClickTemplateDetails,
     addCaseManager,
     editCaseManager
 } from "../redux/caseManagerSlice";
@@ -20,6 +28,8 @@ import {
 function HeaderPrescription() {
 
     const {
+        selectedOneClickList,
+        templates,
         loading,
     } = useSelector((state) => state.caseManager);
     const dispatch = useDispatch();
@@ -28,6 +38,34 @@ function HeaderPrescription() {
     const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    //PopOver1
+    const [popOver1, setPopOver1] = useState(false);
+    const [allTemplates, setAllTemplates] = useState([]);
+    const [matchedTemplates, setMatchedTemplates] = useState([]);
+
+    //PopOver2
+    const [popOver2, setPopOver2] = useState(false);
+    const [inputTemplateName, setInputTemplateName] = useState(null);
+    const TAB_ADD_TEMPLATE = 1;
+    const TAB_UPDATE_TEMPLATE = 2;
+    const ADD_EDIT_TEMPLATE_TABS = [
+        { key: TAB_ADD_TEMPLATE, label: "New Template" },
+        { key: TAB_UPDATE_TEMPLATE, label: "Update Template" },
+    ];
+    const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
+
+    const [templateDrawer, setTemplateDrawer] = useState(false);
+    const [saveDrawer, setSaveDrawer] = useState(false);
+
+    useEffect(() => {
+        dispatch(getOneClickTemplates());
+    }, []);
+
+    useEffect(() => {
+        setMatchedTemplates(templates);
+        setAllTemplates(templates);
+    }, [templates]);
 
     const items = [
         {
@@ -64,6 +102,390 @@ function HeaderPrescription() {
     const showHideModal = useCallback(() => {
         setIsModalOpen(!isModalOpen);
     }, [isModalOpen]);
+
+    // Handle Template Drawer
+    const handleDrawerTemplate = useCallback(() => {
+        setTemplateDrawer(!templateDrawer);
+    }, [templateDrawer]);
+
+    // Handle Save Drawer
+    const handleDrawerSave = useCallback(() => {
+        setInputTemplateName(null);
+        setSaveDrawer(!saveDrawer);
+    }, [saveDrawer]);
+
+    //PopOver1 function
+    const showHideTemplatesListPopover = useCallback(() => {
+        setPopOver1(!popOver1);
+    }, [popOver1]);
+
+    const onSearch = (e) => {
+        const searchQuery = e.target.value;
+        if (searchQuery) {
+            let filteredTemplates = templates.filter((template) => {
+                return template.tmoc_template_name
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase());
+            });
+            setMatchedTemplates(filteredTemplates);
+        } else {
+            setMatchedTemplates(templates);
+        }
+    };
+
+    const onTemplateSelected = async (tmoc_id) => {
+        const action = await dispatch(singleOneClickTemplateDetails(tmoc_id));
+        if (action.meta.requestStatus == "fulfilled") {
+            const data = action.payload.data
+            if (data != undefined) {
+                if (data.symptoms.length > 0) {
+                    setSymptomsData(data.symptoms)
+                }
+                if (data.examination.length > 0) {
+                    setExaminationData(data.examination)
+                }
+                if (data.diagnosis.length > 0) {
+                    setDiagnosisData(data.diagnosis)
+                }
+                if (data.advice.length > 0) {
+                    setAdviceData(data.advice)
+                }
+                if (data.investigation.length > 0) {
+                    setInvestigationData(data.investigation)
+                }
+                if (data.medicine.length > 0) {
+                    setMedicationData(data.medicine)
+                }
+            }
+            !isMobile ? showHideTemplatesListPopover() : handleDrawerTemplate()
+        } else {
+            message.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
+        }
+    };
+
+    const onDeleteTemplateClicked = (tmoc_id) => {
+        dispatch(deleteTemplate(tmoc_id));
+    };
+
+    //PopOver2 function
+    const showHideSaveTemplatePopOver = useCallback(() => {
+        setPopOver2(!popOver2);
+    }, [popOver2]);
+
+    const onTabChange = useCallback(
+        (key) => {
+            setInputTemplateName(null);
+            setTabChange(key);
+        },
+        [tabChange]
+    );
+
+    const onChangeSaveTemplate = useCallback(
+        (e) => {
+            const updateQuery = removeBeforeWhiteSpace(e.target.value)
+            setInputTemplateName(updateQuery);
+        },
+        [inputTemplateName]
+    );
+
+    const onAddTemplateClicked = async () => {
+        var sendData = {
+            tmoc_template_name: inputTemplateName,
+            data: {
+                symptoms: symptomsData,
+                examination: examinationData,
+                diagnosis: diagnosisData,
+                medicine: medicationData,
+                advice: adviceData,
+                investigation: investigationData
+            }
+        }
+        console.log(sendData)
+        // const action = await dispatch(addTemplate(sendData));
+        // if (action.meta.requestStatus == "fulfilled") {
+        //     setInputTemplateName(null);
+        //     showHideSaveTemplatePopOver();
+        // }
+    };
+
+    const onSearchTemplate = useCallback(() => {
+        setInputTemplateName(null);
+    }, [inputTemplateName]);
+
+    const onSelectTemplate = useCallback(
+        (data, e) => {
+            setInputTemplateName(e.key);
+        },
+        [inputTemplateName]
+    );
+
+    const onUpdateTemplateClicked = async () => {
+        var data = JSON.parse(inputTemplateName);
+        var sendData = {
+            tmoc_id: data.tmoc_id,
+            tmoc_template_name: inputTemplateName,
+            data: {
+                symptoms: symptomsData,
+                examination: examinationData,
+                diagnosis: diagnosisData,
+                medicine: medicationData,
+                advice: adviceData,
+                investigation: investigationData
+            }
+        }
+        console.log(sendData)
+        //   const action = await dispatch(updateTemplate(sendData));
+        //   if (action.meta.requestStatus == "fulfilled") {
+        //     setInputTemplateName(null);
+        //     showHideSaveTemplatePopOver();
+        //   }
+
+    };
+
+    //Template Componet Web
+    const TEMPLATE_CONTENT_WEB = useCallback(() => {
+        return (
+            <>
+                <div className="pop-header" key="oneclickrx-template">
+                    <div className="align-items-center d-flex justify-content-between">
+                        <div className="title-common">One Click Rx Templates</div>
+                        <Button
+                            className="btn btn-delete-prescription p-0"
+                            onClick={showHideTemplatesListPopover}
+                        >
+                            <i className="icon-Cross" />
+                        </Button>
+                    </div>
+                    <div className="mt-3" key="symptoms-template-search">
+                        <Input
+                            allowClear
+                            className="popinput"
+                            onChange={onSearch}
+                            placeholder="Search Templates"
+                            prefix={<i className="icon-search me-2" />}
+                        />
+                    </div>
+                </div>
+                <div className="pop-body">
+                    {matchedTemplates.length > 0 &&
+                        matchedTemplates.map((template, i) => {
+                            return (
+                                <div
+                                    className="align-items-center d-flex medicine-templates"
+                                    key={i}
+                                >
+                                    <div
+                                        className="round-box"
+                                        onClick={() => onTemplateSelected(template.tmoc_id)}
+                                    >
+                                        <i className="icon-template"></i>
+                                    </div>
+                                    <div
+                                        className="text-truncate w-100"
+                                        onClick={() => onTemplateSelected(template.tmoc_id)}
+                                    >
+                                        <div className="title text-main2">{template.tmoc_template_name}</div>
+                                    </div>
+                                    <Button
+                                        className="btn btn-delete-prescription p-0 ms-2"
+                                        onClick={() => onDeleteTemplateClicked(template.tmoc_id)}
+                                    >
+                                        {template.loading ? (
+                                            <Spin
+                                                indicator={
+                                                    <LoadingOutlined style={{ fontSize: 22 }} spin />
+                                                }
+                                            />
+                                        ) : (
+                                            <i className="icon-delete"></i>
+                                        )}
+                                    </Button>
+                                </div>
+                            );
+                        })}
+                </div>
+            </>
+        );
+    }, [popOver1, matchedTemplates]);
+
+    //Save Componet Web
+    const SAVE_CONTENT_WEB = useCallback(() => {
+        return (
+            <>
+                <div className="d-flex justify-content-between align-items-center border-bottom templatepopover">
+                    <Tabs
+                        defaultActiveKey={TAB_ADD_TEMPLATE}
+                        items={ADD_EDIT_TEMPLATE_TABS}
+                        onChange={onTabChange}
+                        className="w-100"
+                    />
+                    <Button
+                        className="btn btn-delete-prescription"
+                        onClick={showHideSaveTemplatePopOver}
+                    >
+                        <i className="icon-Cross"></i>
+                    </Button>
+                </div>
+                {tabChange === TAB_ADD_TEMPLATE ? (
+                    <div className="pop-header d-flex">
+                        <Input
+                            allowClear
+                            value={inputTemplateName && inputTemplateName}
+                            className="popinput inputheight41"
+                            placeholder="Template Name"
+                            onChange={onChangeSaveTemplate}
+                        />
+                        <Button
+                            className="btn btn-primary3 btn-41 ms-3"
+                            loading={loading}
+                            disabled={inputTemplateName ? false : true}
+                            onClick={onAddTemplateClicked}
+                        >
+                            {" Save "}
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="pop-header d-flex">
+                        <Select
+                            showSearch
+                            value={inputTemplateName && JSON.parse(inputTemplateName).tmoc_template_name}
+                            className="autocomplete-custom w-100 popinput inputheight41"
+                            placeholder="Select Template"
+                            onSearch={onSearchTemplate}
+                            onSelect={onSelectTemplate}
+                            options={allTemplates.map((template) => {
+                                return {
+                                    key: JSON.stringify(template),
+                                    value: template.tmoc_template_name,
+                                    label: (
+                                        <div key={template.tst_id}>
+                                            {template.tmoc_template_name}
+                                        </div>
+                                    ),
+                                };
+                            })}
+                        />
+                        <Button
+                            className="btn btn-primary3 btn-41 ms-3"
+                            loading={loading}
+                            disabled={inputTemplateName ? false : true}
+                            onClick={onUpdateTemplateClicked}
+                        >
+                            {" Update "}
+                        </Button>
+                    </div>
+                )}
+            </>
+        );
+    }, [tabChange, popOver2, inputTemplateName, loading, allTemplates]);
+
+    //Template Componet Tab
+    const TEMPLATE_CONTENT_TAB = useMemo(() => {
+        return (
+            <>
+                <div>
+                    <div className="medicine-templates">
+                        <Input className="popinput" onChange={onSearch} placeholder="Search Templates" prefix={<i className='icon-search me-2'></i>} allowClear />
+                    </div>
+                    <div className="tab-template-height" >
+                        {matchedTemplates.length > 0 &&
+                            matchedTemplates.map((template, i) => {
+                                return (
+                                    <div className="align-items-center d-flex justify-content-between medicine-templates" key={i}>
+                                        <div className="align-items-center d-flex text-truncate w-100" onClick={() => onTemplateSelected(template.tmoc_id)}>
+                                            <div className="round-box"><i className="icon-template"></i></div>
+                                            <div className="text-truncate w-100">
+                                                <div className="title text-main2">{template.tmoc_template_name}</div>
+                                            </div>
+                                        </div>
+                                        <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => onDeleteTemplateClicked(template.tmoc_id)}>
+                                            {template.loading ? (
+                                                <Spin
+                                                    indicator={
+                                                        <LoadingOutlined style={{ fontSize: 22 }} spin />
+                                                    }
+                                                />
+                                            ) : (
+                                                <i className="icon-delete"></i>
+                                            )}
+                                        </Button>
+                                    </div>
+                                )
+                            })}
+                    </div>
+                </div>
+            </>
+        );
+    }, [templateDrawer, matchedTemplates]);
+
+    //Save Componet Tab
+    const SAVE_CONTENT_TAB = useMemo(() => {
+        return (
+            <>
+                <div className="d-flex justify-content-between align-items-center border-bottom templatepopover">
+                    <Tabs
+                        defaultActiveKey={TAB_ADD_TEMPLATE}
+                        items={ADD_EDIT_TEMPLATE_TABS}
+                        onChange={onTabChange}
+                        className="w-100" />
+                </div>
+                {tabChange === TAB_ADD_TEMPLATE ? (
+                    <div className="medicine-templates d-flex">
+                        <Input
+                            allowClear
+                            value={inputTemplateName && inputTemplateName}
+                            className="popinput inputheight41"
+                            placeholder="Template Name"
+                            onChange={onChangeSaveTemplate}
+                        />
+                        <Button
+                            className="btn btn-primary3 btn-41 ms-3"
+                            loading={loading}
+                            disabled={inputTemplateName ? false : true}
+                            onClick={onAddTemplateClicked}
+                        >
+                            {" Save "}
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="medicine-templates d-flex">
+                        <Select
+                            showSearch
+                            value={inputTemplateName && JSON.parse(inputTemplateName).tmoc_template_name}
+                            className="autocomplete-custom w-100 popinput inputheight41"
+                            placeholder="Select Template"
+                            onSearch={onSearchTemplate}
+                            onSelect={onSelectTemplate}
+                            options={allTemplates.map((template) => {
+                                return {
+                                    key: JSON.stringify(template),
+                                    value: template.tmoc_template_name,
+                                    label: (
+                                        <div key={template.tst_id}>
+                                            {template.tmoc_template_name}
+                                        </div>
+                                    ),
+                                };
+                            })}
+                        />
+                        <Button
+                            className="btn btn-primary3 btn-41 ms-3"
+                            loading={loading}
+                            disabled={inputTemplateName ? false : true}
+                            onClick={onUpdateTemplateClicked}
+                        >
+                            {" Update "}
+                        </Button>
+                    </div>
+                )}
+            </>
+        );
+    }, [tabChange, saveDrawer, inputTemplateName, loading, allTemplates]);
 
     async function onEndVisitClick() {
         if (symptomsData.length > 0 && symptomsData.filter(e => e.symptom_name == "").length > 0) {
@@ -193,12 +615,55 @@ function HeaderPrescription() {
                     </Col>
                     <Col lg="auto">
                         <div className='align-items-center d-flex h-100'>
-                            {/* <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
-                                <i className='icon-template me-2'></i> <span className='text-decoration-underline'>Templates</span>
-                            </Link>
-                            <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
-                                <i className='icon-save me-2'></i> <span className='text-decoration-underline'>Save</span>
-                            </Link> */}
+                            {!isMobile ? (
+                                <div className="d-flex align-items-center">
+                                    <Popover
+                                        open={popOver1}
+                                        onOpenChange={showHideTemplatesListPopover}
+                                        content={TEMPLATE_CONTENT_WEB}
+                                        trigger="click"
+                                        overlayClassName="pop-350 pp-0"
+                                        placement="bottom"
+                                    >
+                                        <button className="btn d-flex align-items-center btn-text">
+                                            {" "}
+                                            <i className="icon-template me-2"></i> <span>Templates</span>
+                                        </button>
+                                    </Popover>
+                                    <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) ? "" : "Please enter some data to save a template"}>
+                                        <Popover
+                                            open={popOver2}
+                                            onOpenChange={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) && showHideSaveTemplatePopOver()}
+                                            content={SAVE_CONTENT_WEB}
+                                            trigger="click"
+                                            overlayClassName="pop-450 pp-0"
+                                            placement="bottom"
+                                        >
+                                            <button className="btn d-flex align-items-center btn-text">
+                                                {" "}
+                                                <i className="icon-save me-2"></i> <span>Save</span>
+                                            </button>
+
+                                        </Popover>
+                                    </Tooltip>
+                                </div>
+                            ) : (
+                                <div className="d-flex align-items-center">
+                                    <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerTemplate}>
+                                        <i className="icon-template me-2"></i> <span>Templates</span>
+                                    </button>
+                                    <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) ? "" : "Please enter some data to save a template"}>
+                                        <button className='btn d-flex align-items-center btn-text' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
+                                    </Tooltip>
+                                </div>
+                            )}
+
+                            <Drawer title="One Click Rx Templates" placement="right" onClose={handleDrawerTemplate} open={templateDrawer} className="modalWidth-563" width="auto">
+                                {TEMPLATE_CONTENT_TAB}
+                            </Drawer>
+                            <Drawer title="Save Template" placement="right" onClose={handleDrawerSave} open={saveDrawer} className="modalWidth-563" width="auto">
+                                {SAVE_CONTENT_TAB}
+                            </Drawer>
                             {/* <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                 <i className='icon-setting me-2'></i> <span className='text-decoration-underline'>Customize</span>
                             </Link> */}

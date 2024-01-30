@@ -35,15 +35,15 @@ const uat = {
 };
 
 const prod = {
-    appointment_api_url: `https://master-uat-webservice.azurewebsites.net`,
-    symptoms_api_url: `https://symptoms-uat.azurewebsites.net`,
-    examination_api_url: `https://examination-uat.azurewebsites.net`,
-    diagnosis_api_url: `https://diagnosis-uat.azurewebsites.net`,
-    advice_api_url: `https://advice-uat.azurewebsites.net`,
-    investigation_api_url: `https://investigation-uat.azurewebsites.net`,
-    medication_api_url: `https://medicine-uat.azurewebsites.net/`,
-    vitals_api_url: `https://vital-uat.azurewebsites.net`,
-    casemanager_api_url: `https://casemanager-uat.azurewebsites.net`,
+    appointment_api_url: `https://master-prod-webservice.azurewebsites.net`,
+    symptoms_api_url: `https://symptoms-prod.azurewebsites.net`,
+    examination_api_url: `https://examination-prod.azurewebsites.net`,
+    diagnosis_api_url: `https://diagnosis-prod.azurewebsites.net`,
+    advice_api_url: `https://advice-prod.azurewebsites.net`,
+    investigation_api_url: `https://investigation-prod.azurewebsites.net`,
+    medication_api_url: `https://medicine-prod.azurewebsites.net/`,
+    vitals_api_url: `https://vital-prod.azurewebsites.net`,
+    casemanager_api_url: `https://casemanager-prod.azurewebsites.net`,
 };
 
 const getEnv = () => {

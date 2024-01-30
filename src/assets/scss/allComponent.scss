@@ -97,6 +97,8 @@
     }
 
     .ant-table {
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
         table thead {
             position: sticky;
             top: 0;
@@ -117,8 +119,18 @@
             }
         }
 
-        tr td div {
-            line-height: 1.25 !important;
+        tr{
+            td div {
+                line-height: 1.25 !important;
+            }
+            &.ant-table-placeholder {
+                background-color: transparent;
+                &:hover {
+                    td {
+                        background-color: transparent;
+                    }
+                }
+            }
         }
     }
 }
@@ -175,6 +187,12 @@
             line-height: 26px;
             letter-spacing: 0.1px;
         }
+    }
+    &.autocomplete-ios {
+        position: fixed; 
+        top: 120px;
+        margin-right: 20px;
+        width: calc(100vw - 50px);
     }
 }
 

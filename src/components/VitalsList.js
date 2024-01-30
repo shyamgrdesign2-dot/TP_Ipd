@@ -81,15 +81,15 @@ function VitalsList() {
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">BMI</div>
-                            <Input className='inputheight41-group mx-2' value={item.bmi} addonAfter={'kg/m²'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={parseFloat(item.bmi).toFixed(2)} addonAfter={'kg/m²'} readOnly />
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">BMR</div>
-                            <Input className='inputheight41-group mx-2' value={item.bmr} addonAfter={'kcals'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={parseFloat(item.bmr).toFixed(2)} addonAfter={'kcals'} readOnly />
                         </div>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">BSA</div>
-                            <Input className='inputheight41-group mx-2' value={item.bsa} addonAfter={'m²'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={parseFloat(item.bsa).toFixed(2)} addonAfter={'m²'} readOnly />
                         </div>
                     </div>
                 );
