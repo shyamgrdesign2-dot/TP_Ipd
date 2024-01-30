@@ -74,7 +74,9 @@ function Header({ locationPath }) {
             // setSelectedHospital(value)
             await setToken(action.payload.token);
             if (locationPath == "/") {
-              navigate('/', { replace: true });
+              // navigate('/', { replace: true });
+              // navigate(0, { replace: true });
+              navigate('/?authToken=' + action.payload.token, { replace: true });
               navigate(0, { replace: true });
             } else {
               navigate(0, { replace: true });
@@ -93,7 +95,7 @@ function Header({ locationPath }) {
         <Navbar.Brand href="/">
           <img
             src={require("../assets/images/logo.png")}
-            className="d-inline-block align-top" style={{height: '30px'}}
+            className="d-inline-block align-top" style={{ height: '30px' }}
             alt="Logo"
           />
         </Navbar.Brand>

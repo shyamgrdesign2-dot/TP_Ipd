@@ -125,7 +125,7 @@ function Cardiology(props) {
                                     <Button className="btn border rounded-3 px-1 me-2 antdesable-custom" onClick={nextPress} disabled={!loading && tcmData.page > 1 && viewCaseManagerData?.next_tcm_id ? false : true}>
                                         <i className="icon-right d-block"></i>
                                     </Button>
-                                    {`${tcmData.page}/${viewCaseManagerData?.total_consultation}`}
+                                    <span className='fw-normal fs-14 fontroboto'>{`${tcmData.page}/${viewCaseManagerData?.total_consultation}`}</span>
                                     <Button className="btn border rounded-3 antdesable-custom p-1 ms-2" onClick={prevPress}
                                         disabled={!loading && tcmData.page < viewCaseManagerData?.total_consultation && viewCaseManagerData?.prev_tcm_id ? false : true}>
                                         <i className="icon-right" style={{ display: 'block', transform: `rotate(180deg)` }}></i>
