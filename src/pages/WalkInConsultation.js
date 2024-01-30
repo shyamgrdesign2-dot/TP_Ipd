@@ -239,12 +239,12 @@ function WalkInConsultation() {
                     Enter Patient’s Name, Phone number or Id
                 </label>{" "}
                 <br />
-                <div className="align-items-center d-flex">
+                <div className="align-items-center d-flex position-relative">
                     <AutoComplete
                         value={searchQuery}
                         onSearch={onSearchParent}
                         options={searchOptions}
-                        className="autocomplete-custom w-100"
+                        className={`${isMobile ? 'autocomplete-ios' : 'w-100'} autocomplete-custom`}
                         onSelect={onSelect}
                         // defaultActiveFirstOption={true}
                         defaultOpen
