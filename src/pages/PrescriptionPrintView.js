@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { Col, Row, Select, Button, message, Spin } from "antd";
 import { isMobile } from "react-device-detect";
 import axios from 'axios';
@@ -107,9 +108,14 @@ function PrescriptionPrintView() {
         });
     }, []);
 
-    const printContent = useReactToPrint({
-        content: () => printRef.current,
-    });
+    // const printContent = useReactToPrint({
+    //     content: () => printRef.current,
+    // });
+
+    const printContent = async () => {
+        await window.open(`${printUrl}&key=print`);
+        navigate(0, { replace: true });
+    };
 
     // const printContent = async () => {
     //     {(/Android/i.test(navigator.userAgent)) ? (
@@ -130,21 +136,26 @@ function PrescriptionPrintView() {
         [selectedLang, printUrl]
     );
 
-    const handleDownload = async () => {
-        try {
-            const response = await axios({
-                // url: "https://morth.nic.in/sites/default/files/dd12-13_0.pdf",
-                url: printUrl,
-                method: 'GET',
-                responseType: 'blob', // Important for binary data
-            });
+    // const handleDownload = async () => {
+    //     try {
+    //         const response = await axios({
+    //             // url: "https://morth.nic.in/sites/default/files/dd12-13_0.pdf",
+    //             url: printUrl,
+    //             method: 'GET',
+    //             responseType: 'blob', // Important for binary data
+    //         });
 
-            const blob = new Blob([response.data], { type: response.headers['content-type'] });
-            saveAs(blob, `${Date.now()}.pdf`);
-        } catch (error) {
-            console.error('Error downloading file:', error);
-            // Handle errors gracefully, e.g., display an error message to the user
-        }
+    //         const blob = new Blob([response.data], { type: response.headers['content-type'] });
+    //         saveAs(blob, `${Date.now()}.pdf`);
+    //     } catch (error) {
+    //         console.error('Error downloading file:', error);
+    //         // Handle errors gracefully, e.g., display an error message to the user
+    //     }
+    // };
+
+    const handleDownload = async () => {
+        await window.open(`${printUrl}&key=download`);
+        navigate(0, { replace: true });
     };
 
     const onEditPrescriptionClick = async () => {
