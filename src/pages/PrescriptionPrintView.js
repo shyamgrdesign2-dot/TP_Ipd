@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { Col, Row, Select, Button, message, Spin } from "antd";
-import { isMobile } from "react-device-detect";
+import { isMobile, isAndroid } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { useReactToPrint } from 'react-to-print';
@@ -114,7 +114,7 @@ function PrescriptionPrintView() {
 
     const printContent = async () => {
         await window.open(`${printUrl}&key=print`);
-        navigate(0, { replace: true });
+        isAndroid && navigate(0, { replace: true });
     };
 
     // const printContent = async () => {
@@ -155,7 +155,7 @@ function PrescriptionPrintView() {
 
     const handleDownload = async () => {
         await window.open(`${printUrl}&key=download`);
-        navigate(0, { replace: true });
+        isAndroid && navigate(0, { replace: true });
     };
 
     const onEditPrescriptionClick = async () => {

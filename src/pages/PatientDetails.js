@@ -91,7 +91,8 @@ function PatientDetails() {
                         <Welcome1
                             locationPath={locationPath}
                             isMobile={isMobile}
-                            patient_data={patient_data} />
+                            patient_data={patient_data} 
+                            viewCaseManagerData={viewCaseManagerData}/>
                         <div className="appointment-wrap PatientDetailswrap">
                             <div className='row'>
                                 <div className='col-lg-5 col-md-12 col-12'>
