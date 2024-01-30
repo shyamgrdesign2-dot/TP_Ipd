@@ -73,6 +73,7 @@ function VitalsBox(props) {
 
     const onChange = useCallback(
         (date, dateString) => {
+            console.log(dateString)
             let cal = calculate('', '');
             childVitalsData.push({
                 date: dateString,
@@ -92,7 +93,6 @@ function VitalsBox(props) {
                 bsa: cal.bsa,
             });
             setChildVitalsData((prev) => [...prev]);
-            console.log(childVitalsData)
         },
         [childVitalsData]
     );
@@ -187,7 +187,7 @@ function VitalsBox(props) {
     const TABLE_VITALS = useMemo(() => {
         return (
             childVitalsData.length > 0 &&
-            childVitalsData.map((item, i) => {
+            childVitalsData.sort((a, b) => new Date(b.date) - new Date(a.date)).map((item, i) => {
                 return (
                     <div key={i} className='vitals-wrap-body w-100 vitals-child-width'>
                         <div className='vitals-head rounded-start-0 w-100'>{moment(item.date).format(showDateFormat)}</div>
@@ -256,7 +256,7 @@ function VitalsBox(props) {
                         <Button className='btn btn-primary2 btn-41'>
                             Add New Date
                         </Button>
-                        <DatePicker suffixIcon={null} inputReadOnly onChange={onChange} disabledDate={disabledDate} className="calender-vitals w-100 h-100" />
+                        <DatePicker key={Math.random()} suffixIcon={null} inputReadOnly onChange={onChange} disabledDate={disabledDate} className="calender-vitals w-100 h-100" />
                     </div>
                     {/* <div className="float-end d-flex align-itms-center">
                         <i className="icon-setting me-2"></i>
