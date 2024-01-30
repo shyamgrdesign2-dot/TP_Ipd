@@ -1,11 +1,14 @@
 import React from 'react';
 import Card from 'react-bootstrap/Card';
 import { Table, Spin } from 'antd';
+import moment from "moment";
 
 import vitals from '../assets/images/Vitals.svg';
 // import arrowright from '../assets/images/arrow-box-right.svg';
 // import graph from '../assets/images/Graph.svg';
 import heartBeat from '../assets/images/heartBeat.svg';
+
+const showDateFormat = 'DD MMM, YY'
 
 function VitalsBodyComposition({ loading, passVitals }) {
 
@@ -69,26 +72,26 @@ function VitalsBodyComposition({ loading, passVitals }) {
     const uniqueDates = passVitals && passVitals.length > 0 ? [...passVitals.map((item) => item.date)] : [];
 
     // Initialize columns for each unique date
-    const dateColumns = uniqueDates.map((date) => ({
-        title: date,
-        dataIndex: date,
-        key: date,
+    const dateColumns = uniqueDates.map((date, index) => ({
+        title: moment(date).format(showDateFormat),
+        dataIndex: index,
+        key: index,
         width: 100,
     }));
     const columns = [...initialColumns, ...dateColumns];
 
     passVitals && passVitals.length > 0 && passVitals.map((item, index) => {
-        initialRows[0][item.date] = item.temp ? item.temp : '-'
-        initialRows[1][item.date] = item.pres ? item.pres : '-'
-        initialRows[2][item.date] = item.resp_rate ? item.resp_rate : '-'
-        initialRows[3][item.date] = item.blood_press ? item.blood_press.split('/')[0] ? item.blood_press.split('/')[0] : '-' : '-'
-        initialRows[4][item.date] = item.blood_press ? item.blood_press.split('/')[1] ? item.blood_press.split('/')[1] : '-' : '-'
-        initialRows[5][item.date] = item.spo2 ? item.spo2 : '-'
-        initialRows[6][item.date] = item.height ? item.height : '-'
-        initialRows[7][item.date] = item.weight ? item.weight : '-'
-        initialRows[8][item.date] = item.bmi ? item.bmi : '-'
-        initialRows[9][item.date] = item.bmr ? item.bmr : '-'
-        initialRows[10][item.date] = item.bsa ? item.bsa : '-'
+        initialRows[0][index] = item.temp ? item.temp : '-'
+        initialRows[1][index] = item.pres ? item.pres : '-'
+        initialRows[2][index] = item.resp_rate ? item.resp_rate : '-'
+        initialRows[3][index] = item.blood_press ? item.blood_press.split('/')[0] ? item.blood_press.split('/')[0] : '-' : '-'
+        initialRows[4][index] = item.blood_press ? item.blood_press.split('/')[1] ? item.blood_press.split('/')[1] : '-' : '-'
+        initialRows[5][index] = item.spo2 ? item.spo2 : '-'
+        initialRows[6][index] = item.height ? item.height : '-'
+        initialRows[7][index] = item.weight ? item.weight : '-'
+        initialRows[8][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'
+        initialRows[9][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
+        initialRows[10][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
     });
 
     return (

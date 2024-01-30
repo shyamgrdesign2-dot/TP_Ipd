@@ -170,7 +170,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
                                 )}
                                 <div>
                                     <div className="title2">
-                                        {searchChildQuery.length > 0 ? 'Searched' : 'Frequently Used'}
+                                        {searchChildQuery.length > 0 ? 'Search Results' : 'Frequently Used'}
                                     </div>
                                     <div className="mt-3">
                                         {searchChildQuery.length > 0 ? (
@@ -181,9 +181,9 @@ function TabExaminationSearch({ passIndex, onClose }) {
                                                         <Button
                                                             key={i}
                                                             type="text"
-                                                            className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height"
+                                                            className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height d-flex align-items-center"
                                                             onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                                                            {item.value} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
+                                                            "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
                                                         </Button>
                                                     ) : (
                                                         <Button
