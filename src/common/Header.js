@@ -92,7 +92,7 @@ function Header({ locationPath }) {
   return (
     <Navbar className="justify-content-between portal-header">
       <Container fluid>
-        <Navbar.Brand href="/tab_app/">
+        <Navbar.Brand href="/">
           <img
             src={require("../assets/images/logo.png")}
             className="d-inline-block align-top" style={{ height: '30px' }}

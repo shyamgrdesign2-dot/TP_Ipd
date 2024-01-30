@@ -38,8 +38,8 @@ function VitalsBox(props) {
                 return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
             });
             setVitalsData(updatedData);
-        }else{
-            setVitalsData([]);
+        } else {
+            // setVitalsData([]);
         }
     }, [selectedVitalsList]);
 
@@ -92,6 +92,7 @@ function VitalsBox(props) {
                 bsa: cal.bsa,
             });
             setChildVitalsData((prev) => [...prev]);
+            console.log(childVitalsData)
         },
         [childVitalsData]
     );
