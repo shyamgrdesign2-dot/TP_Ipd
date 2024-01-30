@@ -44,6 +44,7 @@ function VitalsBox(props) {
     }, [selectedVitalsList]);
 
     useEffect(() => {
+        console.log(vitalsData)
         setChildVitalsData([...vitalsData])
     }, [vitalsData]);
 

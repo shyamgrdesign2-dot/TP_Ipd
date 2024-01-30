@@ -119,7 +119,7 @@ function AdviceBox() {
         <div className="d-flex justify-content-between align-items-center">
           <div>{searchQuery ? 'Search Results' : 'FREQUENTLY USED'}</div>
           <Button
-            className="btn btn-primary3 ms-3" onClick={onClickParent}>
+            className="btn btn-primary3 ms-3" onClick={onClickParent} disabled={adviceDataCheck.length > 0 ? false : true}>
             {`Done (${adviceDataCheck.length})`}
           </Button>
         </div>

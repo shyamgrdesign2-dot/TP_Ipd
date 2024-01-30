@@ -1,12 +1,14 @@
 import React from 'react';
 import Card from 'react-bootstrap/Card';
 import { Table, Spin } from 'antd';
+import moment from "moment";
 
-import { onlyDecimalFormat } from "../utils/utils";
 import vitals from '../assets/images/Vitals.svg';
 // import arrowright from '../assets/images/arrow-box-right.svg';
 // import graph from '../assets/images/Graph.svg';
 import heartBeat from '../assets/images/heartBeat.svg';
+
+const showDateFormat = 'DD MMM, YY'
 
 function VitalsBodyComposition({ loading, passVitals }) {
 
@@ -70,8 +72,8 @@ function VitalsBodyComposition({ loading, passVitals }) {
     const uniqueDates = passVitals && passVitals.length > 0 ? [...passVitals.map((item) => item.date)] : [];
 
     // Initialize columns for each unique date
-    const dateColumns = uniqueDates.map((date,index) => ({
-        title: date,
+    const dateColumns = uniqueDates.map((date, index) => ({
+        title: moment(date).format(showDateFormat),
         dataIndex: index,
         key: index,
         width: 100,
