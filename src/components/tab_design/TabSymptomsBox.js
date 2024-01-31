@@ -468,7 +468,11 @@ function TabSymptomsBox() {
 
     const onChangeSeverityChild = useCallback(
         (key) => {
-            setChildDrawerData({ ...childDrawerData, severity: key })
+            if (key != childDrawerData.severity) {
+                setChildDrawerData({ ...childDrawerData, severity: key })
+            } else {
+                setChildDrawerData({ ...childDrawerData, severity: '' })
+            }
         },
         [childDrawerData]
     );
@@ -528,12 +532,24 @@ function TabSymptomsBox() {
                             <label className="title-common">
                                 Severity
                             </label>
-                            <Segmented
+                            {/* <Segmented
                                 value={childDrawerData.severity != undefined && childDrawerData.severity}
                                 className="search-segment"
                                 options={SEVERITY_LIST}
                                 onChange={onChangeSeverityChild}
-                            />
+                            /> */}
+                            <div className="segement-static d-flex">
+                                {SEVERITY_LIST.map((item, i) => {
+                                    return (
+                                        <button key={i}
+                                            type="button"
+                                            className={`btn w-100 ${childDrawerData.severity != undefined && childDrawerData.severity == item.value && 'btn-segement'}`}
+                                            onClick={() => onChangeSeverityChild(item.value)}>
+                                            {item.label}
+                                        </button>
+                                    )
+                                })}
+                            </div>
                         </div>
                         <div className="mt-5">
                             <label className="title-common">

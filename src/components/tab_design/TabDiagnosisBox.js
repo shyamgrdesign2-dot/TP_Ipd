@@ -470,7 +470,11 @@ function TabDiagnosisBox() {
 
     const onChangeStatusChild = useCallback(
         (key) => {
-            setChildDrawerData({ ...childDrawerData, status: key })
+            if (key != childDrawerData.status) {
+                setChildDrawerData({ ...childDrawerData, status: key })
+            } else {
+                setChildDrawerData({ ...childDrawerData, status: '' })
+            }
         },
         [childDrawerData]
     );
@@ -530,12 +534,24 @@ function TabDiagnosisBox() {
                             <label className="title-common">
                                 Status
                             </label>
-                            <Segmented
+                            {/* <Segmented
                                 value={childDrawerData.status != undefined && childDrawerData.status}
                                 className="search-segment"
                                 options={STATUS_LIST}
                                 onChange={onChangeStatusChild}
-                            />
+                            /> */}
+                            <div className="segement-static d-flex">
+                                {STATUS_LIST.map((item, i) => {
+                                    return (
+                                        <button key={i}
+                                            type="button"
+                                            className={`btn w-100 ${childDrawerData.status != undefined && childDrawerData.status == item.value && 'btn-segement'}`}
+                                            onClick={() => onChangeStatusChild(item.value)}>
+                                            {item.label}
+                                        </button>
+                                    )
+                                })}
+                            </div>
                         </div>
                         <div className="mt-5">
                             <label className="title-common">
@@ -588,7 +604,7 @@ function TabDiagnosisBox() {
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
                     {parentDrawer && (<TabDiagnosisSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
                 </Drawer>
-                <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{maxHeight: '114px'}}>
+                <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.map((item, i) => {
                             return (

@@ -230,7 +230,11 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
 
     const onChangeStatusChild = useCallback(
         (key) => {
-            diagnosisData[selectedIndex].status = key;
+            if (key != diagnosisData[selectedIndex].status) {
+                diagnosisData[selectedIndex].status = key;
+            } else {
+                diagnosisData[selectedIndex].status = '';
+            }
             setDiagnosisData((prev) => [...prev]);
         },
         [selectedIndex, diagnosisData]
@@ -276,13 +280,26 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                                 <label className="title-common">
                                     Status
                                 </label>
-                                <Segmented
+                                {/* <Segmented
                                     value={selectedIndex != null && diagnosisData[selectedIndex].status}
                                     className="search-segment"
                                     options={STATUS_LIST}
                                     onChange={onChangeStatusChild}
-                                />
+                                /> */}
+                                <div className="segement-static d-flex">
+                                    {STATUS_LIST.map((item, i) => {
+                                        return (
+                                            <button key={i}
+                                                type="button"
+                                                className={`btn w-100 ${selectedIndex != null && diagnosisData[selectedIndex].status == item.value && 'btn-segement'}`}
+                                                onClick={() => onChangeStatusChild(item.value)}>
+                                                {item.label}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
                             </div>
+
                             <div className="mt-5">
                                 <label className="title-common">
                                     Add Details
@@ -341,7 +358,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                                                         <Button
                                                             key={i}
                                                             type="text"
-                                                            style={{ width: item.value.length > 26 && '250px' }} 
+                                                            style={{ width: item.value.length > 26 && '250px' }}
                                                             className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
                                                             onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
                                                             {item.value}
