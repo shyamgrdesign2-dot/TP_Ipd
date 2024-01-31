@@ -639,7 +639,7 @@ function HeaderPrescription() {
                                             overlayClassName="pop-450 pp-0"
                                             placement="bottom"
                                         >
-                                            <button className="btn d-flex align-items-center btn-text">
+                                            <button className="btn d-flex align-items-center btn-text me-14">
                                                 {" "}
                                                 <i className="icon-save me-2"></i> <span>Save</span>
                                             </button>
@@ -653,7 +653,7 @@ function HeaderPrescription() {
                                         <i className="icon-template me-2"></i> <span>Templates</span>
                                     </button>
                                     <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) ? "" : "Please enter some data to save a template"}>
-                                        <button className='btn d-flex align-items-center btn-text' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
+                                        <button className='btn d-flex align-items-center btn-text me-14' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
                                     </Tooltip>
                                 </div>
                             )}
