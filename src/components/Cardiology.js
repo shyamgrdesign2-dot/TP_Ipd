@@ -168,7 +168,7 @@ function Cardiology(props) {
                                                     {viewCaseManagerData.symptoms.map((item, i) => {
                                                         return (
                                                             <span key={i}>
-                                                                <span>{item.symptom_name}</span> - <label>{`${item.since} ${item.severity && `${item.since && ','} ${item.severity}`} ${item.note && `, ${item.note}`}`}</label>{viewCaseManagerData.symptoms.length - 1 != i && ' | '}
+                                                                <span>{item.symptom_name}</span> : <label>{`${item.since && `since ${item.since}${item.severity &&','}`} ${item.severity && `severity ${item.severity}${item.note &&','} `} ${item.note && `${item.note}`}`}</label>{viewCaseManagerData.symptoms.length - 1 != i && ' | '}
                                                             </span>
                                                         )
                                                     })}
@@ -198,7 +198,7 @@ function Cardiology(props) {
                                                     {viewCaseManagerData.diagnosis.map((item, i) => {
                                                         return (
                                                             <span key={i}>
-                                                                <span>{item.tds_name}</span> - <label>{`${item.since} ${item.status && `${item.since && ','} ${item.status}`} ${item.note && `, ${item.note}`}`}</label>{viewCaseManagerData.diagnosis.length - 1 != i && ' | '}
+                                                                <span>{item.tds_name}</span> : <label>{`${item.since && `since ${item.since}${item.status &&','}`} ${item.status && `status ${item.status}${item.note &&','} `} ${item.note && `${item.note}`}`}</label>{viewCaseManagerData.diagnosis.length - 1 != i && ' | '}
                                                             </span>
                                                         )
                                                     })}
