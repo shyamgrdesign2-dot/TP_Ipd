@@ -338,7 +338,7 @@ function AdviceBox() {
             gutter={[0]}
             className='px-3 advicecheck-row justify-content-between align-items-center'>
             <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
-            <Button className="btn btn-delete-prescription p-0" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit"></i></Button>
+            <Button className="btn btn-delete-prescription p-0" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit text-main"></i></Button>
           </Row>
         );
       })
