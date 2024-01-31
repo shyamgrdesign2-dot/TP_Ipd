@@ -564,7 +564,7 @@ function AdviceBox() {
                 <i className="icon-template me-2"></i> <span>Templates</span>
               </button>
             </Popover>
-            <Tooltip placement="bottom" title={(adviceData.length > 0) ? "" : "Please enter some Symptoms to save a template"}>
+            <Tooltip placement="bottom" title={(adviceData.length > 0) ? "" : "Please enter some Advices to save a template"}>
               <Popover
                 open={popOver2}
                 onOpenChange={() => (adviceData.length > 0) && showHideSaveTemplatePopOver()}
