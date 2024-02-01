@@ -5,24 +5,24 @@ const baseUrl = { customBaseUrl: config.casemanager_api_url }
 
 const ApiCaseManager = {};
 
-ApiCaseManager.addTemplate = function (template) {
-    return api.post(`/api/v1/casemanager/addTemplate`, template, baseUrl);
+ApiCaseManager.oneClickAddTemplate = function (template) {
+    return api.post(`/api/v1/casemanager/oneclickAddTemplate`, template, baseUrl);
 };
 
-ApiCaseManager.updateTemplate = function (template) {
-    return api.post(`/api/v1/casemanager/editTemplate`, template, baseUrl);
+ApiCaseManager.oneClickUpdateTemplate = function (template) {
+    return api.post(`/api/v1/casemanager/oneclickEditTemplate`, template, baseUrl);
 };
 
-ApiCaseManager.deleteTemplate = function (templateId) {
-    return api.get(`/api/v1/casemanager/deleteTemplate/${templateId}`, baseUrl);
+ApiCaseManager.oneClickDeleteTemplate = function (templateId) {
+    return api.get(`/api/v1/casemanager/oneclickDeleteTemplate/${templateId}`, baseUrl);
 };
 
-ApiCaseManager.getOneClickTemplates = function (query) {
+ApiCaseManager.oneClickTemplatesList = function (query) {
     return api.get(`/api/v1/casemanager/oneclickTemplateList`, baseUrl);
 };
 
-ApiCaseManager.singleOneClickTemplateDetails = function (templateId) {
-    return api.get(`/api/v1/casemanager/singleOneClickTemplateDetails/${templateId}`, baseUrl);
+ApiCaseManager.oneClickSingleTemplateDetails = function (templateId) {
+    return api.get(`/api/v1/casemanager/oneclickSingleTemplateDetails/${templateId}`, baseUrl);
 };
 
 ApiCaseManager.addCaseManager = function (data) {

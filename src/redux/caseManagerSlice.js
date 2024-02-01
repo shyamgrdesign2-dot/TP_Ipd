@@ -3,18 +3,17 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import ApiCaseManager from "../api/services/ApiCaseManager";
 
 const initialState = {
-    selectedOneClickList: [],
     templates: [],
     viewCaseManagerData: null,
     loading: false,
     error: null,
 };
 
-export const addTemplate = createAsyncThunk(
-    "caseManager/addTemplate",
+export const oneClickAddTemplate = createAsyncThunk(
+    "caseManager/oneClickAddTemplate",
     async (template) => {
         let result = {};
-        result = await ApiCaseManager.addTemplate(template);
+        result = await ApiCaseManager.oneClickAddTemplate(template);
         if (result.status) {
             return result.data;
         } else {
@@ -23,10 +22,10 @@ export const addTemplate = createAsyncThunk(
     }
 );
 
-export const updateTemplate = createAsyncThunk(
-    "caseManager/updateTemplate",
+export const oneClickUpdateTemplate = createAsyncThunk(
+    "caseManager/oneClickUpdateTemplate",
     async (template) => {
-        const result = await ApiCaseManager.updateTemplate(template);
+        const result = await ApiCaseManager.oneClickUpdateTemplate(template);
         if (result.status) {
             return result.data;
         } else {
@@ -35,10 +34,10 @@ export const updateTemplate = createAsyncThunk(
     }
 );
 
-export const deleteTemplate = createAsyncThunk(
-    "caseManager/deleteTemplate",
+export const oneClickDeleteTemplate = createAsyncThunk(
+    "caseManager/oneClickDeleteTemplate",
     async (templateId) => {
-        const result = await ApiCaseManager.deleteTemplate(templateId);
+        const result = await ApiCaseManager.oneClickDeleteTemplate(templateId);
         if (result.status) {
             return result.data;
         } else {
@@ -47,11 +46,11 @@ export const deleteTemplate = createAsyncThunk(
     }
 );
 
-export const getOneClickTemplates = createAsyncThunk(
-    "caseManager/getOneClickTemplates",
+export const oneClickTemplatesList = createAsyncThunk(
+    "caseManager/oneClickTemplatesList",
     async () => {
         let result = {};
-        result = await ApiCaseManager.getOneClickTemplates();
+        result = await ApiCaseManager.oneClickTemplatesList();
         if (result.status) {
             return result.data;
         } else {
@@ -60,18 +59,18 @@ export const getOneClickTemplates = createAsyncThunk(
     }
 );
 
-export const singleOneClickTemplateDetails = createAsyncThunk(
-    "caseManager/singleOneClickTemplateDetails",
+export const oneClickSingleTemplateDetails = createAsyncThunk(
+    "caseManager/oneClickSingleTemplateDetails",
     async (templateId) => {
-      let result = {};
-      result = await ApiCaseManager.singleOneClickTemplateDetails(templateId);
-      if (result.status) {
-        return result.data;
-      } else {
-        throw Error(result.error);
-      }
+        let result = {};
+        result = await ApiCaseManager.oneClickSingleTemplateDetails(templateId);
+        if (result.status) {
+            return result.data;
+        } else {
+            throw Error(result.error);
+        }
     }
-  );
+);
 
 export const addCaseManager = createAsyncThunk(
     "caseManager/addCaseManager",
@@ -117,55 +116,53 @@ const caseManagerSlice = createSlice({
     initialState,
     extraReducers: (builder) => {
         builder
-            // .addCase(addTemplate.pending, (state) => {
-            //     state.loading = true;
-            // })
-            // .addCase(addTemplate.fulfilled, (state, action) => {
-            //     state.loading = false;
-            //     state.selectedOneClickList = action.payload.symptoms;
-            //     state.templates.unshift(action.payload);
-            // })
-            // .addCase(addTemplate.rejected, (state, action) => {
-            //     state.loading = false;
-            // })
-            // .addCase(updateTemplate.pending, (state) => {
-            //     state.loading = true;
-            // })
-            // .addCase(updateTemplate.fulfilled, (state, action) => {
-            //     state.loading = false;
-            //     state.selectedOneClickList = action.payload.symptoms;
-            //     const index = state.templates.findIndex(
-            //         (e) => e.tst_id == action.payload.tst_id
-            //     );
-            //     if (index != -1) {
-            //         state.templates[index] = action.payload;
-            //     }
-            // })
-            // .addCase(updateTemplate.rejected, (state, action) => {
-            //     state.loading = false;
-            // })
-            .addCase(deleteTemplate.pending, (state, action) => {
+            .addCase(oneClickAddTemplate.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(oneClickAddTemplate.fulfilled, (state, action) => {
+                state.loading = false;
+                state.templates.unshift(action.payload.template);
+            })
+            .addCase(oneClickAddTemplate.rejected, (state, action) => {
+                state.loading = false;
+            })
+            .addCase(oneClickUpdateTemplate.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(oneClickUpdateTemplate.fulfilled, (state, action) => {
+                state.loading = false;
+                const index = state.templates.findIndex(
+                    (e) => e.tmoc_id == action.payload.template.tmoc_id
+                );
+                if (index != -1) {
+                    state.templates[index] = action.payload.template;
+                }
+            })
+            .addCase(oneClickUpdateTemplate.rejected, (state, action) => {
+                state.loading = false;
+            })
+            .addCase(oneClickDeleteTemplate.pending, (state, action) => {
                 const updatedData = state.templates.map((e) =>
                     e.tmoc_id == action.meta.arg ? { ...e, loading: true } : e
                 );
                 state.templates = [...updatedData];
             })
-            .addCase(deleteTemplate.fulfilled, (state, action) => {
+            .addCase(oneClickDeleteTemplate.fulfilled, (state, action) => {
                 const result = state.templates.filter(
                     (item) => item.tmoc_id !== action.payload.tmoc_id
                 );
                 state.templates = [...result];
             })
-            .addCase(deleteTemplate.rejected, (state, action) => {
+            .addCase(oneClickDeleteTemplate.rejected, (state, action) => {
                 const updatedData = state.templates.map((e) =>
                     e.tmoc_id == action.meta.arg ? { ...e, loading: false } : e
                 );
                 state.templates = [...updatedData];
             })
-            .addCase(getOneClickTemplates.fulfilled, (state, action) => {
+            .addCase(oneClickTemplatesList.fulfilled, (state, action) => {
                 state.templates = action.payload;
             })
-            .addCase(getOneClickTemplates.rejected, (state, action) => {
+            .addCase(oneClickTemplatesList.rejected, (state, action) => {
                 state.templates = [];
             })
             .addCase(addCaseManager.pending, (state) => {

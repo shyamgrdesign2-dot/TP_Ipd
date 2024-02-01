@@ -584,7 +584,7 @@ function ExaminationBox() {
                 <i className="icon-template me-2"></i> <span>Templates</span>
               </button>
             </Popover>
-            <Tooltip placement="bottom" title={(examinationData.length > 0) ? "" : "Please enter some Symptoms to save a template"}>
+            <Tooltip placement="bottom" title={(examinationData.length > 0) ? "" : "Please enter some Examination to save a template"}>
               <Popover
                 open={popOver2}
                 // onOpenChange={showHideSaveTemplatePopOver}

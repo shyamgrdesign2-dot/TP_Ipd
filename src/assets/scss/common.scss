@@ -92,7 +92,7 @@ body {
         font-weight: 500;
     }
     .text-main {
-        color: $maincolor;
+        color: $maincolor !important;
     }
     .text-main2 {
         color: $main2 !important;
@@ -267,6 +267,9 @@ body {
                 transform: rotate(-90deg);
                 font-size: 20px;
             }
+        }
+        .ant-select-clear {
+            width: 16px;
         }
     }
     .ant-select .ant-select-selector {
