@@ -317,7 +317,7 @@ function TabMedicationSearch({
                     <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name
                       ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | "
                       : ""
-                      }${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
+                      }${item.tmm_freq_type_name ? item.tmm_freq_type_name+' | ' : ""}${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
                   )
                 ) : (
                   <div className="text-truncate small">Add Details</div>
