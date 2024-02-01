@@ -338,7 +338,7 @@ function AdviceBox() {
             gutter={[0]}
             className='px-3 advicecheck-row justify-content-between align-items-center'>
             <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
-            <Button className="btn btn-delete-prescription p-0" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit"></i></Button>
+            <Button className="btn btn-delete-prescription p-0" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit text-main"></i></Button>
           </Row>
         );
       })
@@ -564,7 +564,7 @@ function AdviceBox() {
                 <i className="icon-template me-2"></i> <span>Templates</span>
               </button>
             </Popover>
-            <Tooltip placement="bottom" title={(adviceData.length > 0) ? "" : "Please enter some Symptoms to save a template"}>
+            <Tooltip placement="bottom" title={(adviceData.length > 0) ? "" : "Please enter some Advices to save a template"}>
               <Popover
                 open={popOver2}
                 onOpenChange={() => (adviceData.length > 0) && showHideSaveTemplatePopOver()}

@@ -226,7 +226,7 @@ function TabAdviceBox() {
                 return (
                     <div className="d-flex align-items-center justify-content-between border-bottom py-1">
                         <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
-                        <Button className="focus-none btn px-1 btn-delete-prescription" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit fs-21"></i></Button>
+                        <Button className="focus-none btn px-1 btn-delete-prescription" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit text-main fs-21"></i></Button>
                     </div>
                 );
             })
@@ -401,7 +401,7 @@ function TabAdviceBox() {
 
                     <div className="d-flex align-items-center">
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerTemplate}> <i className="icon-template me-2"></i> <span>Templates</span></button>
-                        <Tooltip placement="bottom" title={(adviceData.length > 0) ? "" : "Please enter some Symptoms to save a template"}>
+                        <Tooltip placement="bottom" title={(adviceData.length > 0) ? "" : "Please enter some Advices to save a template"}>
                             <button className='btn d-flex align-items-center btn-text' onClick={() => (adviceData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
                         </Tooltip>
                     </div>
