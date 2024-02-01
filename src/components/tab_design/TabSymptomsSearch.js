@@ -229,7 +229,11 @@ function TabSymptomsSearch({ passIndex, onClose }) {
 
     const onChangeSeverityChild = useCallback(
         (key) => {
-            symptomsData[selectedIndex].severity = key;
+            if (key != symptomsData[selectedIndex].severity) {
+                symptomsData[selectedIndex].severity = key;
+            } else {
+                symptomsData[selectedIndex].severity = '';
+            }
             setSymptomsData((prev) => [...prev]);
         },
         [selectedIndex, symptomsData]
@@ -275,12 +279,24 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                 <label className="title-common">
                                     Severity
                                 </label>
-                                <Segmented
+                                {/* <Segmented
                                     value={selectedIndex != null && symptomsData[selectedIndex].severity}
                                     className="search-segment"
                                     options={SEVERITY_LIST}
                                     onChange={onChangeSeverityChild}
-                                />
+                                /> */}
+                                <div className="segement-static d-flex">
+                                    {SEVERITY_LIST.map((item, i) => {
+                                        return (
+                                            <button key={i}
+                                                type="button"
+                                                className={`btn w-100 ${selectedIndex != null && symptomsData[selectedIndex].severity == item.value && 'btn-segement'}`}
+                                                onClick={() => onChangeSeverityChild(item.value)}>
+                                                {item.label}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
                             </div>
                             <div className="mt-5">
                                 <label className="title-common">

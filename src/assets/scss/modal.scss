@@ -4,6 +4,7 @@
         border-radius: 20px;
         .ant-card-head {
             min-height: 70px;
+            border-color: $bordercolor;
             .ant-card-head-title {
                 color: $welcomecolor !important;
                 font-size: 20px;

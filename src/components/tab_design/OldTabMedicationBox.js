@@ -19,24 +19,25 @@ import {
     getFrequentlySearchedMedication,
     showMedicineTime,
     showMedicineFrequency,
+    getLoadPreviousRx,
 } from "../../redux/medicationSlice";
 
-import TabMedicationSearch from "../../components/tab_design/TabMedicationSearch";
+import TabMedicationSearch from "./OldTabMedicationSearch";
 
-function TabMedicationBox() {
+function OldTabMedicationBox() {
 
     const [messageApi, contextHolder] = message.useMessage();
     const {
         selectedMedicationList,
         parentOptionsList,
         templates,
-        timingList,
         frequencyList,
+        timingList,
         loading,
     } = useSelector((state) => state.medication);
     const dispatch = useDispatch();
 
-    const { medicationData, setMedicationData } = useContext(CashManagerContext);
+    const { patient_data, medicationData, setMedicationData } = useContext(CashManagerContext);
     // const [ medicationData, setMedicationData] = useState([]);
 
     const [parentDrawer, setParentDrawer] = useState(false);
@@ -58,6 +59,8 @@ function TabMedicationBox() {
     const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
 
     const [selectedIndex, setSelectedIndex] = useState(null);
+    const [frequencyData, setFrequencyData] = useState([]);
+    const [timingData, setTimingData] = useState([]);
     const SINCE_OPTIONS = [
         { value: "day(s)", label: "D" },
         { value: "week(s)", label: "W" },
@@ -89,6 +92,28 @@ function TabMedicationBox() {
         setAllTemplates(templates);
     }, [templates]);
 
+    useEffect(() => {
+        const updatedData = frequencyList.map((e) => {
+            return {
+                key: Math.random(),
+                value: e.tmf_id,
+                label: <>{e.tmf_title}</>,
+            };
+        });
+        setFrequencyData(updatedData)
+    }, [frequencyList]);
+
+    useEffect(() => {
+        const updatedData = timingList.map((e) => {
+            return {
+                key: Math.random(),
+                value: e.tmt_id,
+                label: <>{e.tmt_title}</>,
+            };
+        });
+        setTimingData(updatedData)
+    }, [timingList]);
+
     const onRemoveRow = (index) => {
         medicationData.splice(index, 1);
         setMedicationData((prev) => [...prev]);
@@ -112,7 +137,20 @@ function TabMedicationBox() {
                             label: <>{e1.tmu_title}</>,
                         };
                     });
-                    return { ...e, medicineUnit: medicineUnit, unique_id: uuidv4() }
+
+                    const unitObj = medicineUnit ? medicineUnit.find(x => x.value == e.tmm_unit) : null
+                    const frequencyObj = frequencyList.find(x => x.tmf_id == e.tmm_freq_type)
+                    const timingObj = timingList.find(x => x.tmt_id == e.tmm_time)
+
+                    return {
+                        ...e,
+                        tmm_unit_name: unitObj && unitObj != undefined ? JSON.parse(unitObj.key).tmu_title : "",
+                        tmm_freq_type_name: frequencyObj != undefined ? frequencyObj.tmf_title : "",
+                        tmf_block_val: frequencyObj != undefined ? frequencyObj.tmf_block_val : "",
+                        tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
+                        medicineUnit: medicineUnit,
+                        unique_id: uuidv4()
+                    }
                 })
                 medicationData.push({
                     ...updatedData[0],
@@ -172,6 +210,46 @@ function TabMedicationBox() {
         }
     };
 
+    const loadPreviousRxClick = async () => {
+        var sendData = {
+            patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0
+        }
+        const action = await dispatch(getLoadPreviousRx(sendData));
+        if (action.meta.requestStatus == "fulfilled") {
+            const updatedData = action.payload.map(e => {
+                const medicineUnit = e?.medicineUnit.map((e1) => {
+                    return {
+                        key: JSON.stringify({ ...e1 }),
+                        value: e1.tmu_id,
+                        label: <>{e1.tmu_title}</>,
+                    };
+                });
+
+                const unitObj = medicineUnit ? medicineUnit.find(x => x.value == e.tmm_unit) : null
+                const frequencyObj = frequencyList.find(x => x.tmf_id == e.tmm_freq_type)
+                const timingObj = timingList.find(x => x.tmt_id == e.tmm_time)
+
+                return {
+                    ...e,
+                    tmm_unit_name: unitObj && unitObj != undefined ? JSON.parse(unitObj.key).tmu_title : "",
+                    tmm_freq_type_name: frequencyObj != undefined ? frequencyObj.tmf_title : "",
+                    tmf_block_val: frequencyObj != undefined ? frequencyObj.tmf_block_val : "",
+                    tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
+                    medicineUnit: medicineUnit,
+                    unique_id: uuidv4()
+                }
+            })
+            setMedicationData([...medicationData, ...updatedData]);
+        } else {
+            messageApi.open({
+                MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
+        }
+    };
+
     const onTemplateSelected = async (tmtd_id) => {
         const action = await dispatch(singleTemplateDetails(tmtd_id));
         if (action.meta.requestStatus == "fulfilled") {
@@ -183,7 +261,19 @@ function TabMedicationBox() {
                         label: <>{e1.tmu_title}</>,
                     };
                 });
-                return { ...e, medicineUnit: medicineUnit, unique_id: uuidv4() }
+
+                const unitObj = medicineUnit ? medicineUnit.find(x => x.value == e.tmm_unit) : null
+                const frequencyObj = frequencyList.find(x => x.tmf_id == e.tmm_freq_type)
+                const timingObj = timingList.find(x => x.tmt_id == e.tmm_time)
+
+                return {
+                    ...e,
+                    tmm_unit_name: unitObj && unitObj != undefined ? JSON.parse(unitObj.key).tmu_title : "",
+                    tmm_freq_type_name: frequencyObj != undefined ? frequencyObj.tmf_title : "",
+                    tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
+                    medicineUnit: medicineUnit,
+                    unique_id: uuidv4()
+                }
             })
             setMedicationData([...medicationData, ...updatedData]);
             handleDrawerTemplate();
@@ -288,13 +378,13 @@ function TabMedicationBox() {
                         <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
                             <div className="text-truncate">{item.tmm_medicine_name}
                                 {(item.tmm_dosage || item.tmm_unit_name) ? (
-                                    <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + ' | ' : ''}${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != '' ? item.tcm_tmm_freq_morning + ' - ' : '0 -'}${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != '' ? item.tcm_tmm_freq_afternoon + ' - ' : '0 -'}${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != '' ? item.tcm_tmm_freq_evening + ' - ' : '0 -'}${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != '' ? item.tcm_tmm_freq_night + ' | ' : '0 |'}${item.tmm_time_name ? item.tmm_time_name : ''}`}</div>
+                                    <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + ' | ' : ''}${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_morning + ' - ' : '0 -'}${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_afternoon + ' - ' : '0 -'}${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_evening + ' - ' : '0 -'}${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_night + ' | ' : '0 |'}${item.tmm_time_name ? item.tmm_time_name : ''}`}</div>
                                 ) : (
                                     <div className="text-truncate small">Add Details</div>
                                 )}
                             </div>
                         </div>
-                        <Button type="text" className="border-start rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
+                        <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
                             <i className="icon-Cross"></i>
                         </Button>
                     </div>
@@ -319,7 +409,7 @@ function TabMedicationBox() {
                                         <div className="align-items-center d-flex text-truncate w-100" onClick={() => onTemplateSelected(template.tmtd_id)}>
                                             <div className="round-box"><i className="icon-template"></i></div>
                                             <div className="text-truncate w-100">
-                                                <div className="title">{template.tmtd_template_name}</div>
+                                                <div className="title text-main2">{template.tmtd_template_name}</div>
                                             </div>
                                         </div>
                                         <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => onDeleteTemplateClicked(template.tmtd_id)}>
@@ -375,7 +465,7 @@ function TabMedicationBox() {
                     <div className="medicine-templates d-flex">
                         <Select
                             showSearch
-                            value={inputTemplateName && inputTemplateName.tmtd_template_name}
+                            value={inputTemplateName && JSON.parse(inputTemplateName).tmtd_template_name}
                             className="autocomplete-custom w-100 popinput inputheight41"
                             placeholder="Select Template"
                             onSearch={onSearchTemplate}
@@ -427,10 +517,16 @@ function TabMedicationBox() {
 
     const onSelectMedicineFrequencyChild = useCallback(
         (data) => {
-            const obj = frequencyList.find(e => e.value == data)
+            const obj = frequencyList.find(e => e.tmf_id == data)
             if (obj != undefined) {
-                const objParse = JSON.parse(obj.key)
-                setChildDrawerData({ ...childDrawerData, tmm_freq_type: objParse.tmf_id, tmm_freq_type_name: objParse.tmf_title, tmf_block: objParse.tmf_block })
+                if (obj.tmf_block != 0) {
+                    setChildDrawerData({
+                        ...childDrawerData, tmm_freq_type: obj.tmf_id, tmm_freq_type_name: obj.tmf_title, tmf_block: obj.tmf_block, tmf_block_val: obj.tmf_block_val,
+                        tcm_tmm_freq_morning: 0, tcm_tmm_freq_afternoon: 0, tcm_tmm_freq_evening: 0, tcm_tmm_freq_night: 0
+                    })
+                } else {
+                    setChildDrawerData({ ...childDrawerData, tmm_freq_type: obj.tmf_id, tmm_freq_type_name: obj.tmf_title, tmf_block: obj.tmf_block, tmf_block_val: obj.tmf_block_val })
+                }
             }
         },
         [childDrawerData]
@@ -578,10 +674,9 @@ function TabMedicationBox() {
 
     const onSelectMedicineTimingChild = useCallback(
         (data) => {
-            const obj = timingList.find(e => e.value == data)
+            const obj = timingList.find(e => e.tmt_id == data)
             if (obj != undefined) {
-                const objParse = JSON.parse(obj.key)
-                setChildDrawerData({ ...childDrawerData, tmm_time: objParse.tmt_id, tmm_time_name: objParse.tmt_title })
+                setChildDrawerData({ ...childDrawerData, tmm_time: obj.tmt_id, tmm_time_name: obj.tmt_title })
             }
         },
         [childDrawerData]
@@ -734,20 +829,20 @@ function TabMedicationBox() {
                                     <Select
                                         className="autocomplete-custom w-100 popinput inputheight38"
                                         placeholder="Select"
-                                        defaultValue={frequencyList ? frequencyList.findIndex(e => e.value == childDrawerData.tmm_freq_type) != -1 ? parseInt(childDrawerData.tmm_freq_type) : null : null}
-                                        value={frequencyList ? frequencyList.findIndex(e => e.value == childDrawerData.tmm_freq_type) != -1 ? parseInt(childDrawerData.tmm_freq_type) : null : null}
+                                        defaultValue={frequencyList ? frequencyList.findIndex(e => e.tmf_id == childDrawerData.tmm_freq_type) != -1 ? parseInt(childDrawerData.tmm_freq_type) : null : null}
+                                        value={frequencyList ? frequencyList.findIndex(e => e.tmf_id == childDrawerData.tmm_freq_type) != -1 ? parseInt(childDrawerData.tmm_freq_type) : null : null}
                                         onSelect={onSelectMedicineFrequencyChild}
-                                        options={frequencyList}
+                                        options={frequencyData}
                                     />
                                 </Col>
                                 <Col md={12}>
                                     <Select
                                         className="autocomplete-custom w-100 popinput inputheight38"
                                         placeholder="Select"
-                                        defaultValue={timingList ? timingList.findIndex(e => e.value == childDrawerData.tmm_time) != -1 ? parseInt(childDrawerData.tmm_time) : null : null}
-                                        value={timingList ? timingList.findIndex(e => e.value == childDrawerData.tmm_time) != -1 ? parseInt(childDrawerData.tmm_time) : null : null}
+                                        defaultValue={timingList ? timingList.findIndex(e => e.tmt_id == childDrawerData.tmm_time) != -1 ? parseInt(childDrawerData.tmm_time) : null : null}
+                                        value={timingList ? timingList.findIndex(e => e.tmt_id == childDrawerData.tmm_time) != -1 ? parseInt(childDrawerData.tmm_time) : null : null}
                                         onSelect={onSelectMedicineTimingChild}
-                                        options={timingList}
+                                        options={timingData}
                                     />
                                 </Col>
                             </Row>
@@ -842,7 +937,7 @@ function TabMedicationBox() {
                             />
                         </div>
                         <label className="title-common mb-1">
-                            Add Details
+                            Note
                         </label>
                         <Input.TextArea value={childDrawerData.tmm_remarks ? childDrawerData.tmm_remarks : ''} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                     </div>
@@ -862,7 +957,7 @@ function TabMedicationBox() {
                     </div>
 
                     <div className="d-flex align-items-center">
-                        <button className='btn d-flex align-items-center btn-text'> <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span></button>
+                        <button className='btn d-flex align-items-center btn-text' onClick={loadPreviousRxClick}> <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span></button>
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerTemplate}> <i className="icon-template me-2"></i> <span>Templates</span></button>
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerSave}> <i className="icon-save me-2"></i> <span>Save</span></button>
                     </div>
@@ -887,13 +982,13 @@ function TabMedicationBox() {
                     </div>
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
-                    {parentDrawer && (<TabMedicationSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
+                    {parentDrawer && (<TabMedicationSearch passIndex={selectedIndex} onClose={handleDrawerParent} frequencyData={frequencyData} timingData={timingData} />)}
                 </Drawer>
-                <div className="d-flex flex-wrap p-14-pb0">
+                <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.map((item, i) => {
                             return (
-                                <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onSelectParent(item)}>{item.tmm_medicine_name}</Button>
+                                <Button key={i} type="text" style={{ width: item.tmm_medicine_name.length > 26 && '250px' }} className={`${item.tmm_medicine_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent(item)}>{item.tmm_medicine_name}</Button>
                             )
                         })}
                 </div>
@@ -903,4 +998,4 @@ function TabMedicationBox() {
 }
 
 
-export default React.memo(TabMedicationBox);
+export default React.memo(OldTabMedicationBox);

@@ -34,7 +34,9 @@ function Cardiology(props) {
     ];
 
     async function onPrintRxUrlClick() {
-        await window.open(viewCaseManagerData?.print_rx_url);
+        navigate(`/patient_details/?url=${viewCaseManagerData?.print_rx_url}&key=print`, { replace: true, state: { patient_data: patient_data } })
+        navigate(0, { replace: true });
+        // await window.open(viewCaseManagerData?.print_rx_url);
     };
 
     const handleChange = (pagination, filters, sorter) => {
@@ -107,7 +109,9 @@ function Cardiology(props) {
 
 
     const onPrintUrlClick = async () => {
-        await window.open(viewCaseManagerData?.print_url);
+        navigate(`/patient_details/?url=${viewCaseManagerData?.print_url}&key=print`, { replace: true, state: { patient_data: patient_data } })
+        navigate(0, { replace: true });
+        // await window.open(viewCaseManagerData?.print_url);
     };
 
     return (
@@ -168,7 +172,7 @@ function Cardiology(props) {
                                                     {viewCaseManagerData.symptoms.map((item, i) => {
                                                         return (
                                                             <span key={i}>
-                                                                <span>{item.symptom_name}</span> : <label>{`${item.since && `since ${item.since}${item.severity &&','}`} ${item.severity && `severity ${item.severity}${item.note &&','} `} ${item.note && `${item.note}`}`}</label>{viewCaseManagerData.symptoms.length - 1 != i && ' | '}
+                                                                <span>{item.symptom_name}</span> : <label>{`${item.since && `since ${item.since}${item.severity && ','}`} ${item.severity && `severity ${item.severity}${item.note && ','} `} ${item.note && `${item.note}`}`}</label>{viewCaseManagerData.symptoms.length - 1 != i && ' | '}
                                                             </span>
                                                         )
                                                     })}
@@ -198,7 +202,7 @@ function Cardiology(props) {
                                                     {viewCaseManagerData.diagnosis.map((item, i) => {
                                                         return (
                                                             <span key={i}>
-                                                                <span>{item.tds_name}</span> : <label>{`${item.since && `since ${item.since}${item.status &&','}`} ${item.status && `status ${item.status}${item.note &&','} `} ${item.note && `${item.note}`}`}</label>{viewCaseManagerData.diagnosis.length - 1 != i && ' | '}
+                                                                <span>{item.tds_name}</span> : <label>{`${item.since && `since ${item.since}${item.status && ','}`} ${item.status && `status ${item.status}${item.note && ','} `} ${item.note && `${item.note}`}`}</label>{viewCaseManagerData.diagnosis.length - 1 != i && ' | '}
                                                             </span>
                                                         )
                                                     })}
