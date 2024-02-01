@@ -114,6 +114,9 @@ body {
     .segement-static {
         // border: 1px solid $bordercolor;
         width: 100%;
+        .segment-more {
+            color: $theme !important;
+        }
         .btn {
             background: var(--White-Gradient, linear-gradient(180deg, rgba(255, 255, 255, 0.00) 0%, #E2E2EA 100%));
             border-radius: 0;
