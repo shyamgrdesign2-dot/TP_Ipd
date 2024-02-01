@@ -16,14 +16,14 @@ import {
 
 import TabSearchHeader from "./TabSearchHeader";
 
-function TabMedicationSearch({ passIndex, onClose }) {
+function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData }) {
 
     const [messageApi, contextHolder] = message.useMessage();
     const {
         parentOptionsList,
         childOptionsList,
-        timingList,
         frequencyList,
+        timingList,
     } = useSelector((state) => state.medication);
     const dispatch = useDispatch();
 
@@ -99,14 +99,29 @@ function TabMedicationSearch({ passIndex, onClose }) {
                             label: <>{e1.tmu_title}</>,
                         };
                     });
-                    return { ...e, medicineUnit: medicineUnit, unique_id: uuidv4() }
+
+                    const unitObj = medicineUnit ? medicineUnit.find(x => x.value == e.tmm_unit) : null
+                    const frequencyObj = frequencyList.find(x => x.tmf_id == e.tmm_freq_type)
+                    const timingObj = timingList.find(x => x.tmt_id == e.tmm_time)
+
+                    return {
+                        ...e,
+                        tmm_unit_name: unitObj && unitObj != undefined ? JSON.parse(unitObj.key).tmu_title : "",
+                        tmm_freq_type_name: frequencyObj != undefined ? frequencyObj.tmf_title : "",
+                        tmf_block_val: frequencyObj != undefined ? frequencyObj.tmf_block_val : "",
+                        tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
+                        medicineUnit: medicineUnit,
+                        unique_id: uuidv4()
+                    }
                 })
                 medicationData.push({
                     ...updatedData[0],
                 });
+                console.log(medicationData)
                 setMedicationData((prev) => [...prev]);
                 setSelectedIndex(medicationData.length - 1);
                 setSinceValue(1)
+                setSearchChildQuery("")
             } else {
                 messageApi.open({
                     MESSAGE_KEY,
@@ -138,7 +153,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                         }}>
                             <div className="text-truncate">{item.tmm_medicine_name}
                                 {(item.tmm_dosage || item.tmm_unit_name) ? (
-                                    <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + ' | ' : ''}${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != '' ? item.tcm_tmm_freq_morning + ' - ' : '0 -'}${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != '' ? item.tcm_tmm_freq_afternoon + ' - ' : '0 -'}${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != '' ? item.tcm_tmm_freq_evening + ' - ' : '0 -'}${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != '' ? item.tcm_tmm_freq_night + ' | ' : '0 |'}${item.tmm_time_name ? item.tmm_time_name : ''}`}</div>
+                                    <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + ' | ' : ''}${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_morning + ' - ' : '0 -'}${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_afternoon + ' - ' : '0 -'}${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_evening + ' - ' : '0 -'}${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_night + ' | ' : '0 |'}${item.tmm_time_name ? item.tmm_time_name : ''}`}</div>
                                 ) : (
                                     <div className="text-truncate small">Add Details</div>
                                 )}
@@ -178,12 +193,18 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
     const onSelectMedicineFrequencyChild = useCallback(
         (data) => {
-            const obj = frequencyList.find(e => e.value == data)
+            const obj = frequencyList.find(e => e.tmf_id == data)
             if (obj != undefined) {
-                const objParse = JSON.parse(obj.key)
-                medicationData[selectedIndex].tmm_freq_type = objParse.tmf_id;
-                medicationData[selectedIndex].tmm_freq_type_name = objParse.tmf_title;
-                medicationData[selectedIndex].tmf_block = objParse.tmf_block;
+                medicationData[selectedIndex].tmm_freq_type = obj.tmf_id;
+                medicationData[selectedIndex].tmm_freq_type_name = obj.tmf_title;
+                medicationData[selectedIndex].tmf_block = obj.tmf_block;
+                medicationData[selectedIndex].tmf_block_val = obj.tmf_block_val;
+                if (obj.tmf_block != 0) {
+                    medicationData[selectedIndex].tcm_tmm_freq_morning = 0;
+                    medicationData[selectedIndex].tcm_tmm_freq_afternoon = 0;
+                    medicationData[selectedIndex].tcm_tmm_freq_evening = 0;
+                    medicationData[selectedIndex].tcm_tmm_freq_night = 0;
+                }
                 setMedicationData((prev) => [...prev]);
             }
         },
@@ -324,11 +345,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
     const onSelectMedicineTimingChild = useCallback(
         (data) => {
-            const obj = timingList.find(e => e.value == data)
+            const obj = timingList.find(e => e.tmt_id == data)
             if (obj != undefined) {
-                const objParse = JSON.parse(obj.key)
-                medicationData[selectedIndex].tmm_time = objParse.tmt_id;
-                medicationData[selectedIndex].tmm_time_name = objParse.tmt_title;
+                medicationData[selectedIndex].tmm_time = obj.tmt_id;
+                medicationData[selectedIndex].tmm_time_name = obj.tmt_title;
                 setMedicationData((prev) => [...prev]);
             }
         },
@@ -402,7 +422,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         { value: 3, label: 3 },
         { value: 4, label: 4 },
         { value: 5, label: 5 },
-        { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" value={inputSince} inputMode="numeric" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
+        // { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" value={inputSince} inputMode="numeric" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
     ];
 
     const onChangeSegmentedSinceChild = useCallback(
@@ -472,20 +492,20 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                         <Select
                                             className="autocomplete-custom w-100 popinput inputheight38"
                                             placeholder="Select"
-                                            defaultValue={frequencyList ? frequencyList.findIndex(e => e.value == medicationData[selectedIndex].tmm_freq_type) != -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
-                                            value={frequencyList ? frequencyList.findIndex(e => e.value == medicationData[selectedIndex].tmm_freq_type) != -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
+                                            defaultValue={frequencyList ? frequencyList.findIndex(e => e.tmf_id == medicationData[selectedIndex].tmm_freq_type) != -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
+                                            value={frequencyList ? frequencyList.findIndex(e => e.tmf_id == medicationData[selectedIndex].tmm_freq_type) != -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
                                             onSelect={onSelectMedicineFrequencyChild}
-                                            options={frequencyList}
+                                            options={frequencyData}
                                         />
                                     </Col>
                                     <Col md={12}>
                                         <Select
                                             className="autocomplete-custom w-100 popinput inputheight38"
                                             placeholder="Select"
-                                            defaultValue={timingList ? timingList.findIndex(e => e.value == medicationData[selectedIndex].tmm_time) != -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
-                                            value={timingList ? timingList.findIndex(e => e.value == medicationData[selectedIndex].tmm_time) != -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
+                                            defaultValue={timingList ? timingList.findIndex(e => e.tmt_id == medicationData[selectedIndex].tmm_time) != -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
+                                            value={timingList ? timingList.findIndex(e => e.tmt_id == medicationData[selectedIndex].tmm_time) != -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
                                             onSelect={onSelectMedicineTimingChild}
-                                            options={timingList}
+                                            options={timingData}
                                         />
                                     </Col>
                                 </Row>
@@ -580,7 +600,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                 />
                             </div>
                             <label className="title-common mb-1">
-                                Add Details
+                                Note
                             </label>
                             <Input.TextArea value={medicationData[selectedIndex].tmm_remarks ? medicationData[selectedIndex].tmm_remarks : ''} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                         </div>
@@ -595,15 +615,16 @@ function TabMedicationSearch({ passIndex, onClose }) {
             {contextHolder}
             <Card bordered={false} className="search-modalCard h-100">
                 <TabSearchHeader
-                    placeholder="Search Medicines by Name, Brand or generic"
+                    placeholder="Search Medicines by Name, Brand or Generic"
                     searchQuery={searchChildQuery}
                     onSearchParent={onSearchParent}
+                    disabled={medicationData.length > 0 ? false : true}
                     onClose={onClose} />
                 <div className="modalcard-body">
                     <Row gutter={0} className="h-100">
                         <Col md={14}>
                             <div className="bg-white h-100 p-14">
-                                {medicationData.length > 0 && (
+                                {medicationData.length > 0 && !searchChildQuery && (
                                     <>
                                         <div className="title2">
                                             Added
@@ -615,12 +636,12 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                 )}
                                 <div>
                                     <div className="title2">
-                                        {searchChildQuery.length > 0 ? 'Searched' : 'Frequently Used'}
+                                        {searchChildQuery.length > 0 ? 'Search Results' : 'Frequently Used'}
                                     </div>
                                     <div className="mt-3 d-flex flex-wrap">
                                         {searchChildQuery.length > 0 ? (
                                             childSearchOptions.length > 0 &&
-                                            childSearchOptions.map((item, i) => {
+                                            childSearchOptions.filter(e => ![...medicationData.map(e1 => e1.tmm_medicine_name)].includes(e.value)).map((item, i) => {
                                                 return (
                                                     // i === childSearchOptions.length - 1 ? (
                                                     //     <Button
@@ -634,7 +655,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                                     <Button
                                                         key={i}
                                                         type="text"
-                                                        className="btn btn-primary2 chips-custom mb-14 me-14"
+                                                        style={{ width: item.value.length > 26 && '250px' }}
+                                                        className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
                                                         onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
                                                         {item.value}
                                                     </Button>
@@ -643,9 +665,9 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                             })
                                         ) : (
                                             parentOptionsList.length > 0 &&
-                                            parentOptionsList.map((item, i) => {
+                                            parentOptionsList.filter(e => ![...medicationData.map(e1 => e1.tmm_medicine_name)].includes(e.tmm_medicine_name)).map((item, i) => {
                                                 return (
-                                                    <Button key={i} type="text" className="btn btn-primary2 chips-custom mb-14 me-14" onClick={() => onSelectParent(item)}>{item.tmm_medicine_name}</Button>
+                                                    <Button key={i} type="text" style={{ width: item.tmm_medicine_name.length > 26 && '250px' }} className={`${item.tmm_medicine_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent(item)}>{item.tmm_medicine_name}</Button>
                                                 )
                                             })
                                         )}
@@ -663,4 +685,4 @@ function TabMedicationSearch({ passIndex, onClose }) {
     );
 }
 
-export default React.memo(TabMedicationSearch);
+export default React.memo(OldTabMedicationSearch);

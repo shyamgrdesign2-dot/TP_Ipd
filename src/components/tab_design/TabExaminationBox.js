@@ -416,7 +416,7 @@ function TabExaminationBox() {
                     <div className="d-flex align-items-center">
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerTemplate}> <i className="icon-template me-2"></i> <span>Templates</span></button>
                         
-                        <Tooltip placement="bottom" title={(examinationData.length > 0) ? "" : "Please enter some Symptoms to save a template"}>
+                        <Tooltip placement="bottom" title={(examinationData.length > 0) ? "" : "Please enter some Examination to save a template"}>
                             <button className='btn d-flex align-items-center btn-text' onClick={() => (examinationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
                         </Tooltip>
                     </div>

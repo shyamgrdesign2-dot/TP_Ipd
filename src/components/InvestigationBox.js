@@ -583,7 +583,7 @@ function InvestigationBox() {
                 <i className="icon-template me-2"></i> <span>Templates</span>
               </button>
             </Popover>
-            <Tooltip placement="bottom" title={(investigationData.length > 0) ? "" : "Please enter some Symptoms to save a template"}>
+            <Tooltip placement="bottom" title={(investigationData.length > 0) ? "" : "Please enter some Investigation to save a template"}>
               <Popover
                 open={popOver2}
                 onOpenChange={() => (investigationData.length > 0) && showHideSaveTemplatePopOver()}
