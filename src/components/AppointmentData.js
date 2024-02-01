@@ -23,6 +23,7 @@ import visitEnd from '../assets/images/end-visit.svg';
 import ImgcancelEnd from '../assets/images/cancel-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
 import CommonModal from "../common/CommonModal";
+import alertIcon from '../assets/images/alertIcon.svg';
 import { MESSAGE_KEY } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
@@ -104,6 +105,7 @@ function AppointmentData() {
     const [isEndVisitReasonModal, setEndVisitReasonModal] = useState(false);
     const [endVisitReasonDrawer, setEndVisitReasonDrawer] = useState(false);
     const [endVisitReason, setEndVisitReason] = useState('');
+    const [noDetailsModal, setNoDetailsModal] = useState(false);
 
     useEffect(() => {
         dispatch(getCaseTypes());
@@ -315,9 +317,14 @@ function AppointmentData() {
         }
     };
 
-    const onPrintRxUrlClick = (url) => {
-        navigate(`/?url=${url}&key=print`, { replace: true })
-        navigate(0, { replace: true });
+    const onPrintRxUrlClick = (record) => {
+        if (record.print_rx_url) {
+            navigate(`/?url=${record.print_rx_url}&key=print`, { replace: true })
+            navigate(0, { replace: true });
+        } else {
+            setAppointmentSelectedFromMenu(record);
+            handleNoDetailsModal()
+        }
     }
 
     const columns = [
@@ -392,7 +399,7 @@ function AppointmentData() {
             render: (_, record) => (
                 <div size="middle">
                     {selectedTab !== TAB_CANCELLED && (
-                        <button className="btn btn-outline-primary btn-consult" onClick={() => selectedTab === TAB_QUEUE ? navigate("/prescription", { state: { patient_data: record } }) : record.print_rx_url && onPrintRxUrlClick(record.print_rx_url)}>
+                        <button className="btn btn-outline-primary btn-consult" onClick={() => selectedTab === TAB_QUEUE ? navigate("/prescription", { state: { patient_data: record } }) : onPrintRxUrlClick(record)}>
                             {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
                         </button>
                     )}
@@ -466,12 +473,49 @@ function AppointmentData() {
         [endVisitReasonDrawer]
     );
 
+    const handleNoDetailsModal = useCallback(
+        () => {
+            setNoDetailsModal(!noDetailsModal)
+        },
+        [noDetailsModal]
+    );
+
     const onEndVisitReasonChange = useCallback(
         (e) => {
             setEndVisitReason(e.target.value)
         },
         [endVisitReason]
     );
+
+    const NO_DETAILS_MODAL = useMemo(() => {
+        return (
+            <CommonModal
+                isModalOpen={noDetailsModal}
+                onCancel={handleNoDetailsModal}
+                modalWidth={500}
+                title={"No Details Found"}
+                modalBody={
+                    <>
+                        <div className="alert-warning rounded-10px p-2 patient-details">
+                            <div className="d-flex align-items-center">
+                                <img className='me-3' src={alertIcon} alt="Warning" />
+                                <span>
+                                    {`The doctor ended ${appointmentSelectedFromMenu?.pm_first_name}’s visit without adding prescription details.`}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <div className="d-flex align-items-center mt-2 justify-content-end">
+                                <Button onClick={handleNoDetailsModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                    <span>Got It</span>
+                                </Button>
+                            </div>
+                        </div>
+                    </>
+                }
+            />
+        );
+    }, [noDetailsModal]);
 
     const CONFIRMATION_MODAL = useMemo(() => {
         return (
@@ -722,6 +766,7 @@ function AppointmentData() {
                 )}
                 {CONFIRMATION_MODAL}
                 {END_VISIT_REASON_DISPLAY_MODAL}
+                {NO_DETAILS_MODAL}
             </div>
             <Drawer
                 className="modalWidth-700" width="auto"

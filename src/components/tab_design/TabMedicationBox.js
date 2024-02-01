@@ -19,6 +19,7 @@ import {
   Form,
   Radio,
   Segmented,
+  Tooltip
 } from "antd";
 import {
   Button as BSButton,
@@ -179,7 +180,7 @@ function TabMedicationBox() {
         if (
           // selectedMedication?.tcm_tmm_freq_morning &&
           // selectedMedication?.tcm_tmm_freq_afternoon &&
-          selectedMedication?.tcm_tmm_freq_evening 
+          selectedMedication?.tcm_tmm_freq_evening
           // selectedMedication?.tcm_tmm_freq_night
         ) {
           setSelectedTab("mean");
@@ -526,11 +527,11 @@ function TabMedicationBox() {
             style={{
               width:
                 item.tmm_medicine_name.length > 12 &&
-                item.tmm_medicine_name.length < 24
+                  item.tmm_medicine_name.length < 24
                   ? `${item.tmm_medicine_name.length * 10.5}px`
                   : item.tmm_medicine_name.length >= 24
-                  ? "256px"
-                  : "150px",
+                    ? "256px"
+                    : "150px",
             }}
             className="d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active"
           >
@@ -541,45 +542,42 @@ function TabMedicationBox() {
               <div className="text-truncate">
                 {item.tmm_medicine_name}
                 {item.tmm_dosage || item.tmm_unit_name ? (
-                  <div className="text-truncate small">{`${
-                    item.tmm_dosage && item.tmm_unit_name
+                  item.tmf_block == 0 ? (
+                    <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name
                       ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | "
                       : ""
-                  }${
-                    item.tmf_block == 0 &&
-                    item.tcm_tmm_freq_morning != null &&
-                    item.tcm_tmm_freq_morning != "" &&
-                    hasNumber(item.tmf_block) &&
-                    item.tmf_block == 0
-                      ? item.tcm_tmm_freq_morning + " - "
-                      : "0 -"
-                  }${
-                    item.tmf_block == 0 &&
-                    item.tcm_tmm_freq_afternoon != null &&
-                    item.tcm_tmm_freq_afternoon != "" &&
-                    hasNumber(item.tmf_block) &&
-                    item.tmf_block == 0
-                      ? item.tcm_tmm_freq_afternoon + " - "
-                      : "0 -"
-                  }${
-                    item.tmf_block == 0 &&
-                    item.tcm_tmm_freq_evening != null &&
-                    item.tcm_tmm_freq_evening != "" &&
-                    hasNumber(item.tmf_block) &&
-                    item.tmf_block == 0
-                      ? item.tcm_tmm_freq_evening + " - "
-                      : "0 -"
-                  }${
-                    item.tmf_block == 0 &&
-                    item.tcm_tmm_freq_night != null &&
-                    item.tcm_tmm_freq_night != "" &&
-                    hasNumber(item.tmf_block) &&
-                    item.tmf_block == 0
-                      ? item.tcm_tmm_freq_night + " | "
-                      : "0 |"
-                  }${
-                    item.tmf_block != 0 ? item.tmm_freq_type_name + "|" : "-- |"
-                  }${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
+                      }${item.tmf_block == 0 &&
+                        item.tcm_tmm_freq_morning != null &&
+                        item.tcm_tmm_freq_morning != "" &&
+                        hasNumber(item.tmf_block)
+                        ? item.tcm_tmm_freq_morning + " - "
+                        : "0 -"
+                      }${item.tmf_block == 0 &&
+                        item.tcm_tmm_freq_afternoon != null &&
+                        item.tcm_tmm_freq_afternoon != "" &&
+                        hasNumber(item.tmf_block)
+                        ? item.tcm_tmm_freq_afternoon + " - "
+                        : "0 -"
+                      }${item.tmf_block == 0 &&
+                        item.tcm_tmm_freq_evening != null &&
+                        item.tcm_tmm_freq_evening != "" &&
+                        hasNumber(item.tmf_block)
+                        ? item.tcm_tmm_freq_evening + " - "
+                        : "0 -"
+                      }${item.tmf_block == 0 &&
+                        item.tcm_tmm_freq_night != null &&
+                        item.tcm_tmm_freq_night != "" &&
+                        hasNumber(item.tmf_block)
+                        ? item.tcm_tmm_freq_night + " | "
+                        : "0 |"
+                      }${item.tmf_block != 0 ? item.tmm_freq_type_name + "|" : "-- |"
+                      }${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
+                  ) : (
+                    <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name
+                      ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | "
+                      : ""
+                      }${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
+                  )
                 ) : (
                   <div className="text-truncate small">Add Details</div>
                 )}
@@ -1064,8 +1062,8 @@ function TabMedicationBox() {
                     defaultValue={
                       childDrawerData.medicineUnit
                         ? childDrawerData.medicineUnit.findIndex(
-                            (e) => e.value == childDrawerData.tmm_unit
-                          ) != -1
+                          (e) => e.value == childDrawerData.tmm_unit
+                        ) != -1
                           ? parseInt(childDrawerData.tmm_unit)
                           : null
                         : null
@@ -1073,8 +1071,8 @@ function TabMedicationBox() {
                     value={
                       childDrawerData.medicineUnit
                         ? childDrawerData.medicineUnit.findIndex(
-                            (e) => e.value == childDrawerData.tmm_unit
-                          ) != -1
+                          (e) => e.value == childDrawerData.tmm_unit
+                        ) != -1
                           ? parseInt(childDrawerData.tmm_unit)
                           : null
                         : null
@@ -1492,10 +1490,9 @@ function TabMedicationBox() {
                           <button
                             key={i}
                             type="button"
-                            className={`btn ${
-                              childDrawerData.tmm_freq_type == item.id &&
+                            className={`btn ${childDrawerData.tmm_freq_type == item.id &&
                               "btn-segement"
-                            }`}
+                              }`}
                             onClick={() => onChangeFrequencyChild(item)}
                           >
                             {item.label}
@@ -1504,31 +1501,30 @@ function TabMedicationBox() {
                             <button
                               key={i}
                               type="button"
-                              className={`btn segment-more ${
-                                filteredTitles
-                                  .slice(2, filteredTitles.length)
-                                  .some(
-                                    (e) => e.id == childDrawerData.tmm_freq_type
-                                  ) &&
+                              className={`btn segment-more ${filteredTitles
+                                .slice(2, filteredTitles.length)
+                                .some(
+                                  (e) => e.id == childDrawerData.tmm_freq_type
+                                ) &&
                                 "btn-segement"
-                              }`}
+                                }`}
                               onClick={() =>
                                 setFrequencyDataMoreOptionsVisible(true)
                               }
                             >
                               {
-                              filteredTitles
-                                .slice(2, filteredTitles.length)
-                                .some(
-                                  (e) => e.id == childDrawerData.tmm_freq_type
-                                ) ? (
-                                <span id="selected">
-                                  <i className="icon-Edit me-2 fs-21"></i>{" "}
-                                  {childDrawerData.tmm_freq_type_name}
-                                </span>
-                              ) : (
-                                "More"
-                              )}
+                                filteredTitles
+                                  .slice(2, filteredTitles.length)
+                                  .some(
+                                    (e) => e.id == childDrawerData.tmm_freq_type
+                                  ) ? (
+                                  <span id="selected">
+                                    <i className="icon-Edit me-2 fs-21"></i>{" "}
+                                    {childDrawerData.tmm_freq_type_name}
+                                  </span>
+                                ) : (
+                                  "More"
+                                )}
                             </button>
                           )}
                         </>
@@ -1601,9 +1597,8 @@ function TabMedicationBox() {
                             <Button
                               key={i}
                               type="text"
-                              id={`${
-                                item.id === selectedFrequency ? "selected" : ""
-                              }`}
+                              id={`${item.id === selectedFrequency ? "selected" : ""
+                                }`}
                               className="btn btn-primary2 chips-custom mb-14 me-14"
                               onClick={() => {
                                 onChangeFrequencyChild(item);
@@ -1611,11 +1606,10 @@ function TabMedicationBox() {
                               }}
                             >
                               <span
-                                id={`${
-                                  item.id === selectedFrequency
-                                    ? "selected"
-                                    : ""
-                                }`}
+                                id={`${item.id === selectedFrequency
+                                  ? "selected"
+                                  : ""
+                                  }`}
                               >
                                 {item.label}
                               </span>
@@ -1634,11 +1628,10 @@ function TabMedicationBox() {
                         <button
                           key={i}
                           type="button"
-                          className={`btn mt-3 ${
-                            childDrawerData.tmm_time == item.tmt_id
-                              ? "btn-segement"
-                              : ""
-                          }`}
+                          className={`btn mt-3 ${childDrawerData.tmm_time == item.tmt_id
+                            ? "btn-segement"
+                            : ""
+                            }`}
                           onClick={() => onChangeTimingChild(item)}
                         >
                           {item.tmt_title}
@@ -1647,29 +1640,28 @@ function TabMedicationBox() {
                           <button
                             key={i}
                             type="button"
-                            className={`btn mt-3 segment-more ${
+                            className={`btn mt-3 segment-more ${timingList
+                              .slice(5, timingList.length)
+                              .some(
+                                (e) => e.tmt_id == childDrawerData.tmm_time
+                              ) &&
+                              "btn-segement"
+                              }`}
+                            onClick={() => setMoreOptionsVisible(true)}
+                          >
+                            {
                               timingList
                                 .slice(5, timingList.length)
                                 .some(
                                   (e) => e.tmt_id == childDrawerData.tmm_time
-                                ) &&
-                              "btn-segement"
-                            }`}
-                            onClick={() => setMoreOptionsVisible(true)}
-                          >
-                            {
-                            timingList
-                              .slice(5, timingList.length)
-                              .some(
-                                (e) => e.tmt_id == childDrawerData.tmm_time
-                              ) ? (
-                              <span id="selected">
-                                <i className="icon-Edit me-2 fs-21"></i>
-                                {childDrawerData.tmm_time_name}
-                              </span>
-                            ) : (
-                              "More"
-                            )}
+                                ) ? (
+                                <span id="selected">
+                                  <i className="icon-Edit me-2 fs-21"></i>
+                                  {childDrawerData.tmm_time_name}
+                                </span>
+                              ) : (
+                                "More"
+                              )}
                           </button>
                         )}
                       </>
@@ -1739,28 +1731,25 @@ function TabMedicationBox() {
                             <Button
                               key={i}
                               type="text"
-                              id={`${
-                                item.tmt_title === timingSelected
-                                  ? "selected"
-                                  : ""
-                              }`}
+                              id={`${item.tmt_title === timingSelected
+                                ? "selected"
+                                : ""
+                                }`}
                               // className="btn btn-primary2 chips-custom mb-14 me-14"
-                              className={`btn btn-primary2 chips-custom mb-14 me-14 ${
-                                item.tmt_id === childDrawerData.tmt_id
-                                  ? "selected"
-                                  : ""
-                              }`}
+                              className={`btn btn-primary2 chips-custom mb-14 me-14 ${item.tmt_id === childDrawerData.tmt_id
+                                ? "selected"
+                                : ""
+                                }`}
                               onClick={() => {
                                 setMoreOptionsVisible(false);
                                 onChangeTimingChild(item);
                               }}
                             >
                               <span
-                                id={`${
-                                  item.tmt_title === timingSelected
-                                    ? "selected"
-                                    : ""
-                                }`}
+                                id={`${item.tmt_title === timingSelected
+                                  ? "selected"
+                                  : ""
+                                  }`}
                               >
                                 {item.tmt_title}
                               </span>
@@ -1845,13 +1834,9 @@ function TabMedicationBox() {
               {" "}
               <i className="icon-template me-2"></i> <span>Templates</span>
             </button>
-            <button
-              className="btn d-flex align-items-center btn-text"
-              onClick={handleDrawerSave}
-            >
-              {" "}
-              <i className="icon-save me-2"></i> <span>Save</span>
-            </button>
+            <Tooltip placement="bottom" title={(medicationData.length > 0) ? "" : "Please enter some Medications to save a template"}>
+              <button className='btn d-flex align-items-center btn-text' onClick={() => (medicationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
+            </Tooltip>
           </div>
           <Drawer
             title="Medication Templates"
