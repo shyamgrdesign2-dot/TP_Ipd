@@ -315,6 +315,11 @@ function AppointmentData() {
         }
     };
 
+    const onPrintRxUrlClick = (url) => {
+        navigate(`/?url=${url}&key=print`, { replace: true })
+        navigate(0, { replace: true });
+    }
+
     const columns = [
         {
             title: "#",
@@ -387,7 +392,7 @@ function AppointmentData() {
             render: (_, record) => (
                 <div size="middle">
                     {selectedTab !== TAB_CANCELLED && (
-                        <button className="btn btn-outline-primary btn-consult" onClick={() => selectedTab === TAB_QUEUE ? navigate("/prescription", { state: { patient_data: record } }) : alert('comming soon')}>
+                        <button className="btn btn-outline-primary btn-consult" onClick={() => selectedTab === TAB_QUEUE ? navigate("/prescription", { state: { patient_data: record } }) : record.print_rx_url && onPrintRxUrlClick(record.print_rx_url)}>
                             {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
                         </button>
                     )}
@@ -572,7 +577,7 @@ function AppointmentData() {
                 modalBody={
                     <>
                         <div className="mb-2 fw-medium fs-16">End Visit Reason</div>
-                        <div className="border bg-body rounded-10px p-3 patient-details" style={{minHeight: 100}}>
+                        <div className="border bg-body rounded-10px p-3 patient-details" style={{ minHeight: 100 }}>
                             {appointmentSelectedFromMenu?.tpvl_remarks}
                         </div>
                     </>
