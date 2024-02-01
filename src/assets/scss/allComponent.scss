@@ -413,6 +413,12 @@ body {
         }
     }
 
+    .selected-tab {
+        background: #4B4AD5 !important;
+        color: white !important;
+        border-color: $theme;
+    }
+
     .tablet-medication-tabs {
         .ant-tabs-nav {
             padding-top: 20px;
