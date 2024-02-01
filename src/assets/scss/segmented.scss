@@ -140,7 +140,10 @@ body {
             &.btn-segement {
                 background: $theme;
                 color: $white !important;
-                border-color: $theme
+                border-color: $theme;
+                span {
+                    color: $white !important;
+                }
             }
             &:focus-visible {
                 outline: none !important;
