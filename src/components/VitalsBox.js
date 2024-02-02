@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useContext, useMemo, useRef } from "react";
 import { Button, message, Card, DatePicker, Input, Tooltip } from 'antd';
 import dayjs from "dayjs";
 
@@ -20,6 +20,7 @@ const showDateFormat = 'DD MMM, YY'
 
 function VitalsBox(props) {
 
+    const scrollContainerRef = useRef(null);
     const { handleDrawerVital, handleCollapsed } = props
 
     const [messageApi, contextHolder] = message.useMessage();
@@ -31,6 +32,7 @@ function VitalsBox(props) {
 
     const { patient_data, vitalsData, setVitalsData } = useContext(CashManagerContext);
     const [childVitalsData, setChildVitalsData] = useState([]);
+    const [dateString, setDateString] = useState(null);
 
     useEffect(() => {
         if (selectedVitalsList.length > 0) {
@@ -44,7 +46,6 @@ function VitalsBox(props) {
     }, [selectedVitalsList]);
 
     useEffect(() => {
-        console.log(vitalsData)
         setChildVitalsData([...vitalsData])
     }, [vitalsData]);
 
@@ -74,8 +75,8 @@ function VitalsBox(props) {
 
     const onChange = useCallback(
         (date, dateString) => {
-            console.log(dateString)
             let cal = calculate('', '');
+            setDateString(dateString)
             childVitalsData.push({
                 date: dateString,
                 dev_unique_id: 0,
@@ -97,6 +98,19 @@ function VitalsBox(props) {
         },
         [childVitalsData]
     );
+
+    useEffect(() => {
+        if (scrollContainerRef.current) {
+            // const scrollWidth = scrollContainerRef.current.scrollWidth;
+            // scrollContainerRef.current.scrollLeft = scrollWidth;
+            const data = childVitalsData.sort((a, b) => new Date(b.date) - new Date(a.date))
+            const index = data.findLastIndex(e => e.date == dateString)
+            if (index != -1) {
+                const scrollWidth = index;
+                scrollContainerRef.current.scrollLeft = scrollWidth * 180;
+            }
+        }
+    }, [childVitalsData])
 
     const calculate = (H, W) => {
         var height = 0, weight = 0, bmi = "", bmr = "", bsa = ""
@@ -312,7 +326,7 @@ function VitalsBox(props) {
                                     </Tooltip>
                                 </div>
                             </div>
-                            <div className='d-flex overflow-x-auto scrollvitals w-100'>
+                            <div ref={scrollContainerRef} className='d-flex overflow-x-auto scrollvitals w-100'>
                                 {TABLE_VITALS}
                             </div>
                         </div>
