@@ -64,14 +64,6 @@ function TabMedicationSearch({
   const [frequencyDataMoreOptionsVisible, setFrequencyDataMoreOptionsVisible] =
     useState(false);
   const [selectedFrequency, setSelectedFrequency] = useState(null);
-  const [selectedMoreOption, setSelectedMoreOption] = useState(null);
-  const [selectedMoreOptionLabel, setSelectedMoreOptionLabel] = useState(null);
-  const [selectedMoreOptionFrequencyData, setSelectedMoreOptionFrequencyData] =
-    useState(null);
-  const [
-    selectedMoreOptionFrequencyLabel,
-    setSelectedMoreOptionFrequencyLabel,
-  ] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
   const [timingSelected, setTimingSelected] = useState(null);
 
@@ -80,16 +72,11 @@ function TabMedicationSearch({
   }, [frequencyList]);
 
   useEffect(() => {
-    // console.log("selectedTab",selectedTab)
-    // console.log(selectedIndex,"selectedIndex")
     if (medicationData.length > 0) {
       const selectedMedication = medicationData[selectedIndex];
-      // console.log(selectedMedication,"selectedMedication")
       if (selectedMedication?.tmf_block > 0) {
-        // console.log(selectedMedication,"selectedMedication")
         setSelectedTab("other");
       } else {
-        // const { tcm_tmm_freq_morning, tcm_tmm_freq_afternoon, tcm_tmm_freq_evening, tcm_tmm_freq_night } = selectedMedication;
         if (
           selectedMedication?.tcm_tmm_freq_morning &&
           selectedMedication?.tcm_tmm_freq_afternoon &&
@@ -102,7 +89,6 @@ function TabMedicationSearch({
         }
       }
     }
-    // console.log("selectedTab",selectedTab)
   }, [medicationData, selectedIndex]);
   //Parent AutoComplete
   useEffect(() => {
@@ -149,26 +135,6 @@ function TabMedicationSearch({
 
   const onSelectParent = useCallback(
     async (e) => {
-      setSelectedMoreOptionLabel(
-        medicationData[selectedIndex]?.tmm_time > 5
-          ? medicationData[selectedIndex]?.tmm_time_name
-          : "More"
-      );
-      setSelectedMoreOption(
-        medicationData[selectedIndex]?.tmm_time > 5
-          ? medicationData[selectedIndex]?.tmm_time
-          : "more"
-      );
-      setSelectedMoreOptionFrequencyLabel(
-        medicationData[selectedIndex]?.tmm_freq_type > 7
-          ? medicationData[selectedIndex]?.tmm_freq_type_name
-          : "More"
-      );
-      setSelectedMoreOptionFrequencyData(
-        medicationData[selectedIndex]?.tmm_freq_type > 7
-          ? medicationData[selectedIndex]?.tmm_freq_type_name
-          : "more"
-      );
       const action = await dispatch(getMedicineDetails(e.tmm_id));
       if (action.meta.requestStatus == "fulfilled") {
         const updatedData = action.payload.map((e) => {
@@ -230,8 +196,8 @@ function TabMedicationSearch({
   };
 
   //Child Componet
-  console.log("medication-data", medicationData);
-  console.log("timingData", timingData);
+//   console.log("medication-data", medicationData);
+//   console.log("timingData", timingData);
   const TABLE_MEDICATION = useMemo(() => {
     // console.log("Medication-Data", medicationData);
     return (
@@ -256,27 +222,6 @@ function TabMedicationSearch({
               className="text-truncate p-2"
               onClick={() => {
                 setSelectedIndex(index);
-                setSelectedMoreOption(() =>
-                  medicationData[selectedIndex]?.tmm_time > 5
-                    ? medicationData[selectedIndex]?.tmm_time
-                    : selectedMoreOption
-                );
-                setSelectedMoreOptionLabel(() =>
-                  medicationData[selectedIndex]?.tmm_time > 5
-                    ? medicationData[selectedIndex]?.tmm_time_name
-                    : selectedMoreOptionLabel
-                );
-                setSelectedMoreOptionFrequencyLabel(
-                  medicationData[selectedIndex]?.tmm_freq_type > 7
-                    ? medicationData[selectedIndex]?.tmm_freq_type_name
-                    : selectedMoreOptionFrequencyLabel
-                );
-                setSelectedMoreOptionFrequencyData(
-                  medicationData[selectedIndex]?.tmm_freq_type > 7
-                    ? medicationData[selectedIndex]?.tmm_freq_type_name
-                    : selectedMoreOptionFrequencyData
-                );
-                // setSelectedFrequency((medicationData[selectedIndex]?.tmm_freq_type) ? medicationData[selectedIndex].tmm_freq_type : null);
                 setSinceValue(item.tmm_days ? parseInt(item.tmm_days) : 1);
               }}
             >
@@ -1481,8 +1426,6 @@ function TabMedicationSearch({
     selectedTab,
     moreOptionsVisible,
     frequencyDataMoreOptionsVisible,
-    selectedMoreOptionLabel,
-    selectedMoreOption,
   ]);
 
   return (
