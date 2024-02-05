@@ -649,7 +649,7 @@ function TabMedicationSearch({
                 </Row>
                 <div className="d-flex align-items-center justify-content-between mt-3 mb-2">
                   <label className="title-common">Timing</label>
-                  <Form.Item name="gender" className="mb-0">
+                  <Form.Item name="gender" className="mb-0 man-mean">
                     <Radio.Group
                       size="small"
                       onChange={handleRadioChange}
@@ -657,38 +657,30 @@ function TabMedicationSearch({
                     >
                       <Radio.Button
                         value="man"
-                        className={selectedTab === "man" ? "selected-tab" : ""}
+                        className={`${selectedTab === "man" ? "selected-tab" : ""} fw-medium`}
                       >
                         <span
-                          className={
-                            selectedTab === "man" ? "selected-tab" : ""
-                          }
+                          className={`${selectedTab === "man" ? "selected-tab" : ""} fw-medium`}
                         >
                           MAN
                         </span>
                       </Radio.Button>
                       <Radio.Button
                         value="mean"
-                        className={selectedTab === "mean" ? "selected-tab" : ""}
+                        className={`${selectedTab === "mean" ? "selected-tab" : ""} fw-medium`}
                       >
                         <span
-                          className={
-                            selectedTab === "mean" ? "selected-tab" : ""
-                          }
+                          className={`${selectedTab === "mean" ? "selected-tab" : ""} fw-medium`}
                         >
                           MEAN
                         </span>
                       </Radio.Button>
                       <Radio.Button
                         value="other"
-                        className={
-                          selectedTab === "other" ? "selected-tab" : ""
-                        }
+                        className={`${selectedTab === "other" ? "selected-tab" : ""} fw-medium`}
                       >
                         <span
-                          className={
-                            selectedTab === "other" ? "selected-tab" : ""
-                          }
+                          className={`${selectedTab === "other" ? "selected-tab" : ""} fw-medium`}
                         >
                           Hrs a Day
                         </span>
@@ -697,7 +689,7 @@ function TabMedicationSearch({
                   </Form.Item>
                 </div>
                 {selectedTab === "man" && (
-                  <Row>
+                  <Row className="input-dark">
                     <Col lg={8}>
                       <BSButtonGroup
                         aria-label="Basic example"
@@ -734,7 +726,7 @@ function TabMedicationSearch({
                                   .tcm_tmm_freq_morning
                                 : ""
                             }
-                            className="rounded-0 h-100 border-0 text-center text-main"
+                            className="rounded-0 h-100 text-center text-main"
                             onChange={onChangeInputMorningChild}
                           />
                         </BSButton>
@@ -790,7 +782,7 @@ function TabMedicationSearch({
                                   .tcm_tmm_freq_afternoon
                                 : ""
                             }
-                            className="rounded-0 h-100 border-0 text-center text-main"
+                            className="rounded-0 h-100 text-center text-main"
                             onChange={onChangeInputAfternoonChild}
                           />
                         </BSButton>
@@ -845,7 +837,7 @@ function TabMedicationSearch({
                                   .tcm_tmm_freq_night
                                 : ""
                             }
-                            className="rounded-0 h-100 border-0 text-center text-main"
+                            className="rounded-0 h-100 text-center text-main"
                             onChange={onChangeInputNightChild}
                           />
                         </BSButton>
@@ -867,7 +859,7 @@ function TabMedicationSearch({
                   </Row>
                 )}
                 {selectedTab === "mean" && (
-                  <Row>
+                  <Row className="input-dark">
                     <Col lg={6}>
                       <BSButtonGroup
                         aria-label="Basic example"
@@ -904,7 +896,7 @@ function TabMedicationSearch({
                                   .tcm_tmm_freq_morning
                                 : ""
                             }
-                            className="rounded-0 h-100 border-0 px-1 text-center text-main"
+                            className="rounded-0 h-100 px-1 text-center text-main"
                             onChange={onChangeInputMorningChild}
                           />
                         </BSButton>
@@ -960,7 +952,7 @@ function TabMedicationSearch({
                                   .tcm_tmm_freq_afternoon
                                 : ""
                             }
-                            className="rounded-0 h-100 px-1 border-0 text-center text-main"
+                            className="rounded-0 h-100 px-1 text-center text-main"
                             onChange={onChangeInputAfternoonChild}
                           />
                         </BSButton>
@@ -1015,7 +1007,7 @@ function TabMedicationSearch({
                                   .tcm_tmm_freq_evening
                                 : ""
                             }
-                            className="rounded-0 px-1 h-100 border-0 text-center text-main"
+                            className="rounded-0 px-1 h-100 text-center text-main"
                             onChange={onChangeInputEveningChild}
                           />
                         </BSButton>
@@ -1070,7 +1062,7 @@ function TabMedicationSearch({
                                   .tcm_tmm_freq_night
                                 : ""
                             }
-                            className="rounded-0 h-100 px-1 border-0 text-center text-main"
+                            className="rounded-0 h-100 px-1 text-center text-main"
                             onChange={onChangeInputNightChild}
                           />
                         </BSButton>

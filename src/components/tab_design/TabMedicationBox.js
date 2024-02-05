@@ -1138,7 +1138,7 @@ function TabMedicationBox() {
                 </Form.Item>
               </div>
               {selectedTab === "man" && (
-                <Row>
+                <Row className="input-dark">
                   <Col lg={8}>
                     <BSButtonGroup
                       aria-label="Basic example"
@@ -1291,7 +1291,7 @@ function TabMedicationBox() {
                 </Row>
               )}
               {selectedTab === "mean" && (
-                <Row>
+                <Row className="input-dark">
                   <Col lg={6}>
                     <BSButtonGroup
                       aria-label="Basic example"
