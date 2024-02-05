@@ -21,6 +21,8 @@ const showDateFormat = 'DD MMM, YY'
 function VitalsBox(props) {
 
     const scrollContainerRef = useRef(null);
+    const inputRef = useRef([]);
+
     const { handleDrawerVital, handleCollapsed } = props
 
     const [messageApi, contextHolder] = message.useMessage();
@@ -106,6 +108,7 @@ function VitalsBox(props) {
             const data = childVitalsData.sort((a, b) => new Date(b.date) - new Date(a.date))
             const index = data.findLastIndex(e => e.date == dateString)
             if (index != -1) {
+                inputRef.current[index].focus()
                 const scrollWidth = index;
                 scrollContainerRef.current.scrollLeft = scrollWidth * 180;
             }
@@ -207,7 +210,7 @@ function VitalsBox(props) {
                     <div key={i} className='vitals-wrap-body w-100 vitals-child-width'>
                         <div className='vitals-head rounded-start-0 w-100'>{moment(item.date).format(showDateFormat)}</div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.temp} addonAfter={'Frh'} onChange={(e) => onChangeInput(e.target.value, i, 1)} />
+                            <Input ref={(el) => (inputRef.current[i] = el)} className='inputheight41-group focused' placeholder="Enter" inputMode="numeric" value={item.temp} addonAfter={'Frh'} onChange={(e) => onChangeInput(e.target.value, i, 1)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.pres} addonAfter={'/min'} onChange={(e) => onChangeInput(e.target.value, i, 2)} />
