@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import { Link, useNavigate } from "react-router-dom";
+import { isChrome, isSafari } from "react-device-detect";
 import {
     Tabs,
     Table,
@@ -317,10 +318,14 @@ function AppointmentData() {
         }
     };
 
-    const onPrintRxUrlClick = (record) => {
+    const onPrintRxUrlClick = async (record) => {
         if (record.print_rx_url) {
-            navigate(`/?url=${record.print_rx_url}&key=print`, { replace: true })
-            navigate(0, { replace: true });
+            if(!isChrome && !isSafari){
+                navigate(`/?url=${record.print_rx_url}&key=print`, { replace: true })
+                navigate(0, { replace: true });
+            }else{
+                await window.open(record.print_rx_url);
+            }
         } else {
             setAppointmentSelectedFromMenu(record);
             handleNoDetailsModal()
