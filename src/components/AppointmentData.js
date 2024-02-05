@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import { Link, useNavigate } from "react-router-dom";
-import { isMobile, isTablet, isBrowser, isChrome, isSafari } from "react-device-detect";
+import { isChrome, isSafari } from "react-device-detect";
 import {
     Tabs,
     Table,
@@ -318,10 +318,14 @@ function AppointmentData() {
         }
     };
 
-    const onPrintRxUrlClick = (record) => {
+    const onPrintRxUrlClick = async (record) => {
         if (record.print_rx_url) {
-            navigate(`/?url=${record.print_rx_url}&key=print`, { replace: true })
-            navigate(0, { replace: true });
+            if(!isChrome && !isSafari){
+                navigate(`/?url=${record.print_rx_url}&key=print`, { replace: true })
+                navigate(0, { replace: true });
+            }else{
+                await window.open(record.print_rx_url);
+            }
         } else {
             setAppointmentSelectedFromMenu(record);
             handleNoDetailsModal()
@@ -438,11 +442,7 @@ function AppointmentData() {
             <img src={noData} alt="Warning" />
             <div className="mt-3 fontroboto fw-normal">
                 {selectedTab === TAB_QUEUE
-                    ? `There are no patients in your queue right now! ${isMobile ? 'isMobile Yes' : 'isMobile No'}
-                    ${isTablet ? 'isTablet Yes' : 'isTablet No'}
-                    ${isBrowser ? 'isBrowser Yes' : 'isBrowser No'}
-                    ${isChrome ? 'isChrome Yes' : 'isChrome No'}
-                    ${isSafari ? 'isSafari Yes' : 'isSafari No'}`
+                    ? "There are no patients in your queue right now!"
                     : selectedTab === TAB_FINISHED
                         ? "You haven't finished any consultations or ended the visit yet."
                         : "Nothing here! You haven’t cancelled any appointments here."}
