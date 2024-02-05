@@ -78,10 +78,10 @@ function TabMedicationSearch({
         setSelectedTab("other");
       } else {
         if (
-          selectedMedication?.tcm_tmm_freq_morning &&
-          selectedMedication?.tcm_tmm_freq_afternoon &&
-          selectedMedication?.tcm_tmm_freq_evening &&
-          selectedMedication?.tcm_tmm_freq_night
+          // selectedMedication?.tcm_tmm_freq_morning &&
+          // selectedMedication?.tcm_tmm_freq_afternoon &&
+          selectedMedication?.tcm_tmm_freq_evening 
+          // selectedMedication?.tcm_tmm_freq_night
         ) {
           setSelectedTab("mean");
         } else {
@@ -426,10 +426,20 @@ function TabMedicationSearch({
     if (e.target.value !== "other") {
       setFrequencyDataMoreOptionsVisible(false);
       medicationData[selectedIndex].tmf_block = 0;
+      medicationData[selectedIndex].tmm_freq_type_name = null;
+      medicationData[selectedIndex].tmm_freq_type = null; 
+      medicationData[selectedIndex].tcm_tmm_freq_afternoon = null;
+      medicationData[selectedIndex].tcm_tmm_freq_evening = null;
+      medicationData[selectedIndex].tcm_tmm_freq_morning = null;
+      medicationData[selectedIndex].tcm_tmm_freq_night = null;
     }
     if (e.target.value === "other") {
       setMoreOptionsVisible(false);
       medicationData[selectedIndex].tmf_block = 1;
+      medicationData[selectedIndex].tcm_tmm_freq_afternoon = null;
+      medicationData[selectedIndex].tcm_tmm_freq_evening = null;
+      medicationData[selectedIndex].tcm_tmm_freq_morning = null;
+      medicationData[selectedIndex].tcm_tmm_freq_night = null;
     }
   };
 
@@ -568,6 +578,7 @@ function TabMedicationSearch({
     [selectedIndex, medicationData]
   );
 
+  console.log("meddication-data",medicationData)
   //Child Componet
   const CHILD_DRAWER_DATA = useMemo(() => {
     return (
