@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Card from 'react-bootstrap/Card';
 import { Table, Dropdown, Button, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { isChrome, isSafari } from "react-device-detect";
 
 import Symptomsicon from '../assets/images/Symptoms.svg';
 import Examinationsicon from '../assets/images/Examination.svg';
@@ -24,7 +25,7 @@ function Cardiology(props) {
 
     const items = [
         {
-            label: <div onClick={onPrintRxUrlClick}>Print Medicines Only</div>,
+            label: <div onClick={() => !isChrome && !isSafari ? printRxInAppContent() : printRxContent()}>Print Medicines Only</div>,
             key: 'printrx',
         },
         // {
@@ -33,10 +34,13 @@ function Cardiology(props) {
         // }
     ];
 
-    async function onPrintRxUrlClick() {
+    async function printRxContent() {
+        await window.open(viewCaseManagerData?.print_rx_url);
+    };
+
+    async function printRxInAppContent() {
         navigate(`/patient_details/?url=${viewCaseManagerData?.print_rx_url}&key=print`, { replace: true, state: { patient_data: patient_data } })
         navigate(0, { replace: true });
-        // await window.open(viewCaseManagerData?.print_rx_url);
     };
 
     const handleChange = (pagination, filters, sorter) => {
@@ -108,10 +112,13 @@ function Cardiology(props) {
     ];
 
 
-    const onPrintUrlClick = async () => {
+    const printContent = async () => {
+        await window.open(viewCaseManagerData?.print_url);
+    };
+
+    const printInAppContent = async () => {
         navigate(`/patient_details/?url=${viewCaseManagerData?.print_url}&key=print`, { replace: true, state: { patient_data: patient_data } })
         navigate(0, { replace: true });
-        // await window.open(viewCaseManagerData?.print_url);
     };
 
     return (
@@ -143,7 +150,7 @@ function Cardiology(props) {
                                     >
                                         <i className="icon-Edit"></i>
                                     </button>
-                                    <button className="btn p-0 ms-3" onClick={onPrintUrlClick}>
+                                    <button className="btn p-0 ms-3" onClick={() => !isChrome && !isSafari ? printInAppContent() : printContent()}>
                                         <i className="icon-Print"></i>
                                     </button>
                                     <Dropdown className='btn btn-outline btn-more ms-1' menu={{ items, }} trigger={['click']}>

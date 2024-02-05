@@ -103,17 +103,8 @@ function TabMedicationBox() {
     useState(false);
   const [selectedTiming, setSelectedTiming] = useState(null);
   const [selectedFrequency, setSelectedFrequency] = useState(null);
-  const [selectedMoreOption, setSelectedMoreOption] = useState(null);
-  const [selectedMoreOptionLabel, setSelectedMoreOptionLabel] = useState(null);
-  const [selectedMoreOptionFrequencyData, setSelectedMoreOptionFrequencyData] =
-    useState(null);
-  const [
-    selectedMoreOptionFrequencyLabel,
-    setSelectedMoreOptionFrequencyLabel,
-  ] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
   const [timingSelected, setTimingSelected] = useState(null);
-  const [checkFrequencyValue, setCheckFrequencyValue] = useState(2);
 
   const filteredTitles = frequencyList
     .filter((item) => item.tmf_block !== 0)
@@ -176,7 +167,6 @@ function TabMedicationBox() {
         // console.log(selectedMedication, "selectedMedication");
         setSelectedTab("other");
       } else {
-        // const { tcm_tmm_freq_morning, tcm_tmm_freq_afternoon, tcm_tmm_freq_evening, tcm_tmm_freq_night } = selectedMedication;
         if (
           // selectedMedication?.tcm_tmm_freq_morning &&
           // selectedMedication?.tcm_tmm_freq_afternoon &&
@@ -189,7 +179,6 @@ function TabMedicationBox() {
         }
       }
     }
-    // console.log("selectedTab", selectedTab);
   }, [childDrawerData]);
 
   useEffect(() => {
@@ -228,7 +217,7 @@ function TabMedicationBox() {
     setTimingData(updatedData);
   }, [timingList]);
 
-  console.log("timimngList", timingList);
+//   console.log("timimngList", timingList);
   const onRemoveRow = (index) => {
     medicationData.splice(index, 1);
     setMedicationData((prev) => [...prev]);
@@ -576,7 +565,7 @@ function TabMedicationBox() {
                     <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name
                       ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | "
                       : ""
-                      }${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
+                      }${item.tmm_freq_type_name ? item.tmm_freq_type_name+' | ' : ""}${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
                   )
                 ) : (
                   <div className="text-truncate small">Add Details</div>
@@ -1546,7 +1535,7 @@ function TabMedicationBox() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        zIndex: "998", // Set z-index to be below the more options container
+                        zIndex: "998", 
                       }}
                       onClick={closeMoreOptions}
                     ></div>
@@ -1682,7 +1671,7 @@ function TabMedicationBox() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        zIndex: "998", // Set z-index to be below the more options container
+                        zIndex: "998", 
                       }}
                       onClick={closeMoreOptions}
                     ></div>
@@ -1735,7 +1724,6 @@ function TabMedicationBox() {
                                 ? "selected"
                                 : ""
                                 }`}
-                              // className="btn btn-primary2 chips-custom mb-14 me-14"
                               className={`btn btn-primary2 chips-custom mb-14 me-14 ${item.tmt_id === childDrawerData.tmt_id
                                 ? "selected"
                                 : ""
@@ -1804,8 +1792,6 @@ function TabMedicationBox() {
     selectedTab,
     moreOptionsVisible,
     frequencyDataMoreOptionsVisible,
-    selectedMoreOptionLabel,
-    selectedMoreOption,
     timingSelected,
   ]);
 
