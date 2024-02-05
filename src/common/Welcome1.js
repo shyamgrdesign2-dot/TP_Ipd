@@ -25,18 +25,18 @@ function Welcome1(props) {
                     </div>
                     <div>
                         <div className='d-lg-flex d-block'>
-                            <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() =>
-                                navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
-                            }> <i className={'icon-reload me-2'}></i> {'Repeat Rx'}</Button>
                             {viewCaseManagerData && (
-                                <Button variant="primary"
-                                    className='btn-41 px-4'
-                                    onClick={() =>
-                                        navigate("/prescription", { state: { patient_data: patient_data } })
-                                    }>
-                                    {'Start New Visit'}
-                                </Button>
+                                <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() =>
+                                    navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
+                                }> <i className={'icon-reload me-2'}></i> {`Repeat ${moment(viewCaseManagerData.consultation_date).format('DD MMM')} Rx`}</Button>
                             )}
+                            <Button variant="primary"
+                                className='btn-41 px-4'
+                                onClick={() =>
+                                    navigate("/prescription", { state: { patient_data: patient_data } })
+                                }>
+                                {'Start New Visit'}
+                            </Button>
                         </div>
                     </div>
                 </div>
