@@ -89,7 +89,7 @@ function TabMedicationSearch({
         }
       }
     }
-  }, [medicationData, selectedIndex]);
+  }, [selectedIndex]);
   //Parent AutoComplete
   useEffect(() => {
     if (searchChildQuery) {

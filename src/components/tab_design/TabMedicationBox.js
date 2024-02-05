@@ -189,7 +189,7 @@ function TabMedicationBox() {
         }
       }
     }
-  }, [childDrawerData]);
+  }, [childDrawerData?.tmf_block,childDrawerData?.tcm_tmm_freq_evening]);
 
   useEffect(() => {
     dispatch(getMedicationTemplates());
