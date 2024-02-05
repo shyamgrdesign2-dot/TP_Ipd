@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import { Link, useNavigate } from "react-router-dom";
+import { isMobile, isTablet, isBrowser, isChrome, isSafari } from "react-device-detect";
 import {
     Tabs,
     Table,
@@ -437,7 +438,11 @@ function AppointmentData() {
             <img src={noData} alt="Warning" />
             <div className="mt-3 fontroboto fw-normal">
                 {selectedTab === TAB_QUEUE
-                    ? "There are no patients in your queue right now!"
+                    ? `There are no patients in your queue right now! ${isMobile ? 'isMobile Yes' : 'isMobile No'}
+                    ${isTablet ? 'isTablet Yes' : 'isTablet No'}
+                    ${isBrowser ? 'isBrowser Yes' : 'isBrowser No'}
+                    ${isChrome ? 'isChrome Yes' : 'isChrome No'}
+                    ${isSafari ? 'isSafari Yes' : 'isSafari No'}`
                     : selectedTab === TAB_FINISHED
                         ? "You haven't finished any consultations or ended the visit yet."
                         : "Nothing here! You haven’t cancelled any appointments here."}
