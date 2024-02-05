@@ -265,7 +265,7 @@ function TabMedicationSearch({
                       }${item.tmm_freq_type_name ? item.tmm_freq_type_name+' | ' : ""}${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
                   )
                 ) : (
-                  <div className="text-truncate small">Add Details</div>
+                  <div className="text-truncate small">Note</div>
                 )}
               </div>
             </div>
@@ -1411,14 +1411,14 @@ function TabMedicationSearch({
                   onChange={onChangeSinceChild}
                 />
               </div>
-              <label className="title-common mb-1">Add Details</label>
+              <label className="title-common mb-1">Note</label>
               <Input.TextArea
                 value={
                   medicationData[selectedIndex].tmm_remarks
                     ? medicationData[selectedIndex].tmm_remarks
                     : ""
                 }
-                placeholder="Enter any specific details here"
+                placeholder="Enter any specific notes here"
                 className="textareaPlaceholder"
                 rows={3}
                 onChange={onChangeInputNoteChild}
@@ -1465,7 +1465,7 @@ function TabMedicationSearch({
                 <div>
                   <div className="title2">
                     {searchChildQuery.length > 0
-                      ? "Searched"
+                      ? "Search Results"
                       : "Frequently Used"}
                   </div>
                   <div className="mt-3 d-flex flex-wrap">

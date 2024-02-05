@@ -591,7 +591,7 @@ function TabMedicationBox() {
                     }${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
                   )
                 ) : (
-                  <div className="text-truncate small">Add Details</div>
+                  <div className="text-truncate small">Note</div>
                 )}
               </div>
             </div>
@@ -1797,12 +1797,12 @@ function TabMedicationBox() {
                 onChange={onChangeSinceChild}
               />
             </div>
-            <label className="title-common mb-1">Add Details</label>
+            <label className="title-common mb-1">Note</label>
             <Input.TextArea
               value={
                 childDrawerData.tmm_remarks ? childDrawerData.tmm_remarks : ""
               }
-              placeholder="Enter any specific details here"
+              placeholder="Enter any specific notes here"
               className="textareaPlaceholder"
               rows={3}
               onChange={onChangeInputNoteChild}
