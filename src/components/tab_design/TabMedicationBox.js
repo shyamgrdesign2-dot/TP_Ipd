@@ -6,6 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import {
+  InputNumber,
   Input,
   Button,
   Drawer,
@@ -114,6 +115,9 @@ function TabMedicationBox() {
       id: item.tmf_id,
     }));
 
+  // console.log(childDrawerData?.medicineUnit,"childDrawerData.medicineUnit");
+  // console.log(childDrawerData, "childDrawerData");
+  // console.log(medicationData,"medication-data")
   const handleRadioChange = (e) => {
     setSelectedTab(e.target.value);
     if (e.target.value !== "other") {
@@ -136,6 +140,7 @@ function TabMedicationBox() {
     }
   };
 
+  
   const onChangeTimingChild = useCallback(
     (item) => {
       setTimingSelected(item.tmt_title);
@@ -189,7 +194,7 @@ function TabMedicationBox() {
         }
       }
     }
-  }, [childDrawerData?.tmf_block,childDrawerData?.tcm_tmm_freq_evening]);
+  }, [childDrawerData?.tmf_block, childDrawerData?.tcm_tmm_freq_evening]);
 
   useEffect(() => {
     dispatch(getMedicationTemplates());
@@ -574,10 +579,6 @@ function TabMedicationBox() {
                       hasNumber(item.tmf_block)
                         ? item.tcm_tmm_freq_night + " | "
                         : "0 |"
-                    }${
-                      item.tmf_block != 0
-                        ? item.tmm_freq_type_name + "|"
-                        : "-- |"
                     }${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
                   ) : (
                     <div className="text-truncate small">{`${
@@ -1037,7 +1038,7 @@ function TabMedicationBox() {
                 </Button>
                 <div className="text-truncate title-common fontroboto">
                   {childDrawerData.tmm_medicine_name}
-                  <div className="text-truncate fs-14 fontroboto mt-1">
+                  <div className="text-truncate fs-14 fw-normal fontroboto mt-1">
                     {childDrawerData.tmm_generic}
                   </div>
                 </div>
@@ -1263,7 +1264,7 @@ function TabMedicationBox() {
                           !childDrawerData.tcm_tmm_freq_night && nightClick()
                         }
                       >
-                        <Input
+                       <Input
                           placeholder="Night"
                           inputMode="numeric"
                           value={
@@ -1328,6 +1329,18 @@ function TabMedicationBox() {
                           className="rounded-0 h-100 border-0 text-center text-main"
                           onChange={onChangeInputMorningChild}
                         />
+                        {/* <InputNumber
+                          placeholder="Morning"
+                          value={
+                            childDrawerData.tcm_tmm_freq_morning
+                              ? childDrawerData.tcm_tmm_freq_morning
+                              : ""
+                          }
+                          style={{ paddingLeft:"5%", textAlign: 'center', fontSize: '18px' }}
+                          className="rounded-0 h-100 border-0 text-center text-main"
+                          onChange={onChangeInputMorningChild}
+                          step={0.1}
+                        /> */}
                       </BSButton>
                       {childDrawerData.tcm_tmm_freq_morning != undefined &&
                         childDrawerData.tcm_tmm_freq_morning != 0 && (
@@ -1378,6 +1391,18 @@ function TabMedicationBox() {
                           className="rounded-0 h-100 border-0 text-center text-main"
                           onChange={onChangeInputAfternoonChild}
                         />
+                        {/* <InputNumber
+                          placeholder="Afternoon"
+                          value={
+                            childDrawerData.tcm_tmm_freq_afternoon
+                              ? childDrawerData.tcm_tmm_freq_afternoon
+                              : ""
+                          }
+                          style={{ paddingLeft:"5%", textAlign: 'center', fontSize: '18px' }}
+                          className="rounded-0 h-100 border-0 text-center text-main"
+                          onChange={onChangeInputAfternoonChild}
+                          step={0.1}
+                        /> */}
                       </BSButton>
                       {childDrawerData.tcm_tmm_freq_afternoon != undefined &&
                         childDrawerData.tcm_tmm_freq_afternoon != 0 && (
@@ -1428,6 +1453,18 @@ function TabMedicationBox() {
                           className="rounded-0 h-100 border-0 text-center text-main"
                           onChange={onChangeInputEveningChild}
                         />
+                        {/* <InputNumber
+                          placeholder="Evening"
+                          value={
+                            childDrawerData.tcm_tmm_freq_evening
+                              ? childDrawerData.tcm_tmm_freq_evening
+                              : ""
+                          }
+                          style={{ paddingLeft:"5%", textAlign: 'center', fontSize: '18px' }}
+                          className="rounded-0 h-100 border-0 text-center text-main"
+                          onChange={onChangeInputEveningChild}
+                          step={0.1}
+                        /> */}
                       </BSButton>
                       {childDrawerData.tcm_tmm_freq_evening != undefined &&
                         childDrawerData.tcm_tmm_freq_evening != 0 && (
@@ -1468,7 +1505,7 @@ function TabMedicationBox() {
                       >
                         <Input
                           placeholder="Night"
-                          inputMode="numeric"
+                          inputMode="numeric" 
                           value={
                             childDrawerData.tcm_tmm_freq_night
                               ? childDrawerData.tcm_tmm_freq_night
@@ -1477,6 +1514,14 @@ function TabMedicationBox() {
                           className="rounded-0 h-100 border-0 text-center text-main"
                           onChange={onChangeInputNightChild}
                         />
+                        {/* <InputNumber
+                          placeholder="Night"
+                          value={childDrawerData.tcm_tmm_freq_night}
+                          style={{ paddingLeft:"5%", textAlign: 'center', fontSize: '18px' }}
+                          className="rounded-0 h-100 border-0 text-center text-main"
+                          onChange={onChangeInputNightChild}
+                          step={0.1}
+                        /> */}
                       </BSButton>
                       {childDrawerData.tcm_tmm_freq_night != undefined &&
                         childDrawerData.tcm_tmm_freq_night != 0 && (
