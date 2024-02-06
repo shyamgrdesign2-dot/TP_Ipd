@@ -286,43 +286,43 @@ function VitalsBox(props) {
                         <div className='vitals-wrapper w-100'>
                             <div className='vitals-wrap-body vitals-parent-width'>
                                 <div className='vitals-head'>Name</div>
-                                <div className='vitals-row d-flex align-items-center border-bottom'>
+                                <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     Temperature
                                 </div>
-                                <div className='vitals-row d-flex align-items-center border-bottom'>
+                                <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     Pulse
                                 </div>
-                                <div className='vitals-row d-flex align-items-center border-bottom'>
+                                <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     Resp. Rate
                                 </div>
-                                <div className='vitals-row d-flex align-items-center border-bottom'>
+                                <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     Systolic
                                 </div>
-                                <div className='vitals-row d-flex align-items-center border-bottom'>
+                                <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     Diastolic
                                 </div>
-                                <div className='vitals-row d-flex align-items-center border-bottom'>
+                                <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     SPO2
                                 </div>
-                                <div className='vitals-row vitals-row-60 d-flex align-items-center'>
+                                <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
                                     Height
                                 </div>
-                                <div className='vitals-row vitals-row-60 d-flex align-items-center'>
+                                <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
                                     Weight
                                 </div>
-                                <div className='vitals-row vitals-row-40 d-flex align-items-center'>
+                                <div className='vitals-row vitals-row-40 d-flex align-items-center px-2'>
                                     BMI
                                     <Tooltip placement="right" title="Body mass index will be auto-calculated by entering Height and Weight">
                                         <i className='icon-info ms-1'></i>
                                     </Tooltip>
                                 </div>
-                                <div className='vitals-row vitals-row-40 d-flex align-items-center'>
+                                <div className='vitals-row vitals-row-40 d-flex align-items-center px-2'>
                                     BMR
                                     <Tooltip placement="right" title="Basal metabolic rate will be auto-calculated by entering Height and Weight">
                                         <i className='icon-info ms-1'></i>
                                     </Tooltip>
                                 </div>
-                                <div className='vitals-row vitals-row-40 d-flex align-items-center'>
+                                <div className='vitals-row vitals-row-40 d-flex align-items-center px-2'>
                                     BSA
                                     <Tooltip placement="right" title="Body surface area will be auto-calculated by entering Height and Weight">
                                         <i className='icon-info ms-1'></i>
