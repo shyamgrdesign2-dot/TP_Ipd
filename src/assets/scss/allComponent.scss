@@ -412,11 +412,45 @@ body {
             min-height: 60px;
         }
     }
-
-    .selected-tab {
-        background: #4B4AD5 !important;
-        color: white !important;
-        border-color: $theme;
+    .man-mean {
+        .ant-radio-button-wrapper {
+            &.selected-tab {
+                color: $theme !important;
+                background-color: rgba(75, 74, 213, 0.05);
+                border-color: $theme;
+                .ant-radio-button {
+                    color: $theme !important;
+                    z-index: 0;
+                    border-color: $theme;
+                }
+                span {
+                    color: $theme !important;
+                }
+            }
+            &.ant-radio-button-wrapper-checked {
+                &:hover {
+                    &:before {
+                        background-color: $theme;
+                    }
+                }
+                &:before {
+                    background-color: $theme;
+                }
+            }
+            &:first-child {
+              
+                .ant-radio-button {
+                    border-top-left-radius: 4px;
+                    border-bottom-left-radius: 4px;
+                }
+            }
+            &:last-child {
+                .ant-radio-button {
+                    border-top-right-radius: 4px;
+                    border-bottom-right-radius: 4px;
+                }
+            }
+        }
     }
 
     .tablet-medication-tabs {
@@ -554,7 +588,14 @@ body {
             font-weight: 600;
         }
     }
-
+    .input-dark {
+        .ant-input {
+            border: transparent !important;
+            &:focus {
+                border: 1px solid $theme !important;
+            }
+        }
+    }
     .calender-vitals {
         .ant-picker-input {
             visibility: hidden;

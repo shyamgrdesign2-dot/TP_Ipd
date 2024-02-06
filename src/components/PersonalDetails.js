@@ -180,7 +180,7 @@ function PersonalDetails({ form, mode = ADD }) {
                                 name="pm_fullname"
                                 label="Full Name"
                                 rules={rules.fullname}>
-                                <Input placeholder="Full Name" />
+                                <Input placeholder="Full Name" className="text-capitalize" />
                             </Form.Item>
                         </Col>
                     </Row>
