@@ -36,20 +36,20 @@ import {
 } from "../../redux/medicationSlice";
 
 import TabSearchHeader from "./TabSearchHeader";
+import TabMedicationMoreModal from "./TabMedicationMoreModal";
 
-function TabMedicationSearch({
-  passIndex,
-  onClose,
-  frequencyData,
-  timingData,
-}) {
+function TabMedicationSearch({ passIndex, onClose }) {
+
   const [messageApi, contextHolder] = message.useMessage();
   const { parentOptionsList, childOptionsList, frequencyList, timingList } =
     useSelector((state) => state.medication);
   const dispatch = useDispatch();
+
   const { medicationData, setMedicationData } = useContext(CashManagerContext);
+
   const [searchChildQuery, setSearchChildQuery] = useState("");
   const [childSearchOptions, setChildSearchOptions] = useState([]);
+
   const [selectedIndex, setSelectedIndex] = useState(passIndex);
   const SINCE_OPTIONS = [
     { value: "day(s)", label: "D" },
@@ -60,29 +60,20 @@ function TabMedicationSearch({
   const [sinceValue, setSinceValue] = useState(1);
   const [inputSince, setInputSince] = useState("");
   const [sinceOptions, setSinceOptions] = useState([]);
-  const [moreOptionsVisible, setMoreOptionsVisible] = useState(false);
-  const [frequencyDataMoreOptionsVisible, setFrequencyDataMoreOptionsVisible] =
-    useState(false);
-  const [selectedFrequency, setSelectedFrequency] = useState(null);
+
   const [selectedTab, setSelectedTab] = useState(null);
-  const [timingSelected, setTimingSelected] = useState(null);
+  const [timingMoreOptionsVisible, setTimingMoreOptionsVisible] = useState(false);
+  const [frequencyMoreOptionsVisible, setFrequencyMoreOptionsVisible] = useState(false);
+
+  const filteredTitles = frequencyList.filter((item) => item.tmf_block !== 0);
 
   useEffect(() => {
-    console.log("frequencyList", frequencyList);
-  }, [frequencyList]);
-
-  useEffect(() => {
-    if (medicationData.length > 0) {
+    if (selectedIndex != null) {
       const selectedMedication = medicationData[selectedIndex];
       if (selectedMedication?.tmf_block > 0) {
         setSelectedTab("other");
       } else {
-        if (
-          // selectedMedication?.tcm_tmm_freq_morning &&
-          // selectedMedication?.tcm_tmm_freq_afternoon &&
-          selectedMedication?.tcm_tmm_freq_evening
-          // selectedMedication?.tcm_tmm_freq_night
-        ) {
+        if (selectedMedication?.tcm_tmm_freq_evening) {
           setSelectedTab("mean");
         } else {
           setSelectedTab("man");
@@ -90,6 +81,7 @@ function TabMedicationSearch({
       }
     }
   }, [selectedIndex]);
+
   //Parent AutoComplete
   useEffect(() => {
     if (searchChildQuery) {
@@ -133,61 +125,57 @@ function TabMedicationSearch({
     [searchChildQuery]
   );
 
-  const onSelectParent = useCallback(
-    async (e) => {
-      const action = await dispatch(getMedicineDetails(e.tmm_id));
-      if (action.meta.requestStatus == "fulfilled") {
-        const updatedData = action.payload.map((e) => {
-          const medicineUnit = e?.medicineUnit.map((e1) => {
-            return {
-              key: JSON.stringify({ ...e1 }),
-              value: e1.tmu_id,
-              label: <>{e1.tmu_title}</>,
-            };
-          });
-
-          const unitObj = medicineUnit
-            ? medicineUnit.find((x) => x.value == e.tmm_unit)
-            : null;
-          const frequencyObj = frequencyList.find(
-            (x) => x.tmf_id == e.tmm_freq_type
-          );
-          const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
-
+  const onSelectParent = async (e) => {
+    const action = await dispatch(getMedicineDetails(e.tmm_id));
+    if (action.meta.requestStatus == "fulfilled") {
+      const updatedData = action.payload.map((e) => {
+        const medicineUnit = e?.medicineUnit.map((e1) => {
           return {
-            ...e,
-            tmm_unit_name:
-              unitObj && unitObj != undefined
-                ? JSON.parse(unitObj.key).tmu_title
-                : "",
-            tmm_freq_type_name:
-              frequencyObj != undefined ? frequencyObj.tmf_title : "",
-            tmf_block_val:
-              frequencyObj != undefined ? frequencyObj.tmf_block_val : "",
-            tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
-            medicineUnit: medicineUnit,
-            unique_id: uuidv4(),
+            key: JSON.stringify({ ...e1 }),
+            value: e1.tmu_id,
+            label: <>{e1.tmu_title}</>,
           };
         });
-        medicationData.push({
-          ...updatedData[0],
-        });
-        // console.log(medicationData);
-        setMedicationData((prev) => [...prev]);
-        setSelectedIndex(medicationData.length - 1);
-        setSinceValue(1);
-        setSearchChildQuery("");
-      } else {
-        messageApi.open({
-          MESSAGE_KEY,
-          type: "warning",
-          content: action.error.message,
-          duration: 2,
-        });
-      }
-    },
-    [medicationData, selectedIndex]
-  );
+
+        const unitObj = medicineUnit
+          ? medicineUnit.find((x) => x.value == e.tmm_unit)
+          : null;
+        const frequencyObj = frequencyList.find(
+          (x) => x.tmf_id == e.tmm_freq_type
+        );
+        const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+        return {
+          ...e,
+          tmm_unit_name:
+            unitObj && unitObj != undefined
+              ? JSON.parse(unitObj.key).tmu_title
+              : "",
+          tmm_freq_type_name:
+            frequencyObj != undefined ? frequencyObj.tmf_title : "",
+          tmf_block_val:
+            frequencyObj != undefined ? frequencyObj.tmf_block_val : "",
+          tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
+          medicineUnit: medicineUnit,
+          unique_id: uuidv4(),
+        };
+      });
+      medicationData.push({
+        ...updatedData[0],
+      });
+      setMedicationData((prev) => [...prev]);
+      setSelectedIndex(medicationData.length - 1);
+      setSinceValue(1);
+      setSearchChildQuery("");
+    } else {
+      messageApi.open({
+        MESSAGE_KEY,
+        type: "warning",
+        content: action.error.message,
+        duration: 2,
+      });
+    }
+  }
 
   const onRemoveRow = (index) => {
     medicationData.splice(index, 1);
@@ -196,10 +184,7 @@ function TabMedicationSearch({
   };
 
   //Child Componet
-  //   console.log("medication-data", medicationData);
-  //   console.log("timingData", timingData);
   const TABLE_MEDICATION = useMemo(() => {
-    // console.log("Medication-Data", medicationData);
     return (
       medicationData.length > 0 &&
       medicationData.map((item, index) => {
@@ -209,15 +194,14 @@ function TabMedicationSearch({
             style={{
               width:
                 item.tmm_medicine_name.length > 12 &&
-                item.tmm_medicine_name.length < 24
+                  item.tmm_medicine_name.length < 24
                   ? `${item.tmm_medicine_name.length * 10.5}px`
                   : item.tmm_medicine_name.length >= 24
-                  ? "256px"
-                  : "150px",
+                    ? "256px"
+                    : "150px",
             }}
-            className={`${
-              selectedIndex == index && "closable-chips-active"
-            } d-flex align-items-center justify-content-between text-truncate closable-chips`}
+            className={`${selectedIndex == index && "closable-chips-active"
+              } d-flex align-items-center justify-content-between text-truncate closable-chips`}
           >
             <div
               className="text-truncate p-2"
@@ -229,50 +213,20 @@ function TabMedicationSearch({
               <div className="text-truncate">
                 {item.tmm_medicine_name}
                 {item.tmm_dosage || item.tmm_unit_name ? (
-                  item.tmf_block == 0 ? (
-                    <div className="text-truncate small">{`${
-                      item.tmm_dosage && item.tmm_unit_name
-                        ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | "
-                        : ""
-                    }${
-                      item.tmf_block == 0 &&
-                      item.tcm_tmm_freq_morning != null &&
-                      item.tcm_tmm_freq_morning != "" &&
-                      hasNumber(item.tmf_block)
-                        ? item.tcm_tmm_freq_morning + " - "
-                        : "0 -"
-                    }${
-                      item.tmf_block == 0 &&
-                      item.tcm_tmm_freq_afternoon != null &&
-                      item.tcm_tmm_freq_afternoon != "" &&
-                      hasNumber(item.tmf_block)
-                        ? item.tcm_tmm_freq_afternoon + " - "
-                        : "0 -"
-                    }${
-                      item.tmf_block == 0 &&
-                      item.tcm_tmm_freq_evening != null &&
-                      item.tcm_tmm_freq_evening != "" &&
-                      hasNumber(item.tmf_block)
-                        ? item.tcm_tmm_freq_evening + " - "
-                        : "0 -"
-                    }${
-                      item.tmf_block == 0 &&
-                      item.tcm_tmm_freq_night != null &&
-                      item.tcm_tmm_freq_night != "" &&
-                      hasNumber(item.tmf_block)
-                        ? item.tcm_tmm_freq_night + " | "
-                        : "0 |"
-                    }${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
+                  hasNumber(item.tmf_block) && item.tmf_block == 0 ? (
+                    <div className="text-truncate small">{`
+                    ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
+                    ${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != "" ? item.tcm_tmm_freq_morning + " - " : "0 -"}
+                    ${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != "" ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
+                    ${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != "" ? item.tcm_tmm_freq_evening + " - " : "0 -"}
+                    ${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != "" ? item.tcm_tmm_freq_night + " | " : "0 |"}
+                    ${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
                   ) : (
-                    <div className="text-truncate small">{`${
-                      item.tmm_dosage && item.tmm_unit_name
-                        ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | "
-                        : ""
-                    }${
-                      item.tmm_freq_type_name
-                        ? item.tmm_freq_type_name + " | "
-                        : ""
-                    }${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
+                    <div className="text-truncate small">{`
+                      ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
+                      ${item.tmm_freq_type_name ? item.tmm_freq_type_name + " | " : ""}
+                      ${item.tmm_time_name ? item.tmm_time_name : ""}
+                      `}</div>
                   )
                 ) : (
                   <div className="text-truncate small">Note</div>
@@ -290,7 +244,7 @@ function TabMedicationSearch({
         );
       })
     );
-  }, [medicationData, selectedIndex, selectedFrequency]);
+  }, [medicationData, selectedIndex]);
 
   const onChangeDosageChild = useCallback(
     (e) => {
@@ -305,8 +259,8 @@ function TabMedicationSearch({
     (data) => {
       const obj = medicationData[selectedIndex].medicineUnit
         ? medicationData[selectedIndex].medicineUnit.find(
-            (e) => e.value == data
-          )
+          (e) => e.value == data
+        )
         : null;
       if (obj && obj != undefined) {
         const objParse = JSON.parse(obj.key);
@@ -423,40 +377,57 @@ function TabMedicationSearch({
     setMedicationData((prev) => [...prev]);
   }, [selectedIndex, medicationData]);
 
-  const filteredTitles = frequencyList
-    .filter((item) => item.tmf_block !== 0)
-    .map((item, index) => ({
-      label: item.tmf_title,
-      value: item.tmf_id,
-      id: item.tmf_id,
-    }));
+  const handleRadioChange = useCallback(
+    (e) => {
+      setSelectedTab(e.target.value);
+      if (e.target.value !== "other") {
+        medicationData[selectedIndex].tmf_block = 0;
+      } else {
+        medicationData[selectedIndex].tmf_block = 1;
+      }
+      medicationData[selectedIndex].tmm_freq_type = 0;
+      medicationData[selectedIndex].tmm_freq_type_name = "";
+      medicationData[selectedIndex].tcm_tmm_freq_afternoon = 0;
+      medicationData[selectedIndex].tcm_tmm_freq_evening = 0;
+      medicationData[selectedIndex].tcm_tmm_freq_morning = 0;
+      medicationData[selectedIndex].tcm_tmm_freq_night = 0;
+      setMedicationData((prev) => [...prev]);
+    },
+    [selectedTab, medicationData]
+  );
 
-  const handleRadioChange = (e) => {
-    setSelectedTab(e.target.value);
-    if (e.target.value !== "other") {
-      setFrequencyDataMoreOptionsVisible(false);
-      medicationData[selectedIndex].tmf_block = 0;
-      medicationData[selectedIndex].tmm_freq_type_name = null;
-      medicationData[selectedIndex].tmm_freq_type = null;
-      medicationData[selectedIndex].tcm_tmm_freq_afternoon = null;
-      medicationData[selectedIndex].tcm_tmm_freq_evening = null;
-      medicationData[selectedIndex].tcm_tmm_freq_morning = null;
-      medicationData[selectedIndex].tcm_tmm_freq_night = null;
-    }
-    if (e.target.value === "other") {
-      setMoreOptionsVisible(false);
-      medicationData[selectedIndex].tmf_block = 1;
-      medicationData[selectedIndex].tcm_tmm_freq_afternoon = null;
-      medicationData[selectedIndex].tcm_tmm_freq_evening = null;
-      medicationData[selectedIndex].tcm_tmm_freq_morning = null;
-      medicationData[selectedIndex].tcm_tmm_freq_night = null;
-    }
-  };
+  const onChangeFrequencyChild = useCallback(
+    (item) => {
+      medicationData[selectedIndex].tmm_freq_type = item.tmf_id;
+      medicationData[selectedIndex].tmm_freq_type_name = item.tmf_title;
+      medicationData[selectedIndex].tmf_block_val = item.tmf_block_val;
+      setMedicationData((prev) => [...prev]);
+    },
+    [selectedIndex, medicationData]
+  );
 
-  const closeMoreOptions = () => {
-    setMoreOptionsVisible(false);
-    setFrequencyDataMoreOptionsVisible(false);
-  };
+  const handleFrequencyMoreOptionsVisible = useCallback(
+    () => {
+      setFrequencyMoreOptionsVisible(!frequencyMoreOptionsVisible)
+    },
+    [frequencyMoreOptionsVisible]
+  );
+
+  const onChangeTimingChild = useCallback(
+    (item) => {
+      medicationData[selectedIndex].tmm_time = item.tmt_id;
+      medicationData[selectedIndex].tmm_time_name = item.tmt_title;
+      setMedicationData((prev) => [...prev]);
+    },
+    [selectedIndex, medicationData]
+  );
+
+  const handleTimingMoreOptionsVisible = useCallback(
+    () => {
+      setTimingMoreOptionsVisible(!timingMoreOptionsVisible)
+    },
+    [timingMoreOptionsVisible]
+  );
 
   useEffect(() => {
     if (sinceValue != -1) {
@@ -568,27 +539,6 @@ function TabMedicationSearch({
     [selectedIndex, medicationData]
   );
 
-  const onChangeTimingChild = useCallback(
-    (item) => {
-      setTimingSelected(item.tmt_title);
-      medicationData[selectedIndex].tmm_time = item.tmt_id;
-      medicationData[selectedIndex].tmm_time_name = item.tmt_title;
-      setMedicationData((prev) => [...prev]);
-    },
-    [selectedIndex, medicationData]
-  );
-
-  const onChangeFrequencyChild = useCallback(
-    (item) => {
-      setSelectedFrequency(item.id);
-      medicationData[selectedIndex].tmm_freq_type = item.id;
-      medicationData[selectedIndex].tmm_freq_type_name = item.label;
-      setMedicationData((prev) => [...prev]);
-    },
-    [selectedIndex, medicationData]
-  );
-
-  console.log("meddication-data", medicationData);
   //Child Componet
   const CHILD_DRAWER_DATA = useMemo(() => {
     return (
@@ -629,12 +579,12 @@ function TabMedicationSearch({
                       defaultValue={
                         medicationData[selectedIndex]?.medicineUnit
                           ? medicationData[
-                              selectedIndex
-                            ].medicineUnit.findIndex(
-                              (e) =>
-                                e.value ==
-                                medicationData[selectedIndex].tmm_unit
-                            ) != -1
+                            selectedIndex
+                          ].medicineUnit.findIndex(
+                            (e) =>
+                              e.value ==
+                              medicationData[selectedIndex].tmm_unit
+                          ) != -1
                             ? parseInt(medicationData[selectedIndex].tmm_unit)
                             : null
                           : null
@@ -642,12 +592,12 @@ function TabMedicationSearch({
                       value={
                         medicationData[selectedIndex]?.medicineUnit
                           ? medicationData[
-                              selectedIndex
-                            ].medicineUnit.findIndex(
-                              (e) =>
-                                e.value ==
-                                medicationData[selectedIndex].tmm_unit
-                            ) != -1
+                            selectedIndex
+                          ].medicineUnit.findIndex(
+                            (e) =>
+                              e.value ==
+                              medicationData[selectedIndex].tmm_unit
+                          ) != -1
                             ? parseInt(medicationData[selectedIndex].tmm_unit)
                             : null
                           : null
@@ -659,7 +609,7 @@ function TabMedicationSearch({
                 </Row>
                 <div className="d-flex align-items-center justify-content-between mt-3 mb-2">
                   <label className="title-common">Timing</label>
-                  <Form.Item name="gender" className="mb-0 man-mean">
+                  <div className="mb-1 man-mean">
                     <Radio.Group
                       size="small"
                       onChange={handleRadioChange}
@@ -696,7 +646,7 @@ function TabMedicationSearch({
                         </span>
                       </Radio.Button>
                     </Radio.Group>
-                  </Form.Item>
+                  </div>
                 </div>
                 {selectedTab === "man" && (
                   <Row className="input-dark">
@@ -708,7 +658,7 @@ function TabMedicationSearch({
                         {medicationData[selectedIndex].tcm_tmm_freq_morning !=
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_morning !=
-                            0 && (
+                          0 && (
                             <BSButton
                               variant="outline-light"
                               className="rounded-0 dateoutline px-2 bg-white"
@@ -733,7 +683,7 @@ function TabMedicationSearch({
                             value={
                               medicationData[selectedIndex].tcm_tmm_freq_morning
                                 ? medicationData[selectedIndex]
-                                    .tcm_tmm_freq_morning
+                                  .tcm_tmm_freq_morning
                                 : ""
                             }
                             className="rounded-0 h-100 text-center text-main"
@@ -743,7 +693,7 @@ function TabMedicationSearch({
                         {medicationData[selectedIndex].tcm_tmm_freq_morning !=
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_morning !=
-                            0 && (
+                          0 && (
                             <BSButton
                               variant="outline-light"
                               className="rounded-0 dateoutline px-2 bg-white"
@@ -789,7 +739,7 @@ function TabMedicationSearch({
                               medicationData[selectedIndex]
                                 .tcm_tmm_freq_afternoon
                                 ? medicationData[selectedIndex]
-                                    .tcm_tmm_freq_afternoon
+                                  .tcm_tmm_freq_afternoon
                                 : ""
                             }
                             className="rounded-0 h-100 text-center text-main"
@@ -819,7 +769,7 @@ function TabMedicationSearch({
                         {medicationData[selectedIndex].tcm_tmm_freq_night !=
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_night !=
-                            0 && (
+                          0 && (
                             <BSButton
                               variant="outline-light"
                               className="rounded-0 dateoutline px-2 bg-white"
@@ -844,7 +794,7 @@ function TabMedicationSearch({
                             value={
                               medicationData[selectedIndex].tcm_tmm_freq_night
                                 ? medicationData[selectedIndex]
-                                    .tcm_tmm_freq_night
+                                  .tcm_tmm_freq_night
                                 : ""
                             }
                             className="rounded-0 h-100 text-center text-main"
@@ -854,7 +804,7 @@ function TabMedicationSearch({
                         {medicationData[selectedIndex].tcm_tmm_freq_night !=
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_night !=
-                            0 && (
+                          0 && (
                             <BSButton
                               variant="outline-light"
                               className="rounded-0 dateoutline px-2 bg-white"
@@ -878,7 +828,7 @@ function TabMedicationSearch({
                         {medicationData[selectedIndex].tcm_tmm_freq_morning !=
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_morning !=
-                            0 && (
+                          0 && (
                             <BSButton
                               variant="outline-light"
                               className="rounded-0 dateoutline px-1 bg-white"
@@ -903,7 +853,7 @@ function TabMedicationSearch({
                             value={
                               medicationData[selectedIndex].tcm_tmm_freq_morning
                                 ? medicationData[selectedIndex]
-                                    .tcm_tmm_freq_morning
+                                  .tcm_tmm_freq_morning
                                 : ""
                             }
                             className="rounded-0 h-100 px-1 text-center text-main"
@@ -913,7 +863,7 @@ function TabMedicationSearch({
                         {medicationData[selectedIndex].tcm_tmm_freq_morning !=
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_morning !=
-                            0 && (
+                          0 && (
                             <BSButton
                               variant="outline-light"
                               className="rounded-0 dateoutline px-1 bg-white"
@@ -959,7 +909,7 @@ function TabMedicationSearch({
                               medicationData[selectedIndex]
                                 .tcm_tmm_freq_afternoon
                                 ? medicationData[selectedIndex]
-                                    .tcm_tmm_freq_afternoon
+                                  .tcm_tmm_freq_afternoon
                                 : ""
                             }
                             className="rounded-0 h-100 px-1 text-center text-main"
@@ -989,7 +939,7 @@ function TabMedicationSearch({
                         {medicationData[selectedIndex].tcm_tmm_freq_evening !=
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_evening !=
-                            0 && (
+                          0 && (
                             <BSButton
                               variant="outline-light"
                               className="rounded-0 dateoutline px-1 bg-white"
@@ -1014,7 +964,7 @@ function TabMedicationSearch({
                             value={
                               medicationData[selectedIndex].tcm_tmm_freq_evening
                                 ? medicationData[selectedIndex]
-                                    .tcm_tmm_freq_evening
+                                  .tcm_tmm_freq_evening
                                 : ""
                             }
                             className="rounded-0 px-1 h-100 text-center text-main"
@@ -1024,7 +974,7 @@ function TabMedicationSearch({
                         {medicationData[selectedIndex].tcm_tmm_freq_evening !=
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_evening !=
-                            0 && (
+                          0 && (
                             <BSButton
                               variant="outline-light"
                               className="rounded-0 dateoutline px-1 bg-white"
@@ -1044,7 +994,7 @@ function TabMedicationSearch({
                         {medicationData[selectedIndex].tcm_tmm_freq_night !=
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_night !=
-                            0 && (
+                          0 && (
                             <BSButton
                               variant="outline-light"
                               className="rounded-0 dateoutline px-1 bg-white"
@@ -1069,7 +1019,7 @@ function TabMedicationSearch({
                             value={
                               medicationData[selectedIndex].tcm_tmm_freq_night
                                 ? medicationData[selectedIndex]
-                                    .tcm_tmm_freq_night
+                                  .tcm_tmm_freq_night
                                 : ""
                             }
                             className="rounded-0 h-100 px-1 text-center text-main"
@@ -1079,7 +1029,7 @@ function TabMedicationSearch({
                         {medicationData[selectedIndex].tcm_tmm_freq_night !=
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_night !=
-                            0 && (
+                          0 && (
                             <BSButton
                               variant="outline-light"
                               className="rounded-0 dateoutline px-1 bg-white"
@@ -1102,45 +1052,41 @@ function TabMedicationSearch({
                             <button
                               key={i}
                               type="button"
-                              className={`btn text-truncate px-1 ${
-                                selectedIndex != null &&
+                              className={`btn text-truncate px-1 ${selectedIndex != null &&
                                 medicationData[selectedIndex].tmm_freq_type ==
-                                  item.id &&
+                                item.tmf_id &&
                                 "btn-segement"
-                              }`}
+                                }`}
                               onClick={() => onChangeFrequencyChild(item)}
                             >
-                              {item.label}
+                              {item.tmf_title}
                             </button>
                             {i == filteredTitles.slice(0, 2).length - 1 && (
                               <button
-                                key={i}
+                                key={-1}
                                 type="button"
-                                className={`btn text-truncate segment-more px-1 ${
-                                  selectedIndex != null &&
+                                className={`btn text-truncate segment-more px-1 ${selectedIndex != null &&
                                   filteredTitles
                                     .slice(2, filteredTitles.length)
                                     .some(
                                       (e) =>
-                                        e.id ==
+                                        e.tmf_id ==
                                         medicationData[selectedIndex]
                                           .tmm_freq_type
                                     ) &&
                                   "btn-segement"
-                                }`}
-                                onClick={() =>
-                                  setFrequencyDataMoreOptionsVisible(true)
-                                }
+                                  }`}
+                                onClick={handleFrequencyMoreOptionsVisible}
                               >
                                 {selectedIndex != null &&
-                                filteredTitles
-                                  .slice(2, filteredTitles.length)
-                                  .some(
-                                    (e) =>
-                                      e.id ==
-                                      medicationData[selectedIndex]
-                                        .tmm_freq_type
-                                  ) ? (
+                                  filteredTitles
+                                    .slice(2, filteredTitles.length)
+                                    .some(
+                                      (e) =>
+                                        e.tmf_id ==
+                                        medicationData[selectedIndex]
+                                          .tmm_freq_type
+                                    ) ? (
                                   <span id="selected">
                                     <i className="icon-Edit me-2 fs-21"></i>
                                     {
@@ -1158,96 +1104,19 @@ function TabMedicationSearch({
                       })}
                     </div>
                   )}
-                  {frequencyDataMoreOptionsVisible && (
-                    <>
-                      <div
-                        className="modal-overlay"
-                        style={{
-                          position: "fixed",
-                          top: "0",
-                          left: "0",
-                          width: "100vw",
-                          height: "100%",
-                          background: "rgba(0, 0, 0, 0.5)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          zIndex: "998", // Set z-index to be below the more options container
-                        }}
-                        onClick={closeMoreOptions}
-                      ></div>
-                      <div
-                        className="more-options-container"
-                        style={{
-                          position: "absolute",
-                          bottom: "0px",
-                          left: "7px",
-                          padding: "10px",
-                          width: "98%",
-                          backgroundColor: "white",
-                          border: "1px solid lightgrey",
-                          borderRadius: "6px",
-                          zIndex: "999 ",
-                          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <div
-                            className="title2"
-                            style={{
-                              margin: "8px",
-                              fontSize: "16px",
-                            }}
-                          >
-                            Frequency
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setFrequencyDataMoreOptionsVisible(false)
-                            }
-                            class="ant-btn css-dev-only-do-not-override-1g853jt ant-btn-text btn btn-delete-prescription px-3 focus-none h-100"
-                          >
-                            <i class="icon-Cross fs-3"></i>
-                          </button>
-                        </div>
-                        <div className="mt-3 d-flex flex-wrap">
-                          {filteredTitles
-                            .slice(2, filteredTitles.length)
-                            .map((item, i) => (
-                              <Button
-                                key={i}
-                                type="text"
-                                id={`${
-                                  item.id === selectedFrequency
-                                    ? "selected"
-                                    : ""
-                                }`}
-                                className="btn btn-primary2 chips-custom mb-14 me-14"
-                                onClick={() => {
-                                  onChangeFrequencyChild(item);
-                                  setFrequencyDataMoreOptionsVisible(false);
-                                }}
-                              >
-                                <span
-                                  id={`${
-                                    item.id === selectedFrequency
-                                      ? "selected"
-                                      : ""
-                                  }`}
-                                >
-                                  {item.label}
-                                </span>
-                              </Button>
-                            ))}
-                        </div>
-                      </div>
-                    </>
+                  {frequencyMoreOptionsVisible && (
+                    <TabMedicationMoreModal
+                      width='41.5%'
+                      title={'Frequency'}
+                      onClose={handleFrequencyMoreOptionsVisible}
+                      onClick={(item) => {
+                        setFrequencyMoreOptionsVisible(false);
+                        onChangeFrequencyChild(item);
+                      }}
+                      label={'tmf_title'}
+                      value={'tmf_id'}
+                      selectedValue={medicationData[selectedIndex].tmm_freq_type}
+                      array={filteredTitles.slice(2, filteredTitles.length)} />
                   )}
                 </div>
                 <div className="segement-static d-flex flex-wrap">
@@ -1257,22 +1126,20 @@ function TabMedicationSearch({
                         <button
                           key={i}
                           type="button"
-                          className={`btn mt-3 text-truncate px-1 ${
-                            selectedIndex != null &&
+                          className={`btn mt-3 text-truncate px-1 ${selectedIndex != null &&
                             medicationData[selectedIndex].tmm_time ==
-                              item.tmt_id &&
+                            item.tmt_id &&
                             "btn-segement"
-                          }`}
+                            }`}
                           onClick={() => onChangeTimingChild(item)}
                         >
                           {item.tmt_title}
                         </button>
                         {i == timingList.slice(0, 5).length - 1 && (
                           <button
-                            key={i}
+                            key={-1}
                             type="button"
-                            className={`btn mt-3 text-truncate px-1 segment-more ${
-                              selectedIndex != null &&
+                            className={`btn mt-3 text-truncate px-1 segment-more ${selectedIndex != null &&
                               timingList
                                 .slice(5, timingList.length)
                                 .some(
@@ -1281,17 +1148,17 @@ function TabMedicationSearch({
                                     medicationData[selectedIndex].tmm_time
                                 ) &&
                               "btn-segement"
-                            }`}
-                            onClick={() => setMoreOptionsVisible(true)}
+                              }`}
+                            onClick={handleTimingMoreOptionsVisible}
                           >
                             {selectedIndex != null &&
-                            timingList
-                              .slice(5, timingList.length)
-                              .some(
-                                (e) =>
-                                  e.tmt_id ==
-                                  medicationData[selectedIndex].tmm_time
-                              ) ? (
+                              timingList
+                                .slice(5, timingList.length)
+                                .some(
+                                  (e) =>
+                                    e.tmt_id ==
+                                    medicationData[selectedIndex].tmm_time
+                                ) ? (
                               <span id="selected">
                                 <i className="icon-Edit me-2 fs-21"></i>
                                 {medicationData[selectedIndex].tmm_time_name}
@@ -1305,100 +1172,19 @@ function TabMedicationSearch({
                     );
                   })}
                 </div>
-                {moreOptionsVisible && (
-                  <>
-                    <div
-                      className="modal-overlay"
-                      style={{
-                        position: "fixed",
-                        top: "0",
-                        left: "0",
-                        width: "100vw",
-                        height: "100%",
-                        background: "rgba(0, 0, 0, 0.5)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        zIndex: "998",
-                      }}
-                      onClick={closeMoreOptions}
-                    ></div>
-                    <div
-                      className="more-options-container"
-                      style={{
-                        position: "absolute",
-                        bottom: "0px",
-                        left: "7px",
-                        padding: "10px",
-                        width: "98%",
-                        backgroundColor: "white",
-                        border: "1px solid lightgrey",
-                        borderRadius: "6px",
-                        zIndex: "999",
-                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <div
-                          className="title2"
-                          style={{
-                            margin: "8px",
-                            fontSize: "16px",
-                          }}
-                        >
-                          Timings
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setMoreOptionsVisible(false)}
-                          class="ant-btn css-dev-only-do-not-override-1g853jt ant-btn-text btn btn-delete-prescription px-3 focus-none h-100"
-                        >
-                          <i class="icon-Cross fs-3"></i>
-                        </button>
-                      </div>
-                      <div className="mt-3 d-flex flex-wrap">
-                        {timingList
-                          .slice(5, timingList.length)
-                          .map((item, i) => (
-                            <Button
-                              key={i}
-                              type="text"
-                              id={`${
-                                item.tmt_title === timingSelected
-                                  ? "selected"
-                                  : ""
-                              }`}
-                              // className="btn btn-primary2 chips-custom mb-14 me-14"
-                              className={`btn btn-primary2 chips-custom mb-14 me-14 ${
-                                item.tmt_id ===
-                                medicationData[selectedIndex].tmt_id
-                                  ? "selected"
-                                  : ""
-                              }`}
-                              onClick={() => {
-                                setMoreOptionsVisible(false);
-                                onChangeTimingChild(item);
-                              }}
-                            >
-                              <span
-                                id={`${
-                                  item.tmt_title === timingSelected
-                                    ? "selected"
-                                    : ""
-                                }`}
-                              >
-                                {item.tmt_title}
-                              </span>
-                            </Button>
-                          ))}
-                      </div>
-                    </div>
-                  </>
+                {timingMoreOptionsVisible && (
+                  <TabMedicationMoreModal
+                    width='41.5%'
+                    title={'Timings'}
+                    onClose={handleTimingMoreOptionsVisible}
+                    onClick={(item) => {
+                      setTimingMoreOptionsVisible(false);
+                      onChangeTimingChild(item);
+                    }}
+                    label={'tmt_title'}
+                    value={'tmt_id'}
+                    selectedValue={medicationData[selectedIndex].tmm_time}
+                    array={timingList.slice(5, timingList.length)} />
                 )}
               </div>
               <div className="mt-3">
@@ -1414,7 +1200,7 @@ function TabMedicationSearch({
                 <Segmented
                   value={
                     medicationData[selectedIndex].tmm_duration_type !=
-                      undefined &&
+                    undefined &&
                     medicationData[selectedIndex].tmm_duration_type
                   }
                   className="search-segment"
@@ -1446,8 +1232,8 @@ function TabMedicationSearch({
     inputSince,
     sinceOptions,
     selectedTab,
-    moreOptionsVisible,
-    frequencyDataMoreOptionsVisible,
+    timingMoreOptionsVisible,
+    frequencyMoreOptionsVisible,
   ]);
 
   return (
@@ -1482,74 +1268,72 @@ function TabMedicationSearch({
                   <div className="mt-3 d-flex flex-wrap">
                     {searchChildQuery.length > 0
                       ? childSearchOptions.length > 0 &&
-                        childSearchOptions
-                          .filter(
-                            (e) =>
-                              ![
-                                ...medicationData.map(
-                                  (e1) => e1.tmm_medicine_name
-                                ),
-                              ].includes(e.value)
-                          )
-                          .map((item, i) => {
-                            return (
-                              // i === childSearchOptions.length - 1 ? (
-                              //     <Button
-                              //         key={i}
-                              //         type="text"
-                              //         className="btn btn-primary2 chips-custom mb-14 me-14 d-flex align-items-center chips-addCustom"
-                              //         onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                              //         {item.value} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
-                              //     </Button>
-                              // ) : (
-                              <Button
-                                key={i}
-                                type="text"
-                                style={{
-                                  width: item.value.length > 26 && "250px",
-                                }}
-                                className={`${
-                                  item.value.length > 26 && "chips-custom-break"
+                      childSearchOptions
+                        .filter(
+                          (e) =>
+                            ![
+                              ...medicationData.map(
+                                (e1) => e1.tmm_medicine_name
+                              ),
+                            ].includes(e.value)
+                        )
+                        .map((item, i) => {
+                          return (
+                            // i === childSearchOptions.length - 1 ? (
+                            //     <Button
+                            //         key={i}
+                            //         type="text"
+                            //         className="btn btn-primary2 chips-custom mb-14 me-14 d-flex align-items-center chips-addCustom"
+                            //         onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
+                            //         {item.value} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
+                            //     </Button>
+                            // ) : (
+                            <Button
+                              key={i}
+                              type="text"
+                              style={{
+                                width: item.value.length > 26 && "250px",
+                              }}
+                              className={`${item.value.length > 26 && "chips-custom-break"
                                 } btn btn-primary2 chips-custom mb-14 me-14`}
-                                onClick={() =>
-                                  onSelectParent({ ...JSON.parse(item.key) })
-                                }
-                              >
-                                {item.value}
-                              </Button>
-                              // )
-                            );
-                          })
+                              onClick={() =>
+                                onSelectParent({ ...JSON.parse(item.key) })
+                              }
+                            >
+                              {item.value}
+                            </Button>
+                            // )
+                          );
+                        })
                       : parentOptionsList.length > 0 &&
-                        parentOptionsList
-                          .filter(
-                            (e) =>
-                              ![
-                                ...medicationData.map(
-                                  (e1) => e1.tmm_medicine_name
-                                ),
-                              ].includes(e.tmm_medicine_name)
-                          )
-                          .map((item, i) => {
-                            return (
-                              <Button
-                                key={i}
-                                type="text"
-                                style={{
-                                  width:
-                                    item.tmm_medicine_name.length > 26 &&
-                                    "250px",
-                                }}
-                                className={`${
+                      parentOptionsList
+                        .filter(
+                          (e) =>
+                            ![
+                              ...medicationData.map(
+                                (e1) => e1.tmm_medicine_name
+                              ),
+                            ].includes(e.tmm_medicine_name)
+                        )
+                        .map((item, i) => {
+                          return (
+                            <Button
+                              key={i}
+                              type="text"
+                              style={{
+                                width:
                                   item.tmm_medicine_name.length > 26 &&
-                                  "chips-custom-break"
+                                  "250px",
+                              }}
+                              className={`${item.tmm_medicine_name.length > 26 &&
+                                "chips-custom-break"
                                 } btn btn-primary2 chips-custom mb-14 me-14`}
-                                onClick={() => onSelectParent(item)}
-                              >
-                                {item.tmm_medicine_name}
-                              </Button>
-                            );
-                          })}
+                              onClick={() => onSelectParent(item)}
+                            >
+                              {item.tmm_medicine_name}
+                            </Button>
+                          );
+                        })}
                   </div>
                 </div>
               </div>
