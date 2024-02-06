@@ -412,6 +412,13 @@ body {
             min-height: 60px;
         }
     }
+    #selected {
+        background-color: $theme;
+        span {
+            color: $white !important;
+        }
+    }
+
     .man-mean {
         .ant-radio-button-wrapper {
             &.selected-tab {
