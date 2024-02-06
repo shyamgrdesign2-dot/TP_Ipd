@@ -54,50 +54,72 @@ function TabVitalsList(props) {
                                 <div className="fontroboto">BP(mm Hg)</div>
                                 <div className="fontroboto">{item.blood_press}</div>
                             </div> */}
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Temperature(Frh)</div>
-                                <div className="fontroboto">{item.temp ? item.temp : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Pulse (/min)</div>
-                                <div className="fontroboto">{item.pres ? item.pres : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Resp. Rate (/min)</div>
-                                <div className="fontroboto">{item.resp_rate ? item.resp_rate : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Systolic (mmHg)</div>
-                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[0] ? item.blood_press.split('/')[0] : '-' : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Diastolic (mmHg)</div>
-                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[1] ? item.blood_press.split('/')[1] : '-' : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">SPO2 (%)</div>
-                                <div className="fontroboto">{item.spo2 ? item.spo2 : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Height (cms)</div>
-                                <div className="fontroboto">{item.height ? item.height : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Weight (kgs)</div>
-                                <div className="fontroboto">{item.weight ? item.weight : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">BMI (kg/m²)</div>
-                                <div className="fontroboto">{item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">BMR (kcals)</div>
-                                <div className="fontroboto">{item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">BSA (m²)</div>
-                                <div className="fontroboto">{item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'}</div>
-                            </div>
+                            {item.temp && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Temperature(Frh)</div>
+                                    <div className="fontroboto">{item.temp}</div>
+                                </div>
+                            )}
+                            {item.pres && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Pulse (/min)</div>
+                                    <div className="fontroboto">{item.pres}</div>
+                                </div>
+                            )}
+                            {item.resp_rate && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Resp. Rate (/min)</div>
+                                    <div className="fontroboto">{item.resp_rate}</div>
+                                </div>
+                            )}
+                            {item.blood_press && item.blood_press.split('/')[0] && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Systolic (mmHg)</div>
+                                    <div className="fontroboto">{item.blood_press.split('/')[0]}</div>
+                                </div>
+                            )}
+                            {item.blood_press && item.blood_press.split('/')[1] && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Diastolic (mmHg)</div>
+                                    <div className="fontroboto">{item.blood_press.split('/')[1]}</div>
+                                </div>
+                            )}
+                            {item.spo2 && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">SPO2 (%)</div>
+                                    <div className="fontroboto">{item.spo2}</div>
+                                </div>
+                            )}
+                            {item.height && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Height (cms)</div>
+                                    <div className="fontroboto">{item.height}</div>
+                                </div>
+                            )}
+                            {item.weight && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Weight (kgs)</div>
+                                    <div className="fontroboto">{item.weight}</div>
+                                </div>
+                            )}
+                            {item.bmi && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">BMI (kg/m²)</div>
+                                    <div className="fontroboto">{parseFloat(item.bmi).toFixed(2)}</div>
+                                </div>
+                            )}
+                            {item.bmr && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">BMR (kcals)</div>
+                                    <div className="fontroboto">{parseFloat(item.bmr).toFixed(2)}</div>
+                                </div>
+                            )}
+                            {item.bsa && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">BSA (m²)</div>
+                                    <div className="fontroboto">{parseFloat(item.bsa).toFixed(2)}</div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 );
@@ -115,50 +137,72 @@ function TabVitalsList(props) {
                             {moment(item.date).format(showDateFormat)}
                         </div>
                         <div className="py-3">
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Temperature (Frh)</div>
-                                <div className="fontroboto">{item.temp ? item.temp : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Pulse (/min)</div>
-                                <div className="fontroboto">{item.pres ? item.pres : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Resp. Rate (/min)</div>
-                                <div className="fontroboto">{item.resp_rate ? item.resp_rate : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Systolic (mmHg)</div>
-                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[0] ? item.blood_press.split('/')[0] : '-' : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Diastolic (mmHg)</div>
-                                <div className="fontroboto">{item.blood_press ? item.blood_press.split('/')[1] ? item.blood_press.split('/')[1] : '-' : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">SPO2 (%)</div>
-                                <div className="fontroboto">{item.spo2 ? item.spo2 : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Height (cms)</div>
-                                <div className="fontroboto">{item.height ? item.height : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Weight (kgs)</div>
-                                <div className="fontroboto">{item.weight ? item.weight : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">BMI (kg/m²)</div>
-                                <div className="fontroboto">{item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">BMR (kcals)</div>
-                                <div className="fontroboto">{item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'}</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">BSA (m²)</div>
-                                <div className="fontroboto">{item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'}</div>
-                            </div>
+                            {item.temp && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Temperature(Frh)</div>
+                                    <div className="fontroboto">{item.temp}</div>
+                                </div>
+                            )}
+                            {item.pres && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Pulse (/min)</div>
+                                    <div className="fontroboto">{item.pres}</div>
+                                </div>
+                            )}
+                            {item.resp_rate && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Resp. Rate (/min)</div>
+                                    <div className="fontroboto">{item.resp_rate}</div>
+                                </div>
+                            )}
+                            {item.blood_press && item.blood_press.split('/')[0] && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Systolic (mmHg)</div>
+                                    <div className="fontroboto">{item.blood_press.split('/')[0]}</div>
+                                </div>
+                            )}
+                            {item.blood_press && item.blood_press.split('/')[1] && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Diastolic (mmHg)</div>
+                                    <div className="fontroboto">{item.blood_press.split('/')[1]}</div>
+                                </div>
+                            )}
+                            {item.spo2 && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">SPO2 (%)</div>
+                                    <div className="fontroboto">{item.spo2}</div>
+                                </div>
+                            )}
+                            {item.height && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Height (cms)</div>
+                                    <div className="fontroboto">{item.height}</div>
+                                </div>
+                            )}
+                            {item.weight && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Weight (kgs)</div>
+                                    <div className="fontroboto">{item.weight}</div>
+                                </div>
+                            )}
+                            {item.bmi && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">BMI (kg/m²)</div>
+                                    <div className="fontroboto">{parseFloat(item.bmi).toFixed(2)}</div>
+                                </div>
+                            )}
+                            {item.bmr && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">BMR (kcals)</div>
+                                    <div className="fontroboto">{parseFloat(item.bmr).toFixed(2)}</div>
+                                </div>
+                            )}
+                            {item.bsa && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">BSA (m²)</div>
+                                    <div className="fontroboto">{parseFloat(item.bsa).toFixed(2)}</div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 );
