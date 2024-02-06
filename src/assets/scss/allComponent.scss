@@ -412,6 +412,13 @@ body {
             min-height: 60px;
         }
     }
+    #selected {
+        background-color: $theme;
+        span {
+            color: $white !important;
+        }
+    }
+
     .man-mean {
         .ant-radio-button-wrapper {
             &.selected-tab {
@@ -421,26 +428,30 @@ body {
                 .ant-radio-button {
                     color: $theme !important;
                     z-index: 0;
-                    border-left: 1px solid $theme;
-                    border-right: 1px solid $theme;
+                    border-color: $theme;
                 }
                 span {
                     color: $theme !important;
                 }
             }
-            &:first-child {
-                &.selected-tab {
-                    border-left: 0;
+            &.ant-radio-button-wrapper-checked {
+                &:hover {
+                    &:before {
+                        background-color: $theme;
+                    }
                 }
+                &:before {
+                    background-color: $theme;
+                }
+            }
+            &:first-child {
+              
                 .ant-radio-button {
                     border-top-left-radius: 4px;
                     border-bottom-left-radius: 4px;
                 }
             }
             &:last-child {
-                &.selected-tab {
-                    border-right: 0;
-                }
                 .ant-radio-button {
                     border-top-right-radius: 4px;
                     border-bottom-right-radius: 4px;
