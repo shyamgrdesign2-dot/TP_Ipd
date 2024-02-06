@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Layout, Drawer, DatePicker, Input, Button, Col, Row } from 'antd';
 import { Content } from "antd/es/layout/layout";
 import moment from 'moment';
+import { v4 as uuidv4 } from "uuid";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import HeaderPrescription from "../../common/HeaderPrescription";
@@ -71,7 +72,22 @@ function TabPrescription() {
                 setVitalsData(updatedData)
             }
             if (caseManagerData.medicine.length > 0) {
-                setMedicationData(caseManagerData.medicine)
+                const updatedData = caseManagerData.medicine.map((e) => {
+                    const medicineUnit = e?.medicineUnit.map((e1) => {
+                        return {
+                            key: JSON.stringify({ ...e1 }),
+                            value: e1.tmu_id,
+                            label: <>{e1.tmu_title}</>,
+                        };
+                    });
+
+                    return {
+                        ...e,
+                        medicineUnit: medicineUnit,
+                        unique_id: uuidv4(),
+                    };
+                });
+                setMedicationData([...updatedData])
             }
             if (caseManagerData.follow_up_date) {
                 setFollowUpDate(caseManagerData.follow_up_date)
