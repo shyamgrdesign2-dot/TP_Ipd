@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { Col, Row, Select, Button, message, Spin } from "antd";
-import { isMobile } from "react-device-detect";
+import { isMobile, isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { useReactToPrint } from 'react-to-print';
@@ -98,8 +98,8 @@ function PrescriptionPrintView() {
                 <div className='d-flex align-items-center'>
                     <img src={visitEnd} className='me-3' />
                     <div>
-                        <div className='title-common fontroboto'>{`${patient_data?.pm_first_name}’s visit end successfully.`}</div>
-                        <div className='fontroboto text-start fw-normal mt-1'>View end visits in Finished tab.</div>
+                    <div className='title-common fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
+                        <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
                     </div>
                     <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
                 </div>
@@ -108,11 +108,11 @@ function PrescriptionPrintView() {
         });
     }, []);
 
-    // const printContent = useReactToPrint({
-    //     content: () => printRef.current,
-    // });
+    const printContent = useReactToPrint({
+        content: () => printRef.current,
+    });
 
-    const printContent = async () => {
+    const printInAppContent = async () => {
         navigate(`/prescription_print_view/?url=${printUrl}&key=print`, { replace: true, state: state })
         navigate(0, { replace: true });
     };
@@ -136,24 +136,24 @@ function PrescriptionPrintView() {
         [selectedLang, printUrl]
     );
 
-    // const handleDownload = async () => {
-    //     try {
-    //         const response = await axios({
-    //             // url: "https://morth.nic.in/sites/default/files/dd12-13_0.pdf",
-    //             url: printUrl,
-    //             method: 'GET',
-    //             responseType: 'blob', // Important for binary data
-    //         });
-
-    //         const blob = new Blob([response.data], { type: response.headers['content-type'] });
-    //         saveAs(blob, `${Date.now()}.pdf`);
-    //     } catch (error) {
-    //         console.error('Error downloading file:', error);
-    //         // Handle errors gracefully, e.g., display an error message to the user
-    //     }
-    // };
-
     const handleDownload = async () => {
+        try {
+            const response = await axios({
+                // url: "https://morth.nic.in/sites/default/files/dd12-13_0.pdf",
+                url: printUrl,
+                method: 'GET',
+                responseType: 'blob', // Important for binary data
+            });
+
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+            saveAs(blob, `${Date.now()}.pdf`);
+        } catch (error) {
+            console.error('Error downloading file:', error);
+            // Handle errors gracefully, e.g., display an error message to the user
+        }
+    };
+
+    const handleInAppDownload = async () => {
         navigate(`/prescription_print_view/?url=${printUrl}&key=download`, { replace: true, state: state })
         navigate(0, { replace: true });
     };
@@ -200,7 +200,7 @@ function PrescriptionPrintView() {
                                 }
                                 <Button
                                     type="text"
-                                    onClick={printContent}
+                                    onClick={() => !isChrome && !isSafari ? printInAppContent() : printContent()}
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-Print"></i>}
                                 >
@@ -220,7 +220,7 @@ function PrescriptionPrintView() {
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-download"></i>}
-                                    onClick={handleDownload}
+                                    onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
                                 >
                                     <span className="fw-semibold">Download</span>
                                     <i className="icon-right iconrotate90 ms-auto"></i>

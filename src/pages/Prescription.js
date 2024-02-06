@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { Drawer } from 'antd';
 import moment from 'moment';
+import { v4 as uuidv4 } from "uuid";
 
 import CashManagerContext from '../context/CashManagerContext';
 
@@ -65,7 +66,22 @@ function Prescription() {
         setVitalsData(updatedData)
       }
       if (caseManagerData.medicine.length > 0) {
-        setMedicationData(caseManagerData.medicine)
+        const updatedData = caseManagerData.medicine.map((e) => {
+          const medicineUnit = e?.medicineUnit.map((e1) => {
+            return {
+              key: JSON.stringify({ ...e1 }),
+              value: e1.tmu_id,
+              label: <>{e1.tmu_title}</>,
+            };
+          });
+
+          return {
+            ...e,
+            medicineUnit: medicineUnit,
+            unique_id: uuidv4(),
+          };
+        });
+        setMedicationData([...updatedData])
       }
       if (caseManagerData.follow_up_date) {
         setFollowUpDate(caseManagerData.follow_up_date)
