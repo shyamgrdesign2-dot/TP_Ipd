@@ -25,7 +25,7 @@ body {
         }
 
         thead.ant-table-thead {
-            th {
+            th, td {
                 padding: 7.5px 16px;
                 border-bottom: 0;
                 background-color: #F1F1F5;
@@ -46,6 +46,43 @@ body {
             td {
                 padding: 9px 16px;
                 border-bottom: 0;
+            }
+        }
+    }
+    .customize-table .ant-table {
+        thead.ant-table-thead {
+            th, td {
+                font-family: 'Roboto' !important;
+                color: $welcomecolor !important;
+                border-bottom: 1px solid $bordercolor;
+                border-top: 1px solid $bordercolor;
+                &:first-child {
+                    border-radius: 0;
+                    border-left: 1px solid $bordercolor;
+                }
+                &:last-child {
+                    border-radius: 0;
+                    border-right: 1px solid $bordercolor;
+                }
+            }
+            th {
+                font-weight: 500;
+            }
+        }
+        tbody {
+            td {
+                padding: 11.5px 12px;
+                font-size: 14px;
+                font-family: 'Roboto' !important;
+                font-weight: 500;
+                border-bottom: 1px solid $bordercolor;
+                &:first-child {
+                    border-left: 1px solid $bordercolor;
+                }
+                &:last-child {
+                    border-right: 1px solid $bordercolor;
+                    text-align: center;
+                }
             }
         }
     }
