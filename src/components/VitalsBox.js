@@ -113,7 +113,7 @@ function VitalsBox(props) {
                 scrollContainerRef.current.scrollLeft = scrollWidth * 180;
             }
         }
-    }, [childVitalsData])
+    }, [childVitalsData.length])
 
     const calculate = (H, W) => {
         var height = 0, weight = 0, bmi = "", bmr = "", bsa = ""

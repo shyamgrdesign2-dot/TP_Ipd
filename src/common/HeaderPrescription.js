@@ -170,9 +170,21 @@ function HeaderPrescription() {
                     setInvestigationData([...investigationData, ...updatedData]);
                 }
                 if (data.medicine.length > 0) {
-                    const updatedData = data.medicine.map(e => {
-                        return { ...e, unique_id: uuidv4() }
-                    })
+                    const updatedData = data.medicine.map((e) => {
+                        const medicineUnit = e?.medicineUnit.map((e1) => {
+                            return {
+                                key: JSON.stringify({ ...e1 }),
+                                value: e1.tmu_id,
+                                label: <>{e1.tmu_title}</>,
+                            };
+                        });
+
+                        return {
+                            ...e,
+                            medicineUnit: medicineUnit,
+                            unique_id: uuidv4(),
+                        };
+                    });
                     setMedicationData([...medicationData, ...updatedData])
                 }
             }
@@ -213,17 +225,32 @@ function HeaderPrescription() {
     );
 
     const onAddTemplateClicked = async () => {
+        const updatedMedication = medicationData.map((e) => {
+            const medicineUnit = e?.medicineUnit.map((e1) => {
+                return {
+                    tmu_id: JSON.parse(e1.key).tmu_id,
+                    tmu_title: JSON.parse(e1.key).tmu_title,
+                };
+            });
+
+            return {
+                ...e,
+                medicineUnit: medicineUnit,
+            };
+        });
+
         var sendData = {
             tmoc_template_name: inputTemplateName,
             data: {
                 symptoms: symptomsData.map(({ symptom_name, change }) => ({ symptom_name, ...(change !== undefined && { change }) })),
                 examination: examinationData.map(({ examination_name, change }) => ({ examination_name, ...(change !== undefined && { change }) })),
                 diagnosis: diagnosisData.map(({ tds_id, tds_name, status, pms_default }) => ({ tds_id, tds_name, status, pms_default })),
-                medicine: medicationData,
+                medicine: updatedMedication,
                 advice: adviceData.map(({ advice_name, change }) => ({ advice_name, ...(change !== undefined && { change }) })),
                 investigation: investigationData.map(({ investigation_name, change }) => ({ investigation_name, ...(change !== undefined && { change }) }))
             }
         }
+
         const action = await dispatch(oneClickAddTemplate(sendData));
         if (action.meta.requestStatus == "fulfilled") {
             // const updatedData = symptomsData.map(e => {
@@ -285,6 +312,20 @@ function HeaderPrescription() {
     );
 
     const onUpdateTemplateClicked = async () => {
+        const updatedMedication = medicationData.map((e) => {
+            const medicineUnit = e?.medicineUnit.map((e1) => {
+                return {
+                    tmu_id: JSON.parse(e1.key).tmu_id,
+                    tmu_title: JSON.parse(e1.key).tmu_title,
+                };
+            });
+
+            return {
+                ...e,
+                medicineUnit: medicineUnit,
+            };
+        });
+
         var data = JSON.parse(inputTemplateName);
         var sendData = {
             tmoc_id: data.tmoc_id,
@@ -293,7 +334,7 @@ function HeaderPrescription() {
                 symptoms: symptomsData.map(({ symptom_name, change }) => ({ symptom_name, ...(change !== undefined && { change }) })),
                 examination: examinationData.map(({ examination_name, change }) => ({ examination_name, ...(change !== undefined && { change }) })),
                 diagnosis: diagnosisData.map(({ tds_id, tds_name, status, pms_default }) => ({ tds_id, tds_name, status, pms_default })),
-                medicine: medicationData,
+                medicine: updatedMedication,
                 advice: adviceData.map(({ advice_name, change }) => ({ advice_name, ...(change !== undefined && { change }) })),
                 investigation: investigationData.map(({ investigation_name, change }) => ({ investigation_name, ...(change !== undefined && { change }) }))
             }
