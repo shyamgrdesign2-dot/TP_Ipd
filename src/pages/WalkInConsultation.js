@@ -154,17 +154,10 @@ function WalkInConsultation() {
 
     const onSelect = useCallback(
         (data, e) => {
-            if (e.key != -1) {
+            e.key != -1 ?
                 setClickedPatient(JSON.parse(e.key))
-            } else {
-                if (searchQuery.length > 0 && isNumeric(searchQuery)) {
-                    navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery } } });
-                } else if (searchQuery.length > 0 && isAlphabet(searchQuery)) {
-                    navigate("/add_patient", { state: { patient_data: { pm_fullname: searchQuery, pm_contact_no: '' } } });
-                } else {
-                    navigate("/add_patient");
-                }
-            }
+                :
+                goToAddPatient()
         },
         [clickedPatient, searchQuery]
     );
@@ -235,9 +228,19 @@ function WalkInConsultation() {
         );
     }, [clickedPatient]);
 
+    function goToAddPatient() {
+        if (searchQuery.length > 0 && isNumeric(searchQuery)) {
+            navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery } } });
+        } else if (searchQuery.length > 0 && isAlphabet(searchQuery)) {
+            navigate("/add_patient", { state: { patient_data: { pm_fullname: searchQuery, pm_contact_no: '' } } });
+        } else {
+            navigate("/add_patient");
+        }
+    }
+
     return (
         <>
-            {isMobile && <TabHeader flag={1} title="Start Walk-in Consultation" />}
+            {isMobile && <TabHeader flag={1} title="Start Walk-in Consultation" onClick={goToAddPatient} />}
             <div
                 className={`${!isMobile && "border rounded-4 appointment-wrap"} p-4`}
             >
