@@ -35,7 +35,7 @@ import { MESSAGE_KEY } from "../../utils/constants";
 import {
   onlyNumberFormat,
   removeBeforeWhiteSpace,
-  hasNumber,
+  isNumeric,
 } from "../../utils/utils";
 import Medicationicon from "../../assets/images/Medication.svg";
 import {
@@ -473,13 +473,13 @@ function TabMedicationBox() {
               <div className="text-truncate">
                 {item.tmm_medicine_name}
                 {item.tmm_dosage || item.tmm_unit_name ? (
-                  hasNumber(item.tmf_block) && item.tmf_block == 0 ? (
+                  isNumeric(item.tmf_block) && item.tmf_block == 0 ? (
                     <div className="text-truncate small">{`
                     ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
-                    ${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != "" ? item.tcm_tmm_freq_morning + " - " : "0 -"}
-                    ${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != "" ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
-                    ${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != "" ? item.tcm_tmm_freq_evening + " - " : "0 -"}
-                    ${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != "" ? item.tcm_tmm_freq_night + " | " : "0 |"}
+                    ${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
+                    ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
+                    ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}
+                    ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}
                     ${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
                   ) : (
                     <div className="text-truncate small">{`
@@ -951,9 +951,7 @@ function TabMedicationBox() {
 
   const onChangeSinceChild = useCallback(
     (key) => {
-      // if (hasNumber(key)) {
       setChildDrawerData({ ...childDrawerData, tmm_duration_type: key });
-      // }
     },
     [childDrawerData]
   );
@@ -1767,7 +1765,15 @@ function TabMedicationBox() {
           style={{ maxHeight: "114px" }}
         >
           {parentOptionsList.length > 0 &&
-            parentOptionsList.map((item, i) => {
+            parentOptionsList
+            .filter(
+              (e) =>
+                ![
+                  ...medicationData.map(
+                    (e1) => e1.tmm_medicine_name
+                  ),
+                ].includes(e.tmm_medicine_name)
+            ).map((item, i) => {
               return (
                 <Button
                   key={i}

@@ -24,6 +24,14 @@ export const hasNumber = (str) => {
   return /\d/.test(str);
 }
 
+export const isNumeric = (str) => {
+  return /^[0-9]\d*$/.test(str);
+}
+
+export const isAlphabet = (str) => {
+  return /^[a-zA-z]*$/.test(str);
+}
+
 export const makeDefaultLogo = (text) => {
   var fullName = text != undefined ? text.trim() : ''
   if (!fullName) {
