@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
@@ -10,6 +10,18 @@ function Welcome1(props) {
     const navigate = useNavigate();
 
     const { locationPath, isMobile, patient_data, viewCaseManagerData } = props
+
+    const modifyFormat = useMemo(() => {
+        if (viewCaseManagerData) {
+            const data = moment(viewCaseManagerData.consultation_date).format('Do MMM')
+            let first = data.split(' ')[0].slice(0, -2);
+            let second = data.split(' ')[0].slice(-2);
+            let third = data.split(' ')[1];
+            return { first, second, third }
+        } else {
+            return null
+        }
+    }, [viewCaseManagerData])
 
     return (
         <>
@@ -28,7 +40,7 @@ function Welcome1(props) {
                             {viewCaseManagerData && (
                                 <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() =>
                                     navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
-                                }> <i className={'icon-reload me-2'}></i> {`Repeat ${moment(viewCaseManagerData.consultation_date).format('DD MMM')} Rx`}</Button>
+                                }> <i className={'icon-reload me-2'}></i>Repeat {modifyFormat && modifyFormat.first}<sup>{modifyFormat && modifyFormat.second}</sup>&nbsp;{modifyFormat && modifyFormat.third} Rx</Button>
                             )}
                             <Button variant="primary"
                                 className='btn-41 px-4'
