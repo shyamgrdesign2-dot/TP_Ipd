@@ -7,6 +7,7 @@ import { isMobile } from "react-device-detect";
 import TabHeader from "../components/tab_design/TabHeader";
 import CommonModal from "../common/CommonModal";
 import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
+import { isNumeric, isAlphabet } from "../utils/utils";
 
 function WalkInConsultation() {
     const navigate = useNavigate();
@@ -93,15 +94,13 @@ function WalkInConsultation() {
 
     const AddPatientPlank = () => {
         return (
-            <Link to="/add_patient">
-                <Button
-                    type="text"
-                    className="btn btn-primary1 btn-41 align-items-center d-flex"
-                    icon={<i className="icon-Add"></i>}
-                >
-                    Add New Patient
-                </Button>
-            </Link>
+            <Button
+                type="text"
+                className="btn btn-primary1 btn-41 align-items-center d-flex"
+                icon={<i className="icon-Add"></i>}
+            >
+                Add New Patient
+            </Button>
         );
     };
 
@@ -155,11 +154,12 @@ function WalkInConsultation() {
 
     const onSelect = useCallback(
         (data, e) => {
-            e.key != -1
-                ? setClickedPatient(JSON.parse(e.key))
-                : navigate("/add_patient");
+            e.key != -1 ?
+                setClickedPatient(JSON.parse(e.key))
+                :
+                goToAddPatient()
         },
-        [clickedPatient]
+        [clickedPatient, searchQuery]
     );
 
     const COMMON_MODAL = useMemo(() => {
@@ -228,9 +228,19 @@ function WalkInConsultation() {
         );
     }, [clickedPatient]);
 
+    function goToAddPatient() {
+        if (searchQuery.length > 0 && isNumeric(searchQuery)) {
+            navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery } } });
+        } else if (searchQuery.length > 0 && isAlphabet(searchQuery)) {
+            navigate("/add_patient", { state: { patient_data: { pm_fullname: searchQuery, pm_contact_no: '' } } });
+        } else {
+            navigate("/add_patient");
+        }
+    }
+
     return (
         <>
-            {isMobile && <TabHeader flag={1} title="Start Walk-in Consultation" />}
+            {isMobile && <TabHeader flag={1} title="Start Walk-in Consultation" onClick={goToAddPatient} />}
             <div
                 className={`${!isMobile && "border rounded-4 appointment-wrap"} p-4`}
             >

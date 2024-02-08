@@ -60,7 +60,7 @@ function ProfilePopover(props) {
                 <div className={'align-items-center d-flex h-100'}>
                     <div className='align-items-center d-flex'>
                         <div className='patientName'>{`${patient_data != undefined ? patient_data.pm_fullname : "Hello Guest"},`}</div>
-                        <div className='text-2 ms-2'>{`${patient_data != undefined ? patient_data.pm_gender[0].toUpperCase() : "M"}, ${patient_data != undefined ? patient_data.ageYears : 30}y`}</div>
+                        <div className='text-2 fontpoppins fontpoppins1 ms-1'>{`${patient_data != undefined ? patient_data.pm_gender[0].toUpperCase() : "M"}, ${patient_data != undefined ? patient_data.ageYears : 30}y`}</div>
                         <i className='icon-right iconrotate270 ms-1'></i>
                     </div>
                 </div>
