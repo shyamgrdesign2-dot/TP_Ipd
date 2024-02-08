@@ -26,7 +26,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
-import { onlyNumberFormat, hasNumber } from "../../utils/utils";
+import { onlyNumberFormat, isNumeric } from "../../utils/utils";
 
 import CashManagerContext from "../../context/CashManagerContext";
 import { MESSAGE_KEY } from "../../utils/constants";
@@ -213,13 +213,13 @@ function TabMedicationSearch({ passIndex, onClose }) {
               <div className="text-truncate">
                 {item.tmm_medicine_name}
                 {item.tmm_dosage || item.tmm_unit_name ? (
-                  hasNumber(item.tmf_block) && item.tmf_block == 0 ? (
+                  isNumeric(item.tmf_block) && item.tmf_block == 0 ? (
                     <div className="text-truncate small">{`
                     ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
-                    ${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != "" ? item.tcm_tmm_freq_morning + " - " : "0 -"}
-                    ${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != "" ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
-                    ${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != "" ? item.tcm_tmm_freq_evening + " - " : "0 -"}
-                    ${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != "" ? item.tcm_tmm_freq_night + " | " : "0 |"}
+                    ${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
+                    ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
+                    ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}
+                    ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}
                     ${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
                   ) : (
                     <div className="text-truncate small">{`
@@ -523,10 +523,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onChangeSinceChild = useCallback(
     (key) => {
-      // if (hasNumber(key)) {
       medicationData[selectedIndex].tmm_duration_type = key;
       setMedicationData((prev) => [...prev]);
-      // }
     },
     [selectedIndex, medicationData]
   );

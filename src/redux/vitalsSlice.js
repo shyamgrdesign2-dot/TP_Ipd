@@ -52,6 +52,7 @@ const vitalsSlice = createSlice({
             })
             .addCase(getVitals.pending, (state) => {
                 state.loading = true;
+                state.selectedVitalsList = [];
             })
             .addCase(getVitals.fulfilled, (state, action) => {
                 state.loading = false;
