@@ -13,7 +13,7 @@ import Investigationicon from "../assets/images/Lab.svg";
 import notesicon from '../assets/images/notes.svg';
 import calenderBlank from '../assets/images/calenderBlank.svg';
 
-import { hasNumber } from '../utils/utils'
+import { isNumeric } from '../utils/utils'
 
 function Cardiology(props) {
 
@@ -78,7 +78,7 @@ function Cardiology(props) {
             key: 'TimeFrequency',
             render: (text, record) => (
                 <div className='lh-base'>
-                    {hasNumber(record.tmf_block) && record.tmf_block == 0 ? `${hasNumber(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${hasNumber(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${hasNumber(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${hasNumber(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} (${record.tmm_freq_type_name})` : `0-0-0-0 (${record.tmm_freq_type_name})`}
+                    {isNumeric(record.tmf_block) && record.tmf_block == 0 ? `${isNumeric(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${isNumeric(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${isNumeric(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${isNumeric(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} (${record.tmm_freq_type_name})` : `0-0-0-0 (${record.tmm_freq_type_name})`}
                     <div>{record.tmm_time_name}</div>
                 </div>
             ),
@@ -89,7 +89,7 @@ function Cardiology(props) {
             key: 'duration',
             width: '82px',
             render: (text, record) => (
-                <div>{hasNumber(record.tmm_days) ? `${record.tmm_days} - ${record.tmm_duration_type}` : `-`}</div>
+                <div>{isNumeric(record.tmm_days) ? `${record.tmm_days} - ${record.tmm_duration_type}` : `-`}</div>
             ),
         },
         {

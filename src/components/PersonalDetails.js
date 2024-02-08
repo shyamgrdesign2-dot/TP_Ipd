@@ -17,7 +17,7 @@ const { Option } = Select;
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD-MM-YYYY'
 
-function PersonalDetails({ form, mode = ADD }) {
+function PersonalDetails({ form, mode = ADD, patient_data }) {
 
     const [showDetails, setShowDetails] = useState(true);
     const [ageYearsMonths, setAgeYearsMonths] = useState(null);
@@ -44,8 +44,15 @@ function PersonalDetails({ form, mode = ADD }) {
             });
             const age = calculateAge(moment(patients_details.pm_dob).format(dateFormat));
             setAgeYearsMonths(age);
+        } else {
+            if (patient_data != undefined) {
+                form.setFieldsValue({
+                    pm_fullname: patient_data.pm_fullname,
+                    pm_contact_no: patient_data.pm_contact_no,
+                });
+            }
         }
-    }, [patients_details]);
+    }, [patients_details, patient_data]);
 
     const validateMobileNumber = (_, value) => {
         const mobileNumberRegex = /^[0-9]{10}$/; // 10-digit number validation regex

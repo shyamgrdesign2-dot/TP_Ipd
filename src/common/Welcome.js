@@ -37,14 +37,14 @@ function Welcome(props) {
         <div className="bg-welcome d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             {backVisible && (
-              <div onClick={() => locationPath == "/add_patient" ? navigate(-2) : navigate(-1)} className="lh-1 me-1 px-2 text-dark cursor-pointer">
+              <div onClick={() => navigate(-1)} className="lh-1 me-1 px-2 text-dark cursor-pointer">
                 <i className="fs-3 icon-right"></i>
               </div>
             )}
             <div>
               {locationPath == "/add_patient" ? (
                 <h1>Add New Patient</h1>
-              ):locationPath == "/edit_patient" ? (
+              ) : locationPath == "/edit_patient" ? (
                 <h1>Edit Patient Details</h1>
               ) : locationPath == "/walk_in_consultation" ? (
                 <h1>Start Walk-In Consultation</h1>
