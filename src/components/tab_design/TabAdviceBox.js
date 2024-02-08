@@ -432,7 +432,7 @@ function TabAdviceBox() {
                 </Drawer>
                 <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&
-                        parentOptionsList.map((item, i) => {
+                        parentOptionsList.filter(e => ![...adviceData.map(e1 => e1.advice_name)].includes(e.advice_name)).map((item, i) => {
                             return (
                                 <Button key={i} type="text" style={{ width: item.advice_name.length > 26 && '250px' }} className={`${item.advice_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.advice_name}</Button>
                             )

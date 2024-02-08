@@ -1765,7 +1765,15 @@ function TabMedicationBox() {
           style={{ maxHeight: "114px" }}
         >
           {parentOptionsList.length > 0 &&
-            parentOptionsList.map((item, i) => {
+            parentOptionsList
+            .filter(
+              (e) =>
+                ![
+                  ...medicationData.map(
+                    (e1) => e1.tmm_medicine_name
+                  ),
+                ].includes(e.tmm_medicine_name)
+            ).map((item, i) => {
               return (
                 <Button
                   key={i}
