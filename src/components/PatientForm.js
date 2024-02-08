@@ -38,7 +38,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                 ...values,
                 pm_salutation: values.pm_salutation != undefined ? values.pm_salutation : '',
                 pm_pincode: values.pm_pincode != undefined ? values.pm_pincode : '',
-                pm_dob: values['pm_dob']?values['pm_dob'].format('YYYY-MM-DD'):values['dob'],
+                pm_dob: values['pm_dob'] ? values['pm_dob'].format('YYYY-MM-DD') : values['dob'],
                 pm_city: values.pm_city != undefined ? values.pm_city : '',
                 pm_state: values.pm_state != undefined ? values.pm_state : '',
                 pm_address: values.pm_address != undefined ? values.pm_address : '',
@@ -87,7 +87,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                                     <div className="tabs-patient">
                                         <Tabs defaultActiveKey="1">
                                             <TabPane tab="Personal Details" key="1">
-                                                <PersonalDetails form={form} mode={mode} />
+                                                <PersonalDetails form={form} mode={mode} patient_data={patient_data} />
                                             </TabPane>
                                             <TabPane tab="Address Details" key="2">
                                                 <AddressDetails form={form} />
@@ -96,7 +96,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                                     </div>
                                 ) : (
                                     <>
-                                        <PersonalDetails form={form} mode={mode} />
+                                        <PersonalDetails form={form} mode={mode} patient_data={patient_data} />
                                         <hr className="mb-3 mt-1" />
                                         <AddressDetails form={form} />
                                     </>

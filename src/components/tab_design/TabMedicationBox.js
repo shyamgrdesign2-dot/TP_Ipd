@@ -35,7 +35,7 @@ import { MESSAGE_KEY } from "../../utils/constants";
 import {
   onlyNumberFormat,
   removeBeforeWhiteSpace,
-  hasNumber,
+  isNumeric,
 } from "../../utils/utils";
 import Medicationicon from "../../assets/images/Medication.svg";
 import {
@@ -473,7 +473,7 @@ function TabMedicationBox() {
               <div className="text-truncate">
                 {item.tmm_medicine_name}
                 {item.tmm_dosage || item.tmm_unit_name ? (
-                  hasNumber(item.tmf_block) && item.tmf_block == 0 ? (
+                  isNumeric(item.tmf_block) && item.tmf_block == 0 ? (
                     <div className="text-truncate small">{`
                     ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
                     ${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != "" ? item.tcm_tmm_freq_morning + " - " : "0 -"}
@@ -951,9 +951,7 @@ function TabMedicationBox() {
 
   const onChangeSinceChild = useCallback(
     (key) => {
-      // if (hasNumber(key)) {
       setChildDrawerData({ ...childDrawerData, tmm_duration_type: key });
-      // }
     },
     [childDrawerData]
   );
