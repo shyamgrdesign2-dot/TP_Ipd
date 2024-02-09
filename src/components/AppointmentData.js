@@ -656,8 +656,8 @@ function AppointmentData() {
                     <div className='d-flex align-items-center'>
                         <img src={visitEnd} className='me-3' />
                         <div>
-                            <div className='title-common fontroboto'>{`${appointmentSelectedFromMenu?.pm_first_name}’s visit end successfully.`}</div>
-                            <div className='fontroboto text-start fw-normal mt-1'>View end visits in Finished tab.</div>
+                            <div className='title-common fontroboto'>{`${appointmentSelectedFromMenu?.pm_first_name}’s visit ended successfully.`}</div>
+                            <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
                         </div>
                         <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
                     </div>

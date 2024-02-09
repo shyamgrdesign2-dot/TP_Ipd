@@ -78,7 +78,7 @@ function Cardiology(props) {
             key: 'TimeFrequency',
             render: (text, record) => (
                 <div className='lh-base'>
-                    {isNumeric(record.tmf_block) && record.tmf_block == 0 ? `${isNumeric(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${isNumeric(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${isNumeric(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${isNumeric(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} (${record.tmm_freq_type_name})` : `0-0-0-0 (${record.tmm_freq_type_name})`}
+                    {record.tmf_block == 0 || record.tmf_block == "" ? `${isNumeric(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${isNumeric(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${isNumeric(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${isNumeric(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} ${record.tmm_freq_type_name && '(' + record.tmm_freq_type_name + ')'}` : `0-0-0-0 (${record.tmm_freq_type_name})`}
                     <div>{record.tmm_time_name}</div>
                 </div>
             ),
@@ -130,7 +130,7 @@ function Cardiology(props) {
                             <div className='d-flex align-items-center justify-content-between'>
                                 <div>
                                     <div className='title2'>{`${viewCaseManagerData?.doctor_data?.doctor_name} | ${viewCaseManagerData?.doctor_data?.dp_name}`}</div>
-                                    <div className='subtitle text-lowercase'>{viewCaseManagerData?.showConsultationDateTime}</div>
+                                    <div className='subtitle'>{viewCaseManagerData?.showConsultationDateTime}</div>
                                 </div>
                                 <div className='align-items-center d-flex'>
                                     <Button className="btn border rounded-3 px-1 me-2 antdesable-custom" onClick={nextPress} disabled={!loading && tcmData.page > 1 && viewCaseManagerData?.next_tcm_id ? false : true}>

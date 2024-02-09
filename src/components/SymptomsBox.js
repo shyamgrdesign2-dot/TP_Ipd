@@ -614,6 +614,7 @@ function SymptomsBox() {
               placeholder="Select Template"
               onSearch={onSearchTemplate}
               onSelect={onSelectTemplate}
+              optionLabelProp="label"
               options={allTemplates.map((template) => {
                 return {
                   key: JSON.stringify(template),
@@ -625,6 +626,22 @@ function SymptomsBox() {
                   ),
                 };
               })}
+              optionRender={(option) => (
+                <div className="align-items-center d-flex text-truncate w-100">
+                    <div className="round-box"><i className="icon-template"></i></div>
+                    <div className="text-truncate w-100">
+                        <div className="title text-main2">{option.data.value}</div>
+                        <div className="text-truncate">
+                            {JSON.parse(option.data.key).symptoms.map((item, ii) => {
+                                return (
+                                    <span key={ii}>{`${item.symptom_name}${JSON.parse(option.data.key).symptoms.length - 1 != ii ? ", " : ""
+                                        }`}</span>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
             />
             <Button
               className="btn btn-primary3 btn-41 ms-3"
