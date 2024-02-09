@@ -504,7 +504,7 @@ function TabMedicationBox() {
         );
       })
     );
-  }, [medicationData]);
+  }, [medicationData, selectedTab]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useMemo(() => {
@@ -617,12 +617,12 @@ function TabMedicationBox() {
               })}
               optionRender={(option) => (
                 <div className="align-items-center d-flex text-truncate w-100">
-                    <div className="round-box"><i className="icon-template"></i></div>
-                    <div className="text-truncate w-100">
-                        <div className="title text-main2">{option.data.value}</div>
-                    </div>
+                  <div className="round-box"><i className="icon-template"></i></div>
+                  <div className="text-truncate w-100">
+                    <div className="title text-main2">{option.data.value}</div>
+                  </div>
                 </div>
-            )}
+              )}
             />
             <Button
               className="btn btn-primary3 btn-41 ms-3"
@@ -1775,25 +1775,25 @@ function TabMedicationBox() {
         >
           {parentOptionsList.length > 0 &&
             parentOptionsList
-            .filter(
-              (e) =>
-                ![
-                  ...medicationData.map(
-                    (e1) => e1.tmm_medicine_name
-                  ),
-                ].includes(e.tmm_medicine_name)
-            ).map((item, i) => {
-              return (
-                <Button
-                  key={i}
-                  type="text"
-                  className="btn btn-primary2 chips-custom mb-14 me-14"
-                  onClick={() => onSelectParent(item)}
-                >
-                  {item.tmm_medicine_name}
-                </Button>
-              );
-            })}
+              .filter(
+                (e) =>
+                  ![
+                    ...medicationData.map(
+                      (e1) => e1.tmm_medicine_name
+                    ),
+                  ].includes(e.tmm_medicine_name)
+              ).map((item, i) => {
+                return (
+                  <Button
+                    key={i}
+                    type="text"
+                    className="btn btn-primary2 chips-custom mb-14 me-14"
+                    onClick={() => onSelectParent(item)}
+                  >
+                    {item.tmm_medicine_name}
+                  </Button>
+                );
+              })}
         </div>
       </div>
     </>
