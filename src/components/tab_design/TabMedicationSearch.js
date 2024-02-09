@@ -244,7 +244,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         );
       })
     );
-  }, [medicationData, selectedIndex]);
+  }, [medicationData, selectedIndex, selectedTab]);
 
   const onChangeDosageChild = useCallback(
     (e) => {
