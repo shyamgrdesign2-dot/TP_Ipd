@@ -598,11 +598,12 @@ function TabMedicationBox() {
           <div className="medicine-templates d-flex">
             <Select
               showSearch
-              value={inputTemplateName && inputTemplateName.tmtd_template_name}
+              value={inputTemplateName && JSON.parse(inputTemplateName).tmtd_template_name}
               className="autocomplete-custom w-100 popinput inputheight41"
               placeholder="Select Template"
               onSearch={onSearchTemplate}
               onSelect={onSelectTemplate}
+              optionLabelProp="label"
               options={allTemplates.map((template) => {
                 return {
                   key: JSON.stringify(template),
@@ -614,6 +615,14 @@ function TabMedicationBox() {
                   ),
                 };
               })}
+              optionRender={(option) => (
+                <div className="align-items-center d-flex text-truncate w-100">
+                    <div className="round-box"><i className="icon-template"></i></div>
+                    <div className="text-truncate w-100">
+                        <div className="title text-main2">{option.data.value}</div>
+                    </div>
+                </div>
+            )}
             />
             <Button
               className="btn btn-primary3 btn-41 ms-3"

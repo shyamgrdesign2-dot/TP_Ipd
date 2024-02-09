@@ -307,18 +307,30 @@ body {
                 }
             }
         }
-        .round-box {
-            width: 37px;
-            height: 37px;
-            min-width: 37px;
-            min-height: 37px;
-            background-color: #fff;
-            border-radius: 100%;
-            align-items: center;
-            display: flex;
-            justify-content: center;
-            margin-right: 15px;
-        }
+        // .round-box {
+        //     width: 37px;
+        //     height: 37px;
+        //     min-width: 37px;
+        //     min-height: 37px;
+        //     background-color: #fff;
+        //     border-radius: 100%;
+        //     align-items: center;
+        //     display: flex;
+        //     justify-content: center;
+        //     margin-right: 15px;
+        // }
+    }
+    .round-box {
+        width: 37px;
+        height: 37px;
+        min-width: 37px;
+        min-height: 37px;
+        background-color: #fff;
+        border-radius: 100%;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        margin-right: 15px;
     }
     .ant-input-clear-icon {
         svg {
