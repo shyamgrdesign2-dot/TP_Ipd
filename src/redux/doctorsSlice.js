@@ -6,6 +6,8 @@ const initialState = {
   profile: null,
   loading: false,
   error: null,
+  customizedPadLeftList: [],
+  customizedPadRightList: [],
 };
 
 export const getProfile = createAsyncThunk(
@@ -38,6 +40,23 @@ export const changeHospital = createAsyncThunk(
   }
 );
 
+export const customizedPad = createAsyncThunk(
+  "records/customizedPad",
+  async (data) => {
+    try {
+      const result = await ApiAppointments.customizedPad(data);
+      if (result.status) {
+        return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
 const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
@@ -61,6 +80,17 @@ const doctorsSlice = createSlice({
         state.loading = false;
       })
       .addCase(changeHospital.rejected, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(customizedPad.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(customizedPad.fulfilled, (state, action) => {
+        state.loading = false;
+        state.customizedPadLeftList = action.payload.left
+        state.customizedPadRightList = action.payload.right
+      })
+      .addCase(customizedPad.rejected, (state) => {
         state.loading = false;
       })
   },

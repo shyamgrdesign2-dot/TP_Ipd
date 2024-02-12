@@ -1669,7 +1669,7 @@ function TabMedicationBox() {
   return (
     <>
       {contextHolder}
-      <div className="prescription-box-sm p-20px">
+      <div>
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Medicationicon} alt="Medication" />

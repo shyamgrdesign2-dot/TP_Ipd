@@ -119,11 +119,6 @@ function HeaderPrescription() {
         setSaveDrawer(!saveDrawer);
     }, [saveDrawer]);
 
-    // Handle Customize Drawer
-    const handleDrawerCustomize = useCallback(() => {
-        setCustomizeDrawer(!customizeDrawer);
-    }, [customizeDrawer]);
-
     //PopOver1 function
     const showHideTemplatesListPopover = useCallback(() => {
         setPopOver1(!popOver1);
@@ -656,11 +651,16 @@ function HeaderPrescription() {
         );
     }, [tabChange, saveDrawer, inputTemplateName, loading, allTemplates]);
 
+    // Handle Customize Drawer
+    const handleDrawerCustomize = useCallback(() => {
+        setCustomizeDrawer(!customizeDrawer);
+    }, [customizeDrawer]);
+
     const CUSTOMIZE_CONTENT_TAB = useMemo(() => {
         return (
-            <CustomizeSetting />
+            <CustomizeSetting handleDrawerCustomize={handleDrawerCustomize} />
         );
-    },);
+    }, [customizeDrawer]);
 
     async function onEndVisitClick() {
         if (symptomsData.length > 0 && symptomsData.filter(e => e.symptom_name == "").length > 0) {
@@ -842,18 +842,8 @@ function HeaderPrescription() {
                             <Drawer title="Save Template" placement="right" onClose={handleDrawerSave} open={saveDrawer} className="modalWidth-563" width="auto">
                                 {SAVE_CONTENT_TAB}
                             </Drawer>
-                            <Drawer title="Customize Your Pad" placement="right" onClose={handleDrawerCustomize} open={customizeDrawer} className="modalWidth-900" width="auto" 
-                                extra={
-                                   <div className='d-flex align-items-center'>
-                                     <button className='btn d-flex align-items-center btn-text me-14'>
-                                            <span>Default Settings</span>
-                                    </button>
-                                    <Button type='button' className="btn-41 btn px-4 btn-primary3">
-                                        Done
-                                    </Button>
-                                   </div>
-                                }>
-                            {CUSTOMIZE_CONTENT_TAB}
+                            <Drawer placement="right" closeIcon={false} onClose={handleDrawerCustomize} open={customizeDrawer} className="modalWidth-900" width="auto">
+                                {CUSTOMIZE_CONTENT_TAB}
                             </Drawer>
                             {/* <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                 <i className='icon-setting me-2'></i> <span className='text-decoration-underline'>Customize</span>

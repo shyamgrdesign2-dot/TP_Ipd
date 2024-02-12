@@ -5,11 +5,13 @@ import { Select } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 
-import { getProfile, changeHospital } from "../redux/doctorsSlice";
+import { getProfile, customizedPad, changeHospital } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import { useLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
 import { makeDefaultLogo } from "../utils/utils";
+
+const CUSTOMIZED_PAD_SENDDATA = { data: { reset: true } }
 
 function Header({ locationPath }) {
 
@@ -25,6 +27,7 @@ function Header({ locationPath }) {
 
   useEffect(() => {
     dispatch(getProfile());
+    dispatch(customizedPad(CUSTOMIZED_PAD_SENDDATA))
   }, []);
 
   useEffect(() => {

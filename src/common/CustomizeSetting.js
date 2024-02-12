@@ -1,19 +1,16 @@
+import React, { useState, useEffect } from 'react';
+import { Table, Switch, Row, Col, Button, Card, message } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import { DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy, } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import React, { useState } from 'react';
-import { Table, Switch, Row, Col } from 'antd';
 
+import { MESSAGE_KEY } from "../utils/constants";
+import { useSelector, useDispatch } from "react-redux";
+import { customizedPad } from "../redux/doctorsSlice";
 
-
-const Row1 = ({ children, ...props }) => {
+const CustomRow = ({ children, ...props }) => {
   const {
     attributes,
     listeners,
@@ -63,24 +60,23 @@ const Row1 = ({ children, ...props }) => {
     </tr>
   );
 };
-const CustomizeSetting = () => {
-  const [dataSource, setDataSource] = useState([
-    {
-      key: '1',
-      name: 'Vitals & Calculator',
-      status: true
-    },
-    {
-      key: '2',
-      name: 'Medical History / Allergy',
-      status: false
-    },
-    {
-      key: '3',
-      name: 'Lab Results',
-      status: true
-    },
-  ]);
+
+function CustomizeSetting({ handleDrawerCustomize }) {
+
+  const { customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
+  const dispatch = useDispatch();
+
+  const [dataSourceLeft, setDataSourceLeft] = useState([]);
+  const [dataSourceRight, setDataSourceRight] = useState([]);
+
+  useEffect(() => {
+    setDataSourceLeft([...customizedPadLeftList])
+  }, [customizedPadLeftList]);
+
+  useEffect(() => {
+    setDataSourceRight([...customizedPadRightList])
+  }, [customizedPadRightList]);
+
   const columns = [
     {
       title: 'LEFT SIDE OF ELEMETNS',
@@ -92,82 +88,142 @@ const CustomizeSetting = () => {
     {
       title: '',
       colSpan: 0,
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'tmdpm_name',
+      key: 'tmdpm_name',
     },
     {
       title: 'ENABLE/DISABLE',
-      dataIndex: 'status',
-      key: 'status',
-      render: (text, record) => <Switch defaultChecked onChange={(checked) => onChange(checked, record)} checked={text} />,
+      dataIndex: 'tmdpm_status',
+      key: 'tmdpm_status',
+      render: (text, record) => <Switch defaultChecked onChange={(checked) => onChange(checked, record)} checked={text ? false : true} />,
     },
   ];
 
   const onChange = (checked, record) => {
-    const index = dataSource.findIndex(e => e.key == record.key)
-    if (index != -1) {
-      dataSource[index].status = checked
-      setDataSource((prev) => [...prev]);
+    if (record.tmdpm_type == 'L') {
+      const index = dataSourceLeft.findIndex(e => e.tmdpm_id == record.tmdpm_id)
+      if (index != -1) {
+        dataSourceLeft[index].tmdpm_status = checked ? 0 : 1
+        setDataSourceLeft((prev) => [...prev]);
+      }
+    } else {
+      const index = dataSourceRight.findIndex(e => e.tmdpm_id == record.tmdpm_id)
+      if (index != -1) {
+        dataSourceRight[index].tmdpm_status = checked ? 0 : 1
+        setDataSourceRight((prev) => [...prev]);
+      }
     }
   };
-  const onDragEnd = ({ active, over }) => {
+
+  const onDragEndLeft = ({ active, over }) => {
     if (active.id !== over?.id) {
-      setDataSource((previous) => {
-        const activeIndex = previous.findIndex((i) => i.key === active.id);
-        const overIndex = previous.findIndex((i) => i.key === over?.id);
+      setDataSourceLeft((previous) => {
+        const activeIndex = previous.findIndex((i) => i.tmdpm_id === active.id);
+        const overIndex = previous.findIndex((i) => i.tmdpm_id === over?.id);
         return arrayMove(previous, activeIndex, overIndex);
       });
     }
   };
+
+  const onDragEndRight = ({ active, over }) => {
+    if (active.id !== over?.id) {
+      setDataSourceRight((previous) => {
+        const activeIndex = previous.findIndex((i) => i.tmdpm_id === active.id);
+        const overIndex = previous.findIndex((i) => i.tmdpm_id === over?.id);
+        return arrayMove(previous, activeIndex, overIndex);
+      });
+    }
+  };
+
+  async function onCustomizePadClick() {
+    var sendData = {
+      data: {
+        reset: false,
+        left: dataSourceLeft,
+        right: dataSourceRight,
+      }
+    }
+    const action = await dispatch(customizedPad(sendData))
+    if (action.meta.requestStatus == "fulfilled") {
+      handleDrawerCustomize()
+    } else {
+      message.open({
+        MESSAGE_KEY,
+        type: 'warning',
+        content: action.error.message,
+        duration: 2
+      });
+    }
+  }
+
   return (
-    <div className='p-4'>
-    <Row gutter={40} >
-      <Col lg={12}>
-        <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-          <SortableContext
-            // rowKey array
-            items={dataSource.map((i) => i.key)}
-            strategy={verticalListSortingStrategy}
-          >
-            <Table
-              className='customize-table'
-              pagination={false}
-              components={{
-                body: {
-                  row: Row1,
-                },
-              }}
-              rowKey="key"
-              columns={columns}
-              dataSource={dataSource}
-            />
-          </SortableContext>
-        </DndContext>
-      </Col>
-      <Col lg={12}>
-        <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-          <SortableContext
-            // rowKey array
-            items={dataSource.map((i) => i.key)}
-            strategy={verticalListSortingStrategy}
-          >
-            <Table
-              className='customize-table'
-              pagination={false}
-              components={{
-                body: {
-                  row: Row1,
-                },
-              }}
-              rowKey="key"
-              columns={columns}
-              dataSource={dataSource}
-            />
-          </SortableContext>
-        </DndContext>
-      </Col>
-    </Row>
+    <div>
+      <Card bordered={false} className="search-modalCard">
+        <div className='modalCard-header align-items-center justify-content-between d-flex'>
+          <div className='align-items-center d-flex w-100'>
+            <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={handleDrawerCustomize}>
+              <i className='icon-Cross fs-3'></i>
+            </Button>
+            <div className="modal-title text-truncate-twolines">{'Customize Your Pad'}</div>
+          </div>
+          <div className='d-flex align-items-center justify-content-end w-100'>
+            <button className='btn d-flex align-items-center btn-text me-14'>
+              <span>Default Settings</span>
+            </button>
+            <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onCustomizePadClick}>
+              Done
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      <Row className='p-4'>
+        <Col lg={12} className='pe-3'>
+          <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndLeft}>
+            <SortableContext
+              // rowKey array
+              items={dataSourceLeft.map((i) => i.tmdpm_id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <Table
+                className='customize-table'
+                pagination={false}
+                components={{
+                  body: {
+                    row: CustomRow,
+                  },
+                }}
+                rowKey="tmdpm_id"
+                columns={columns}
+                dataSource={dataSourceLeft}
+              />
+            </SortableContext>
+          </DndContext>
+        </Col>
+        <Col lg={12} className='ps-3'>
+          <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndRight}>
+            <SortableContext
+              // rowKey array
+              items={dataSourceRight.map((i) => i.tmdpm_id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <Table
+                className='customize-table'
+                pagination={false}
+                components={{
+                  body: {
+                    row: CustomRow,
+                  },
+                }}
+                rowKey="tmdpm_id"
+                columns={columns}
+                dataSource={dataSourceRight}
+              />
+            </SortableContext>
+          </DndContext>
+        </Col>
+      </Row>
     </div>
   );
 };
-export default CustomizeSetting;
+export default React.memo(CustomizeSetting);

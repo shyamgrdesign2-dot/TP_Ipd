@@ -5,6 +5,8 @@ import { Content } from "antd/es/layout/layout";
 import moment from 'moment';
 import { v4 as uuidv4 } from "uuid";
 
+import { useSelector } from "react-redux";
+
 import CashManagerContext from '../../context/CashManagerContext';
 import HeaderPrescription from "../../common/HeaderPrescription";
 import TabSymptomsBox from "../../components/tab_design/TabSymptomsBox";
@@ -26,6 +28,8 @@ import vitalsWhite from '../../assets/images/vitals-white.svg';
 import Sider from "antd/es/layout/Sider";
 
 function TabPrescription() {
+
+    const { customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
 
     const { state } = useLocation();
     const { patient_data, caseManagerData } = state
@@ -161,13 +165,17 @@ function TabPrescription() {
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                             <Content>
-                                <TabSymptomsBox />
-                                <TabExaminationBox />
-                                <TabDiagnosisBox />
-                                <TabMedicationBox />
-                                <TabAdviceBox />
-                                <TabInvestigationBox />
-                                <TabFollowUpBox />
+                                {customizedPadRightList.map((e, i) => {
+                                    return (
+                                        e.tmdpm_id === 5 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabSymptomsBox /></div>
+                                            : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabExaminationBox /></div>
+                                                : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabDiagnosisBox /></div>
+                                                    : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabMedicationBox /></div>
+                                                        : e.tmdpm_id === 13 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"> <TabAdviceBox /></div>
+                                                            : e.tmdpm_id === 14 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabInvestigationBox /></div>
+                                                                : e.tmdpm_id === 15 && e.tmdpm_status === 0 && <div key={i} className="prescription-box-sm"><TabFollowUpBox /></div>
+                                    )
+                                })}
                             </Content>
                         </div>
                     </Layout>

@@ -113,7 +113,7 @@ function TabFollowUpBox() {
     return (
         <>
             {contextHolder}
-            <div className="prescription-box-sm p-20px">
+            <div>
                 <div className="p-14-pb0">
                     <Row gutter={30}>
                         <Col md={8}>
