@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { isMobile } from 'react-device-detect';
 import { v4 as uuidv4 } from 'uuid';
 
+import CustomizeSetting from './CustomizeSetting';
+
 import CashManagerContext from "../context/CashManagerContext";
 import ProfilePopover from './ProfilePopover';
 import CommonModal from './CommonModal';
@@ -58,6 +60,8 @@ function HeaderPrescription() {
 
     const [templateDrawer, setTemplateDrawer] = useState(false);
     const [saveDrawer, setSaveDrawer] = useState(false);
+
+    const [customizeDrawer, setCustomizeDrawer] = useState(false);
 
     useEffect(() => {
         dispatch(oneClickTemplatesList());
@@ -114,6 +118,11 @@ function HeaderPrescription() {
         setInputTemplateName(null);
         setSaveDrawer(!saveDrawer);
     }, [saveDrawer]);
+
+    // Handle Customize Drawer
+    const handleDrawerCustomize = useCallback(() => {
+        setCustomizeDrawer(!customizeDrawer);
+    }, [customizeDrawer]);
 
     //PopOver1 function
     const showHideTemplatesListPopover = useCallback(() => {
@@ -647,6 +656,12 @@ function HeaderPrescription() {
         );
     }, [tabChange, saveDrawer, inputTemplateName, loading, allTemplates]);
 
+    const CUSTOMIZE_CONTENT_TAB = useMemo(() => {
+        return (
+            <CustomizeSetting />
+        );
+    },);
+
     async function onEndVisitClick() {
         if (symptomsData.length > 0 && symptomsData.filter(e => e.symptom_name == "").length > 0) {
             message.open({
@@ -813,8 +828,11 @@ function HeaderPrescription() {
                                         <i className="icon-template me-2"></i> <span>Templates</span>
                                     </button>
                                     <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) ? "" : "Please enter some data to save a template"}>
-                                        <button className='btn d-flex align-items-center btn-text me-14' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
+                                        <button className='btn d-flex align-items-center btn-text' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
                                     </Tooltip>
+                                    <button className='btn d-flex align-items-center btn-text me-14' onClick={handleDrawerCustomize}>
+                                        <i className="icon-setting me-2"></i> <span>Customize</span>
+                                    </button>
                                 </div>
                             )}
 
@@ -823,6 +841,19 @@ function HeaderPrescription() {
                             </Drawer>
                             <Drawer title="Save Template" placement="right" onClose={handleDrawerSave} open={saveDrawer} className="modalWidth-563" width="auto">
                                 {SAVE_CONTENT_TAB}
+                            </Drawer>
+                            <Drawer title="Customize Your Pad" placement="right" onClose={handleDrawerCustomize} open={customizeDrawer} className="modalWidth-900" width="auto" 
+                                extra={
+                                   <div className='d-flex align-items-center'>
+                                     <button className='btn d-flex align-items-center btn-text me-14'>
+                                            <span>Default Settings</span>
+                                    </button>
+                                    <Button type='button' className="btn-41 btn px-4 btn-primary3">
+                                        Done
+                                    </Button>
+                                   </div>
+                                }>
+                            {CUSTOMIZE_CONTENT_TAB}
                             </Drawer>
                             {/* <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                 <i className='icon-setting me-2'></i> <span className='text-decoration-underline'>Customize</span>
