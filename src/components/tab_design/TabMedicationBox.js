@@ -1750,7 +1750,7 @@ function TabMedicationBox() {
           >
             <i className="icon-search mx-2"></i>
             <span className="fontroboto backbar fw-normal">
-              Search Medicines
+              Search Medicines by Name, Brand or generic
             </span>
           </div>
         </div>
