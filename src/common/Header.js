@@ -1,15 +1,16 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { Select, Button, Checkbox } from "antd";
+import { Select, Button, Checkbox, message } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 
-import { getProfile, customizedPad, changeHospital } from "../redux/doctorsSlice";
+import { getProfile, changeHospital, customizedPad, swtichLayout } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import { useLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
 import { makeDefaultLogo } from "../utils/utils";
+import { MESSAGE_KEY } from "../utils/constants";
 import CommonModal from './CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 
@@ -22,7 +23,7 @@ function Header({ locationPath }) {
 
   const navigate = useNavigate();
 
-  const { profile } = useSelector((state) => state.doctors);
+  const { profile, loading } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
   const [clinicOptions, setClinicOptions] = useState([]);
@@ -118,7 +119,7 @@ function Header({ locationPath }) {
               <div className="d-flex align-items-center">
                 <img className='me-3' src={alertIcon} alt="Warning" />
                 <span>
-                  Are you sure you want to switch? <br/>
+                  Are you sure you want to switch? <br />
                   You will be redirect to TataPedia platform.
                 </span>
               </div>
@@ -148,6 +149,24 @@ function Header({ locationPath }) {
     console.log(`checked = ${e.target.checked}`);
   };
 
+  async function onSwitchLayoutClick() {
+    const action = await dispatch(swtichLayout())
+    if (action.meta.requestStatus == "fulfilled") {
+      showHideSwitchModal()
+      setTimeout(() => {
+        navigate(`/?switch_layout=old`, { replace: true })
+        navigate(0, { replace: true });
+      }, 500);
+    } else {
+      message.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: action.error.message,
+        duration: 2
+      });
+    }
+  }
+
   const SWITCH_TO_OLD_MODAL = useMemo(() => {
     return (
       <CommonModal
@@ -174,7 +193,7 @@ function Header({ locationPath }) {
                 <div onClick={showHideSwitchModal} className="me-4 text-decoration-underline btn p-0 text-main">
                   No, Stay
                 </div>
-                <Button onClick={() => alert('Comming soon')} className="lh-lg btn btn-primary3 btn-41 px-4">
+                <Button onClick={onSwitchLayoutClick} className="lh-lg btn btn-primary3 btn-41 px-4" loading={loading}>
                   <span>Switch to Old</span>
                 </Button>
               </div>
@@ -183,7 +202,7 @@ function Header({ locationPath }) {
         }
       />
     );
-  }, [isSwitchModalOpen]);
+  }, [isSwitchModalOpen, loading]);
 
   return (
     <Navbar className="justify-content-between portal-header">
