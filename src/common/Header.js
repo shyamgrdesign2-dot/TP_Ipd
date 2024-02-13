@@ -11,7 +11,7 @@ import { useLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
 import { makeDefaultLogo } from "../utils/utils";
 
-const CUSTOMIZED_PAD_SENDDATA = { data: { reset: true } }
+const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
 function Header({ locationPath }) {
 

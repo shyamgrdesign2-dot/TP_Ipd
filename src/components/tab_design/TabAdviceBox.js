@@ -152,14 +152,14 @@ function TabAdviceBox() {
     const onAddTemplateClicked = async () => {
         if (adviceData.length == 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 advice added',
                 duration: 2
             });
         } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup advice name',
                 duration: 2
@@ -191,14 +191,14 @@ function TabAdviceBox() {
     const onUpdateTemplateClicked = async () => {
         if (adviceData.length == 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 advice added',
                 duration: 2
             });
         } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup advice name',
                 duration: 2

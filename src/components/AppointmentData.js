@@ -206,7 +206,7 @@ function AppointmentData() {
                     })
                 } else {
                     message.open({
-                        MESSAGE_KEY,
+                        key: MESSAGE_KEY,
                         type: 'warning',
                         content: `Can't select next date`,
                         duration: 5,
@@ -575,7 +575,7 @@ function AppointmentData() {
                                         if (action.meta.requestStatus == "fulfilled") {
                                             handleConfirmationModal()
                                             message.open({
-                                                MESSAGE_KEY,
+                                                key: MESSAGE_KEY,
                                                 type: '',
                                                 className: 'message-appointment',
                                                 content: (
@@ -649,7 +649,7 @@ function AppointmentData() {
             handleEndVisitReasonDrawer()
 
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: '',
                 className: 'message-appointment',
                 content: (

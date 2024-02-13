@@ -172,14 +172,14 @@ function TabSymptomsBox() {
     const onAddTemplateClicked = async () => {
         if (symptomsData.length == 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 symptom added',
                 duration: 2
             });
         } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup symptom name',
                 duration: 2
@@ -211,14 +211,14 @@ function TabSymptomsBox() {
     const onUpdateTemplateClicked = async () => {
         if (symptomsData.length == 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 symptom added',
                 duration: 2
             });
         } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup symptom name',
                 duration: 2

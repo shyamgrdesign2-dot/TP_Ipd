@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from "uuid";
 
 import CashManagerContext from '../context/CashManagerContext';
 
+import { useSelector } from "react-redux";
+
 import vitals from "../assets/images/Vitals.svg";
 import HeaderPrescription from "../common/HeaderPrescription";
 import hey from "../assets/images/bg-hey.png";
@@ -19,8 +21,11 @@ import TabFollowUpBox from "../components/tab_design/TabFollowUpBox";
 
 import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
+import { Content } from "antd/es/layout/layout";
 
 function Prescription() {
+
+  const { customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state
@@ -111,21 +116,27 @@ function Prescription() {
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
             <div className="col-lg-4 col-md-12 col-12">
-              <div className="prescription-box-sm p-14">
-                <div className="d-flex align-items-center justify-content-between">
-                  <div className="d-flex align-items-center">
-                    <img src={vitals} alt="vitals" className="me-3" />
-                    <div className="title-common">Vitals & Body Composition</div>
-                  </div>
-                  <button className="btn d-flex align-items-center btn-text" onClick={handleDrawerVital}>
-                    {" "}
-                    <i className={`${vitalsData.length > 0 ? 'icon-Edit' : 'icon-Add'} me-1 fs-5`}></i> <span>{`${vitalsData.length > 0 ? 'Edit' : 'Add'}`}</span>
-                  </button>
-                </div>
-                {collapsedFlag === 1 && (
-                  <VitalsList />
-                )}
-              </div>
+              {customizedPadLeftList.map((e, i) => {
+                return (
+                  e.tmdpm_id === 1 && e.tmdpm_status === 0 && (
+                    <div key={i} className="prescription-box-sm p-14">
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center">
+                          <img src={vitals} alt="vitals" className="me-3" />
+                          <div className="title-common">Vitals & Body Composition</div>
+                        </div>
+                        <button className="btn d-flex align-items-center btn-text" onClick={handleDrawerVital}>
+                          {" "}
+                          <i className={`${vitalsData.length > 0 ? 'icon-Edit' : 'icon-Add'} me-1 fs-5`}></i> <span>{`${vitalsData.length > 0 ? 'Edit' : 'Add'}`}</span>
+                        </button>
+                      </div>
+                      {collapsedFlag === 1 && (
+                        <VitalsList />
+                      )}
+                    </div>
+                  )
+                )
+              })}
               {/* <div>
                 <button className="btn btn-parameters mx-auto w-100">
                   <div className="align-items-center d-flex justify-content-center">
@@ -135,12 +146,18 @@ function Prescription() {
               </div> */}
             </div>
             <div className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3">
-              <SymptomsBox />
-              <ExaminationBox />
-              <DiagnosisBox />
-              <AdviceBox />
-              <InvestigationBox />
-              <TabFollowUpBox />
+              <Content>
+                {customizedPadRightList.map((e, i) => {
+                  return (
+                    e.tmdpm_id === 5 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><SymptomsBox /></div>
+                      : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><ExaminationBox /></div>
+                        : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><DiagnosisBox /></div>
+                          : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><AdviceBox /></div>
+                            : e.tmdpm_id === 13 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"> <InvestigationBox /></div>
+                              : e.tmdpm_id === 15 && e.tmdpm_status === 0 && <div key={i} className="prescription-box-sm"><TabFollowUpBox /></div>
+                  )
+                })}
+              </Content>
             </div>
           </div>
         </div>

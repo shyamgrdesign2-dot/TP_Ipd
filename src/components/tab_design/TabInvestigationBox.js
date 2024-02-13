@@ -158,14 +158,14 @@ function TabInvestigationBox() {
     const onAddTemplateClicked = async () => {
         if (investigationData.length == 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 investigation added',
                 duration: 2
             });
         } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup investigation name',
                 duration: 2
@@ -197,14 +197,14 @@ function TabInvestigationBox() {
     const onUpdateTemplateClicked = async () => {
         if (investigationData.length == 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 investigation added',
                 duration: 2
             });
         } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup investigation name',
                 duration: 2

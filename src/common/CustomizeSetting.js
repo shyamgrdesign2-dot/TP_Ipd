@@ -63,21 +63,33 @@ const CustomRow = ({ children, ...props }) => {
 
 function CustomizeSetting({ handleDrawerCustomize }) {
 
-  const { customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
+  const { loading, customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
   const [dataSourceLeft, setDataSourceLeft] = useState([]);
   const [dataSourceRight, setDataSourceRight] = useState([]);
 
-  useEffect(() => {
-    setDataSourceLeft([...customizedPadLeftList])
-  }, [customizedPadLeftList]);
 
   useEffect(() => {
-    setDataSourceRight([...customizedPadRightList])
-  }, [customizedPadRightList]);
+    if (customizedPadLeftList.length > 0) {
+      const updatedData = customizedPadLeftList.map((e, i) => {
+        return { ...e };
+      });
+      setDataSourceLeft(updatedData);
+    }
+  }, [handleDrawerCustomize]);
 
-  const columns = [
+  useEffect(() => {
+    if (customizedPadRightList.length > 0) {
+      const updatedData = customizedPadRightList.map((e, i) => {
+        return { ...e };
+      });
+      setDataSourceRight(updatedData);
+    }
+  }, [handleDrawerCustomize]);
+
+  //LEFT SIDE OF ELEMETNS
+  const columnsLeft = [
     {
       title: 'LEFT SIDE OF ELEMETNS',
       key: 'sort',
@@ -90,28 +102,21 @@ function CustomizeSetting({ handleDrawerCustomize }) {
       colSpan: 0,
       dataIndex: 'tmdpm_name',
       key: 'tmdpm_name',
+      render: (text, record) => <><img src={record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{record.tmdpm_name}</>
     },
     {
       title: 'ENABLE/DISABLE',
       dataIndex: 'tmdpm_status',
       key: 'tmdpm_status',
-      render: (text, record) => <Switch defaultChecked onChange={(checked) => onChange(checked, record)} checked={text ? false : true} />,
+      render: (text, record) => <Switch defaultChecked onChange={(checked) => onChangeLeft(checked, record)} checked={text ? false : true} />,
     },
   ];
 
-  const onChange = (checked, record) => {
-    if (record.tmdpm_type == 'L') {
-      const index = dataSourceLeft.findIndex(e => e.tmdpm_id == record.tmdpm_id)
-      if (index != -1) {
-        dataSourceLeft[index].tmdpm_status = checked ? 0 : 1
-        setDataSourceLeft((prev) => [...prev]);
-      }
-    } else {
-      const index = dataSourceRight.findIndex(e => e.tmdpm_id == record.tmdpm_id)
-      if (index != -1) {
-        dataSourceRight[index].tmdpm_status = checked ? 0 : 1
-        setDataSourceRight((prev) => [...prev]);
-      }
+  const onChangeLeft = (checked, record) => {
+    const index = dataSourceLeft.findIndex(e => e.tmdpm_id == record.tmdpm_id)
+    if (index != -1) {
+      dataSourceLeft[index].tmdpm_status = checked ? 0 : 1
+      setDataSourceLeft((prev) => [...prev]);
     }
   };
 
@@ -122,6 +127,38 @@ function CustomizeSetting({ handleDrawerCustomize }) {
         const overIndex = previous.findIndex((i) => i.tmdpm_id === over?.id);
         return arrayMove(previous, activeIndex, overIndex);
       });
+    }
+  };
+
+  //RIGHT SIDE OF ELEMETNS
+  const columnsRight = [
+    {
+      title: 'RIGHT SIDE OF ELEMETNS',
+      key: 'sort',
+      colSpan: 2,
+      align: 'left',
+      dataIndex: 'sort',
+    },
+    {
+      title: '',
+      colSpan: 0,
+      dataIndex: 'tmdpm_name',
+      key: 'tmdpm_name',
+      render: (text, record) => <><img src={record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{record.tmdpm_name}</>
+    },
+    {
+      title: 'ENABLE/DISABLE',
+      dataIndex: 'tmdpm_status',
+      key: 'tmdpm_status',
+      render: (text, record) => <Switch defaultChecked onChange={(checked) => onChangeRight(checked, record)} checked={text ? false : true} />,
+    },
+  ];
+
+  const onChangeRight = (checked, record) => {
+    const index = dataSourceRight.findIndex(e => e.tmdpm_id == record.tmdpm_id)
+    if (index != -1) {
+      dataSourceRight[index].tmdpm_status = checked ? 0 : 1
+      setDataSourceRight((prev) => { return [...prev] });
     }
   };
 
@@ -136,19 +173,67 @@ function CustomizeSetting({ handleDrawerCustomize }) {
   };
 
   async function onCustomizePadClick() {
+    if (dataSourceLeft.length > 0 && dataSourceLeft.filter((e) => !e.tmdpm_status).length <= 0) {
+      message.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: 'Please enable at least one left side of elemetns',
+        duration: 2
+      });
+    } else if (dataSourceRight.length > 0 && dataSourceRight.filter((e) => !e.tmdpm_status).length <= 0) {
+      message.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: 'Please enable at least one right side of elemetns',
+        duration: 2
+      });
+    } else {
+      var sendData = {
+        data: {
+          default: false,
+          reset: false,
+          left: dataSourceLeft,
+          right: dataSourceRight,
+        }
+      }
+      const action = await dispatch(customizedPad(sendData))
+      if (action.meta.requestStatus == "fulfilled") {
+        handleDrawerCustomize()
+      } else {
+        message.open({
+          key: MESSAGE_KEY,
+          type: 'warning',
+          content: action.error.message,
+          duration: 2
+        });
+      }
+    }
+  }
+
+  async function onDefaultPadClick() {
+    message.open({
+      key: MESSAGE_KEY,
+      type: 'loading',
+      content: 'Action in progress..'
+    });
     var sendData = {
       data: {
-        reset: false,
-        left: dataSourceLeft,
-        right: dataSourceRight,
+        default: true,
+        reset: false
       }
     }
     const action = await dispatch(customizedPad(sendData))
     if (action.meta.requestStatus == "fulfilled") {
+      message.open({
+        key: MESSAGE_KEY,
+        type: 'success',
+        content: 'Action successfully',
+        duration: 2
+      });
       handleDrawerCustomize()
     } else {
       message.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: action.error.message,
         duration: 2
@@ -167,10 +252,10 @@ function CustomizeSetting({ handleDrawerCustomize }) {
             <div className="modal-title text-truncate-twolines">{'Customize Your Pad'}</div>
           </div>
           <div className='d-flex align-items-center justify-content-end w-100'>
-            <button className='btn d-flex align-items-center btn-text me-14'>
+            <button className='btn d-flex align-items-center btn-text me-14' onClick={onDefaultPadClick}>
               <span>Default Settings</span>
             </button>
-            <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onCustomizePadClick}>
+            <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onCustomizePadClick} loading={loading}>
               Done
             </Button>
           </div>
@@ -194,7 +279,7 @@ function CustomizeSetting({ handleDrawerCustomize }) {
                   },
                 }}
                 rowKey="tmdpm_id"
-                columns={columns}
+                columns={columnsLeft}
                 dataSource={dataSourceLeft}
               />
             </SortableContext>
@@ -216,7 +301,7 @@ function CustomizeSetting({ handleDrawerCustomize }) {
                   },
                 }}
                 rowKey="tmdpm_id"
-                columns={columns}
+                columns={columnsRight}
                 dataSource={dataSourceRight}
               />
             </SortableContext>

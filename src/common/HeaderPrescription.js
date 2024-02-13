@@ -195,7 +195,7 @@ function HeaderPrescription() {
             !isMobile ? showHideTemplatesListPopover() : handleDrawerTemplate()
         } else {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: action.error.message,
                 duration: 2
@@ -665,42 +665,42 @@ function HeaderPrescription() {
     async function onEndVisitClick() {
         if (symptomsData.length > 0 && symptomsData.filter(e => e.symptom_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup symptom name',
                 duration: 2
             });
         } else if (examinationData.length > 0 && examinationData.filter(e => e.examination_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup examination name',
                 duration: 2
             });
         } else if (diagnosisData.length > 0 && diagnosisData.filter((e) => e.tds_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup diagnosis name',
                 duration: 2
             });
         } else if (medicationData.length > 0 && medicationData.filter((e) => e.tmm_medicine_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup medication name',
                 duration: 2
             });
         } else if (adviceData.length > 0 && adviceData.filter(e => e.advice_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup advice name',
                 duration: 2
             });
         } else if (investigationData.length > 0 && investigationData.filter(e => e.investigation_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup investigation name',
                 duration: 2
@@ -728,7 +728,7 @@ function HeaderPrescription() {
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
             } else {
                 message.open({
-                    MESSAGE_KEY,
+                    key: MESSAGE_KEY,
                     type: 'warning',
                     content: action.error.message,
                     duration: 2
@@ -814,7 +814,7 @@ function HeaderPrescription() {
                                             overlayClassName="pop-450 pp-0"
                                             placement="bottom"
                                         >
-                                            <button className="btn d-flex align-items-center btn-text me-14">
+                                            <button className="btn d-flex align-items-center btn-text">
                                                 {" "}
                                                 <i className="icon-save me-2"></i> <span>Save</span>
                                             </button>
@@ -830,11 +830,12 @@ function HeaderPrescription() {
                                     <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) ? "" : "Please enter some data to save a template"}>
                                         <button className='btn d-flex align-items-center btn-text' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
                                     </Tooltip>
-                                    <button className='btn d-flex align-items-center btn-text me-14' onClick={handleDrawerCustomize}>
-                                        <i className="icon-setting me-2"></i> <span>Customize</span>
-                                    </button>
                                 </div>
                             )}
+
+                            <button className='btn d-flex align-items-center btn-text me-14' onClick={handleDrawerCustomize}>
+                                <i className="icon-setting me-2"></i> <span>Customize</span>
+                            </button>
 
                             <Drawer title="One Click Rx Templates" placement="right" onClose={handleDrawerTemplate} open={templateDrawer} className="modalWidth-563" width="auto">
                                 {TEMPLATE_CONTENT_TAB}

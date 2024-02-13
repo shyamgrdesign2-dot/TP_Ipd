@@ -99,7 +99,7 @@ function PrescriptionPrintView() {
 
     useEffect(() => {
         message.open({
-            MESSAGE_KEY,
+            key: MESSAGE_KEY,
             type: '',
             className: 'message-appointment',
             content: (
@@ -176,7 +176,7 @@ function PrescriptionPrintView() {
             navigate("/prescription", { replace: true, state: { patient_data: patient_data, caseManagerData: action.payload } })
         } else {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: action.error.message,
                 duration: 2

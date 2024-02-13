@@ -82,8 +82,8 @@ const doctorsSlice = createSlice({
       .addCase(changeHospital.rejected, (state, action) => {
         state.loading = false;
       })
-      .addCase(customizedPad.pending, (state) => {
-        state.loading = true;
+      .addCase(customizedPad.pending, (state, action) => {
+        state.loading = action.meta.arg.data.default ? false : true;
       })
       .addCase(customizedPad.fulfilled, (state, action) => {
         state.loading = false;

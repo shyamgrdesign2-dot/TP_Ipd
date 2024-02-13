@@ -194,7 +194,7 @@ function VitalsBox(props) {
             handleCollapsed(1)
         } else {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: action.error.message,
                 duration: 2
