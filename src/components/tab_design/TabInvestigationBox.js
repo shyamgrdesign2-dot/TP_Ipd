@@ -158,14 +158,14 @@ function TabInvestigationBox() {
     const onAddTemplateClicked = async () => {
         if (investigationData.length == 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 investigation added',
                 duration: 2
             });
         } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup investigation name',
                 duration: 2
@@ -197,14 +197,14 @@ function TabInvestigationBox() {
     const onUpdateTemplateClicked = async () => {
         if (investigationData.length == 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 investigation added',
                 duration: 2
             });
         } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup investigation name',
                 duration: 2
@@ -420,7 +420,7 @@ function TabInvestigationBox() {
     return (
         <>
             {contextHolder}
-            <div className="prescription-box-sm p-20px">
+            <div>
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">
                         <img className='me-2' src={Investigationicon} alt="Investigation" />

@@ -1,17 +1,24 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { Select } from "antd";
+import { Select, Button, Checkbox } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 
-import { getProfile, changeHospital } from "../redux/doctorsSlice";
+import { getProfile, customizedPad, changeHospital } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import { useLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
 import { makeDefaultLogo } from "../utils/utils";
+import CommonModal from './CommonModal';
+import alertIcon from '../assets/images/alertIcon.svg';
+
+const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
 function Header({ locationPath }) {
+
+  const [isSwitchModalOpen, setIsSwitchModalOpen] = useState(false);
+  const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -25,6 +32,7 @@ function Header({ locationPath }) {
 
   useEffect(() => {
     dispatch(getProfile());
+    dispatch(customizedPad(CUSTOMIZED_PAD_SENDDATA))
   }, []);
 
   useEffect(() => {
@@ -89,17 +97,106 @@ function Header({ locationPath }) {
     );
   }, [selectedHospital, clinicOptions, locationPath]);
 
+  //Logo Modal
+  const showHideLogoModal = useCallback(() => {
+    setIsLogoModalOpen(!isLogoModalOpen);
+  }, [isLogoModalOpen]);
+
+  const LOGO_MODAL = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={isLogoModalOpen}
+        onCancel={showHideLogoModal}
+        modalWidth={500}
+        title={"Welcome to TatvaPedia"}
+        modalBody={
+          <>
+            <div className="mb-4 fontroboto lh-base">
+              You can explore exclusive bit-sized medical content, expert-curated content, boost your proficiency & learning, and showcase your clinical competencies by submitting content based on your experiences.
+            </div>
+            <div className="alert-warning rounded-10px p-2 patient-details mb-4">
+              <div className="d-flex align-items-center">
+                <img className='me-3' src={alertIcon} alt="Warning" />
+                <span>
+                  Are you sure you want to switch? <br/>
+                  You will be redirect to TataPedia platform.
+                </span>
+              </div>
+            </div>
+            <div>
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div onClick={() => alert('Comming soon')} className="me-4 text-decoration-underline btn p-0 text-main">
+                  Yes, Switch
+                </div>
+                <Button onClick={showHideLogoModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                  <span>No, Stay</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+    );
+  }, [isLogoModalOpen]);
+
+  //Switch Modal
+  const showHideSwitchModal = useCallback(() => {
+    setIsSwitchModalOpen(!isSwitchModalOpen);
+  }, [isSwitchModalOpen]);
+
+  const onChange = (e) => {
+    console.log(`checked = ${e.target.checked}`);
+  };
+
+  const SWITCH_TO_OLD_MODAL = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={isSwitchModalOpen}
+        onCancel={showHideSwitchModal}
+        modalWidth={500}
+        title={"Switch to old view"}
+        modalBody={
+          <>
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className='me-3' src={alertIcon} alt="Warning" />
+                <span>
+                  Are you sure you want to revert to the old <br />
+                  version?
+                </span>
+              </div>
+            </div>
+            <div className="my-3">
+              <Checkbox className="switch-name-check" onChange={onChange}>Don’t show this again</Checkbox>
+            </div>
+            <div>
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div onClick={showHideSwitchModal} className="me-4 text-decoration-underline btn p-0 text-main">
+                  No, Stay
+                </div>
+                <Button onClick={() => alert('Comming soon')} className="lh-lg btn btn-primary3 btn-41 px-4">
+                  <span>Switch to Old</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+    );
+  }, [isSwitchModalOpen]);
+
   return (
     <Navbar className="justify-content-between portal-header">
       <Container fluid>
-        <Navbar.Brand href="/">
+        <div className="cursor-pointer" onClick={showHideLogoModal}>
           <img
             src={require("../assets/images/logo.png")}
             className="d-inline-block align-top" style={{ height: '30px' }}
             alt="Logo"
           />
-        </Navbar.Brand>
-        <Nav className="ms-auto">
+        </div>
+        {LOGO_MODAL}
+        <Nav className="ms-auto align-items-center d-flex">
           {HOSPITAL_DATA}
           {/* <Dropdown className="dropdown-profile nav-link-profile mx-1 pt-1 align-items-center">
             <Dropdown.Toggle
@@ -135,6 +232,11 @@ function Header({ locationPath }) {
               </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown> */}
+          <div onClick={showHideSwitchModal} className='cursor-pointer d-flex h-100 mx-4'>
+            <i className='icon-switch me-2'></i>
+            Switch To Old View
+          </div>
+          {SWITCH_TO_OLD_MODAL}
           <Dropdown className="dropdown-profile nav-link-profile mx-1">
             <Dropdown.Toggle
               id="navbarDropdown"
@@ -151,16 +253,7 @@ function Header({ locationPath }) {
               ) : (
                 <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
               )}
-
             </Dropdown.Toggle>
-            {/* <Dropdown.Menu className="dropdown-menu-end">
-              <Dropdown.Item>
-                <span>Profile</span>
-              </Dropdown.Item>
-              <Dropdown.Item>
-                <span>Logout</span>
-              </Dropdown.Item>
-            </Dropdown.Menu> */}
           </Dropdown>
         </Nav>
       </Container>

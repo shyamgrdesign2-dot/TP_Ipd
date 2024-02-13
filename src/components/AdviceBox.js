@@ -136,7 +136,7 @@ function AdviceBox() {
         value: searchQuery,
         label: <div className='d-flex align-items-center'>
           <Checkbox checked={adviceDataCheck.some(x => x.advice_name == searchQuery)}></Checkbox>
-          <div className="ms-2">{searchQuery} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a></div>
+          <div className="ms-2">{searchQuery} <i className="icon-Add mx-1 fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
         </div>,
       });
     setParentSearchOptions(data);
@@ -261,14 +261,14 @@ function AdviceBox() {
   const onAddTemplateClicked = async () => {
     if (adviceData.length == 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 advice added',
         duration: 2
       });
     } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'Please fillup advice name',
         duration: 2
@@ -300,14 +300,14 @@ function AdviceBox() {
   const onUpdateTemplateClicked = async () => {
     if (adviceData.length == 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 advice added',
         duration: 2
       });
     } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'Please fillup advice name',
         duration: 2
@@ -561,7 +561,7 @@ function AdviceBox() {
   return (
     <>
       {contextHolder}
-      <div className="prescription-box-sm">
+      <div className="">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Adviceicon} alt="Advice" />

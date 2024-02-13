@@ -124,7 +124,7 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                 setSearchChildQuery("")
             } else {
                 messageApi.open({
-                    MESSAGE_KEY,
+                    key: MESSAGE_KEY,
                     type: 'warning',
                     content: action.error.message,
                     duration: 2

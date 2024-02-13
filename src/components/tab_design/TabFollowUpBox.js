@@ -113,7 +113,7 @@ function TabFollowUpBox() {
     return (
         <>
             {contextHolder}
-            <div className="prescription-box-sm p-20px">
+            <div>
                 <div className="p-14-pb0">
                     <Row gutter={30}>
                         <Col md={8}>
@@ -130,11 +130,11 @@ function TabFollowUpBox() {
                                     {moment(followUpDate).format('dddd, Do MMMM YYYY')}
                                 </div>
                             )}
-                            <div className="d-flex flex-wrap mt-14">
+                            <div className="d-flex flex-wrap mt-14 fllowbtn">
                                 {dateOptions.length > 0 &&
                                     dateOptions.map((item, i) => {
                                         return (
-                                            <Button key={i} type="text" className="btn btn-primary2 btn-fw-bold mb-14 me-14" onClick={() => onOptionPress(item)}>{item.label}</Button>
+                                            <Button key={i} type="text" className="btn btn-primary2 px-5-16 btn-fw-bold fs-12 mb-12 me-12" onClick={() => onOptionPress(item)}>{item.label}</Button>
                                         )
                                     })}
                             </div>

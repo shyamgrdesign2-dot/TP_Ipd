@@ -77,5 +77,9 @@ ApiAppointments.viewPatient = function (data) {
   return api.post(`/api/v1/appointment/viewPatient`, data, baseUrl);
 };
 
+ApiAppointments.customizedPad = function (data) {
+  return api.post(`/api/v1/appointment/customizedPad`, data, baseUrl);
+};
+
 
 export default ApiAppointments;

@@ -121,7 +121,7 @@ function VitalsList() {
 
     return (
         <>
-            <div className="overflow-y-auto" style={{ height: `${vitalsData.length > 0 && "250px"}` }}>
+            <div className="overflow-y-auto" style={{ maxHeight: `${vitalsData.length > 0 && "250px"}` }}>
                 {TODAY_VITALS}
             </div>
         </>

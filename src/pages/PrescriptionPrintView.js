@@ -1,13 +1,15 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
+// import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { Col, Row, Select, Button, message, Spin } from "antd";
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { useReactToPrint } from 'react-to-print';
 
-import { PDFReader } from 'reactjs-pdf-reader';
+// import { PDFReader } from 'reactjs-pdf-reader';
+
+
 
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
@@ -21,6 +23,12 @@ import { useSelector, useDispatch } from "react-redux";
 import {
     viewCaseManager,
 } from "../redux/caseManagerSlice";
+
+import { pdfjs, Document, Page } from "react-pdf";
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    "pdfjs-dist/build/pdf.worker.min.js",
+    import.meta.url
+).toString();
 
 const LANGUAGE_LIST = [
     {
@@ -91,14 +99,14 @@ function PrescriptionPrintView() {
 
     useEffect(() => {
         message.open({
-            MESSAGE_KEY,
+            key: MESSAGE_KEY,
             type: '',
             className: 'message-appointment',
             content: (
                 <div className='d-flex align-items-center'>
                     <img src={visitEnd} className='me-3' />
                     <div>
-                    <div className='title-common fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
+                        <div className='title-common text-start fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
                         <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
                     </div>
                     <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
@@ -168,7 +176,7 @@ function PrescriptionPrintView() {
             navigate("/prescription", { replace: true, state: { patient_data: patient_data, caseManagerData: action.payload } })
         } else {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: action.error.message,
                 duration: 2
@@ -176,6 +184,13 @@ function PrescriptionPrintView() {
         }
 
     };
+
+    const [numPages, setNumPages] = useState();
+    const [pageNumber, setPageNumber] = useState(1);
+
+    function onDocumentLoadSuccess({ numPages }) {
+        setNumPages(numPages);
+    }
 
     return (
         <>
@@ -260,8 +275,28 @@ function PrescriptionPrintView() {
                             </div>
                             <div className="border rounded-20px bg-white mt-20 overflow-hidden">
                                 <div ref={divRef} className="printheight">
-                                    <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
-                                    <PDFReader key={Math.random()} ref={printRef} width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} />
+                                    <div ref={printRef} className="position-relative h-100">
+                                        <Document
+                                            loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
+                                            error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
+                                            noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
+                                            file={printUrl}
+                                            onLoadSuccess={onDocumentLoadSuccess}>
+                                            {Array.apply(null, Array(numPages))
+                                                .map((x, i) => i + 1)
+                                                .map((page) => {
+                                                    return (
+                                                        <Page
+                                                            width={divWidth}
+                                                            pageNumber={page}
+                                                            renderTextLayer={false}
+                                                            renderAnnotationLayer={false}
+                                                        />
+                                                    );
+                                                })}
+                                        </Document>
+                                    </div>
+                                    {/* <PDFReader key={Math.random()} ref={printRef} width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} /> */}
                                     {/* <embed className="printBox" ref={printRef} src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed> */}
                                     {/* <iframe
                                         src="https://pms-upgrade.azurewebsites.net/case_manager/pdf_casemanager_send.php?pdf_id=MTI3Njgx&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ=#toolbar=0&navpanes=0&scrollbar=0"
