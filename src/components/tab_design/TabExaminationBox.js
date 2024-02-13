@@ -158,14 +158,14 @@ function TabExaminationBox() {
     const onAddTemplateClicked = async () => {
         if (examinationData.length == 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 examination added',
                 duration: 2
             });
         } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup examination name',
                 duration: 2
@@ -197,14 +197,14 @@ function TabExaminationBox() {
     const onUpdateTemplateClicked = async () => {
         if (examinationData.length == 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 examination added',
                 duration: 2
             });
         } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup examination name',
                 duration: 2
@@ -423,7 +423,7 @@ function TabExaminationBox() {
     return (
         <>
             {contextHolder}
-            <div className="prescription-box-sm p-20px">
+            <div>
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">
                         <img className='me-2' src={Examinationicon} alt="Examination" />

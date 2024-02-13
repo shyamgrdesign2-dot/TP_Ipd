@@ -737,6 +737,18 @@ body {
         background-color: $theme;
     }
 }
+.switch-name-check {
+    .ant-checkbox-inner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #A2A2A8;
+        &:after {
+            width: 7px;
+            height: 12px;
+            top: 45%;
+        }
+    }
+}
 
 .ant-message-notice-wrapper .message-appointment {
     .ant-message-notice-content {

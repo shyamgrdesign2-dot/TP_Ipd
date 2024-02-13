@@ -348,9 +348,9 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                                         <Button
                                                             key={i}
                                                             type="text"
-                                                            className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height d-flex align-items-center"
+                                                            className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height"
                                                             onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                                                            "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
+                                                            "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a>
                                                         </Button>
                                                     ) : (
                                                         <Button

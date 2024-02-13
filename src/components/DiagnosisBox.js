@@ -363,14 +363,14 @@ function DiagnosisBox() {
   const onAddTemplateClicked = async () => {
     if (diagnosisData.length == 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: "At least 1 diagnosis added",
         duration: 2,
       });
     } else if (diagnosisData.filter((e) => e.tds_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: "Please fillup diagnosis name",
         duration: 2,
@@ -402,14 +402,14 @@ function DiagnosisBox() {
   const onUpdateTemplateClicked = async () => {
     if (diagnosisData.length == 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: "At least 1 diagnosis added",
         duration: 2,
       });
     } else if (diagnosisData.filter((e) => e.tds_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: "Please fillup diagnosis name",
         duration: 2,
@@ -672,7 +672,7 @@ function DiagnosisBox() {
   return (
     <>
       {contextHolder}
-      <div className="prescription-box-sm">
+      <div className="">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Diagnosisicon} alt="Diagnosis" />
