@@ -206,7 +206,7 @@ function AppointmentData() {
                     })
                 } else {
                     message.open({
-                        MESSAGE_KEY,
+                        key: MESSAGE_KEY,
                         type: 'warning',
                         content: `Can't select next date`,
                         duration: 5,
@@ -575,7 +575,7 @@ function AppointmentData() {
                                         if (action.meta.requestStatus == "fulfilled") {
                                             handleConfirmationModal()
                                             message.open({
-                                                MESSAGE_KEY,
+                                                key: MESSAGE_KEY,
                                                 type: '',
                                                 className: 'message-appointment',
                                                 content: (
@@ -649,14 +649,14 @@ function AppointmentData() {
             handleEndVisitReasonDrawer()
 
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: '',
                 className: 'message-appointment',
                 content: (
                     <div className='d-flex align-items-center'>
                         <img src={visitEnd} className='me-3' />
                         <div>
-                            <div className='title-common fontroboto'>{`${appointmentSelectedFromMenu?.pm_first_name}’s visit ended successfully.`}</div>
+                            <div className='title-common text-start fontroboto'>{`${appointmentSelectedFromMenu?.pm_first_name}’s visit ended successfully.`}</div>
                             <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
                         </div>
                         <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />

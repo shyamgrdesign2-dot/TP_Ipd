@@ -36,20 +36,20 @@ function Welcome1(props) {
                         <img src={require("../assets/images/bg-welcome.png")} className="welcomeig d-inline-block align-top ms-4" alt="Welcome" />
                     </div>
                     <div>
-                        <div className='d-lg-flex d-block'>
-                            {viewCaseManagerData && (
+                        {viewCaseManagerData && (
+                            <div className='d-lg-flex d-block'>
                                 <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() =>
                                     navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
                                 }> <i className={'icon-reload me-2'}></i>Repeat {modifyFormat && modifyFormat.first}<sup>{modifyFormat && modifyFormat.second}</sup>&nbsp;{modifyFormat && modifyFormat.third} Rx</Button>
-                            )}
-                            <Button variant="primary"
-                                className='btn-41 px-4'
-                                onClick={() =>
-                                    navigate("/prescription", { state: { patient_data: patient_data } })
-                                }>
-                                {'Start New Visit'}
-                            </Button>
-                        </div>
+                                <Button variant="primary"
+                                    className='btn-41 px-4'
+                                    onClick={() =>
+                                        navigate("/prescription", { state: { patient_data: patient_data } })
+                                    }>
+                                    {'Start New Visit'}
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className='pb-5'>

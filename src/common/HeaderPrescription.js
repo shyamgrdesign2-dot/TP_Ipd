@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { isMobile } from 'react-device-detect';
 import { v4 as uuidv4 } from 'uuid';
 
+import CustomizeSetting from './CustomizeSetting';
+
 import CashManagerContext from "../context/CashManagerContext";
 import ProfilePopover from './ProfilePopover';
 import CommonModal from './CommonModal';
@@ -58,6 +60,8 @@ function HeaderPrescription() {
 
     const [templateDrawer, setTemplateDrawer] = useState(false);
     const [saveDrawer, setSaveDrawer] = useState(false);
+
+    const [customizeDrawer, setCustomizeDrawer] = useState(false);
 
     useEffect(() => {
         dispatch(oneClickTemplatesList());
@@ -191,7 +195,7 @@ function HeaderPrescription() {
             !isMobile ? showHideTemplatesListPopover() : handleDrawerTemplate()
         } else {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: action.error.message,
                 duration: 2
@@ -500,6 +504,7 @@ function HeaderPrescription() {
                             placeholder="Select Template"
                             onSearch={onSearchTemplate}
                             onSelect={onSelectTemplate}
+                            optionLabelProp="label"
                             options={allTemplates.map((template) => {
                                 return {
                                     key: JSON.stringify(template),
@@ -511,6 +516,14 @@ function HeaderPrescription() {
                                     ),
                                 };
                             })}
+                            optionRender={(option) => (
+                                <div className="align-items-center d-flex text-truncate w-100">
+                                    <div className="round-box"><i className="icon-template"></i></div>
+                                    <div className="text-truncate w-100">
+                                        <div className="title text-main2">{option.data.value}</div>
+                                    </div>
+                                </div>
+                            )}
                         />
                         <Button
                             className="btn btn-primary3 btn-41 ms-3"
@@ -603,6 +616,7 @@ function HeaderPrescription() {
                             placeholder="Select Template"
                             onSearch={onSearchTemplate}
                             onSelect={onSelectTemplate}
+                            optionLabelProp="label"
                             options={allTemplates.map((template) => {
                                 return {
                                     key: JSON.stringify(template),
@@ -614,6 +628,14 @@ function HeaderPrescription() {
                                     ),
                                 };
                             })}
+                            optionRender={(option) => (
+                                <div className="align-items-center d-flex text-truncate w-100">
+                                    <div className="round-box"><i className="icon-template"></i></div>
+                                    <div className="text-truncate w-100">
+                                        <div className="title text-main2">{option.data.value}</div>
+                                    </div>
+                                </div>
+                            )}
                         />
                         <Button
                             className="btn btn-primary3 btn-41 ms-3"
@@ -629,45 +651,56 @@ function HeaderPrescription() {
         );
     }, [tabChange, saveDrawer, inputTemplateName, loading, allTemplates]);
 
+    // Handle Customize Drawer
+    const handleDrawerCustomize = useCallback(() => {
+        setCustomizeDrawer(!customizeDrawer);
+    }, [customizeDrawer]);
+
+    const CUSTOMIZE_CONTENT_TAB = useMemo(() => {
+        return (
+            <CustomizeSetting handleDrawerCustomize={handleDrawerCustomize} />
+        );
+    }, [customizeDrawer]);
+
     async function onEndVisitClick() {
         if (symptomsData.length > 0 && symptomsData.filter(e => e.symptom_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup symptom name',
                 duration: 2
             });
         } else if (examinationData.length > 0 && examinationData.filter(e => e.examination_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup examination name',
                 duration: 2
             });
         } else if (diagnosisData.length > 0 && diagnosisData.filter((e) => e.tds_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup diagnosis name',
                 duration: 2
             });
         } else if (medicationData.length > 0 && medicationData.filter((e) => e.tmm_medicine_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup medication name',
                 duration: 2
             });
         } else if (adviceData.length > 0 && adviceData.filter(e => e.advice_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup advice name',
                 duration: 2
             });
         } else if (investigationData.length > 0 && investigationData.filter(e => e.investigation_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup investigation name',
                 duration: 2
@@ -695,7 +728,7 @@ function HeaderPrescription() {
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
             } else {
                 message.open({
-                    MESSAGE_KEY,
+                    key: MESSAGE_KEY,
                     type: 'warning',
                     content: action.error.message,
                     duration: 2
@@ -781,7 +814,7 @@ function HeaderPrescription() {
                                             overlayClassName="pop-450 pp-0"
                                             placement="bottom"
                                         >
-                                            <button className="btn d-flex align-items-center btn-text me-14">
+                                            <button className="btn d-flex align-items-center btn-text">
                                                 {" "}
                                                 <i className="icon-save me-2"></i> <span>Save</span>
                                             </button>
@@ -795,16 +828,23 @@ function HeaderPrescription() {
                                         <i className="icon-template me-2"></i> <span>Templates</span>
                                     </button>
                                     <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) ? "" : "Please enter some data to save a template"}>
-                                        <button className='btn d-flex align-items-center btn-text me-14' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
+                                        <button className='btn d-flex align-items-center btn-text' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
                                     </Tooltip>
                                 </div>
                             )}
+
+                            <button className='btn d-flex align-items-center btn-text me-14' onClick={handleDrawerCustomize}>
+                                <i className="icon-setting me-2"></i> <span>Customize</span>
+                            </button>
 
                             <Drawer title="One Click Rx Templates" placement="right" onClose={handleDrawerTemplate} open={templateDrawer} className="modalWidth-563" width="auto">
                                 {TEMPLATE_CONTENT_TAB}
                             </Drawer>
                             <Drawer title="Save Template" placement="right" onClose={handleDrawerSave} open={saveDrawer} className="modalWidth-563" width="auto">
                                 {SAVE_CONTENT_TAB}
+                            </Drawer>
+                            <Drawer placement="right" closeIcon={false} onClose={handleDrawerCustomize} open={customizeDrawer} className="modalWidth-900" width="auto">
+                                {CUSTOMIZE_CONTENT_TAB}
                             </Drawer>
                             {/* <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                 <i className='icon-setting me-2'></i> <span className='text-decoration-underline'>Customize</span>

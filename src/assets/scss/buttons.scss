@@ -355,6 +355,9 @@ body {
 
     .ant-btn {
         padding: 5px 15px;
+        &.px-5-16 {
+            padding: 5px 13px;
+        }
     }
 
     .ant-dropdown-trigger {

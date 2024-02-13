@@ -207,7 +207,7 @@ function TabMedicationBox() {
       handleDrawerParent();
     } else {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: action.error.message,
         duration: 2,
@@ -311,7 +311,7 @@ function TabMedicationBox() {
       setMedicationData([...medicationData, ...updatedData]);
     } else {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: action.error.message,
         duration: 2,
@@ -356,7 +356,7 @@ function TabMedicationBox() {
       handleDrawerTemplate();
     } else {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: action.error.message,
         duration: 2,
@@ -379,7 +379,7 @@ function TabMedicationBox() {
   const onAddTemplateClicked = async () => {
     if (medicationData.length == 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: "At least 1 medication added",
         duration: 2,
@@ -388,7 +388,7 @@ function TabMedicationBox() {
       medicationData.filter((e) => e.tmm_medicine_name == "").length > 0
     ) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: "Please fillup medication name",
         duration: 2,
@@ -420,7 +420,7 @@ function TabMedicationBox() {
   const onUpdateTemplateClicked = async () => {
     if (medicationData.length == 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: "At least 1 medication added",
         duration: 2,
@@ -429,7 +429,7 @@ function TabMedicationBox() {
       medicationData.filter((e) => e.medication_name == "").length > 0
     ) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: "Please fillup medication name",
         duration: 2,
@@ -1669,7 +1669,7 @@ function TabMedicationBox() {
   return (
     <>
       {contextHolder}
-      <div className="prescription-box-sm p-20px">
+      <div>
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Medicationicon} alt="Medication" />
@@ -1750,7 +1750,7 @@ function TabMedicationBox() {
           >
             <i className="icon-search mx-2"></i>
             <span className="fontroboto backbar fw-normal">
-              Search Medicines
+              Search Medicines by Name, Brand or generic
             </span>
           </div>
         </div>

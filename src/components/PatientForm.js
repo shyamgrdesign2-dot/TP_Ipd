@@ -5,7 +5,7 @@ import { Form, Tabs, Button, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { MESSAGE_KEY, ADD, EDIT } from "../utils/constants";
+import { ADD, EDIT, MESSAGE_KEY } from "../utils/constants";
 
 import TabHeader from "../components/tab_design/TabHeader";
 import PersonalDetails from "../components/PersonalDetails";
@@ -54,7 +54,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                 mode === EDIT ? navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } }) : navigate("/prescription", { replace: true, state: { patient_data: action.payload } })
             } else {
                 message.open({
-                    MESSAGE_KEY,
+                    key: MESSAGE_KEY,
                     type: 'warning',
                     content: action.error.message,
                     duration: 2

@@ -298,14 +298,14 @@ function ExaminationBox() {
   const onAddTemplateClicked = async () => {
     if (examinationData.length == 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 examination added',
         duration: 2
       });
     } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'Please fillup examination name',
         duration: 2
@@ -337,14 +337,14 @@ function ExaminationBox() {
   const onUpdateTemplateClicked = async () => {
     if (examinationData.length == 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 examination added',
         duration: 2
       });
     } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'Please fillup examination name',
         duration: 2
@@ -580,7 +580,7 @@ function ExaminationBox() {
   return (
     <>
       {contextHolder}
-      <div className="prescription-box-sm">
+      <div className="">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Examinationicon} alt="Examination" />

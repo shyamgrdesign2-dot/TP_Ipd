@@ -5,6 +5,8 @@ import { Content } from "antd/es/layout/layout";
 import moment from 'moment';
 import { v4 as uuidv4 } from "uuid";
 
+import { useSelector } from "react-redux";
+
 import CashManagerContext from '../../context/CashManagerContext';
 import HeaderPrescription from "../../common/HeaderPrescription";
 import TabSymptomsBox from "../../components/tab_design/TabSymptomsBox";
@@ -26,6 +28,8 @@ import vitalsWhite from '../../assets/images/vitals-white.svg';
 import Sider from "antd/es/layout/Sider";
 
 function TabPrescription() {
+
+    const { customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
 
     const { state } = useLocation();
     const { patient_data, caseManagerData } = state
@@ -117,12 +121,18 @@ function TabPrescription() {
                 <div className='w-100 bg-body wrapper2 prescription-wrapper p-0'>
                     <Layout>
                         <div className="prescription-sidebar">
-                            <button type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length == 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                                    <img src={vitalsWhite} alt="Vitals" />
-                                </div>
-                                <label className="text-white mt-1">Vitals</label>
-                            </button>
+                            {customizedPadLeftList.map((e, i) => {
+                                return (
+                                    e.tmdpm_id === 1 && e.tmdpm_status === 0 && (
+                                        <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length == 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
+                                            <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                                <img src={vitalsWhite} alt="Vitals" />
+                                            </div>
+                                            <label className="text-white mt-1">Vitals</label>
+                                        </button>
+                                    )
+                                )
+                            })}
                             {/* <button type='button' className="mb-3 text-center btn btn-action">
                                 <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                     <img src={medicalHistoryWhite} alt="History" />
@@ -161,13 +171,17 @@ function TabPrescription() {
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                             <Content>
-                                <TabSymptomsBox />
-                                <TabExaminationBox />
-                                <TabDiagnosisBox />
-                                <TabMedicationBox />
-                                <TabAdviceBox />
-                                <TabInvestigationBox />
-                                <TabFollowUpBox />
+                                {customizedPadRightList.map((e, i) => {
+                                    return (
+                                        e.tmdpm_id === 5 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabSymptomsBox /></div>
+                                            : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabExaminationBox /></div>
+                                                : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabDiagnosisBox /></div>
+                                                    : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabMedicationBox /></div>
+                                                        : e.tmdpm_id === 13 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"> <TabAdviceBox /></div>
+                                                            : e.tmdpm_id === 14 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabInvestigationBox /></div>
+                                                                : e.tmdpm_id === 15 && e.tmdpm_status === 0 && <div key={i} className="prescription-box-sm"><TabFollowUpBox /></div>
+                                    )
+                                })}
                             </Content>
                         </div>
                     </Layout>
