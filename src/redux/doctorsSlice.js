@@ -57,6 +57,23 @@ export const customizedPad = createAsyncThunk(
   }
 );
 
+export const swtichLayout = createAsyncThunk(
+  "records/swtichLayout",
+  async () => {
+    try {
+      const result = await ApiAppointments.swtichLayout();
+      if (result.status) {
+        return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
 const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
@@ -91,6 +108,15 @@ const doctorsSlice = createSlice({
         state.customizedPadRightList = action.payload.right
       })
       .addCase(customizedPad.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(swtichLayout.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(swtichLayout.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(swtichLayout.rejected, (state) => {
         state.loading = false;
       })
   },
