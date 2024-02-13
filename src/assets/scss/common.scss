@@ -72,6 +72,11 @@ body {
     .bg-secondary-light {
         background-color: $themesecondarylight;
     }
+    .fs-12 {
+        span {
+            font-size: 12px !important;
+        }
+    }
     .fs-14 {
         font-size: 14px !important;
     }
@@ -150,6 +155,9 @@ body {
     }
     .me-14 {
         margin-right: 14px;
+    }
+    .me-12 {
+        margin-right: 12px;
     }
     .h-38 {
         height: 38px;
@@ -307,18 +315,6 @@ body {
                 }
             }
         }
-        // .round-box {
-        //     width: 37px;
-        //     height: 37px;
-        //     min-width: 37px;
-        //     min-height: 37px;
-        //     background-color: #fff;
-        //     border-radius: 100%;
-        //     align-items: center;
-        //     display: flex;
-        //     justify-content: center;
-        //     margin-right: 15px;
-        // }
     }
     .round-box {
         width: 37px;
@@ -408,5 +404,12 @@ body {
     }
     .icon-search {
         color: #A2A2A8 !important;
+    }
+    .fllowbtn {
+        .px-5-16 {
+            &:last-child {
+                margin-right: 0;
+            }
+        } 
     }
 }

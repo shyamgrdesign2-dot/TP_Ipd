@@ -352,14 +352,14 @@ function SymptomsBox() {
   const onAddTemplateClicked = async () => {
     if (symptomsData.length == 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 symptom added',
         duration: 2
       });
     } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'Please fillup symptom name',
         duration: 2
@@ -391,14 +391,14 @@ function SymptomsBox() {
   const onUpdateTemplateClicked = async () => {
     if (symptomsData.length == 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 symptom added',
         duration: 2
       });
     } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'Please fillup symptom name',
         duration: 2
@@ -660,7 +660,7 @@ function SymptomsBox() {
   return (
     <>
       {contextHolder}
-      <div className="prescription-box-sm">
+      <div>
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Symptomsicon} alt="Symptoms" />
