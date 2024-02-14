@@ -435,12 +435,17 @@ body {
                 &:before {
                     background-color: $white;
                 }
+                inset-inline-start: calc(100% - 18px);
             }
         }
         .ant-switch-handle {
             &:before {
                 background-color: #A2A2A8;
             }
+            top: 4px;
+            inset-inline-start: 3px;
+            width: 14px;
+            height: 14px;
         }
     }
 
