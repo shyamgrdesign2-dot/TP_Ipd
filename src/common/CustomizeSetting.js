@@ -95,6 +95,7 @@ function CustomizeSetting({ handleDrawerCustomize }) {
       key: 'sort',
       colSpan: 2,
       align: 'left',
+      width: 50,
       dataIndex: 'sort',
     },
     {
@@ -136,6 +137,7 @@ function CustomizeSetting({ handleDrawerCustomize }) {
       title: 'RIGHT SIDE OF ELEMETNS',
       key: 'sort',
       colSpan: 2,
+      width: 50,
       align: 'left',
       dataIndex: 'sort',
     },
@@ -256,7 +258,7 @@ function CustomizeSetting({ handleDrawerCustomize }) {
               <span>Default Settings</span>
             </button>
             <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onCustomizePadClick} loading={loading}>
-              Done
+              Save
             </Button>
           </div>
         </div>

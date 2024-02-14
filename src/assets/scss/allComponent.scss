@@ -223,6 +223,12 @@
     }
 }
 
+.anticon-menu {
+    svg {
+        color: $grayColor;
+    }
+}
+
 // Prescription Component SCSS
 .prescription-wrapper {
     padding: 20px;
