@@ -251,7 +251,7 @@ function Header({ locationPath }) {
               </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown> */}
-          <div onClick={showHideSwitchModal} className='cursor-pointer d-flex h-100 mx-4'>
+          <div onClick={showHideSwitchModal} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
             <i className='icon-switch me-2'></i>
             Switch To Old View
           </div>
