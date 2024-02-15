@@ -120,7 +120,7 @@ function Header({ locationPath }) {
                 <img className='me-3' src={alertIcon} alt="Warning" />
                 <span>
                   Are you sure you want to switch? <br />
-                  You will be redirect to TataPedia platform.
+                  You will be redirect to TatvaPedia platform.
                 </span>
               </div>
             </div>

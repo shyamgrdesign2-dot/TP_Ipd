@@ -136,7 +136,7 @@ function AdviceBox() {
         value: searchQuery,
         label: <div className='d-flex align-items-center'>
           <Checkbox checked={adviceDataCheck.some(x => x.advice_name == searchQuery)}></Checkbox>
-          <div className="ms-2">{searchQuery} <i className="icon-Add mx-1 fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
+          <div className="ms-2">{searchQuery} <i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
         </div>,
       });
     setParentSearchOptions(data);
