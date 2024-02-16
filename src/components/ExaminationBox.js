@@ -127,7 +127,7 @@ function ExaminationBox() {
           value: searchParentQuery,
           label: (
             <>
-              <div>{searchParentQuery}</div>
+              <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
             </>
           ),
         });
@@ -584,7 +584,7 @@ function ExaminationBox() {
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Examinationicon} alt="Examination" />
-            <div className="title-common">Examination</div>
+            <div className="title-common">Examinations</div>
           </div>
           <div className="d-flex align-items-center">
             <Popover
