@@ -4,10 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { Select, Button, Checkbox, message } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
+import { isChrome, isSafari } from "react-device-detect";
+import axios from 'axios';
 
+import config from "../config";
 import { getProfile, changeHospital, customizedPad, swtichLayout } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
-import { useLocalStorage } from "../utils/localStorage";
+import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
 import { makeDefaultLogo } from "../utils/utils";
 import { MESSAGE_KEY } from "../utils/constants";
@@ -30,6 +33,7 @@ function Header({ locationPath }) {
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const [getStoredProfile, saveProfile] = useLocalStorage(PERSISTANT_STORAGE_KEY_PROFILE);
+  const [tokenData, setTokenData] = useState(null);
 
   useEffect(() => {
     dispatch(getProfile());
@@ -56,6 +60,7 @@ function Header({ locationPath }) {
         if (token !== undefined) {
           try {
             var decoded = jwtDecode(token);
+            setTokenData(decoded.result)
             const index = clinicOptions.findIndex(e => e.value == decoded.result.clinic_id)
             index != -1 ? setSelectedHospital(parseInt(decoded.result.clinic_id)) : setSelectedHospital(null)
           } catch (e) {
@@ -83,10 +88,13 @@ function Header({ locationPath }) {
             // setSelectedHospital(value)
             await setToken(action.payload.token);
             if (locationPath == "/") {
-              // navigate('/', { replace: true });
-              // navigate(0, { replace: true });
-              navigate('/?authToken=' + action.payload.token, { replace: true });
-              navigate(0, { replace: true });
+              if (!isChrome && !isSafari) {
+                navigate('/?authToken=' + action.payload.token, { replace: true });
+                navigate(0, { replace: true });
+              } else {
+                navigate('/', { replace: true });
+                navigate(0, { replace: true });
+              }
             } else {
               navigate(0, { replace: true });
             }
@@ -153,10 +161,19 @@ function Header({ locationPath }) {
     const action = await dispatch(swtichLayout())
     if (action.meta.requestStatus == "fulfilled") {
       showHideSwitchModal()
-      setTimeout(() => {
-        navigate(`/?switch_layout=old`, { replace: true })
-        navigate(0, { replace: true });
-      }, 500);
+      if (!isChrome && !isSafari) {
+        setTimeout(() => {
+          navigate(`/?switch_layout=old`, { replace: true })
+          navigate(0, { replace: true });
+        }, 500);
+      } else {
+        SSO_TO_PM().then(async (data) => {
+          if (data.success == 200) {
+            clearLocalStorage()
+            await window.open(data.url, '_self');
+          }
+        });
+      }
     } else {
       message.open({
         key: MESSAGE_KEY,
@@ -164,6 +181,34 @@ function Header({ locationPath }) {
         content: action.error.message,
         duration: 2
       });
+    }
+  }
+
+  async function SSO_TO_PM() {
+    try {
+      const sendData = {
+        doctor_unique_id: tokenData.doctor_unique_id,
+        mobile_no: tokenData.mobile_no
+      };
+
+      const formData = new FormData();
+      Object.keys(sendData).forEach((key) => {
+        formData.append(key, sendData[key]);
+      });
+
+      const response = await axios.post(config.sso_to_pm_url, formData,
+        {
+          auth: {
+            username: config.sso_to_pm_username,
+            password: config.sso_to_pm_password,
+          }
+        },
+      );
+
+      return response.data;
+    } catch (err) {
+      console.log(err.message);
+      console.log(err.response.status);
     }
   }
 
@@ -251,10 +296,12 @@ function Header({ locationPath }) {
               </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown> */}
-          <div onClick={showHideSwitchModal} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
-            <i className='icon-switch me-2'></i>
-            Switch To Old View
-          </div>
+          {profile && profile.SwitchGrowthBook && (
+            <div onClick={showHideSwitchModal} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
+              <i className='icon-switch me-2'></i>
+              Switch To Old View
+            </div>
+          )}
           {SWITCH_TO_OLD_MODAL}
           <Dropdown className="dropdown-profile nav-link-profile mx-1">
             <Dropdown.Toggle

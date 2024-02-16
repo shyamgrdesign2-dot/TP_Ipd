@@ -7,9 +7,7 @@ import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { useReactToPrint } from 'react-to-print';
 
-// import { PDFReader } from 'reactjs-pdf-reader';
-
-
+import { PDFReader } from 'reactjs-pdf-reader';
 
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
@@ -24,11 +22,11 @@ import {
     viewCaseManager,
 } from "../redux/caseManagerSlice";
 
-import { pdfjs, Document, Page } from "react-pdf";
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    "pdfjs-dist/build/pdf.worker.min.js",
-    import.meta.url
-).toString();
+// import { pdfjs, Document, Page } from "react-pdf";
+// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+//     "pdfjs-dist/build/pdf.worker.min.js",
+//     import.meta.url
+// ).toString();
 
 const LANGUAGE_LIST = [
     {
@@ -275,7 +273,7 @@ function PrescriptionPrintView() {
                             </div>
                             <div className="border rounded-20px bg-white mt-20 overflow-hidden">
                                 <div ref={divRef} className="printheight">
-                                    <div ref={printRef} className="position-relative h-100">
+                                    {/* <div ref={printRef} className="position-relative h-100">
                                         <Document
                                             loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
                                             error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
@@ -295,8 +293,9 @@ function PrescriptionPrintView() {
                                                     );
                                                 })}
                                         </Document>
-                                    </div>
-                                    {/* <PDFReader key={Math.random()} ref={printRef} width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} /> */}
+                                    </div> */}
+                                    <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
+                                    <PDFReader key={Math.random()} ref={printRef} width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} />
                                     {/* <embed className="printBox" ref={printRef} src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed> */}
                                     {/* <iframe
                                         src="https://pms-upgrade.azurewebsites.net/case_manager/pdf_casemanager_send.php?pdf_id=MTI3Njgx&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ=#toolbar=0&navpanes=0&scrollbar=0"
