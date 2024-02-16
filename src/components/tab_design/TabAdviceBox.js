@@ -150,14 +150,14 @@ function TabAdviceBox() {
     );
 
     const onAddTemplateClicked = async () => {
-        if (adviceData.length == 0) {
+        if (adviceData.length === 0) {
             messageApi.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 advice added',
                 duration: 2
             });
-        } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
+        } else if (adviceData.filter(e => e.advice_name === "").length > 0) {
             messageApi.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
@@ -170,7 +170,7 @@ function TabAdviceBox() {
                 advices: adviceData,
             };
             const action = await dispatch(addTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -189,14 +189,14 @@ function TabAdviceBox() {
     );
 
     const onUpdateTemplateClicked = async () => {
-        if (adviceData.length == 0) {
+        if (adviceData.length === 0) {
             messageApi.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 advice added',
                 duration: 2
             });
-        } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
+        } else if (adviceData.filter(e => e.advice_name === "").length > 0) {
             messageApi.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
@@ -211,7 +211,7 @@ function TabAdviceBox() {
                 advices: adviceData,
             };
             const action = await dispatch(updateTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -253,7 +253,7 @@ function TabAdviceBox() {
                                                 <div className="text-truncate">
                                                     {template.advices.map((item, ii) => {
                                                         return (
-                                                            <span key={ii}>{`${item.advice_name}${template.advices.length - 1 != ii ? ", " : ""
+                                                            <span key={ii}>{`${item.advice_name}${template.advices.length - 1 !== ii ? ", " : ""
                                                                 }`}</span>
                                                         );
                                                     })}
@@ -338,7 +338,7 @@ function TabAdviceBox() {
                                         <div className="text-truncate">
                                             {JSON.parse(option.data.key).advices.map((item, ii) => {
                                                 return (
-                                                    <span key={ii}>{`${item.advice_name}${JSON.parse(option.data.key).advices.length - 1 != ii ? ", " : ""
+                                                    <span key={ii}>{`${item.advice_name}${JSON.parse(option.data.key).advices.length - 1 !== ii ? ", " : ""
                                                         }`}</span>
                                                 );
                                             })}
@@ -372,7 +372,7 @@ function TabAdviceBox() {
     const updateChild = (item) => {
         const { index, ...updatedReqData } = item;
         console.log(adviceData[item.index].advice_name, updatedReqData.advice_name)
-        if (adviceData[item.index].advice_name != updatedReqData.advice_name) {
+        if (adviceData[item.index].advice_name !== updatedReqData.advice_name) {
             updatedReqData["change"] = 1
         }
         adviceData[item.index] = { ...adviceData[item.index], ...updatedReqData };
@@ -393,13 +393,13 @@ function TabAdviceBox() {
                                 </Button>
                                 <div className="modal-title text-truncate-twolines">{'Edit Advice'}</div>
                             </div>
-                            <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => updateChild(childDrawerData)} disabled={childDrawerData.advice_name != undefined && childDrawerData.advice_name ? false : true}>
+                            <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => updateChild(childDrawerData)} disabled={childDrawerData.advice_name !== undefined && childDrawerData.advice_name ? false : true}>
                                 Done
                             </Button>
                         </div>
                     </Card>
                     <div className="p-4">
-                        <Input.TextArea value={childDrawerData.advice_name != undefined && childDrawerData.advice_name} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                        <Input.TextArea value={childDrawerData.advice_name !== undefined && childDrawerData.advice_name} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                     </div>
                 </>
             )

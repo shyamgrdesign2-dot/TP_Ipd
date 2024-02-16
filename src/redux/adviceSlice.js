@@ -110,9 +110,9 @@ const adviceSlice = createSlice({
         state.loading = false;
         state.selectedAdviceList = action.payload.advices;
         const index = state.templates.findIndex(
-          (e) => e.tat_id == action.payload.tat_id
+          (e) => e.tat_id === action.payload.tat_id
         );
-        if (index != -1) {
+        if (index !== -1) {
           state.templates[index] = action.payload;
         }
       })
@@ -121,7 +121,7 @@ const adviceSlice = createSlice({
       })
       .addCase(deleteTemplate.pending, (state, action) => {
         const updatedData = state.templates.map((e) =>
-          e.tat_id == action.meta.arg ? { ...e, loading: true } : e
+          e.tat_id === action.meta.arg ? { ...e, loading: true } : e
         );
         state.templates = [...updatedData];
       })
@@ -133,7 +133,7 @@ const adviceSlice = createSlice({
       })
       .addCase(deleteTemplate.rejected, (state, action) => {
         const updatedData = state.templates.map((e) =>
-          e.tat_id == action.meta.arg ? { ...e, loading: false } : e
+          e.tat_id === action.meta.arg ? { ...e, loading: false } : e
         );
         state.templates = [...updatedData];
       })
@@ -151,14 +151,14 @@ const adviceSlice = createSlice({
       })
       .addCase(searchAdvice.pending, (state) => { })
       .addCase(searchAdvice.fulfilled, (state, action) => {
-        if (action.meta.arg.type == "parent") {
+        if (action.meta.arg.type === "parent") {
           state.parentOptionsList = action.payload;
         } else {
           state.childOptionsList = action.payload;
         }
       })
       .addCase(searchAdvice.rejected, (state, action) => {
-        if (action.meta.arg.type == "parent") {
+        if (action.meta.arg.type === "parent") {
           state.parentOptionsList = [];
         } else {
           state.childOptionsList = [];

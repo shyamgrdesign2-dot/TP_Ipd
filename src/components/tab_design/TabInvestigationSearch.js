@@ -94,7 +94,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
             investigationData.length > 0 &&
             investigationData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.investigation_name.length > 12 && item.investigation_name.length < 24 ? `${item.investigation_name.length * 10.5}px` : item.investigation_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex == index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
+                    <div key={index} style={{ width: item.investigation_name.length > 12 && item.investigation_name.length < 24 ? `${item.investigation_name.length * 10.5}px` : item.investigation_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex === index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
                         <div className="text-truncate p-2" onClick={() => {
                             setSelectedIndex(index)
                         }}>
@@ -126,14 +126,14 @@ function TabInvestigationSearch({ passIndex, onClose }) {
     //Child Componet
     const CHILD_DRAWER_DATA = useMemo(() => {
         return (
-            selectedIndex != null && (
+            selectedIndex !== null && (
                 <>
                     <div className="h-100">
                         <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
-                            <span className="text-truncate-twolines">{selectedIndex != null && investigationData[selectedIndex].investigation_name}</span>
+                            <span className="text-truncate-twolines">{selectedIndex !== null && investigationData[selectedIndex].investigation_name}</span>
                         </div>
                         <div className="p-4">
-                            <Input.TextArea value={selectedIndex != null && investigationData[selectedIndex].note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                            <Input.TextArea value={selectedIndex !== null && investigationData[selectedIndex].note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                         </div>
                     </div>
 
@@ -186,7 +186,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                                                         <Button
                                                             key={i}
                                                             type="text"
-                                                            style={{ width: item.value.length > 26 && '250px' }} 
+                                                            style={{ width: item.value.length > 26 && '250px' }}
                                                             className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
                                                             onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
                                                             {item.value}
