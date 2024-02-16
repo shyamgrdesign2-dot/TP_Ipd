@@ -110,9 +110,9 @@ const symptomsSlice = createSlice({
         state.loading = false;
         state.selectedSymptomsList = action.payload.symptoms;
         const index = state.templates.findIndex(
-          (e) => e.tst_id == action.payload.tst_id
+          (e) => e.tst_id === action.payload.tst_id
         );
-        if (index != -1) {
+        if (index !== -1) {
           state.templates[index] = action.payload;
         }
       })
@@ -121,7 +121,7 @@ const symptomsSlice = createSlice({
       })
       .addCase(deleteTemplate.pending, (state, action) => {
         const updatedData = state.templates.map((e) =>
-          e.tst_id == action.meta.arg ? { ...e, loading: true } : e
+          e.tst_id === action.meta.arg ? { ...e, loading: true } : e
         );
         state.templates = [...updatedData];
       })
@@ -133,7 +133,7 @@ const symptomsSlice = createSlice({
       })
       .addCase(deleteTemplate.rejected, (state, action) => {
         const updatedData = state.templates.map((e) =>
-          e.tst_id == action.meta.arg ? { ...e, loading: false } : e
+          e.tst_id === action.meta.arg ? { ...e, loading: false } : e
         );
         state.templates = [...updatedData];
       })
@@ -151,14 +151,14 @@ const symptomsSlice = createSlice({
       })
       .addCase(searchSymptoms.pending, (state) => { })
       .addCase(searchSymptoms.fulfilled, (state, action) => {
-        if (action.meta.arg.type == "parent") {
+        if (action.meta.arg.type === "parent") {
           state.parentOptionsList = action.payload;
         } else {
           state.childOptionsList = action.payload;
         }
       })
       .addCase(searchSymptoms.rejected, (state, action) => {
-        if (action.meta.arg.type == "parent") {
+        if (action.meta.arg.type === "parent") {
           state.parentOptionsList = [];
         } else {
           state.childOptionsList = [];

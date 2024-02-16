@@ -177,9 +177,9 @@ const medicationSlice = createSlice({
         state.loading = false;
         state.selectedMedicationList = action.payload.medication;
         const index = state.templates.findIndex(
-          (e) => e.tmtd_id == action.payload.tmtd_id
+          (e) => e.tmtd_id === action.payload.tmtd_id
         );
-        if (index != -1) {
+        if (index !== -1) {
           state.templates[index] = action.payload;
         }
       })
@@ -188,7 +188,7 @@ const medicationSlice = createSlice({
       })
       .addCase(deleteTemplate.pending, (state, action) => {
         const updatedData = state.templates.map((e) =>
-          e.tmtd_id == action.meta.arg ? { ...e, loading: true } : e
+          e.tmtd_id === action.meta.arg ? { ...e, loading: true } : e
         );
         state.templates = [...updatedData];
       })
@@ -200,7 +200,7 @@ const medicationSlice = createSlice({
       })
       .addCase(deleteTemplate.rejected, (state, action) => {
         const updatedData = state.templates.map((e) =>
-          e.tmtd_id == action.meta.arg ? { ...e, loading: false } : e
+          e.tmtd_id === action.meta.arg ? { ...e, loading: false } : e
         );
         state.templates = [...updatedData];
       })
@@ -218,14 +218,14 @@ const medicationSlice = createSlice({
       })
       .addCase(searchMedication.pending, (state) => { })
       .addCase(searchMedication.fulfilled, (state, action) => {
-        if (action.meta.arg.type == "parent") {
+        if (action.meta.arg.type === "parent") {
           state.parentOptionsList = action.payload;
         } else {
           state.childOptionsList = action.payload;
         }
       })
       .addCase(searchMedication.rejected, (state, action) => {
-        if (action.meta.arg.type == "parent") {
+        if (action.meta.arg.type === "parent") {
           state.parentOptionsList = [];
         } else {
           state.childOptionsList = [];

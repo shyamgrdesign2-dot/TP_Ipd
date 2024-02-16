@@ -24,7 +24,7 @@ const rootReducer = combineReducers({
   records: appointmentsSlice,
   doctors: doctorsSlice,
   symptoms: symptomsSlice,
-  examination:  examinationSlice,
+  examination: examinationSlice,
   diagnosis: diagnosisSlice,
   advice: adviceSlice,
   investigation: investigationSlice,

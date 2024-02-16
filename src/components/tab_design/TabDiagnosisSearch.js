@@ -111,7 +111,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
             diagnosisData.length > 0 &&
             diagnosisData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.tds_name.length > 12 && item.tds_name.length < 24 ? `${item.tds_name.length * 10.5}px` : item.tds_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex == index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
+                    <div key={index} style={{ width: item.tds_name.length > 12 && item.tds_name.length < 24 ? `${item.tds_name.length * 10.5}px` : item.tds_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex === index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
                         <div className="text-truncate p-2" onClick={() => {
                             setSelectedIndex(index)
                             setSinceValue(item.since ? parseInt(item.since.split(" ")[0]) : 1)
@@ -135,7 +135,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
 
 
     useEffect(() => {
-        if (sinceValue != -1) {
+        if (sinceValue !== -1) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
@@ -230,7 +230,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
 
     const onChangeStatusChild = useCallback(
         (key) => {
-            if (key != diagnosisData[selectedIndex].status) {
+            if (key !== diagnosisData[selectedIndex].status) {
                 diagnosisData[selectedIndex].status = key;
             } else {
                 diagnosisData[selectedIndex].status = '';
@@ -250,11 +250,11 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
     //Child Componet
     const CHILD_DRAWER_DATA = useMemo(() => {
         return (
-            selectedIndex != null && (
+            selectedIndex !== null && (
                 <>
                     <div className="h-100">
                         <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
-                            <span className="text-truncate-twolines">{selectedIndex != null && diagnosisData[selectedIndex].tds_name}</span>
+                            <span className="text-truncate-twolines">{selectedIndex !== null && diagnosisData[selectedIndex].tds_name}</span>
                         </div>
                         <div className="p-4">
                             <div>
@@ -270,7 +270,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                             </div>
                             <div className="mt-3">
                                 <Segmented
-                                    value={selectedIndex != null && diagnosisData[selectedIndex].since}
+                                    value={selectedIndex !== null && diagnosisData[selectedIndex].since}
                                     className="search-segment"
                                     options={sinceOptions}
                                     onChange={onChangeSinceChild}
@@ -281,7 +281,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                                     Status
                                 </label>
                                 {/* <Segmented
-                                    value={selectedIndex != null && diagnosisData[selectedIndex].status}
+                                    value={selectedIndex !==null && diagnosisData[selectedIndex].status}
                                     className="search-segment"
                                     options={STATUS_LIST}
                                     onChange={onChangeStatusChild}
@@ -291,7 +291,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                                         return (
                                             <button key={i}
                                                 type="button"
-                                                className={`btn w-100 ${selectedIndex != null && diagnosisData[selectedIndex].status == item.value && 'btn-segement'}`}
+                                                className={`btn w-100 ${selectedIndex !== null && diagnosisData[selectedIndex].status === item.value && 'btn-segement'}`}
                                                 onClick={() => onChangeStatusChild(item.value)}>
                                                 {item.label}
                                             </button>
@@ -304,7 +304,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                                 <label className="title-common">
                                     Add Details
                                 </label>
-                                <Input.TextArea value={selectedIndex != null && diagnosisData[selectedIndex].note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                                <Input.TextArea value={selectedIndex !== null && diagnosisData[selectedIndex].note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                             </div>
                         </div>
                     </div>

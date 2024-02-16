@@ -87,8 +87,8 @@ function PrescriptionPrintView() {
 
     const [selectedLang, setSelectedLang] = useState(1);
 
-    const [printUrl, setPrintUrl] = useState(state != undefined ? `${state.print_url}` : null);
-    const [printRxUrl, setPrintRxUrl] = useState(state != undefined ? `${state.print_rx_url}` : null);
+    const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}` : null);
+    const [printRxUrl, setPrintRxUrl] = useState(state !== undefined ? `${state.print_rx_url}` : null);
 
     const [divWidth, setDivWidth] = useState(0);
     useEffect(() => {
@@ -102,17 +102,17 @@ function PrescriptionPrintView() {
             className: 'message-appointment',
             content: (
                 <div className='d-flex align-items-center'>
-                    <img src={visitEnd} className='me-3' />
+                    <img src={visitEnd} className='me-3' alt="" />
                     <div>
                         <div className='title-common text-start fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
                         <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
                     </div>
-                    <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                    <img src={imgCloseVisit} className='ms-3' alt="" onClick={() => message.destroy()} />
                 </div>
             ),
             duration: 5,
         });
-    }, []);
+    }, [patient_data?.pm_first_name]);
 
     const printContent = useReactToPrint({
         content: () => printRef.current,
@@ -166,11 +166,11 @@ function PrescriptionPrintView() {
 
     const onEditPrescriptionClick = async () => {
         var sendData = {
-            patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
+            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
             tcm_id: state.tcm_id
         }
         const action = await dispatch(viewCaseManager(sendData));
-        if (action.meta.requestStatus == "fulfilled") {
+        if (action.meta.requestStatus === "fulfilled") {
             navigate("/prescription", { replace: true, state: { patient_data: patient_data, caseManagerData: action.payload } })
         } else {
             message.open({
@@ -253,7 +253,7 @@ function PrescriptionPrintView() {
                                 <img src={messageSent} alt="whatsapp Message" className='align-self-baseline me-3' />
                                 <div className="fontroboto title-common">
                                     <div className="fw-normal fontroboto mb-2">WhatsApp Sent to </div>
-                                    {patient_data != undefined ? `+91 ${patient_data.pm_contact_no}` : '-'}
+                                    {patient_data !== undefined ? `+91 ${patient_data.pm_contact_no}` : '-'}
                                 </div>
                             </div>
                         </div>

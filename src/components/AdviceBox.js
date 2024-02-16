@@ -109,7 +109,7 @@ function AdviceBox() {
       return data.push({
         key: JSON.stringify({ ...e, unique_id: uuidv4() }),
         value: e.advice_name,
-        label: <><Checkbox className="advice-check" checked={adviceDataCheck.some(x => x.advice_name == e.advice_name)}></Checkbox>{e.advice_name}</>,
+        label: <><Checkbox className="advice-check" checked={adviceDataCheck.some(x => x.advice_name === e.advice_name)}></Checkbox>{e.advice_name}</>,
       });
     });
 
@@ -135,7 +135,7 @@ function AdviceBox() {
         }),
         value: searchQuery,
         label: <div className='d-flex align-items-center'>
-          <Checkbox checked={adviceDataCheck.some(x => x.advice_name == searchQuery)}></Checkbox>
+          <Checkbox checked={adviceDataCheck.some(x => x.advice_name === searchQuery)}></Checkbox>
           <div className="ms-2">{searchQuery} <i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
         </div>,
       });
@@ -165,7 +165,7 @@ function AdviceBox() {
   const onSelectParent = useCallback(
     (data, e) => {
       setAdviceDataCheck((previousState) => {
-        const index = previousState.findIndex((x) => x.advice_name == JSON.parse(e.key).advice_name)
+        const index = previousState.findIndex((x) => x.advice_name === JSON.parse(e.key).advice_name)
         console.log(index)
         if (index !== -1) {
           const cloned = [...previousState]
@@ -175,9 +175,9 @@ function AdviceBox() {
           return [...previousState, JSON.parse(e.key)]
         }
       })
-      // if (adviceDataCheck.some(el => el.advice_name == JSON.parse(e.key).advice_name)) {
+      // if (adviceDataCheck.some(el => el.advice_name === JSON.parse(e.key).advice_name)) {
       //   console.log('Some')
-      //   const index = adviceDataCheck.findIndex(el => el.advice_name == JSON.parse(e.key).advice_name)
+      //   const index = adviceDataCheck.findIndex(el => el.advice_name === JSON.parse(e.key).advice_name)
       //   if (index !== -1)
       //     adviceDataCheck.splice(index, 1)
       // } else {
@@ -259,14 +259,14 @@ function AdviceBox() {
   );
 
   const onAddTemplateClicked = async () => {
-    if (adviceData.length == 0) {
+    if (adviceData.length === 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 advice added',
         duration: 2
       });
-    } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
+    } else if (adviceData.filter(e => e.advice_name === "").length > 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
@@ -279,7 +279,7 @@ function AdviceBox() {
         advices: adviceData,
       };
       const action = await dispatch(addTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -298,14 +298,14 @@ function AdviceBox() {
   );
 
   const onUpdateTemplateClicked = async () => {
-    if (adviceData.length == 0) {
+    if (adviceData.length === 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 advice added',
         duration: 2
       });
-    } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
+    } else if (adviceData.filter(e => e.advice_name === "").length > 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
@@ -320,7 +320,7 @@ function AdviceBox() {
         advices: adviceData,
       };
       const action = await dispatch(updateTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -397,7 +397,7 @@ function AdviceBox() {
                     <div className="text-truncate">
                       {template.advices.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.advice_name}${template.advices.length - 1 != ii ? ", " : ""
+                          <span key={ii}>{`${item.advice_name}${template.advices.length - 1 !== ii ? ", " : ""
                             }`}</span>
                         );
                       })}
@@ -484,20 +484,20 @@ function AdviceBox() {
               })}
               optionRender={(option) => (
                 <div className="align-items-center d-flex text-truncate w-100">
-                    <div className="round-box"><i className="icon-template"></i></div>
-                    <div className="text-truncate w-100">
-                        <div className="title text-main2">{option.data.value}</div>
-                        <div className="text-truncate">
-                            {JSON.parse(option.data.key).advices.map((item, ii) => {
-                                return (
-                                    <span key={ii}>{`${item.advice_name}${JSON.parse(option.data.key).advices.length - 1 != ii ? ", " : ""
-                                        }`}</span>
-                                );
-                            })}
-                        </div>
+                  <div className="round-box"><i className="icon-template"></i></div>
+                  <div className="text-truncate w-100">
+                    <div className="title text-main2">{option.data.value}</div>
+                    <div className="text-truncate">
+                      {JSON.parse(option.data.key).advices.map((item, ii) => {
+                        return (
+                          <span key={ii}>{`${item.advice_name}${JSON.parse(option.data.key).advices.length - 1 !== ii ? ", " : ""
+                            }`}</span>
+                        );
+                      })}
                     </div>
+                  </div>
                 </div>
-            )}
+              )}
             />
             <Button
               className="btn btn-primary3 btn-41 ms-3"
@@ -524,7 +524,7 @@ function AdviceBox() {
   const updateChild = (item) => {
     const { index, ...updatedReqData } = item;
     console.log(adviceData[item.index].advice_name, updatedReqData.advice_name)
-    if (adviceData[item.index].advice_name != updatedReqData.advice_name) {
+    if (adviceData[item.index].advice_name !== updatedReqData.advice_name) {
       updatedReqData["change"] = 1
     }
     adviceData[item.index] = { ...adviceData[item.index], ...updatedReqData };
@@ -545,13 +545,13 @@ function AdviceBox() {
                 </Button>
                 <div className="modal-title text-truncate-twolines">{'Edit Advice'}</div>
               </div>
-              <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => updateChild(childDrawerData)} disabled={childDrawerData.advice_name != undefined && childDrawerData.advice_name ? false : true}>
+              <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => updateChild(childDrawerData)} disabled={childDrawerData.advice_name !== undefined && childDrawerData.advice_name ? false : true}>
                 Done
               </Button>
             </div>
           </Card>
           <div className="p-4">
-            <Input.TextArea value={childDrawerData.advice_name != undefined && childDrawerData.advice_name} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+            <Input.TextArea value={childDrawerData.advice_name !== undefined && childDrawerData.advice_name} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
           </div>
         </>
       )
