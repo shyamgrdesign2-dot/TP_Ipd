@@ -20,7 +20,7 @@ instance.interceptors.request.use(
         if (config.customBaseUrl) {
             config.baseURL = config.customBaseUrl;
         }
-        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN) == null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN));
+        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN) === null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN));
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         } else {

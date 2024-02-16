@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { parseApiError } from "../utils/utils";
 import ApiAppointments from "../api/services/ApiAppointments";
 
 const initialState = {

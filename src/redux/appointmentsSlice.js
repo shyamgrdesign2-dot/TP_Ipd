@@ -120,7 +120,7 @@ export const searchPincode = createAsyncThunk(
         };
         try {
             const result = await ApiAppointments.searchPincode(body);
-            if (result.status && result.data.pincode == pincode) {
+            if (result.status && result.data.pincode === pincode) {
                 return result.data;
             } else {
                 throw Error(result.error);
@@ -215,7 +215,7 @@ const appointmentsSlice = createSlice({
                 const updatedData = action.payload.app_data.map((e) => {
                     return { ...e, key: uuidv4() }
                 });
-                if (action.meta.arg.page == 0) {
+                if (action.meta.arg.page === 0) {
                     state.queueCount = action.payload.queue_count;
                     state.finishedCount = action.payload.finished_count;
                     state.cancelledCount = action.payload.cancelled_count;
@@ -227,7 +227,7 @@ const appointmentsSlice = createSlice({
             .addCase(getAllAppointment.rejected, (state, action) => {
                 state.loading = false;
                 state.setOnLoad = false;
-                if (action.meta.arg.page == 0) {
+                if (action.meta.arg.page === 0) {
                     state.queueCount = 0;
                     state.finishedCount = 0;
                     state.cancelledCount = 0;
@@ -241,7 +241,7 @@ const appointmentsSlice = createSlice({
                 state.loading = false;
                 state.queueCount = state.queueCount - 1;
                 state.cancelledCount = state.cancelledCount + 1;
-                const updatedData = state.appointmentsData.filter(e => e.pam_id != action.meta.arg.pam_id);
+                const updatedData = state.appointmentsData.filter(e => e.pam_id !== action.meta.arg.pam_id);
                 state.appointmentsData = updatedData
             })
             .addCase(cancelAppointments.rejected, (state) => {
@@ -254,7 +254,7 @@ const appointmentsSlice = createSlice({
                 state.loading = false;
                 state.queueCount = state.queueCount - 1;
                 state.finishedCount = state.finishedCount + 1;
-                const updatedData = state.appointmentsData.filter(e => e.pam_id != action.meta.arg.pam_id);
+                const updatedData = state.appointmentsData.filter(e => e.pam_id !== action.meta.arg.pam_id);
                 state.appointmentsData = updatedData
             })
             .addCase(endVisit.rejected, (state) => {

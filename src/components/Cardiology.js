@@ -78,7 +78,7 @@ function Cardiology(props) {
             key: 'TimeFrequency',
             render: (text, record) => (
                 <div className='lh-base'>
-                    {record.tmf_block == 0 || record.tmf_block == "" ? `${isNumeric(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${isNumeric(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${isNumeric(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${isNumeric(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} ${record.tmm_freq_type_name && '(' + record.tmm_freq_type_name + ')'}` : `0-0-0-0 (${record.tmm_freq_type_name})`}
+                    {record.tmf_block === 0 || record.tmf_block === "" ? `${isNumeric(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${isNumeric(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${isNumeric(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${isNumeric(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} ${record.tmm_freq_type_name && '(' + record.tmm_freq_type_name + ')'}` : `0-0-0-0 (${record.tmm_freq_type_name})`}
                     <div>{record.tmm_time_name}</div>
                 </div>
             ),
@@ -179,7 +179,7 @@ function Cardiology(props) {
                                                     {viewCaseManagerData.symptoms.map((item, i) => {
                                                         return (
                                                             <span key={i}>
-                                                                <span>{item.symptom_name}</span> : <label>{`${item.since && `since ${item.since}${item.severity && ','}`} ${item.severity && `severity ${item.severity}${item.note && ','} `} ${item.note && `${item.note}`}`}</label>{viewCaseManagerData.symptoms.length - 1 != i && ' | '}
+                                                                <span>{item.symptom_name}</span> : <label>{`${item.since && `since ${item.since}${item.severity && ','}`} ${item.severity && `severity ${item.severity}${item.note && ','} `} ${item.note && `${item.note}`}`}</label>{viewCaseManagerData.symptoms.length - 1 !== i && ' | '}
                                                             </span>
                                                         )
                                                     })}
@@ -194,7 +194,7 @@ function Cardiology(props) {
                                                     {viewCaseManagerData.examination.map((item, i) => {
                                                         return (
                                                             <span key={i}>
-                                                                <span>{item.examination_name}</span> : <label>{item.note}</label>{viewCaseManagerData.examination.length - 1 != i && ' | '}
+                                                                <span>{item.examination_name}</span> : <label>{item.note}</label>{viewCaseManagerData.examination.length - 1 !== i && ' | '}
                                                             </span>
                                                         )
                                                     })}
@@ -209,7 +209,7 @@ function Cardiology(props) {
                                                     {viewCaseManagerData.diagnosis.map((item, i) => {
                                                         return (
                                                             <span key={i}>
-                                                                <span>{item.tds_name}</span> : <label>{`${item.since && `since ${item.since}${item.status && ','}`} ${item.status && `status ${item.status}${item.note && ','} `} ${item.note && `${item.note}`}`}</label>{viewCaseManagerData.diagnosis.length - 1 != i && ' | '}
+                                                                <span>{item.tds_name}</span> : <label>{`${item.since && `since ${item.since}${item.status && ','}`} ${item.status && `status ${item.status}${item.note && ','} `} ${item.note && `${item.note}`}`}</label>{viewCaseManagerData.diagnosis.length - 1 !== i && ' | '}
                                                             </span>
                                                         )
                                                     })}
@@ -241,7 +241,7 @@ function Cardiology(props) {
 
                                                     {viewCaseManagerData.advice.map((item, i) => {
                                                         return (
-                                                            <label key={i}>{`${i != 0 ? ', ' : ''}${item.advice_name}`}</label>
+                                                            <label key={i}>{`${i !== 0 ? ', ' : ''}${item.advice_name}`}</label>
                                                         )
                                                     })}
                                                 </div>
@@ -255,7 +255,7 @@ function Cardiology(props) {
                                                     {viewCaseManagerData.investigation.map((item, i) => {
                                                         return (
                                                             <span key={i}>
-                                                                <span key={i}>{item.investigation_name}</span> : <label>{item.note}</label>{viewCaseManagerData.investigation.length - 1 != i && ' | '}
+                                                                <span key={i}>{item.investigation_name}</span> : <label>{item.note}</label>{viewCaseManagerData.investigation.length - 1 !== i && ' | '}
                                                             </span>
                                                         )
                                                     })}

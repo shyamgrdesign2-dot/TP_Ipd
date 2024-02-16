@@ -20,14 +20,14 @@ function AppointmentList() {
 
   return (
     <>
-      {(!isMobile || locationPath == "/") && <Header locationPath={locationPath} />}
+      {(!isMobile || locationPath === "/") && <Header locationPath={locationPath} />}
       <div className="d-flex">
-        {(!isMobile || locationPath == "/") && <SidebarDoctor />}
-        <div className={`w-100 bg-body ${isMobile && locationPath != '/' ? 'vh-100' : 'wrapper'}`}>
-          {(!isMobile || locationPath == "/") && (
+        {(!isMobile || locationPath === "/") && <SidebarDoctor />}
+        <div className={`w-100 bg-body ${isMobile && locationPath !== '/' ? 'vh-100' : 'wrapper'}`}>
+          {(!isMobile || locationPath === "/") && (
             <Welcome
               locationPath={locationPath}
-              backVisible={locationPath == "/" ? false : true}
+              backVisible={locationPath === "/" ? false : true}
             />
           )}
           <Routes>

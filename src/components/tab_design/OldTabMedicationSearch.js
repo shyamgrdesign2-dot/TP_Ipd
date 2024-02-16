@@ -90,7 +90,7 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
     const onSelectParent = useCallback(
         async (e) => {
             const action = await dispatch(getMedicineDetails(e.tmm_id));
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 const updatedData = action.payload.map(e => {
                     const medicineUnit = e?.medicineUnit.map((e1) => {
                         return {
@@ -100,16 +100,16 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                         };
                     });
 
-                    const unitObj = medicineUnit ? medicineUnit.find(x => x.value == e.tmm_unit) : null
-                    const frequencyObj = frequencyList.find(x => x.tmf_id == e.tmm_freq_type)
-                    const timingObj = timingList.find(x => x.tmt_id == e.tmm_time)
+                    const unitObj = medicineUnit ? medicineUnit.find(x => x.value === e.tmm_unit) : null
+                    const frequencyObj = frequencyList.find(x => x.tmf_id === e.tmm_freq_type)
+                    const timingObj = timingList.find(x => x.tmt_id === e.tmm_time)
 
                     return {
                         ...e,
-                        tmm_unit_name: unitObj && unitObj != undefined ? JSON.parse(unitObj.key).tmu_title : "",
-                        tmm_freq_type_name: frequencyObj != undefined ? frequencyObj.tmf_title : "",
-                        tmf_block_val: frequencyObj != undefined ? frequencyObj.tmf_block_val : "",
-                        tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
+                        tmm_unit_name: unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "",
+                        tmm_freq_type_name: frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+                        tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+                        tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
                         medicineUnit: medicineUnit,
                         unique_id: uuidv4()
                     }
@@ -146,14 +146,14 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
             medicationData.length > 0 &&
             medicationData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.tmm_medicine_name.length > 12 && item.tmm_medicine_name.length < 24 ? `${item.tmm_medicine_name.length * 10.5}px` : item.tmm_medicine_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex == index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
+                    <div key={index} style={{ width: item.tmm_medicine_name.length > 12 && item.tmm_medicine_name.length < 24 ? `${item.tmm_medicine_name.length * 10.5}px` : item.tmm_medicine_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex === index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
                         <div className="text-truncate p-2" onClick={() => {
                             setSelectedIndex(index)
                             setSinceValue(item.tmm_days ? parseInt(item.tmm_days) : 1)
                         }}>
                             <div className="text-truncate">{item.tmm_medicine_name}
                                 {(item.tmm_dosage || item.tmm_unit_name) ? (
-                                    <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + ' | ' : ''}${item.tcm_tmm_freq_morning != null && item.tcm_tmm_freq_morning != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_morning + ' - ' : '0 -'}${item.tcm_tmm_freq_afternoon != null && item.tcm_tmm_freq_afternoon != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_afternoon + ' - ' : '0 -'}${item.tcm_tmm_freq_evening != null && item.tcm_tmm_freq_evening != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_evening + ' - ' : '0 -'}${item.tcm_tmm_freq_night != null && item.tcm_tmm_freq_night != '' && hasNumber(item.tmf_block) && item.tmf_block == 0 ? item.tcm_tmm_freq_night + ' | ' : '0 |'}${item.tmm_time_name ? item.tmm_time_name : ''}`}</div>
+                                    <div className="text-truncate small">{`${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + ' | ' : ''}${item.tcm_tmm_freq_morning !== null && item.tcm_tmm_freq_morning !== '' && hasNumber(item.tmf_block) && item.tmf_block === 0 ? item.tcm_tmm_freq_morning + ' - ' : '0 -'}${item.tcm_tmm_freq_afternoon !== null && item.tcm_tmm_freq_afternoon !== '' && hasNumber(item.tmf_block) && item.tmf_block === 0 ? item.tcm_tmm_freq_afternoon + ' - ' : '0 -'}${item.tcm_tmm_freq_evening !== null && item.tcm_tmm_freq_evening !== '' && hasNumber(item.tmf_block) && item.tmf_block === 0 ? item.tcm_tmm_freq_evening + ' - ' : '0 -'}${item.tcm_tmm_freq_night !== null && item.tcm_tmm_freq_night !== '' && hasNumber(item.tmf_block) && item.tmf_block === 0 ? item.tcm_tmm_freq_night + ' | ' : '0 |'}${item.tmm_time_name ? item.tmm_time_name : ''}`}</div>
                                 ) : (
                                     <div className="text-truncate small">Add Details</div>
                                 )}
@@ -179,8 +179,8 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
 
     const onSelectMedicineUnitChild = useCallback(
         (data) => {
-            const obj = medicationData[selectedIndex].medicineUnit ? medicationData[selectedIndex].medicineUnit.find(e => e.value == data) : null
-            if (obj && obj != undefined) {
+            const obj = medicationData[selectedIndex].medicineUnit ? medicationData[selectedIndex].medicineUnit.find(e => e.value === data) : null
+            if (obj && obj !== undefined) {
                 const objParse = JSON.parse(obj.key)
                 medicationData[selectedIndex].tmm_unit = objParse.tmu_id;
                 medicationData[selectedIndex].tmm_unit_name = objParse.tmu_title;
@@ -193,13 +193,13 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
 
     const onSelectMedicineFrequencyChild = useCallback(
         (data) => {
-            const obj = frequencyList.find(e => e.tmf_id == data)
-            if (obj != undefined) {
+            const obj = frequencyList.find(e => e.tmf_id === data)
+            if (obj !== undefined) {
                 medicationData[selectedIndex].tmm_freq_type = obj.tmf_id;
                 medicationData[selectedIndex].tmm_freq_type_name = obj.tmf_title;
                 medicationData[selectedIndex].tmf_block = obj.tmf_block;
                 medicationData[selectedIndex].tmf_block_val = obj.tmf_block_val;
-                if (obj.tmf_block != 0) {
+                if (obj.tmf_block !== 0) {
                     medicationData[selectedIndex].tcm_tmm_freq_morning = 0;
                     medicationData[selectedIndex].tcm_tmm_freq_afternoon = 0;
                     medicationData[selectedIndex].tcm_tmm_freq_evening = 0;
@@ -345,8 +345,8 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
 
     const onSelectMedicineTimingChild = useCallback(
         (data) => {
-            const obj = timingList.find(e => e.tmt_id == data)
-            if (obj != undefined) {
+            const obj = timingList.find(e => e.tmt_id === data)
+            if (obj !== undefined) {
                 medicationData[selectedIndex].tmm_time = obj.tmt_id;
                 medicationData[selectedIndex].tmm_time_name = obj.tmt_title;
                 setMedicationData((prev) => [...prev]);
@@ -356,7 +356,7 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
     );
 
     useEffect(() => {
-        if (sinceValue != -1) {
+        if (sinceValue !== -1) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
@@ -428,7 +428,7 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
     const onChangeSegmentedSinceChild = useCallback(
         (key) => {
             setSinceValue(key)
-            medicationData[selectedIndex].tmm_days = key != -1 ? key : 0;
+            medicationData[selectedIndex].tmm_days = key !== -1 ? key : 0;
             medicationData[selectedIndex].tmm_duration_type = '';
             setMedicationData((prev) => [...prev]);
         },
@@ -456,12 +456,12 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
     //Child Componet
     const CHILD_DRAWER_DATA = useMemo(() => {
         return (
-            selectedIndex != null && (
+            selectedIndex !== null && (
                 <>
                     <div className="h-100">
                         <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
-                            <div className="text-truncate title-common fontroboto">{selectedIndex != null && medicationData[selectedIndex].tmm_medicine_name}
-                                <div className="text-truncate fs-14 fontroboto mt-1">{selectedIndex != null && medicationData[selectedIndex].tmm_generic}</div>
+                            <div className="text-truncate title-common fontroboto">{selectedIndex !== null && medicationData[selectedIndex].tmm_medicine_name}
+                                <div className="text-truncate fs-14 fontroboto mt-1">{selectedIndex !== null && medicationData[selectedIndex].tmm_generic}</div>
                             </div>
                         </div>
                         <div className="p-4">
@@ -477,8 +477,8 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                                         <Select
                                             className="autocomplete-custom w-100 popinput inputheight38"
                                             placeholder="Select"
-                                            defaultValue={medicationData[selectedIndex].medicineUnit ? medicationData[selectedIndex].medicineUnit.findIndex(e => e.value == medicationData[selectedIndex].tmm_unit) != -1 ? parseInt(medicationData[selectedIndex].tmm_unit) : null : null}
-                                            value={medicationData[selectedIndex].medicineUnit ? medicationData[selectedIndex].medicineUnit.findIndex(e => e.value == medicationData[selectedIndex].tmm_unit) != -1 ? parseInt(medicationData[selectedIndex].tmm_unit) : null : null}
+                                            defaultValue={medicationData[selectedIndex].medicineUnit ? medicationData[selectedIndex].medicineUnit.findIndex(e => e.value === medicationData[selectedIndex].tmm_unit) !== -1 ? parseInt(medicationData[selectedIndex].tmm_unit) : null : null}
+                                            value={medicationData[selectedIndex].medicineUnit ? medicationData[selectedIndex].medicineUnit.findIndex(e => e.value === medicationData[selectedIndex].tmm_unit) !== -1 ? parseInt(medicationData[selectedIndex].tmm_unit) : null : null}
                                             onSelect={onSelectMedicineUnitChild}
                                             options={medicationData[selectedIndex].medicineUnit}
                                         />
@@ -492,8 +492,8 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                                         <Select
                                             className="autocomplete-custom w-100 popinput inputheight38"
                                             placeholder="Select"
-                                            defaultValue={frequencyList ? frequencyList.findIndex(e => e.tmf_id == medicationData[selectedIndex].tmm_freq_type) != -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
-                                            value={frequencyList ? frequencyList.findIndex(e => e.tmf_id == medicationData[selectedIndex].tmm_freq_type) != -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
+                                            defaultValue={frequencyList ? frequencyList.findIndex(e => e.tmf_id === medicationData[selectedIndex].tmm_freq_type) !== -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
+                                            value={frequencyList ? frequencyList.findIndex(e => e.tmf_id === medicationData[selectedIndex].tmm_freq_type) !== -1 ? parseInt(medicationData[selectedIndex].tmm_freq_type) : null : null}
                                             onSelect={onSelectMedicineFrequencyChild}
                                             options={frequencyData}
                                         />
@@ -502,8 +502,8 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                                         <Select
                                             className="autocomplete-custom w-100 popinput inputheight38"
                                             placeholder="Select"
-                                            defaultValue={timingList ? timingList.findIndex(e => e.tmt_id == medicationData[selectedIndex].tmm_time) != -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
-                                            value={timingList ? timingList.findIndex(e => e.tmt_id == medicationData[selectedIndex].tmm_time) != -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
+                                            defaultValue={timingList ? timingList.findIndex(e => e.tmt_id === medicationData[selectedIndex].tmm_time) !== -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
+                                            value={timingList ? timingList.findIndex(e => e.tmt_id === medicationData[selectedIndex].tmm_time) !== -1 ? parseInt(medicationData[selectedIndex].tmm_time) : null : null}
                                             onSelect={onSelectMedicineTimingChild}
                                             options={timingData}
                                         />
@@ -512,7 +512,7 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                                 <Row gutter={20} className="mb-3">
                                     <Col xl={6} lg={12} className="mb-lg-2">
                                         <BSButtonGroup aria-label="Basic example" className="inputheight45 border rounded-0">
-                                            {medicationData[selectedIndex].tcm_tmm_freq_morning != undefined && medicationData[selectedIndex].tcm_tmm_freq_morning != 0 && (
+                                            {medicationData[selectedIndex].tcm_tmm_freq_morning !== undefined && medicationData[selectedIndex].tcm_tmm_freq_morning !== 0 && (
                                                 <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={morningDecrement}>
                                                     <i className="icon-minus d-block text-main"></i>
                                                 </BSButton>
@@ -520,7 +520,7 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                                             <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={() => !medicationData[selectedIndex].tcm_tmm_freq_morning && morningClick()}>
                                                 <Input placeholder="Morning" inputMode="numeric" value={medicationData[selectedIndex].tcm_tmm_freq_morning ? medicationData[selectedIndex].tcm_tmm_freq_morning : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputMorningChild} />
                                             </BSButton>
-                                            {medicationData[selectedIndex].tcm_tmm_freq_morning != undefined && medicationData[selectedIndex].tcm_tmm_freq_morning != 0 && (
+                                            {medicationData[selectedIndex].tcm_tmm_freq_morning !== undefined && medicationData[selectedIndex].tcm_tmm_freq_morning !== 0 && (
                                                 <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={morningIncrement}>
                                                     <i className="icon-Add text-main d-block"></i>
                                                 </BSButton>
@@ -529,7 +529,7 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                                     </Col>
                                     <Col xl={6} lg={12} className="mb-lg-2">
                                         <BSButtonGroup aria-label="Basic example" className="inputheight45 border rounded-0">
-                                            {medicationData[selectedIndex].tcm_tmm_freq_afternoon != undefined && medicationData[selectedIndex].tcm_tmm_freq_afternoon != 0 && (
+                                            {medicationData[selectedIndex].tcm_tmm_freq_afternoon !== undefined && medicationData[selectedIndex].tcm_tmm_freq_afternoon !== 0 && (
                                                 <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={afternoonDecrement}>
                                                     <i className="icon-minus d-block text-main"></i>
                                                 </BSButton>
@@ -537,7 +537,7 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                                             <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={() => !medicationData[selectedIndex].tcm_tmm_freq_afternoon && afternoonClick()}>
                                                 <Input placeholder="Afternoon" inputMode="numeric" value={medicationData[selectedIndex].tcm_tmm_freq_afternoon ? medicationData[selectedIndex].tcm_tmm_freq_afternoon : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputAfternoonChild} />
                                             </BSButton>
-                                            {medicationData[selectedIndex].tcm_tmm_freq_afternoon != undefined && medicationData[selectedIndex].tcm_tmm_freq_afternoon != 0 && (
+                                            {medicationData[selectedIndex].tcm_tmm_freq_afternoon !== undefined && medicationData[selectedIndex].tcm_tmm_freq_afternoon !== 0 && (
                                                 <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={afternoonIncrement}>
                                                     <i className="icon-Add text-main d-block"></i>
                                                 </BSButton>
@@ -546,7 +546,7 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                                     </Col>
                                     <Col xl={6} lg={12} className="mb-lg-2">
                                         <BSButtonGroup aria-label="Basic example" className="inputheight45 border rounded-0">
-                                            {medicationData[selectedIndex].tcm_tmm_freq_evening != undefined && medicationData[selectedIndex].tcm_tmm_freq_evening != 0 && (
+                                            {medicationData[selectedIndex].tcm_tmm_freq_evening !== undefined && medicationData[selectedIndex].tcm_tmm_freq_evening !== 0 && (
                                                 <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={eveningDecrement}>
                                                     <i className="icon-minus d-block text-main"></i>
                                                 </BSButton>
@@ -554,7 +554,7 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                                             <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={() => !medicationData[selectedIndex].tcm_tmm_freq_evening && eveningClick()}>
                                                 <Input placeholder="Evening" inputMode="numeric" value={medicationData[selectedIndex].tcm_tmm_freq_evening ? medicationData[selectedIndex].tcm_tmm_freq_evening : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputEveningChild} />
                                             </BSButton>
-                                            {medicationData[selectedIndex].tcm_tmm_freq_evening != undefined && medicationData[selectedIndex].tcm_tmm_freq_evening != 0 && (
+                                            {medicationData[selectedIndex].tcm_tmm_freq_evening !== undefined && medicationData[selectedIndex].tcm_tmm_freq_evening !== 0 && (
                                                 <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={eveningIncrement}>
                                                     <i className="icon-Add text-main d-block"></i>
                                                 </BSButton>
@@ -563,7 +563,7 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                                     </Col>
                                     <Col xl={6} lg={12} className="mb-lg-2">
                                         <BSButtonGroup aria-label="Basic example" className="inputheight45 border rounded-0">
-                                            {medicationData[selectedIndex].tcm_tmm_freq_night != undefined && medicationData[selectedIndex].tcm_tmm_freq_night != 0 && (
+                                            {medicationData[selectedIndex].tcm_tmm_freq_night !== undefined && medicationData[selectedIndex].tcm_tmm_freq_night !== 0 && (
                                                 <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={nightDecrement}>
                                                     <i className="icon-minus d-block text-main"></i>
                                                 </BSButton>
@@ -571,7 +571,7 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                                             <BSButton variant="outline-light" className="rounded-0 dateoutline p-0 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={() => !medicationData[selectedIndex].tcm_tmm_freq_night && nightClick()}>
                                                 <Input placeholder="Night" inputMode="numeric" value={medicationData[selectedIndex].tcm_tmm_freq_night ? medicationData[selectedIndex].tcm_tmm_freq_night : ''} className="rounded-0 h-100 border-0 text-center text-main" onChange={onChangeInputNightChild} />
                                             </BSButton>
-                                            {medicationData[selectedIndex].tcm_tmm_freq_night != undefined && medicationData[selectedIndex].tcm_tmm_freq_night != 0 && (
+                                            {medicationData[selectedIndex].tcm_tmm_freq_night !== undefined && medicationData[selectedIndex].tcm_tmm_freq_night !== 0 && (
                                                 <BSButton variant="outline-light" className="rounded-0 dateoutline px-2 bg-white" disabled={medicationData[selectedIndex].tmf_block} onClick={nightIncrement}>
                                                     <i className="icon-Add text-main d-block"></i>
                                                 </BSButton>
@@ -593,7 +593,7 @@ function OldTabMedicationSearch({ passIndex, onClose, frequencyData, timingData 
                             </div>
                             <div className="mt-3 mb-3">
                                 <Segmented
-                                    value={medicationData[selectedIndex].tmm_duration_type != undefined && medicationData[selectedIndex].tmm_duration_type}
+                                    value={medicationData[selectedIndex].tmm_duration_type !== undefined && medicationData[selectedIndex].tmm_duration_type}
                                     className="search-segment"
                                     options={sinceOptions}
                                     onChange={onChangeSinceChild}
