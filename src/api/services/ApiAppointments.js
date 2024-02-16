@@ -81,5 +81,11 @@ ApiAppointments.customizedPad = function (data) {
   return api.post(`/api/v1/appointment/customizedPad`, data, baseUrl);
 };
 
+ApiAppointments.swtichLayout = function () {
+  return api.post(`/api/v1/appointment/swtichLayout`, {
+    from: 'app',
+  }, baseUrl);
+};
+
 
 export default ApiAppointments;
