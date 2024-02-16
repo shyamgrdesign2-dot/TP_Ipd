@@ -14,7 +14,7 @@ function HeaderPrescriptionPrint({ patient_data }) {
                     <div className={'align-items-center d-flex h-100 ps-3'}>
                         <div className='rounded-pill patientProfile border me-3'>{makeDefaultLogo(patient_data?.pm_fullname)}</div>
                         <div>
-                            <div className='patientName'>{`${patient_data != undefined ? patient_data.pm_fullname : "Hello Guest"}`}<div className='text-2'>{`${patient_data != undefined ? patient_data.pm_gender[0].toUpperCase() : "M"}, ${patient_data != undefined ? patient_data.ageYears : 30}y`}</div></div>
+                            <div className='patientName'>{`${patient_data !== undefined ? patient_data.pm_fullname : "Hello Guest"}`}<div className='text-2'>{`${patient_data !== undefined ? patient_data.pm_gender[0].toUpperCase() : "M"}, ${patient_data !== undefined ? patient_data.ageYears : 30}y`}</div></div>
                         </div>
                     </div>
                 </div>

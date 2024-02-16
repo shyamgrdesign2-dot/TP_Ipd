@@ -29,8 +29,8 @@ function Prescription() {
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state
-  const tcmId = caseManagerData != undefined ? caseManagerData.tcm_id : 0
-  const consultationDate = caseManagerData != undefined ? caseManagerData.consultation_date : moment().format('YYYY-MM-DD HH:mm:ss')
+  const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0
+  const consultationDate = caseManagerData !== undefined ? caseManagerData.consultation_date : moment().format('YYYY-MM-DD HH:mm:ss')
 
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
@@ -48,7 +48,7 @@ function Prescription() {
   const [vitalDrawer, setVitalDrawer] = useState(false);
 
   useEffect(() => {
-    if (caseManagerData != undefined) {
+    if (caseManagerData !== undefined) {
       if (caseManagerData.symptoms.length > 0) {
         setSymptomsData(caseManagerData.symptoms)
       }

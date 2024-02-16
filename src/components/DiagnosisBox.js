@@ -129,7 +129,7 @@ function DiagnosisBox() {
         label: <div>{e.tds_name}</div>,
       });
     });
-    if (searchParentQuery.length == 0) {
+    if (searchParentQuery.length === 0) {
       data.unshift({
         key: -1,
         label: (
@@ -361,7 +361,7 @@ function DiagnosisBox() {
   );
 
   const onAddTemplateClicked = async () => {
-    if (diagnosisData.length == 0) {
+    if (diagnosisData.length === 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: "warning",
@@ -381,7 +381,7 @@ function DiagnosisBox() {
         diagnosis: diagnosisData,
       };
       const action = await dispatch(addTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -400,7 +400,7 @@ function DiagnosisBox() {
   );
 
   const onUpdateTemplateClicked = async () => {
-    if (diagnosisData.length == 0) {
+    if (diagnosisData.length === 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: "warning",
@@ -422,7 +422,7 @@ function DiagnosisBox() {
         diagnosis: diagnosisData,
       };
       const action = await dispatch(updateTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -640,20 +640,20 @@ function DiagnosisBox() {
               })}
               optionRender={(option) => (
                 <div className="align-items-center d-flex text-truncate w-100">
-                    <div className="round-box"><i className="icon-template"></i></div>
-                    <div className="text-truncate w-100">
-                        <div className="title text-main2">{option.data.value}</div>
-                        <div className="text-truncate">
-                            {JSON.parse(option.data.key).diagnosis.map((item, ii) => {
-                                return (
-                                    <span key={ii}>{`${item.tds_name}${JSON.parse(option.data.key).diagnosis.length - 1 != ii ? ", " : ""
-                                        }`}</span>
-                                );
-                            })}
-                        </div>
+                  <div className="round-box"><i className="icon-template"></i></div>
+                  <div className="text-truncate w-100">
+                    <div className="title text-main2">{option.data.value}</div>
+                    <div className="text-truncate">
+                      {JSON.parse(option.data.key).diagnosis.map((item, ii) => {
+                        return (
+                          <span key={ii}>{`${item.tds_name}${JSON.parse(option.data.key).diagnosis.length - 1 != ii ? ", " : ""
+                            }`}</span>
+                        );
+                      })}
                     </div>
+                  </div>
                 </div>
-            )}
+              )}
             />
             <Button
               className="btn btn-primary3 btn-41 ms-3"
@@ -692,22 +692,22 @@ function DiagnosisBox() {
                 <i className="icon-template me-2" /> <span>Templates</span>
               </button>
             </Popover>
-            
+
             <Tooltip placement="bottom" title={(diagnosisData.length > 0) ? "" : "Please enter some Diagnosis to save a template"}>
-            <Popover
-              open={popOver2}
-              onOpenChange={() => (diagnosisData.length > 0) && showHideSaveTemplatePopOver()}
-              // onOpenChange={showHideSaveTemplatePopOver}
-              content={SAVE_CONTENT}
-              trigger="click"
-              overlayClassName="pop-450 pp-0"
-              placement="bottom"
-            >
-              <button className="btn d-flex align-items-center btn-text">
-                {" "}
-                <i className="icon-save me-2" /> <span>Save</span>
-              </button>
-            </Popover>
+              <Popover
+                open={popOver2}
+                onOpenChange={() => (diagnosisData.length > 0) && showHideSaveTemplatePopOver()}
+                // onOpenChange={showHideSaveTemplatePopOver}
+                content={SAVE_CONTENT}
+                trigger="click"
+                overlayClassName="pop-450 pp-0"
+                placement="bottom"
+              >
+                <button className="btn d-flex align-items-center btn-text">
+                  {" "}
+                  <i className="icon-save me-2" /> <span>Save</span>
+                </button>
+              </Popover>
             </Tooltip>
           </div>
         </div>

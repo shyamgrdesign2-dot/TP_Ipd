@@ -154,7 +154,7 @@ function WalkInConsultation() {
 
     const onSelect = useCallback(
         (data, e) => {
-            e.key != -1 ?
+            e.key !== -1 ?
                 setClickedPatient(JSON.parse(e.key))
                 :
                 goToAddPatient()

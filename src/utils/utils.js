@@ -33,13 +33,13 @@ export const isAlphabet = (str) => {
 }
 
 export const makeDefaultLogo = (text) => {
-  var fullName = text != undefined ? text.trim() : ''
+  var fullName = text !== undefined ? text.trim() : ''
   if (!fullName) {
     return "HG";
   }
   const regex = /\s+/;
   const results = fullName.split(regex);
-  if (results.length == 1) {
+  if (results.length === 1) {
     return results[0][0].toUpperCase();
   } else {
     const letter = `${results[0][0].toUpperCase()}${results[1][0].toUpperCase()}`;

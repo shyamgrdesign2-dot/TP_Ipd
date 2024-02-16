@@ -134,7 +134,7 @@ const caseManagerSlice = createSlice({
                 const index = state.templates.findIndex(
                     (e) => e.tmoc_id == action.payload.template.tmoc_id
                 );
-                if (index != -1) {
+                if (index !== -1) {
                     state.templates[index] = action.payload.template;
                 }
             })

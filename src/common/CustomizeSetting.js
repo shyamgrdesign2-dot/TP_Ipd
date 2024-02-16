@@ -115,7 +115,7 @@ function CustomizeSetting({ handleDrawerCustomize }) {
 
   const onChangeLeft = (checked, record) => {
     const index = dataSourceLeft.findIndex(e => e.tmdpm_id == record.tmdpm_id)
-    if (index != -1) {
+    if (index !== -1) {
       dataSourceLeft[index].tmdpm_status = checked ? 0 : 1
       setDataSourceLeft((prev) => [...prev]);
     }
@@ -158,7 +158,7 @@ function CustomizeSetting({ handleDrawerCustomize }) {
 
   const onChangeRight = (checked, record) => {
     const index = dataSourceRight.findIndex(e => e.tmdpm_id == record.tmdpm_id)
-    if (index != -1) {
+    if (index !== -1) {
       dataSourceRight[index].tmdpm_status = checked ? 0 : 1
       setDataSourceRight((prev) => { return [...prev] });
     }
@@ -199,7 +199,7 @@ function CustomizeSetting({ handleDrawerCustomize }) {
         }
       }
       const action = await dispatch(customizedPad(sendData))
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         handleDrawerCustomize()
       } else {
         message.open({
@@ -225,7 +225,7 @@ function CustomizeSetting({ handleDrawerCustomize }) {
       }
     }
     const action = await dispatch(customizedPad(sendData))
-    if (action.meta.requestStatus == "fulfilled") {
+    if (action.meta.requestStatus === "fulfilled") {
       message.open({
         key: MESSAGE_KEY,
         type: 'success',

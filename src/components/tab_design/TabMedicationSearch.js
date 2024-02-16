@@ -127,7 +127,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onSelectParent = async (e) => {
     const action = await dispatch(getMedicineDetails(e.tmm_id));
-    if (action.meta.requestStatus == "fulfilled") {
+    if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {
         const medicineUnit = e?.medicineUnit.map((e1) => {
           return {
@@ -148,14 +148,14 @@ function TabMedicationSearch({ passIndex, onClose }) {
         return {
           ...e,
           tmm_unit_name:
-            unitObj && unitObj != undefined
+            unitObj && unitObj !== undefined
               ? JSON.parse(unitObj.key).tmu_title
               : "",
           tmm_freq_type_name:
-            frequencyObj != undefined ? frequencyObj.tmf_title : "",
+            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
           tmf_block_val:
-            frequencyObj != undefined ? frequencyObj.tmf_block_val : "",
-          tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
+            frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           medicineUnit: medicineUnit,
           unique_id: uuidv4(),
         };
@@ -262,7 +262,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
           (e) => e.value == data
         )
         : null;
-      if (obj && obj != undefined) {
+      if (obj && obj !== undefined) {
         const objParse = JSON.parse(obj.key);
         medicationData[selectedIndex].tmm_unit = objParse.tmu_id;
         medicationData[selectedIndex].tmm_unit_name = objParse.tmu_title;
@@ -430,7 +430,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
   );
 
   useEffect(() => {
-    if (sinceValue != -1) {
+    if (sinceValue !== -1) {
       const options = SINCE_OPTIONS.map((option) => {
         return {
           key: Math.random(),
@@ -514,7 +514,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const onChangeSegmentedSinceChild = useCallback(
     (key) => {
       setSinceValue(key);
-      medicationData[selectedIndex].tmm_days = key != -1 ? key : 0;
+      medicationData[selectedIndex].tmm_days = key !== -1 ? key : 0;
       medicationData[selectedIndex].tmm_duration_type = "";
       setMedicationData((prev) => [...prev]);
     },
@@ -582,7 +582,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                             (e) =>
                               e.value ==
                               medicationData[selectedIndex].tmm_unit
-                          ) != -1
+                          ) !== -1
                             ? parseInt(medicationData[selectedIndex].tmm_unit)
                             : null
                           : null
@@ -595,7 +595,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                             (e) =>
                               e.value ==
                               medicationData[selectedIndex].tmm_unit
-                          ) != -1
+                          ) !== -1
                             ? parseInt(medicationData[selectedIndex].tmm_unit)
                             : null
                           : null
@@ -653,7 +653,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0"
                       >
-                        {medicationData[selectedIndex].tcm_tmm_freq_morning !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_morning !==
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_morning !=
                           0 && (
@@ -688,7 +688,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                             onChange={onChangeInputMorningChild}
                           />
                         </BSButton>
-                        {medicationData[selectedIndex].tcm_tmm_freq_morning !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_morning !==
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_morning !=
                           0 && (
@@ -708,7 +708,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0 border-start-0"
                       >
-                        {medicationData[selectedIndex].tcm_tmm_freq_afternoon !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_afternoon !==
                           undefined &&
                           medicationData[selectedIndex]
                             .tcm_tmm_freq_afternoon != 0 && (
@@ -744,7 +744,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                             onChange={onChangeInputAfternoonChild}
                           />
                         </BSButton>
-                        {medicationData[selectedIndex].tcm_tmm_freq_afternoon !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_afternoon !==
                           undefined &&
                           medicationData[selectedIndex]
                             .tcm_tmm_freq_afternoon != 0 && (
@@ -764,7 +764,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0 border-start-0"
                       >
-                        {medicationData[selectedIndex].tcm_tmm_freq_night !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_night !==
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_night !=
                           0 && (
@@ -799,7 +799,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                             onChange={onChangeInputNightChild}
                           />
                         </BSButton>
-                        {medicationData[selectedIndex].tcm_tmm_freq_night !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_night !==
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_night !=
                           0 && (
@@ -823,7 +823,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0"
                       >
-                        {medicationData[selectedIndex].tcm_tmm_freq_morning !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_morning !==
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_morning !=
                           0 && (
@@ -858,7 +858,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                             onChange={onChangeInputMorningChild}
                           />
                         </BSButton>
-                        {medicationData[selectedIndex].tcm_tmm_freq_morning !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_morning !==
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_morning !=
                           0 && (
@@ -878,7 +878,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0 border-start-0"
                       >
-                        {medicationData[selectedIndex].tcm_tmm_freq_afternoon !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_afternoon !==
                           undefined &&
                           medicationData[selectedIndex]
                             .tcm_tmm_freq_afternoon != 0 && (
@@ -914,7 +914,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                             onChange={onChangeInputAfternoonChild}
                           />
                         </BSButton>
-                        {medicationData[selectedIndex].tcm_tmm_freq_afternoon !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_afternoon !==
                           undefined &&
                           medicationData[selectedIndex]
                             .tcm_tmm_freq_afternoon != 0 && (
@@ -934,7 +934,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0 border-start-0"
                       >
-                        {medicationData[selectedIndex].tcm_tmm_freq_evening !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_evening !==
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_evening !=
                           0 && (
@@ -969,7 +969,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                             onChange={onChangeInputEveningChild}
                           />
                         </BSButton>
-                        {medicationData[selectedIndex].tcm_tmm_freq_evening !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_evening !==
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_evening !=
                           0 && (
@@ -989,7 +989,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0 border-start-0"
                       >
-                        {medicationData[selectedIndex].tcm_tmm_freq_night !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_night !==
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_night !=
                           0 && (
@@ -1024,7 +1024,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                             onChange={onChangeInputNightChild}
                           />
                         </BSButton>
-                        {medicationData[selectedIndex].tcm_tmm_freq_night !=
+                        {medicationData[selectedIndex].tcm_tmm_freq_night !==
                           undefined &&
                           medicationData[selectedIndex].tcm_tmm_freq_night !=
                           0 && (
@@ -1197,7 +1197,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
               <div className="mt-3 mb-3">
                 <Segmented
                   value={
-                    medicationData[selectedIndex].tmm_duration_type !=
+                    medicationData[selectedIndex].tmm_duration_type !==
                     undefined &&
                     medicationData[selectedIndex].tmm_duration_type
                   }
