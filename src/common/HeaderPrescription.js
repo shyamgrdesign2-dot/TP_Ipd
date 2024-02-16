@@ -31,6 +31,7 @@ import {
 function HeaderPrescription() {
 
     const { customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
+
     const {
         templates,
         loading,
@@ -140,9 +141,9 @@ function HeaderPrescription() {
 
     const onTemplateSelected = async (tmoc_id) => {
         const action = await dispatch(oneClickSingleTemplateDetails(tmoc_id));
-        if (action.meta.requestStatus === "fulfilled") {
+        if (action.meta.requestStatus == "fulfilled") {
             const data = action.payload
-            if (data !== undefined) {
+            if (data != undefined) {
                 if (data.symptoms.length > 0) {
                     const updatedData = data.symptoms.map(e => {
                         return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" }
@@ -256,7 +257,7 @@ function HeaderPrescription() {
         }
 
         const action = await dispatch(oneClickAddTemplate(sendData));
-        if (action.meta.requestStatus === "fulfilled") {
+        if (action.meta.requestStatus == "fulfilled") {
             // const updatedData = symptomsData.map(e => {
             //     const obj = { ...e };
             //     delete obj['change'];
@@ -344,7 +345,7 @@ function HeaderPrescription() {
             }
         }
         const action = await dispatch(oneClickUpdateTemplate(sendData));
-        if (action.meta.requestStatus === "fulfilled") {
+        if (action.meta.requestStatus == "fulfilled") {
             // const updatedData = symptomsData.map(e => {
             //     const obj = { ...e };
             //     delete obj['change'];
@@ -663,42 +664,42 @@ function HeaderPrescription() {
     }, [customizeDrawer]);
 
     async function onEndVisitClick() {
-        if (symptomsData.length > 0 && symptomsData.filter(e => e.symptom_name === "").length > 0) {
+        if (symptomsData.length > 0 && symptomsData.filter(e => e.symptom_name == "").length > 0) {
             message.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup symptom name',
                 duration: 2
             });
-        } else if (examinationData.length > 0 && examinationData.filter(e => e.examination_name === "").length > 0) {
+        } else if (examinationData.length > 0 && examinationData.filter(e => e.examination_name == "").length > 0) {
             message.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup examination name',
                 duration: 2
             });
-        } else if (diagnosisData.length > 0 && diagnosisData.filter((e) => e.tds_name === "").length > 0) {
+        } else if (diagnosisData.length > 0 && diagnosisData.filter((e) => e.tds_name == "").length > 0) {
             message.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup diagnosis name',
                 duration: 2
             });
-        } else if (medicationData.length > 0 && medicationData.filter((e) => e.tmm_medicine_name === "").length > 0) {
+        } else if (medicationData.length > 0 && medicationData.filter((e) => e.tmm_medicine_name == "").length > 0) {
             message.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup medication name',
                 duration: 2
             });
-        } else if (adviceData.length > 0 && adviceData.filter(e => e.advice_name === "").length > 0) {
+        } else if (adviceData.length > 0 && adviceData.filter(e => e.advice_name == "").length > 0) {
             message.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup advice name',
                 duration: 2
             });
-        } else if (investigationData.length > 0 && investigationData.filter(e => e.investigation_name === "").length > 0) {
+        } else if (investigationData.length > 0 && investigationData.filter(e => e.investigation_name == "").length > 0) {
             message.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
@@ -707,10 +708,10 @@ function HeaderPrescription() {
             });
         } else {
             var sendData = {
-                action: tcmId === 0 ? 'add' : 'edit',
+                action: tcmId == 0 ? 'add' : 'edit',
                 tcm_id: tcmId,
-                patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
-                pam_id: patient_data !== undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
+                patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
+                pam_id: patient_data != undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
                 consultation_date: consultationDate,
                 symptoms: customizedPadRightList.findIndex(e => e.tmdpm_id === 5 && e.tmdpm_status === 0) !== -1 ? symptomsData : [],
                 examination: customizedPadRightList.findIndex(e => e.tmdpm_id === 10 && e.tmdpm_status === 0) !== -1 ? examinationData : [],
@@ -723,8 +724,8 @@ function HeaderPrescription() {
                 visit_advice: customizedPadRightList.findIndex(e => e.tmdpm_id === 15 && e.tmdpm_status === 0) !== -1 ? additionalNote : '',
             }
 
-            const action = tcmId === 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
-            if (action.meta.requestStatus === "fulfilled") {
+            const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
+            if (action.meta.requestStatus == "fulfilled") {
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
             } else {
                 message.open({

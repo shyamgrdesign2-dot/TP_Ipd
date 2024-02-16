@@ -44,13 +44,13 @@ function PatientDetails() {
 
     useEffect(() => {
         var sendData = {
-            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
             tcm_id: tcmData.tcm_id
         }
         dispatch(viewCaseManager(sendData));
         // const timeOutId = setTimeout(() => {
         //     var sendData = {
-        //         patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+        //         patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
         //         tcm_id: tcmData.tcm_id
         //     }
         //     dispatch(viewCaseManager(sendData));
@@ -65,7 +65,7 @@ function PatientDetails() {
     }
 
     const prevPress = () => {
-        setTcmData({ tcm_id: viewCaseManagerData?.prev_tcm_id, page: (tcmData.page += 1) })
+        setTcmData({ tcm_id: viewCaseManagerData?.prev_tcm_id, page:  (tcmData.page += 1) })
     }
 
     return (
@@ -91,8 +91,8 @@ function PatientDetails() {
                         <Welcome1
                             locationPath={locationPath}
                             isMobile={isMobile}
-                            patient_data={patient_data}
-                            viewCaseManagerData={viewCaseManagerData} />
+                            patient_data={patient_data} 
+                            viewCaseManagerData={viewCaseManagerData}/>
                         <div className="appointment-wrap PatientDetailswrap">
                             <div className='row'>
                                 <div className='col-lg-5 col-md-12 col-12'>

@@ -25,8 +25,8 @@ function VitalsList() {
 
     useEffect(() => {
         var sendData = {
-            patient_unique_id: state !== undefined ? state.patient_unique_id : 0,
-            pam_id: state !== undefined && state.pam_id !== undefined ? state.pam_id : 0,
+            patient_unique_id: state != undefined ? state.patient_unique_id : 0,
+            pam_id: state != undefined && state.pam_id != undefined ? state.pam_id : 0,
         }
         dispatch(getVitals(sendData));
     }, []);
@@ -43,7 +43,7 @@ function VitalsList() {
             vitalsData.length > 0 &&
             vitalsData.map((item, i) => {
                 return (
-                    <div key={i} className={`${vitalsData.length - 1 !== i && 'border-bottom'} pt-3 vitals-height input-readonly`}>
+                    <div key={i} className={`${vitalsData.length - 1 != i && 'border-bottom'} pt-3 vitals-height input-readonly`}>
                         <div className="title-sami mb-3">
                             {moment(item.date).format(showDateFormat)}
                         </div>
@@ -89,7 +89,7 @@ function VitalsList() {
                                 <Input className='inputheight41-group mx-2' value={item.height} addonAfter={'cms'} readOnly />
                             </div>
                         )}
-                        {item.weight && (
+                         {item.weight && (
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">Weight</div>
                                 <Input className='inputheight41-group mx-2' value={item.weight} addonAfter={'kgs'} readOnly />

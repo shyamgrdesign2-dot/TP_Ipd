@@ -107,7 +107,7 @@ function InvestigationBox() {
         label: <div>{e.investigation_name}</div>,
       });
     });
-    if (searchParentQuery.length === 0) {
+    if (searchParentQuery.length == 0) {
       data.unshift({
         key: -1,
         label: (
@@ -296,14 +296,14 @@ function InvestigationBox() {
   );
 
   const onAddTemplateClicked = async () => {
-    if (investigationData.length === 0) {
+    if (investigationData.length == 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 investigation added',
         duration: 2
       });
-    } else if (investigationData.filter(e => e.investigation_name === "").length > 0) {
+    } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
@@ -316,7 +316,7 @@ function InvestigationBox() {
         investigation: investigationData,
       };
       const action = await dispatch(addTemplate(sendData));
-      if (action.meta.requestStatus === "fulfilled") {
+      if (action.meta.requestStatus == "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -335,14 +335,14 @@ function InvestigationBox() {
   );
 
   const onUpdateTemplateClicked = async () => {
-    if (investigationData.length === 0) {
+    if (investigationData.length == 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 investigation added',
         duration: 2
       });
-    } else if (investigationData.filter(e => e.investigation_name === "").length > 0) {
+    } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
@@ -357,7 +357,7 @@ function InvestigationBox() {
         investigation: investigationData,
       };
       const action = await dispatch(updateTemplate(sendData));
-      if (action.meta.requestStatus === "fulfilled") {
+      if (action.meta.requestStatus == "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -461,7 +461,7 @@ function InvestigationBox() {
                     <div className="text-truncate">
                       {template.investigation.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.investigation_name}${template.investigation.length - 1 !== ii ? ", " : ""
+                          <span key={ii}>{`${item.investigation_name}${template.investigation.length - 1 != ii ? ", " : ""
                             }`}</span>
                         );
                       })}
@@ -548,20 +548,20 @@ function InvestigationBox() {
               })}
               optionRender={(option) => (
                 <div className="align-items-center d-flex text-truncate w-100">
-                  <div className="round-box"><i className="icon-template"></i></div>
-                  <div className="text-truncate w-100">
-                    <div className="title text-main2">{option.data.value}</div>
-                    <div className="text-truncate">
-                      {JSON.parse(option.data.key).investigation.map((item, ii) => {
-                        return (
-                          <span key={ii}>{`${item.investigation_name}${JSON.parse(option.data.key).investigation.length - 1 !== ii ? ", " : ""
-                            }`}</span>
-                        );
-                      })}
+                    <div className="round-box"><i className="icon-template"></i></div>
+                    <div className="text-truncate w-100">
+                        <div className="title text-main2">{option.data.value}</div>
+                        <div className="text-truncate">
+                            {JSON.parse(option.data.key).investigation.map((item, ii) => {
+                                return (
+                                    <span key={ii}>{`${item.investigation_name}${JSON.parse(option.data.key).investigation.length - 1 != ii ? ", " : ""
+                                        }`}</span>
+                                );
+                            })}
+                        </div>
                     </div>
-                  </div>
                 </div>
-              )}
+            )}
             />
             <Button
               className="btn btn-primary3 btn-41 ms-3"

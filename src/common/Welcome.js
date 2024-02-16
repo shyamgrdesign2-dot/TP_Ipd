@@ -42,16 +42,16 @@ function Welcome(props) {
               </div>
             )}
             <div>
-              {locationPath === "/add_patient" ? (
+              {locationPath == "/add_patient" ? (
                 <h1>Add New Patient</h1>
-              ) : locationPath === "/edit_patient" ? (
+              ) : locationPath == "/edit_patient" ? (
                 <h1>Edit Patient Details</h1>
-              ) : locationPath === "/walk_in_consultation" ? (
+              ) : locationPath == "/walk_in_consultation" ? (
                 <h1>Start Walk-In Consultation</h1>
               ) : (
                 <h1>Welcome {getFirstNameWithFallback()}!</h1>
               )}
-              {locationPath === "/" && <p>{"Your Appointments"}</p>}
+              {locationPath == "/" && <p>{"Your Appointments"}</p>}
             </div>
             <img
               src={require("../assets/images/bg-welcome.png")}
@@ -60,7 +60,7 @@ function Welcome(props) {
             />
           </div>
           <div>
-            {locationPath === "/" && (
+            {locationPath == "/" && (
               <div className="d-lg-flex d-block">
                 {/* <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => alert('Comming Soon')}> <i className={'icon-Add me-2'}></i> {'Add New Appointment'}</Button> */}
                 <Button

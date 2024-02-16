@@ -33,8 +33,8 @@ function TabPrescription() {
 
     const { state } = useLocation();
     const { patient_data, caseManagerData } = state
-    const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0
-    const consultationDate = caseManagerData !== undefined ? caseManagerData.consultation_date : moment().format('YYYY-MM-DD HH:mm:ss')
+    const tcmId = caseManagerData != undefined ? caseManagerData.tcm_id : 0
+    const consultationDate = caseManagerData != undefined ? caseManagerData.consultation_date : moment().format('YYYY-MM-DD HH:mm:ss')
 
     const [symptomsData, setSymptomsData] = useState([]);
     const [examinationData, setExaminationData] = useState([]);
@@ -53,7 +53,7 @@ function TabPrescription() {
     const [vitalDrawer, setVitalDrawer] = useState(false);
 
     useEffect(() => {
-        if (caseManagerData !== undefined) {
+        if (caseManagerData != undefined) {
             if (caseManagerData.symptoms.length > 0) {
                 setSymptomsData(caseManagerData.symptoms)
             }
@@ -100,7 +100,7 @@ function TabPrescription() {
                 setAdditionalNote(caseManagerData.visit_advice)
             }
         }
-    }, [caseManagerData]);
+    }, []);
 
     // Drawer Vitals
     const handleDrawerVital = useCallback(() => {
@@ -124,7 +124,7 @@ function TabPrescription() {
                             {customizedPadLeftList.map((e, i) => {
                                 return (
                                     e.tmdpm_id === 1 && e.tmdpm_status === 0 && (
-                                        <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length === 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
+                                        <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length == 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
                                             <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                                 <img src={vitalsWhite} alt="Vitals" />
                                             </div>

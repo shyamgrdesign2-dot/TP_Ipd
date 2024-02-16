@@ -26,7 +26,7 @@ function AddressDetails({ form }) {
     useEffect(() => {
         if (pincode) {
             const timeOutId = setTimeout(() => {
-                // pincode.length === 6 && dispatch(searchPincode(pincode));
+                // pincode.length == 6 && dispatch(searchPincode(pincode));
                 dispatch(searchPincode(pincode));
             }, 500);
             return () => {

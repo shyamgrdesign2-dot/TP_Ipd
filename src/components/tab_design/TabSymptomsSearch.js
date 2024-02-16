@@ -110,7 +110,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
             symptomsData.length > 0 &&
             symptomsData.map((item, index) => {
                 return (
-                    <div key={index} style={{ width: item.symptom_name.length > 12 && item.symptom_name.length < 24 ? `${item.symptom_name.length * 10.5}px` : item.symptom_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex === index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
+                    <div key={index} style={{ width: item.symptom_name.length > 12 && item.symptom_name.length < 24 ? `${item.symptom_name.length * 10.5}px` : item.symptom_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex == index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
                         <div className="text-truncate p-2" onClick={() => {
                             setSelectedIndex(index)
                             setSinceValue(item.since ? parseInt(item.since.split(" ")[0]) : 1)
@@ -134,7 +134,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
 
 
     useEffect(() => {
-        if (sinceValue !== -1) {
+        if (sinceValue != -1) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
@@ -229,7 +229,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
 
     const onChangeSeverityChild = useCallback(
         (key) => {
-            if (key !== symptomsData[selectedIndex].severity) {
+            if (key != symptomsData[selectedIndex].severity) {
                 symptomsData[selectedIndex].severity = key;
             } else {
                 symptomsData[selectedIndex].severity = '';
@@ -249,11 +249,11 @@ function TabSymptomsSearch({ passIndex, onClose }) {
     //Child Componet
     const CHILD_DRAWER_DATA = useMemo(() => {
         return (
-            selectedIndex !== null && (
+            selectedIndex != null && (
                 <>
                     <div className="h-100">
                         <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
-                            <span className="text-truncate-twolines">{selectedIndex !== null && symptomsData[selectedIndex].symptom_name}</span>
+                            <span className="text-truncate-twolines">{selectedIndex != null && symptomsData[selectedIndex].symptom_name}</span>
                         </div>
                         <div className="p-4">
                             <div>
@@ -269,7 +269,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                             </div>
                             <div className="mt-3">
                                 <Segmented
-                                    value={selectedIndex !== null && symptomsData[selectedIndex].since}
+                                    value={selectedIndex != null && symptomsData[selectedIndex].since}
                                     className="search-segment"
                                     options={sinceOptions}
                                     onChange={onChangeSinceChild}
@@ -280,7 +280,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                     Severity
                                 </label>
                                 {/* <Segmented
-                                    value={selectedIndex !==null && symptomsData[selectedIndex].severity}
+                                    value={selectedIndex != null && symptomsData[selectedIndex].severity}
                                     className="search-segment"
                                     options={SEVERITY_LIST}
                                     onChange={onChangeSeverityChild}
@@ -290,7 +290,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                         return (
                                             <button key={i}
                                                 type="button"
-                                                className={`btn w-100 ${selectedIndex !== null && symptomsData[selectedIndex].severity === item.value && 'btn-segement'}`}
+                                                className={`btn w-100 ${selectedIndex != null && symptomsData[selectedIndex].severity == item.value && 'btn-segement'}`}
                                                 onClick={() => onChangeSeverityChild(item.value)}>
                                                 {item.label}
                                             </button>
@@ -302,7 +302,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                 <label className="title-common">
                                     Add Details
                                 </label>
-                                <Input.TextArea value={selectedIndex !== null && symptomsData[selectedIndex].note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                                <Input.TextArea value={selectedIndex != null && symptomsData[selectedIndex].note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                             </div>
                         </div>
                     </div>

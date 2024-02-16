@@ -59,13 +59,13 @@ function TabMedicationMoreModal({ width, title, onClose, onClick, label, value, 
                         <Button
                             key={Math.random()}
                             type="text"
-                            id={`${selectedValue === item[value] ?
+                            id={`${selectedValue == item[value] ?
                                 "selected" : ""
                                 }`}
                             className="btn btn-primary2 chips-custom mb-14 me-14"
                             onClick={() => onClick(item)}>
                             <span
-                                id={`${selectedValue === item[value] ?
+                                id={`${selectedValue == item[value] ?
                                     "selected" : ""
                                     }`}>
                                 {item[label]}

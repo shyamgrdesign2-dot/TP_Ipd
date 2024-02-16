@@ -22,14 +22,14 @@ function SidebarPatient({ collapsed, patient_data }) {
                 <div className="round-box bg-body-secondary"><i className="icon-Id fs-21"></i></div>
                 <div className="text-truncate">
                     <div className="fontroboto letterspacing">Patient Id</div>
-                    <div className="fontroboto letterspacing fw-medium">{patient_data !== undefined ? patient_data.pm_pid : "000000"}</div>
+                    <div className="fontroboto letterspacing fw-medium">{patient_data != undefined ? patient_data.pm_pid : "000000"}</div>
                 </div>
             </div>
             <div className="align-items-center d-flex medicine-templates border-top-0 without-hover px-0 pt-0">
                 <div className="round-box bg-body-secondary"><i className="icon-phone fs-21"></i></div>
                 <div className="text-truncate">
                     <div className="fontroboto letterspacing">Mobile Number</div>
-                    <div className="fontroboto letterspacing fw-medium">{patient_data !== undefined ? patient_data.pm_contact_no : "000000"}</div>
+                    <div className="fontroboto letterspacing fw-medium">{patient_data != undefined ? patient_data.pm_contact_no : "000000"}</div>
                 </div>
             </div>
             <div>
@@ -57,10 +57,10 @@ function SidebarPatient({ collapsed, patient_data }) {
                     </div>
                     {!collapsed && (
                         <div className='text-truncate'>
-                            <div className='patientName d-flex align-items-center'> <div className='text-truncate pt-2px'>{`${patient_data !== undefined ? patient_data.pm_fullname : "Hello Guest"}`}</div>
+                            <div className='patientName d-flex align-items-center'> <div className='text-truncate pt-2px'>{`${patient_data != undefined ? patient_data.pm_fullname : "Hello Guest"}`}</div>
                                 <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right'></i></button>
                             </div>
-                            <p className='mb-0'>{`${patient_data !== undefined ? patient_data.pm_gender[0].toUpperCase() : "M"}, ${patient_data !== undefined ? patient_data.ageYears : 30}y,`}</p>
+                            <p className='mb-0'>{`${patient_data != undefined ? patient_data.pm_gender[0].toUpperCase() : "M"}, ${patient_data != undefined ? patient_data.ageYears : 30}y,`}</p>
                         </div>
                     )}
                 </div>
@@ -70,12 +70,12 @@ function SidebarPatient({ collapsed, patient_data }) {
                 return (
                     <div key={index}>
                         <Nav.Item className={collapsed && 'text-center'}>
-                            <Nav.Link className={`${index === 0 && 'active'} ${!collapsed && 'd-flex align-items-center'}`}>
+                            <Nav.Link className={`${index == 0 && 'active'} ${!collapsed && 'd-flex align-items-center'}`}>
                                 <i className={item.icon_name}></i>
                                 <div className={collapsed ? 'text-truncate' : 'ms-3'}>{collapsed ? item.short_title : item.long_title}</div>
                             </Nav.Link>
                         </Nav.Item>
-                        {index === menu.length - 2 && <hr className='my-1' />}
+                        {index == menu.length - 2 && <hr className='my-1' />}
                     </div>
                 )
             })}

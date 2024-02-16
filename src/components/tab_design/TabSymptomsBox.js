@@ -170,14 +170,14 @@ function TabSymptomsBox() {
     );
 
     const onAddTemplateClicked = async () => {
-        if (symptomsData.length === 0) {
+        if (symptomsData.length == 0) {
             messageApi.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 symptom added',
                 duration: 2
             });
-        } else if (symptomsData.filter(e => e.symptom_name === "").length > 0) {
+        } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
             messageApi.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
@@ -190,7 +190,7 @@ function TabSymptomsBox() {
                 symptoms: symptomsData,
             };
             const action = await dispatch(addTemplate(sendData));
-            if (action.meta.requestStatus === "fulfilled") {
+            if (action.meta.requestStatus == "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -209,14 +209,14 @@ function TabSymptomsBox() {
     );
 
     const onUpdateTemplateClicked = async () => {
-        if (symptomsData.length === 0) {
+        if (symptomsData.length == 0) {
             messageApi.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 symptom added',
                 duration: 2
             });
-        } else if (symptomsData.filter(e => e.symptom_name === "").length > 0) {
+        } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
             messageApi.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
@@ -231,7 +231,7 @@ function TabSymptomsBox() {
                 symptoms: symptomsData,
             };
             const action = await dispatch(updateTemplate(sendData));
-            if (action.meta.requestStatus === "fulfilled") {
+            if (action.meta.requestStatus == "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -283,7 +283,7 @@ function TabSymptomsBox() {
                                                 <div className="text-truncate">
                                                     {template.symptoms.map((item, ii) => {
                                                         return (
-                                                            <span key={ii}>{`${item.symptom_name}${template.symptoms.length - 1 !== ii ? ", " : ""
+                                                            <span key={ii}>{`${item.symptom_name}${template.symptoms.length - 1 != ii ? ", " : ""
                                                                 }`}</span>
                                                         );
                                                     })}
@@ -368,7 +368,7 @@ function TabSymptomsBox() {
                                         <div className="text-truncate">
                                             {JSON.parse(option.data.key).symptoms.map((item, ii) => {
                                                 return (
-                                                    <span key={ii}>{`${item.symptom_name}${JSON.parse(option.data.key).symptoms.length - 1 !== ii ? ", " : ""
+                                                    <span key={ii}>{`${item.symptom_name}${JSON.parse(option.data.key).symptoms.length - 1 != ii ? ", " : ""
                                                         }`}</span>
                                                 );
                                             })}
@@ -393,7 +393,7 @@ function TabSymptomsBox() {
 
 
     useEffect(() => {
-        if (sinceValue !== -1) {
+        if (sinceValue != -1) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
@@ -485,7 +485,7 @@ function TabSymptomsBox() {
 
     const onChangeSeverityChild = useCallback(
         (key) => {
-            if (key !== childDrawerData.severity) {
+            if (key != childDrawerData.severity) {
                 setChildDrawerData({ ...childDrawerData, severity: key })
             } else {
                 setChildDrawerData({ ...childDrawerData, severity: '' })
@@ -539,7 +539,7 @@ function TabSymptomsBox() {
                         </div>
                         <div className="mt-3">
                             <Segmented
-                                value={childDrawerData.since !== undefined && childDrawerData.since}
+                                value={childDrawerData.since != undefined && childDrawerData.since}
                                 className="search-segment"
                                 options={sinceOptions}
                                 onChange={onChangeSinceChild}
@@ -550,7 +550,7 @@ function TabSymptomsBox() {
                                 Severity
                             </label>
                             {/* <Segmented
-                                value={childDrawerData.severity !== undefined && childDrawerData.severity}
+                                value={childDrawerData.severity != undefined && childDrawerData.severity}
                                 className="search-segment"
                                 options={SEVERITY_LIST}
                                 onChange={onChangeSeverityChild}
@@ -560,7 +560,7 @@ function TabSymptomsBox() {
                                     return (
                                         <button key={i}
                                             type="button"
-                                            className={`btn w-100 ${childDrawerData.severity !== undefined && childDrawerData.severity === item.value && 'btn-segement'}`}
+                                            className={`btn w-100 ${childDrawerData.severity != undefined && childDrawerData.severity == item.value && 'btn-segement'}`}
                                             onClick={() => onChangeSeverityChild(item.value)}>
                                             {item.label}
                                         </button>
@@ -572,7 +572,7 @@ function TabSymptomsBox() {
                             <label className="title-common">
                                 Add Details
                             </label>
-                            <Input.TextArea value={childDrawerData.note !== undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                            <Input.TextArea value={childDrawerData.note != undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                         </div>
                     </div>
                 </>

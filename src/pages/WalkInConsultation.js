@@ -154,7 +154,7 @@ function WalkInConsultation() {
 
     const onSelect = useCallback(
         (data, e) => {
-            e.key !== -1 ?
+            e.key != -1 ?
                 setClickedPatient(JSON.parse(e.key))
                 :
                 goToAddPatient()
@@ -165,7 +165,7 @@ function WalkInConsultation() {
     const COMMON_MODAL = useMemo(() => {
         return (
             <CommonModal
-                isModalOpen={clickedPatient !==null}
+                isModalOpen={clickedPatient != null}
                 modalWidth={610}
                 title={"Patient Selected"}
                 onCancel={() => {

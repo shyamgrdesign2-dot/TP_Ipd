@@ -132,9 +132,9 @@ const caseManagerSlice = createSlice({
             .addCase(oneClickUpdateTemplate.fulfilled, (state, action) => {
                 state.loading = false;
                 const index = state.templates.findIndex(
-                    (e) => e.tmoc_id === action.payload.template.tmoc_id
+                    (e) => e.tmoc_id == action.payload.template.tmoc_id
                 );
-                if (index !== -1) {
+                if (index != -1) {
                     state.templates[index] = action.payload.template;
                 }
             })
@@ -143,7 +143,7 @@ const caseManagerSlice = createSlice({
             })
             .addCase(oneClickDeleteTemplate.pending, (state, action) => {
                 const updatedData = state.templates.map((e) =>
-                    e.tmoc_id === action.meta.arg ? { ...e, loading: true } : e
+                    e.tmoc_id == action.meta.arg ? { ...e, loading: true } : e
                 );
                 state.templates = [...updatedData];
             })
@@ -155,7 +155,7 @@ const caseManagerSlice = createSlice({
             })
             .addCase(oneClickDeleteTemplate.rejected, (state, action) => {
                 const updatedData = state.templates.map((e) =>
-                    e.tmoc_id === action.meta.arg ? { ...e, loading: false } : e
+                    e.tmoc_id == action.meta.arg ? { ...e, loading: false } : e
                 );
                 state.templates = [...updatedData];
             })

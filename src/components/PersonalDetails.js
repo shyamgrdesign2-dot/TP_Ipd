@@ -45,7 +45,7 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
             const age = calculateAge(moment(patients_details.pm_dob).format(dateFormat));
             setAgeYearsMonths(age);
         } else {
-            if (patient_data !== undefined) {
+            if (patient_data != undefined) {
                 form.setFieldsValue({
                     pm_fullname: patient_data.pm_fullname,
                     pm_contact_no: patient_data.pm_contact_no,
@@ -127,7 +127,7 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
             newDate.setFullYear(
                 newDate.getFullYear() - parseInt(
                     ageYearsMonths.hasOwnProperty("years")
-                        ? ageYearsMonths.years !== ""
+                        ? ageYearsMonths.years != ""
                             ? ageYearsMonths.years
                             : 0
                         : 0
@@ -135,14 +135,14 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
             newDate.setMonth(
                 newDate.getMonth() - parseInt(
                     ageYearsMonths.hasOwnProperty("months")
-                        ? ageYearsMonths.months !== ""
+                        ? ageYearsMonths.months != ""
                             ? ageYearsMonths.months
                             : 0
                         : 0
                 ));
             newDate.setDate(newDate.getDate() - parseInt(
                 ageYearsMonths.hasOwnProperty("days")
-                    ? ageYearsMonths.days !== ""
+                    ? ageYearsMonths.days != ""
                         ? ageYearsMonths.days
                         : 0
                     : 0

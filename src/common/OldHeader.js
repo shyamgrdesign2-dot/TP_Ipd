@@ -9,7 +9,7 @@ import { changeHospital } from "../redux/appointmentsSlice";
 import { useLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
 
-function Header({ onClickChanged }) {
+function Header({onClickChanged}) {
   // const [getToken, setToken] = useLocalStorage(
   //   PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   // );
@@ -38,7 +38,7 @@ function Header({ onClickChanged }) {
   //   if(clinic) {
   //     setSelectedHospital(clinic);
   //   }
-
+    
   // }, [dispatch]);
 
   // useEffect(() => {
@@ -51,7 +51,7 @@ function Header({ onClickChanged }) {
   // useEffect(() => {
   //   saveClinic(selectedHospital);
   // }, [selectedHospital]);
-
+  
   // useEffect(() => {
   //   if (profiles && profiles.length > 0) {
   //     const firstProfile = profiles[0];

@@ -121,7 +121,7 @@ function SymptomsBox() {
         label: <div>{e.symptom_name}</div>,
       });
     });
-    if (searchParentQuery.length === 0) {
+    if (searchParentQuery.length == 0) {
       data.unshift({
         key: -1,
         label: (
@@ -350,14 +350,14 @@ function SymptomsBox() {
   );
 
   const onAddTemplateClicked = async () => {
-    if (symptomsData.length === 0) {
+    if (symptomsData.length == 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 symptom added',
         duration: 2
       });
-    } else if (symptomsData.filter(e => e.symptom_name === "").length > 0) {
+    } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
@@ -370,7 +370,7 @@ function SymptomsBox() {
         symptoms: symptomsData,
       };
       const action = await dispatch(addTemplate(sendData));
-      if (action.meta.requestStatus === "fulfilled") {
+      if (action.meta.requestStatus == "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -389,14 +389,14 @@ function SymptomsBox() {
   );
 
   const onUpdateTemplateClicked = async () => {
-    if (symptomsData.length === 0) {
+    if (symptomsData.length == 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 symptom added',
         duration: 2
       });
-    } else if (symptomsData.filter(e => e.symptom_name === "").length > 0) {
+    } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
@@ -411,7 +411,7 @@ function SymptomsBox() {
         symptoms: symptomsData,
       };
       const action = await dispatch(updateTemplate(sendData));
-      if (action.meta.requestStatus === "fulfilled") {
+      if (action.meta.requestStatus == "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -464,8 +464,8 @@ function SymptomsBox() {
               <Select
                 className="autocomplete-custom w-100 inputborder"
                 placeholder="Severity"
-                defaultValue={item.severity !== "" ? item.severity : null}
-                value={item.severity !== "" ? item.severity : null}
+                defaultValue={item.severity != "" ? item.severity : null}
+                value={item.severity != "" ? item.severity : null}
                 onSelect={(data) => onSelectSeverityChild(data, index)}
                 options={SEVERITY_LIST}
                 onClear={() => onSelectSeverityChild("", index)}
@@ -541,7 +541,7 @@ function SymptomsBox() {
                     <div className="text-truncate">
                       {template.symptoms.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.symptom_name}${template.symptoms.length - 1 !== ii ? ", " : ""
+                          <span key={ii}>{`${item.symptom_name}${template.symptoms.length - 1 != ii ? ", " : ""
                             }`}</span>
                         );
                       })}
@@ -628,20 +628,20 @@ function SymptomsBox() {
               })}
               optionRender={(option) => (
                 <div className="align-items-center d-flex text-truncate w-100">
-                  <div className="round-box"><i className="icon-template"></i></div>
-                  <div className="text-truncate w-100">
-                    <div className="title text-main2">{option.data.value}</div>
-                    <div className="text-truncate">
-                      {JSON.parse(option.data.key).symptoms.map((item, ii) => {
-                        return (
-                          <span key={ii}>{`${item.symptom_name}${JSON.parse(option.data.key).symptoms.length - 1 !== ii ? ", " : ""
-                            }`}</span>
-                        );
-                      })}
+                    <div className="round-box"><i className="icon-template"></i></div>
+                    <div className="text-truncate w-100">
+                        <div className="title text-main2">{option.data.value}</div>
+                        <div className="text-truncate">
+                            {JSON.parse(option.data.key).symptoms.map((item, ii) => {
+                                return (
+                                    <span key={ii}>{`${item.symptom_name}${JSON.parse(option.data.key).symptoms.length - 1 != ii ? ", " : ""
+                                        }`}</span>
+                                );
+                            })}
+                        </div>
                     </div>
-                  </div>
                 </div>
-              )}
+            )}
             />
             <Button
               className="btn btn-primary3 btn-41 ms-3"

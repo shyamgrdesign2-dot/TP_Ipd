@@ -36,12 +36,12 @@ function PatientForm({ mode = ADD, patient_data }) {
         form.validateFields().then(async (values) => {
             const finalValues = {
                 ...values,
-                pm_salutation: values.pm_salutation !== undefined ? values.pm_salutation : '',
-                pm_pincode: values.pm_pincode !== undefined ? values.pm_pincode : '',
+                pm_salutation: values.pm_salutation != undefined ? values.pm_salutation : '',
+                pm_pincode: values.pm_pincode != undefined ? values.pm_pincode : '',
                 pm_dob: values['pm_dob'] ? values['pm_dob'].format('YYYY-MM-DD') : values['dob'],
-                pm_city: values.pm_city !== undefined ? values.pm_city : '',
-                pm_state: values.pm_state !== undefined ? values.pm_state : '',
-                pm_address: values.pm_address !== undefined ? values.pm_address : '',
+                pm_city: values.pm_city != undefined ? values.pm_city : '',
+                pm_state: values.pm_state != undefined ? values.pm_state : '',
+                pm_address: values.pm_address != undefined ? values.pm_address : '',
             };
             delete finalValues['pm_dob_show'];
 
@@ -50,7 +50,7 @@ function PatientForm({ mode = ADD, patient_data }) {
             }
 
             const action = mode === EDIT ? await dispatch(editPatient(finalValues)) : await dispatch(addPatient(finalValues));
-            if (action.meta.requestStatus === "fulfilled") {
+            if (action.meta.requestStatus == "fulfilled") {
                 mode === EDIT ? navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } }) : navigate("/prescription", { replace: true, state: { patient_data: action.payload } })
             } else {
                 message.open({

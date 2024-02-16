@@ -61,8 +61,8 @@ function Header({ locationPath }) {
           try {
             var decoded = jwtDecode(token);
             setTokenData(decoded.result)
-            const index = clinicOptions.findIndex(e => e.value === decoded.result.clinic_id)
-            index !== -1 ? setSelectedHospital(parseInt(decoded.result.clinic_id)) : setSelectedHospital(null)
+            const index = clinicOptions.findIndex(e => e.value == decoded.result.clinic_id)
+            index != -1 ? setSelectedHospital(parseInt(decoded.result.clinic_id)) : setSelectedHospital(null)
           } catch (e) {
             console.log(e)
           }
@@ -84,10 +84,10 @@ function Header({ locationPath }) {
             clinic_id: value,
           };
           const action = await dispatch(changeHospital(sendData));
-          if (action.meta.requestStatus === "fulfilled") {
+          if (action.meta.requestStatus == "fulfilled") {
             // setSelectedHospital(value)
             await setToken(action.payload.token);
-            if (locationPath === "/") {
+            if (locationPath == "/") {
               if (!isChrome && !isSafari) {
                 navigate('/?authToken=' + action.payload.token, { replace: true });
                 navigate(0, { replace: true });
@@ -159,7 +159,7 @@ function Header({ locationPath }) {
 
   async function onSwitchLayoutClick() {
     const action = await dispatch(swtichLayout())
-    if (action.meta.requestStatus === "fulfilled") {
+    if (action.meta.requestStatus == "fulfilled") {
       showHideSwitchModal()
       if (!isChrome && !isSafari) {
         setTimeout(() => {
@@ -168,7 +168,7 @@ function Header({ locationPath }) {
         }, 500);
       } else {
         SSO_TO_PM().then(async (data) => {
-          if (data.success === 200) {
+          if (data.success == 200) {
             clearLocalStorage()
             await window.open(data.url, '_self');
           }
