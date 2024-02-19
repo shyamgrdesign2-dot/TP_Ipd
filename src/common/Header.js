@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { Select, Button, Checkbox, message } from "antd";
+import { Select, Button, Checkbox, message, Popover } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 import { isChrome, isSafari } from "react-device-detect";
@@ -10,6 +10,7 @@ import axios from 'axios';
 import config from "../config";
 import { getProfile, changeHospital, customizedPad, swtichLayout } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
+import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
 import { makeDefaultLogo } from "../utils/utils";
@@ -20,6 +21,13 @@ import alertIcon from '../assets/images/alertIcon.svg';
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
 function Header({ locationPath }) {
+
+  //PopOver
+  const [popOver, setPopOver] = useState(true);
+  //PopOver function
+  const showHideNavigateToTatvaPedia = useCallback(() => {
+    setPopOver(!popOver);
+  }, [popOver]);
 
   const [isSwitchModalOpen, setIsSwitchModalOpen] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
@@ -249,15 +257,40 @@ function Header({ locationPath }) {
     );
   }, [isSwitchModalOpen, loading]);
 
+  // navigate to TatvaPedia
+  const NAVIGATE_TO_TATVAPEDIA = useCallback(() => {
+    return (
+      <>
+        <div className="pop-header">
+          <div className="align-items-center d-flex">
+            <img src={logoSm} className="d-inline-block align-top me-3" style={{ height: '40px' }} alt="" />
+            <div className="title-common title">You can navigate to TatvaPedia <br /> platform from here</div>
+          </div>
+          <div className="mt-4 fontroboto">Where you can uplift your medical practice with premium evidence-based and practice related content.</div>
+          <div className="my-3 align-items-center d-flex justify-content-between">
+            <Checkbox className="switch-name-check fontroboto fw-medium" onChange={onChange}>Don’t show this again</Checkbox>
+            <Button onClick={showHideNavigateToTatvaPedia} className="lh-lg btn btn-primary3 btn-41 px-4" loading={loading}>
+              <span>Close</span>
+            </Button>
+          </div>
+        </div>
+      </>
+    );
+  }, [popOver]);
+
   return (
     <Navbar className="justify-content-between portal-header">
       <Container fluid>
-        <div className="cursor-pointer" onClick={showHideLogoModal}>
-          <img
+        <div>
+          <img onClick={showHideLogoModal}
             src={require("../assets/images/logo.png")}
-            className="d-inline-block align-top" style={{ height: '30px' }}
+            className="d-inline-block align-top cursor-pointer" style={{ height: '30px' }}
             alt="Logo"
           />
+          <Popover open={popOver} onOpenChange={showHideNavigateToTatvaPedia} content={NAVIGATE_TO_TATVAPEDIA}
+            trigger="click" overlayClassName="pop-370 pp-0" placement="bottomRight">
+            <div></div>
+          </Popover>
         </div>
         {LOGO_MODAL}
         <Nav className="ms-auto align-items-center d-flex">
