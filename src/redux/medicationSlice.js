@@ -179,7 +179,7 @@ const medicationSlice = createSlice({
         const index = state.templates.findIndex(
           (e) => e.tmtd_id == action.payload.tmtd_id
         );
-        if (index != -1) {
+        if (index !== -1) {
           state.templates[index] = action.payload;
         }
       })

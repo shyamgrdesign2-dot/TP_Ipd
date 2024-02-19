@@ -27,8 +27,8 @@ function TabVitalsList(props) {
 
     useEffect(() => {
         var sendData = {
-            patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
-            pam_id: patient_data != undefined && patient_data.pam_id != undefined ? patient_data.pam_id : 0,
+            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            pam_id: patient_data !== undefined && patient_data.pam_id !== undefined ? patient_data.pam_id : 0,
         }
         dispatch(getVitals(sendData));
     }, []);

@@ -112,7 +112,7 @@ const examinationSlice = createSlice({
         const index = state.templates.findIndex(
           (e) => e.tet_id == action.payload.tet_id
         );
-        if (index != -1) {
+        if (index !== -1) {
           state.templates[index] = action.payload;
         }
       })
