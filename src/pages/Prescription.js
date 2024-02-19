@@ -152,8 +152,8 @@ function Prescription() {
                     e.tmdpm_id === 5 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><SymptomsBox /></div>
                       : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><ExaminationBox /></div>
                         : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><DiagnosisBox /></div>
-                          : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><AdviceBox /></div>
-                            : e.tmdpm_id === 13 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"> <InvestigationBox /></div>
+                          : e.tmdpm_id === 13 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><AdviceBox /></div>
+                            : e.tmdpm_id === 14 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"> <InvestigationBox /></div>
                               : e.tmdpm_id === 15 && e.tmdpm_status === 0 && <div key={i} className="prescription-box-sm"><TabFollowUpBox /></div>
                   )
                 })}
