@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Table, Switch, Row, Col, Button, Card, message } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import { DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy, } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+import CashManagerContext from "../context/CashManagerContext";
 
 import { MESSAGE_KEY } from "../utils/constants";
 import { useSelector, useDispatch } from "react-redux";
@@ -63,6 +65,7 @@ const CustomRow = ({ children, ...props }) => {
 
 function CustomizeSetting({ handleDrawerCustomize }) {
 
+  const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
   const { loading, customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
@@ -200,6 +203,33 @@ function CustomizeSetting({ handleDrawerCustomize }) {
       }
       const action = await dispatch(customizedPad(sendData))
       if (action.meta.requestStatus === "fulfilled") {
+        const left = action.payload.left
+        const right = action.payload.right
+        if (right.findIndex(e => e.tmdpm_id === 5 && e.tmdpm_status === 0) === -1) {
+          setSymptomsData([])
+        }
+        if (right.findIndex(e => e.tmdpm_id === 10 && e.tmdpm_status === 0) === -1) {
+          setExaminationData([])
+        }
+        if (right.findIndex(e => e.tmdpm_id === 11 && e.tmdpm_status === 0) === -1) {
+          setDiagnosisData([])
+        }
+        if (right.findIndex(e => e.tmdpm_id === 12 && e.tmdpm_status === 0) === -1) {
+          setMedicationData([])
+        }
+        if (right.findIndex(e => e.tmdpm_id === 13 && e.tmdpm_status === 0) === -1) {
+          setAdviceData([])
+        }
+        if (right.findIndex(e => e.tmdpm_id === 14 && e.tmdpm_status === 0) === -1) {
+          setInvestigationData([])
+        }
+        if (right.findIndex(e => e.tmdpm_id === 15 && e.tmdpm_status === 0) === -1) {
+          setFollowUpDate(null)
+          setAdditionalNote('')
+        }
+        if (left.findIndex(e => e.tmdpm_id === 1 && e.tmdpm_status === 0) === -1) {
+          setVitalsData([])
+        }
         handleDrawerCustomize()
       } else {
         message.open({
@@ -226,6 +256,33 @@ function CustomizeSetting({ handleDrawerCustomize }) {
     }
     const action = await dispatch(customizedPad(sendData))
     if (action.meta.requestStatus === "fulfilled") {
+      const left = action.payload.left
+      const right = action.payload.right
+      if (right.findIndex(e => e.tmdpm_id === 5 && e.tmdpm_status === 0) === -1) {
+        setSymptomsData([])
+      }
+      if (right.findIndex(e => e.tmdpm_id === 10 && e.tmdpm_status === 0) === -1) {
+        setExaminationData([])
+      }
+      if (right.findIndex(e => e.tmdpm_id === 11 && e.tmdpm_status === 0) === -1) {
+        setDiagnosisData([])
+      }
+      if (right.findIndex(e => e.tmdpm_id === 12 && e.tmdpm_status === 0) === -1) {
+        setMedicationData([])
+      }
+      if (right.findIndex(e => e.tmdpm_id === 13 && e.tmdpm_status === 0) === -1) {
+        setAdviceData([])
+      }
+      if (right.findIndex(e => e.tmdpm_id === 14 && e.tmdpm_status === 0) === -1) {
+        setInvestigationData([])
+      }
+      if (right.findIndex(e => e.tmdpm_id === 15 && e.tmdpm_status === 0) === -1) {
+        setFollowUpDate(null)
+        setAdditionalNote('')
+      }
+      if (left.findIndex(e => e.tmdpm_id === 1 && e.tmdpm_status === 0) === -1) {
+        setVitalsData([])
+      }
       message.open({
         key: MESSAGE_KEY,
         type: 'success',
