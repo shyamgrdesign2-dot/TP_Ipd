@@ -29,6 +29,8 @@ import {
   searchInvestigation
 } from "../redux/investigationSlice";
 
+const { TextArea } = Input;
+
 function InvestigationBox() {
   const [messageApi, contextHolder] = message.useMessage();
   const {
@@ -375,7 +377,7 @@ function InvestigationBox() {
             gutter={[0]}
             className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
           >
-            <Col lg={9} md={9} sm={9} xs={9} className="border-end">
+            <Col lg={9} md={9} sm={9} xs={9}>
               <div className="fontroboto fw-medium">
                 <AutoComplete
                   defaultValue={item.investigation_name}
@@ -392,12 +394,16 @@ function InvestigationBox() {
                 />
               </div>
             </Col>
-            <Col lg={14} md={14} sm={13} xs={13} className="border-end">
-              <Input
+            <Col lg={14} md={14} sm={13} xs={13} className="border-start border-end">
+              <TextArea
                 className="notesinput border-0"
                 placeholder="Instruction"
                 defaultValue={item.note}
                 value={item.note}
+                autoSize={{
+                  minRows: 1,
+                  maxRows: 2,
+                }}
                 onChange={(e) => onChangeNoteChild(e, index)}
               />
             </Col>

@@ -77,7 +77,7 @@ function PatientDetails() {
                             {isMobile ? (
                                 <><i className="icon-right"></i> <div>{'\u00A0Back'}</div></>
                             ) : (
-                                <><i className="icon-right" style={{ color: !collapsed && variables.grayColor }}></i> <div className="backbar">{!collapsed && '\u00A0Back'}</div></>
+                                <><i className="icon-right text-main" style={{ color: !collapsed && variables.grayColor }}></i> <div className="backbar text-main">{!collapsed && '\u00A0Back'}</div></>
                             )}
 
                         </button>
