@@ -68,18 +68,18 @@ function TabSearchMedicationDetails() {
     // Segnment
     const DayList = [
         {
-            value: 'morning', label: 
-            <ButtonGroup aria-label="Basic example" className="inputheight45">
-                <Button variant="outline-light" className="rounded-0 dateoutline px-2 bg-white">
-                    <i className="icon-minus d-block text-main"></i>
-                </Button>
-                <Button variant="outline-light" className="rounded-0 dateoutline p-0 bg-white">
-                    <Input className="rounded-0 h-100 border-0" />
-                </Button>
-                <Button variant="outline-light" className="rounded-0 dateoutline px-2 bg-white">
-                    <i className="icon-Add text-main d-block"></i>
-                </Button>
-            </ButtonGroup>
+            value: 'morning', label:
+                <ButtonGroup aria-label="Basic example" className="inputheight45">
+                    <Button variant="outline-light" className="rounded-0 dateoutline px-2 bg-white">
+                        <i className="icon-minus d-block text-main"></i>
+                    </Button>
+                    <Button variant="outline-light" className="rounded-0 dateoutline p-0 bg-white">
+                        <Input className="rounded-0 h-100 border-0" />
+                    </Button>
+                    <Button variant="outline-light" className="rounded-0 dateoutline px-2 bg-white">
+                        <i className="icon-Add text-main d-block"></i>
+                    </Button>
+                </ButtonGroup>
         },
         { value: 'afternoon', label: 'Afternoon' },
         { value: 'night', label: 'Night' },

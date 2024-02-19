@@ -52,7 +52,7 @@ function VitalsBox(props) {
     }, [vitalsData]);
 
     useEffect(() => {
-        if (childVitalsData.length == 0) {
+        if (childVitalsData.length === 0) {
             let cal = calculate('', '');
             childVitalsData.push({
                 date: moment().format(dateFormat),
@@ -107,7 +107,7 @@ function VitalsBox(props) {
             // scrollContainerRef.current.scrollLeft = scrollWidth;
             const data = childVitalsData.sort((a, b) => new Date(b.date) - new Date(a.date))
             const index = data.findLastIndex(e => e.date == dateString)
-            if (index != -1) {
+            if (index !== -1) {
                 inputRef.current[index].focus()
                 const scrollWidth = index;
                 scrollContainerRef.current.scrollLeft = scrollWidth * 180;
@@ -133,8 +133,8 @@ function VitalsBox(props) {
         const calBMI = (weight / height / height) * 10000
         bmi = weight && height ? isFinite(calBMI) ? calBMI.toFixed(2) : '' : '';
 
-        var age = patient_data != undefined && patient_data.ageYears != undefined ? patient_data.ageYears : 0
-        if (patient_data != undefined && patient_data.pm_gender == 'Male') {
+        var age = patient_data !== undefined && patient_data.ageYears !== undefined ? patient_data.ageYears : 0
+        if (patient_data !== undefined && patient_data.pm_gender == 'Male') {
             const calBMR = (10 * weight) + (6.25 * height) - (5 * age) + 5;
             bmr = weight && height ? isFinite(calBMR) ? calBMR.toFixed(2) : '' : '';
         } else {
@@ -183,14 +183,14 @@ function VitalsBox(props) {
 
     const onAddUpdateClicked = async () => {
         var sendData = {
-            patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
-            pm_pid: patient_data != undefined ? patient_data.pm_pid : 0,
-            pm_id: patient_data != undefined ? patient_data.pm_id : 0,
-            pam_id: patient_data != undefined && patient_data.pam_id != undefined ? patient_data.pam_id : 0,
+            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0,
+            pm_id: patient_data !== undefined ? patient_data.pm_id : 0,
+            pam_id: patient_data !== undefined && patient_data.pam_id !== undefined ? patient_data.pam_id : 0,
             data: childVitalsData,
         };
         const action = await dispatch(addUpdateVitals(sendData));
-        if (action.meta.requestStatus == "fulfilled") {
+        if (action.meta.requestStatus === "fulfilled") {
             handleCollapsed(1)
         } else {
             messageApi.open({

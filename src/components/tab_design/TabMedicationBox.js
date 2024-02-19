@@ -126,12 +126,12 @@ function TabMedicationBox() {
         return {
           ...e,
           tmm_unit_name:
-            unitObj && unitObj != undefined
+            unitObj && unitObj !== undefined
               ? JSON.parse(unitObj.key).tmu_title
               : "",
           tmm_freq_type_name:
-            frequencyObj != undefined ? frequencyObj.tmf_title : "",
-          tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
+            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           medicineUnit: medicineUnit,
           unique_id: uuidv4(),
         };
@@ -166,7 +166,7 @@ function TabMedicationBox() {
 
   const onSelectParent = async (e) => {
     const action = await dispatch(getMedicineDetails(e.tmm_id));
-    if (action.meta.requestStatus == "fulfilled") {
+    if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {
         const medicineUnit = e?.medicineUnit.map((e1) => {
           return {
@@ -187,14 +187,14 @@ function TabMedicationBox() {
         return {
           ...e,
           tmm_unit_name:
-            unitObj && unitObj != undefined
+            unitObj && unitObj !== undefined
               ? JSON.parse(unitObj.key).tmu_title
               : "",
           tmm_freq_type_name:
-            frequencyObj != undefined ? frequencyObj.tmf_title : "",
+            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
           tmf_block_val:
-            frequencyObj != undefined ? frequencyObj.tmf_block_val : "",
-          tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
+            frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           medicineUnit: medicineUnit,
           unique_id: uuidv4(),
         };
@@ -272,10 +272,10 @@ function TabMedicationBox() {
   const loadPreviousRxClick = async () => {
     var sendData = {
       patient_unique_id:
-        patient_data != undefined ? patient_data.patient_unique_id : 0,
+        patient_data !== undefined ? patient_data.patient_unique_id : 0,
     };
     const action = await dispatch(getLoadPreviousRx(sendData));
-    if (action.meta.requestStatus == "fulfilled") {
+    if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {
         const medicineUnit = e?.medicineUnit.map((e1) => {
           return {
@@ -296,14 +296,14 @@ function TabMedicationBox() {
         return {
           ...e,
           tmm_unit_name:
-            unitObj && unitObj != undefined
+            unitObj && unitObj !== undefined
               ? JSON.parse(unitObj.key).tmu_title
               : "",
           tmm_freq_type_name:
-            frequencyObj != undefined ? frequencyObj.tmf_title : "",
+            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
           tmf_block_val:
-            frequencyObj != undefined ? frequencyObj.tmf_block_val : "",
-          tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
+            frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           medicineUnit: medicineUnit,
           unique_id: uuidv4(),
         };
@@ -321,7 +321,7 @@ function TabMedicationBox() {
 
   const onTemplateSelected = async (tmtd_id) => {
     const action = await dispatch(singleTemplateDetails(tmtd_id));
-    if (action.meta.requestStatus == "fulfilled") {
+    if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {
         const medicineUnit = e?.medicineUnit.map((e1) => {
           return {
@@ -342,12 +342,12 @@ function TabMedicationBox() {
         return {
           ...e,
           tmm_unit_name:
-            unitObj && unitObj != undefined
+            unitObj && unitObj !== undefined
               ? JSON.parse(unitObj.key).tmu_title
               : "",
           tmm_freq_type_name:
-            frequencyObj != undefined ? frequencyObj.tmf_title : "",
-          tmm_time_name: timingObj != undefined ? timingObj.tmt_title : "",
+            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           medicineUnit: medicineUnit,
           unique_id: uuidv4(),
         };
@@ -377,7 +377,7 @@ function TabMedicationBox() {
   );
 
   const onAddTemplateClicked = async () => {
-    if (medicationData.length == 0) {
+    if (medicationData.length === 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: "warning",
@@ -399,7 +399,7 @@ function TabMedicationBox() {
         data: medicationData,
       };
       const action = await dispatch(addTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         handleDrawerSave();
       }
@@ -418,7 +418,7 @@ function TabMedicationBox() {
   );
 
   const onUpdateTemplateClicked = async () => {
-    if (medicationData.length == 0) {
+    if (medicationData.length === 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: "warning",
@@ -442,7 +442,7 @@ function TabMedicationBox() {
         data: medicationData,
       };
       const action = await dispatch(updateTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         handleDrawerSave();
       }
@@ -651,7 +651,7 @@ function TabMedicationBox() {
       const obj = childDrawerData.medicineUnit
         ? childDrawerData.medicineUnit.find((e) => e.value == data)
         : null;
-      if (obj && obj != undefined) {
+      if (obj && obj !== undefined) {
         const objParse = JSON.parse(obj.key);
         setChildDrawerData({
           ...childDrawerData,
@@ -863,7 +863,7 @@ function TabMedicationBox() {
   );
 
   useEffect(() => {
-    if (sinceValue != -1) {
+    if (sinceValue !== -1) {
       const options = SINCE_OPTIONS.map((option) => {
         return {
           key: Math.random(),
@@ -951,7 +951,7 @@ function TabMedicationBox() {
       setSinceValue(key);
       setChildDrawerData({
         ...childDrawerData,
-        tmm_days: key != -1 ? key : 0,
+        tmm_days: key !== -1 ? key : 0,
         tmm_duration_type: "",
       });
     },
@@ -1037,7 +1037,7 @@ function TabMedicationBox() {
                       childDrawerData.medicineUnit
                         ? childDrawerData.medicineUnit.findIndex(
                           (e) => e.value == childDrawerData.tmm_unit
-                        ) != -1
+                        ) !== -1
                           ? parseInt(childDrawerData.tmm_unit)
                           : null
                         : null
@@ -1046,7 +1046,7 @@ function TabMedicationBox() {
                       childDrawerData.medicineUnit
                         ? childDrawerData.medicineUnit.findIndex(
                           (e) => e.value == childDrawerData.tmm_unit
-                        ) != -1
+                        ) !== -1
                           ? parseInt(childDrawerData.tmm_unit)
                           : null
                         : null
@@ -1104,7 +1104,7 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 border w-100 rounded-0"
                     >
-                      {childDrawerData.tcm_tmm_freq_morning != undefined &&
+                      {childDrawerData.tcm_tmm_freq_morning !== undefined &&
                         childDrawerData.tcm_tmm_freq_morning != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1136,7 +1136,7 @@ function TabMedicationBox() {
                           onChange={onChangeInputMorningChild}
                         />
                       </BSButton>
-                      {childDrawerData.tcm_tmm_freq_morning != undefined &&
+                      {childDrawerData.tcm_tmm_freq_morning !== undefined &&
                         childDrawerData.tcm_tmm_freq_morning != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1154,7 +1154,7 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 w-100 border rounded-0 border-start-0"
                     >
-                      {childDrawerData.tcm_tmm_freq_afternoon != undefined &&
+                      {childDrawerData.tcm_tmm_freq_afternoon !== undefined &&
                         childDrawerData.tcm_tmm_freq_afternoon != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1186,7 +1186,7 @@ function TabMedicationBox() {
                           onChange={onChangeInputAfternoonChild}
                         />
                       </BSButton>
-                      {childDrawerData.tcm_tmm_freq_afternoon != undefined &&
+                      {childDrawerData.tcm_tmm_freq_afternoon !== undefined &&
                         childDrawerData.tcm_tmm_freq_afternoon != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1204,7 +1204,7 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 w-100 border rounded-0 border-start-0"
                     >
-                      {childDrawerData.tcm_tmm_freq_night != undefined &&
+                      {childDrawerData.tcm_tmm_freq_night !== undefined &&
                         childDrawerData.tcm_tmm_freq_night != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1235,7 +1235,7 @@ function TabMedicationBox() {
                           onChange={onChangeInputNightChild}
                         />
                       </BSButton>
-                      {childDrawerData.tcm_tmm_freq_night != undefined &&
+                      {childDrawerData.tcm_tmm_freq_night !== undefined &&
                         childDrawerData.tcm_tmm_freq_night != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1257,7 +1257,7 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0"
                     >
-                      {childDrawerData.tcm_tmm_freq_morning != undefined &&
+                      {childDrawerData.tcm_tmm_freq_morning !== undefined &&
                         childDrawerData.tcm_tmm_freq_morning != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1301,7 +1301,7 @@ function TabMedicationBox() {
                           step={0.1}
                         /> */}
                       </BSButton>
-                      {childDrawerData.tcm_tmm_freq_morning != undefined &&
+                      {childDrawerData.tcm_tmm_freq_morning !== undefined &&
                         childDrawerData.tcm_tmm_freq_morning != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1319,7 +1319,7 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0 border-start-0"
                     >
-                      {childDrawerData.tcm_tmm_freq_afternoon != undefined &&
+                      {childDrawerData.tcm_tmm_freq_afternoon !== undefined &&
                         childDrawerData.tcm_tmm_freq_afternoon != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1363,7 +1363,7 @@ function TabMedicationBox() {
                           step={0.1}
                         /> */}
                       </BSButton>
-                      {childDrawerData.tcm_tmm_freq_afternoon != undefined &&
+                      {childDrawerData.tcm_tmm_freq_afternoon !== undefined &&
                         childDrawerData.tcm_tmm_freq_afternoon != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1381,7 +1381,7 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0 border-start-0"
                     >
-                      {childDrawerData.tcm_tmm_freq_evening != undefined &&
+                      {childDrawerData.tcm_tmm_freq_evening !== undefined &&
                         childDrawerData.tcm_tmm_freq_evening != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1425,7 +1425,7 @@ function TabMedicationBox() {
                           step={0.1}
                         /> */}
                       </BSButton>
-                      {childDrawerData.tcm_tmm_freq_evening != undefined &&
+                      {childDrawerData.tcm_tmm_freq_evening !== undefined &&
                         childDrawerData.tcm_tmm_freq_evening != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1443,7 +1443,7 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0 border-start-0"
                     >
-                      {childDrawerData.tcm_tmm_freq_night != undefined &&
+                      {childDrawerData.tcm_tmm_freq_night !== undefined &&
                         childDrawerData.tcm_tmm_freq_night != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1482,7 +1482,7 @@ function TabMedicationBox() {
                           step={0.1}
                         /> */}
                       </BSButton>
-                      {childDrawerData.tcm_tmm_freq_night != undefined &&
+                      {childDrawerData.tcm_tmm_freq_night !== undefined &&
                         childDrawerData.tcm_tmm_freq_night != 0 && (
                           <BSButton
                             variant="outline-light"
@@ -1633,7 +1633,7 @@ function TabMedicationBox() {
             <div className="mt-3 mb-3">
               <Segmented
                 value={
-                  childDrawerData.tmm_duration_type != undefined &&
+                  childDrawerData.tmm_duration_type !== undefined &&
                   childDrawerData.tmm_duration_type
                 }
                 className="search-segment"

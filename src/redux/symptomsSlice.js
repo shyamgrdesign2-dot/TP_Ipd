@@ -112,7 +112,7 @@ const symptomsSlice = createSlice({
         const index = state.templates.findIndex(
           (e) => e.tst_id == action.payload.tst_id
         );
-        if (index != -1) {
+        if (index !== -1) {
           state.templates[index] = action.payload;
         }
       })

@@ -130,7 +130,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
                             <span className="text-truncate-twolines">{'Edit Advice'}</span>
                         </div>
                         <div className="p-4">
-                            <Input.TextArea value={childDrawerData.advice_name != undefined && childDrawerData.advice_name} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                            <Input.TextArea value={childDrawerData.advice_name !== undefined && childDrawerData.advice_name} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                             <Button className='btn btn-primary3 float-end mt-3 btn-41 px-4' onClick={() => updateChild(childDrawerData)}>
                                 Save
                             </Button>
@@ -187,7 +187,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
                                                         <Button
                                                             key={i}
                                                             type="text"
-                                                            style={{ width: item.value.length > 26 && '250px' }} 
+                                                            style={{ width: item.value.length > 26 && '250px' }}
                                                             className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
                                                             onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
                                                             {item.value}

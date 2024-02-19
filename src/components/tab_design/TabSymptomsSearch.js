@@ -134,7 +134,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
 
 
     useEffect(() => {
-        if (sinceValue != -1) {
+        if (sinceValue !== -1) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),

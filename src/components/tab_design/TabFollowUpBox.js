@@ -145,7 +145,7 @@ function TabFollowUpBox() {
                                 <div className="title-common">Additional Notes</div>
                             </div>
                             <div className="textarea-save">
-                                <Input.TextArea placeholder="Enter any specific note here" onFocus={onFocusClick} onBlur={onSaveButtonClick}value={additionalNote} className="textareaPlaceholder fontroboto text-main" rows={3} onChange={onChangeNote} />
+                                <Input.TextArea placeholder="Enter any specific note here" onFocus={onFocusClick} onBlur={onSaveButtonClick} value={additionalNote} className="textareaPlaceholder fontroboto text-main" rows={3} onChange={onChangeNote} />
                                 {saveButton && (
                                     <Button className="d-flex align-items-center textarea-save-btn" onClick={onSaveButtonClick}>
                                         <i className="icon-check"></i>
