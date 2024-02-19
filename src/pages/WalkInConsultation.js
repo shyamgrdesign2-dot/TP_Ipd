@@ -122,7 +122,7 @@ function WalkInConsultation() {
         if (patients) {
             if (patients.length === 0 && searchQuery.length > 0) {
                 data.push({
-                    key: "-2",
+                    key: -2,
                     label: <div>{error}</div>,
                 });
             } else {
@@ -137,7 +137,7 @@ function WalkInConsultation() {
         }
         if (!isMobile) {
             data.push({
-                key: "-1",
+                key: -1,
                 value: "Add New Patient",
                 label: AddPatientPlank(),
             });

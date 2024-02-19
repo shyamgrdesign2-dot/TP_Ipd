@@ -134,7 +134,11 @@ function Header({ locationPath }) {
             </div>
             <div>
               <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div onClick={() => alert('Comming soon')} className="me-4 text-decoration-underline btn p-0 text-main">
+                <div onClick={() => {
+                  navigate('/?close_app=true', { replace: true });
+                  navigate(0, { replace: true });
+                }}
+                  className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Switch
                 </div>
                 <Button onClick={showHideLogoModal} className="lh-lg btn btn-primary3 btn-41 px-4">
