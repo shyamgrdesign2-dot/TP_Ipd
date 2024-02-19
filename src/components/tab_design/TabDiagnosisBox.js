@@ -172,7 +172,7 @@ function TabDiagnosisBox() {
     );
 
     const onAddTemplateClicked = async () => {
-        if (diagnosisData.length == 0) {
+        if (diagnosisData.length === 0) {
             messageApi.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
@@ -192,7 +192,7 @@ function TabDiagnosisBox() {
                 diagnosis: diagnosisData,
             };
             const action = await dispatch(addTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -211,7 +211,7 @@ function TabDiagnosisBox() {
     );
 
     const onUpdateTemplateClicked = async () => {
-        if (diagnosisData.length == 0) {
+        if (diagnosisData.length === 0) {
             messageApi.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
@@ -233,7 +233,7 @@ function TabDiagnosisBox() {
                 diagnosis: diagnosisData,
             };
             const action = await dispatch(updateTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -395,7 +395,7 @@ function TabDiagnosisBox() {
 
 
     useEffect(() => {
-        if (sinceValue != -1) {
+        if (sinceValue !== -1) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
@@ -541,7 +541,7 @@ function TabDiagnosisBox() {
                         </div>
                         <div className="mt-3">
                             <Segmented
-                                value={childDrawerData.since != undefined && childDrawerData.since}
+                                value={childDrawerData.since !== undefined && childDrawerData.since}
                                 className="search-segment"
                                 options={sinceOptions}
                                 onChange={onChangeSinceChild}
@@ -552,7 +552,7 @@ function TabDiagnosisBox() {
                                 Status
                             </label>
                             {/* <Segmented
-                                value={childDrawerData.status != undefined && childDrawerData.status}
+                                value={childDrawerData.status !== undefined && childDrawerData.status}
                                 className="search-segment"
                                 options={STATUS_LIST}
                                 onChange={onChangeStatusChild}
@@ -562,7 +562,7 @@ function TabDiagnosisBox() {
                                     return (
                                         <button key={i}
                                             type="button"
-                                            className={`btn w-100 ${childDrawerData.status != undefined && childDrawerData.status == item.value && 'btn-segement'}`}
+                                            className={`btn w-100 ${childDrawerData.status !== undefined && childDrawerData.status == item.value && 'btn-segement'}`}
                                             onClick={() => onChangeStatusChild(item.value)}>
                                             {item.label}
                                         </button>
@@ -574,7 +574,7 @@ function TabDiagnosisBox() {
                             <label className="title-common">
                                 Add Details
                             </label>
-                            <Input.TextArea value={childDrawerData.note != undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                            <Input.TextArea value={childDrawerData.note !== undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                         </div>
                     </div>
                 </>

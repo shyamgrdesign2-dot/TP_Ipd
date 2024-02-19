@@ -30,8 +30,9 @@ import {
 
 function HeaderPrescription() {
 
+    const { customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
+
     const {
-        selectedOneClickList,
         templates,
         loading,
     } = useSelector((state) => state.caseManager);
@@ -140,9 +141,9 @@ function HeaderPrescription() {
 
     const onTemplateSelected = async (tmoc_id) => {
         const action = await dispatch(oneClickSingleTemplateDetails(tmoc_id));
-        if (action.meta.requestStatus == "fulfilled") {
+        if (action.meta.requestStatus === "fulfilled") {
             const data = action.payload
-            if (data != undefined) {
+            if (data !== undefined) {
                 if (data.symptoms.length > 0) {
                     const updatedData = data.symptoms.map(e => {
                         return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" }
@@ -256,7 +257,7 @@ function HeaderPrescription() {
         }
 
         const action = await dispatch(oneClickAddTemplate(sendData));
-        if (action.meta.requestStatus == "fulfilled") {
+        if (action.meta.requestStatus === "fulfilled") {
             // const updatedData = symptomsData.map(e => {
             //     const obj = { ...e };
             //     delete obj['change'];
@@ -344,7 +345,7 @@ function HeaderPrescription() {
             }
         }
         const action = await dispatch(oneClickUpdateTemplate(sendData));
-        if (action.meta.requestStatus == "fulfilled") {
+        if (action.meta.requestStatus === "fulfilled") {
             // const updatedData = symptomsData.map(e => {
             //     const obj = { ...e };
             //     delete obj['change'];
@@ -709,22 +710,22 @@ function HeaderPrescription() {
             var sendData = {
                 action: tcmId == 0 ? 'add' : 'edit',
                 tcm_id: tcmId,
-                patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
-                pam_id: patient_data != undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
+                patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+                pam_id: patient_data !== undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
                 consultation_date: consultationDate,
-                symptoms: symptomsData,
-                examination: examinationData,
-                diagnosis: diagnosisData,
-                medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
-                advice: adviceData,
-                investigation: investigationData,
-                vitals: vitalsData,
-                follow_up_date: followUpDate,
-                visit_advice: additionalNote,
+                symptoms: customizedPadRightList.findIndex(e => e.tmdpm_id === 5 && e.tmdpm_status === 0) !== -1 ? symptomsData : [],
+                examination: customizedPadRightList.findIndex(e => e.tmdpm_id === 10 && e.tmdpm_status === 0) !== -1 ? examinationData : [],
+                diagnosis: customizedPadRightList.findIndex(e => e.tmdpm_id === 11 && e.tmdpm_status === 0) !== -1 ? diagnosisData : [],
+                medicine: customizedPadRightList.findIndex(e => e.tmdpm_id === 12 && e.tmdpm_status === 0) !== -1 ? medicationData.map(({ medicineUnit, ...rest }) => rest) : [],
+                advice: customizedPadRightList.findIndex(e => e.tmdpm_id === 13 && e.tmdpm_status === 0) !== -1 ? adviceData : [],
+                investigation: customizedPadRightList.findIndex(e => e.tmdpm_id === 14 && e.tmdpm_status === 0) !== -1 ? investigationData : [],
+                vitals: customizedPadLeftList.findIndex(e => e.tmdpm_id === 1 && e.tmdpm_status === 0) !== -1 ? vitalsData : [],
+                follow_up_date: customizedPadRightList.findIndex(e => e.tmdpm_id === 15 && e.tmdpm_status === 0) !== -1 ? followUpDate : null,
+                visit_advice: customizedPadRightList.findIndex(e => e.tmdpm_id === 15 && e.tmdpm_status === 0) !== -1 ? additionalNote : '',
             }
 
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
             } else {
                 message.open({

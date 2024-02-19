@@ -29,6 +29,8 @@ import {
   searchInvestigation
 } from "../redux/investigationSlice";
 
+const { TextArea } = Input;
+
 function InvestigationBox() {
   const [messageApi, contextHolder] = message.useMessage();
   const {
@@ -107,7 +109,7 @@ function InvestigationBox() {
         label: <div>{e.investigation_name}</div>,
       });
     });
-    if (searchParentQuery.length == 0) {
+    if (searchParentQuery.length === 0) {
       data.unshift({
         key: -1,
         label: (
@@ -296,7 +298,7 @@ function InvestigationBox() {
   );
 
   const onAddTemplateClicked = async () => {
-    if (investigationData.length == 0) {
+    if (investigationData.length === 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
@@ -316,7 +318,7 @@ function InvestigationBox() {
         investigation: investigationData,
       };
       const action = await dispatch(addTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -335,7 +337,7 @@ function InvestigationBox() {
   );
 
   const onUpdateTemplateClicked = async () => {
-    if (investigationData.length == 0) {
+    if (investigationData.length === 0) {
       messageApi.open({
         key: MESSAGE_KEY,
         type: 'warning',
@@ -357,7 +359,7 @@ function InvestigationBox() {
         investigation: investigationData,
       };
       const action = await dispatch(updateTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -375,7 +377,7 @@ function InvestigationBox() {
             gutter={[0]}
             className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
           >
-            <Col lg={9} md={9} sm={9} xs={9} className="border-end">
+            <Col lg={9} md={9} sm={9} xs={9}>
               <div className="fontroboto fw-medium">
                 <AutoComplete
                   defaultValue={item.investigation_name}
@@ -392,12 +394,16 @@ function InvestigationBox() {
                 />
               </div>
             </Col>
-            <Col lg={14} md={14} sm={13} xs={13} className="border-end">
-              <Input
+            <Col lg={14} md={14} sm={13} xs={13} className="border-start border-end">
+              <TextArea
                 className="notesinput border-0"
                 placeholder="Instruction"
                 defaultValue={item.note}
                 value={item.note}
+                autoSize={{
+                  minRows: 1,
+                  maxRows: 2,
+                }}
                 onChange={(e) => onChangeNoteChild(e, index)}
               />
             </Col>
@@ -548,20 +554,20 @@ function InvestigationBox() {
               })}
               optionRender={(option) => (
                 <div className="align-items-center d-flex text-truncate w-100">
-                    <div className="round-box"><i className="icon-template"></i></div>
-                    <div className="text-truncate w-100">
-                        <div className="title text-main2">{option.data.value}</div>
-                        <div className="text-truncate">
-                            {JSON.parse(option.data.key).investigation.map((item, ii) => {
-                                return (
-                                    <span key={ii}>{`${item.investigation_name}${JSON.parse(option.data.key).investigation.length - 1 != ii ? ", " : ""
-                                        }`}</span>
-                                );
-                            })}
-                        </div>
+                  <div className="round-box"><i className="icon-template"></i></div>
+                  <div className="text-truncate w-100">
+                    <div className="title text-main2">{option.data.value}</div>
+                    <div className="text-truncate">
+                      {JSON.parse(option.data.key).investigation.map((item, ii) => {
+                        return (
+                          <span key={ii}>{`${item.investigation_name}${JSON.parse(option.data.key).investigation.length - 1 != ii ? ", " : ""
+                            }`}</span>
+                        );
+                      })}
                     </div>
+                  </div>
                 </div>
-            )}
+              )}
             />
             <Button
               className="btn btn-primary3 btn-41 ms-3"

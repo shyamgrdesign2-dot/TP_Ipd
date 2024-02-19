@@ -320,10 +320,10 @@ function AppointmentData() {
 
     const onPrintRxUrlClick = async (record) => {
         if (record.print_rx_url) {
-            if(!isChrome && !isSafari){
+            if (!isChrome && !isSafari) {
                 navigate(`/?url=${record.print_rx_url}&key=print`, { replace: true })
                 navigate(0, { replace: true });
-            }else{
+            } else {
                 await window.open(record.print_rx_url);
             }
         } else {
@@ -572,7 +572,7 @@ function AppointmentData() {
                                             pm_pid: appointmentSelectedFromMenu.pm_pid
                                         };
                                         const action = await dispatch(cancelAppointments(sendData));
-                                        if (action.meta.requestStatus == "fulfilled") {
+                                        if (action.meta.requestStatus === "fulfilled") {
                                             handleConfirmationModal()
                                             message.open({
                                                 key: MESSAGE_KEY,
@@ -644,7 +644,7 @@ function AppointmentData() {
             tpvl_remarks: endVisitReason
         };
         const action = await dispatch(endVisit(sendData));
-        if (action.meta.requestStatus == "fulfilled") {
+        if (action.meta.requestStatus === "fulfilled") {
             setEndVisitReason('')
             handleEndVisitReasonDrawer()
 
