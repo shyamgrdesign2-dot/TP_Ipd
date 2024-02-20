@@ -175,22 +175,34 @@ function HeaderPrescription() {
                     setInvestigationData([...investigationData, ...updatedData]);
                 }
                 if (data.medicine.length > 0) {
-                    const updatedData = data.medicine.map((e) => {
-                        const medicineUnit = e?.medicineUnit.map((e1) => {
+                    if (!isMobile) {
+                        const updatedData = data.medicine.map((e) => {
                             return {
-                                key: JSON.stringify({ ...e1 }),
-                                value: e1.tmu_id,
-                                label: <>{e1.tmu_title}</>,
+                                ...e,
+                                tmm_dosage_unit_name: `${e.tmm_dosage} ${e.tmm_unit_name}`,
+                                tmm_days_duration_type: `${e.tmm_days} ${e.tmm_duration_type}`,
+                                unique_id: uuidv4(),
                             };
                         });
+                        setMedicationData([...medicationData, ...updatedData])
+                    } else {
+                        const updatedData = data.medicine.map((e) => {
+                            const medicineUnit = e?.medicineUnit.map((e1) => {
+                                return {
+                                    key: JSON.stringify({ ...e1 }),
+                                    value: e1.tmu_id,
+                                    label: <>{e1.tmu_title}</>,
+                                };
+                            });
 
-                        return {
-                            ...e,
-                            medicineUnit: medicineUnit,
-                            unique_id: uuidv4(),
-                        };
-                    });
-                    setMedicationData([...medicationData, ...updatedData])
+                            return {
+                                ...e,
+                                medicineUnit: medicineUnit,
+                                unique_id: uuidv4(),
+                            };
+                        });
+                        setMedicationData([...medicationData, ...updatedData])
+                    }
                 }
             }
             !isMobile ? showHideTemplatesListPopover() : handleDrawerTemplate()
@@ -230,19 +242,24 @@ function HeaderPrescription() {
     );
 
     const onAddTemplateClicked = async () => {
-        const updatedMedication = medicationData.map((e) => {
-            const medicineUnit = e?.medicineUnit.map((e1) => {
+        let updatedMedication = []
+        if (!isMobile) {
+            updatedMedication = [...medicationData]
+        } else {
+            updatedMedication = medicationData.map((e) => {
+                const medicineUnit = e?.medicineUnit.map((e1) => {
+                    return {
+                        tmu_id: JSON.parse(e1.key).tmu_id,
+                        tmu_title: JSON.parse(e1.key).tmu_title,
+                    };
+                });
+
                 return {
-                    tmu_id: JSON.parse(e1.key).tmu_id,
-                    tmu_title: JSON.parse(e1.key).tmu_title,
+                    ...e,
+                    medicineUnit: medicineUnit,
                 };
             });
-
-            return {
-                ...e,
-                medicineUnit: medicineUnit,
-            };
-        });
+        }
 
         var sendData = {
             tmoc_template_name: inputTemplateName,
@@ -317,19 +334,24 @@ function HeaderPrescription() {
     );
 
     const onUpdateTemplateClicked = async () => {
-        const updatedMedication = medicationData.map((e) => {
-            const medicineUnit = e?.medicineUnit.map((e1) => {
+        let updatedMedication = []
+        if (!isMobile) {
+            updatedMedication = [...medicationData]
+        } else {
+            updatedMedication = medicationData.map((e) => {
+                const medicineUnit = e?.medicineUnit.map((e1) => {
+                    return {
+                        tmu_id: JSON.parse(e1.key).tmu_id,
+                        tmu_title: JSON.parse(e1.key).tmu_title,
+                    };
+                });
+
                 return {
-                    tmu_id: JSON.parse(e1.key).tmu_id,
-                    tmu_title: JSON.parse(e1.key).tmu_title,
+                    ...e,
+                    medicineUnit: medicineUnit,
                 };
             });
-
-            return {
-                ...e,
-                medicineUnit: medicineUnit,
-            };
-        });
+        }
 
         var data = JSON.parse(inputTemplateName);
         var sendData = {

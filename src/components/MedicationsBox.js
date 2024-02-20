@@ -1,0 +1,785 @@
+import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
+import { AutoComplete, Input, Button, Row, Col, Select, Popover, Tabs, Spin, message, Tooltip } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
+import { useSelector, useDispatch } from "react-redux";
+import { v4 as uuidv4 } from 'uuid';
+
+import CashManagerContext from '../context/CashManagerContext';
+import { MESSAGE_KEY } from "../utils/constants";
+import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
+import Medicationicon from "../assets/images/Medication.svg";
+import {
+  addTemplate,
+  updateTemplate,
+  deleteTemplate,
+  getMedicationTemplates,
+  getFrequentlySearchedMedication,
+  searchMedication,
+  singleTemplateDetails,
+  getMedicineDetails,
+  showMedicineTime,
+  showMedicineFrequency,
+  getLoadPreviousRx,
+} from "../redux/medicationSlice";
+
+function MedicationsBox() {
+  const [messageApi, contextHolder] = message.useMessage();
+  const {
+    selectedMedicationList,
+    parentOptionsList,
+    templates,
+    frequencyList,
+    timingList,
+    loading,
+  } = useSelector((state) => state.medication);
+  const dispatch = useDispatch();
+
+  const { patient_data, medicationData, setMedicationData } = useContext(CashManagerContext);
+
+  //PopOver1
+  const [popOver1, setPopOver1] = useState(false);
+  const [allTemplates, setAllTemplates] = useState([]);
+  const [matchedTemplates, setMatchedTemplates] = useState([]);
+  const [searchParentQuery, setSearchParentQuery] = useState("");
+  const [parentSearchOptions, setParentSearchOptions] = useState([]);
+
+  const [unitPerDoseOptions, setUnitPerDoseOptions] = useState([]);
+  const [sinceOptions, setSinceOptions] = useState([]);
+  const SINCE_OPTIONS = [
+    { value: "day(s)", label: "Days" },
+    { value: "week(s)", label: "Weeks" },
+    { value: "month(s)", label: "Months" },
+    { value: "year(s)", label: "Years" },
+  ];
+
+  //PopOver2
+  const [popOver2, setPopOver2] = useState(false);
+  const [inputTemplateName, setInputTemplateName] = useState(null);
+  const TAB_ADD_TEMPLATE = 1;
+  const TAB_UPDATE_TEMPLATE = 2;
+  const ADD_EDIT_TEMPLATE_TABS = [
+    { key: TAB_ADD_TEMPLATE, label: "New Template" },
+    { key: TAB_UPDATE_TEMPLATE, label: "Update Template" },
+  ];
+  const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
+
+  const filteredTitles = frequencyList.filter((item) => item.tmf_block !== 0);
+
+  useEffect(() => {
+    dispatch(getMedicationTemplates());
+    dispatch(showMedicineTime());
+    dispatch(showMedicineFrequency());
+  }, []);
+
+  useEffect(() => {
+    setMatchedTemplates(templates);
+    setAllTemplates(templates);
+  }, [templates]);
+
+  //Parent AutoComplete
+  useEffect(() => {
+    if (searchParentQuery) {
+      const timeOutId = setTimeout(() => {
+        dispatch(
+          searchMedication({ searchQuery: searchParentQuery, type: "parent" })
+        );
+      }, 500);
+      return () => {
+        clearTimeout(timeOutId);
+      };
+    } else {
+      dispatch(getFrequentlySearchedMedication());
+    }
+  }, [searchParentQuery]);
+
+  useEffect(() => {
+    const data = [];
+    parentOptionsList.map((e) => {
+      return data.push({
+        key: JSON.stringify({ ...e, unique_id: uuidv4() }),
+        value: e.tmm_medicine_name,
+        label: <div>{e.tmm_medicine_name}</div>,
+      });
+    });
+    if (searchParentQuery.length == 0) {
+      data.unshift({
+        key: -1,
+        label: (
+          <>
+            <div>FREQUENTLY USED</div>
+          </>
+        ),
+      });
+    }
+    setParentSearchOptions(data);
+  }, [parentOptionsList]);
+
+  const onSearchParent = useCallback(
+    (query) => {
+      setSearchParentQuery(removeBeforeWhiteSpace(query));
+    },
+    [searchParentQuery]
+  );
+
+  const onSelectParent = useCallback(
+    async (data, e) => {
+      const action = await dispatch(getMedicineDetails(JSON.parse(e.key).tmm_id));
+      if (action.meta.requestStatus === "fulfilled") {
+        const updatedData = action.payload.map((e) => {
+          const unitObj = e?.medicineUnit
+            ? e?.medicineUnit.find((x) => x.value == e.tmm_unit)
+            : null;
+          const frequencyObj = frequencyList.find(
+            (x) => x.tmf_id == e.tmm_freq_type
+          );
+          const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+          return {
+            ...e,
+            tmm_unit_name:
+              unitObj && unitObj !== undefined
+                ? JSON.parse(unitObj.key).tmu_title
+                : "",
+            tmm_freq_type_name:
+              frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+            tmf_block_val:
+              frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+            tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+            unique_id: uuidv4(),
+          };
+        });
+        medicationData.push({
+          ...updatedData[0],
+        });
+        setMedicationData((prev) => [...prev]);
+        setSearchParentQuery("");
+      } else {
+        messageApi.open({
+          key: MESSAGE_KEY,
+          type: "warning",
+          content: action.error.message,
+          duration: 2,
+        });
+      }
+    },
+    [searchParentQuery, medicationData]
+  );
+
+  const onSearchUnitPerDoseChid = useCallback(
+    (query, i) => {
+      const updateQuery = onlyNumberFormat(query);
+      medicationData[i].tmm_dosage_unit_name = updateQuery;
+      medicationData[i].tmm_dosage = '';
+      medicationData[i].tmm_unit = 0;
+      medicationData[i].tmm_unit_name = '';
+      medicationData[i].tmu_id = 0;
+      setMedicationData((prev) => [...prev]);
+      if (updateQuery) {
+        const options = medicationData[i].medicineUnit.map((e) => {
+          return {
+            key: JSON.stringify({ ...e, tmm_dosage: updateQuery, unique_id: uuidv4() }),
+            value: `${updateQuery} ${e.tmu_title}`,
+            label: <>{`${updateQuery} ${e.tmu_title}`}</>,
+          };
+        });
+        setUnitPerDoseOptions(options);
+      } else {
+        setUnitPerDoseOptions([]);
+      }
+    },
+    [unitPerDoseOptions, medicationData]
+  );
+
+  const onSelectUnitPerDoseChild = useCallback(
+    (data, e, i) => {
+      setUnitPerDoseOptions([]);
+      const objParse = JSON.parse(e.key);
+      medicationData[i].tmm_dosage_unit_name = data;
+      medicationData[i].tmm_dosage = objParse.tmm_dosage;
+      medicationData[i].tmm_unit = objParse.tmu_id;
+      medicationData[i].tmm_unit_name = objParse.tmu_title;
+      medicationData[i].tmu_id = objParse.tmu_id;
+      setMedicationData((prev) => [...prev]);
+    },
+    [unitPerDoseOptions, medicationData]
+  );
+
+  const onSelectSeverityChild = useCallback(
+    (data, i) => {
+      if (data) {
+        const objParse = JSON.parse(data);
+        medicationData[i].tmm_freq_type = objParse.tmf_id;
+        medicationData[i].tmm_freq_type_name = objParse.tmf_title;
+        medicationData[i].tmf_block_val = objParse.tmf_block_val;
+      } else {
+        medicationData[i].tmm_freq_type = 0;
+        medicationData[i].tmm_freq_type_name = '';
+        medicationData[i].tmf_block_val = 0;
+      }
+      setMedicationData((prev) => [...prev]);
+    },
+    [medicationData]
+  );
+
+  const onSearchSinceChid = useCallback(
+    (query, i) => {
+      const updateQuery = onlyNumberFormat(query);
+      medicationData[i].tmm_days_duration_type = updateQuery;
+      medicationData[i].tmm_days = '';
+      medicationData[i].tmm_duration_type = '';
+      setMedicationData((prev) => [...prev]);
+      if (updateQuery) {
+        const options = SINCE_OPTIONS.map((option) => {
+          return {
+            key: JSON.stringify({ ...option, tmm_days: parseInt(updateQuery), unique_id: uuidv4() }),
+            value: `${updateQuery} ${option.value}`,
+            label: <>{`${updateQuery} ${option.label}`}</>,
+          };
+        });
+        setSinceOptions(options);
+      } else {
+        setSinceOptions([]);
+      }
+    },
+    [sinceOptions, medicationData]
+  );
+
+  const onSelectSinceChild = useCallback(
+    (data, e, i) => {
+      setSinceOptions([]);
+      const objParse = JSON.parse(e.key);
+      medicationData[i].tmm_days_duration_type = data;
+      medicationData[i].tmm_days = objParse.tmm_days;
+      medicationData[i].tmm_duration_type = objParse.value;
+      setMedicationData((prev) => [...prev]);
+    },
+    [sinceOptions, medicationData]
+  );
+
+  const onChangeNoteChild = useCallback(
+    (e, i) => {
+      medicationData[i].tmm_remarks = e.target.value;
+      setMedicationData((prev) => [...prev]);
+    },
+    [medicationData]
+  );
+
+  const onRemoveRow = (index) => {
+    medicationData.splice(index, 1);
+    setMedicationData((prev) => [...prev]);
+  };
+
+  //PopOver1 function
+  const showHideTemplatesListPopover = useCallback(() => {
+    setPopOver1(!popOver1);
+  }, [popOver1]);
+
+  const onSearch = (e) => {
+    const searchQuery = e.target.value;
+    if (searchQuery) {
+      let filteredTemplates = templates.filter((template) => {
+        return template.tmtd_template_name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
+      });
+      setMatchedTemplates(filteredTemplates);
+    } else {
+      setMatchedTemplates(templates);
+    }
+  };
+
+  const loadPreviousRxClick = async () => {
+    var sendData = {
+      patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+    };
+    const action = await dispatch(getLoadPreviousRx(sendData));
+    if (action.meta.requestStatus === "fulfilled") {
+      const updatedData = action.payload.map((e) => {
+        const unitObj = e?.medicineUnit
+          ? e?.medicineUnit.find((x) => x.value == e.tmm_unit)
+          : null;
+        const frequencyObj = frequencyList.find(
+          (x) => x.tmf_id == e.tmm_freq_type
+        );
+        const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+        return {
+          ...e,
+          tmm_unit_name:
+            unitObj && unitObj !== undefined
+              ? JSON.parse(unitObj.key).tmu_title
+              : "",
+          tmm_freq_type_name:
+            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+          unique_id: uuidv4(),
+        };
+      });
+      setMedicationData([...medicationData, ...updatedData]);
+    } else {
+      messageApi.open({
+        key: MESSAGE_KEY,
+        type: "warning",
+        content: action.error.message,
+        duration: 2,
+      });
+    }
+  };
+
+  const onTemplateSelected = async (tmtd_id) => {
+    const action = await dispatch(singleTemplateDetails(tmtd_id));
+    if (action.meta.requestStatus === "fulfilled") {
+      const updatedData = action.payload.map((e) => {
+        const unitObj = e?.medicineUnit
+          ? e?.medicineUnit.find((x) => x.value == e.tmm_unit)
+          : null;
+        const frequencyObj = frequencyList.find(
+          (x) => x.tmf_id == e.tmm_freq_type
+        );
+        const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+        return {
+          ...e,
+          tmm_unit_name:
+            unitObj && unitObj !== undefined
+              ? JSON.parse(unitObj.key).tmu_title
+              : "",
+          tmm_freq_type_name:
+            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+          unique_id: uuidv4(),
+        };
+      });
+      setMedicationData([...medicationData, ...updatedData]);
+      showHideTemplatesListPopover();
+    } else {
+      messageApi.open({
+        key: MESSAGE_KEY,
+        type: "warning",
+        content: action.error.message,
+        duration: 2,
+      });
+    }
+  };
+
+  const onDeleteTemplateClicked = (tmtd_id) => {
+    dispatch(deleteTemplate(tmtd_id));
+  };
+
+  //PopOver2 function
+  const showHideSaveTemplatePopOver = useCallback(() => {
+    setInputTemplateName(null);
+    setPopOver2(!popOver2);
+  }, [popOver2]);
+
+  const onTabChange = useCallback(
+    (key) => {
+      setInputTemplateName(null);
+      setTabChange(key);
+    },
+    [tabChange]
+  );
+
+  const onChangeSaveTemplate = useCallback(
+    (e) => {
+      const updateQuery = removeBeforeWhiteSpace(e.target.value)
+      setInputTemplateName(updateQuery);
+    },
+    [inputTemplateName]
+  );
+
+  const onAddTemplateClicked = async () => {
+    if (medicationData.length == 0) {
+      messageApi.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: 'At least 1 medication added',
+        duration: 2
+      });
+    } else if (medicationData.filter((e) => e.tmm_medicine_name == "").length > 0) {
+      messageApi.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: 'Please fillup medication name',
+        duration: 2
+      });
+    } else {
+      var sendData = {
+        tmtd_template_name: inputTemplateName,
+        data: medicationData,
+      };
+      const action = await dispatch(addTemplate(sendData));
+      if (action.meta.requestStatus == "fulfilled") {
+        setInputTemplateName(null);
+        showHideSaveTemplatePopOver();
+      }
+    }
+  };
+
+  const onSearchTemplate = useCallback(() => {
+    setInputTemplateName(null);
+  }, [inputTemplateName]);
+
+  const onSelectTemplate = useCallback(
+    (data, e) => {
+      setInputTemplateName(e.key);
+    },
+    [inputTemplateName]
+  );
+
+  const onUpdateTemplateClicked = async () => {
+    if (medicationData.length == 0) {
+      messageApi.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: 'At least 1 medication added',
+        duration: 2
+      });
+    } else if (medicationData.filter(e => e.tmm_medicine_name == "").length > 0) {
+      messageApi.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: 'Please fillup medication name',
+        duration: 2
+      });
+    } else {
+      var data = JSON.parse(inputTemplateName);
+      var sendData = {
+        tmtd_id: data.tmtd_id,
+        tmtd_template_name: data.tmtd_template_name,
+        data: medicationData,
+      };
+      const action = await dispatch(updateTemplate(sendData));
+      if (action.meta.requestStatus == "fulfilled") {
+        setInputTemplateName(null);
+        showHideSaveTemplatePopOver();
+      }
+    }
+  };
+
+  //Child Componet
+  const TABLE_MEDICATION = useMemo(() => {
+    return (
+      medicationData.length > 0 &&
+      medicationData.map((item, index) => {
+        return (
+          <Row
+            key={index}
+            gutter={[0]}
+            className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
+          >
+            <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+              <div className="fontroboto fw-medium p-2">
+                <label>{item.tmm_medicine_name}</label>
+              </div>
+            </Col>
+            <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+              <AutoComplete
+                defaultValue={item.tmm_dosage_unit_name}
+                value={item.tmm_dosage_unit_name}
+                placeholder="e.g 1 Tablet"
+                bordered={false}
+                defaultOpen={false}
+                onSearch={(query) => onSearchUnitPerDoseChid(query, index)}
+                options={unitPerDoseOptions}
+                className="autocomplete-custom w-100 inputborder"
+                defaultActiveFirstOption={true}
+                onSelect={(data, e) => onSelectUnitPerDoseChild(data, e, index)}
+              />
+            </Col>
+            <Col lg={3} md={3} sm={3} xs={3} className="border-end">
+              <div className="p-2">
+                <label>Timing</label>
+              </div>
+            </Col>
+            <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+              <AutoComplete
+                defaultValue={item.tmm_days_duration_type}
+                value={item.tmm_days_duration_type}
+                placeholder="e.g 1 Day"
+                bordered={false}
+                defaultOpen={false}
+                onSearch={(query) => onSearchSinceChid(query, index)}
+                options={sinceOptions}
+                className="autocomplete-custom w-100 inputborder"
+                defaultActiveFirstOption={true}
+                onSelect={(data, e) => onSelectSinceChild(data, e, index)}
+              />
+            </Col>
+            <Col lg={3} md={3} sm={3} xs={3} className="border-end">
+              <Select
+                className="autocomplete-custom w-100 inputborder"
+                placeholder="e.g Before Food"
+                defaultValue={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
+                value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
+                onSelect={(data) => onSelectSeverityChild(data, index)}
+                options={filteredTitles.map((e) => {
+                  return {
+                    value: JSON.stringify({ ...e, unique_id: uuidv4() }),
+                    label: e.tmf_title,
+                  };
+                })}
+                onClear={() => onSelectSeverityChild("", index)}
+                allowClear
+              />
+            </Col>
+            <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+              <Input
+                className="notesinput border-0"
+                placeholder="Notes"
+                defaultValue={item.tmm_remarks}
+                value={item.tmm_remarks}
+                onChange={(e) => onChangeNoteChild(e, index)}
+              />
+            </Col>
+            <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+              <Button
+                className="btn py-0 btn-delete-prescription px-0"
+                onClick={() => onRemoveRow(index)}
+              >
+                <i className="icon-delete"></i>
+              </Button>
+            </Col>
+          </Row>
+        );
+      })
+    );
+  }, [medicationData]);
+
+  //Template Componet
+  const TEMPLATE_CONTENT = useCallback(() => {
+    return (
+      <>
+        <div className="pop-header" key="medicationData-template">
+          <div className="align-items-center d-flex justify-content-between">
+            <div className="title-common">Medications Templates</div>
+            <Button
+              className="btn btn-delete-prescription p-0"
+              onClick={showHideTemplatesListPopover}
+            >
+              <i className="icon-Cross" />
+            </Button>
+          </div>
+          <div className="mt-3" key="medicationData-template-search">
+            <Input
+              allowClear
+              className="popinput"
+              onChange={onSearch}
+              placeholder="Search Templates"
+              prefix={<i className="icon-search me-2" />}
+            />
+          </div>
+        </div>
+        <div className="pop-body">
+          {matchedTemplates.length > 0 &&
+            matchedTemplates.map((template, i) => {
+              return (
+                <div
+                  className="align-items-center d-flex medicine-templates"
+                  key={i}
+                >
+                  <div
+                    className="round-box"
+                    onClick={() => onTemplateSelected(template.tmtd_id)}
+                  >
+                    <i className="icon-template"></i>
+                  </div>
+                  <div
+                    className="text-truncate w-100"
+                    onClick={() => onTemplateSelected(template.tmtd_id)}
+                  >
+                    <div className="title text-main2">{template.tmtd_template_name}</div>
+                    <div className="text-truncate">
+                      {template.medicationData.map((item, ii) => {
+                        return (
+                          <span key={ii}>{`${item.medication_name}${template.medicationData.length - 1 != ii ? ", " : ""
+                            }`}</span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <Button
+                    className="btn btn-delete-prescription p-0 ms-2"
+                    onClick={() => onDeleteTemplateClicked(template.tmtd_id)}
+                  >
+                    {template.loading ? (
+                      <Spin
+                        indicator={
+                          <LoadingOutlined style={{ fontSize: 22 }} spin />
+                        }
+                      />
+                    ) : (
+                      <i className="icon-delete"></i>
+                    )}
+                  </Button>
+                </div>
+              );
+            })}
+        </div>
+      </>
+    );
+  }, [popOver1, matchedTemplates]);
+
+  //Save Componet
+  const SAVE_CONTENT = useCallback(() => {
+    return (
+      <>
+        <div className="d-flex justify-content-between align-items-center border-bottom templatepopover">
+          <Tabs
+            defaultActiveKey={TAB_ADD_TEMPLATE}
+            items={ADD_EDIT_TEMPLATE_TABS}
+            onChange={onTabChange}
+            className="w-100"
+          />
+          <Button
+            className="btn btn-delete-prescription"
+            onClick={showHideSaveTemplatePopOver}
+          >
+            <i className="icon-Cross"></i>
+          </Button>
+        </div>
+        {tabChange === TAB_ADD_TEMPLATE ? (
+          <div className="pop-header d-flex">
+            <Input
+              allowClear
+              value={inputTemplateName && inputTemplateName}
+              className="popinput inputheight41"
+              placeholder="Template Name"
+              onChange={onChangeSaveTemplate}
+            />
+            <Button
+              className="btn btn-primary3 btn-41 ms-3"
+              loading={loading}
+              disabled={inputTemplateName ? false : true}
+              onClick={onAddTemplateClicked}
+            >
+              {" Save "}
+            </Button>
+          </div>
+        ) : (
+          <div className="pop-header d-flex">
+            <Select
+              showSearch
+              value={inputTemplateName && JSON.parse(inputTemplateName).tmtd_template_name}
+              className="autocomplete-custom w-100 popinput inputheight41"
+              placeholder="Select Template"
+              onSearch={onSearchTemplate}
+              onSelect={onSelectTemplate}
+              optionLabelProp="label"
+              options={allTemplates.map((template) => {
+                return {
+                  key: JSON.stringify(template),
+                  value: template.tmtd_template_name,
+                  label: (
+                    <div key={template.tmtd_id}>
+                      {template.tmtd_template_name}
+                    </div>
+                  ),
+                };
+              })}
+              optionRender={(option) => (
+                <div className="align-items-center d-flex text-truncate w-100">
+                  <div className="round-box"><i className="icon-template"></i></div>
+                  <div className="text-truncate w-100">
+                    <div className="title text-main2">{option.data.value}</div>
+                    <div className="text-truncate">
+                      {JSON.parse(option.data.key).medicationData.map((item, ii) => {
+                        return (
+                          <span key={ii}>{`${item.medication_name}${JSON.parse(option.data.key).medicationData.length - 1 != ii ? ", " : ""
+                            }`}</span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+            />
+            <Button
+              className="btn btn-primary3 btn-41 ms-3"
+              loading={loading}
+              disabled={inputTemplateName ? false : true}
+              onClick={onUpdateTemplateClicked}
+            >
+              {" Update "}
+            </Button>
+          </div>
+        )}
+      </>
+    );
+  }, [tabChange, popOver2, inputTemplateName, loading, allTemplates]);
+
+  return (
+    <>
+      {contextHolder}
+      <div>
+        <div className="d-flex align-items-center justify-content-between p-14-pb0">
+          <div className="d-flex align-items-center">
+            <img className="me-2" src={Medicationicon} alt="Medication" />
+            <div className="title-common">Medications (Rx)</div>
+          </div>
+          <div className="d-flex align-items-center">
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={loadPreviousRxClick}
+            >
+              {" "}
+              <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span>
+            </button>
+            <Popover
+              open={popOver1}
+              onOpenChange={showHideTemplatesListPopover}
+              content={TEMPLATE_CONTENT}
+              trigger="click"
+              overlayClassName="pop-350 pp-0"
+              placement="bottom"
+            >
+              <button className="btn d-flex align-items-center btn-text">
+                {" "}
+                <i className="icon-template me-2"></i> <span>Templates</span>
+              </button>
+            </Popover>
+            <Tooltip placement="bottom" title={(medicationData.length > 0) ? "" : "Please enter some medications to save a template"}>
+              <Popover
+                open={popOver2}
+                onOpenChange={() => (medicationData.length > 0) && showHideSaveTemplatePopOver()}
+                // onOpenChange={showHideSaveTemplatePopOver}
+                content={SAVE_CONTENT}
+                trigger="click"
+                overlayClassName="pop-450 pp-0"
+                placement="bottom"
+              >
+                <button className="btn d-flex align-items-center btn-text">
+                  {" "}
+                  <i className="icon-save me-2"></i> <span>Save</span>
+                </button>
+
+              </Popover>
+            </Tooltip>
+          </div>
+        </div>
+
+        {TABLE_MEDICATION}
+
+        <div className="p-14">
+          <AutoComplete
+            // defaultValue={searchParentQuery}
+            value={searchParentQuery}
+            onSearch={onSearchParent}
+            options={parentSearchOptions}
+            className="autocomplete-custom w-100"
+            onSelect={onSelectParent}
+            defaultActiveFirstOption={true}
+            popupClassName={!searchParentQuery && "boxpopup"}
+          >
+            <Input
+              placeholder="Search Medicines by Name"
+              prefix={<i className="icon-search"></i>}
+            />
+          </AutoComplete>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default React.memo(MedicationsBox);

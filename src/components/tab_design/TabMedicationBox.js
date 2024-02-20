@@ -104,42 +104,42 @@ function TabMedicationBox() {
 
   const filteredTitles = frequencyList.filter((item) => item.tmf_block !== 0);
 
-  useEffect(() => {
-    const onEditPreFillMedicationData = () => {
-      const updatedData = medicationData.map((e) => {
-        const medicineUnit = e?.medicineUnit.map((e1) => {
-          return {
-            key: JSON.stringify({ ...e1 }),
-            value: e1.tmu_id,
-            label: <>{e1.tmu_title}</>,
-          };
-        });
+  // useEffect(() => {
+  //   const onEditPreFillMedicationData = () => {
+  //     const updatedData = medicationData.map((e) => {
+  //       const medicineUnit = e?.medicineUnit.map((e1) => {
+  //         return {
+  //           key: JSON.stringify({ ...e1 }),
+  //           value: e1.tmu_id,
+  //           label: <>{e1.tmu_title}</>,
+  //         };
+  //       });
 
-        const unitObj = medicineUnit
-          ? medicineUnit.find((x) => x.value == e.tmm_unit)
-          : null;
-        const frequencyObj = frequencyList.find(
-          (x) => x.tmf_id == e.tmm_freq_type
-        );
-        const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+  //       const unitObj = medicineUnit
+  //         ? medicineUnit.find((x) => x.value == e.tmm_unit)
+  //         : null;
+  //       const frequencyObj = frequencyList.find(
+  //         (x) => x.tmf_id == e.tmm_freq_type
+  //       );
+  //       const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
 
-        return {
-          ...e,
-          tmm_unit_name:
-            unitObj && unitObj !== undefined
-              ? JSON.parse(unitObj.key).tmu_title
-              : "",
-          tmm_freq_type_name:
-            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
-          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-          medicineUnit: medicineUnit,
-          unique_id: uuidv4(),
-        };
-      });
-      setMedicationData([...updatedData]);
-    };
-    medicationData.length > 0 && onEditPreFillMedicationData()
-  }, []);
+  //       return {
+  //         ...e,
+  //         tmm_unit_name:
+  //           unitObj && unitObj !== undefined
+  //             ? JSON.parse(unitObj.key).tmu_title
+  //             : "",
+  //         tmm_freq_type_name:
+  //           frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+  //         tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+  //         medicineUnit: medicineUnit,
+  //         unique_id: uuidv4(),
+  //       };
+  //     });
+  //     setMedicationData([...updatedData]);
+  //   };
+  //   medicationData.length > 0 && onEditPreFillMedicationData()
+  // }, []);
 
   useEffect(() => {
     dispatch(getMedicationTemplates());
@@ -426,7 +426,7 @@ function TabMedicationBox() {
         duration: 2,
       });
     } else if (
-      medicationData.filter((e) => e.medication_name == "").length > 0
+      medicationData.filter((e) => e.tmm_medicine_name == "").length > 0
     ) {
       messageApi.open({
         key: MESSAGE_KEY,
