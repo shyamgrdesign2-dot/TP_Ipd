@@ -22,6 +22,7 @@ import TabFollowUpBox from "../components/tab_design/TabFollowUpBox";
 import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
 import { Content } from "antd/es/layout/layout";
+import MedicationsBox from "../components/MedicationsBox";
 
 function Prescription() {
 
@@ -72,17 +73,10 @@ function Prescription() {
       }
       if (caseManagerData.medicine.length > 0) {
         const updatedData = caseManagerData.medicine.map((e) => {
-          const medicineUnit = e?.medicineUnit.map((e1) => {
-            return {
-              key: JSON.stringify({ ...e1 }),
-              value: e1.tmu_id,
-              label: <>{e1.tmu_title}</>,
-            };
-          });
-
           return {
             ...e,
-            medicineUnit: medicineUnit,
+            tmm_dosage_unit_name: `${e.tmm_dosage} ${e.tmm_unit_name}`,
+            tmm_days_duration_type: `${e.tmm_days} ${e.tmm_duration_type}`,
             unique_id: uuidv4(),
           };
         });
@@ -152,9 +146,10 @@ function Prescription() {
                     e.tmdpm_id === 5 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><SymptomsBox /></div>
                       : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><ExaminationBox /></div>
                         : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><DiagnosisBox /></div>
-                          : e.tmdpm_id === 13 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><AdviceBox /></div>
-                            : e.tmdpm_id === 14 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"> <InvestigationBox /></div>
-                              : e.tmdpm_id === 15 && e.tmdpm_status === 0 && <div key={i} className="prescription-box-sm"><TabFollowUpBox /></div>
+                          : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><MedicationsBox /></div>
+                            : e.tmdpm_id === 13 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><AdviceBox /></div>
+                              : e.tmdpm_id === 14 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"> <InvestigationBox /></div>
+                                : e.tmdpm_id === 15 && e.tmdpm_status === 0 && <div key={i} className="prescription-box-sm"><TabFollowUpBox /></div>
                   )
                 })}
               </Content>

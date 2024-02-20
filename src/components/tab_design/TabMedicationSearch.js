@@ -1239,7 +1239,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
       {contextHolder}
       <Card bordered={false} className="search-modalCard h-100">
         <TabSearchHeader
-          placeholder="Search Medicines by Name, Brand or generic"
+          placeholder="Search Medicines by Name"
           searchQuery={searchChildQuery}
           onSearchParent={onSearchParent}
           disabled={medicationData.length > 0 ? false : true}
