@@ -332,7 +332,7 @@ function Header({ locationPath }) {
           {profile && profile.SwitchGrowthBook && (
             <div onClick={showHideSwitchModal} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
               <i className='icon-switch me-2'></i>
-              Switch To Old View
+              <span className="text-decoration-underline">Switch To Old View</span>
             </div>
           )}
           {SWITCH_TO_OLD_MODAL}
