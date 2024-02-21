@@ -178,7 +178,21 @@ function CustomizeSetting({ handleDrawerCustomize }) {
   };
 
   async function onCustomizePadClick() {
-    if (dataSourceLeft.length > 0 && dataSourceLeft.filter((e) => !e.tmdpm_status).length <= 0) {
+    if (dataSourceLeft.length == 0) {
+      message.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: 'Something went wrong! please try again later',
+        duration: 2
+      });
+    } else if (dataSourceRight.length == 0) {
+      message.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: 'Something went wrong! please try again later',
+        duration: 2
+      });
+    } else if (dataSourceLeft.length > 0 && dataSourceLeft.filter((e) => !e.tmdpm_status).length <= 0) {
       message.open({
         key: MESSAGE_KEY,
         type: 'warning',

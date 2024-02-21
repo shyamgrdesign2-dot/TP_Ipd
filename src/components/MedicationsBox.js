@@ -196,17 +196,32 @@ function MedicationsBox() {
     [unitPerDoseOptions, medicationData]
   );
 
-  const onSelectSeverityChild = useCallback(
+  // const onSelectSeverityChild = useCallback(
+  //   (data, i) => {
+  //     if (data) {
+  //       const objParse = JSON.parse(data);
+  //       medicationData[i].tmm_freq_type = objParse.tmf_id;
+  //       medicationData[i].tmm_freq_type_name = objParse.tmf_title;
+  //       medicationData[i].tmf_block_val = objParse.tmf_block_val;
+  //     } else {
+  //       medicationData[i].tmm_freq_type = 0;
+  //       medicationData[i].tmm_freq_type_name = '';
+  //       medicationData[i].tmf_block_val = 0;
+  //     }
+  //     setMedicationData((prev) => [...prev]);
+  //   },
+  //   [medicationData]
+  // );
+
+  const onSelectTimingChild = useCallback(
     (data, i) => {
       if (data) {
         const objParse = JSON.parse(data);
-        medicationData[i].tmm_freq_type = objParse.tmf_id;
-        medicationData[i].tmm_freq_type_name = objParse.tmf_title;
-        medicationData[i].tmf_block_val = objParse.tmf_block_val;
+        medicationData[i].tmm_time = objParse.tmt_id;
+        medicationData[i].tmm_time_name = objParse.tmt_title;
       } else {
-        medicationData[i].tmm_freq_type = 0;
-        medicationData[i].tmm_freq_type_name = '';
-        medicationData[i].tmf_block_val = 0;
+        medicationData[i].tmm_time = 0;
+        medicationData[i].tmm_time_name = '';
       }
       setMedicationData((prev) => [...prev]);
     },
@@ -452,9 +467,7 @@ function MedicationsBox() {
     return (
       <div className="position-relative">
         <img src={TimingInfo} alt="Timing Info" />
-        {/* <Button  className="px-0  btn btnclose" > */}
-          <i onClick={showHideTimingPopOver} className="icon-Cross position-absolute" style={{ right: 13, top: 15, color: '#92929D' }}></i>
-        {/* </Button> */}
+        <i onClick={showHideTimingPopOver} className="icon-Cross position-absolute cursor-pointer" style={{ right: 13, top: 15, color: '#92929D' }}></i>
       </div>
     );
   }, [timingPopOver]);
@@ -548,6 +561,23 @@ function MedicationsBox() {
                   </div>
                 </Col>
                 <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+                  <Select
+                    className="autocomplete-custom w-100 inputborder"
+                    placeholder="e.g Before Food"
+                    defaultValue={item.tmm_time_name != "" ? item.tmm_time_name : null}
+                    value={item.tmm_time_name != "" ? item.tmm_time_name : null}
+                    onSelect={(data) => onSelectTimingChild(data, index)}
+                    options={timingList.map((e) => {
+                      return {
+                        value: JSON.stringify({ ...e, unique_id: uuidv4() }),
+                        label: e.tmt_title,
+                      };
+                    })}
+                    onClear={() => onSelectTimingChild("", index)}
+                    allowClear
+                  />
+                </Col>
+                <Col lg={3} md={3} sm={3} xs={3} className="border-end">
                   <AutoComplete
                     defaultValue={item.tmm_days_duration_type}
                     value={item.tmm_days_duration_type}
@@ -559,23 +589,6 @@ function MedicationsBox() {
                     className="autocomplete-custom w-100 inputborder"
                     defaultActiveFirstOption={true}
                     onSelect={(data, e) => onSelectSinceChild(data, e, index)}
-                  />
-                </Col>
-                <Col lg={3} md={3} sm={3} xs={3} className="border-end">
-                  <Select
-                    className="autocomplete-custom w-100 inputborder"
-                    placeholder="e.g Before Food"
-                    defaultValue={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
-                    value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
-                    onSelect={(data) => onSelectSeverityChild(data, index)}
-                    options={filteredTitles.map((e) => {
-                      return {
-                        value: JSON.stringify({ ...e, unique_id: uuidv4() }),
-                        label: e.tmf_title,
-                      };
-                    })}
-                    onClear={() => onSelectSeverityChild("", index)}
-                    allowClear
                   />
                 </Col>
                 <Col lg={4} md={4} sm={4} xs={4} className="border-end">

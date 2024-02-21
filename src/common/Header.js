@@ -333,7 +333,7 @@ function Header({ locationPath }) {
               </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown> */}
-          {profile && profile.SwitchGrowthBook && (
+          {profile && profile.SwitchGrowthBook != 0 && (
             <div onClick={showHideSwitchModal} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
               <i className='icon-switch me-2'></i>
               <span className="text-decoration-underline">Switch To Old View</span>

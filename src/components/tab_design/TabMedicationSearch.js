@@ -57,7 +57,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
     { value: "month(s)", label: "M" },
     { value: "year(s)", label: "Y" },
   ];
-  const [sinceValue, setSinceValue] = useState(1);
+ 
+  const [sinceValue, setSinceValue] = useState(medicationData[passIndex] !==undefined && medicationData[passIndex].tmm_days ? parseInt(medicationData[passIndex].tmm_days) : 1);
   const [inputSince, setInputSince] = useState("");
   const [sinceOptions, setSinceOptions] = useState([]);
 
@@ -165,7 +166,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
       });
       setMedicationData((prev) => [...prev]);
       setSelectedIndex(medicationData.length - 1);
-      setSinceValue(1);
+      setSinceValue(updatedData[0].tmm_days ? parseInt(updatedData[0].tmm_days) : 1);
       setSearchChildQuery("");
     } else {
       messageApi.open({
