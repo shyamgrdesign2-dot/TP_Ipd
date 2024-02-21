@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { parseApiError } from "../utils/utils";
 import ApiAppointments from "../api/services/ApiAppointments";
+import ApiMedication from "../api/services/ApiMedication";
 
 const initialState = {
   profile: null,
@@ -8,6 +9,8 @@ const initialState = {
   error: null,
   customizedPadLeftList: [],
   customizedPadRightList: [],
+  timingList: [],
+  frequencyList: [],
 };
 
 export const getProfile = createAsyncThunk(
@@ -74,6 +77,32 @@ export const swtichLayout = createAsyncThunk(
   }
 );
 
+export const showMedicineFrequency = createAsyncThunk(
+  "medication/showMedicineFrequency",
+  async () => {
+    let result = {};
+    result = await ApiMedication.showMedicineFrequency();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const showMedicineTime = createAsyncThunk(
+  "medication/showMedicineTime",
+  async () => {
+    let result = {};
+    result = await ApiMedication.showMedicineTime();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
@@ -119,6 +148,18 @@ const doctorsSlice = createSlice({
       .addCase(swtichLayout.rejected, (state) => {
         state.loading = false;
       })
+      .addCase(showMedicineFrequency.fulfilled, (state, action) => {
+        state.frequencyList = action.payload;
+      })
+      .addCase(showMedicineFrequency.rejected, (state) => {
+        state.frequencyList = [];
+      })
+      .addCase(showMedicineTime.fulfilled, (state, action) => {
+        state.timingList = action.payload;
+      })
+      .addCase(showMedicineTime.rejected, (state) => {
+        state.timingList = [];
+      });
   },
 });
 
