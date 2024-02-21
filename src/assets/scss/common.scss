@@ -73,7 +73,7 @@ body {
         background-color: $themesecondarylight;
     }
     .fs-12 {
-        span {
+        span, label {
             font-size: 12px !important;
         }
     }
@@ -125,6 +125,9 @@ body {
             font-style: normal;
             font-weight: 400;
         }
+    }
+    .text-welcome {
+        color: $welcomecolor !important;
     }
     .ant-picker-input{
         input::placeholder {

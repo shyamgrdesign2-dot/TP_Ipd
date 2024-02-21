@@ -15,6 +15,7 @@ import hey from "../assets/images/bg-hey.png";
 import SymptomsBox from "../components/SymptomsBox";
 import ExaminationBox from "../components/ExaminationBox";
 import DiagnosisBox from "../components/DiagnosisBox";
+import MedicationsBox from "../components/MedicationsBox";
 import AdviceBox from "../components/AdviceBox";
 import InvestigationBox from "../components/InvestigationBox";
 import TabFollowUpBox from "../components/tab_design/TabFollowUpBox";
@@ -22,7 +23,6 @@ import TabFollowUpBox from "../components/tab_design/TabFollowUpBox";
 import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
 import { Content } from "antd/es/layout/layout";
-import MedicationsBox from "../components/MedicationsBox";
 
 function Prescription() {
 

@@ -8,6 +8,7 @@ import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
 import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
+import TimingInfo from "../assets/images/TimingInfo.svg";
 import {
   addTemplate,
   updateTemplate,
@@ -121,49 +122,40 @@ function MedicationsBox() {
     [searchParentQuery]
   );
 
-  const onSelectParent = useCallback(
-    async (data, e) => {
-      const action = await dispatch(getMedicineDetails(JSON.parse(e.key).tmm_id));
-      if (action.meta.requestStatus === "fulfilled") {
-        const updatedData = action.payload.map((e) => {
-          const unitObj = e?.medicineUnit
-            ? e?.medicineUnit.find((x) => x.value == e.tmm_unit)
-            : null;
-          const frequencyObj = frequencyList.find(
-            (x) => x.tmf_id == e.tmm_freq_type
-          );
-          const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+  const onSelectParent = async (data, e) => {
+    const action = await dispatch(getMedicineDetails(JSON.parse(e.key).tmm_id));
+    if (action.meta.requestStatus === "fulfilled") {
+      const updatedData = action.payload.map((e) => {
 
-          return {
-            ...e,
-            tmm_unit_name:
-              unitObj && unitObj !== undefined
-                ? JSON.parse(unitObj.key).tmu_title
-                : "",
-            tmm_freq_type_name:
-              frequencyObj !== undefined ? frequencyObj.tmf_title : "",
-            tmf_block_val:
-              frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
-            tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-            unique_id: uuidv4(),
-          };
-        });
-        medicationData.push({
-          ...updatedData[0],
-        });
-        setMedicationData((prev) => [...prev]);
-        setSearchParentQuery("");
-      } else {
-        messageApi.open({
-          key: MESSAGE_KEY,
-          type: "warning",
-          content: action.error.message,
-          duration: 2,
-        });
-      }
-    },
-    [searchParentQuery, medicationData]
-  );
+        const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+        const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
+        const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+        return {
+          ...e,
+          tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+          tmm_freq_type_name: frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+          tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
+          tmm_days_duration_type: `${e.tmm_days} ${e.tmm_duration_type}`,
+          unique_id: uuidv4(),
+        };
+      });
+      medicationData.push({
+        ...updatedData[0],
+      });
+      setMedicationData((prev) => [...prev]);
+      setSearchParentQuery("");
+    } else {
+      messageApi.open({
+        key: MESSAGE_KEY,
+        type: "warning",
+        content: action.error.message,
+        duration: 2,
+      });
+    }
+  };
 
   const onSearchUnitPerDoseChid = useCallback(
     (query, i) => {
@@ -295,23 +287,19 @@ function MedicationsBox() {
     const action = await dispatch(getLoadPreviousRx(sendData));
     if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {
-        const unitObj = e?.medicineUnit
-          ? e?.medicineUnit.find((x) => x.value == e.tmm_unit)
-          : null;
-        const frequencyObj = frequencyList.find(
-          (x) => x.tmf_id == e.tmm_freq_type
-        );
+
+        const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+        const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
         const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
 
         return {
           ...e,
-          tmm_unit_name:
-            unitObj && unitObj !== undefined
-              ? JSON.parse(unitObj.key).tmu_title
-              : "",
-          tmm_freq_type_name:
-            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+          tmm_freq_type_name: frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+          tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
+          tmm_days_duration_type: `${e.tmm_days} ${e.tmm_duration_type}`,
           unique_id: uuidv4(),
         };
       });
@@ -330,23 +318,19 @@ function MedicationsBox() {
     const action = await dispatch(singleTemplateDetails(tmtd_id));
     if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {
-        const unitObj = e?.medicineUnit
-          ? e?.medicineUnit.find((x) => x.value == e.tmm_unit)
-          : null;
-        const frequencyObj = frequencyList.find(
-          (x) => x.tmf_id == e.tmm_freq_type
-        );
+
+        const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+        const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
         const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
 
         return {
           ...e,
-          tmm_unit_name:
-            unitObj && unitObj !== undefined
-              ? JSON.parse(unitObj.key).tmu_title
-              : "",
-          tmm_freq_type_name:
-            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+          tmm_freq_type_name: frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+          tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
+          tmm_days_duration_type: `${e.tmm_days} ${e.tmm_duration_type}`,
           unique_id: uuidv4(),
         };
       });
@@ -457,94 +441,166 @@ function MedicationsBox() {
     }
   };
 
+  // TimingInfo popover
+  const [timingPopOver, setTimingPopOver] = useState(false);
+
+  const showHideTimingPopOver = useCallback(() => {
+    setTimingPopOver(!timingPopOver);
+  }, [timingPopOver]);
+
+  const TIMING_CONTENT = useCallback(() => {
+    return (
+      <div className="position-relative">
+        <img src={TimingInfo} alt="Timing Info" />
+        {/* <Button  className="px-0  btn btnclose" > */}
+          <i onClick={showHideTimingPopOver} className="icon-Cross position-absolute" style={{ right: 13, top: 15, color: '#92929D' }}></i>
+        {/* </Button> */}
+      </div>
+    );
+  }, [timingPopOver]);
+
   //Child Componet
   const TABLE_MEDICATION = useMemo(() => {
     return (
-      medicationData.length > 0 &&
-      medicationData.map((item, index) => {
-        return (
+      <>
+        {medicationData.length > 0 &&
           <Row
-            key={index}
             gutter={[0]}
-            className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
+            className={`mt-14 border-top align-items-center`}
           >
             <Col lg={5} md={5} sm={5} xs={5} className="border-end">
-              <div className="fontroboto fw-medium p-2">
-                <label>{item.tmm_medicine_name}</label>
+              <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+                <label>MEDICINE</label>
               </div>
             </Col>
             <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-              <AutoComplete
-                defaultValue={item.tmm_dosage_unit_name}
-                value={item.tmm_dosage_unit_name}
-                placeholder="e.g 1 Tablet"
-                bordered={false}
-                defaultOpen={false}
-                onSearch={(query) => onSearchUnitPerDoseChid(query, index)}
-                options={unitPerDoseOptions}
-                className="autocomplete-custom w-100 inputborder"
-                defaultActiveFirstOption={true}
-                onSelect={(data, e) => onSelectUnitPerDoseChild(data, e, index)}
-              />
+              <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+                <label>UNIT PER DOSE</label>
+              </div>
             </Col>
             <Col lg={3} md={3} sm={3} xs={3} className="border-end">
-              <div className="p-2">
-                <label>Timing</label>
+              <div className="fontroboto fw-medium p-2 fs-12 text-welcome d-flex align-items-center">
+                <label>TIMING </label>
+                <Popover
+                  open={timingPopOver}
+                  content={TIMING_CONTENT}
+                  placement="rightTop"
+                  trigger="click"
+                  arrow={false}
+                  onOpenChange={showHideTimingPopOver}
+                  overlayClassName="pp-0">
+                  <i className='icon-info ms-1 fs-18'></i>
+                </Popover>
               </div>
             </Col>
             <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-              <AutoComplete
-                defaultValue={item.tmm_days_duration_type}
-                value={item.tmm_days_duration_type}
-                placeholder="e.g 1 Day"
-                bordered={false}
-                defaultOpen={false}
-                onSearch={(query) => onSearchSinceChid(query, index)}
-                options={sinceOptions}
-                className="autocomplete-custom w-100 inputborder"
-                defaultActiveFirstOption={true}
-                onSelect={(data, e) => onSelectSinceChild(data, e, index)}
-              />
+              <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+                <label>WHEN</label>
+              </div>
             </Col>
             <Col lg={3} md={3} sm={3} xs={3} className="border-end">
-              <Select
-                className="autocomplete-custom w-100 inputborder"
-                placeholder="e.g Before Food"
-                defaultValue={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
-                value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
-                onSelect={(data) => onSelectSeverityChild(data, index)}
-                options={filteredTitles.map((e) => {
-                  return {
-                    value: JSON.stringify({ ...e, unique_id: uuidv4() }),
-                    label: e.tmf_title,
-                  };
-                })}
-                onClear={() => onSelectSeverityChild("", index)}
-                allowClear
-              />
+              <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+                <label>DURATION</label>
+              </div>
             </Col>
             <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-              <Input
-                className="notesinput border-0"
-                placeholder="Notes"
-                defaultValue={item.tmm_remarks}
-                value={item.tmm_remarks}
-                onChange={(e) => onChangeNoteChild(e, index)}
-              />
+              <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+                <label>NOTE</label>
+              </div>
             </Col>
             <Col lg={1} md={1} sm={2} xs={2} className="text-center">
-              <Button
-                className="btn py-0 btn-delete-prescription px-0"
-                onClick={() => onRemoveRow(index)}
-              >
-                <i className="icon-delete"></i>
-              </Button>
+              <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+                <label></label>
+              </div>
             </Col>
           </Row>
-        );
-      })
+        }
+        {medicationData.length > 0 &&
+          medicationData.map((item, index) => {
+            return (
+              <Row
+                key={index}
+                gutter={[0]}
+                className={`${index === 0 && "border-top"} align-items-center border-bottom`}
+              >
+                <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+                  <div className="fontroboto fw-medium p-2">
+                    <label>{item.tmm_medicine_name}</label>
+                  </div>
+                </Col>
+                <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+                  <AutoComplete
+                    defaultValue={item.tmm_dosage_unit_name}
+                    value={item.tmm_dosage_unit_name}
+                    placeholder="e.g 1 Tablet"
+                    bordered={false}
+                    defaultOpen={false}
+                    onSearch={(query) => onSearchUnitPerDoseChid(query, index)}
+                    options={unitPerDoseOptions}
+                    className="autocomplete-custom w-100 inputborder"
+                    defaultActiveFirstOption={true}
+                    onSelect={(data, e) => onSelectUnitPerDoseChild(data, e, index)}
+                  />
+                </Col>
+                <Col lg={3} md={3} sm={3} xs={3} className="border-end">
+                  <div className="p-2">
+                    <label>Timing</label>
+                  </div>
+                </Col>
+                <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+                  <AutoComplete
+                    defaultValue={item.tmm_days_duration_type}
+                    value={item.tmm_days_duration_type}
+                    placeholder="e.g 1 Day"
+                    bordered={false}
+                    defaultOpen={false}
+                    onSearch={(query) => onSearchSinceChid(query, index)}
+                    options={sinceOptions}
+                    className="autocomplete-custom w-100 inputborder"
+                    defaultActiveFirstOption={true}
+                    onSelect={(data, e) => onSelectSinceChild(data, e, index)}
+                  />
+                </Col>
+                <Col lg={3} md={3} sm={3} xs={3} className="border-end">
+                  <Select
+                    className="autocomplete-custom w-100 inputborder"
+                    placeholder="e.g Before Food"
+                    defaultValue={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
+                    value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
+                    onSelect={(data) => onSelectSeverityChild(data, index)}
+                    options={filteredTitles.map((e) => {
+                      return {
+                        value: JSON.stringify({ ...e, unique_id: uuidv4() }),
+                        label: e.tmf_title,
+                      };
+                    })}
+                    onClear={() => onSelectSeverityChild("", index)}
+                    allowClear
+                  />
+                </Col>
+                <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+                  <Input
+                    className="notesinput border-0"
+                    placeholder="Notes"
+                    defaultValue={item.tmm_remarks}
+                    value={item.tmm_remarks}
+                    onChange={(e) => onChangeNoteChild(e, index)}
+                  />
+                </Col>
+                <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+                  <Button
+                    className="btn py-0 btn-delete-prescription px-0"
+                    onClick={() => onRemoveRow(index)}
+                  >
+                    <i className="icon-delete"></i>
+                  </Button>
+                </Col>
+              </Row>
+            );
+          })}
+      </>
     );
-  }, [medicationData]);
+  }, [medicationData, timingPopOver]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useCallback(() => {
