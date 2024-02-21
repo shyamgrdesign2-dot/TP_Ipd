@@ -121,7 +121,7 @@ function TabPrescription() {
                 <div className='w-100 bg-body wrapper2 prescription-wrapper p-0'>
                     <Layout>
                         <div className="prescription-sidebar">
-                            {customizedPadLeftList.map((e, i) => {
+                            {customizedPadLeftList?.map((e, i) => {
                                 return (
                                     e.tmdpm_id === 1 && e.tmdpm_status === 0 && (
                                         <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length === 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
@@ -171,7 +171,7 @@ function TabPrescription() {
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                             <Content>
-                                {customizedPadRightList.map((e, i) => {
+                                {customizedPadRightList?.map((e, i) => {
                                     return (
                                         e.tmdpm_id === 5 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabSymptomsBox /></div>
                                             : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabExaminationBox /></div>
