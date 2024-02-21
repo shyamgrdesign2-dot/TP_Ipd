@@ -116,7 +116,7 @@ function Prescription() {
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
             <div className="col-lg-4 col-md-12 col-12">
-              {customizedPadLeftList.map((e, i) => {
+              {customizedPadLeftList?.map((e, i) => {
                 return (
                   e.tmdpm_id === 1 && e.tmdpm_status === 0 && (
                     <div key={i} className="prescription-box-sm p-14">
@@ -147,7 +147,7 @@ function Prescription() {
             </div>
             <div className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3">
               <Content>
-                {customizedPadRightList.map((e, i) => {
+                {customizedPadRightList?.map((e, i) => {
                   return (
                     e.tmdpm_id === 5 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><SymptomsBox /></div>
                       : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><ExaminationBox /></div>
