@@ -104,8 +104,8 @@ const doctorsSlice = createSlice({
       })
       .addCase(customizedPad.fulfilled, (state, action) => {
         state.loading = false;
-        state.customizedPadLeftList = action.payload.left
-        state.customizedPadRightList = action.payload.right
+        state.customizedPadLeftList = action.payload.left != undefined ? action.payload.left : []
+        state.customizedPadRightList = action.payload.right != undefined ? action.payload.right : []
       })
       .addCase(customizedPad.rejected, (state) => {
         state.loading = false;
