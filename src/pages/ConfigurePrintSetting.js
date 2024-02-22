@@ -1,9 +1,11 @@
 import React from "react";
-import { Col, Row, Tabs } from "antd";
-import { isMobile } from "react-device-detect";
+import { Col, Flex, Tabs } from "antd";
 import HeaderPrintSetting from "../common/HeaderPrintSetting";
+import { useReactToPrint } from 'react-to-print';
+import PrintHtmlPage from "./PrintHtmlPage";
 
-function ConfigurePrintSetting() {    
+function ConfigurePrintSetting() {
+    const printRef = React.useRef();
     const onChange = (key) => {
         console.log(key);
     };
@@ -12,35 +14,55 @@ function ConfigurePrintSetting() {
             key: '1',
             label: 'Prescription',
             children: 'Content of Tab Pane 1',
-          },
-          {
+        },
+        {
             key: '2',
             label: 'Header & Footer',
             children: 'Content of Tab Pane 2',
-          },
-          {
+        },
+        {
             key: '3',
             label: 'Page Format',
             children: 'Content of Tab Pane 3',
-          },
+        },
     ];
 
+    // const css = `@page {
+    //     size: A4 landscape;
+    //   }
+    //   table {
+    //     page-break-inside: avoid;
+    //   }
+  
+    //   @media print {
+  
+    //   }`;
+
+    const printContent = useReactToPrint({
+        content: () => printRef.current,
+    });
     return (
         <>
             <HeaderPrintSetting />
-            <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2`}>
-                <Row gutter={{ xl: 40, lg: 0 }} justify="center">
-                    <Col md={7} lg={7} xl={5}>
-                        <Tabs defaultActiveKey="1" items={TabsPrintSetting} onChange={onChange} />
+            {/* <style scoped>{css}</style> */}
+            <div className={'w-100 bg-body wrapper2'}>
+                <Flex justify="space-between">
+                    <Col flex={1} className="me-4">
+                        <div className="bg-white h-100">
+                            <Tabs defaultActiveKey="1" items={TabsPrintSetting} onChange={onChange} />
+                        </div>
                     </Col>
-                    <Col md={17} lg={17} xl={12}>
-                        <div className={isMobile ? 'p-20' : ''}>
-                            <div className="border rounded-20px bg-white mt-20 overflow-hidden">
-                                Lorem
+                    <Col flex={8}>
+                        <div className="mx-auto" style={{width: 1240}}>
+                            <div className="titleprint mt-20" onClick={() => printContent()}>Preview</div>
+                            <div className="border rounded-20px bg-white mt-20 overflow-hidden h-100">
+                                <div key={Math.random()} ref={printRef} style={{padding: 20}} className="h-100 overflow-y-auto">
+                                    <PrintHtmlPage />
+                                </div>
                             </div>
                         </div>
                     </Col>
-                </Row>
+                </Flex>
             </div>
         </>
     );

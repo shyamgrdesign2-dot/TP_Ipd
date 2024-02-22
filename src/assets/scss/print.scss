@@ -1,0 +1,22 @@
+@import 'variables.scss';
+
+.print-custom-header {
+    &.border-bottom {
+        border-bottom: 2px solid $welcomecolor !important;
+    }
+}
+.border-dark {
+    border-color: $welcomecolor;
+}
+
+.patient-details {
+    .details-name {
+        span {
+            font-size: 10px;
+            color: $welcomecolor !important;
+            &:first-child {
+                font-weight: 500;
+            }
+        }
+    }
+}
