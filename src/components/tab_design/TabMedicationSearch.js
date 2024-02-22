@@ -41,8 +41,8 @@ import TabMedicationMoreModal from "./TabMedicationMoreModal";
 function TabMedicationSearch({ passIndex, onClose }) {
 
   const [messageApi, contextHolder] = message.useMessage();
-  const { parentOptionsList, childOptionsList, frequencyList, timingList } =
-    useSelector((state) => state.medication);
+  const { frequencyList, timingList } = useSelector((state) => state.doctors);
+  const { parentOptionsList, childOptionsList } = useSelector((state) => state.medication);
   const dispatch = useDispatch();
 
   const { medicationData, setMedicationData } = useContext(CashManagerContext);
@@ -57,8 +57,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
     { value: "month(s)", label: "M" },
     { value: "year(s)", label: "Y" },
   ];
- 
-  const [sinceValue, setSinceValue] = useState(medicationData[passIndex] !==undefined && medicationData[passIndex].tmm_days ? parseInt(medicationData[passIndex].tmm_days) : 1);
+
+  const [sinceValue, setSinceValue] = useState(medicationData[passIndex] !== undefined && medicationData[passIndex].tmm_days ? parseInt(medicationData[passIndex].tmm_days) : 1);
   const [inputSince, setInputSince] = useState("");
   const [sinceOptions, setSinceOptions] = useState([]);
 

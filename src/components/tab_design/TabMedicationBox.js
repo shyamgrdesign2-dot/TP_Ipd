@@ -46,8 +46,6 @@ import {
   singleTemplateDetails,
   getMedicineDetails,
   getFrequentlySearchedMedication,
-  showMedicineTime,
-  showMedicineFrequency,
   getLoadPreviousRx,
 } from "../../redux/medicationSlice";
 
@@ -56,12 +54,11 @@ import TabMedicationMoreModal from "./TabMedicationMoreModal";
 
 function TabMedicationBox() {
   const [messageApi, contextHolder] = message.useMessage();
+  const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const {
     selectedMedicationList,
     parentOptionsList,
     templates,
-    frequencyList,
-    timingList,
     loading,
   } = useSelector((state) => state.medication);
   const dispatch = useDispatch();
@@ -144,8 +141,6 @@ function TabMedicationBox() {
   useEffect(() => {
     dispatch(getMedicationTemplates());
     dispatch(getFrequentlySearchedMedication());
-    dispatch(showMedicineTime());
-    dispatch(showMedicineFrequency());
   }, []);
 
   useEffect(() => {

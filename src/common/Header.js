@@ -8,7 +8,7 @@ import { isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 
 import config from "../config";
-import { getProfile, changeHospital, customizedPad, swtichLayout } from "../redux/doctorsSlice";
+import { getProfile, changeHospital, customizedPad, swtichLayout, showMedicineTime, showMedicineFrequency } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
@@ -46,6 +46,8 @@ function Header({ locationPath }) {
   useEffect(() => {
     dispatch(getProfile());
     dispatch(customizedPad(CUSTOMIZED_PAD_SENDDATA))
+    dispatch(showMedicineTime());
+    dispatch(showMedicineFrequency());
   }, []);
 
   useEffect(() => {

@@ -57,6 +57,47 @@ export const makeDefaultLogo = (text) => {
   // }
 };
 
+
+export const frequencyCombination = (text) => {
+  const array = ['0', '1/2', '1/3', '1/4', '3/4', '1', '2']
+  const results = text;
+  var makeArray = []
+
+  if (results.split("-")[0] && !results.split("-")[1] && !results.split("-")[2] && !results.split("-")[3]) {
+    for (let i = 0; i < array.length; i++) {
+      for (let j = 0; j < array.length; j++) {
+        makeArray.push(`${results.split("-")[0]}-${array[i]}-${array[j]}`);
+      }
+    }
+    for (let i = 0; i < array.length; i++) {
+      for (let j = 0; j < array.length; j++) {
+        for (let k = 0; k < array.length; k++) {
+          makeArray.push(`${results.split("-")[0]}-${array[i]}-${array[j]}-${array[k]}`);
+        }
+      }
+    }
+  } else if (results.split("-")[0] && results.split("-")[1] && !results.split("-")[2] && !results.split("-")[3]) {
+    for (let i = 0; i < array.length; i++) {
+      makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${array[i]}`);
+    }
+    for (let i = 0; i < array.length; i++) {
+      for (let j = 0; j < array.length; j++) {
+        makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${array[i]}-${array[j]}`);
+      }
+    }
+  } else if (results.split("-")[0] && results.split("-")[1] && results.split("-")[2] && !results.split("-")[3]) {
+    makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${results.split("-")[2]}`);
+    for (let i = 0; i < array.length; i++) {
+      makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${results.split("-")[2]}-${array[i]}`);
+    }
+  } else if (results.split("-")[0] && results.split("-")[1] && results.split("-")[2] && results.split("-")[3]) {
+    makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${results.split("-")[2]}-${results.split("-")[3]}`);
+  }
+  return makeArray;
+}
+
+
+
 export const trimEllip = (source, length) => {
   if (source == null) {
     return "";

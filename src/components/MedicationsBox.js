@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyCombination } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import {
@@ -18,19 +18,16 @@ import {
   searchMedication,
   singleTemplateDetails,
   getMedicineDetails,
-  showMedicineTime,
-  showMedicineFrequency,
   getLoadPreviousRx,
 } from "../redux/medicationSlice";
 
 function MedicationsBox() {
   const [messageApi, contextHolder] = message.useMessage();
+  const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const {
     selectedMedicationList,
     parentOptionsList,
     templates,
-    frequencyList,
-    timingList,
     loading,
   } = useSelector((state) => state.medication);
   const dispatch = useDispatch();
@@ -45,6 +42,7 @@ function MedicationsBox() {
   const [parentSearchOptions, setParentSearchOptions] = useState([]);
 
   const [unitPerDoseOptions, setUnitPerDoseOptions] = useState([]);
+  const [frequencyOptions, setFrequencyOptions] = useState([]);
   const [sinceOptions, setSinceOptions] = useState([]);
   const SINCE_OPTIONS = [
     { value: "day(s)", label: "Days" },
@@ -64,12 +62,8 @@ function MedicationsBox() {
   ];
   const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
 
-  const filteredTitles = frequencyList.filter((item) => item.tmf_block !== 0);
-
   useEffect(() => {
     dispatch(getMedicationTemplates());
-    dispatch(showMedicineTime());
-    dispatch(showMedicineFrequency());
   }, []);
 
   useEffect(() => {
@@ -134,7 +128,13 @@ function MedicationsBox() {
         return {
           ...e,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-          tmm_freq_type_name: frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmm_freq_type_name: frequencyObj !== undefined ?
+            frequencyObj.tmf_block != 0 ? frequencyObj.tmf_title
+              : `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
+                 ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
+                 ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
+                 ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+            : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
@@ -212,6 +212,67 @@ function MedicationsBox() {
   //   },
   //   [medicationData]
   // );
+
+  const filteredTitles = frequencyList.filter((item) => item.tmf_block !== 0);
+
+  const onSearchFrequencyChild = useCallback(
+    async (query, i) => {
+      const data = [];
+
+      const combinationList = await frequencyCombination(query)
+      combinationList.map((option) => {
+        return data.push({
+          value: JSON.stringify({ tmf_id: 0, tmf_title: option, tmf_block: 0, tmf_block_val: "", unique_id: uuidv4() }),
+          label: <>{option}</>,
+        });
+      });
+
+      filteredTitles.map((option) => {
+        return data.push({
+          value: JSON.stringify({ ...option, unique_id: uuidv4() }),
+          label: <>{option.tmf_title}</>,
+        });
+      });
+
+      setFrequencyOptions(data)
+
+      medicationData[i].tmm_freq_type_name = query;
+      medicationData[i].tmf_block = 0;
+      medicationData[i].tmm_freq_type = 0;
+      medicationData[i].tcm_tmm_freq_afternoon = 0;
+      medicationData[i].tcm_tmm_freq_evening = 0;
+      medicationData[i].tcm_tmm_freq_morning = 0;
+      medicationData[i].tcm_tmm_freq_night = 0;
+      setMedicationData((prev) => [...prev]);
+    },
+    [frequencyOptions, medicationData]
+  );
+
+  const onSelectFrequencyChild = useCallback(
+    (data, i) => {
+      if (data) {
+        const objParse = JSON.parse(data);
+        medicationData[i].tmm_freq_type_name = objParse.tmf_title;
+        medicationData[i].tmf_block = objParse.tmf_block;
+        medicationData[i].tmf_block_val = objParse.tmf_block_val;
+        medicationData[i].tmm_freq_type = objParse.tmf_id;
+        medicationData[i].tcm_tmm_freq_afternoon = objParse.tmf_id != 0 ? 0 : objParse.tmf_title.split("-")[1] ? objParse.tmf_title.split("-")[1] : 0;
+        medicationData[i].tcm_tmm_freq_evening = objParse.tmf_id != 0 ? 0 : objParse.tmf_title.split("-")[2] ? objParse.tmf_title.split("-")[2] : 0;
+        medicationData[i].tcm_tmm_freq_morning = objParse.tmf_id != 0 ? 0 : objParse.tmf_title.split("-")[0] ? objParse.tmf_title.split("-")[0] : 0;
+        medicationData[i].tcm_tmm_freq_night = objParse.tmf_id != 0 ? 0 : objParse.tmf_title.split("-")[3] ? objParse.tmf_title.split("-")[3] : 0;
+      } else {
+        medicationData[i].tmm_freq_type_name = "";
+        medicationData[i].tmf_block = 0;
+        medicationData[i].tmm_freq_type = 0;
+        medicationData[i].tcm_tmm_freq_afternoon = 0;
+        medicationData[i].tcm_tmm_freq_evening = 0;
+        medicationData[i].tcm_tmm_freq_morning = 0;
+        medicationData[i].tcm_tmm_freq_night = 0;
+      }
+      setMedicationData((prev) => [...prev]);
+    },
+    [medicationData]
+  );
 
   const onSelectTimingChild = useCallback(
     (data, i) => {
@@ -310,7 +371,13 @@ function MedicationsBox() {
         return {
           ...e,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-          tmm_freq_type_name: frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmm_freq_type_name: frequencyObj !== undefined ?
+            frequencyObj.tmf_block != 0 ? frequencyObj.tmf_title
+              : `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
+                 ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
+                 ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
+                 ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+            : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
@@ -341,7 +408,13 @@ function MedicationsBox() {
         return {
           ...e,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-          tmm_freq_type_name: frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmm_freq_type_name: frequencyObj !== undefined ?
+            frequencyObj.tmf_block != 0 ? frequencyObj.tmf_title
+              : `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
+                 ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
+                 ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
+                 ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+            : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
@@ -550,15 +623,25 @@ function MedicationsBox() {
                     defaultOpen={false}
                     onSearch={(query) => onSearchUnitPerDoseChid(query, index)}
                     options={unitPerDoseOptions}
+                    backfill={true}
                     className="autocomplete-custom w-100 inputborder"
                     defaultActiveFirstOption={true}
                     onSelect={(data, e) => onSelectUnitPerDoseChild(data, e, index)}
                   />
                 </Col>
                 <Col lg={3} md={3} sm={3} xs={3} className="border-end">
-                  <div className="p-2">
-                    <label>Timing</label>
-                  </div>
+                  <Select
+                    showSearch
+                    className="autocomplete-custom w-100 inputborder"
+                    placeholder="e.g 1-0-1"
+                    defaultValue={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
+                    value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
+                    onSearch={(query) => onSearchFrequencyChild(query, index)}
+                    onSelect={(data) => onSelectFrequencyChild(data, index)}
+                    options={frequencyOptions}
+                    onClear={() => onSelectFrequencyChild("", index)}
+                    allowClear
+                  />
                 </Col>
                 <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                   <Select
