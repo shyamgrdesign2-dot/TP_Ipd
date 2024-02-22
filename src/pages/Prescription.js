@@ -81,13 +81,12 @@ function Prescription() {
           return {
             ...e,
             tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-            tmm_freq_type_name: frequencyObj !== undefined ?
-              frequencyObj.tmf_block != 0 ? frequencyObj.tmf_title
-                : `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
-                   ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
-                   ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
-                   ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-              : "",
+            tmm_freq_type_name: e.tmf_block == 0 ?
+              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
+               ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
+               ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
+               ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+              : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
             tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
             tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
