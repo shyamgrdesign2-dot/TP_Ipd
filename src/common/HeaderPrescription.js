@@ -30,7 +30,7 @@ import {
 
 function HeaderPrescription() {
 
-    const { customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
+    const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
     const {
         templates,
@@ -175,22 +175,62 @@ function HeaderPrescription() {
                     setInvestigationData([...investigationData, ...updatedData]);
                 }
                 if (data.medicine.length > 0) {
-                    const updatedData = data.medicine.map((e) => {
-                        const medicineUnit = e?.medicineUnit.map((e1) => {
+                    if (!isMobile) {
+                        const updatedData = data.medicine.map((e) => {
+
+                            const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+                            const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
+                            const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
                             return {
-                                key: JSON.stringify({ ...e1 }),
-                                value: e1.tmu_id,
-                                label: <>{e1.tmu_title}</>,
+                                ...e,
+                                tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+                                tmm_freq_type_name: e.tmf_block == 0 ?
+                                    `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+                                    : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+                                tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+                                tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+                                tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
+                                tmm_days_duration_type: `${e.tmm_days} ${e.tmm_duration_type}`,
+                                unique_id: uuidv4(),
                             };
                         });
+                        setMedicationData([...medicationData, ...updatedData])
+                    } else {
+                        const updatedData = data.medicine.map((e) => {
+                            const medicineUnit = e?.medicineUnit.map((e1) => {
+                                return {
+                                    key: JSON.stringify({ ...e1 }),
+                                    value: e1.tmu_id,
+                                    label: <>{e1.tmu_title}</>,
+                                };
+                            });
 
-                        return {
-                            ...e,
-                            medicineUnit: medicineUnit,
-                            unique_id: uuidv4(),
-                        };
-                    });
-                    setMedicationData([...medicationData, ...updatedData])
+                            const unitObj = medicineUnit
+                                ? medicineUnit.find((x) => x.value == e.tmm_unit)
+                                : null;
+                            const frequencyObj = frequencyList.find(
+                                (x) => x.tmf_id == e.tmm_freq_type
+                            );
+                            const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+                            return {
+                                ...e,
+                                tmm_unit_name:
+                                    unitObj && unitObj !== undefined
+                                        ? JSON.parse(unitObj.key).tmu_title
+                                        : "",
+                                tmm_freq_type_name:
+                                    frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+                                tmf_block_val:
+                                    frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+                                tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+                                medicineUnit: medicineUnit,
+                                unique_id: uuidv4(),
+                            };
+                        });
+                        setMedicationData([...medicationData, ...updatedData])
+                    }
                 }
             }
             !isMobile ? showHideTemplatesListPopover() : handleDrawerTemplate()
@@ -230,19 +270,24 @@ function HeaderPrescription() {
     );
 
     const onAddTemplateClicked = async () => {
-        const updatedMedication = medicationData.map((e) => {
-            const medicineUnit = e?.medicineUnit.map((e1) => {
+        let updatedMedication = []
+        if (!isMobile) {
+            updatedMedication = [...medicationData]
+        } else {
+            updatedMedication = medicationData.map((e) => {
+                const medicineUnit = e?.medicineUnit.map((e1) => {
+                    return {
+                        tmu_id: JSON.parse(e1.key).tmu_id,
+                        tmu_title: JSON.parse(e1.key).tmu_title,
+                    };
+                });
+
                 return {
-                    tmu_id: JSON.parse(e1.key).tmu_id,
-                    tmu_title: JSON.parse(e1.key).tmu_title,
+                    ...e,
+                    medicineUnit: medicineUnit,
                 };
             });
-
-            return {
-                ...e,
-                medicineUnit: medicineUnit,
-            };
-        });
+        }
 
         var sendData = {
             tmoc_template_name: inputTemplateName,
@@ -317,19 +362,24 @@ function HeaderPrescription() {
     );
 
     const onUpdateTemplateClicked = async () => {
-        const updatedMedication = medicationData.map((e) => {
-            const medicineUnit = e?.medicineUnit.map((e1) => {
+        let updatedMedication = []
+        if (!isMobile) {
+            updatedMedication = [...medicationData]
+        } else {
+            updatedMedication = medicationData.map((e) => {
+                const medicineUnit = e?.medicineUnit.map((e1) => {
+                    return {
+                        tmu_id: JSON.parse(e1.key).tmu_id,
+                        tmu_title: JSON.parse(e1.key).tmu_title,
+                    };
+                });
+
                 return {
-                    tmu_id: JSON.parse(e1.key).tmu_id,
-                    tmu_title: JSON.parse(e1.key).tmu_title,
+                    ...e,
+                    medicineUnit: medicineUnit,
                 };
             });
-
-            return {
-                ...e,
-                medicineUnit: medicineUnit,
-            };
-        });
+        }
 
         var data = JSON.parse(inputTemplateName);
         var sendData = {
