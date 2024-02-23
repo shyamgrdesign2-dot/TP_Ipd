@@ -794,14 +794,6 @@ function MedicationsBox() {
                     onClick={() => onTemplateSelected(template.tmtd_id)}
                   >
                     <div className="title text-main2">{template.tmtd_template_name}</div>
-                    <div className="text-truncate">
-                      {template.medicationData.map((item, ii) => {
-                        return (
-                          <span key={ii}>{`${item.medication_name}${template.medicationData.length - 1 != ii ? ", " : ""
-                            }`}</span>
-                        );
-                      })}
-                    </div>
                   </div>
                   <Button
                     className="btn btn-delete-prescription p-0 ms-2"
@@ -887,14 +879,6 @@ function MedicationsBox() {
                   <div className="round-box"><i className="icon-template"></i></div>
                   <div className="text-truncate w-100">
                     <div className="title text-main2">{option.data.value}</div>
-                    <div className="text-truncate">
-                      {JSON.parse(option.data.key).medicationData.map((item, ii) => {
-                        return (
-                          <span key={ii}>{`${item.medication_name}${JSON.parse(option.data.key).medicationData.length - 1 != ii ? ", " : ""
-                            }`}</span>
-                        );
-                      })}
-                    </div>
                   </div>
                 </div>
               )}
