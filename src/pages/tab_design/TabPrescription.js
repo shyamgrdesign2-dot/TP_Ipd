@@ -29,7 +29,7 @@ import Sider from "antd/es/layout/Sider";
 
 function TabPrescription() {
 
-    const { customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
+    const { customizedPadLeftList, customizedPadRightList, frequencyList, timingList } = useSelector((state) => state.doctors);
 
     const { state } = useLocation();
     const { patient_data, caseManagerData } = state
@@ -85,8 +85,25 @@ function TabPrescription() {
                         };
                     });
 
+                    const unitObj = medicineUnit
+                        ? medicineUnit.find((x) => x.value == e.tmm_unit)
+                        : null;
+                    const frequencyObj = frequencyList.find(
+                        (x) => x.tmf_id == e.tmm_freq_type
+                    );
+                    const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
                     return {
                         ...e,
+                        tmm_unit_name:
+                            unitObj && unitObj !== undefined
+                                ? JSON.parse(unitObj.key).tmu_title
+                                : "",
+                        tmm_freq_type_name:
+                            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+                        tmf_block_val:
+                            frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+                        tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
                         medicineUnit: medicineUnit,
                         unique_id: uuidv4(),
                     };
