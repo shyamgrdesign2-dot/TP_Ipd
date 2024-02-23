@@ -1,5 +1,11 @@
 @import 'variables.scss';
 
+body {
+    div, div span, label {
+        color: $welcomecolor !important;
+    }
+}
+
 .print-custom-header {
     &.border-bottom {
         border-bottom: 2px solid $welcomecolor !important;
@@ -13,10 +19,26 @@
     .details-name {
         span {
             font-size: 10px;
-            color: $welcomecolor !important;
             &:first-child {
                 font-weight: 500;
             }
         }
     }
+}
+
+table tr th {
+    color: #000000 !important;
+    font-weight: 600;
+}
+
+table tr td {
+    &:first-child {
+        font-weight: 600;
+    }
+    color: $welcomecolor !important;
+}
+
+table , tr th, tr td {
+    border: 1px solid $welcomecolor;
+    border-collapse: collapse;
 }
