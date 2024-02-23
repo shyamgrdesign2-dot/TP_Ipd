@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination } from "../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import {
@@ -20,6 +20,8 @@ import {
   getMedicineDetails,
   getLoadPreviousRx,
 } from "../redux/medicationSlice";
+
+const { TextArea } = Input;
 
 function MedicationsBox() {
   const [messageApi, contextHolder] = message.useMessage();
@@ -93,7 +95,7 @@ function MedicationsBox() {
       return data.push({
         key: JSON.stringify({ ...e, unique_id: uuidv4() }),
         value: e.tmm_medicine_name,
-        label: <div>{e.tmm_medicine_name}</div>,
+        label: <div><span className="fw-medium">{e.tmm_medicine_name}</span>, <span>{e.tmm_generic}</span></div>,
       });
     });
     if (searchParentQuery.length == 0) {
@@ -129,11 +131,8 @@ function MedicationsBox() {
           ...e,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
           tmm_freq_type_name: e.tmf_block == 0 ?
-              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
-               ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
-               ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
-               ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-              : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+            `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+            : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
@@ -214,39 +213,82 @@ function MedicationsBox() {
 
   const filteredTitles = frequencyList.filter((item) => item.tmf_block !== 0);
 
+  const [frequencyQuery, setFrequencyQuery] = useState('');
+
+  const onBlurFrequencyChild = useCallback(
+    async (i) => {
+      if (isNumeric(frequencyQuery) && frequencyQuery.length <= 3) {
+        medicationData[i].tmm_freq_type_name = `${frequencyQuery[0]}-${frequencyQuery[1]}-${frequencyQuery[2]}`;
+        medicationData[i].tmf_block = 0;
+        medicationData[i].tmm_freq_type = 0;
+        medicationData[i].tcm_tmm_freq_afternoon = frequencyQuery[1];
+        medicationData[i].tcm_tmm_freq_evening = frequencyQuery[2];
+        medicationData[i].tcm_tmm_freq_morning = frequencyQuery[0];
+        medicationData[i].tcm_tmm_freq_night = 0;
+        setMedicationData((prev) => [...prev]);
+      } else if (isNumeric(frequencyQuery) && frequencyQuery.length >= 4) {
+        medicationData[i].tmm_freq_type_name = `${frequencyQuery[0]}-${frequencyQuery[1]}-${frequencyQuery[2]}-${frequencyQuery[3]}`;
+        medicationData[i].tmf_block = 0;
+        medicationData[i].tmm_freq_type = 0;
+        medicationData[i].tcm_tmm_freq_afternoon = frequencyQuery[1];
+        medicationData[i].tcm_tmm_freq_evening = frequencyQuery[2];
+        medicationData[i].tcm_tmm_freq_morning = frequencyQuery[0];
+        medicationData[i].tcm_tmm_freq_night = frequencyQuery[3];
+        setMedicationData((prev) => [...prev]);
+      } else {
+        if (!frequencyFormat(medicationData[i].tmm_freq_type_name) &&
+          filteredTitles.findIndex((x) => x.tmf_title == medicationData[i].tmm_freq_type_name) == -1) {
+          medicationData[i].tmm_freq_type_name = "";
+          medicationData[i].tmf_block = 0;
+          medicationData[i].tmm_freq_type = 0;
+          medicationData[i].tcm_tmm_freq_afternoon = frequencyQuery[1];
+          medicationData[i].tcm_tmm_freq_evening = frequencyQuery[2];
+          medicationData[i].tcm_tmm_freq_morning = frequencyQuery[0];
+          medicationData[i].tcm_tmm_freq_night = frequencyQuery[3];
+          setMedicationData((prev) => [...prev]);
+        }
+      }
+    },
+    [medicationData]
+  );
+
   const onSearchFrequencyChild = useCallback(
     async (query, i) => {
-      const data = [];
+      setFrequencyQuery(query)
+      if (query) {
 
-      const updateQuery = frequencyFormat(query);
+        const data = [];
 
-      if (updateQuery) {
-        const combinationList = await frequencyCombination(query)
-        combinationList.map((option) => {
+        const updateQuery = frequencyFormat(query);
+
+        if (updateQuery) {
+          const combinationList = await frequencyCombination(query)
+          combinationList.map((option) => {
+            return data.push({
+              value: JSON.stringify({ tmf_id: 0, tmf_title: option, tmf_block: 0, tmf_block_val: "", unique_id: uuidv4() }),
+              label: <>{option}</>,
+            });
+          });
+        }
+
+        filteredTitles.map((option) => {
           return data.push({
-            value: JSON.stringify({ tmf_id: 0, tmf_title: option, tmf_block: 0, tmf_block_val: "", unique_id: uuidv4() }),
-            label: <>{option}</>,
+            value: JSON.stringify({ ...option, unique_id: uuidv4() }),
+            label: <>{option.tmf_title}</>,
           });
         });
+
+        setFrequencyOptions(data)
+
+        medicationData[i].tmm_freq_type_name = query;
+        medicationData[i].tmf_block = 0;
+        medicationData[i].tmm_freq_type = 0;
+        medicationData[i].tcm_tmm_freq_afternoon = 0;
+        medicationData[i].tcm_tmm_freq_evening = 0;
+        medicationData[i].tcm_tmm_freq_morning = 0;
+        medicationData[i].tcm_tmm_freq_night = 0;
+        setMedicationData((prev) => [...prev]);
       }
-
-      filteredTitles.map((option) => {
-        return data.push({
-          value: JSON.stringify({ ...option, unique_id: uuidv4() }),
-          label: <>{option.tmf_title}</>,
-        });
-      });
-
-      setFrequencyOptions(data)
-
-      medicationData[i].tmm_freq_type_name = query;
-      medicationData[i].tmf_block = 0;
-      medicationData[i].tmm_freq_type = 0;
-      medicationData[i].tcm_tmm_freq_afternoon = 0;
-      medicationData[i].tcm_tmm_freq_evening = 0;
-      medicationData[i].tcm_tmm_freq_morning = 0;
-      medicationData[i].tcm_tmm_freq_night = 0;
-      setMedicationData((prev) => [...prev]);
     },
     [frequencyOptions, medicationData]
   );
@@ -255,6 +297,7 @@ function MedicationsBox() {
     (data, i) => {
       if (data) {
         const objParse = JSON.parse(data);
+        setFrequencyQuery(objParse.tmf_title)
         medicationData[i].tmm_freq_type_name = objParse.tmf_title;
         medicationData[i].tmf_block = objParse.tmf_block;
         medicationData[i].tmf_block_val = objParse.tmf_block_val;
@@ -375,11 +418,8 @@ function MedicationsBox() {
           ...e,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
           tmm_freq_type_name: e.tmf_block == 0 ?
-              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
-               ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
-               ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
-               ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-              : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+            `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+            : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
@@ -411,11 +451,8 @@ function MedicationsBox() {
           ...e,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
           tmm_freq_type_name: e.tmf_block == 0 ?
-              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
-               ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
-               ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
-               ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-              : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+            `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+            : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
@@ -560,12 +597,12 @@ function MedicationsBox() {
                 <label>MEDICINE</label>
               </div>
             </Col>
-            <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+            <Col lg={3} md={3} sm={3} xs={3} className="border-end">
               <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
                 <label>UNIT PER DOSE</label>
               </div>
             </Col>
-            <Col lg={3} md={3} sm={3} xs={3} className="border-end">
+            <Col lg={4} md={4} sm={4} xs={4} className="border-end">
               <div className="fontroboto fw-medium p-2 fs-12 text-welcome d-flex align-items-center">
                 <label>TIMING </label>
                 <Popover
@@ -608,14 +645,17 @@ function MedicationsBox() {
               <Row
                 key={index}
                 gutter={[0]}
-                className={`${index === 0 && "border-top"} align-items-center border-bottom`}
+                className={`${index === 0 && "border-top"} border-bottom`}
               >
                 <Col lg={5} md={5} sm={5} xs={5} className="border-end">
                   <div className="fontroboto fw-medium p-2">
                     <label>{item.tmm_medicine_name}</label>
+                    <Tooltip placement="bottom" title={item.tmm_generic}>
+                      <div className="text-truncate fw-normal">{item.tmm_generic}</div>
+                    </Tooltip>
                   </div>
                 </Col>
-                <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+                <Col lg={3} md={3} sm={3} xs={3} className="border-end">
                   <AutoComplete
                     defaultValue={item.tmm_dosage_unit_name}
                     value={item.tmm_dosage_unit_name}
@@ -624,21 +664,22 @@ function MedicationsBox() {
                     defaultOpen={false}
                     onSearch={(query) => onSearchUnitPerDoseChid(query, index)}
                     options={unitPerDoseOptions}
-                    backfill={true}
-                    className="autocomplete-custom w-100 inputborder"
+                    // backfill={true}
+                    className="autocomplete-custom w-100 h-100 inputborder"
                     defaultActiveFirstOption={true}
                     onSelect={(data, e) => onSelectUnitPerDoseChild(data, e, index)}
                   />
                 </Col>
-                <Col lg={3} md={3} sm={3} xs={3} className="border-end">
+                <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                   <Select
                     showSearch
-                    className="autocomplete-custom w-100 inputborder"
+                    className="autocomplete-custom w-100 h-100 inputborder"
                     placeholder="e.g 1-0-1"
                     defaultValue={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
                     value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
                     onSearch={(query) => onSearchFrequencyChild(query, index)}
                     onFocus={() => onSearchFrequencyChild(item.tmm_freq_type_name, index)}
+                    onBlur={() => onBlurFrequencyChild(index)}
                     onSelect={(data) => onSelectFrequencyChild(data, index)}
                     options={frequencyOptions}
                     onClear={() => onSelectFrequencyChild("", index)}
@@ -647,7 +688,7 @@ function MedicationsBox() {
                 </Col>
                 <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                   <Select
-                    className="autocomplete-custom w-100 inputborder"
+                    className="autocomplete-custom w-100 h-100 inputborder"
                     placeholder="e.g Before Food"
                     defaultValue={item.tmm_time_name != "" ? item.tmm_time_name : null}
                     value={item.tmm_time_name != "" ? item.tmm_time_name : null}
@@ -671,17 +712,21 @@ function MedicationsBox() {
                     defaultOpen={false}
                     onSearch={(query) => onSearchSinceChid(query, index)}
                     options={sinceOptions}
-                    className="autocomplete-custom w-100 inputborder"
+                    className="autocomplete-custom h-100 w-100 inputborder"
                     defaultActiveFirstOption={true}
                     onSelect={(data, e) => onSelectSinceChild(data, e, index)}
                   />
                 </Col>
                 <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-                  <Input
-                    className="notesinput border-0"
+                  <TextArea
+                    className="notesinput border-0 h-100 align-self-center"
                     placeholder="Notes"
                     defaultValue={item.tmm_remarks}
                     value={item.tmm_remarks}
+                    autoSize={{
+                      minRows: 1,
+                      maxRows: 2,
+                    }}
                     onChange={(e) => onChangeNoteChild(e, index)}
                   />
                 </Col>

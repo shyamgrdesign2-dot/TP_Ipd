@@ -64,10 +64,11 @@ export const makeDefaultLogo = (text) => {
 
 export const frequencyCombination = (text) => {
   // const array = ['0', '1/2', '1/3', '1/4', '3/4', '1', '2']
-  const array = ['0', '0.5', '0.33', '0.25', '0.75', '1', '2']
+  // const array = ['0', '0.5', '0.33', '0.25', '0.75', '1', '2']
+  const array = ['0', '1', '2']
   const results = text;
-  var makeArray = []
-  
+  let makeArray = []
+
   if (results.split("-")[0] && !results.split("-")[1] && !results.split("-")[2] && !results.split("-")[3]) {
     for (let i = 0; i < array.length; i++) {
       for (let j = 0; j < array.length; j++) {
