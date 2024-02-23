@@ -15,6 +15,7 @@ import hey from "../assets/images/bg-hey.png";
 import SymptomsBox from "../components/SymptomsBox";
 import ExaminationBox from "../components/ExaminationBox";
 import DiagnosisBox from "../components/DiagnosisBox";
+import MedicationsBox from "../components/MedicationsBox";
 import AdviceBox from "../components/AdviceBox";
 import InvestigationBox from "../components/InvestigationBox";
 import TabFollowUpBox from "../components/tab_design/TabFollowUpBox";
@@ -25,7 +26,7 @@ import { Content } from "antd/es/layout/layout";
 
 function Prescription() {
 
-  const { customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
+  const { customizedPadLeftList, customizedPadRightList, frequencyList, timingList } = useSelector((state) => state.doctors);
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state
@@ -72,17 +73,21 @@ function Prescription() {
       }
       if (caseManagerData.medicine.length > 0) {
         const updatedData = caseManagerData.medicine.map((e) => {
-          const medicineUnit = e?.medicineUnit.map((e1) => {
-            return {
-              key: JSON.stringify({ ...e1 }),
-              value: e1.tmu_id,
-              label: <>{e1.tmu_title}</>,
-            };
-          });
+
+          const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+          const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
+          const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
 
           return {
             ...e,
-            medicineUnit: medicineUnit,
+            tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+            tmm_freq_type_name: e.tmf_block == 0 ?
+              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+              : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+            tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+            tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+            tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
+            tmm_days_duration_type: `${e.tmm_days} ${e.tmm_duration_type}`,
             unique_id: uuidv4(),
           };
         });
@@ -116,7 +121,7 @@ function Prescription() {
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
             <div className="col-lg-4 col-md-12 col-12">
-              {customizedPadLeftList.map((e, i) => {
+              {customizedPadLeftList?.map((e, i) => {
                 return (
                   e.tmdpm_id === 1 && e.tmdpm_status === 0 && (
                     <div key={i} className="prescription-box-sm p-14">
@@ -147,14 +152,15 @@ function Prescription() {
             </div>
             <div className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3">
               <Content>
-                {customizedPadRightList.map((e, i) => {
+                {customizedPadRightList?.map((e, i) => {
                   return (
                     e.tmdpm_id === 5 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><SymptomsBox /></div>
                       : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><ExaminationBox /></div>
                         : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><DiagnosisBox /></div>
-                          : e.tmdpm_id === 13 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><AdviceBox /></div>
-                            : e.tmdpm_id === 14 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"> <InvestigationBox /></div>
-                              : e.tmdpm_id === 15 && e.tmdpm_status === 0 && <div key={i} className="prescription-box-sm"><TabFollowUpBox /></div>
+                          : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><MedicationsBox /></div>
+                            : e.tmdpm_id === 13 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><AdviceBox /></div>
+                              : e.tmdpm_id === 14 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"> <InvestigationBox /></div>
+                                : e.tmdpm_id === 15 && e.tmdpm_status === 0 && <div key={i} className="prescription-box-sm"><TabFollowUpBox /></div>
                   )
                 })}
               </Content>

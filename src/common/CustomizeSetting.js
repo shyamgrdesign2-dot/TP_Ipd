@@ -106,7 +106,7 @@ function CustomizeSetting({ handleDrawerCustomize }) {
       colSpan: 0,
       dataIndex: 'tmdpm_name',
       key: 'tmdpm_name',
-      render: (text, record) => <><img src={record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{record.tmdpm_name}</>
+      render: (text, record) => <div className='align-items-center d-flex'><img src={record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{record.tmdpm_name}</div>
     },
     {
       title: 'ENABLE/DISABLE',
@@ -149,7 +149,7 @@ function CustomizeSetting({ handleDrawerCustomize }) {
       colSpan: 0,
       dataIndex: 'tmdpm_name',
       key: 'tmdpm_name',
-      render: (text, record) => <><img src={record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{record.tmdpm_name}</>
+      render: (text, record) => <div className='align-items-center d-flex'><img src={record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{record.tmdpm_name}</div>
     },
     {
       title: 'ENABLE/DISABLE',
@@ -178,7 +178,21 @@ function CustomizeSetting({ handleDrawerCustomize }) {
   };
 
   async function onCustomizePadClick() {
-    if (dataSourceLeft.length > 0 && dataSourceLeft.filter((e) => !e.tmdpm_status).length <= 0) {
+    if (dataSourceLeft.length == 0) {
+      message.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: 'Something went wrong! please try again later',
+        duration: 2
+      });
+    } else if (dataSourceRight.length == 0) {
+      message.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: 'Something went wrong! please try again later',
+        duration: 2
+      });
+    } else if (dataSourceLeft.length > 0 && dataSourceLeft.filter((e) => !e.tmdpm_status).length <= 0) {
       message.open({
         key: MESSAGE_KEY,
         type: 'warning',

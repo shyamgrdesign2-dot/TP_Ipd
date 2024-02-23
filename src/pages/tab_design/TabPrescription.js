@@ -29,7 +29,7 @@ import Sider from "antd/es/layout/Sider";
 
 function TabPrescription() {
 
-    const { customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
+    const { customizedPadLeftList, customizedPadRightList, frequencyList, timingList } = useSelector((state) => state.doctors);
 
     const { state } = useLocation();
     const { patient_data, caseManagerData } = state
@@ -85,8 +85,25 @@ function TabPrescription() {
                         };
                     });
 
+                    const unitObj = medicineUnit
+                        ? medicineUnit.find((x) => x.value == e.tmm_unit)
+                        : null;
+                    const frequencyObj = frequencyList.find(
+                        (x) => x.tmf_id == e.tmm_freq_type
+                    );
+                    const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
                     return {
                         ...e,
+                        tmm_unit_name:
+                            unitObj && unitObj !== undefined
+                                ? JSON.parse(unitObj.key).tmu_title
+                                : "",
+                        tmm_freq_type_name:
+                            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+                        tmf_block_val:
+                            frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+                        tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
                         medicineUnit: medicineUnit,
                         unique_id: uuidv4(),
                     };
@@ -121,7 +138,7 @@ function TabPrescription() {
                 <div className='w-100 bg-body wrapper2 prescription-wrapper p-0'>
                     <Layout>
                         <div className="prescription-sidebar">
-                            {customizedPadLeftList.map((e, i) => {
+                            {customizedPadLeftList?.map((e, i) => {
                                 return (
                                     e.tmdpm_id === 1 && e.tmdpm_status === 0 && (
                                         <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length === 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
@@ -171,7 +188,7 @@ function TabPrescription() {
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                             <Content>
-                                {customizedPadRightList.map((e, i) => {
+                                {customizedPadRightList?.map((e, i) => {
                                     return (
                                         e.tmdpm_id === 5 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabSymptomsBox /></div>
                                             : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabExaminationBox /></div>
