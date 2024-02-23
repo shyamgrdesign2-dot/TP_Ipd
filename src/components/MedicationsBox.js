@@ -235,18 +235,24 @@ function MedicationsBox() {
         medicationData[i].tcm_tmm_freq_morning = frequencyQuery[0];
         medicationData[i].tcm_tmm_freq_night = frequencyQuery[3];
         setMedicationData((prev) => [...prev]);
-      } else {
-        if (!frequencyFormat(medicationData[i].tmm_freq_type_name) &&
-          filteredTitles.findIndex((x) => x.tmf_title == medicationData[i].tmm_freq_type_name) == -1) {
-          medicationData[i].tmm_freq_type_name = "";
-          medicationData[i].tmf_block = 0;
-          medicationData[i].tmm_freq_type = 0;
-          medicationData[i].tcm_tmm_freq_afternoon = frequencyQuery[1];
-          medicationData[i].tcm_tmm_freq_evening = frequencyQuery[2];
-          medicationData[i].tcm_tmm_freq_morning = frequencyQuery[0];
-          medicationData[i].tcm_tmm_freq_night = frequencyQuery[3];
-          setMedicationData((prev) => [...prev]);
-        }
+      } else if (!frequencyFormat(medicationData[i].tmm_freq_type_name) && filteredTitles.findIndex((x) => x.tmf_title == medicationData[i].tmm_freq_type_name) == -1) {
+        medicationData[i].tmm_freq_type_name = "";
+        medicationData[i].tmf_block = 0;
+        medicationData[i].tmm_freq_type = 0;
+        medicationData[i].tcm_tmm_freq_afternoon = frequencyQuery[1];
+        medicationData[i].tcm_tmm_freq_evening = frequencyQuery[2];
+        medicationData[i].tcm_tmm_freq_morning = frequencyQuery[0];
+        medicationData[i].tcm_tmm_freq_night = frequencyQuery[3];
+        setMedicationData((prev) => [...prev]);
+      } else if (frequencyFormat(medicationData[i].tmm_freq_type_name)) {
+        medicationData[i].tmm_freq_type_name = frequencyQuery;
+        medicationData[i].tmf_block = 0;
+        medicationData[i].tmm_freq_type = 0;
+        medicationData[i].tcm_tmm_freq_afternoon = frequencyQuery.split("-")[1] ? frequencyQuery.split("-")[1] : 0;
+        medicationData[i].tcm_tmm_freq_evening = frequencyQuery.split("-")[2] ? frequencyQuery.split("-")[2] : 0;
+        medicationData[i].tcm_tmm_freq_morning = frequencyQuery.split("-")[0] ? frequencyQuery.split("-")[0] : 0;
+        medicationData[i].tcm_tmm_freq_night = frequencyQuery.split("-")[3] ? frequencyQuery.split("-")[3] : 0;
+        setMedicationData((prev) => [...prev]);
       }
     },
     [medicationData]
