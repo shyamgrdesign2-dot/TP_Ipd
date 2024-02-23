@@ -30,6 +30,7 @@ function Header({ locationPath }) {
   }, [popOver]);
 
   const [isSwitchModalOpen, setIsSwitchModalOpen] = useState(false);
+  const [switchCheckbox, setSwitchCheckbox] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -52,6 +53,7 @@ function Header({ locationPath }) {
 
   useEffect(() => {
     if (profile) {
+      setSwitchCheckbox(profile.switchtoOld != 0 ? true : false)
       saveProfile(profile);
       const clinics = profile.hospital_data?.map((e) => {
         return {
@@ -162,19 +164,25 @@ function Header({ locationPath }) {
     );
   }, [isLogoModalOpen]);
 
+
+
   //Switch Modal
   const showHideSwitchModal = useCallback(() => {
     setIsSwitchModalOpen(!isSwitchModalOpen);
   }, [isSwitchModalOpen]);
 
-  const onChange = (e) => {
-    console.log(`checked = ${e.target.checked}`);
-  };
+  const onChange = useCallback((e) => {
+    setSwitchCheckbox(e.target.checked)
+  }, [switchCheckbox]);
 
-  async function onSwitchLayoutClick() {
-    const action = await dispatch(swtichLayout())
+  async function onSwitchLayoutClick(flag) {
+    var sendData = {
+      from: 'app',
+      dont_show: flag
+    }
+    const action = await dispatch(swtichLayout(sendData))
     if (action.meta.requestStatus === "fulfilled") {
-      showHideSwitchModal()
+      flag == 0 && showHideSwitchModal()
       if (!isChrome && !isSafari) {
         setTimeout(() => {
           navigate(`/?switch_layout=old`, { replace: true })
@@ -183,6 +191,7 @@ function Header({ locationPath }) {
       } else {
         SSO_TO_PM().then(async (data) => {
           if (data.success == 200) {
+            navigate('/', { replace: true })
             clearLocalStorage()
             await window.open(data.url, '_self');
           }
@@ -245,14 +254,14 @@ function Header({ locationPath }) {
               </div>
             </div>
             <div className="my-3">
-              <Checkbox className="switch-name-check" onChange={onChange}>Don’t show this again</Checkbox>
+              <Checkbox className="switch-name-check" checked={switchCheckbox} onChange={onChange}>Don’t show this again</Checkbox>
             </div>
             <div>
               <div className="d-flex align-items-center mt-2 justify-content-end">
                 <div onClick={showHideSwitchModal} className="me-4 text-decoration-underline btn p-0 text-main">
                   No, Stay
                 </div>
-                <Button onClick={onSwitchLayoutClick} className="lh-lg btn btn-primary3 btn-41 px-4" loading={loading}>
+                <Button onClick={() => switchCheckbox ? onSwitchLayoutClick(1) : onSwitchLayoutClick(0)} className="lh-lg btn btn-primary3 btn-41 px-4" loading={loading}>
                   <span>Switch to Old</span>
                 </Button>
               </div>
@@ -261,7 +270,7 @@ function Header({ locationPath }) {
         }
       />
     );
-  }, [isSwitchModalOpen, loading]);
+  }, [isSwitchModalOpen, loading, switchCheckbox]);
 
   // navigate to TatvaPedia
   const NAVIGATE_TO_TATVAPEDIA = useCallback(() => {
@@ -283,6 +292,15 @@ function Header({ locationPath }) {
       </>
     );
   }, [popOver]);
+
+  const checkModalOpenOrClose = () => {
+    if (profile && profile.switchtoOld != 0) {
+      onSwitchLayoutClick(1)
+    } else {
+      showHideSwitchModal()
+    }
+  }
+
 
   return (
     <Navbar className="justify-content-between portal-header">
@@ -336,7 +354,7 @@ function Header({ locationPath }) {
             </Dropdown.Menu>
           </Dropdown> */}
           {profile && profile.SwitchGrowthBook != 0 && (
-            <div onClick={showHideSwitchModal} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
+            <div onClick={checkModalOpenOrClose} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
               <i className='icon-switch me-2'></i>
               <span className="text-decoration-underline">Switch To Old View</span>
             </div>

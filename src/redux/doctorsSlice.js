@@ -62,9 +62,9 @@ export const customizedPad = createAsyncThunk(
 
 export const swtichLayout = createAsyncThunk(
   "records/swtichLayout",
-  async () => {
+  async (data) => {
     try {
-      const result = await ApiAppointments.swtichLayout();
+      const result = await ApiAppointments.swtichLayout(data);
       if (result.status) {
         return result.data;
       } else {
