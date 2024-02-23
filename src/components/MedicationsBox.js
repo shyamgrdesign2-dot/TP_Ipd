@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyCombination } from "../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import {
@@ -128,13 +128,12 @@ function MedicationsBox() {
         return {
           ...e,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-          tmm_freq_type_name: frequencyObj !== undefined ?
-            frequencyObj.tmf_block != 0 ? frequencyObj.tmf_title
-              : `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
-                 ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
-                 ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
-                 ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-            : "",
+          tmm_freq_type_name: e.tmf_block == 0 ?
+              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
+               ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
+               ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
+               ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+              : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
@@ -219,13 +218,17 @@ function MedicationsBox() {
     async (query, i) => {
       const data = [];
 
-      const combinationList = await frequencyCombination(query)
-      combinationList.map((option) => {
-        return data.push({
-          value: JSON.stringify({ tmf_id: 0, tmf_title: option, tmf_block: 0, tmf_block_val: "", unique_id: uuidv4() }),
-          label: <>{option}</>,
+      const updateQuery = frequencyFormat(query);
+
+      if (updateQuery) {
+        const combinationList = await frequencyCombination(query)
+        combinationList.map((option) => {
+          return data.push({
+            value: JSON.stringify({ tmf_id: 0, tmf_title: option, tmf_block: 0, tmf_block_val: "", unique_id: uuidv4() }),
+            label: <>{option}</>,
+          });
         });
-      });
+      }
 
       filteredTitles.map((option) => {
         return data.push({
@@ -371,13 +374,12 @@ function MedicationsBox() {
         return {
           ...e,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-          tmm_freq_type_name: frequencyObj !== undefined ?
-            frequencyObj.tmf_block != 0 ? frequencyObj.tmf_title
-              : `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
-                 ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
-                 ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
-                 ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-            : "",
+          tmm_freq_type_name: e.tmf_block == 0 ?
+              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
+               ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
+               ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
+               ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+              : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
@@ -408,13 +410,12 @@ function MedicationsBox() {
         return {
           ...e,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-          tmm_freq_type_name: frequencyObj !== undefined ?
-            frequencyObj.tmf_block != 0 ? frequencyObj.tmf_title
-              : `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
-                 ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
-                 ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
-                 ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-            : "",
+          tmm_freq_type_name: e.tmf_block == 0 ?
+              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}
+               ${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}
+               ${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}
+               ${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+              : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
@@ -637,6 +638,7 @@ function MedicationsBox() {
                     defaultValue={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
                     value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
                     onSearch={(query) => onSearchFrequencyChild(query, index)}
+                    onFocus={() => onSearchFrequencyChild(item.tmm_freq_type_name, index)}
                     onSelect={(data) => onSelectFrequencyChild(data, index)}
                     options={frequencyOptions}
                     onClear={() => onSelectFrequencyChild("", index)}
