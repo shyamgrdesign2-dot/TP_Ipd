@@ -33,7 +33,7 @@ export const isNumeric = (str) => {
 }
 
 export const isAlphabet = (str) => {
-  return /^[a-zA-z]*$/.test(str);
+  return /^[a-zA-z\s]*$/.test(str);
 }
 
 export const makeDefaultLogo = (text) => {

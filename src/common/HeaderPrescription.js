@@ -190,8 +190,8 @@ function HeaderPrescription() {
                                     : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
                                 tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
                                 tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-                                tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
-                                tmm_days_duration_type: `${e.tmm_days} ${e.tmm_duration_type}`,
+                                tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+                                tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
                                 unique_id: uuidv4(),
                             };
                         });

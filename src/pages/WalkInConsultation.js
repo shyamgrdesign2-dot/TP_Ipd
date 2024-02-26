@@ -229,7 +229,7 @@ function WalkInConsultation() {
     }, [clickedPatient]);
 
     function goToAddPatient() {
-        if (searchQuery.length > 0 && isNumeric(searchQuery)) {
+        if (searchQuery.length === 10 && isNumeric(searchQuery)) {
             navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery } } });
         } else if (searchQuery.length > 0 && isAlphabet(searchQuery)) {
             navigate("/add_patient", { state: { patient_data: { pm_fullname: searchQuery, pm_contact_no: '' } } });
