@@ -135,8 +135,8 @@ function MedicationsBox() {
             : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-          tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
-          tmm_days_duration_type: `${e.tmm_days} ${e.tmm_duration_type}`,
+          tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
           unique_id: uuidv4(),
         };
       });
@@ -428,8 +428,8 @@ function MedicationsBox() {
             : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-          tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
-          tmm_days_duration_type: `${e.tmm_days} ${e.tmm_duration_type}`,
+          tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
           unique_id: uuidv4(),
         };
       });
@@ -461,8 +461,8 @@ function MedicationsBox() {
             : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-          tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
-          tmm_days_duration_type: `${e.tmm_days} ${e.tmm_duration_type}`,
+          tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
           unique_id: uuidv4(),
         };
       });
@@ -674,6 +674,8 @@ function MedicationsBox() {
                     className="autocomplete-custom w-100 h-100 inputborder"
                     defaultActiveFirstOption={true}
                     onSelect={(data, e) => onSelectUnitPerDoseChild(data, e, index)}
+                    onClear={() => onSearchUnitPerDoseChid("", index)}
+                    allowClear
                   />
                 </Col>
                 <Col lg={4} md={4} sm={4} xs={4} className="border-end">
@@ -721,6 +723,8 @@ function MedicationsBox() {
                     className="autocomplete-custom h-100 w-100 inputborder"
                     defaultActiveFirstOption={true}
                     onSelect={(data, e) => onSelectSinceChild(data, e, index)}
+                    onClear={() => onSearchSinceChid("", index)}
+                    allowClear
                   />
                 </Col>
                 <Col lg={4} md={4} sm={4} xs={4} className="border-end">

@@ -26,7 +26,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
-import { onlyNumberFormat, isNumeric } from "../../utils/utils";
+import { onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber } from "../../utils/utils";
 
 import CashManagerContext from "../../context/CashManagerContext";
 import { MESSAGE_KEY } from "../../utils/constants";
@@ -287,7 +287,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onChangeInputMorningChild = useCallback(
     (e) => {
-      const updateQuery = onlyNumberFormat(e.target.value);
+      const updateQuery = onlyDecimalFormat(e.target.value);
       medicationData[selectedIndex].tcm_tmm_freq_morning = updateQuery;
       setMedicationData((prev) => [...prev]);
     },
@@ -313,7 +313,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onChangeInputAfternoonChild = useCallback(
     (e) => {
-      const updateQuery = onlyNumberFormat(e.target.value);
+      const updateQuery = onlyDecimalFormat(e.target.value);
       medicationData[selectedIndex].tcm_tmm_freq_afternoon = updateQuery;
       setMedicationData((prev) => [...prev]);
     },
@@ -339,7 +339,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onChangeInputEveningChild = useCallback(
     (e) => {
-      const updateQuery = onlyNumberFormat(e.target.value);
+      const updateQuery = onlyDecimalFormat(e.target.value);
       medicationData[selectedIndex].tcm_tmm_freq_evening = updateQuery;
       setMedicationData((prev) => [...prev]);
     },
@@ -365,7 +365,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onChangeInputNightChild = useCallback(
     (e) => {
-      const updateQuery = onlyNumberFormat(e.target.value);
+      const updateQuery = onlyDecimalFormat(e.target.value);
       medicationData[selectedIndex].tcm_tmm_freq_night = updateQuery;
       setMedicationData((prev) => [...prev]);
     },
@@ -435,7 +435,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
       const options = SINCE_OPTIONS.map((option) => {
         return {
           key: Math.random(),
-          value: option.value,
+          value: `${sinceValue} ${option.value}`,
           label: <>{`${sinceValue}${option.label}`}</>,
         };
       });
@@ -444,7 +444,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
       const options = SINCE_OPTIONS.map((option) => {
         return {
           key: Math.random(),
-          value: option.value,
+          value: `${inputSince} ${option.value}`,
           label: <>{`${inputSince}${option.label}`}</>,
         };
       });
@@ -453,7 +453,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
       const options = SINCE_OPTIONS.map((option) => {
         return {
           key: Math.random(),
-          value: option.value,
+          value: `${option.value}`,
           label: <>{`${option.label}`}</>,
         };
       });
@@ -465,14 +465,14 @@ function TabMedicationSearch({ passIndex, onClose }) {
     (e) => {
       const updateQuery = onlyNumberFormat(e.target.value);
       setInputSince(updateQuery);
-      medicationData[selectedIndex].tmm_days = parseInt(updateQuery);
+      medicationData[selectedIndex].tmm_days = 0;
       medicationData[selectedIndex].tmm_duration_type = "";
       setMedicationData((prev) => [...prev]);
       if (updateQuery.length > 0) {
         const options = SINCE_OPTIONS.map((option) => {
           return {
             key: Math.random(),
-            value: option.value,
+            value: `${updateQuery} ${option.value}`,
             label: <>{`${updateQuery}${option.label}`}</>,
           };
         });
@@ -515,7 +515,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const onChangeSegmentedSinceChild = useCallback(
     (key) => {
       setSinceValue(key);
-      medicationData[selectedIndex].tmm_days = key !== -1 ? key : 0;
+      medicationData[selectedIndex].tmm_days = 0;
       medicationData[selectedIndex].tmm_duration_type = "";
       setMedicationData((prev) => [...prev]);
     },
@@ -524,8 +524,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onChangeSinceChild = useCallback(
     (key) => {
-      medicationData[selectedIndex].tmm_duration_type = key;
-      setMedicationData((prev) => [...prev]);
+      if (hasNumber(key)) {
+        medicationData[selectedIndex].tmm_days = key.split(" ")[0];
+        medicationData[selectedIndex].tmm_duration_type = key.split(" ")[1];
+        setMedicationData((prev) => [...prev]);
+      }
     },
     [selectedIndex, medicationData]
   );
@@ -1199,8 +1202,9 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 <Segmented
                   value={
                     medicationData[selectedIndex].tmm_duration_type !==
+                    undefined && medicationData[selectedIndex].tmm_days !==
                     undefined &&
-                    medicationData[selectedIndex].tmm_duration_type
+                    `${medicationData[selectedIndex].tmm_days} ${medicationData[selectedIndex].tmm_duration_type}`
                   }
                   className="search-segment"
                   options={sinceOptions}

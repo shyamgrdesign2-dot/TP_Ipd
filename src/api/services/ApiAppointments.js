@@ -85,5 +85,9 @@ ApiAppointments.swtichLayout = function (data) {
   return api.post(`/api/v1/appointment/swtichLayout`, data, baseUrl);
 };
 
+ApiAppointments.navigatetoTatvaPedia = function () {
+  return api.post(`/api/v1/appointment/navigatetoTatvaPedia`, {}, baseUrl);
+};
+
 
 export default ApiAppointments;

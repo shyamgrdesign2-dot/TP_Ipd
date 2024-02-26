@@ -8,7 +8,7 @@ import { isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 
 import config from "../config";
-import { getProfile, changeHospital, customizedPad, swtichLayout, showMedicineTime, showMedicineFrequency } from "../redux/doctorsSlice";
+import { getProfile, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
@@ -23,15 +23,12 @@ const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 function Header({ locationPath }) {
 
   //PopOver
-  const [popOver, setPopOver] = useState(true);
-  //PopOver function
-  const showHideNavigateToTatvaPedia = useCallback(() => {
-    setPopOver(!popOver);
-  }, [popOver]);
+  const [popOver, setPopOver] = useState(false);
 
   const [isSwitchModalOpen, setIsSwitchModalOpen] = useState(false);
   const [switchCheckbox, setSwitchCheckbox] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
+  const [logoCheckbox, setLogoCheckbox] = useState(false);
 
   const navigate = useNavigate();
 
@@ -53,7 +50,8 @@ function Header({ locationPath }) {
 
   useEffect(() => {
     if (profile) {
-      setSwitchCheckbox(profile.switchtoOld != 0 ? true : false)
+      // setSwitchCheckbox(profile.switchtoOld != 0 ? true : false)
+      setPopOver(profile.NavigatetoTatvaPedia == 0 ? true : false);
       saveProfile(profile);
       const clinics = profile.hospital_data?.map((e) => {
         return {
@@ -165,13 +163,12 @@ function Header({ locationPath }) {
   }, [isLogoModalOpen]);
 
 
-
   //Switch Modal
   const showHideSwitchModal = useCallback(() => {
     setIsSwitchModalOpen(!isSwitchModalOpen);
   }, [isSwitchModalOpen]);
 
-  const onChange = useCallback((e) => {
+  const onSwitchChange = useCallback((e) => {
     setSwitchCheckbox(e.target.checked)
   }, [switchCheckbox]);
 
@@ -254,7 +251,7 @@ function Header({ locationPath }) {
               </div>
             </div>
             <div className="my-3">
-              <Checkbox className="switch-name-check" checked={switchCheckbox} onChange={onChange}>Don’t show this again</Checkbox>
+              <Checkbox className="switch-name-check" checked={switchCheckbox} onChange={onSwitchChange}>Don’t show this again</Checkbox>
             </div>
             <div>
               <div className="d-flex align-items-center mt-2 justify-content-end">
@@ -272,7 +269,32 @@ function Header({ locationPath }) {
     );
   }, [isSwitchModalOpen, loading, switchCheckbox]);
 
+
   // navigate to TatvaPedia
+  //PopOver function
+  const showHideNavigateToTatvaPedia = useCallback(() => {
+    setPopOver(!popOver);
+  }, [popOver]);
+
+  const onLogoChange = useCallback((e) => {
+    setLogoCheckbox(e.target.checked)
+  }, [logoCheckbox]);
+
+  async function onLogoClick() {
+    const action = await dispatch(navigatetoTatvaPedia())
+    if (action.meta.requestStatus === "fulfilled") {
+      await dispatch(changeLogoStatus())
+      showHideNavigateToTatvaPedia()
+    } else {
+      message.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: action.error.message,
+        duration: 2
+      });
+    }
+  }
+
   const NAVIGATE_TO_TATVAPEDIA = useCallback(() => {
     return (
       <>
@@ -283,15 +305,15 @@ function Header({ locationPath }) {
           </div>
           <div className="mt-4 fontroboto">Where you can uplift your medical practice with premium evidence-based and practice related content.</div>
           <div className="my-3 align-items-center d-flex justify-content-between">
-            <Checkbox className="switch-name-check fontroboto fw-medium" onChange={onChange}>Don’t show this again</Checkbox>
-            <Button onClick={showHideNavigateToTatvaPedia} className="lh-lg btn btn-primary3 btn-41 px-4" loading={loading}>
+            <Checkbox className="switch-name-check fontroboto fw-medium" checked={logoCheckbox} onChange={onLogoChange}>Don’t show this again</Checkbox>
+            <Button onClick={() => logoCheckbox ? onLogoClick() : showHideNavigateToTatvaPedia()} className="lh-lg btn btn-primary3 btn-41 px-4" loading={loading}>
               <span>Close</span>
             </Button>
           </div>
         </div>
       </>
     );
-  }, [popOver]);
+  }, [popOver, loading, logoCheckbox]);
 
   const checkModalOpenOrClose = () => {
     if (profile && profile.switchtoOld != 0) {
@@ -300,7 +322,6 @@ function Header({ locationPath }) {
       showHideSwitchModal()
     }
   }
-
 
   return (
     <Navbar className="justify-content-between portal-header">
