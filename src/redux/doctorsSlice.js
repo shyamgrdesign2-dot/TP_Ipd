@@ -77,6 +77,23 @@ export const swtichLayout = createAsyncThunk(
   }
 );
 
+export const navigatetoTatvaPedia = createAsyncThunk(
+  "records/navigatetoTatvaPedia",
+  async () => {
+    try {
+      const result = await ApiAppointments.navigatetoTatvaPedia();
+      if (result.status) {
+        return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
 export const showMedicineFrequency = createAsyncThunk(
   "medication/showMedicineFrequency",
   async () => {
@@ -106,6 +123,11 @@ export const showMedicineTime = createAsyncThunk(
 const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
+  reducers: {
+    changeLogoStatus: (state) => {
+      state.profile = { ...state.profile, NavigatetoTatvaPedia: 1 }
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getProfile.pending, (state) => {
@@ -148,6 +170,15 @@ const doctorsSlice = createSlice({
       .addCase(swtichLayout.rejected, (state) => {
         state.loading = false;
       })
+      .addCase(navigatetoTatvaPedia.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(navigatetoTatvaPedia.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(navigatetoTatvaPedia.rejected, (state) => {
+        state.loading = false;
+      })
       .addCase(showMedicineFrequency.fulfilled, (state, action) => {
         state.frequencyList = action.payload;
       })
@@ -163,4 +194,5 @@ const doctorsSlice = createSlice({
   },
 });
 
+export const { changeLogoStatus } = doctorsSlice.actions
 export default doctorsSlice.reducer;
