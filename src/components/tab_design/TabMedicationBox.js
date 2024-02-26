@@ -34,8 +34,10 @@ import CashManagerContext from "../../context/CashManagerContext";
 import { MESSAGE_KEY } from "../../utils/constants";
 import {
   onlyNumberFormat,
+  onlyDecimalFormat,
   removeBeforeWhiteSpace,
   isNumeric,
+  hasNumber
 } from "../../utils/utils";
 import Medicationicon from "../../assets/images/Medication.svg";
 import {
@@ -676,7 +678,7 @@ function TabMedicationBox() {
 
   const onChangeInputMorningChild = useCallback(
     (e) => {
-      const updateQuery = onlyNumberFormat(e.target.value);
+      const updateQuery = onlyDecimalFormat(e.target.value);
       setChildDrawerData({
         ...childDrawerData,
         tcm_tmm_freq_morning: updateQuery,
@@ -711,7 +713,7 @@ function TabMedicationBox() {
 
   const onChangeInputAfternoonChild = useCallback(
     (e) => {
-      const updateQuery = onlyNumberFormat(e.target.value);
+      const updateQuery = onlyDecimalFormat(e.target.value);
       setChildDrawerData({
         ...childDrawerData,
         tcm_tmm_freq_afternoon: updateQuery,
@@ -746,7 +748,7 @@ function TabMedicationBox() {
 
   const onChangeInputEveningChild = useCallback(
     (e) => {
-      const updateQuery = onlyNumberFormat(e.target.value);
+      const updateQuery = onlyDecimalFormat(e.target.value);
       setChildDrawerData({
         ...childDrawerData,
         tcm_tmm_freq_evening: updateQuery,
@@ -781,7 +783,7 @@ function TabMedicationBox() {
 
   const onChangeInputNightChild = useCallback(
     (e) => {
-      const updateQuery = onlyNumberFormat(e.target.value);
+      const updateQuery = onlyDecimalFormat(e.target.value);
       setChildDrawerData({
         ...childDrawerData,
         tcm_tmm_freq_night: updateQuery,
@@ -862,7 +864,7 @@ function TabMedicationBox() {
       const options = SINCE_OPTIONS.map((option) => {
         return {
           key: Math.random(),
-          value: option.value,
+          value: `${sinceValue} ${option.value}`,
           label: <>{`${sinceValue}${option.label}`}</>,
         };
       });
@@ -871,7 +873,7 @@ function TabMedicationBox() {
       const options = SINCE_OPTIONS.map((option) => {
         return {
           key: Math.random(),
-          value: option.value,
+          value: `${inputSince} ${option.value}`,
           label: <>{`${inputSince}${option.label}`}</>,
         };
       });
@@ -880,7 +882,7 @@ function TabMedicationBox() {
       const options = SINCE_OPTIONS.map((option) => {
         return {
           key: Math.random(),
-          value: option.value,
+          value: `${option.value}`,
           label: <>{`${option.label}`}</>,
         };
       });
@@ -894,14 +896,14 @@ function TabMedicationBox() {
       setInputSince(updateQuery);
       setChildDrawerData({
         ...childDrawerData,
-        tmm_days: parseInt(updateQuery),
+        tmm_days: 0,
         tmm_duration_type: "",
       });
       if (updateQuery.length > 0) {
         const options = SINCE_OPTIONS.map((option) => {
           return {
             key: Math.random(),
-            value: option.value,
+            value: `${updateQuery} ${option.value}`,
             label: <>{`${updateQuery}${option.label}`}</>,
           };
         });
@@ -946,7 +948,7 @@ function TabMedicationBox() {
       setSinceValue(key);
       setChildDrawerData({
         ...childDrawerData,
-        tmm_days: key !== -1 ? key : 0,
+        tmm_days: 0,
         tmm_duration_type: "",
       });
     },
@@ -955,7 +957,9 @@ function TabMedicationBox() {
 
   const onChangeSinceChild = useCallback(
     (key) => {
-      setChildDrawerData({ ...childDrawerData, tmm_duration_type: key });
+      if (hasNumber(key)) {
+        setChildDrawerData({ ...childDrawerData, tmm_days: key.split(" ")[0], tmm_duration_type: key.split(" ")[1] });
+      }
     },
     [childDrawerData]
   );
@@ -1628,8 +1632,8 @@ function TabMedicationBox() {
             <div className="mt-3 mb-3">
               <Segmented
                 value={
-                  childDrawerData.tmm_duration_type !== undefined &&
-                  childDrawerData.tmm_duration_type
+                  childDrawerData.tmm_duration_type !== undefined && childDrawerData.tmm_days !== undefined &&
+                  `${childDrawerData.tmm_days} ${childDrawerData.tmm_duration_type}`
                 }
                 className="search-segment"
                 options={sinceOptions}
