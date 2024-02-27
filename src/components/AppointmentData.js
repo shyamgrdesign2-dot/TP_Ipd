@@ -353,7 +353,7 @@ function AppointmentData() {
             ellipsis: true,
             render: (text, record) => (
                 <div>
-                    <span className="text-primary">{record.pm_fullname}</span>
+                    <span className="text-primary"><Link to="/patient_details" state={{ patient_data: record }}>{record.pm_fullname}</Link></span>
                     <br />
                     <small>
                         {record.pm_gender}, {record.ageYears}y
