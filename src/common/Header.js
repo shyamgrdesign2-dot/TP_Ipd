@@ -51,7 +51,7 @@ function Header({ locationPath }) {
   useEffect(() => {
     if (profile) {
       // setSwitchCheckbox(profile.switchtoOld != 0 ? true : false)
-      setPopOver(profile.NavigatetoTatvaPedia == 0 ? true : false);
+      !isChrome && !isSafari && setPopOver(profile.NavigatetoTatvaPedia == 0 ? true : false);
       saveProfile(profile);
       const clinics = profile.hospital_data?.map((e) => {
         return {
@@ -327,9 +327,9 @@ function Header({ locationPath }) {
     <Navbar className="justify-content-between portal-header">
       <Container fluid>
         <div>
-          <img onClick={showHideLogoModal}
+          <img onClick={() => !isChrome && !isSafari && showHideLogoModal()}
             src={require("../assets/images/logo.png")}
-            className="d-inline-block align-top cursor-pointer" style={{ height: '30px' }}
+            className={`d-inline-block align-top ${!isChrome && !isSafari && 'cursor-pointer'}`} style={{ height: '30px' }}
             alt="Logo"
           />
           <Popover open={popOver} onOpenChange={showHideNavigateToTatvaPedia} content={NAVIGATE_TO_TATVAPEDIA}
