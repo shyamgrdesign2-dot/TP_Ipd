@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
+// import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { Col, Row, Select, Button, message, Spin } from "antd";
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
@@ -21,6 +21,12 @@ import { useSelector, useDispatch } from "react-redux";
 import {
     viewCaseManager,
 } from "../redux/caseManagerSlice";
+
+// import { pdfjs, Document, Page } from "react-pdf";
+// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+//     "pdfjs-dist/build/pdf.worker.min.js",
+//     import.meta.url
+// ).toString();
 
 const LANGUAGE_LIST = [
     {
@@ -81,8 +87,8 @@ function PrescriptionPrintView() {
 
     const [selectedLang, setSelectedLang] = useState(1);
 
-    const [printUrl, setPrintUrl] = useState(state != undefined ? `${state.print_url}` : null);
-    const [printRxUrl, setPrintRxUrl] = useState(state != undefined ? `${state.print_rx_url}` : null);
+    const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}` : null);
+    const [printRxUrl, setPrintRxUrl] = useState(state !== undefined ? `${state.print_rx_url}` : null);
 
     const [divWidth, setDivWidth] = useState(0);
     useEffect(() => {
@@ -91,14 +97,14 @@ function PrescriptionPrintView() {
 
     useEffect(() => {
         message.open({
-            MESSAGE_KEY,
+            key: MESSAGE_KEY,
             type: '',
             className: 'message-appointment',
             content: (
                 <div className='d-flex align-items-center'>
                     <img src={visitEnd} className='me-3' />
                     <div>
-                    <div className='title-common fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
+                        <div className='title-common text-start fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
                         <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
                     </div>
                     <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
@@ -160,15 +166,15 @@ function PrescriptionPrintView() {
 
     const onEditPrescriptionClick = async () => {
         var sendData = {
-            patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
+            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
             tcm_id: state.tcm_id
         }
         const action = await dispatch(viewCaseManager(sendData));
-        if (action.meta.requestStatus == "fulfilled") {
+        if (action.meta.requestStatus === "fulfilled") {
             navigate("/prescription", { replace: true, state: { patient_data: patient_data, caseManagerData: action.payload } })
         } else {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: action.error.message,
                 duration: 2
@@ -176,6 +182,13 @@ function PrescriptionPrintView() {
         }
 
     };
+
+    const [numPages, setNumPages] = useState();
+    const [pageNumber, setPageNumber] = useState(1);
+
+    function onDocumentLoadSuccess({ numPages }) {
+        setNumPages(numPages);
+    }
 
     return (
         <>
@@ -240,7 +253,7 @@ function PrescriptionPrintView() {
                                 <img src={messageSent} alt="whatsapp Message" className='align-self-baseline me-3' />
                                 <div className="fontroboto title-common">
                                     <div className="fw-normal fontroboto mb-2">WhatsApp Sent to </div>
-                                    {patient_data != undefined ? `+91 ${patient_data.pm_contact_no}` : '-'}
+                                    {patient_data !== undefined ? `+91 ${patient_data.pm_contact_no}` : '-'}
                                 </div>
                             </div>
                         </div>
@@ -260,6 +273,27 @@ function PrescriptionPrintView() {
                             </div>
                             <div className="border rounded-20px bg-white mt-20 overflow-hidden">
                                 <div ref={divRef} className="printheight">
+                                    {/* <div ref={printRef} className="position-relative h-100">
+                                        <Document
+                                            loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
+                                            error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
+                                            noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
+                                            file={printUrl}
+                                            onLoadSuccess={onDocumentLoadSuccess}>
+                                            {Array.apply(null, Array(numPages))
+                                                .map((x, i) => i + 1)
+                                                .map((page) => {
+                                                    return (
+                                                        <Page
+                                                            width={divWidth}
+                                                            pageNumber={page}
+                                                            renderTextLayer={false}
+                                                            renderAnnotationLayer={false}
+                                                        />
+                                                    );
+                                                })}
+                                        </Document>
+                                    </div> */}
                                     <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
                                     <PDFReader key={Math.random()} ref={printRef} width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} />
                                     {/* <embed className="printBox" ref={printRef} src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed> */}

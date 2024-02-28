@@ -121,7 +121,7 @@ function SymptomsBox() {
         label: <div>{e.symptom_name}</div>,
       });
     });
-    if (searchParentQuery.length == 0) {
+    if (searchParentQuery.length === 0) {
       data.unshift({
         key: -1,
         label: (
@@ -141,7 +141,7 @@ function SymptomsBox() {
           value: searchParentQuery,
           label: (
             <>
-              <div>{searchParentQuery}</div>
+              <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
             </>
           ),
         });
@@ -350,16 +350,16 @@ function SymptomsBox() {
   );
 
   const onAddTemplateClicked = async () => {
-    if (symptomsData.length == 0) {
+    if (symptomsData.length === 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 symptom added',
         duration: 2
       });
     } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'Please fillup symptom name',
         duration: 2
@@ -370,7 +370,7 @@ function SymptomsBox() {
         symptoms: symptomsData,
       };
       const action = await dispatch(addTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -389,16 +389,16 @@ function SymptomsBox() {
   );
 
   const onUpdateTemplateClicked = async () => {
-    if (symptomsData.length == 0) {
+    if (symptomsData.length === 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 symptom added',
         duration: 2
       });
     } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'Please fillup symptom name',
         duration: 2
@@ -411,7 +411,7 @@ function SymptomsBox() {
         symptoms: symptomsData,
       };
       const action = await dispatch(updateTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -614,6 +614,7 @@ function SymptomsBox() {
               placeholder="Select Template"
               onSearch={onSearchTemplate}
               onSelect={onSelectTemplate}
+              optionLabelProp="label"
               options={allTemplates.map((template) => {
                 return {
                   key: JSON.stringify(template),
@@ -625,6 +626,22 @@ function SymptomsBox() {
                   ),
                 };
               })}
+              optionRender={(option) => (
+                <div className="align-items-center d-flex text-truncate w-100">
+                  <div className="round-box"><i className="icon-template"></i></div>
+                  <div className="text-truncate w-100">
+                    <div className="title text-main2">{option.data.value}</div>
+                    <div className="text-truncate">
+                      {JSON.parse(option.data.key).symptoms.map((item, ii) => {
+                        return (
+                          <span key={ii}>{`${item.symptom_name}${JSON.parse(option.data.key).symptoms.length - 1 != ii ? ", " : ""
+                            }`}</span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
             />
             <Button
               className="btn btn-primary3 btn-41 ms-3"
@@ -643,7 +660,7 @@ function SymptomsBox() {
   return (
     <>
       {contextHolder}
-      <div className="prescription-box-sm">
+      <div>
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Symptomsicon} alt="Symptoms" />

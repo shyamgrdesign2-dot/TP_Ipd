@@ -172,16 +172,16 @@ function TabDiagnosisBox() {
     );
 
     const onAddTemplateClicked = async () => {
-        if (diagnosisData.length == 0) {
+        if (diagnosisData.length === 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 diagnosis added',
                 duration: 2
             });
         } else if (diagnosisData.filter(e => e.tds_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup diagnosis name',
                 duration: 2
@@ -192,7 +192,7 @@ function TabDiagnosisBox() {
                 diagnosis: diagnosisData,
             };
             const action = await dispatch(addTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -211,16 +211,16 @@ function TabDiagnosisBox() {
     );
 
     const onUpdateTemplateClicked = async () => {
-        if (diagnosisData.length == 0) {
+        if (diagnosisData.length === 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 diagnosis added',
                 duration: 2
             });
         } else if (diagnosisData.filter(e => e.tds_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup diagnosis name',
                 duration: 2
@@ -233,7 +233,7 @@ function TabDiagnosisBox() {
                 diagnosis: diagnosisData,
             };
             const action = await dispatch(updateTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -350,6 +350,7 @@ function TabDiagnosisBox() {
                             placeholder="Select Template"
                             onSearch={onSearchTemplate}
                             onSelect={onSelectTemplate}
+                            optionLabelProp="label"
                             options={allTemplates.map((template) => {
                                 return {
                                     key: JSON.stringify(template),
@@ -361,6 +362,22 @@ function TabDiagnosisBox() {
                                     ),
                                 };
                             })}
+                            optionRender={(option) => (
+                                <div className="align-items-center d-flex text-truncate w-100">
+                                    <div className="round-box"><i className="icon-template"></i></div>
+                                    <div className="text-truncate w-100">
+                                        <div className="title text-main2">{option.data.value}</div>
+                                        <div className="text-truncate">
+                                            {JSON.parse(option.data.key).diagnosis.map((item, ii) => {
+                                                return (
+                                                    <span key={ii}>{`${item.tds_name}${JSON.parse(option.data.key).diagnosis.length - 1 != ii ? ", " : ""
+                                                        }`}</span>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         />
                         <Button
                             className="btn btn-primary3 btn-41 ms-3"
@@ -378,7 +395,7 @@ function TabDiagnosisBox() {
 
 
     useEffect(() => {
-        if (sinceValue != -1) {
+        if (sinceValue !== -1) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
@@ -524,7 +541,7 @@ function TabDiagnosisBox() {
                         </div>
                         <div className="mt-3">
                             <Segmented
-                                value={childDrawerData.since != undefined && childDrawerData.since}
+                                value={childDrawerData.since !== undefined && childDrawerData.since}
                                 className="search-segment"
                                 options={sinceOptions}
                                 onChange={onChangeSinceChild}
@@ -535,7 +552,7 @@ function TabDiagnosisBox() {
                                 Status
                             </label>
                             {/* <Segmented
-                                value={childDrawerData.status != undefined && childDrawerData.status}
+                                value={childDrawerData.status !== undefined && childDrawerData.status}
                                 className="search-segment"
                                 options={STATUS_LIST}
                                 onChange={onChangeStatusChild}
@@ -545,7 +562,7 @@ function TabDiagnosisBox() {
                                     return (
                                         <button key={i}
                                             type="button"
-                                            className={`btn w-100 ${childDrawerData.status != undefined && childDrawerData.status == item.value && 'btn-segement'}`}
+                                            className={`btn w-100 ${childDrawerData.status !== undefined && childDrawerData.status == item.value && 'btn-segement'}`}
                                             onClick={() => onChangeStatusChild(item.value)}>
                                             {item.label}
                                         </button>
@@ -557,7 +574,7 @@ function TabDiagnosisBox() {
                             <label className="title-common">
                                 Add Details
                             </label>
-                            <Input.TextArea value={childDrawerData.note != undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                            <Input.TextArea value={childDrawerData.note !== undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                         </div>
                     </div>
                 </>
@@ -568,7 +585,7 @@ function TabDiagnosisBox() {
     return (
         <>
             {contextHolder}
-            <div className="prescription-box-sm p-20px">
+            <div>
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">
                         <img className='me-2' src={Diagnosisicon} alt="Diagnosis" />

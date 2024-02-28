@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { isMobile } from 'react-device-detect';
 import { v4 as uuidv4 } from 'uuid';
 
+import CustomizeSetting from './CustomizeSetting';
+
 import CashManagerContext from "../context/CashManagerContext";
 import ProfilePopover from './ProfilePopover';
 import CommonModal from './CommonModal';
@@ -28,8 +30,9 @@ import {
 
 function HeaderPrescription() {
 
+    const { frequencyList, timingList } = useSelector((state) => state.doctors);
+
     const {
-        selectedOneClickList,
         templates,
         loading,
     } = useSelector((state) => state.caseManager);
@@ -58,6 +61,8 @@ function HeaderPrescription() {
 
     const [templateDrawer, setTemplateDrawer] = useState(false);
     const [saveDrawer, setSaveDrawer] = useState(false);
+
+    const [customizeDrawer, setCustomizeDrawer] = useState(false);
 
     useEffect(() => {
         dispatch(oneClickTemplatesList());
@@ -136,9 +141,9 @@ function HeaderPrescription() {
 
     const onTemplateSelected = async (tmoc_id) => {
         const action = await dispatch(oneClickSingleTemplateDetails(tmoc_id));
-        if (action.meta.requestStatus == "fulfilled") {
+        if (action.meta.requestStatus === "fulfilled") {
             const data = action.payload
-            if (data != undefined) {
+            if (data !== undefined) {
                 if (data.symptoms.length > 0) {
                     const updatedData = data.symptoms.map(e => {
                         return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" }
@@ -170,28 +175,68 @@ function HeaderPrescription() {
                     setInvestigationData([...investigationData, ...updatedData]);
                 }
                 if (data.medicine.length > 0) {
-                    const updatedData = data.medicine.map((e) => {
-                        const medicineUnit = e?.medicineUnit.map((e1) => {
+                    if (!isMobile) {
+                        const updatedData = data.medicine.map((e) => {
+
+                            const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+                            const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
+                            const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
                             return {
-                                key: JSON.stringify({ ...e1 }),
-                                value: e1.tmu_id,
-                                label: <>{e1.tmu_title}</>,
+                                ...e,
+                                tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+                                tmm_freq_type_name: e.tmf_block == 0 ?
+                                    `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+                                    : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+                                tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+                                tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+                                tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+                                tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+                                unique_id: uuidv4(),
                             };
                         });
+                        setMedicationData([...medicationData, ...updatedData])
+                    } else {
+                        const updatedData = data.medicine.map((e) => {
+                            const medicineUnit = e?.medicineUnit.map((e1) => {
+                                return {
+                                    key: JSON.stringify({ ...e1 }),
+                                    value: e1.tmu_id,
+                                    label: <>{e1.tmu_title}</>,
+                                };
+                            });
 
-                        return {
-                            ...e,
-                            medicineUnit: medicineUnit,
-                            unique_id: uuidv4(),
-                        };
-                    });
-                    setMedicationData([...medicationData, ...updatedData])
+                            const unitObj = medicineUnit
+                                ? medicineUnit.find((x) => x.value == e.tmm_unit)
+                                : null;
+                            const frequencyObj = frequencyList.find(
+                                (x) => x.tmf_id == e.tmm_freq_type
+                            );
+                            const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+                            return {
+                                ...e,
+                                tmm_unit_name:
+                                    unitObj && unitObj !== undefined
+                                        ? JSON.parse(unitObj.key).tmu_title
+                                        : "",
+                                tmm_freq_type_name:
+                                    frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+                                tmf_block_val:
+                                    frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+                                tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+                                medicineUnit: medicineUnit,
+                                unique_id: uuidv4(),
+                            };
+                        });
+                        setMedicationData([...medicationData, ...updatedData])
+                    }
                 }
             }
             !isMobile ? showHideTemplatesListPopover() : handleDrawerTemplate()
         } else {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: action.error.message,
                 duration: 2
@@ -225,19 +270,24 @@ function HeaderPrescription() {
     );
 
     const onAddTemplateClicked = async () => {
-        const updatedMedication = medicationData.map((e) => {
-            const medicineUnit = e?.medicineUnit.map((e1) => {
+        let updatedMedication = []
+        if (!isMobile) {
+            updatedMedication = [...medicationData]
+        } else {
+            updatedMedication = medicationData.map((e) => {
+                const medicineUnit = e?.medicineUnit.map((e1) => {
+                    return {
+                        tmu_id: JSON.parse(e1.key).tmu_id,
+                        tmu_title: JSON.parse(e1.key).tmu_title,
+                    };
+                });
+
                 return {
-                    tmu_id: JSON.parse(e1.key).tmu_id,
-                    tmu_title: JSON.parse(e1.key).tmu_title,
+                    ...e,
+                    medicineUnit: medicineUnit,
                 };
             });
-
-            return {
-                ...e,
-                medicineUnit: medicineUnit,
-            };
-        });
+        }
 
         var sendData = {
             tmoc_template_name: inputTemplateName,
@@ -252,7 +302,7 @@ function HeaderPrescription() {
         }
 
         const action = await dispatch(oneClickAddTemplate(sendData));
-        if (action.meta.requestStatus == "fulfilled") {
+        if (action.meta.requestStatus === "fulfilled") {
             // const updatedData = symptomsData.map(e => {
             //     const obj = { ...e };
             //     delete obj['change'];
@@ -312,19 +362,24 @@ function HeaderPrescription() {
     );
 
     const onUpdateTemplateClicked = async () => {
-        const updatedMedication = medicationData.map((e) => {
-            const medicineUnit = e?.medicineUnit.map((e1) => {
+        let updatedMedication = []
+        if (!isMobile) {
+            updatedMedication = [...medicationData]
+        } else {
+            updatedMedication = medicationData.map((e) => {
+                const medicineUnit = e?.medicineUnit.map((e1) => {
+                    return {
+                        tmu_id: JSON.parse(e1.key).tmu_id,
+                        tmu_title: JSON.parse(e1.key).tmu_title,
+                    };
+                });
+
                 return {
-                    tmu_id: JSON.parse(e1.key).tmu_id,
-                    tmu_title: JSON.parse(e1.key).tmu_title,
+                    ...e,
+                    medicineUnit: medicineUnit,
                 };
             });
-
-            return {
-                ...e,
-                medicineUnit: medicineUnit,
-            };
-        });
+        }
 
         var data = JSON.parse(inputTemplateName);
         var sendData = {
@@ -340,7 +395,7 @@ function HeaderPrescription() {
             }
         }
         const action = await dispatch(oneClickUpdateTemplate(sendData));
-        if (action.meta.requestStatus == "fulfilled") {
+        if (action.meta.requestStatus === "fulfilled") {
             // const updatedData = symptomsData.map(e => {
             //     const obj = { ...e };
             //     delete obj['change'];
@@ -500,6 +555,7 @@ function HeaderPrescription() {
                             placeholder="Select Template"
                             onSearch={onSearchTemplate}
                             onSelect={onSelectTemplate}
+                            optionLabelProp="label"
                             options={allTemplates.map((template) => {
                                 return {
                                     key: JSON.stringify(template),
@@ -511,6 +567,14 @@ function HeaderPrescription() {
                                     ),
                                 };
                             })}
+                            optionRender={(option) => (
+                                <div className="align-items-center d-flex text-truncate w-100">
+                                    <div className="round-box"><i className="icon-template"></i></div>
+                                    <div className="text-truncate w-100">
+                                        <div className="title text-main2">{option.data.value}</div>
+                                    </div>
+                                </div>
+                            )}
                         />
                         <Button
                             className="btn btn-primary3 btn-41 ms-3"
@@ -603,6 +667,7 @@ function HeaderPrescription() {
                             placeholder="Select Template"
                             onSearch={onSearchTemplate}
                             onSelect={onSelectTemplate}
+                            optionLabelProp="label"
                             options={allTemplates.map((template) => {
                                 return {
                                     key: JSON.stringify(template),
@@ -614,6 +679,14 @@ function HeaderPrescription() {
                                     ),
                                 };
                             })}
+                            optionRender={(option) => (
+                                <div className="align-items-center d-flex text-truncate w-100">
+                                    <div className="round-box"><i className="icon-template"></i></div>
+                                    <div className="text-truncate w-100">
+                                        <div className="title text-main2">{option.data.value}</div>
+                                    </div>
+                                </div>
+                            )}
                         />
                         <Button
                             className="btn btn-primary3 btn-41 ms-3"
@@ -629,45 +702,56 @@ function HeaderPrescription() {
         );
     }, [tabChange, saveDrawer, inputTemplateName, loading, allTemplates]);
 
+    // Handle Customize Drawer
+    const handleDrawerCustomize = useCallback(() => {
+        setCustomizeDrawer(!customizeDrawer);
+    }, [customizeDrawer]);
+
+    const CUSTOMIZE_CONTENT_TAB = useMemo(() => {
+        return (
+            <CustomizeSetting handleDrawerCustomize={handleDrawerCustomize} />
+        );
+    }, [customizeDrawer]);
+
     async function onEndVisitClick() {
         if (symptomsData.length > 0 && symptomsData.filter(e => e.symptom_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup symptom name',
                 duration: 2
             });
         } else if (examinationData.length > 0 && examinationData.filter(e => e.examination_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup examination name',
                 duration: 2
             });
         } else if (diagnosisData.length > 0 && diagnosisData.filter((e) => e.tds_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup diagnosis name',
                 duration: 2
             });
         } else if (medicationData.length > 0 && medicationData.filter((e) => e.tmm_medicine_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup medication name',
                 duration: 2
             });
         } else if (adviceData.length > 0 && adviceData.filter(e => e.advice_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup advice name',
                 duration: 2
             });
         } else if (investigationData.length > 0 && investigationData.filter(e => e.investigation_name == "").length > 0) {
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup investigation name',
                 duration: 2
@@ -676,8 +760,8 @@ function HeaderPrescription() {
             var sendData = {
                 action: tcmId == 0 ? 'add' : 'edit',
                 tcm_id: tcmId,
-                patient_unique_id: patient_data != undefined ? patient_data.patient_unique_id : 0,
-                pam_id: patient_data != undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
+                patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+                pam_id: patient_data !== undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
                 consultation_date: consultationDate,
                 symptoms: symptomsData,
                 examination: examinationData,
@@ -691,11 +775,11 @@ function HeaderPrescription() {
             }
 
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
             } else {
                 message.open({
-                    MESSAGE_KEY,
+                    key: MESSAGE_KEY,
                     type: 'warning',
                     content: action.error.message,
                     duration: 2
@@ -781,7 +865,7 @@ function HeaderPrescription() {
                                             overlayClassName="pop-450 pp-0"
                                             placement="bottom"
                                         >
-                                            <button className="btn d-flex align-items-center btn-text me-14">
+                                            <button className="btn d-flex align-items-center btn-text">
                                                 {" "}
                                                 <i className="icon-save me-2"></i> <span>Save</span>
                                             </button>
@@ -795,16 +879,23 @@ function HeaderPrescription() {
                                         <i className="icon-template me-2"></i> <span>Templates</span>
                                     </button>
                                     <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) ? "" : "Please enter some data to save a template"}>
-                                        <button className='btn d-flex align-items-center btn-text me-14' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
+                                        <button className='btn d-flex align-items-center btn-text' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
                                     </Tooltip>
                                 </div>
                             )}
+
+                            <button className='btn d-flex align-items-center btn-text me-14' onClick={handleDrawerCustomize}>
+                                <i className="icon-setting me-2"></i> <span>Customize</span>
+                            </button>
 
                             <Drawer title="One Click Rx Templates" placement="right" onClose={handleDrawerTemplate} open={templateDrawer} className="modalWidth-563" width="auto">
                                 {TEMPLATE_CONTENT_TAB}
                             </Drawer>
                             <Drawer title="Save Template" placement="right" onClose={handleDrawerSave} open={saveDrawer} className="modalWidth-563" width="auto">
                                 {SAVE_CONTENT_TAB}
+                            </Drawer>
+                            <Drawer placement="right" closeIcon={false} onClose={handleDrawerCustomize} open={customizeDrawer} className="modalWidth-900" width="auto">
+                                {CUSTOMIZE_CONTENT_TAB}
                             </Drawer>
                             {/* <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                 <i className='icon-setting me-2'></i> <span className='text-decoration-underline'>Customize</span>

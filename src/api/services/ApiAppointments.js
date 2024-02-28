@@ -77,5 +77,17 @@ ApiAppointments.viewPatient = function (data) {
   return api.post(`/api/v1/appointment/viewPatient`, data, baseUrl);
 };
 
+ApiAppointments.customizedPad = function (data) {
+  return api.post(`/api/v1/appointment/customizedPad`, data, baseUrl);
+};
+
+ApiAppointments.swtichLayout = function (data) {
+  return api.post(`/api/v1/appointment/swtichLayout`, data, baseUrl);
+};
+
+ApiAppointments.navigatetoTatvaPedia = function () {
+  return api.post(`/api/v1/appointment/navigatetoTatvaPedia`, {}, baseUrl);
+};
+
 
 export default ApiAppointments;

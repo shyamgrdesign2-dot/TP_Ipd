@@ -3,6 +3,7 @@ import Card from 'react-bootstrap/Card';
 import { Table, Dropdown, Button, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { isChrome, isSafari } from "react-device-detect";
+import { useSelector } from "react-redux";
 
 import Symptomsicon from '../assets/images/Symptoms.svg';
 import Examinationsicon from '../assets/images/Examination.svg';
@@ -17,6 +18,7 @@ import { isNumeric } from '../utils/utils'
 
 function Cardiology(props) {
 
+    const { frequencyList, timingList } = useSelector((state) => state.doctors);
     const navigate = useNavigate();
     const { patient_data, tcmData, loading, viewCaseManagerData, nextPress, prevPress } = props
 
@@ -78,8 +80,8 @@ function Cardiology(props) {
             key: 'TimeFrequency',
             render: (text, record) => (
                 <div className='lh-base'>
-                    {isNumeric(record.tmf_block) && record.tmf_block == 0 ? `${isNumeric(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${isNumeric(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${isNumeric(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${isNumeric(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0} (${record.tmm_freq_type_name})` : `0-0-0-0 (${record.tmm_freq_type_name})`}
-                    <div>{record.tmm_time_name}</div>
+                    {record.tmf_block == 0 || record.tmf_block == "" ? `${isNumeric(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${isNumeric(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${isNumeric(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${isNumeric(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id == record.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id == record.tmm_freq_type).tmf_title : ''})`}
+                    <div>{timingList.find((x) => x.tmt_id == record.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id == record.tmm_time).tmt_title : ''}</div>
                 </div>
             ),
         },
@@ -130,7 +132,7 @@ function Cardiology(props) {
                             <div className='d-flex align-items-center justify-content-between'>
                                 <div>
                                     <div className='title2'>{`${viewCaseManagerData?.doctor_data?.doctor_name} | ${viewCaseManagerData?.doctor_data?.dp_name}`}</div>
-                                    <div className='subtitle text-lowercase'>{viewCaseManagerData?.showConsultationDateTime}</div>
+                                    <div className='subtitle'>{viewCaseManagerData?.showConsultationDateTime}</div>
                                 </div>
                                 <div className='align-items-center d-flex'>
                                     <Button className="btn border rounded-3 px-1 me-2 antdesable-custom" onClick={nextPress} disabled={!loading && tcmData.page > 1 && viewCaseManagerData?.next_tcm_id ? false : true}>

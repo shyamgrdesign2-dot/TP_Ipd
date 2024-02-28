@@ -156,16 +156,16 @@ function TabExaminationBox() {
     );
 
     const onAddTemplateClicked = async () => {
-        if (examinationData.length == 0) {
+        if (examinationData.length === 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 examination added',
                 duration: 2
             });
         } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup examination name',
                 duration: 2
@@ -176,7 +176,7 @@ function TabExaminationBox() {
                 examination: examinationData,
             };
             const action = await dispatch(addTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -195,16 +195,16 @@ function TabExaminationBox() {
     );
 
     const onUpdateTemplateClicked = async () => {
-        if (examinationData.length == 0) {
+        if (examinationData.length === 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 examination added',
                 duration: 2
             });
         } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup examination name',
                 duration: 2
@@ -217,7 +217,7 @@ function TabExaminationBox() {
                 examination: examinationData,
             };
             const action = await dispatch(updateTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -334,6 +334,7 @@ function TabExaminationBox() {
                             placeholder="Select Template"
                             onSearch={onSearchTemplate}
                             onSelect={onSelectTemplate}
+                            optionLabelProp="label"
                             options={allTemplates.map((template) => {
                                 return {
                                     key: JSON.stringify(template),
@@ -345,6 +346,22 @@ function TabExaminationBox() {
                                     ),
                                 };
                             })}
+                            optionRender={(option) => (
+                                <div className="align-items-center d-flex text-truncate w-100">
+                                    <div className="round-box"><i className="icon-template"></i></div>
+                                    <div className="text-truncate w-100">
+                                        <div className="title text-main2">{option.data.value}</div>
+                                        <div className="text-truncate">
+                                            {JSON.parse(option.data.key).examination.map((item, ii) => {
+                                                return (
+                                                    <span key={ii}>{`${item.examination_name}${JSON.parse(option.data.key).examination.length - 1 != ii ? ", " : ""
+                                                        }`}</span>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         />
                         <Button
                             className="btn btn-primary3 btn-41 ms-3"
@@ -396,7 +413,7 @@ function TabExaminationBox() {
                         <label className="title-common">
                             Add Details
                         </label>
-                        <Input.TextArea value={childDrawerData.note != undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                        <Input.TextArea value={childDrawerData.note !== undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                     </div>
                 </>
             )
@@ -406,16 +423,16 @@ function TabExaminationBox() {
     return (
         <>
             {contextHolder}
-            <div className="prescription-box-sm p-20px">
+            <div>
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">
                         <img className='me-2' src={Examinationicon} alt="Examination" />
-                        <div className="title-common">Examination</div>
+                        <div className="title-common">Examinations</div>
                     </div>
 
                     <div className="d-flex align-items-center">
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerTemplate}> <i className="icon-template me-2"></i> <span>Templates</span></button>
-                        
+
                         <Tooltip placement="bottom" title={(examinationData.length > 0) ? "" : "Please enter some Examination to save a template"}>
                             <button className='btn d-flex align-items-center btn-text' onClick={() => (examinationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
                         </Tooltip>
@@ -443,7 +460,7 @@ function TabExaminationBox() {
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
                     {parentDrawer && (<TabExaminationSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
                 </Drawer>
-                <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{maxHeight: '114px'}}>
+                <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.filter(e => ![...examinationData.map(e1 => e1.examination_name)].includes(e.examination_name)).map((item, i) => {
                             return (

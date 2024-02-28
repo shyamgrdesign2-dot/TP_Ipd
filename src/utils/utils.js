@@ -20,6 +20,10 @@ export const removeBeforeWhiteSpace = (text) => {
   return text.replace(/^[ ]+/g, "")
 };
 
+export const frequencyFormat = (str) => {
+  return /^(?!-)[\d.\s-]+$/.test(str);
+};
+
 export const hasNumber = (str) => {
   return /\d/.test(str);
 }
@@ -29,17 +33,17 @@ export const isNumeric = (str) => {
 }
 
 export const isAlphabet = (str) => {
-  return /^[a-zA-z]*$/.test(str);
+  return /^[a-zA-z\s]*$/.test(str);
 }
 
 export const makeDefaultLogo = (text) => {
-  var fullName = text != undefined ? text.trim() : ''
+  var fullName = text !== undefined ? text.trim() : ''
   if (!fullName) {
     return "HG";
   }
   const regex = /\s+/;
   const results = fullName.split(regex);
-  if (results.length == 1) {
+  if (results.length === 1) {
     return results[0][0].toUpperCase();
   } else {
     const letter = `${results[0][0].toUpperCase()}${results[1][0].toUpperCase()}`;
@@ -56,6 +60,49 @@ export const makeDefaultLogo = (text) => {
   //   return `${fullName.split(" ")[0][0]}`;
   // }
 };
+
+
+export const frequencyCombination = (text) => {
+  // const array = ['0', '1/2', '1/3', '1/4', '3/4', '1', '2']
+  // const array = ['0', '0.5', '0.33', '0.25', '0.75', '1', '2']
+  const array = ['0', '1', '2']
+  const results = text;
+  let makeArray = []
+
+  if (results.split("-")[0] && !results.split("-")[1] && !results.split("-")[2] && !results.split("-")[3]) {
+    for (let i = 0; i < array.length; i++) {
+      for (let j = 0; j < array.length; j++) {
+        makeArray.push(`${results.split("-")[0]}-${array[i]}-${array[j]}`);
+      }
+    }
+    for (let i = 0; i < array.length; i++) {
+      for (let j = 0; j < array.length; j++) {
+        for (let k = 0; k < array.length; k++) {
+          makeArray.push(`${results.split("-")[0]}-${array[i]}-${array[j]}-${array[k]}`);
+        }
+      }
+    }
+  } else if (results.split("-")[0] && results.split("-")[1] && !results.split("-")[2] && !results.split("-")[3]) {
+    for (let i = 0; i < array.length; i++) {
+      makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${array[i]}`);
+    }
+    for (let i = 0; i < array.length; i++) {
+      for (let j = 0; j < array.length; j++) {
+        makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${array[i]}-${array[j]}`);
+      }
+    }
+  } else if (results.split("-")[0] && results.split("-")[1] && results.split("-")[2] && !results.split("-")[3]) {
+    makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${results.split("-")[2]}`);
+    for (let i = 0; i < array.length; i++) {
+      makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${results.split("-")[2]}-${array[i]}`);
+    }
+  } else if (results.split("-")[0] && results.split("-")[1] && results.split("-")[2] && results.split("-")[3]) {
+    makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${results.split("-")[2]}-${results.split("-")[3]}`);
+  }
+  return makeArray;
+}
+
+
 
 export const trimEllip = (source, length) => {
   if (source == null) {

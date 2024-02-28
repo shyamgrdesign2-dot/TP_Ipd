@@ -7,8 +7,6 @@ const initialState = {
   parentOptionsList: [],
   childOptionsList: [],
   templates: [],
-  timingList: [],
-  frequencyList: [],
   loading: false,
   error: null,
 };
@@ -115,32 +113,6 @@ export const searchMedication = createAsyncThunk(
   }
 );
 
-export const showMedicineFrequency = createAsyncThunk(
-  "medication/showMedicineFrequency",
-  async () => {
-    let result = {};
-    result = await ApiMedication.showMedicineFrequency();
-    if (result.status) {
-      return result.data;
-    } else {
-      throw Error(result.error);
-    }
-  }
-);
-
-export const showMedicineTime = createAsyncThunk(
-  "medication/showMedicineTime",
-  async () => {
-    let result = {};
-    result = await ApiMedication.showMedicineTime();
-    if (result.status) {
-      return result.data;
-    } else {
-      throw Error(result.error);
-    }
-  }
-);
-
 export const getLoadPreviousRx = createAsyncThunk(
   "medication/getLoadPreviousRx",
   async (data) => {
@@ -179,7 +151,7 @@ const medicationSlice = createSlice({
         const index = state.templates.findIndex(
           (e) => e.tmtd_id == action.payload.tmtd_id
         );
-        if (index != -1) {
+        if (index !== -1) {
           state.templates[index] = action.payload;
         }
       })
@@ -231,32 +203,6 @@ const medicationSlice = createSlice({
           state.childOptionsList = [];
         }
       })
-      .addCase(showMedicineFrequency.fulfilled, (state, action) => {
-        // const updatedData = action.payload.map((e) => {
-        //   return {
-        //     key: JSON.stringify({ ...e }),
-        //     value: e.tmf_id,
-        //     label: <>{e.tmf_title}</>,
-        //   };
-        // });
-        state.frequencyList = action.payload;
-      })
-      .addCase(showMedicineFrequency.rejected, (state) => {
-        state.frequencyList = [];
-      })
-      .addCase(showMedicineTime.fulfilled, (state, action) => {
-        // const updatedData = action.payload.map((e) => {
-        //   return {
-        //     key: JSON.stringify({ ...e }),
-        //     value: e.tmt_id,
-        //     label: <>{e.tmt_title}</>,
-        //   };
-        // });
-        state.timingList = action.payload;
-      })
-      .addCase(showMedicineTime.rejected, (state) => {
-        state.timingList = [];
-      });
   },
 });
 

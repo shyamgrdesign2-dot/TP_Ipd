@@ -156,16 +156,16 @@ function TabInvestigationBox() {
     );
 
     const onAddTemplateClicked = async () => {
-        if (investigationData.length == 0) {
+        if (investigationData.length === 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 investigation added',
                 duration: 2
             });
         } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup investigation name',
                 duration: 2
@@ -176,7 +176,7 @@ function TabInvestigationBox() {
                 investigation: investigationData,
             };
             const action = await dispatch(addTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -195,16 +195,16 @@ function TabInvestigationBox() {
     );
 
     const onUpdateTemplateClicked = async () => {
-        if (investigationData.length == 0) {
+        if (investigationData.length === 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 investigation added',
                 duration: 2
             });
         } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup investigation name',
                 duration: 2
@@ -217,7 +217,7 @@ function TabInvestigationBox() {
                 investigation: investigationData,
             };
             const action = await dispatch(updateTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -334,6 +334,7 @@ function TabInvestigationBox() {
                             placeholder="Select Template"
                             onSearch={onSearchTemplate}
                             onSelect={onSelectTemplate}
+                            optionLabelProp="label"
                             options={allTemplates.map((template) => {
                                 return {
                                     key: JSON.stringify(template),
@@ -345,6 +346,22 @@ function TabInvestigationBox() {
                                     ),
                                 };
                             })}
+                            optionRender={(option) => (
+                                <div className="align-items-center d-flex text-truncate w-100">
+                                    <div className="round-box"><i className="icon-template"></i></div>
+                                    <div className="text-truncate w-100">
+                                        <div className="title text-main2">{option.data.value}</div>
+                                        <div className="text-truncate">
+                                            {JSON.parse(option.data.key).investigation.map((item, ii) => {
+                                                return (
+                                                    <span key={ii}>{`${item.investigation_name}${JSON.parse(option.data.key).investigation.length - 1 != ii ? ", " : ""
+                                                        }`}</span>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         />
                         <Button
                             className="btn btn-primary3 btn-41 ms-3"
@@ -393,7 +410,7 @@ function TabInvestigationBox() {
                         </div>
                     </Card>
                     <div className="p-4">
-                        <Input.TextArea value={childDrawerData.note != undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                        <Input.TextArea value={childDrawerData.note !== undefined && childDrawerData.note} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                     </div>
                 </>
             )
@@ -403,7 +420,7 @@ function TabInvestigationBox() {
     return (
         <>
             {contextHolder}
-            <div className="prescription-box-sm p-20px">
+            <div>
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">
                         <img className='me-2' src={Investigationicon} alt="Investigation" />
@@ -439,7 +456,7 @@ function TabInvestigationBox() {
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
                     {parentDrawer && (<TabInvestigationSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
                 </Drawer>
-                <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{maxHeight: '114px'}}>
+                <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.filter(e => ![...investigationData.map(e1 => e1.investigation_name)].includes(e.investigation_name)).map((item, i) => {
                             return (

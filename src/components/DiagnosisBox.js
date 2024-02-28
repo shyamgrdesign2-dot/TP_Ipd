@@ -129,7 +129,7 @@ function DiagnosisBox() {
         label: <div>{e.tds_name}</div>,
       });
     });
-    if (searchParentQuery.length == 0) {
+    if (searchParentQuery.length === 0) {
       data.unshift({
         key: -1,
         label: (
@@ -150,7 +150,7 @@ function DiagnosisBox() {
           value: searchParentQuery,
           label: (
             <>
-              <div>{searchParentQuery}</div>
+              <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
             </>
           ),
         });
@@ -361,16 +361,16 @@ function DiagnosisBox() {
   );
 
   const onAddTemplateClicked = async () => {
-    if (diagnosisData.length == 0) {
+    if (diagnosisData.length === 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: "At least 1 diagnosis added",
         duration: 2,
       });
     } else if (diagnosisData.filter((e) => e.tds_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: "Please fillup diagnosis name",
         duration: 2,
@@ -381,7 +381,7 @@ function DiagnosisBox() {
         diagnosis: diagnosisData,
       };
       const action = await dispatch(addTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -400,16 +400,16 @@ function DiagnosisBox() {
   );
 
   const onUpdateTemplateClicked = async () => {
-    if (diagnosisData.length == 0) {
+    if (diagnosisData.length === 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: "At least 1 diagnosis added",
         duration: 2,
       });
     } else if (diagnosisData.filter((e) => e.tds_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: "warning",
         content: "Please fillup diagnosis name",
         duration: 2,
@@ -422,7 +422,7 @@ function DiagnosisBox() {
         diagnosis: diagnosisData,
       };
       const action = await dispatch(updateTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -626,6 +626,7 @@ function DiagnosisBox() {
               placeholder="Select Template"
               onSearch={onSearchTemplate}
               onSelect={onSelectTemplate}
+              optionLabelProp="label"
               options={allTemplates.map((template) => {
                 return {
                   key: JSON.stringify(template),
@@ -637,6 +638,22 @@ function DiagnosisBox() {
                   ),
                 };
               })}
+              optionRender={(option) => (
+                <div className="align-items-center d-flex text-truncate w-100">
+                  <div className="round-box"><i className="icon-template"></i></div>
+                  <div className="text-truncate w-100">
+                    <div className="title text-main2">{option.data.value}</div>
+                    <div className="text-truncate">
+                      {JSON.parse(option.data.key).diagnosis.map((item, ii) => {
+                        return (
+                          <span key={ii}>{`${item.tds_name}${JSON.parse(option.data.key).diagnosis.length - 1 != ii ? ", " : ""
+                            }`}</span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
             />
             <Button
               className="btn btn-primary3 btn-41 ms-3"
@@ -655,7 +672,7 @@ function DiagnosisBox() {
   return (
     <>
       {contextHolder}
-      <div className="prescription-box-sm">
+      <div className="">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Diagnosisicon} alt="Diagnosis" />
@@ -675,22 +692,22 @@ function DiagnosisBox() {
                 <i className="icon-template me-2" /> <span>Templates</span>
               </button>
             </Popover>
-            
+
             <Tooltip placement="bottom" title={(diagnosisData.length > 0) ? "" : "Please enter some Diagnosis to save a template"}>
-            <Popover
-              open={popOver2}
-              onOpenChange={() => (diagnosisData.length > 0) && showHideSaveTemplatePopOver()}
-              // onOpenChange={showHideSaveTemplatePopOver}
-              content={SAVE_CONTENT}
-              trigger="click"
-              overlayClassName="pop-450 pp-0"
-              placement="bottom"
-            >
-              <button className="btn d-flex align-items-center btn-text">
-                {" "}
-                <i className="icon-save me-2" /> <span>Save</span>
-              </button>
-            </Popover>
+              <Popover
+                open={popOver2}
+                onOpenChange={() => (diagnosisData.length > 0) && showHideSaveTemplatePopOver()}
+                // onOpenChange={showHideSaveTemplatePopOver}
+                content={SAVE_CONTENT}
+                trigger="click"
+                overlayClassName="pop-450 pp-0"
+                placement="bottom"
+              >
+                <button className="btn d-flex align-items-center btn-text">
+                  {" "}
+                  <i className="icon-save me-2" /> <span>Save</span>
+                </button>
+              </Popover>
             </Tooltip>
           </div>
         </div>

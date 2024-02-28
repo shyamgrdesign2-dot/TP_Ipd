@@ -206,7 +206,7 @@ function AppointmentData() {
                     })
                 } else {
                     message.open({
-                        MESSAGE_KEY,
+                        key: MESSAGE_KEY,
                         type: 'warning',
                         content: `Can't select next date`,
                         duration: 5,
@@ -320,10 +320,10 @@ function AppointmentData() {
 
     const onPrintRxUrlClick = async (record) => {
         if (record.print_rx_url) {
-            if(!isChrome && !isSafari){
+            if (!isChrome && !isSafari) {
                 navigate(`/?url=${record.print_rx_url}&key=print`, { replace: true })
                 navigate(0, { replace: true });
-            }else{
+            } else {
                 await window.open(record.print_rx_url);
             }
         } else {
@@ -353,7 +353,7 @@ function AppointmentData() {
             ellipsis: true,
             render: (text, record) => (
                 <div>
-                    <span className="text-primary">{record.pm_fullname}</span>
+                    <span className="text-primary"><Link to="/patient_details" state={{ patient_data: record }}>{record.pm_fullname}</Link></span>
                     <br />
                     <small>
                         {record.pm_gender}, {record.ageYears}y
@@ -572,10 +572,10 @@ function AppointmentData() {
                                             pm_pid: appointmentSelectedFromMenu.pm_pid
                                         };
                                         const action = await dispatch(cancelAppointments(sendData));
-                                        if (action.meta.requestStatus == "fulfilled") {
+                                        if (action.meta.requestStatus === "fulfilled") {
                                             handleConfirmationModal()
                                             message.open({
-                                                MESSAGE_KEY,
+                                                key: MESSAGE_KEY,
                                                 type: '',
                                                 className: 'message-appointment',
                                                 content: (
@@ -644,20 +644,20 @@ function AppointmentData() {
             tpvl_remarks: endVisitReason
         };
         const action = await dispatch(endVisit(sendData));
-        if (action.meta.requestStatus == "fulfilled") {
+        if (action.meta.requestStatus === "fulfilled") {
             setEndVisitReason('')
             handleEndVisitReasonDrawer()
 
             message.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: '',
                 className: 'message-appointment',
                 content: (
                     <div className='d-flex align-items-center'>
                         <img src={visitEnd} className='me-3' />
                         <div>
-                            <div className='title-common fontroboto'>{`${appointmentSelectedFromMenu?.pm_first_name}’s visit end successfully.`}</div>
-                            <div className='fontroboto text-start fw-normal mt-1'>View end visits in Finished tab.</div>
+                            <div className='title-common text-start fontroboto'>{`${appointmentSelectedFromMenu?.pm_first_name}’s visit ended successfully.`}</div>
+                            <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
                         </div>
                         <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
                     </div>

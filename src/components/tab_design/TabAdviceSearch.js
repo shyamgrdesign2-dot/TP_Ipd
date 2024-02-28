@@ -94,7 +94,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
                 return (
                     <div className={`${childDrawerData && childDrawerData.index == index && "bg-selected"} d-flex align-items-center justify-content-between border-bottom py-1 px-2`}>
                         <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
-                        <Button className="focus-none btn px-1 btn-delete-prescription" onClick={() => childDrawerData && childDrawerData.index == index ? setChildDrawerData(null) : setChildDrawerData({ ...item, index: index })}><i className={`${childDrawerData && childDrawerData.index == index ? "icon-Cross" : "icon-Edit"} fs-21`}></i></Button>
+                        <Button className="focus-none btn px-1 btn-delete-prescription" onClick={() => childDrawerData && childDrawerData.index == index ? setChildDrawerData(null) : setChildDrawerData({ ...item, index: index })}><i className={`${childDrawerData && childDrawerData.index == index ? "icon-Cross" : "icon-Edit"} text-main fs-21`}></i></Button>
                     </div>
                 );
             })
@@ -130,7 +130,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
                             <span className="text-truncate-twolines">{'Edit Advice'}</span>
                         </div>
                         <div className="p-4">
-                            <Input.TextArea value={childDrawerData.advice_name != undefined && childDrawerData.advice_name} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                            <Input.TextArea value={childDrawerData.advice_name !== undefined && childDrawerData.advice_name} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                             <Button className='btn btn-primary3 float-end mt-3 btn-41 px-4' onClick={() => updateChild(childDrawerData)}>
                                 Save
                             </Button>
@@ -179,15 +179,15 @@ function TabAdviceSearch({ passIndex, onClose }) {
                                                         <Button
                                                             key={i}
                                                             type="text"
-                                                            className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height d-flex align-items-center"
+                                                            className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height"
                                                             onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                                                            "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
+                                                            "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a>
                                                         </Button>
                                                     ) : (
                                                         <Button
                                                             key={i}
                                                             type="text"
-                                                            style={{ width: item.value.length > 26 && '250px' }} 
+                                                            style={{ width: item.value.length > 26 && '250px' }}
                                                             className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
                                                             onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
                                                             {item.value}

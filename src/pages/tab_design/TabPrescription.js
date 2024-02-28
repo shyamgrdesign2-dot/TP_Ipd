@@ -5,6 +5,8 @@ import { Content } from "antd/es/layout/layout";
 import moment from 'moment';
 import { v4 as uuidv4 } from "uuid";
 
+import { useSelector } from "react-redux";
+
 import CashManagerContext from '../../context/CashManagerContext';
 import HeaderPrescription from "../../common/HeaderPrescription";
 import TabSymptomsBox from "../../components/tab_design/TabSymptomsBox";
@@ -27,10 +29,12 @@ import Sider from "antd/es/layout/Sider";
 
 function TabPrescription() {
 
+    const { customizedPadLeftList, customizedPadRightList, frequencyList, timingList } = useSelector((state) => state.doctors);
+
     const { state } = useLocation();
     const { patient_data, caseManagerData } = state
-    const tcmId = caseManagerData != undefined ? caseManagerData.tcm_id : 0
-    const consultationDate = caseManagerData != undefined ? caseManagerData.consultation_date : moment().format('YYYY-MM-DD HH:mm:ss')
+    const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0
+    const consultationDate = caseManagerData !== undefined ? caseManagerData.consultation_date : moment().format('YYYY-MM-DD HH:mm:ss')
 
     const [symptomsData, setSymptomsData] = useState([]);
     const [examinationData, setExaminationData] = useState([]);
@@ -49,29 +53,23 @@ function TabPrescription() {
     const [vitalDrawer, setVitalDrawer] = useState(false);
 
     useEffect(() => {
-        if (caseManagerData != undefined) {
-            if (caseManagerData.symptoms.length > 0) {
-                setSymptomsData(caseManagerData.symptoms)
-            }
-            if (caseManagerData.examination.length > 0) {
-                setExaminationData(caseManagerData.examination)
-            }
-            if (caseManagerData.diagnosis.length > 0) {
-                setDiagnosisData(caseManagerData.diagnosis)
-            }
-            if (caseManagerData.advice.length > 0) {
-                setAdviceData(caseManagerData.advice)
-            }
-            if (caseManagerData.investigation.length > 0) {
-                setInvestigationData(caseManagerData.investigation)
-            }
-            if (caseManagerData.vitals.length > 0) {
+        if (caseManagerData !== undefined) {
+            if (caseManagerData.vitals.length > 0 && customizedPadLeftList.findIndex(e => e.tmdpm_id === 1 && e.tmdpm_status === 0) !== -1) {
                 const updatedData = caseManagerData.vitals.map((e, i) => {
                     return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
                 });
                 setVitalsData(updatedData)
             }
-            if (caseManagerData.medicine.length > 0) {
+            if (caseManagerData.symptoms.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 5 && e.tmdpm_status === 0) !== -1) {
+                setSymptomsData(caseManagerData.symptoms)
+            }
+            if (caseManagerData.examination.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 10 && e.tmdpm_status === 0) !== -1) {
+                setExaminationData(caseManagerData.examination)
+            }
+            if (caseManagerData.diagnosis.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 11 && e.tmdpm_status === 0) !== -1) {
+                setDiagnosisData(caseManagerData.diagnosis)
+            }
+            if (caseManagerData.medicine.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 12 && e.tmdpm_status === 0) !== -1) {
                 const updatedData = caseManagerData.medicine.map((e) => {
                     const medicineUnit = e?.medicineUnit.map((e1) => {
                         return {
@@ -81,18 +79,41 @@ function TabPrescription() {
                         };
                     });
 
+                    const unitObj = medicineUnit
+                        ? medicineUnit.find((x) => x.value == e.tmm_unit)
+                        : null;
+                    const frequencyObj = frequencyList.find(
+                        (x) => x.tmf_id == e.tmm_freq_type
+                    );
+                    const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
                     return {
                         ...e,
+                        tmm_unit_name:
+                            unitObj && unitObj !== undefined
+                                ? JSON.parse(unitObj.key).tmu_title
+                                : "",
+                        tmm_freq_type_name:
+                            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+                        tmf_block_val:
+                            frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+                        tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
                         medicineUnit: medicineUnit,
                         unique_id: uuidv4(),
                     };
                 });
                 setMedicationData([...updatedData])
             }
-            if (caseManagerData.follow_up_date) {
+            if (caseManagerData.advice.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 13 && e.tmdpm_status === 0) !== -1) {
+                setAdviceData(caseManagerData.advice)
+            }
+            if (caseManagerData.investigation.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 14 && e.tmdpm_status === 0) !== -1) {
+                setInvestigationData(caseManagerData.investigation)
+            }
+            if (caseManagerData.follow_up_date && customizedPadRightList.findIndex(e => e.tmdpm_id === 15 && e.tmdpm_status === 0) !== -1) {
                 setFollowUpDate(caseManagerData.follow_up_date)
             }
-            if (caseManagerData.visit_advice) {
+            if (caseManagerData.visit_advice && customizedPadRightList.findIndex(e => e.tmdpm_id === 15 && e.tmdpm_status === 0) !== -1) {
                 setAdditionalNote(caseManagerData.visit_advice)
             }
         }
@@ -117,12 +138,18 @@ function TabPrescription() {
                 <div className='w-100 bg-body wrapper2 prescription-wrapper p-0'>
                     <Layout>
                         <div className="prescription-sidebar">
-                            <button type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length == 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                                    <img src={vitalsWhite} alt="Vitals" />
-                                </div>
-                                <label className="text-white mt-1">Vitals</label>
-                            </button>
+                            {customizedPadLeftList?.map((e, i) => {
+                                return (
+                                    e.tmdpm_id === 1 && e.tmdpm_status === 0 && (
+                                        <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length === 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
+                                            <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                                <img src={vitalsWhite} alt="Vitals" />
+                                            </div>
+                                            <label className="text-white mt-1">Vitals</label>
+                                        </button>
+                                    )
+                                )
+                            })}
                             {/* <button type='button' className="mb-3 text-center btn btn-action">
                                 <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                     <img src={medicalHistoryWhite} alt="History" />
@@ -161,13 +188,17 @@ function TabPrescription() {
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                             <Content>
-                                <TabSymptomsBox />
-                                <TabExaminationBox />
-                                <TabDiagnosisBox />
-                                <TabMedicationBox />
-                                <TabAdviceBox />
-                                <TabInvestigationBox />
-                                <TabFollowUpBox />
+                                {customizedPadRightList?.map((e, i) => {
+                                    return (
+                                        e.tmdpm_id === 5 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabSymptomsBox /></div>
+                                            : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabExaminationBox /></div>
+                                                : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabDiagnosisBox /></div>
+                                                    : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabMedicationBox /></div>
+                                                        : e.tmdpm_id === 13 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"> <TabAdviceBox /></div>
+                                                            : e.tmdpm_id === 14 && e.tmdpm_status === 0 ? <div key={i} className="prescription-box-sm"><TabInvestigationBox /></div>
+                                                                : e.tmdpm_id === 15 && e.tmdpm_status === 0 && <div key={i} className="prescription-box-sm"><TabFollowUpBox /></div>
+                                    )
+                                })}
                             </Content>
                         </div>
                     </Layout>

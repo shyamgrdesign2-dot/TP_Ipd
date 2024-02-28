@@ -72,6 +72,11 @@ body {
     .bg-secondary-light {
         background-color: $themesecondarylight;
     }
+    .fs-12 {
+        span, label {
+            font-size: 12px !important;
+        }
+    }
     .fs-14 {
         font-size: 14px !important;
     }
@@ -121,6 +126,9 @@ body {
             font-weight: 400;
         }
     }
+    .text-welcome {
+        color: $welcomecolor !important;
+    }
     .ant-picker-input{
         input::placeholder {
             color: $grayColor !important;
@@ -150,6 +158,9 @@ body {
     }
     .me-14 {
         margin-right: 14px;
+    }
+    .me-12 {
+        margin-right: 12px;
     }
     .h-38 {
         height: 38px;
@@ -216,6 +227,9 @@ body {
     }
     .cursor-pointer {
         cursor: pointer;
+    }
+    .text-decoration-underline {
+        text-decoration: underline;
     }
     .text-2 {
         font-family: 'Roboto' !important;
@@ -307,18 +321,18 @@ body {
                 }
             }
         }
-        .round-box {
-            width: 37px;
-            height: 37px;
-            min-width: 37px;
-            min-height: 37px;
-            background-color: #fff;
-            border-radius: 100%;
-            align-items: center;
-            display: flex;
-            justify-content: center;
-            margin-right: 15px;
-        }
+    }
+    .round-box {
+        width: 37px;
+        height: 37px;
+        min-width: 37px;
+        min-height: 37px;
+        background-color: #fff;
+        border-radius: 100%;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        margin-right: 15px;
     }
     .ant-input-clear-icon {
         svg {
@@ -396,5 +410,12 @@ body {
     }
     .icon-search {
         color: #A2A2A8 !important;
+    }
+    .fllowbtn {
+        .px-5-16 {
+            &:last-child {
+                margin-right: 0;
+            }
+        } 
     }
 }

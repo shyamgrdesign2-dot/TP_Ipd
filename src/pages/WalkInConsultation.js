@@ -122,7 +122,7 @@ function WalkInConsultation() {
         if (patients) {
             if (patients.length === 0 && searchQuery.length > 0) {
                 data.push({
-                    key: "-2",
+                    key: -2,
                     label: <div>{error}</div>,
                 });
             } else {
@@ -137,7 +137,7 @@ function WalkInConsultation() {
         }
         if (!isMobile) {
             data.push({
-                key: "-1",
+                key: -1,
                 value: "Add New Patient",
                 label: AddPatientPlank(),
             });
@@ -154,7 +154,7 @@ function WalkInConsultation() {
 
     const onSelect = useCallback(
         (data, e) => {
-            e.key != -1 ?
+            e.key !== -1 ?
                 setClickedPatient(JSON.parse(e.key))
                 :
                 goToAddPatient()
@@ -229,7 +229,7 @@ function WalkInConsultation() {
     }, [clickedPatient]);
 
     function goToAddPatient() {
-        if (searchQuery.length > 0 && isNumeric(searchQuery)) {
+        if (searchQuery.length === 10 && isNumeric(searchQuery)) {
             navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery } } });
         } else if (searchQuery.length > 0 && isAlphabet(searchQuery)) {
             navigate("/add_patient", { state: { patient_data: { pm_fullname: searchQuery, pm_contact_no: '' } } });

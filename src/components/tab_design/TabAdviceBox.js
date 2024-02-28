@@ -150,16 +150,16 @@ function TabAdviceBox() {
     );
 
     const onAddTemplateClicked = async () => {
-        if (adviceData.length == 0) {
+        if (adviceData.length === 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 advice added',
                 duration: 2
             });
         } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup advice name',
                 duration: 2
@@ -170,7 +170,7 @@ function TabAdviceBox() {
                 advices: adviceData,
             };
             const action = await dispatch(addTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -189,16 +189,16 @@ function TabAdviceBox() {
     );
 
     const onUpdateTemplateClicked = async () => {
-        if (adviceData.length == 0) {
+        if (adviceData.length === 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'At least 1 advice added',
                 duration: 2
             });
         } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
             messageApi.open({
-                MESSAGE_KEY,
+                key: MESSAGE_KEY,
                 type: 'warning',
                 content: 'Please fillup advice name',
                 duration: 2
@@ -211,7 +211,7 @@ function TabAdviceBox() {
                 advices: adviceData,
             };
             const action = await dispatch(updateTemplate(sendData));
-            if (action.meta.requestStatus == "fulfilled") {
+            if (action.meta.requestStatus === "fulfilled") {
                 setInputTemplateName(null);
                 handleDrawerSave();
             }
@@ -318,6 +318,7 @@ function TabAdviceBox() {
                             placeholder="Select Template"
                             onSearch={onSearchTemplate}
                             onSelect={onSelectTemplate}
+                            optionLabelProp="label"
                             options={allTemplates.map((template) => {
                                 return {
                                     key: JSON.stringify(template),
@@ -329,6 +330,22 @@ function TabAdviceBox() {
                                     ),
                                 };
                             })}
+                            optionRender={(option) => (
+                                <div className="align-items-center d-flex text-truncate w-100">
+                                    <div className="round-box"><i className="icon-template"></i></div>
+                                    <div className="text-truncate w-100">
+                                        <div className="title text-main2">{option.data.value}</div>
+                                        <div className="text-truncate">
+                                            {JSON.parse(option.data.key).advices.map((item, ii) => {
+                                                return (
+                                                    <span key={ii}>{`${item.advice_name}${JSON.parse(option.data.key).advices.length - 1 != ii ? ", " : ""
+                                                        }`}</span>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         />
                         <Button
                             className="btn btn-primary3 btn-41 ms-3"
@@ -376,13 +393,13 @@ function TabAdviceBox() {
                                 </Button>
                                 <div className="modal-title text-truncate-twolines">{'Edit Advice'}</div>
                             </div>
-                            <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => updateChild(childDrawerData)} disabled={childDrawerData.advice_name != undefined && childDrawerData.advice_name ? false : true}>
+                            <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => updateChild(childDrawerData)} disabled={childDrawerData.advice_name !== undefined && childDrawerData.advice_name ? false : true}>
                                 Done
                             </Button>
                         </div>
                     </Card>
                     <div className="p-4">
-                        <Input.TextArea value={childDrawerData.advice_name != undefined && childDrawerData.advice_name} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
+                        <Input.TextArea value={childDrawerData.advice_name !== undefined && childDrawerData.advice_name} placeholder="Enter any specific details here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNoteChild} />
                     </div>
                 </>
             )
@@ -392,7 +409,7 @@ function TabAdviceBox() {
     return (
         <>
             {contextHolder}
-            <div className="prescription-box-sm p-20px">
+            <div>
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">
                         <img className='me-2' src={Adviceicon} alt="Advice" />

@@ -107,7 +107,7 @@ function ExaminationBox() {
         label: <div>{e.examination_name}</div>,
       });
     });
-    if (searchParentQuery.length == 0) {
+    if (searchParentQuery.length === 0) {
       data.unshift({
         key: -1,
         label: (
@@ -127,7 +127,7 @@ function ExaminationBox() {
           value: searchParentQuery,
           label: (
             <>
-              <div>{searchParentQuery}</div>
+              <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
             </>
           ),
         });
@@ -296,16 +296,16 @@ function ExaminationBox() {
   );
 
   const onAddTemplateClicked = async () => {
-    if (examinationData.length == 0) {
+    if (examinationData.length === 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 examination added',
         duration: 2
       });
     } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'Please fillup examination name',
         duration: 2
@@ -316,7 +316,7 @@ function ExaminationBox() {
         examination: examinationData,
       };
       const action = await dispatch(addTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -335,16 +335,16 @@ function ExaminationBox() {
   );
 
   const onUpdateTemplateClicked = async () => {
-    if (examinationData.length == 0) {
+    if (examinationData.length === 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'At least 1 examination added',
         duration: 2
       });
     } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
       messageApi.open({
-        MESSAGE_KEY,
+        key: MESSAGE_KEY,
         type: 'warning',
         content: 'Please fillup examination name',
         duration: 2
@@ -357,7 +357,7 @@ function ExaminationBox() {
         examination: examinationData,
       };
       const action = await dispatch(updateTemplate(sendData));
-      if (action.meta.requestStatus == "fulfilled") {
+      if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
       }
@@ -534,6 +534,7 @@ function ExaminationBox() {
               placeholder="Select Template"
               onSearch={onSearchTemplate}
               onSelect={onSelectTemplate}
+              optionLabelProp="label"
               options={allTemplates.map((template) => {
                 return {
                   key: JSON.stringify(template),
@@ -545,6 +546,22 @@ function ExaminationBox() {
                   ),
                 };
               })}
+              optionRender={(option) => (
+                <div className="align-items-center d-flex text-truncate w-100">
+                  <div className="round-box"><i className="icon-template"></i></div>
+                  <div className="text-truncate w-100">
+                    <div className="title text-main2">{option.data.value}</div>
+                    <div className="text-truncate">
+                      {JSON.parse(option.data.key).examination.map((item, ii) => {
+                        return (
+                          <span key={ii}>{`${item.examination_name}${JSON.parse(option.data.key).examination.length - 1 != ii ? ", " : ""
+                            }`}</span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
             />
             <Button
               className="btn btn-primary3 btn-41 ms-3"
@@ -563,11 +580,11 @@ function ExaminationBox() {
   return (
     <>
       {contextHolder}
-      <div className="prescription-box-sm">
+      <div className="">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Examinationicon} alt="Examination" />
-            <div className="title-common">Examination</div>
+            <div className="title-common">Examinations</div>
           </div>
           <div className="d-flex align-items-center">
             <Popover

@@ -112,7 +112,7 @@ const adviceSlice = createSlice({
         const index = state.templates.findIndex(
           (e) => e.tat_id == action.payload.tat_id
         );
-        if (index != -1) {
+        if (index !== -1) {
           state.templates[index] = action.payload;
         }
       })
