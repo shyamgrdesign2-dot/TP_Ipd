@@ -51,3 +51,18 @@ table {
     }
     
 }
+.disable-preview {
+    position: relative;
+    color: #a1a1a1;
+    &:after {
+        position: absolute;
+        content: "";
+        left: 11px;
+        top: -2px;
+        height: 25px;
+        width: 1.5px;
+        background-color: #a1a1a1;
+        transform: rotate(25deg);
+
+    }
+}
