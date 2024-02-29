@@ -229,10 +229,10 @@ function WalkInConsultation() {
     }, [clickedPatient]);
 
     function goToAddPatient() {
-        // Moengage.track_event("walk_in_consultation_click", {
-        //     "doctor_id": 1111,
-        //     "timestamp": new Date(), // datetime value. Example value represents 31 January, 2017.
-        // });
+        window.Moengage.track_event("walk_in_consultation_click", {
+            "doctor_id": 1111,
+            "timestamp": new Date(), // datetime value. Example value represents 31 January, 2017.
+        });
 
         if (searchQuery.length === 10 && isNumeric(searchQuery)) {
             navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery } } });
