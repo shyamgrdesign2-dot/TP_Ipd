@@ -50,28 +50,22 @@ function Prescription() {
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
-      if (caseManagerData.symptoms.length > 0) {
-        setSymptomsData(caseManagerData.symptoms)
-      }
-      if (caseManagerData.examination.length > 0) {
-        setExaminationData(caseManagerData.examination)
-      }
-      if (caseManagerData.diagnosis.length > 0) {
-        setDiagnosisData(caseManagerData.diagnosis)
-      }
-      if (caseManagerData.advice.length > 0) {
-        setAdviceData(caseManagerData.advice)
-      }
-      if (caseManagerData.investigation.length > 0) {
-        setInvestigationData(caseManagerData.investigation)
-      }
-      if (caseManagerData.vitals.length > 0) {
+      if (caseManagerData.vitals.length > 0 && customizedPadLeftList.findIndex(e => e.tmdpm_id === 1 && e.tmdpm_status === 0) !== -1) {
         const updatedData = caseManagerData.vitals.map((e, i) => {
           return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
         });
         setVitalsData(updatedData)
       }
-      if (caseManagerData.medicine.length > 0) {
+      if (caseManagerData.symptoms.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 5 && e.tmdpm_status === 0) !== -1) {
+        setSymptomsData(caseManagerData.symptoms)
+      }
+      if (caseManagerData.examination.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 10 && e.tmdpm_status === 0) !== -1) {
+        setExaminationData(caseManagerData.examination)
+      }
+      if (caseManagerData.diagnosis.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 11 && e.tmdpm_status === 0) !== -1) {
+        setDiagnosisData(caseManagerData.diagnosis)
+      }
+      if (caseManagerData.medicine.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 12 && e.tmdpm_status === 0) !== -1) {
         const updatedData = caseManagerData.medicine.map((e) => {
 
           const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
@@ -86,17 +80,23 @@ function Prescription() {
               : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
             tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-            tmm_dosage_unit_name: `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}`,
-            tmm_days_duration_type: `${e.tmm_days} ${e.tmm_duration_type}`,
+            tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
             unique_id: uuidv4(),
           };
         });
         setMedicationData([...updatedData])
       }
-      if (caseManagerData.follow_up_date) {
+      if (caseManagerData.advice.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 13 && e.tmdpm_status === 0) !== -1) {
+        setAdviceData(caseManagerData.advice)
+      }
+      if (caseManagerData.investigation.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 14 && e.tmdpm_status === 0) !== -1) {
+        setInvestigationData(caseManagerData.investigation)
+      }
+      if (caseManagerData.follow_up_date && customizedPadRightList.findIndex(e => e.tmdpm_id === 15 && e.tmdpm_status === 0) !== -1) {
         setFollowUpDate(caseManagerData.follow_up_date)
       }
-      if (caseManagerData.visit_advice) {
+      if (caseManagerData.visit_advice && customizedPadRightList.findIndex(e => e.tmdpm_id === 15 && e.tmdpm_status === 0) !== -1) {
         setAdditionalNote(caseManagerData.visit_advice)
       }
     }
