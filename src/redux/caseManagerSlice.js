@@ -6,6 +6,7 @@ const initialState = {
     templates: [],
     viewCaseManagerData: null,
     loading: false,
+    loadingEndVisit: false,
     error: null,
 };
 
@@ -111,6 +112,19 @@ export const viewCaseManager = createAsyncThunk(
     }
 );
 
+export const sendCashsheetWhatsapp = createAsyncThunk(
+    "caseManager/sendCashsheetWhatsapp",
+    async (data) => {
+        let result = {};
+        result = await ApiCaseManager.sendCashsheetWhatsapp(data);
+        if (result.status) {
+            return result.data;
+        } else {
+            throw Error(result.error);
+        }
+    }
+);
+
 const caseManagerSlice = createSlice({
     name: "caseManager",
     initialState,
@@ -193,6 +207,15 @@ const caseManagerSlice = createSlice({
             .addCase(viewCaseManager.rejected, (state) => {
                 state.loading = false;
                 state.viewCaseManagerData = null;
+            })
+            .addCase(sendCashsheetWhatsapp.pending, (state) => {
+                state.loadingEndVisit = true;
+            })
+            .addCase(sendCashsheetWhatsapp.fulfilled, (state) => {
+                state.loadingEndVisit = false;
+            })
+            .addCase(sendCashsheetWhatsapp.rejected, (state) => {
+                state.loadingEndVisit = false;
             })
     },
 });

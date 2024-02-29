@@ -42,7 +42,6 @@ instance.interceptors.response.use(
         return response.data;
     },
     (error) => {
-        console.log('kishan',error)
         // You can handle errors globally here
         let notificationParam = {
             message: ''
