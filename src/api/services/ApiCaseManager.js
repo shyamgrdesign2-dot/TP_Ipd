@@ -37,4 +37,8 @@ ApiCaseManager.viewCaseManager = function (data) {
     return api.post(`/api/v1/casemanager/viewCaseManager`, data, baseUrl);
 };
 
+ApiCaseManager.sendCashsheetWhatsapp = function (data) {
+    return api.post(`/api/v1/casemanager/sendCashsheetWhatsapp`, data, baseUrl);
+};
+
 export default ApiCaseManager;

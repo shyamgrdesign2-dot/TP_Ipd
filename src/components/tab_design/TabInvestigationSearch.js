@@ -48,7 +48,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                 value: e.investigation_name
             });
         });
-        if (searchChildQuery.length > 0) {
+        if (searchChildQuery.length > 0 && process.env.REACT_APP_ENV == 'prod') {
             searchChildQuery &&
                 data.push({
                     key: JSON.stringify({

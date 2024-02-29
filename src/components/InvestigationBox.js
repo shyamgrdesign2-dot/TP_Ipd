@@ -119,7 +119,7 @@ function InvestigationBox() {
         ),
       });
     } else {
-      searchParentQuery &&
+      searchParentQuery && process.env.REACT_APP_ENV == 'prod' &&
         data.push({
           key: JSON.stringify({
             unique_id: uuidv4(),
