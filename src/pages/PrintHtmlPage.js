@@ -97,7 +97,7 @@ function PrintHtmlPage() {
             {/* Table View */}
             <div className="py-4">
                 <label className="fw-bold mb-1" style={{ fontFamily: 'roboto', fontSize: 12 }}>Symptoms:&nbsp;</label>
-                <table className="w-100 mb-3" cellPadding={5} cellSpacing={5}>
+                <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
                     <tr>
                         <th style={{fontSize: 12}}>NAME</th>
                         <th style={{fontSize: 12}}>SINCE</th>
@@ -119,7 +119,7 @@ function PrintHtmlPage() {
                 </table>
 
                 <label className="fw-bold mb-1" style={{ fontFamily: 'roboto', fontSize: 12 }}>Examinations:&nbsp;</label>
-                <table className="w-100 mb-3" cellPadding={5} cellSpacing={5}>
+                <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
                     <tr>
                         <th style={{fontSize: 12}}>NAME</th>
                         <th style={{fontSize: 12}}>SINCE</th>
