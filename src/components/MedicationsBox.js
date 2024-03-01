@@ -4,6 +4,8 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
+import CommonModal from '../common/CommonModal';
+import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
 import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric } from "../utils/utils";
@@ -40,6 +42,9 @@ function MedicationsBox() {
   const [popOver1, setPopOver1] = useState(false);
   const [allTemplates, setAllTemplates] = useState([]);
   const [matchedTemplates, setMatchedTemplates] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [removeTemplateId, setRemoveTemplateId] = useState(null);
+
   const [searchParentQuery, setSearchParentQuery] = useState("");
   const [parentSearchOptions, setParentSearchOptions] = useState([]);
 
@@ -478,8 +483,11 @@ function MedicationsBox() {
     }
   };
 
-  const onDeleteTemplateClicked = (tmtd_id) => {
-    dispatch(deleteTemplate(tmtd_id));
+  const onDeleteTemplateClicked = async (tmtd_id) => {
+    const action = await dispatch(deleteTemplate(tmtd_id));
+    if (action.meta.requestStatus === "fulfilled") {
+      showHideModal()
+    }
   };
 
   //PopOver2 function
@@ -588,6 +596,47 @@ function MedicationsBox() {
       </div>
     );
   }, [timingPopOver]);
+
+  const showHideModal = useCallback((template_id) => {
+    template_id !== undefined ? setRemoveTemplateId(template_id) : setRemoveTemplateId(null)
+    setIsModalOpen(!isModalOpen);
+  }, [isModalOpen]);
+
+  //Template Remove
+  const DELETE_MODAL = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={isModalOpen}
+        onCancel={showHideModal}
+        modalWidth={500}
+        title={"You may lose your data"}
+        modalBody={
+          <>
+            {console.log("first")}
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className='me-3' src={alertIcon} alt="Warning" />
+                <span>
+                  Are you sure you want to delete this template?
+                </span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div onClick={() => onDeleteTemplateClicked(removeTemplateId)}
+                  className="me-4 text-decoration-underline btn p-0 text-main">
+                  Yes Delete
+                </div>
+                <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                  <span>No</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+    );
+  }, [isModalOpen]);
 
   //Child Componet
   const TABLE_MEDICATION = useMemo(() => {
@@ -801,7 +850,10 @@ function MedicationsBox() {
                   </div>
                   <Button
                     className="btn btn-delete-prescription p-0 ms-2"
-                    onClick={() => onDeleteTemplateClicked(template.tmtd_id)}
+                    onClick={() => {
+                      showHideModal(template.tmtd_id)
+                      showHideTemplatesListPopover()
+                    }}
                   >
                     {template.loading ? (
                       <Spin
@@ -951,6 +1003,7 @@ function MedicationsBox() {
           </div>
         </div>
 
+        {DELETE_MODAL}
         {TABLE_MEDICATION}
 
         <div className="p-14">
