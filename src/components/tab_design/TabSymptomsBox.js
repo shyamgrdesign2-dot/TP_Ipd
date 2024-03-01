@@ -5,6 +5,8 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
+import CommonModal from '../../common/CommonModal';
+import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
 import { onlyNumberFormat, removeBeforeWhiteSpace, hasNumber } from "../../utils/utils";
@@ -40,6 +42,8 @@ function TabSymptomsBox() {
     const [templateDrawer, setTemplateDrawer] = useState(false);
     const [allTemplates, setAllTemplates] = useState([]);
     const [matchedTemplates, setMatchedTemplates] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [removeTemplateId, setRemoveTemplateId] = useState(null);
     const [saveDrawer, setSaveDrawer] = useState(false);
 
     const [inputTemplateName, setInputTemplateName] = useState(null);
@@ -157,8 +161,11 @@ function TabSymptomsBox() {
         handleDrawerTemplate();
     };
 
-    const onDeleteTemplateClicked = (tst_id) => {
-        dispatch(deleteTemplate(tst_id));
+    const onDeleteTemplateClicked = async (tst_id) => {
+        const action = await dispatch(deleteTemplate(tst_id));
+        if (action.meta.requestStatus === "fulfilled") {
+            showHideModal()
+        }
     };
 
     const onChangeSaveTemplate = useCallback(
@@ -238,6 +245,47 @@ function TabSymptomsBox() {
         }
     };
 
+    const showHideModal = useCallback((template_id) => {
+        template_id !== undefined ? setRemoveTemplateId(template_id) : setRemoveTemplateId(null)
+        setIsModalOpen(!isModalOpen);
+    }, [isModalOpen]);
+
+    //Template Remove
+    const DELETE_MODAL = useMemo(() => {
+        return (
+            <CommonModal
+                isModalOpen={isModalOpen}
+                onCancel={showHideModal}
+                modalWidth={500}
+                title={"You may lose your data"}
+                modalBody={
+                    <>
+                        {console.log("first")}
+                        <div className="alert-warning rounded-10px p-2 patient-details">
+                            <div className="d-flex align-items-center">
+                                <img className='me-3' src={alertIcon} alt="Warning" />
+                                <span>
+                                    Are you sure you want to delete this template?
+                                </span>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <div className="d-flex align-items-center mt-2 justify-content-end">
+                                <div onClick={() => onDeleteTemplateClicked(removeTemplateId)}
+                                    className="me-4 text-decoration-underline btn p-0 text-main">
+                                    Yes Delete
+                                </div>
+                                <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                    <span>No</span>
+                                </Button>
+                            </div>
+                        </div>
+                    </>
+                }
+            />
+        );
+    }, [isModalOpen]);
+
     //Child Componet
     const TABLE_SYMPTOMS = useMemo(() => {
         return (
@@ -290,7 +338,7 @@ function TabSymptomsBox() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => onDeleteTemplateClicked(template.tst_id)}>
+                                        <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => showHideModal(template.tst_id)}>
                                             {template.loading ? (
                                                 <Spin
                                                     indicator={
@@ -627,6 +675,7 @@ function TabSymptomsBox() {
                             )
                         })}
                 </div>
+                {DELETE_MODAL}
             </div>
         </>
     );
