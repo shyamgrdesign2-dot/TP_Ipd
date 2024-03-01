@@ -174,7 +174,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                                             childSearchOptions.length > 0 &&
                                             childSearchOptions.filter(e => ![...investigationData.map(e1 => e1.investigation_name)].includes(e.value)).map((item, i) => {
                                                 return (
-                                                    i === childSearchOptions.length - 1 ? (
+                                                    i === childSearchOptions.length - 1 && process.env.REACT_APP_ENV == 'prod' ? (
                                                         <Button
                                                             key={i}
                                                             type="text"
