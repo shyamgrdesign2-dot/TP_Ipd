@@ -4,6 +4,10 @@ import HeaderPrintSetting from "../common/HeaderPrintSetting";
 import { useReactToPrint } from 'react-to-print';
 import PrintHtmlPage from "./PrintHtmlPage";
 
+
+import defaultprofile from "../assets/images/default-profile.svg";
+const { TextArea } = Input;
+
 function ConfigurePrintSetting() {
     const printRef = React.useRef();
     const onChange = (key) => {
@@ -189,19 +193,210 @@ function ConfigurePrintSetting() {
         {
             key: '2',
             label: 'Header & Footer',
-            children: <div className="px-4 form_addnewpatient">
+            children: <div className="px-3 form_addnewpatient">
                 <div className="border-bottom pb-3 mb-3">
                     <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                         <Col lg="18">
-                            <div className="titleprint">Upload Header & Footer</div>
+                            <div className="titleprint">Header & Footer</div>
                         </Col>
                         <Col lg="6">
-                            <Switch />
+                            <Button className="btn rounded-10px px-1 border" style={{ transform: "rotate(-89deg)" }}>
+                                <i className="icon-right"></i>
+                            </Button>
                         </Col>
                     </Row>
-                    <div>You can upload your own custom header & footer image</div>
+                    <div>Setup your header and Footer</div>
 
-                    <div className="upload-headfoot">
+                    <div className="mt-3">
+                        <Form.Item className="mb-0">
+                            <label className="mb-1 title-common">Select Letterhead Format</label>
+                            <Radio.Group className="d-flex gender-radio">
+                                <Radio.Button className="w-100 text-center" value="Male">Custom</Radio.Button>
+                                <Radio.Button className="w-100 text-center" value="Female">Upload Letterhead</Radio.Button>
+                                <Radio.Button className="w-100 text-center" value="Other">Own Letterhead</Radio.Button>
+                            </Radio.Group>
+                        </Form.Item>
+                    </div>
+
+                    {/* For Custom tab  */}
+                    <div className="mt-5">
+                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                            <Col lg="18">
+                                <div className="title-common">Doctor’s information</div>
+                            </Col>
+                            <Col lg="6">
+                                <Switch />
+                            </Col>
+                        </Row>
+                        <Form.Item className="mb-0 mt-3">
+                            <Radio.Group className="d-flex gender-radio">
+                                <Radio.Button className="w-100 text-center" value="left">left</Radio.Button>
+                                <Radio.Button className="w-100 text-center" value="Female">right</Radio.Button>
+                            </Radio.Group>
+                        </Form.Item>
+                        <div className="mt-3">
+                            <Form.Item>
+                                <label className="mb-1">Header</label>
+                                <Input className='inputheight41-group' />
+                            </Form.Item>
+                        </div>
+                        <div className="mt-3">
+                            <Form.Item>
+                                <label className="mb-1">Subheader</label>
+                                <TextArea
+                                    className="endreason-textarea subheader-textarea"
+                                    style={{
+                                        resize: "none"
+                                    }}
+                                />
+                            </Form.Item>
+                        </div>
+                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                            <Col lg="18">
+                                <div className="title-common">Clinic’s information</div>
+                            </Col>
+                            <Col lg="6">
+                                <Switch />
+                            </Col>
+                        </Row>
+                        <Form.Item className="mb-0 mt-3">
+                            <Radio.Group className="d-flex gender-radio">
+                                <Radio.Button className="w-100 text-center" value="left">left</Radio.Button>
+                                <Radio.Button className="w-100 text-center" value="Female">right</Radio.Button>
+                            </Radio.Group>
+                        </Form.Item>
+                        <div className="mt-3">
+                            <Form.Item>
+                                <label className="mb-1">Header</label>
+                                <Input className='inputheight41-group' />
+                            </Form.Item>
+                        </div>
+                        <div className="mt-3">
+                            <Form.Item>
+                                <label className="mb-1">Subheader</label>
+                                <TextArea
+                                    className="endreason-textarea subheader-textarea"
+                                    style={{
+                                        resize: "none"
+                                    }}
+                                />
+                            </Form.Item>
+                        </div>
+                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                            <Col lg="18">
+                                <div className="title-common">Logo on Header</div>
+                            </Col>
+                            <Col lg="6">
+                                <Switch />
+                            </Col>
+                        </Row>
+                        <div className="upload-headfoot upload-headfoot1 p-3">
+                            <div className="d-flex align-items-center justify-content-between">
+                                <div className="text-start fontroboto">Upload a picture of your<br /> Logo</div>
+                                <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
+                                    <Form.Item name="pm_image" />
+                                    <input type="file" accept="image/*" />
+                                    <span>Upload</span>
+                                </div>
+                            </div>
+                        </div>
+                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                            <Col lg="18">
+                                <div className="title-common">See whatsApp Rx preview </div>
+                            </Col>
+                            <Col lg="6">
+                                <div className="d-flex align-items-center">
+                                    <i className="icon-Preview"></i>
+                                    <button className='btn btn-text'>
+                                        <span>Default Settings</span>
+                                    </button>
+                                </div>
+                            </Col>
+                        </Row>
+                    </div>
+
+                    {/* For Upload Letter head tab  */}
+                    <div className="mt-5">
+                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                            <Col lg="24">
+                                <div className="title-common">Upload your header and footer image</div>
+                            </Col>
+                        </Row>
+                        <div className="upload-headfoot">
+                            <div className="fw-medium text-decoration-underline cursor-pointer">Upload Header</div>
+                            <div className="fs-12-1 fontroboto"> Only jpg, jpeg or png files with the max size 2mb.</div>
+                            <Button className="btn btn-headfoot"><i className="icon-Edit me-1"></i>Edit</Button>
+                        </div>
+                        <div className="upload-headfoot">
+                            <div className="fw-medium text-decoration-underline cursor-pointer">Upload Footer</div>
+                            <div className="fs-12-1 fontroboto"> Only jpg, jpeg or png files with the max size 2mb.</div>
+                            <Button className="btn btn-headfoot"><i className="icon-Edit me-1"></i>Edit</Button>
+                        </div>
+                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                            <Col lg="18">
+                                <div className="title-common">See whatsApp Rx preview </div>
+                            </Col>
+                            <Col lg="6">
+                                <div className="d-flex align-items-center">
+                                    <i className="icon-Preview"></i>
+                                    <button className='btn btn-text'>
+                                        <span>Default Settings</span>
+                                    </button>
+                                </div>
+                            </Col>
+                        </Row>
+                    </div>
+
+                    {/* For Own Letterhead tab */}
+                    <div className="mt-5">
+                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                            <Col lg="24">
+                                <div className="title-common">Set page margins to display your own letterhead</div>
+                            </Col>
+                        </Row>
+                        <div className="">
+                            <div className="my-3 text-center">
+                                <label className="mb-1">Top (cm)</label> <br />
+                                <Input className='inputheight41-group' style={{ width: 100 }} />
+                            </div>
+                            <Row className="align-items-center justify-content-around form_addnewpatient mb-1">
+                                <Col lg="6">
+                                    <div className="text-center">
+                                        <label className="mb-1">Left (cm)</label> <br />
+                                        <Input className='inputheight41-group' style={{ width: 100 }} />
+                                    </div>
+                                </Col>
+                                <Col lg="12">
+                                    <img src={defaultprofile} />
+                                </Col>
+                                <Col lg="6">
+                                    <div className="text-center">
+                                        <label className="mb-1">Right (cm)</label> <br />
+                                        <Input className='inputheight41-group' style={{ width: 100 }} />
+                                    </div>
+                                </Col>
+                            </Row>
+                            <div className="my-3 text-center">
+                                <Input className='inputheight41-group' style={{ width: 100 }} /> <br />
+                                <label className="mb-1">Bottom (cm)</label>
+                            </div>
+                        </div>
+                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                            <Col lg="18">
+                                <div className="title-common">See whatsApp Rx preview </div>
+                            </Col>
+                            <Col lg="6">
+                                <div className="d-flex align-items-center">
+                                    <i className="icon-Preview"></i>
+                                    <button className='btn btn-text'>
+                                        <span>Default Settings</span>
+                                    </button>
+                                </div>
+                            </Col>
+                        </Row>
+                    </div>
+
+                    {/* <div className="upload-headfoot">
                         <div className="fw-medium text-decoration-underline cursor-pointer">Upload Header</div>
                         <div className="fs-12-1 fontroboto"> Only jpg, jpeg or png files with the max size 2mb.</div>
                         <Button className="btn btn-headfoot"><i className="icon-Edit me-1"></i>Edit</Button>
@@ -210,18 +405,18 @@ function ConfigurePrintSetting() {
                         <div className="fw-medium text-decoration-underline cursor-pointer">Upload Footer</div>
                         <div className="fs-12-1 fontroboto"> Only jpg, jpeg or png files with the max size 2mb.</div>
                         <Button className="btn btn-headfoot"><i className="icon-Edit me-1"></i>Edit</Button>
-                    </div>
-                    <Form.Item className="mb-0">
+                    </div> */}
+                    {/* <Form.Item className="mb-0">
                         <label className="mb-1">Letterhead Used In</label>
                         <Radio.Group className="d-flex gender-radio">
                             <Radio.Button className="w-100 text-center" value="Male">Both</Radio.Button>
                             <Radio.Button className="w-100 text-center" value="Female">Print Rx</Radio.Button>
                             <Radio.Button className="w-100 text-center" value="Other">WhatsApp Rx</Radio.Button>
                         </Radio.Group>
-                    </Form.Item>
+                    </Form.Item> */}
 
                 </div>
-                <div className="border-bottom pb-3 mb-3">
+                {/* <div className="border-bottom pb-3 mb-3">
                     <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                         <Col lg="18">
                             <div className="titleprint">Print Rx on your letter head</div>
@@ -263,8 +458,8 @@ function ConfigurePrintSetting() {
                         </div>
                     </div>
 
-                </div>
-                <div className="border-bottom pb-3 mb-3">
+                </div> */}
+                {/* <div className="border-bottom pb-3 mb-3">
                     <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                         <Col lg="18">
                             <div className="titleprint">Custom Header</div>
@@ -322,11 +517,11 @@ function ConfigurePrintSetting() {
                             <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
                                 <Form.Item name="pm_image" />
                                 <input type="file" accept="image/*" />
-                                 <span>Upload</span>
+                                <span>Upload</span>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
                 <div className="border-bottom pb-3 mb-3">
                     <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                         <Col lg="18">
@@ -340,7 +535,7 @@ function ConfigurePrintSetting() {
                     </Row>
                     <div>Manage your patient information</div>
                 </div>
-                <div className="border-bottom pb-3 mb-3">
+                {/* <div className="border-bottom pb-3 mb-3">
                     <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                         <Col lg="18">
                             <div className="titleprint">Custom Footer</div>
@@ -352,7 +547,7 @@ function ConfigurePrintSetting() {
                         </Col>
                     </Row>
                     <div>Create your custom footer</div>
-                </div>
+                </div> */}
                 <div className="mb-3">
                     <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                         <Col lg="18">
@@ -371,7 +566,7 @@ function ConfigurePrintSetting() {
         {
             key: '3',
             label: 'Page Format',
-            children: <div className="px-4 form_addnewpatient">
+            children: <div className="px-3 form_addnewpatient">
                 <div className="titleprint mb-3">Page Layout</div>
                 <Form.Item>
                     <label className="mb-1">Page Size</label>
