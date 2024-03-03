@@ -1,5 +1,5 @@
 import React from "react";
-import { Col, Tabs, Radio, Row, Form, Select, Switch, Button, Input } from "antd";
+import { Col, Tabs, Radio, Row, Form, Select, Switch, Button, Input, Checkbox } from "antd";
 import HeaderPrintSetting from "../common/HeaderPrintSetting";
 import { useReactToPrint } from 'react-to-print';
 import PrintHtmlPage from "./PrintHtmlPage";
@@ -357,13 +357,13 @@ function ConfigurePrintSetting() {
                         <div className="">
                             <div className="my-3 text-center">
                                 <label className="mb-1">Top (cm)</label> <br />
-                                <Input className='inputheight41-group' style={{ width: 100 }} />
+                                <Input className='inputheight41-group' style={{ width: 70 }} />
                             </div>
                             <Row className="align-items-center justify-content-around form_addnewpatient mb-1">
                                 <Col lg="6">
                                     <div className="text-center">
                                         <label className="mb-1">Left (cm)</label> <br />
-                                        <Input className='inputheight41-group' style={{ width: 100 }} />
+                                        <Input className='inputheight41-group' style={{ width: 70 }} />
                                     </div>
                                 </Col>
                                 <Col lg="12">
@@ -372,12 +372,12 @@ function ConfigurePrintSetting() {
                                 <Col lg="6">
                                     <div className="text-center">
                                         <label className="mb-1">Right (cm)</label> <br />
-                                        <Input className='inputheight41-group' style={{ width: 100 }} />
+                                        <Input className='inputheight41-group' style={{ width: 70 }} />
                                     </div>
                                 </Col>
                             </Row>
                             <div className="my-3 text-center">
-                                <Input className='inputheight41-group' style={{ width: 100 }} /> <br />
+                                <Input className='inputheight41-group' style={{ width: 70 }} /> <br />
                                 <label className="mb-1">Bottom (cm)</label>
                             </div>
                         </div>
@@ -535,19 +535,9 @@ function ConfigurePrintSetting() {
                     </Row>
                     <div>Manage your patient information</div>
                 </div>
-                {/* <div className="border-bottom pb-3 mb-3">
-                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
-                        <Col lg="18">
-                            <div className="titleprint">Custom Footer</div>
-                        </Col>
-                        <Col lg="6">
-                            <Button className="btn rounded-10px px-1 border" style={{ transform: "rotate(-89deg)" }}>
-                                <i className="icon-right"></i>
-                            </Button>
-                        </Col>
-                    </Row>
-                    <div>Create your custom footer</div>
-                </div> */}
+
+                {/* Use here for Customize Setting draggable table */}
+
                 <div className="mb-3">
                     <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                         <Col lg="18">
@@ -560,6 +550,80 @@ function ConfigurePrintSetting() {
                         </Col>
                     </Row>
                     <div>Customize your watermark, signature, and QR code</div>
+                    <div className="mt-4">
+                        <div className="mb-3">
+                            <Row justify="space-between" className="align-items-center form_addnewpatient">
+                                <Col lg="18">
+                                    <div className="title-common">Watermark</div>
+                                </Col>
+                                <Col lg="6">
+                                    <Switch />
+                                </Col>
+                            </Row>
+                            <div className="upload-headfoot upload-headfoot1 p-3">
+                                <div className="d-flex align-items-center justify-content-between">
+                                    <img src={defaultprofile} style={{ height: 75 }} />
+                                    <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
+                                        <Form.Item name="pm_image" />
+                                        <input type="file" accept="image/*" />
+                                        <span>Upload New</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
+                                <Col lg="18">
+                                    <div className="title-common">Signature</div>
+                                </Col>
+                                <Col lg="6">
+                                    <Switch />
+                                </Col>
+                            </Row>
+                            <Form.Item className="mb-0 mt-3">
+                                <Radio.Group className="d-flex gender-radio">
+                                    <Radio.Button className="w-100 text-center" value="left">left</Radio.Button>
+                                    <Radio.Button className="w-100 text-center" value="Female">right</Radio.Button>
+                                </Radio.Group>
+                            </Form.Item>
+                            <div className="border rounded-10px mt-3">
+                                <div className="upload-headfoot border-0 border-bottom rounded-bottom-0 mt-0">
+                                    <div className="fw-medium text-decoration-underline cursor-pointer">Draw or Upload Signature</div>
+                                    <Button className="btn btn-headfoot"><i className="icon-Edit me-1"></i>Edit</Button>
+                                </div>
+                                <div className="p-3">
+                                    <div className="title-common mb-3">Include in signature</div>
+                                    <div className="mb-3">
+                                        <Checkbox className="switch-name-check">Name of Doctor</Checkbox>
+                                    </div>
+                                    <div className="mb-3">
+                                        <Checkbox className="switch-name-check">Medical Registration Number</Checkbox>
+                                    </div>
+                                    <div className="mb-3">
+                                        <Checkbox className="switch-name-check">Qualifications</Checkbox>
+                                    </div>
+
+                                    <TextArea
+                                        className="endreason-textarea h-76"
+                                        placeholder="Enter qualification e.g. MBBS, MS, MD"
+                                        style={{
+                                            resize: "none"
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
+                                <Col lg="18">
+                                    <div className="title-common">Show QR code</div>
+                                </Col>
+                                <Col lg="6">
+                                    <Switch />
+                                </Col>
+                            </Row>
+                        </div>
+                    </div>
                 </div>
             </div>,
         },
