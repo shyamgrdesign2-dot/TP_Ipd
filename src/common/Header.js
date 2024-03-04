@@ -8,11 +8,11 @@ import { isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 
 import config from "../config";
-import { getProfile, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency } from "../redux/doctorsSlice";
+import { getProfile, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getDefaultPrintsettings } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
 import { makeDefaultLogo } from "../utils/utils";
 import { MESSAGE_KEY } from "../utils/constants";
 import CommonModal from './CommonModal';
@@ -46,6 +46,7 @@ function Header({ locationPath }) {
     dispatch(customizedPad(CUSTOMIZED_PAD_SENDDATA))
     dispatch(showMedicineTime());
     dispatch(showMedicineFrequency());
+    dispatch(getDefaultPrintsettings())
   }, []);
 
   useEffect(() => {

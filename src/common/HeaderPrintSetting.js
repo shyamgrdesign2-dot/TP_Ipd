@@ -11,7 +11,7 @@ function HeaderPrintSetting() {
             <div className='align-items-center d-flex w-100 h-100 justify-content-between'>
                 <div className='align-items-center d-flex h-100 w-100'>
                     <div className='border-end h-100 text-center me-2'>
-                        <div onClick={navigate("/")} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                        <div onClick={() => navigate("/")} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
                             <i className='icon-right'></i>
                         </div>
                     </div>

@@ -1,197 +1,32 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Col, Tabs, Radio, Row, Form, Select, Switch, Button, Input, Checkbox } from "antd";
 import HeaderPrintSetting from "../common/HeaderPrintSetting";
 import { useReactToPrint } from 'react-to-print';
 import PrintHtmlPage from "./PrintHtmlPage";
 
+import { useSelector, useDispatch } from "react-redux";
 
+import { TAB_PRESCRIPTION, TAB_HEADER_FOOTER, TAB_PAGE_FORMAT } from "../utils/constants";
 import defaultprofile from "../assets/images/default-profile.svg";
+
 const { TextArea } = Input;
 
 function ConfigurePrintSetting() {
+
     const printRef = React.useRef();
-    const onChange = (key) => {
-        console.log(key);
-    };
+
+    const { defaultPrintSettings } = useSelector((state) => state.doctors);
+
+    const [selectedTab, setSelectedTab] = useState(TAB_PRESCRIPTION);
+    const [printSettings, setPrintSettings] = useState(null);
+
     const TabsPrintSetting = [
         {
-            key: '1',
-            label: 'Prescription',
-            children:
-                <div className="px-3">
-                    <div className="titleprint mb-3">Format Style</div>
-                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                        <Col lg="10">
-                            All Change to
-                        </Col>
-                        <Col lg="14">
-                            <Form.Item className="mb-0">
-                                <Radio.Group className="d-flex gender-radio">
-                                    <Radio.Button className="w-100 text-center" value="Male">Male</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Female">Female</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Other">Other</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                        <Col lg="10">
-                            <div className="d-flex align-items-center">
-                                <i className="icon-Preview me-2"></i>
-                                <span>Symptoms</span>
-                            </div>
-                        </Col>
-                        <Col lg="14">
-                            <Form.Item className="mb-0">
-                                <Radio.Group className="d-flex gender-radio">
-                                    <Radio.Button className="w-100 text-center" value="Male">Male</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Female">Female</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Other">Other</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                        <Col lg="10">
-                            <div className="d-flex align-items-center">
-                                <i className="icon-Preview me-2"></i>
-                                <span>Examinations</span>
-                            </div>
-                        </Col>
-                        <Col lg="14">
-                            <Form.Item className="mb-0">
-                                <Radio.Group className="d-flex gender-radio">
-                                    <Radio.Button className="w-100 text-center" value="Male">Male</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Female">Female</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Other">Other</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                        <Col lg="10">
-                            <div className="d-flex align-items-center">
-                                <i className="icon-Preview me-2"></i>
-                                <span>Diagnosis</span>
-                            </div>
-                        </Col>
-                        <Col lg="14">
-                            <Form.Item className="mb-0">
-                                <Radio.Group className="d-flex gender-radio">
-                                    <Radio.Button className="w-100 text-center" value="Male">Male</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Female">Female</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Other">Other</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                        <Col lg="10">
-                            <div className="d-flex align-items-center">
-                                <i className="icon-Preview me-2"></i>
-                                <span>Medications (Rx)</span>
-                            </div>
-                        </Col>
-                        <Col lg="14">
-                            <Form.Item className="mb-0">
-                                <Radio.Group className="d-flex gender-radio">
-                                    <Radio.Button className="w-100 text-center" value="Male">Male</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Female">Female</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Other">Other</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                        <Col lg="10">
-                            <div className="d-flex align-items-center">
-                                <i className="icon-Preview me-2"></i>
-                                <span>Advices</span>
-                            </div>
-                        </Col>
-                        <Col lg="14">
-                            <Form.Item className="mb-0">
-                                <Radio.Group className="d-flex gender-radio">
-                                    <Radio.Button className="w-100 text-center" value="Male">Male</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Female">Female</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Other">Other</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                        <Col lg="10">
-                            <div className="d-flex align-items-center">
-                                <i className="icon-Preview me-2"></i>
-                                <span>Lab Investigation</span>
-                            </div>
-                        </Col>
-                        <Col lg="14">
-                            <Form.Item className="mb-0">
-                                <Radio.Group className="d-flex gender-radio">
-                                    <Radio.Button className="w-100 text-center" value="Male">Male</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Female">Female</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Other">Other</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                        <Col lg="10">
-                            <div className="d-flex align-items-center">
-                                <i className="icon-Preview me-2"></i>
-                                <span>Medical History</span>
-                            </div>
-                        </Col>
-                        <Col lg="14">
-                            <Form.Item className="mb-0">
-                                <Radio.Group className="d-flex gender-radio">
-                                    <Radio.Button className="w-100 text-center" value="Male">Male</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Female">Female</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Other">Other</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                        <Col lg="10">
-                            <div className="d-flex align-items-center">
-                                <i className="icon-Preview me-2"></i>
-                                <span>Lab Results</span>
-                            </div>
-                        </Col>
-                        <Col lg="14">
-                            <Form.Item className="mb-0">
-                                <Radio.Group className="d-flex gender-radio">
-                                    <Radio.Button className="w-100 text-center" value="Male">Male</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Female">Female</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Other">Other</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                        <Col lg="10">
-                            <div className="d-flex align-items-center">
-                                {/* disable-preview  Add and remove this class for desable enable */}
-                                <i className="icon-Preview disable-preview me-2"></i>
-                                <span>Vaccination</span>
-                            </div>
-                        </Col>
-                        <Col lg="14">
-                            <Form.Item className="mb-0">
-                                <Radio.Group className="d-flex gender-radio">
-                                    <Radio.Button className="w-100 text-center" value="Male">Male</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Female">Female</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Other">Other</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </div>,
+            key: TAB_PRESCRIPTION,
+            label: 'Prescription'
         },
         {
-            key: '2',
+            key: TAB_HEADER_FOOTER,
             label: 'Header & Footer',
             children: <div className="px-3 form_addnewpatient">
                 <div className="border-bottom pb-3 mb-3">
@@ -628,7 +463,7 @@ function ConfigurePrintSetting() {
             </div>,
         },
         {
-            key: '3',
+            key: TAB_PAGE_FORMAT,
             label: 'Page Format',
             children: <div className="px-3 form_addnewpatient">
                 <div className="titleprint mb-3">Page Layout</div>
@@ -669,6 +504,10 @@ function ConfigurePrintSetting() {
         },
     ];
 
+    const printContent = useReactToPrint({
+        content: () => printRef.current,
+    });
+
     // const css = `@page {
     //     size: A4 landscape;
     //   }
@@ -680,9 +519,51 @@ function ConfigurePrintSetting() {
 
     //   }`;
 
-    const printContent = useReactToPrint({
-        content: () => printRef.current,
-    });
+    useEffect(() => {
+        setPrintSettings({ ...defaultPrintSettings });
+    }, [defaultPrintSettings]);
+
+    const onTabChange = useCallback(
+        (key) => {
+            setSelectedTab(key);
+        },
+        [selectedTab]
+    );
+
+    const onMainCaseOptionChange = useCallback(
+        (e) => {
+            const updatedData = printSettings.prescription.case_option.map((x) => {
+                return { ...x, format: e.target.value };
+            });
+
+            setPrintSettings((prev) => {
+                return {
+                    ...prev,
+                    prescription: {
+                        case_option: updatedData
+                    }
+                };
+            });
+        },
+        [printSettings]
+    );
+
+    const onCaseOptionChange = useCallback(
+        (e, flag, i) => {
+            flag === 'radio' ?
+                printSettings.prescription.case_option[i]['format'] = e.target.value
+                :
+                printSettings.prescription.case_option[i]['enable'] = printSettings.prescription.case_option[i]['enable'] === 'Y' ? 'N' : 'Y'
+
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
     return (
         <>
             <HeaderPrintSetting />
@@ -691,7 +572,52 @@ function ConfigurePrintSetting() {
                 <Row justify="space-between">
                     <Col lg={8} className="pe-4">
                         <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
-                            <Tabs defaultActiveKey="1" items={TabsPrintSetting} onChange={onChange} className="print-tabs" />
+                            <Tabs defaultActiveKey="1" items={TabsPrintSetting} onChange={onTabChange} className="print-tabs" />
+                            {selectedTab === TAB_PRESCRIPTION && (
+                                <div className="px-3">
+                                    <div className="titleprint mb-3">Format Style</div>
+                                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
+                                        <Col lg="10">
+                                            All Change to
+                                        </Col>
+                                        <Col lg="14">
+                                            <Form.Item className="mb-0">
+                                                <Radio.Group className="d-flex gender-radio" onChange={onMainCaseOptionChange}
+                                                    value={
+                                                        printSettings?.prescription?.case_option.every(e => e.format === 'inline') ? 'inline'
+                                                            : printSettings?.prescription?.case_option.every(e => e.format === 'listview') ? 'listview'
+                                                                : printSettings?.prescription?.case_option.every(e => e.format === 'table') ? 'table'
+                                                                    : null}>
+                                                    <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
+                                                    <Radio.Button className="w-100 text-center" value="listview">ListView</Radio.Button>
+                                                    <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>
+                                                </Radio.Group>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    {printSettings?.prescription?.case_option?.map((e, i) => {
+                                        return (
+                                            <Row key={i} justify="space-between" className="align-items-center form_addnewpatient mb-3">
+                                                <Col lg="10">
+                                                    <div className="d-flex align-items-center cursor-pointer" onClick={(e) => onCaseOptionChange(e, 'visible', i)}>
+                                                        <i className={`icon-Preview ${e.enable == 'N' && 'disable-preview'} me-2`}></i>
+                                                        <span>{e.title}</span>
+                                                    </div>
+                                                </Col>
+                                                <Col lg="14">
+                                                    <Form.Item className="mb-0">
+                                                        <Radio.Group className="d-flex gender-radio" onChange={(e) => onCaseOptionChange(e, 'radio', i)} value={e.format}>
+                                                            <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
+                                                            <Radio.Button className="w-100 text-center" value="listview">ListView</Radio.Button>
+                                                            <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>
+                                                        </Radio.Group>
+                                                    </Form.Item>
+                                                </Col>
+                                            </Row>
+                                        )
+                                    })}
+                                </div>
+                            )}
                         </div>
                     </Col>
                     <Col lg={16} className="overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
