@@ -520,7 +520,7 @@ function ConfigurePrintSetting() {
     //   }`;
 
     useEffect(() => {
-        setPrintSettings({ ...defaultPrintSettings });
+        setPrintSettings(JSON.parse(JSON.stringify(defaultPrintSettings)));
     }, [defaultPrintSettings]);
 
     const onTabChange = useCallback(
@@ -553,7 +553,7 @@ function ConfigurePrintSetting() {
             flag === 'radio' ?
                 printSettings.prescription.case_option[i]['format'] = e.target.value
                 :
-                printSettings.prescription.case_option[i]['enable'] = printSettings.prescription.case_option[i]['enable'] === 'Y' ? 'N' : 'Y'
+                printSettings.prescription.case_option[i]['enable'] = e.enable === 'Y' ? 'N' : 'Y'
 
             setPrintSettings((prev) => {
                 return {
@@ -599,7 +599,7 @@ function ConfigurePrintSetting() {
                                         return (
                                             <Row key={i} justify="space-between" className="align-items-center form_addnewpatient mb-3">
                                                 <Col lg="10">
-                                                    <div className="d-flex align-items-center cursor-pointer" onClick={(e) => onCaseOptionChange(e, 'visible', i)}>
+                                                    <div className="d-flex align-items-center cursor-pointer" onClick={() => onCaseOptionChange(e, 'visible', i)}>
                                                         <i className={`icon-Preview ${e.enable == 'N' && 'disable-preview'} me-2`}></i>
                                                         <span>{e.title}</span>
                                                     </div>
