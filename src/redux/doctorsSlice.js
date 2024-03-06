@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { parseApiError } from "../utils/utils";
 import ApiAppointments from "../api/services/ApiAppointments";
 import ApiMedication from "../api/services/ApiMedication";
+import ApiPrintSettings from "../api/services/ApiPrintSettings";
 
 const initialState = {
   profile: null,
@@ -11,6 +12,7 @@ const initialState = {
   customizedPadRightList: [],
   timingList: [],
   frequencyList: [],
+  defaultPrintSettings: null
 };
 
 export const getProfile = createAsyncThunk(
@@ -120,6 +122,19 @@ export const showMedicineTime = createAsyncThunk(
   }
 );
 
+export const getDefaultPrintsettings = createAsyncThunk(
+  "printSettings/getDefaultPrintsettings",
+  async () => {
+    let result = {};
+    result = await ApiPrintSettings.getDefaultPrintsettings();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
@@ -190,6 +205,12 @@ const doctorsSlice = createSlice({
       })
       .addCase(showMedicineTime.rejected, (state) => {
         state.timingList = [];
+      })
+      .addCase(getDefaultPrintsettings.fulfilled, (state, action) => {
+        state.defaultPrintSettings = action.payload;
+      })
+      .addCase(getDefaultPrintsettings.rejected, (state) => {
+        state.defaultPrintSettings = null;
       });
   },
 });

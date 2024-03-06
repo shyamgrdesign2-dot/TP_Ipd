@@ -671,7 +671,7 @@ function TabSymptomsBox() {
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.filter(e => ![...symptomsData.map(e1 => e1.symptom_name)].includes(e.symptom_name)).map((item, i) => {
                             return (
-                                <Button key={i} type="text" style={{ width: item.symptom_name.length > 26 && '250px' }} className={`${item.symptom_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.symptom_name}</Button>
+                                <Button key={i} type="text" style={{ width: item.symptom_name.length > 26 && '250px' }} className={`${item.symptom_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{`${item.symptom_name}`}</Button>
                             )
                         })}
                 </div>

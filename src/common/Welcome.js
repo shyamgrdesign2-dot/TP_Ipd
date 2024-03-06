@@ -1,35 +1,37 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { useSelector } from "react-redux";
+
 import { useLocalStorage } from "../utils/localStorage";
-import { PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 function Welcome(props) {
-  const navigate = useNavigate();
-  const [getStoredProfile, saveProfile] = useLocalStorage(
-    PERSISTANT_STORAGE_KEY_PROFILE
-  );
 
-  const profile = getStoredProfile();
+  const navigate = useNavigate();
 
   const { locationPath, backVisible } = props;
 
-  const getFirstNameWithFallback = () => {
-    const fullName = profile?.um_name;
+  const { profile } = useSelector((state) => state.doctors);
 
-    if (!fullName) {
-      return "Dr.";
-    } else {
-      return fullName;
+  const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  const [tokenData, setTokenData] = useState(null);
+
+  useEffect(() => {
+    const getTokenData = async () => {
+      const token = await getToken()
+      if (token !== undefined) {
+        try {
+          var decoded = jwtDecode(token);
+          setTokenData(decoded.result)
+        } catch (e) {
+          console.log(e)
+        }
+      }
     }
-
-    // if (fullName?.includes(" ")) {
-    //   const firstName = fullName.split(" ")[0];
-    //   return firstName;
-    // } else {
-    //   return fullName;
-    // }
-  };
+    getTokenData()
+  }, [PERSISTANT_STORAGE_KEY_AUTH_TOKEN]);
 
   return (
     <>
@@ -49,7 +51,7 @@ function Welcome(props) {
               ) : locationPath == "/walk_in_consultation" ? (
                 <h1>Start Walk-In Consultation</h1>
               ) : (
-                <h1>Welcome {getFirstNameWithFallback()}!</h1>
+                <h1>Welcome Dr. {profile?.um_name}!</h1>
               )}
               {locationPath == "/" && <p>{"Your Appointments"}</p>}
             </div>
@@ -66,7 +68,13 @@ function Welcome(props) {
                 <Button
                   variant="primary"
                   className="px-3 btn-41"
-                  onClick={() => navigate("/walk_in_consultation")}
+                  onClick={() => {
+                    window.Moengage.track_event("walk_in_consultation_click", {
+                      "doctor_id": tokenData?.doctor_unique_id,
+                      "timestamp": new Date(),
+                    });
+                    navigate("/walk_in_consultation")
+                  }}
                 >
                   {"Start Walk-in Consultation"}
                 </Button>
