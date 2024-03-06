@@ -533,6 +533,7 @@ function HeaderPrescription() {
                                         onClick={() => onTemplateSelected(template.tmoc_id)}
                                     >
                                         <div className="title text-main2">{template.tmoc_template_name}</div>
+                                        <div className="text-truncate">{template.medicine_name}</div>
                                     </div>
                                     <Button
                                         className="btn btn-delete-prescription p-0 ms-2"
@@ -621,6 +622,7 @@ function HeaderPrescription() {
                                     <div className="round-box"><i className="icon-template"></i></div>
                                     <div className="text-truncate w-100">
                                         <div className="title text-main2">{option.data.value}</div>
+                                        <div className="text-truncate">{JSON.parse(option.data.key).medicine_name}</div>
                                     </div>
                                 </div>
                             )}
@@ -656,6 +658,7 @@ function HeaderPrescription() {
                                             <div className="round-box"><i className="icon-template"></i></div>
                                             <div className="text-truncate w-100">
                                                 <div className="title text-main2">{template.tmoc_template_name}</div>
+                                                <div className="text-truncate">{template.medicine_name}</div>
                                             </div>
                                         </div>
                                         <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => showHideModal(template.tmoc_id)}>
@@ -733,6 +736,7 @@ function HeaderPrescription() {
                                     <div className="round-box"><i className="icon-template"></i></div>
                                     <div className="text-truncate w-100">
                                         <div className="title text-main2">{option.data.value}</div>
+                                        <div className="text-truncate">{JSON.parse(option.data.key).medicine_name}</div>
                                     </div>
                                 </div>
                             )}

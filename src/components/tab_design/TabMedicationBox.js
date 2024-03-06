@@ -581,9 +581,8 @@ function TabMedicationBox() {
                         <i className="icon-template"></i>
                       </div>
                       <div className="text-truncate w-100">
-                        <div className="title text-main2">
-                          {template.tmtd_template_name}
-                        </div>
+                        <div className="title text-main2">{template.tmtd_template_name}</div>
+                        <div className="text-truncate">{template.medicine_name}</div>
                       </div>
                     </div>
                     <Button
@@ -665,6 +664,7 @@ function TabMedicationBox() {
                   <div className="round-box"><i className="icon-template"></i></div>
                   <div className="text-truncate w-100">
                     <div className="title text-main2">{option.data.value}</div>
+                    <div className="text-truncate">{JSON.parse(option.data.key).medicine_name}</div>
                   </div>
                 </div>
               )}
@@ -1837,7 +1837,7 @@ function TabMedicationBox() {
                     className="btn btn-primary2 chips-custom mb-14 me-14"
                     onClick={() => onSelectParent(item)}
                   >
-                    {item.tmm_medicine_name}
+                    {`${item.tmm_medicine_name}`}
                   </Button>
                 );
               })}
