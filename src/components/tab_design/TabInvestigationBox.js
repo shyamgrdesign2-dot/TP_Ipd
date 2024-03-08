@@ -251,7 +251,6 @@ function TabInvestigationBox() {
                 title={"You may lose your data"}
                 modalBody={
                     <>
-                        {console.log("first")}
                         <div className="alert-warning rounded-10px p-2 patient-details">
                             <div className="d-flex align-items-center">
                                 <img className='me-3' src={alertIcon} alt="Warning" />
