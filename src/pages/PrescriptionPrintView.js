@@ -180,7 +180,6 @@ function PrescriptionPrintView() {
                 duration: 2
             });
         }
-
     };
 
     const [numPages, setNumPages] = useState();
@@ -190,8 +189,14 @@ function PrescriptionPrintView() {
         setNumPages(numPages);
     }
     function configurePrintUrl() {
-        navigate("/configure_print_setting");
-      }
+        message.open({
+            key: MESSAGE_KEY,
+            type: 'warning',
+            content: "Comming Soon",
+            duration: 2
+        });
+        // navigate("/configure_print_setting");
+    }
 
     return (
         <>

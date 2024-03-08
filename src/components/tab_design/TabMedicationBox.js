@@ -1104,7 +1104,7 @@ function TabMedicationBox() {
                 </Col>
               </Row>
               <div className="d-flex align-items-center justify-content-between mt-3 mb-2">
-                <label className="title-common">Timing</label>
+                <label className="title-common">Frequency</label>
                 <div className="mb-1 man-mean">
                   <Radio.Group
                     size="small"

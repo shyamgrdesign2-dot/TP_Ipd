@@ -582,20 +582,20 @@ function MedicationsBox() {
   };
 
   // TimingInfo popover
-  const [timingPopOver, setTimingPopOver] = useState(false);
+  const [frequencyPopOver, setFrequencyPopOver] = useState(false);
 
-  const showHideTimingPopOver = useCallback(() => {
-    setTimingPopOver(!timingPopOver);
-  }, [timingPopOver]);
+  const showHideFrequencyPopOver = useCallback(() => {
+    setFrequencyPopOver(!frequencyPopOver);
+  }, [frequencyPopOver]);
 
-  const TIMING_CONTENT = useCallback(() => {
+  const FREQUENCY_CONTENT = useCallback(() => {
     return (
       <div className="position-relative">
         <img src={TimingInfo} alt="Timing Info" />
-        <i onClick={showHideTimingPopOver} className="icon-Cross position-absolute cursor-pointer" style={{ right: 13, top: 15, color: '#92929D' }}></i>
+        <i onClick={showHideFrequencyPopOver} className="icon-Cross position-absolute cursor-pointer" style={{ right: 13, top: 15, color: '#92929D' }}></i>
       </div>
     );
-  }, [timingPopOver]);
+  }, [frequencyPopOver]);
 
   const showHideModal = useCallback((template_id) => {
     template_id !== undefined ? setRemoveTemplateId(template_id) : setRemoveTemplateId(null)
@@ -659,14 +659,14 @@ function MedicationsBox() {
             </Col>
             <Col lg={4} md={4} sm={4} xs={4} className="border-end">
               <div className="fontroboto fw-medium p-2 fs-12 text-welcome d-flex align-items-center">
-                <label>TIMING </label>
+                <label>FREQUENCY </label>
                 <Popover
-                  open={timingPopOver}
-                  content={TIMING_CONTENT}
+                  open={frequencyPopOver}
+                  content={FREQUENCY_CONTENT}
                   placement="rightTop"
                   trigger="click"
                   arrow={false}
-                  onOpenChange={showHideTimingPopOver}
+                  onOpenChange={showHideFrequencyPopOver}
                   overlayClassName="pp-0">
                   <i className='icon-info ms-1 fs-18'></i>
                 </Popover>
@@ -802,7 +802,7 @@ function MedicationsBox() {
           })}
       </>
     );
-  }, [medicationData, timingPopOver]);
+  }, [medicationData, frequencyPopOver]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useCallback(() => {

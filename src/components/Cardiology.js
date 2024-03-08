@@ -80,7 +80,7 @@ function Cardiology(props) {
             key: 'TimeFrequency',
             render: (text, record) => (
                 <div className='lh-base'>
-                    {record.tmf_block == 0 || record.tmf_block == "" ? `${isNumeric(record.tcm_tmm_freq_morning) ? record.tcm_tmm_freq_morning : 0}-${isNumeric(record.tcm_tmm_freq_afternoon) ? record.tcm_tmm_freq_afternoon : 0}-${isNumeric(record.tcm_tmm_freq_evening) ? record.tcm_tmm_freq_evening : 0}-${isNumeric(record.tcm_tmm_freq_night) ? record.tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id == record.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id == record.tmm_freq_type).tmf_title : ''})`}
+                    {record.tmf_block == 0 || record.tmf_block == "" ? `${record.tcm_tmm_freq_morning ? record.tcm_tmm_freq_morning : 0}-${record.tcm_tmm_freq_afternoon ? record.tcm_tmm_freq_afternoon : 0}-${record.tcm_tmm_freq_evening ? record.tcm_tmm_freq_evening : 0}-${record.tcm_tmm_freq_night ? record.tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id == record.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id == record.tmm_freq_type).tmf_title : ''})`}
                     <div>{timingList.find((x) => x.tmt_id == record.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id == record.tmm_time).tmt_title : ''}</div>
                 </div>
             ),
@@ -100,7 +100,7 @@ function Cardiology(props) {
             key: 'qty',
             width: '50px',
             render: (text, record) => (
-                <div>{`${record.display_qty ? record.display_qty : '-'}`}</div>
+                <div>{`${record.display_qty ? record.display_qty.toFixed(2) : '-'}`}</div>
             ),
         },
         {
