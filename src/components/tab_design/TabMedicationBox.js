@@ -165,8 +165,8 @@ function TabMedicationBox() {
     setParentDrawer(!parentDrawer);
   }, [parentDrawer]);
 
-  const onSelectParent = async (e) => {
-    const action = await dispatch(getMedicineDetails(e.tmm_id));
+  const onSelectParent = async (item) => {
+    const action = await dispatch(getMedicineDetails(item.tmm_id));
     if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {
         const medicineUnit = e?.medicineUnit.map((e1) => {
@@ -187,6 +187,7 @@ function TabMedicationBox() {
 
         return {
           ...e,
+          objectID: item.objectID,
           tmm_unit_name:
             unitObj && unitObj !== undefined
               ? JSON.parse(unitObj.key).tmu_title
@@ -473,7 +474,6 @@ function TabMedicationBox() {
         title={"You may lose your data"}
         modalBody={
           <>
-            {console.log("first")}
             <div className="alert-warning rounded-10px p-2 patient-details">
               <div className="d-flex align-items-center">
                 <img className='me-3' src={alertIcon} alt="Warning" />
