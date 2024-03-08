@@ -123,8 +123,8 @@ function MedicationsBox() {
     [searchParentQuery]
   );
 
-  const onSelectParent = async (data, e) => {
-    const action = await dispatch(getMedicineDetails(JSON.parse(e.key).tmm_id));
+  const onSelectParent = async (data, item) => {
+    const action = await dispatch(getMedicineDetails(JSON.parse(item.key).tmm_id));
     if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {
 
@@ -134,7 +134,7 @@ function MedicationsBox() {
 
         return {
           ...e,
-          objectID: JSON.parse(e.key).objectID,
+          objectID: JSON.parse(item.key).objectID,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
           tmm_freq_type_name: e.tmf_block == 0 ?
             `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`

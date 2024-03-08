@@ -112,271 +112,41 @@ function PrintHtmlPage({ printSettings }) {
             "patinet_ht_wt": "/",
             "patinet_consultation_type": null
         },
-        "vitals": [],
-        "medicine": [
+        "vitals": [
             {
-                "tmm_id": 193457,
-                "tmm_medicine_name": "Zyzone 4mg Injection",
-                "tmm_generic": "Dexamethasone (4mg)",
-                "tmm_company": "Obzone Pharmaceuticals Pvt Ltd",
-                "tmm_type": "",
-                "tmm_days": 1,
-                "tmm_duration_type": "day(s)",
-                "tmm_dosage": "1",
-                "tmm_unit": "3",
-                "tcm_tmm_freq_morning": 0.5,
-                "tcm_tmm_freq_afternoon": 0.6,
-                "tcm_tmm_freq_evening": 1.8,
-                "tcm_tmm_freq_night": 0,
-                "tmm_time": 5,
-                "tmm_remarks": "Bring with Milk\nBefore Lunch",
-                "tmm_freq_type": 17,
-                "tmf_block": 0,
-                "tcm_tmr_type": "M",
-                "display_qty": 2.9000000000000004,
-                "medicineUnit": [
-                    {
-                        "tmu_id": 1,
-                        "tmu_title": "Amplues"
-                    },
-                    {
-                        "tmu_id": 2,
-                        "tmu_title": "Tablets"
-                    },
-                    {
-                        "tmu_id": 3,
-                        "tmu_title": "mg"
-                    },
-                    {
-                        "tmu_id": 4,
-                        "tmu_title": "ml"
-                    },
-                    {
-                        "tmu_id": 5,
-                        "tmu_title": "units"
-                    },
-                    {
-                        "tmu_id": 6,
-                        "tmu_title": "Capsule"
-                    },
-                    {
-                        "tmu_id": 7,
-                        "tmu_title": "Fingertips"
-                    },
-                    {
-                        "tmu_id": 8,
-                        "tmu_title": "Pea sized"
-                    },
-                    {
-                        "tmu_id": 9,
-                        "tmu_title": "gms"
-                    },
-                    {
-                        "tmu_id": 10,
-                        "tmu_title": "palm sized"
-                    },
-                    {
-                        "tmu_id": 11,
-                        "tmu_title": "tsp"
-                    },
-                    {
-                        "tmu_id": 12,
-                        "tmu_title": "tbps"
-                    },
-                    {
-                        "tmu_id": 13,
-                        "tmu_title": "Kits"
-                    },
-                    {
-                        "tmu_id": 14,
-                        "tmu_title": "Drops"
-                    },
-                    {
-                        "tmu_id": 15,
-                        "tmu_title": "Sprays"
-                    },
-                    {
-                        "tmu_id": 16,
-                        "tmu_title": "Sachets"
-                    },
-                    {
-                        "tmu_id": 17,
-                        "tmu_title": "Cup"
-                    },
-                    {
-                        "tmu_id": 18,
-                        "tmu_title": "Scoops"
-                    },
-                    {
-                        "tmu_id": 19,
-                        "tmu_title": "Suppositories"
-                    },
-                    {
-                        "tmu_id": 20,
-                        "tmu_title": "Soaps"
-                    },
-                    {
-                        "tmu_id": 21,
-                        "tmu_title": "Bottles"
-                    },
-                    {
-                        "tmu_id": 22,
-                        "tmu_title": "patches"
-                    },
-                    {
-                        "tmu_id": 23,
-                        "tmu_title": "Respules"
-                    },
-                    {
-                        "tmu_id": 24,
-                        "tmu_title": "Puffs"
-                    },
-                    {
-                        "tmu_id": 25,
-                        "tmu_title": "mcg"
-                    },
-                    {
-                        "tmu_id": 26,
-                        "tmu_title": "Cups"
-                    },
-                    {
-                        "tmu_id": 27,
-                        "tmu_title": "tbsp"
-                    }
-                ]
+                "date": "2024-03-08",
+                "dev_unique_id": "36847",
+                "tcv_id": "28164",
+                "temp": "50",
+                "pres": "50",
+                "resp_rate": "60",
+                "blood_press": "90/53",
+                "spo2": "43",
+                "tcbc_id": 8589,
+                "height": "43",
+                "weight": "43",
+                "bmi": "232.56",
+                "bmr": "433.75",
+                "bsa": "0.72"
             },
             {
-                "tmm_id": 193457,
-                "tmm_medicine_name": "Zyzone 4mg Injection",
-                "tmm_generic": "Dexamethasone (4mg)",
-                "tmm_company": "Obzone Pharmaceuticals Pvt Ltd",
-                "tmm_type": "",
-                "tmm_days": 1,
-                "tmm_duration_type": "day(s)",
-                "tmm_dosage": "1",
-                "tmm_unit": "3",
-                "tcm_tmm_freq_morning": 0.5,
-                "tcm_tmm_freq_afternoon": 0.6,
-                "tcm_tmm_freq_evening": 1.8,
-                "tcm_tmm_freq_night": 0,
-                "tmm_time": 5,
-                "tmm_remarks": "Bring with Milk\nBefore Lunch",
-                "tmm_freq_type": 17,
-                "tmf_block": 0,
-                "tcm_tmr_type": "M",
-                "display_qty": 2.9000000000000004,
-                "medicineUnit": [
-                    {
-                        "tmu_id": 1,
-                        "tmu_title": "Amplues"
-                    },
-                    {
-                        "tmu_id": 2,
-                        "tmu_title": "Tablets"
-                    },
-                    {
-                        "tmu_id": 3,
-                        "tmu_title": "mg"
-                    },
-                    {
-                        "tmu_id": 4,
-                        "tmu_title": "ml"
-                    },
-                    {
-                        "tmu_id": 5,
-                        "tmu_title": "units"
-                    },
-                    {
-                        "tmu_id": 6,
-                        "tmu_title": "Capsule"
-                    },
-                    {
-                        "tmu_id": 7,
-                        "tmu_title": "Fingertips"
-                    },
-                    {
-                        "tmu_id": 8,
-                        "tmu_title": "Pea sized"
-                    },
-                    {
-                        "tmu_id": 9,
-                        "tmu_title": "gms"
-                    },
-                    {
-                        "tmu_id": 10,
-                        "tmu_title": "palm sized"
-                    },
-                    {
-                        "tmu_id": 11,
-                        "tmu_title": "tsp"
-                    },
-                    {
-                        "tmu_id": 12,
-                        "tmu_title": "tbps"
-                    },
-                    {
-                        "tmu_id": 13,
-                        "tmu_title": "Kits"
-                    },
-                    {
-                        "tmu_id": 14,
-                        "tmu_title": "Drops"
-                    },
-                    {
-                        "tmu_id": 15,
-                        "tmu_title": "Sprays"
-                    },
-                    {
-                        "tmu_id": 16,
-                        "tmu_title": "Sachets"
-                    },
-                    {
-                        "tmu_id": 17,
-                        "tmu_title": "Cup"
-                    },
-                    {
-                        "tmu_id": 18,
-                        "tmu_title": "Scoops"
-                    },
-                    {
-                        "tmu_id": 19,
-                        "tmu_title": "Suppositories"
-                    },
-                    {
-                        "tmu_id": 20,
-                        "tmu_title": "Soaps"
-                    },
-                    {
-                        "tmu_id": 21,
-                        "tmu_title": "Bottles"
-                    },
-                    {
-                        "tmu_id": 22,
-                        "tmu_title": "patches"
-                    },
-                    {
-                        "tmu_id": 23,
-                        "tmu_title": "Respules"
-                    },
-                    {
-                        "tmu_id": 24,
-                        "tmu_title": "Puffs"
-                    },
-                    {
-                        "tmu_id": 25,
-                        "tmu_title": "mcg"
-                    },
-                    {
-                        "tmu_id": 26,
-                        "tmu_title": "Cups"
-                    },
-                    {
-                        "tmu_id": 27,
-                        "tmu_title": "tbsp"
-                    }
-                ]
+                "date": "2024-03-07",
+                "dev_unique_id": "31173",
+                "tcv_id": "28165",
+                "temp": "452",
+                "pres": "7452",
+                "resp_rate": "42",
+                "blood_press": "42/42",
+                "spo2": "4",
+                "tcbc_id": 8590,
+                "height": "7423",
+                "weight": "423",
+                "bmi": "0.08",
+                "bmr": "50358.75",
+                "bsa": "29.53"
             }
         ],
+        "medicine": [],
         "consultation_date": "2024-03-06 15:17:23"
     }
 
@@ -444,6 +214,65 @@ function PrintHtmlPage({ printSettings }) {
 
             {/* Inline|List View|Table */}
             <div className="py-4">
+                {caseManagerData.symptoms.length > 0 && (
+                    printSettings?.prescription?.case_option[7]?.format === 'inline' ? (
+                        <div className="mb-3">
+                            <label className="fw-bold" style={{ fontFamily: 'roboto', fontSize: 12 }}>Symptoms:&nbsp;</label>
+                            {caseManagerData.symptoms.map((item, i) => {
+                                return (
+                                    <label key={i} style={{ fontFamily: 'roboto', fontSize: 12 }}>
+                                        <label className="fw-medium">{item.symptom_name}&nbsp;</label>
+                                        {(item.since || item.severity || item.note) ?
+                                            <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</>
+                                            :
+                                            <>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</>
+                                        }
+                                    </label>
+                                )
+                            })}
+                        </div>
+                    ) : printSettings?.prescription?.case_option[0]?.format === 'listview' ? (
+                        <div className="mb-3">
+                            <label className="fw-bold" style={{ fontFamily: 'roboto', fontSize: 12 }}>Symptoms:&nbsp;</label> <br />
+                            <label style={{ fontFamily: 'roboto', fontSize: 12 }}>
+                                {caseManagerData.symptoms.map((item, i) => {
+                                    return (
+                                        <>
+                                            <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
+                                            <label key={Math.random()} className="fw-medium">{item.symptom_name}&nbsp;</label>
+                                            {(item.since || item.severity || item.note) &&
+                                                <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}<br /></>
+                                            }
+                                        </>
+                                    )
+                                })}
+                            </label>
+                        </div>
+                    ) : (
+                        <div className="mb-3">
+                            <label className="fw-bold mb-1" style={{ fontFamily: 'roboto', fontSize: 12 }}>Symptoms:&nbsp;</label>
+                            <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
+                                <tr>
+                                    <th style={{ fontSize: 12 }}>NAME</th>
+                                    <th style={{ fontSize: 12 }}>SINCE</th>
+                                    <th style={{ fontSize: 12 }}>SEVERITY</th>
+                                    <th style={{ fontSize: 12 }}>NOTE</th>
+                                </tr>
+                                {caseManagerData.symptoms.map((item, i) => {
+                                    return (
+                                        <tr key={i}>
+                                            <td style={{ fontSize: 12 }}>{item.symptom_name}</td>
+                                            <td style={{ fontSize: 12 }}>{item.since ? item.since : '-'}</td>
+                                            <td style={{ fontSize: 12 }}>{item.severity ? item.severity : '-'}</td>
+                                            <td style={{ fontSize: 12 }}>{item.note ? item.note : '-'}</td>
+                                        </tr>
+                                    )
+                                })}
+                            </table>
+                        </div>
+                    )
+                )}
+
                 {caseManagerData.symptoms.length > 0 && (
                     printSettings?.prescription?.case_option[0]?.format === 'inline' ? (
                         <div className="mb-3">

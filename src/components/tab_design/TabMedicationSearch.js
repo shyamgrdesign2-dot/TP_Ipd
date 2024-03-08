@@ -126,8 +126,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
     [searchChildQuery]
   );
 
-  const onSelectParent = async (e) => {
-    const action = await dispatch(getMedicineDetails(e.tmm_id));
+  const onSelectParent = async (item) => {
+    const action = await dispatch(getMedicineDetails(item.tmm_id));
     if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {
         const medicineUnit = e?.medicineUnit.map((e1) => {
@@ -148,7 +148,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
         return {
           ...e,
-          objectID: e.objectID,
+          objectID: item.objectID,
           tmm_unit_name:
             unitObj && unitObj !== undefined
               ? JSON.parse(unitObj.key).tmu_title
