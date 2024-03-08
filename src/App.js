@@ -13,6 +13,7 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
 import { useLocalStorage } from "./utils/localStorage";
 import PrescriptionPrintView from "./pages/PrescriptionPrintView";
 import TabPrescription from "./pages/tab_design/TabPrescription";
+import ConfigurePrintSetting from "./pages/ConfigurePrintSetting";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -39,6 +40,7 @@ function App() {
             <Route path="patient_details" element={<PatientDetails />} />
             <Route path="prescription" element={isMobile ? <TabPrescription /> : <Prescription />} />
             <Route path="prescription_print_view" element={<PrescriptionPrintView />} />
+            <Route path="configure_print_setting" element={<ConfigurePrintSetting />} />
           </Routes>
         </PersistGate>
       </Provider>

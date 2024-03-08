@@ -41,12 +41,14 @@ function HeaderPrescription() {
     const navigate = useNavigate();
     const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
     //PopOver1
     const [popOver1, setPopOver1] = useState(false);
     const [allTemplates, setAllTemplates] = useState([]);
     const [matchedTemplates, setMatchedTemplates] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [removeTemplateId, setRemoveTemplateId] = useState(null);
 
     //PopOver2
     const [popOver2, setPopOver2] = useState(false);
@@ -105,9 +107,9 @@ function HeaderPrescription() {
     //     },
     // ];
 
-    const showHideModal = useCallback(() => {
-        setIsModalOpen(!isModalOpen);
-    }, [isModalOpen]);
+    const showHideBackModal = useCallback(() => {
+        setIsBackModalOpen(!isBackModalOpen);
+    }, [isBackModalOpen]);
 
     // Handle Template Drawer
     const handleDrawerTemplate = useCallback(() => {
@@ -244,8 +246,11 @@ function HeaderPrescription() {
         }
     };
 
-    const onDeleteTemplateClicked = (tmoc_id) => {
-        dispatch(oneClickDeleteTemplate(tmoc_id));
+    const onDeleteTemplateClicked = async (tmoc_id) => {
+        const action = await dispatch(oneClickDeleteTemplate(tmoc_id));
+        if (action.meta.requestStatus === "fulfilled") {
+            showHideModal()
+        }
     };
 
     //PopOver2 function
@@ -444,6 +449,47 @@ function HeaderPrescription() {
 
     };
 
+    const showHideModal = useCallback((template_id) => {
+        template_id !== undefined ? setRemoveTemplateId(template_id) : setRemoveTemplateId(null)
+        setIsModalOpen(!isModalOpen);
+    }, [isModalOpen]);
+
+    //Template Remove
+    const DELETE_MODAL = useMemo(() => {
+        return (
+            <CommonModal
+                isModalOpen={isModalOpen}
+                onCancel={showHideModal}
+                modalWidth={500}
+                title={"You may lose your data"}
+                modalBody={
+                    <>
+                        {console.log("first")}
+                        <div className="alert-warning rounded-10px p-2 patient-details">
+                            <div className="d-flex align-items-center">
+                                <img className='me-3' src={alertIcon} alt="Warning" />
+                                <span>
+                                    Are you sure you want to delete this template?
+                                </span>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <div className="d-flex align-items-center mt-2 justify-content-end">
+                                <div onClick={() => onDeleteTemplateClicked(removeTemplateId)}
+                                    className="me-4 text-decoration-underline btn p-0 text-main">
+                                    Yes Delete
+                                </div>
+                                <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                    <span>No</span>
+                                </Button>
+                            </div>
+                        </div>
+                    </>
+                }
+            />
+        );
+    }, [isModalOpen]);
+
     //Template Componet Web
     const TEMPLATE_CONTENT_WEB = useCallback(() => {
         return (
@@ -487,10 +533,14 @@ function HeaderPrescription() {
                                         onClick={() => onTemplateSelected(template.tmoc_id)}
                                     >
                                         <div className="title text-main2">{template.tmoc_template_name}</div>
+                                        <div className="text-truncate">{template.medicine_name}</div>
                                     </div>
                                     <Button
                                         className="btn btn-delete-prescription p-0 ms-2"
-                                        onClick={() => onDeleteTemplateClicked(template.tmoc_id)}
+                                        onClick={() => {
+                                            showHideModal(template.tmoc_id)
+                                            showHideTemplatesListPopover()
+                                        }}
                                     >
                                         {template.loading ? (
                                             <Spin
@@ -572,6 +622,7 @@ function HeaderPrescription() {
                                     <div className="round-box"><i className="icon-template"></i></div>
                                     <div className="text-truncate w-100">
                                         <div className="title text-main2">{option.data.value}</div>
+                                        <div className="text-truncate">{JSON.parse(option.data.key).medicine_name}</div>
                                     </div>
                                 </div>
                             )}
@@ -607,9 +658,10 @@ function HeaderPrescription() {
                                             <div className="round-box"><i className="icon-template"></i></div>
                                             <div className="text-truncate w-100">
                                                 <div className="title text-main2">{template.tmoc_template_name}</div>
+                                                <div className="text-truncate">{template.medicine_name}</div>
                                             </div>
                                         </div>
-                                        <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => onDeleteTemplateClicked(template.tmoc_id)}>
+                                        <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => showHideModal(template.tmoc_id)}>
                                             {template.loading ? (
                                                 <Spin
                                                     indicator={
@@ -684,6 +736,7 @@ function HeaderPrescription() {
                                     <div className="round-box"><i className="icon-template"></i></div>
                                     <div className="text-truncate w-100">
                                         <div className="title text-main2">{option.data.value}</div>
+                                        <div className="text-truncate">{JSON.parse(option.data.key).medicine_name}</div>
                                     </div>
                                 </div>
                             )}
@@ -807,8 +860,8 @@ function HeaderPrescription() {
                                     <i className='icon-right'></i>
                                 </div>
                                 <CommonModal
-                                    isModalOpen={isModalOpen}
-                                    onCancel={showHideModal}
+                                    isModalOpen={isBackModalOpen}
+                                    onCancel={showHideBackModal}
                                     modalWidth={500}
                                     title={"You may lose your data"}
                                     modalBody={
@@ -827,7 +880,7 @@ function HeaderPrescription() {
                                                     <div onClick={() => navigate('/', { replace: true })} className="me-4 text-decoration-underline btn p-0 text-main">
                                                         Yes Leave
                                                     </div>
-                                                    <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                                    <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">
                                                         <span>No, Stay</span>
                                                     </Button>
                                                 </div>
@@ -883,6 +936,8 @@ function HeaderPrescription() {
                                     </Tooltip>
                                 </div>
                             )}
+
+                            {DELETE_MODAL}
 
                             <button className='btn d-flex align-items-center btn-text me-14' onClick={handleDrawerCustomize}>
                                 <i className="icon-setting me-2"></i> <span>Customize</span>

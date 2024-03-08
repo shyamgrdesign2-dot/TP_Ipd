@@ -187,7 +187,7 @@ function InvestigationBox() {
         label: <div>{e.investigation_name}</div>,
       });
     });
-    if (searchChildQuery?.query) {
+    if (searchChildQuery?.query && process.env.REACT_APP_ENV == 'prod') {
       data.push({
         key: JSON.stringify({
           ...investigationData[searchChildQuery.index],
@@ -433,6 +433,7 @@ function InvestigationBox() {
                   value={item.investigation_name}
                   placeholder="Investigation Name"
                   bordered={false}
+                  disabled={true}
                   defaultOpen={false}
                   onSearch={(query) => onSearchChild(query, index)}
                   onFocus={() => onFocusChid(index)}
