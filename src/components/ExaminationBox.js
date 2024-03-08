@@ -276,8 +276,13 @@ function ExaminationBox() {
 
   const onDeleteTemplateClicked = async (tet_id) => {
     const action = await dispatch(deleteTemplate(tet_id));
-    if (action.meta.requestStatus === "fulfilled") {
-      showHideModal()
+    if (action.meta.requestStatus === "rejected") {
+      messageApi.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: action.error.message,
+        duration: 2
+      });
     }
   };
 
@@ -398,7 +403,10 @@ function ExaminationBox() {
             </div>
             <div className="mt-4">
               <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div onClick={() => onDeleteTemplateClicked(removeTemplateId)}
+                <div onClick={() => {
+                  onDeleteTemplateClicked(removeTemplateId)
+                  showHideModal()
+                }}
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes Delete
                 </div>

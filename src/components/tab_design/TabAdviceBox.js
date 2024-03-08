@@ -143,8 +143,13 @@ function TabAdviceBox() {
 
     const onDeleteTemplateClicked = async (tat_id) => {
         const action = await dispatch(deleteTemplate(tat_id));
-        if (action.meta.requestStatus === "fulfilled") {
-            showHideModal()
+        if (action.meta.requestStatus === "rejected") {
+            messageApi.open({
+                key: MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
         }
     };
 
@@ -251,7 +256,10 @@ function TabAdviceBox() {
                         </div>
                         <div className="mt-4">
                             <div className="d-flex align-items-center mt-2 justify-content-end">
-                                <div onClick={() => onDeleteTemplateClicked(removeTemplateId)}
+                                <div onClick={() => {
+                                    onDeleteTemplateClicked(removeTemplateId)
+                                    showHideModal()
+                                }}
                                     className="me-4 text-decoration-underline btn p-0 text-main">
                                     Yes Delete
                                 </div>
@@ -499,7 +507,7 @@ function TabAdviceBox() {
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.filter(e => ![...adviceData.map(e1 => e1.advice_name)].includes(e.advice_name)).map((item, i) => {
                             return (
-                                <Button key={i} type="text" style={{ width: item.advice_name.length > 26 && '250px' }} className={`${item.advice_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.advice_name}</Button>
+                                <Button key={i} type="text" style={{ width: item.advice_name.length > 26 && '250px' }} className={`${item.advice_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{`${item.advice_name}`}</Button>
                             )
                         })}
                 </div>

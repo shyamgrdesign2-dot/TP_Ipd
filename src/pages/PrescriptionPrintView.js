@@ -180,7 +180,6 @@ function PrescriptionPrintView() {
                 duration: 2
             });
         }
-
     };
 
     const [numPages, setNumPages] = useState();
@@ -188,6 +187,15 @@ function PrescriptionPrintView() {
 
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
+    }
+    function configurePrintUrl() {
+        message.open({
+            key: MESSAGE_KEY,
+            type: 'warning',
+            content: "Comming Soon",
+            duration: 2
+        });
+        // navigate("/configure_print_setting");
     }
 
     return (
@@ -198,7 +206,7 @@ function PrescriptionPrintView() {
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={7} lg={7} xl={5}>
 
-                        {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38 " style={{ visibility: 'hidden' }}>
+                        {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
                             <i className="icon-setting me-2"></i>
                             <span className="text-decoration-underline fw-medium"> Configure Print Setting </span>
                         </div>
@@ -206,7 +214,7 @@ function PrescriptionPrintView() {
                         <div className={`${!isMobile ? 'rounded-20px mt-20' : 'border-top-0 border-start-0 border-bottom-0'} border p-20 bg-white d-flex justify-content-between flex-column`}
                             style={{ height: !isMobile ? 'calc(100vh - 160px)' : 'calc(100vh - 60px)' }}>
                             <div>
-                                {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38" style={{ visibility: 'hidden' }}>
+                                {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38">
                                     <i className="icon-setting me-2"></i>
                                     <span className="text-decoration-underline fw-medium"> Configure Print Setting </span>
                                 </div>

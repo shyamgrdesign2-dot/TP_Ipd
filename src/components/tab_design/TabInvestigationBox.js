@@ -149,8 +149,13 @@ function TabInvestigationBox() {
 
     const onDeleteTemplateClicked = async (tit_id) => {
         const action = await dispatch(deleteTemplate(tit_id));
-        if (action.meta.requestStatus === "fulfilled") {
-            showHideModal()
+        if (action.meta.requestStatus === "rejected") {
+            messageApi.open({
+                key: MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
         }
     };
 
@@ -257,7 +262,10 @@ function TabInvestigationBox() {
                         </div>
                         <div className="mt-4">
                             <div className="d-flex align-items-center mt-2 justify-content-end">
-                                <div onClick={() => onDeleteTemplateClicked(removeTemplateId)}
+                                <div onClick={() => {
+                                    onDeleteTemplateClicked(removeTemplateId)
+                                    showHideModal()
+                                }}
                                     className="me-4 text-decoration-underline btn p-0 text-main">
                                     Yes Delete
                                 </div>
@@ -508,7 +516,7 @@ function TabInvestigationBox() {
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.filter(e => ![...investigationData.map(e1 => e1.investigation_name)].includes(e.investigation_name)).map((item, i) => {
                             return (
-                                <Button key={i} type="text" style={{ width: item.investigation_name.length > 26 && '250px' }} className={`${item.investigation_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.investigation_name}</Button>
+                                <Button key={i} type="text" style={{ width: item.investigation_name.length > 26 && '250px' }} className={`${item.investigation_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{`${item.investigation_name}`}</Button>
                             )
                         })}
                 </div>

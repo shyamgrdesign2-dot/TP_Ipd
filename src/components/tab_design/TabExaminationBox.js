@@ -149,8 +149,13 @@ function TabExaminationBox() {
 
     const onDeleteTemplateClicked = async (tet_id) => {
         const action = await dispatch(deleteTemplate(tet_id));
-        if (action.meta.requestStatus === "fulfilled") {
-            showHideModal()
+        if (action.meta.requestStatus === "rejected") {
+            messageApi.open({
+                key: MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
         }
     };
 
@@ -257,7 +262,10 @@ function TabExaminationBox() {
                         </div>
                         <div className="mt-4">
                             <div className="d-flex align-items-center mt-2 justify-content-end">
-                                <div onClick={() => onDeleteTemplateClicked(removeTemplateId)}
+                                <div onClick={() => {
+                                    onDeleteTemplateClicked(removeTemplateId)
+                                    showHideModal()
+                                }}
                                     className="me-4 text-decoration-underline btn p-0 text-main">
                                     Yes Delete
                                 </div>
@@ -512,7 +520,7 @@ function TabExaminationBox() {
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.filter(e => ![...examinationData.map(e1 => e1.examination_name)].includes(e.examination_name)).map((item, i) => {
                             return (
-                                <Button key={i} type="text" style={{ width: item.examination_name.length > 26 && '250px' }} className={`${item.examination_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.examination_name}</Button>
+                                <Button key={i} type="text" style={{ width: item.examination_name.length > 26 && '250px' }} className={`${item.examination_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{`${item.examination_name}`}</Button>
                             )
                         })}
                 </div>

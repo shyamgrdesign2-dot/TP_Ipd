@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { useSelector } from "react-redux";
 
-import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
+import { useLocalStorage } from "../utils/localStorage";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 function Welcome(props) {
 
@@ -12,29 +13,10 @@ function Welcome(props) {
 
   const { locationPath, backVisible } = props;
 
+  const { profile } = useSelector((state) => state.doctors);
+
   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-  const [getStoredProfile, saveProfile] = useLocalStorage(PERSISTANT_STORAGE_KEY_PROFILE);
   const [tokenData, setTokenData] = useState(null);
-
-  const profile = getStoredProfile();
-
-
-  const getFirstNameWithFallback = () => {
-    const fullName = profile?.um_name;
-
-    if (!fullName) {
-      return "Dr.";
-    } else {
-      return fullName;
-    }
-
-    // if (fullName?.includes(" ")) {
-    //   const firstName = fullName.split(" ")[0];
-    //   return firstName;
-    // } else {
-    //   return fullName;
-    // }
-  };
 
   useEffect(() => {
     const getTokenData = async () => {
@@ -69,7 +51,7 @@ function Welcome(props) {
               ) : locationPath == "/walk_in_consultation" ? (
                 <h1>Start Walk-In Consultation</h1>
               ) : (
-                <h1>Welcome {getFirstNameWithFallback()}!</h1>
+                <h1>Welcome Dr. {profile?.um_name}!</h1>
               )}
               {locationPath == "/" && <p>{"Your Appointments"}</p>}
             </div>

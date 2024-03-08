@@ -9,6 +9,7 @@ export default {
   medication_api_url: env.medication_api_url,
   vitals_api_url: env.vitals_api_url,
   casemanager_api_url: env.casemanager_api_url,
+  printsettings_api_url: env.printsettings_api_url,
   sso_to_pm_url: env.sso_to_pm_url,
   sso_to_pm_username: env.sso_to_pm_username,
   sso_to_pm_password: env.sso_to_pm_password,
