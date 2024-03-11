@@ -22,8 +22,7 @@ ApiInvestigation.getInvestigationTemplates = function (query) {
 };
 
 ApiInvestigation.getFrequentlySearchedInvestigation = function () {
-  const url = process.env.REACT_APP_ENV == 'prod' ? 'frequentlyInvestigation' : 'frequentlyAlgoliaInvestigation'
-  return api.get(`/api/v1/investigation/${url}`, baseUrl);
+  return api.get(`/api/v1/investigation/frequentlyAlgoliaInvestigation`, baseUrl);
 };
 
 // ApiInvestigation.getFrequentlySearchedInvestigation = function () {
@@ -33,8 +32,7 @@ ApiInvestigation.getFrequentlySearchedInvestigation = function () {
 // };
 
 ApiInvestigation.searchInvestigation = function (query) {
-  const url = process.env.REACT_APP_ENV == 'prod' ? 'searchInvestigation' : 'searchAlgoliaInvestigation'
-  return api.post(`/api/v1/investigation/${url}`, {
+  return api.post(`/api/v1/investigation/searchAlgoliaInvestigation`, {
     search: query
   }, baseUrl);
 };

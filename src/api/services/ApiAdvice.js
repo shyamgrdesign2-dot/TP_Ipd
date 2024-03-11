@@ -22,13 +22,7 @@ ApiAdvice.getAdviceTemplates = function (query) {
 };
 
 ApiAdvice.getFrequentlySearchedAdvice = function () {
-  if (process.env.REACT_APP_ENV == 'prod') {
-    return api.post(`/api/v1/advice/searchAdvice`, {
-      search: "sub"
-    }, baseUrl);
-  } else {
-    return api.get(`/api/v1/advice/frequentlyAdvice`, baseUrl);
-  }
+  return api.get(`/api/v1/advice/frequentlyAdvice`, baseUrl);
 };
 
 // ApiAdvice.getFrequentlySearchedAdvice = function () {

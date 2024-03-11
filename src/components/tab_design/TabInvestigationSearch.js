@@ -48,17 +48,17 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                 value: e.investigation_name
             });
         });
-        if (searchChildQuery.length > 0 && process.env.REACT_APP_ENV == 'prod') {
-            searchChildQuery &&
-                data.push({
-                    key: JSON.stringify({
-                        unique_id: uuidv4(),
-                        change: 1,
-                        investigation_name: searchChildQuery
-                    }),
-                    value: searchChildQuery
-                });
-        }
+        // if (searchChildQuery.length > 0) {
+        //     searchChildQuery &&
+        //         data.push({
+        //             key: JSON.stringify({
+        //                 unique_id: uuidv4(),
+        //                 change: 1,
+        //                 investigation_name: searchChildQuery
+        //             }),
+        //             value: searchChildQuery
+        //         });
+        // }
         setChildSearchOptions(data);
     }, [childOptionsList]);
 
@@ -174,24 +174,24 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                                             childSearchOptions.length > 0 &&
                                             childSearchOptions.filter(e => ![...investigationData.map(e1 => e1.investigation_name)].includes(e.value)).map((item, i) => {
                                                 return (
-                                                    i === childSearchOptions.length - 1 && process.env.REACT_APP_ENV == 'prod' ? (
-                                                        <Button
-                                                            key={i}
-                                                            type="text"
-                                                            className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height"
-                                                            onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                                                            "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a>
-                                                        </Button>
-                                                    ) : (
-                                                        <Button
-                                                            key={i}
-                                                            type="text"
-                                                            style={{ width: item.value.length > 26 && '250px' }}
-                                                            className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
-                                                            onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                                                            {item.value}
-                                                        </Button>
-                                                    )
+                                                    // i === childSearchOptions.length - 1 ? (
+                                                    //     <Button
+                                                    //         key={i}
+                                                    //         type="text"
+                                                    //         className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height"
+                                                    //         onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
+                                                    //         "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a>
+                                                    //     </Button>
+                                                    // ) : (
+                                                    <Button
+                                                        key={i}
+                                                        type="text"
+                                                        style={{ width: item.value.length > 26 && '250px' }}
+                                                        className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
+                                                        onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
+                                                        {item.value}
+                                                    </Button>
+                                                    // )
                                                 )
                                             })
                                         ) : (

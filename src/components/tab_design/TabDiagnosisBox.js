@@ -514,7 +514,7 @@ function TabDiagnosisBox() {
         { value: 3, label: 3 },
         { value: 4, label: 4 },
         { value: 5, label: 5 },
-        { value: -1, label: <Input className="w-100 segment-input" placeholder="Custom" value={inputSince} inputMode="numeric" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
+        { value: -1, label: <Input className="w-100 custom-segment-input inputheight45 border-0" placeholder="Custom" value={inputSince} inputMode="numeric" onChange={onChangeInputSinceChild} onClick={() => onChangeSegmentedSinceChild(-1)} /> }
     ];
 
     const STATUS_LIST = [
@@ -534,7 +534,11 @@ function TabDiagnosisBox() {
     const onChangeSinceChild = useCallback(
         (key) => {
             if (hasNumber(key)) {
-                setChildDrawerData({ ...childDrawerData, since: key })
+                if (key != childDrawerData.since) {
+                    setChildDrawerData({ ...childDrawerData, since: key })
+                } else {
+                    setChildDrawerData({ ...childDrawerData, since: '' })
+                }
             }
         },
         [childDrawerData]
@@ -587,31 +591,49 @@ function TabDiagnosisBox() {
                             <label className="title-common">
                                 Since
                             </label>
-                            <Segmented
+                            <div className="segement-static d-flex">
+                                {SINCE_LIST.map((item, i) => {
+                                    return (
+                                        <button key={i}
+                                            type="button"
+                                            className={`btn w-100 p-0 ${sinceValue > 5 ? item.value == -1 && 'btn-segement custom-input-selected' : sinceValue == item.value && 'btn-segement'}`}
+                                            onClick={() => onChangeSegmentedSinceChild(item.value)}>
+                                            {item.label}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                            {/* <Segmented
                                 value={sinceValue > 5 ? -1 : sinceValue}
                                 className="search-segment"
                                 options={SINCE_LIST}
                                 onChange={onChangeSegmentedSinceChild}
-                            />
+                            /> */}
                         </div>
                         <div className="mt-3">
-                            <Segmented
+                            <div className="segement-static d-flex">
+                                {sinceOptions.map((item, i) => {
+                                    return (
+                                        <button key={i}
+                                            type="button"
+                                            className={`btn w-100 ${childDrawerData.since !== undefined && childDrawerData.since == item.value && 'btn-segement'}`}
+                                            onClick={() => onChangeSinceChild(item.value)}>
+                                            {item.label}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                            {/* <Segmented
                                 value={childDrawerData.since !== undefined && childDrawerData.since}
                                 className="search-segment"
                                 options={sinceOptions}
                                 onChange={onChangeSinceChild}
-                            />
+                            /> */}
                         </div>
                         <div className="mt-5">
                             <label className="title-common">
                                 Status
                             </label>
-                            {/* <Segmented
-                                value={childDrawerData.status !== undefined && childDrawerData.status}
-                                className="search-segment"
-                                options={STATUS_LIST}
-                                onChange={onChangeStatusChild}
-                            /> */}
                             <div className="segement-static d-flex">
                                 {STATUS_LIST.map((item, i) => {
                                     return (
@@ -624,6 +646,12 @@ function TabDiagnosisBox() {
                                     )
                                 })}
                             </div>
+                            {/* <Segmented
+                                value={childDrawerData.status !== undefined && childDrawerData.status}
+                                className="search-segment"
+                                options={STATUS_LIST}
+                                onChange={onChangeStatusChild}
+                            /> */}
                         </div>
                         <div className="mt-5">
                             <label className="title-common">

@@ -99,6 +99,7 @@ function TabPrescription() {
                             frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
                         tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
                         medicineUnit: medicineUnit,
+                        tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
                         unique_id: uuidv4(),
                     };
                 });
