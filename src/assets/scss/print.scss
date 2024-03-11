@@ -1,0 +1,68 @@
+@import 'variables.scss';
+
+body {
+    div, div span, label {
+        color: $welcomecolor !important;
+    }
+}
+
+.print-custom-header {
+    &.border-bottom {
+        border-bottom: 2px solid $welcomecolor !important;
+    }
+}
+.border-dark {
+    border-color: $welcomecolor;
+}
+
+.patient-details {
+    .details-name {
+        span {
+            font-size: 10px;
+            &:first-child {
+                font-weight: 500;
+            }
+        }
+    }
+}
+
+table tr th {
+    color: #000000 !important;
+    font-weight: 600;
+}
+
+table tr td {
+    &:first-child {
+        font-weight: 600;
+    }
+    color: $welcomecolor !important;
+}
+table {
+    &.print_table {
+        border: 1px solid $welcomecolor;
+        border-collapse: collapse;
+        tr {
+            th, td {
+                border: 1px solid $welcomecolor;
+                border-collapse: collapse;
+            }
+        }
+
+    }
+    
+}
+.disable-preview {
+    position: relative;
+    color: #a1a1a1;
+    &:after {
+        position: absolute;
+        content: "";
+        left: 11px;
+        top: -2px;
+        height: 25px;
+        width: 1.5px;
+        background-color: #a1a1a1;
+        transform: rotate(25deg);
+
+    }
+}

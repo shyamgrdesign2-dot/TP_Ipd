@@ -4,6 +4,8 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
+import CommonModal from '../common/CommonModal';
+import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
 import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric } from "../utils/utils";
@@ -40,6 +42,9 @@ function MedicationsBox() {
   const [popOver1, setPopOver1] = useState(false);
   const [allTemplates, setAllTemplates] = useState([]);
   const [matchedTemplates, setMatchedTemplates] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [removeTemplateId, setRemoveTemplateId] = useState(null);
+
   const [searchParentQuery, setSearchParentQuery] = useState("");
   const [parentSearchOptions, setParentSearchOptions] = useState([]);
 
@@ -118,8 +123,8 @@ function MedicationsBox() {
     [searchParentQuery]
   );
 
-  const onSelectParent = async (data, e) => {
-    const action = await dispatch(getMedicineDetails(JSON.parse(e.key).tmm_id));
+  const onSelectParent = async (data, item) => {
+    const action = await dispatch(getMedicineDetails(JSON.parse(item.key).tmm_id));
     if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {
 
@@ -129,6 +134,7 @@ function MedicationsBox() {
 
         return {
           ...e,
+          objectID: JSON.parse(item.key).objectID,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
           tmm_freq_type_name: e.tmf_block == 0 ?
             `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
@@ -478,8 +484,16 @@ function MedicationsBox() {
     }
   };
 
-  const onDeleteTemplateClicked = (tmtd_id) => {
-    dispatch(deleteTemplate(tmtd_id));
+  const onDeleteTemplateClicked = async (tmtd_id) => {
+    const action = await dispatch(deleteTemplate(tmtd_id));
+    if (action.meta.requestStatus === "rejected") {
+      messageApi.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: action.error.message,
+        duration: 2
+      });
+    }
   };
 
   //PopOver2 function
@@ -574,20 +588,63 @@ function MedicationsBox() {
   };
 
   // TimingInfo popover
-  const [timingPopOver, setTimingPopOver] = useState(false);
+  const [frequencyPopOver, setFrequencyPopOver] = useState(false);
 
-  const showHideTimingPopOver = useCallback(() => {
-    setTimingPopOver(!timingPopOver);
-  }, [timingPopOver]);
+  const showHideFrequencyPopOver = useCallback(() => {
+    setFrequencyPopOver(!frequencyPopOver);
+  }, [frequencyPopOver]);
 
-  const TIMING_CONTENT = useCallback(() => {
+  const FREQUENCY_CONTENT = useCallback(() => {
     return (
       <div className="position-relative">
         <img src={TimingInfo} alt="Timing Info" />
-        <i onClick={showHideTimingPopOver} className="icon-Cross position-absolute cursor-pointer" style={{ right: 13, top: 15, color: '#92929D' }}></i>
+        <i onClick={showHideFrequencyPopOver} className="icon-Cross position-absolute cursor-pointer" style={{ right: 13, top: 15, color: '#92929D' }}></i>
       </div>
     );
-  }, [timingPopOver]);
+  }, [frequencyPopOver]);
+
+  const showHideModal = useCallback((template_id) => {
+    template_id !== undefined ? setRemoveTemplateId(template_id) : setRemoveTemplateId(null)
+    setIsModalOpen(!isModalOpen);
+  }, [isModalOpen]);
+
+  //Template Remove
+  const DELETE_MODAL = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={isModalOpen}
+        onCancel={showHideModal}
+        modalWidth={500}
+        title={"You may lose your data"}
+        modalBody={
+          <>
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className='me-3' src={alertIcon} alt="Warning" />
+                <span>
+                  Are you sure you want to delete this template?
+                </span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div onClick={() => {
+                  onDeleteTemplateClicked(removeTemplateId)
+                  showHideModal()
+                }}
+                  className="me-4 text-decoration-underline btn p-0 text-main">
+                  Yes Delete
+                </div>
+                <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                  <span>No</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+    );
+  }, [isModalOpen]);
 
   //Child Componet
   const TABLE_MEDICATION = useMemo(() => {
@@ -610,14 +667,14 @@ function MedicationsBox() {
             </Col>
             <Col lg={4} md={4} sm={4} xs={4} className="border-end">
               <div className="fontroboto fw-medium p-2 fs-12 text-welcome d-flex align-items-center">
-                <label>TIMING </label>
+                <label>FREQUENCY </label>
                 <Popover
-                  open={timingPopOver}
-                  content={TIMING_CONTENT}
+                  open={frequencyPopOver}
+                  content={FREQUENCY_CONTENT}
                   placement="rightTop"
                   trigger="click"
                   arrow={false}
-                  onOpenChange={showHideTimingPopOver}
+                  onOpenChange={showHideFrequencyPopOver}
                   overlayClassName="pp-0">
                   <i className='icon-info ms-1 fs-18'></i>
                 </Popover>
@@ -753,7 +810,7 @@ function MedicationsBox() {
           })}
       </>
     );
-  }, [medicationData, timingPopOver]);
+  }, [medicationData, frequencyPopOver]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useCallback(() => {
@@ -798,10 +855,14 @@ function MedicationsBox() {
                     onClick={() => onTemplateSelected(template.tmtd_id)}
                   >
                     <div className="title text-main2">{template.tmtd_template_name}</div>
+                    <div className="text-truncate">{template.medicine_name}</div>
                   </div>
                   <Button
                     className="btn btn-delete-prescription p-0 ms-2"
-                    onClick={() => onDeleteTemplateClicked(template.tmtd_id)}
+                    onClick={() => {
+                      showHideModal(template.tmtd_id)
+                      showHideTemplatesListPopover()
+                    }}
                   >
                     {template.loading ? (
                       <Spin
@@ -883,6 +944,7 @@ function MedicationsBox() {
                   <div className="round-box"><i className="icon-template"></i></div>
                   <div className="text-truncate w-100">
                     <div className="title text-main2">{option.data.value}</div>
+                    <div className="text-truncate">{JSON.parse(option.data.key).medicine_name}</div>
                   </div>
                 </div>
               )}
@@ -951,6 +1013,7 @@ function MedicationsBox() {
           </div>
         </div>
 
+        {DELETE_MODAL}
         {TABLE_MEDICATION}
 
         <div className="p-14">

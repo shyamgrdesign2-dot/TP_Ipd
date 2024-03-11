@@ -6,11 +6,11 @@ const baseUrl = { customBaseUrl: config.advice_api_url }
 const ApiAdvice = {};
 
 ApiAdvice.addTemplate = function (template) {
-    return api.post(`/api/v1/advice/addTemplate`, template, baseUrl);
+  return api.post(`/api/v1/advice/addTemplate`, template, baseUrl);
 };
 
 ApiAdvice.updateTemplate = function (template) {
-    return api.post(`/api/v1/advice/editTemplate`, template, baseUrl);
+  return api.post(`/api/v1/advice/editTemplate`, template, baseUrl);
 };
 
 ApiAdvice.deleteTemplate = function (templateId) {
@@ -22,14 +22,18 @@ ApiAdvice.getAdviceTemplates = function (query) {
 };
 
 ApiAdvice.getFrequentlySearchedAdvice = function () {
-  return api.post(`/api/v1/advice/searchAdvice`, {
-      search: "sub"
-  }, baseUrl);
+    return api.get(`/api/v1/advice/frequentlyAdvice`, baseUrl);
 };
+
+// ApiAdvice.getFrequentlySearchedAdvice = function () {
+//   return api.post(`/api/v1/advice/searchAdvice`, {
+//       search: "sub"
+//   }, baseUrl);
+// };
 
 ApiAdvice.searchAdvice = function (query) {
   return api.post(`/api/v1/advice/searchAdvice`, {
-      search: query
+    search: query
   }, baseUrl);
 };
 

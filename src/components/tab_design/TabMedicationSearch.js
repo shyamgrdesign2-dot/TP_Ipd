@@ -126,8 +126,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
     [searchChildQuery]
   );
 
-  const onSelectParent = async (e) => {
-    const action = await dispatch(getMedicineDetails(e.tmm_id));
+  const onSelectParent = async (item) => {
+    const action = await dispatch(getMedicineDetails(item.tmm_id));
     if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {
         const medicineUnit = e?.medicineUnit.map((e1) => {
@@ -148,6 +148,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
         return {
           ...e,
+          objectID: item.objectID,
           tmm_unit_name:
             unitObj && unitObj !== undefined
               ? JSON.parse(unitObj.key).tmu_title
@@ -610,7 +611,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                   </Col>
                 </Row>
                 <div className="d-flex align-items-center justify-content-between mt-3 mb-2">
-                  <label className="title-common">Timing</label>
+                  <label className="title-common">Frequency</label>
                   <div className="mb-1 man-mean">
                     <Radio.Group
                       size="small"

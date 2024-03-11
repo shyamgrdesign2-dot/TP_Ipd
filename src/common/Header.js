@@ -8,11 +8,11 @@ import { isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 
 import config from "../config";
-import { getProfile, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency } from "../redux/doctorsSlice";
+import { getProfile, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getDefaultPrintsettings } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_CLINIC_ID, PERSISTANT_STORAGE_KEY_PROFILE } from "../utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { makeDefaultLogo } from "../utils/utils";
 import { MESSAGE_KEY } from "../utils/constants";
 import CommonModal from './CommonModal';
@@ -38,7 +38,6 @@ function Header({ locationPath }) {
   const [clinicOptions, setClinicOptions] = useState([]);
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-  const [getStoredProfile, saveProfile] = useLocalStorage(PERSISTANT_STORAGE_KEY_PROFILE);
   const [tokenData, setTokenData] = useState(null);
 
   useEffect(() => {
@@ -46,13 +45,13 @@ function Header({ locationPath }) {
     dispatch(customizedPad(CUSTOMIZED_PAD_SENDDATA))
     dispatch(showMedicineTime());
     dispatch(showMedicineFrequency());
+    // dispatch(getDefaultPrintsettings())
   }, []);
 
   useEffect(() => {
     if (profile) {
       // setSwitchCheckbox(profile.switchtoOld != 0 ? true : false)
       !isChrome && !isSafari && setPopOver(profile.NavigatetoTatvaPedia == 0 ? true : false);
-      saveProfile(profile);
       const clinics = profile.hospital_data?.map((e) => {
         return {
           value: e.hm_id,

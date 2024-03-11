@@ -16,6 +16,8 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
+import CommonModal from '../common/CommonModal';
+import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
 import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
@@ -49,6 +51,9 @@ function InvestigationBox() {
   const [popOver1, setPopOver1] = useState(false);
   const [allTemplates, setAllTemplates] = useState([]);
   const [matchedTemplates, setMatchedTemplates] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [removeTemplateId, setRemoveTemplateId] = useState(null);
+
   const [searchParentQuery, setSearchParentQuery] = useState("");
   const [parentSearchOptions, setParentSearchOptions] = useState([]);
 
@@ -119,20 +124,20 @@ function InvestigationBox() {
         ),
       });
     } else {
-      searchParentQuery &&
-        data.push({
-          key: JSON.stringify({
-            unique_id: uuidv4(),
-            change: 1,
-            investigation_name: searchParentQuery
-          }),
-          value: searchParentQuery,
-          label: (
-            <>
-              <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
-            </>
-          ),
-        });
+      // searchParentQuery && process.env.REACT_APP_ENV == 'prod' &&
+      //   data.push({
+      //     key: JSON.stringify({
+      //       unique_id: uuidv4(),
+      //       change: 1,
+      //       investigation_name: searchParentQuery
+      //     }),
+      //     value: searchParentQuery,
+      //     label: (
+      //       <>
+      //         <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
+      //       </>
+      //     ),
+      //   });
     }
     setParentSearchOptions(data);
   }, [parentOptionsList]);
@@ -182,22 +187,22 @@ function InvestigationBox() {
         label: <div>{e.investigation_name}</div>,
       });
     });
-    if (searchChildQuery?.query) {
-      data.push({
-        key: JSON.stringify({
-          ...investigationData[searchChildQuery.index],
-          unique_id: uuidv4(),
-          change: 1,
-          investigation_name: searchChildQuery.query
-        }),
-        value: searchChildQuery.query,
-        label: (
-          <>
-            <div>{searchChildQuery.query}</div>
-          </>
-        ),
-      });
-    }
+    // if (searchChildQuery?.query && process.env.REACT_APP_ENV == 'prod') {
+    //   data.push({
+    //     key: JSON.stringify({
+    //       ...investigationData[searchChildQuery.index],
+    //       unique_id: uuidv4(),
+    //       change: 1,
+    //       investigation_name: searchChildQuery.query
+    //     }),
+    //     value: searchChildQuery.query,
+    //     label: (
+    //       <>
+    //         <div>{searchChildQuery.query}</div>
+    //       </>
+    //     ),
+    //   });
+    // }
     setChildSearchOptions(data);
   }, [childOptionsList]);
 
@@ -271,8 +276,16 @@ function InvestigationBox() {
     showHideTemplatesListPopover();
   };
 
-  const onDeleteTemplateClicked = (tit_id) => {
-    dispatch(deleteTemplate(tit_id));
+  const onDeleteTemplateClicked = async (tit_id) => {
+    const action = await dispatch(deleteTemplate(tit_id));
+    if (action.meta.requestStatus === "rejected") {
+      messageApi.open({
+        key: MESSAGE_KEY,
+        type: 'warning',
+        content: action.error.message,
+        duration: 2
+      });
+    }
   };
 
   //PopOver2 function
@@ -366,6 +379,49 @@ function InvestigationBox() {
     }
   };
 
+  const showHideModal = useCallback((template_id) => {
+    template_id !== undefined ? setRemoveTemplateId(template_id) : setRemoveTemplateId(null)
+    setIsModalOpen(!isModalOpen);
+  }, [isModalOpen]);
+
+  //Template Remove
+  const DELETE_MODAL = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={isModalOpen}
+        onCancel={showHideModal}
+        modalWidth={500}
+        title={"You may lose your data"}
+        modalBody={
+          <>
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className='me-3' src={alertIcon} alt="Warning" />
+                <span>
+                  Are you sure you want to delete this template?
+                </span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div onClick={() => {
+                  onDeleteTemplateClicked(removeTemplateId)
+                  showHideModal()
+                }}
+                  className="me-4 text-decoration-underline btn p-0 text-main">
+                  Yes Delete
+                </div>
+                <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                  <span>No</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+    );
+  }, [isModalOpen]);
+
   //Child Componet
   const TABLE_INVESTIGATION = useMemo(() => {
     return (
@@ -384,6 +440,7 @@ function InvestigationBox() {
                   value={item.investigation_name}
                   placeholder="Investigation Name"
                   bordered={false}
+                  disabled={true}
                   defaultOpen={false}
                   onSearch={(query) => onSearchChild(query, index)}
                   onFocus={() => onFocusChid(index)}
@@ -475,7 +532,10 @@ function InvestigationBox() {
                   </div>
                   <Button
                     className="btn btn-delete-prescription p-0 ms-2"
-                    onClick={() => onDeleteTemplateClicked(template.tit_id)}
+                    onClick={() => {
+                      showHideModal(template.tit_id)
+                      showHideTemplatesListPopover()
+                    }}
                   >
                     {template.loading ? (
                       <Spin
@@ -625,6 +685,7 @@ function InvestigationBox() {
           </div>
         </div>
 
+        {DELETE_MODAL}
         {TABLE_INVESTIGATION}
 
         <div className="p-14">

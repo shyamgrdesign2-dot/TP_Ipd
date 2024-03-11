@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { onlyNumberFormat } from "../../utils/utils";
 
+import CommonModal from '../../common/CommonModal';
+import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
 import { removeBeforeWhiteSpace, hasNumber } from "../../utils/utils";
@@ -42,6 +44,8 @@ function TabDiagnosisBox() {
     const [templateDrawer, setTemplateDrawer] = useState(false);
     const [allTemplates, setAllTemplates] = useState([]);
     const [matchedTemplates, setMatchedTemplates] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [removeTemplateId, setRemoveTemplateId] = useState(null);
     const [saveDrawer, setSaveDrawer] = useState(false);
 
     const [inputTemplateName, setInputTemplateName] = useState(null);
@@ -159,8 +163,16 @@ function TabDiagnosisBox() {
         handleDrawerTemplate();
     };
 
-    const onDeleteTemplateClicked = (tdt_id) => {
-        dispatch(deleteTemplate(tdt_id));
+    const onDeleteTemplateClicked = async (tdt_id) => {
+        const action = await dispatch(deleteTemplate(tdt_id));
+        if (action.meta.requestStatus === "rejected") {
+            messageApi.open({
+                key: MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
+        }
     };
 
     const onChangeSaveTemplate = useCallback(
@@ -240,6 +252,49 @@ function TabDiagnosisBox() {
         }
     };
 
+    const showHideModal = useCallback((template_id) => {
+        template_id !== undefined ? setRemoveTemplateId(template_id) : setRemoveTemplateId(null)
+        setIsModalOpen(!isModalOpen);
+    }, [isModalOpen]);
+
+    //Template Remove
+    const DELETE_MODAL = useMemo(() => {
+        return (
+            <CommonModal
+                isModalOpen={isModalOpen}
+                onCancel={showHideModal}
+                modalWidth={500}
+                title={"You may lose your data"}
+                modalBody={
+                    <>
+                        <div className="alert-warning rounded-10px p-2 patient-details">
+                            <div className="d-flex align-items-center">
+                                <img className='me-3' src={alertIcon} alt="Warning" />
+                                <span>
+                                    Are you sure you want to delete this template?
+                                </span>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <div className="d-flex align-items-center mt-2 justify-content-end">
+                                <div onClick={() => {
+                                    onDeleteTemplateClicked(removeTemplateId)
+                                    showHideModal()
+                                }}
+                                    className="me-4 text-decoration-underline btn p-0 text-main">
+                                    Yes Delete
+                                </div>
+                                <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                    <span>No</span>
+                                </Button>
+                            </div>
+                        </div>
+                    </>
+                }
+            />
+        );
+    }, [isModalOpen]);
+
     //Child Componet
     const TABLE_DIAGNOSIS = useMemo(() => {
         return (
@@ -292,7 +347,7 @@ function TabDiagnosisBox() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => onDeleteTemplateClicked(template.tdt_id)}>
+                                        <Button className="btn btn-delete-prescription p-0 ms-3" onClick={() => showHideModal(template.tdt_id)}>
                                             {template.loading ? (
                                                 <Spin
                                                     indicator={
@@ -625,10 +680,11 @@ function TabDiagnosisBox() {
                     {parentOptionsList.length > 0 &&
                         parentOptionsList.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name)).map((item, i) => {
                             return (
-                                <Button key={i} type="text" style={{ width: item.tds_name.length > 26 && '250px' }} className={`${item.tds_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.tds_name}</Button>
+                                <Button key={i} type="text" style={{ width: item.tds_name.length > 26 && '250px' }} className={`${item.tds_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{`${item.tds_name}`}</Button>
                             )
                         })}
                 </div>
+                {DELETE_MODAL}
             </div>
         </>
     );
