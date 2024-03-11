@@ -1,96 +1,119 @@
 import React from "react";
 import PrintHeaderImage from "../assets/images/print-header.png";
 import { Flex, Col } from "antd";
+import moment from "moment";
 import { useSelector } from "react-redux";
 
 import { isNumeric } from '../utils/utils'
 
 import '../assets/scss/print.scss';
 
+const showDateFormat = 'DD MMM, YY'
+
 function PrintHtmlPage({ printSettings }) {
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
     var caseManagerData = {
-        "tcm_id": 132351,
-        "showConsultationDateTime": "06 Mar 2024, 03:17 pm",
+        "tcm_id": 132368,
+        "showConsultationDateTime": "08 Mar 2024, 04:07 pm",
         "follow_up_date": "",
         "visit_advice": "",
-        "total_consultation": 180,
+        "total_consultation": 188,
         "next_tcm_id": null,
-        "prev_tcm_id": 128314,
-        "print_url": "https://pms-upgrade.azurewebsites.net/case_manager/pdf_casemanager_send.php?pdf_id=MTMyMzUx&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ==&lg=MQ==",
-        "print_rx_url": "https://pms-upgrade.azurewebsites.net/case_manager/pdf_prescription_send.php?pdf_id=MTMyMzUx&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ==&lg=MQ==",
+        "prev_tcm_id": 132367,
+        "print_url": "https://pms-upgrade.azurewebsites.net/case_manager/pdf_casemanager_send.php?pdf_id=MTMyMzY4&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ==&lg=MQ==",
+        "print_rx_url": "https://pms-upgrade.azurewebsites.net/case_manager/pdf_prescription_send.php?pdf_id=MTMyMzY4&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ==&lg=MQ==",
         "symptoms": [
             {
                 "symptom_name": "Complaints 01",
-                "unique_id": "3efaa29a-c9db-4ec9-bf13-53ca102c5e1e",
+                "unique_id": "a0a0cc71-8831-4683-851e-e71e67230b3f",
                 "change": 0,
-                "since": "5 Month",
-                "severity": "fgf",
+                "since": "1 Week",
+                "severity": "moderate",
                 "note": "Hello"
             },
             {
                 "symptom_name": "Complaints 02",
-                "unique_id": "1fb050da-1316-4314-a426-c9bdc2e5c8e6",
+                "unique_id": "cabed42e-c2c5-4dc4-9cb2-5e1c238953c5",
                 "change": 0,
-                "since": "5 Month",
-                "severity": "",
+                "since": "",
+                "severity": "severe",
                 "note": ""
             },
             {
-                "symptom_name": "Complaints 05",
-                "unique_id": "3efaa29a-c9db-4ec9-bf13-53ca102c5e1e",
+                "symptom_name": "Complaints 03",
+                "unique_id": "30eaf575-1adc-4ec6-9c1a-75cbf5ebe290",
                 "change": 0,
-                "since": "",
+                "since": "4 Week",
                 "severity": "",
-                "note": "Hello"
-            },
+                "note": ""
+            }
         ],
         "examination": [
             {
                 "examination_name": "Examination 01",
                 "note": "Hello",
-                "unique_id": "2159a623-581d-4dda-b5d2-4ddd1a4662b9",
+                "unique_id": "f07c8217-2d6d-4e9e-90bf-07b956c023ce",
                 "change": 0
             },
             {
                 "examination_name": "Examination 02",
                 "note": "",
-                "unique_id": "8a26aed6-0539-4910-a003-570a055eb195",
+                "unique_id": "d26ad5a8-b808-40e1-96f6-705488879381",
                 "change": 0
             }
         ],
         "diagnosis": [
             {
-                "unique_id": "4aa464f9-c187-4147-aa57-b5eed7c8a199",
-                "tds_id": 1325,
+                "unique_id": "b1b1a8ab-0cba-4e3e-bc3e-e6915405b9a3",
+                "tds_id": 1328,
                 "tds_name": "Unspecified mental disorder due to known physiological condition",
+                "since": "1 Week",
+                "status": "suspected",
+                "note": "Hello"
+            },
+            {
+                "unique_id": "696ab155-26ff-4d86-a7a8-248c155d572f",
+                "tds_id": 1329,
+                "tds_name": "Stereotyped movement disorders",
                 "since": "",
+                "status": "confirmed",
+                "note": ""
+            },
+            {
+                "unique_id": "7c3e659b-5de9-49e5-9760-ef47a1a6bbb4",
+                "tds_id": 1330,
+                "tds_name": "Disruptive, impulse-control and conduct disorders",
+                "since": "4 Day",
                 "status": "",
                 "note": ""
             }
         ],
         "advice": [
             {
-                "objectID": "18b4dc207ffc8f_dashboard_generated_id",
-                "advice_name": "AN Sub Title 3-3",
-                "unique_id": "5c50574e-2baa-4bb9-b3e1-d183c67de344"
+                "advice_name": "Low fat in diet",
+                "unique_id": "a6232d6a-7319-48a2-8ee6-8d6519035a0b",
+                "change": 0
             },
             {
-                "objectID": "f8b7ca1326dba_dashboard_generated_id",
-                "advice_name": "PH Sub Title 2-4",
-                "unique_id": "c0bcb630-27fe-40ea-8ef5-c36ef52b6e1c"
+                "advice_name": "Wash eyes frequently",
+                "unique_id": "1bc089ee-cc64-4905-9b99-3e35bd800ca0",
+                "change": 0
             }
         ],
         "investigation": [
             {
-                "report_code": "MI19",
-                "price": "2,542",
-                "objectID": "fe3e36a79e25a_dashboard_generated_id",
-                "investigation_name": "AFB Drug Susceptibility Test: PAS",
-                "unique_id": "7a931436-434c-41d1-90ae-16c1b5e1ba31",
-                "note": ""
+                "investigation_name": "ROMA (Ovarian Malignancy Risk Algorithm) Test",
+                "note": "Hello",
+                "unique_id": "168373b5-0aa4-48b0-9591-2dc471b5f250",
+                "change": 0
+            },
+            {
+                "investigation_name": "Allergy: Vanilla",
+                "note": "",
+                "unique_id": "9381b81c-6df7-439e-a5a5-1fa3ae6d7ebc",
+                "change": 0
             }
         ],
         "doctor_data": {
@@ -104,53 +127,394 @@ function PrintHtmlPage({ printSettings }) {
             "patinet_dob": "01/01/1970",
             "patinet_age": 54,
             "patinet_gender": "Male",
-            "patinet_consultaion_date": "06/03/2024 15:17:23",
+            "patinet_consultaion_date": "08/03/2024 16:07:24",
             "patinet_email": "",
             "patinet_secondary_name": "",
             "patinet_secondary_contact": "",
             "patinet_address": "",
-            "patinet_ht_wt": "/",
+            "patinet_ht_wt": "182/80",
             "patinet_consultation_type": null
         },
         "vitals": [
             {
                 "date": "2024-03-08",
-                "dev_unique_id": "36847",
-                "tcv_id": "28164",
+                "dev_unique_id": "51702",
+                "tcv_id": "28167",
                 "temp": "50",
-                "pres": "50",
-                "resp_rate": "60",
-                "blood_press": "90/53",
-                "spo2": "43",
-                "tcbc_id": 8589,
-                "height": "43",
-                "weight": "43",
-                "bmi": "232.56",
-                "bmr": "433.75",
-                "bsa": "0.72"
+                "pres": "60",
+                "resp_rate": "70",
+                "blood_press": "80/90",
+                "spo2": "10",
+                "tcbc_id": 8592,
+                "height": "190",
+                "weight": "60",
+                "bmi": "16.62",
+                "bmr": "1522.50",
+                "bsa": "1.78"
             },
             {
                 "date": "2024-03-07",
-                "dev_unique_id": "31173",
-                "tcv_id": "28165",
-                "temp": "452",
-                "pres": "7452",
-                "resp_rate": "42",
-                "blood_press": "42/42",
-                "spo2": "4",
-                "tcbc_id": 8590,
-                "height": "7423",
-                "weight": "423",
-                "bmi": "0.08",
-                "bmr": "50358.75",
-                "bsa": "29.53"
+                "dev_unique_id": "41206",
+                "tcv_id": "28168",
+                "temp": "30",
+                "pres": "20",
+                "resp_rate": "421",
+                "blood_press": "60/51",
+                "spo2": "56",
+                "tcbc_id": 8593,
+                "height": "182",
+                "weight": "80",
+                "bmi": "24.15",
+                "bmr": "1672.50",
+                "bsa": "2.01"
             }
         ],
-        "medicine": [],
-        "consultation_date": "2024-03-06 15:17:23"
+        "medicine": [
+            {
+                "tmm_id": 226173,
+                "tmm_medicine_name": "Adoxin OZ Suspension",
+                "tmm_generic": "Ofloxacin (50mg) + Ornidazole (125mg)",
+                "tmm_company": "Rhydburg Pharmaceuticals Ltd",
+                "tmm_type": "",
+                "tmm_days": 2,
+                "tmm_duration_type": "day(s)",
+                "tmm_dosage": "2",
+                "tmm_unit": "1",
+                "tcm_tmm_freq_morning": 0,
+                "tcm_tmm_freq_afternoon": 0,
+                "tcm_tmm_freq_evening": 0,
+                "tcm_tmm_freq_night": 0,
+                "tmm_time": 1,
+                "tmm_remarks": "Hello",
+                "tmm_freq_type": 5,
+                "tmf_block": 1,
+                "tcm_tmr_type": "M",
+                "display_qty": 20,
+                "medicineUnit": [
+                    {
+                        "tmu_id": 1,
+                        "tmu_title": "Amplues"
+                    },
+                    {
+                        "tmu_id": 2,
+                        "tmu_title": "Tablets"
+                    },
+                    {
+                        "tmu_id": 3,
+                        "tmu_title": "mg"
+                    },
+                    {
+                        "tmu_id": 4,
+                        "tmu_title": "ml"
+                    },
+                    {
+                        "tmu_id": 5,
+                        "tmu_title": "units"
+                    },
+                    {
+                        "tmu_id": 6,
+                        "tmu_title": "Capsule"
+                    },
+                    {
+                        "tmu_id": 7,
+                        "tmu_title": "Fingertips"
+                    },
+                    {
+                        "tmu_id": 8,
+                        "tmu_title": "Pea sized"
+                    },
+                    {
+                        "tmu_id": 9,
+                        "tmu_title": "gms"
+                    },
+                    {
+                        "tmu_id": 10,
+                        "tmu_title": "palm sized"
+                    },
+                    {
+                        "tmu_id": 11,
+                        "tmu_title": "tsp"
+                    },
+                    {
+                        "tmu_id": 12,
+                        "tmu_title": "tbps"
+                    },
+                    {
+                        "tmu_id": 13,
+                        "tmu_title": "Kits"
+                    },
+                    {
+                        "tmu_id": 14,
+                        "tmu_title": "Drops"
+                    },
+                    {
+                        "tmu_id": 15,
+                        "tmu_title": "Sprays"
+                    },
+                    {
+                        "tmu_id": 16,
+                        "tmu_title": "Sachets"
+                    },
+                    {
+                        "tmu_id": 17,
+                        "tmu_title": "Cup"
+                    },
+                    {
+                        "tmu_id": 18,
+                        "tmu_title": "Scoops"
+                    },
+                    {
+                        "tmu_id": 19,
+                        "tmu_title": "Suppositories"
+                    },
+                    {
+                        "tmu_id": 20,
+                        "tmu_title": "Soaps"
+                    },
+                    {
+                        "tmu_id": 21,
+                        "tmu_title": "Bottles"
+                    },
+                    {
+                        "tmu_id": 22,
+                        "tmu_title": "patches"
+                    },
+                    {
+                        "tmu_id": 23,
+                        "tmu_title": "Respules"
+                    },
+                    {
+                        "tmu_id": 24,
+                        "tmu_title": "Puffs"
+                    },
+                    {
+                        "tmu_id": 25,
+                        "tmu_title": "mcg"
+                    },
+                    {
+                        "tmu_id": 26,
+                        "tmu_title": "Cups"
+                    },
+                    {
+                        "tmu_id": 27,
+                        "tmu_title": "tbsp"
+                    }
+                ]
+            },
+            {
+                "tmm_id": 150741,
+                "tmm_medicine_name": "Nurotas G 300mg/500mcg Capsule",
+                "tmm_generic": "Gabapentin (300mg) + Methylcobalamin (500mcg)",
+                "tmm_company": "Vintas Pharmaceuticals Pvt. Ltd.",
+                "tmm_type": "",
+                "tmm_days": 3,
+                "tmm_duration_type": "day(s)",
+                "tmm_dosage": "4",
+                "tmm_unit": "2",
+                "tcm_tmm_freq_morning": 1,
+                "tcm_tmm_freq_afternoon": 2,
+                "tcm_tmm_freq_evening": 1,
+                "tcm_tmm_freq_night": 2,
+                "tmm_time": 3,
+                "tmm_remarks": "",
+                "tmm_freq_type": 0,
+                "tmf_block": 0,
+                "tcm_tmr_type": "M",
+                "display_qty": 18,
+                "medicineUnit": [
+                    {
+                        "tmu_id": 1,
+                        "tmu_title": "Amplues"
+                    },
+                    {
+                        "tmu_id": 2,
+                        "tmu_title": "Tablets"
+                    },
+                    {
+                        "tmu_id": 3,
+                        "tmu_title": "mg"
+                    },
+                    {
+                        "tmu_id": 4,
+                        "tmu_title": "ml"
+                    },
+                    {
+                        "tmu_id": 5,
+                        "tmu_title": "units"
+                    },
+                    {
+                        "tmu_id": 6,
+                        "tmu_title": "Capsule"
+                    },
+                    {
+                        "tmu_id": 7,
+                        "tmu_title": "Fingertips"
+                    },
+                    {
+                        "tmu_id": 8,
+                        "tmu_title": "Pea sized"
+                    },
+                    {
+                        "tmu_id": 9,
+                        "tmu_title": "gms"
+                    },
+                    {
+                        "tmu_id": 10,
+                        "tmu_title": "palm sized"
+                    },
+                    {
+                        "tmu_id": 11,
+                        "tmu_title": "tsp"
+                    },
+                    {
+                        "tmu_id": 12,
+                        "tmu_title": "tbps"
+                    },
+                    {
+                        "tmu_id": 13,
+                        "tmu_title": "Kits"
+                    },
+                    {
+                        "tmu_id": 14,
+                        "tmu_title": "Drops"
+                    },
+                    {
+                        "tmu_id": 15,
+                        "tmu_title": "Sprays"
+                    },
+                    {
+                        "tmu_id": 16,
+                        "tmu_title": "Sachets"
+                    },
+                    {
+                        "tmu_id": 17,
+                        "tmu_title": "Cup"
+                    },
+                    {
+                        "tmu_id": 18,
+                        "tmu_title": "Scoops"
+                    },
+                    {
+                        "tmu_id": 19,
+                        "tmu_title": "Suppositories"
+                    },
+                    {
+                        "tmu_id": 20,
+                        "tmu_title": "Soaps"
+                    },
+                    {
+                        "tmu_id": 21,
+                        "tmu_title": "Bottles"
+                    },
+                    {
+                        "tmu_id": 22,
+                        "tmu_title": "patches"
+                    },
+                    {
+                        "tmu_id": 23,
+                        "tmu_title": "Respules"
+                    },
+                    {
+                        "tmu_id": 24,
+                        "tmu_title": "Puffs"
+                    },
+                    {
+                        "tmu_id": 25,
+                        "tmu_title": "mcg"
+                    },
+                    {
+                        "tmu_id": 26,
+                        "tmu_title": "Cups"
+                    },
+                    {
+                        "tmu_id": 27,
+                        "tmu_title": "tbsp"
+                    }
+                ]
+            }
+        ],
+        "consultation_date": "2024-03-08 16:07:24"
     }
 
 
+
+    const initialRows = [
+        {
+            key: '1',
+            name: `Temperature (Frh)`,
+        },
+        {
+            key: '2',
+            name: `Pulse (/min)`,
+        },
+        {
+            key: '3',
+            name: `Resp. Rate (/min)`,
+        },
+        {
+            key: '4',
+            name: `Systolic (mmHg)`,
+        },
+        {
+            key: '5',
+            name: `Diastolic (mmHg)`,
+        },
+        {
+            key: '6',
+            name: `SPO2 (%)`,
+        },
+        {
+            key: '7',
+            name: `Height (cms)`,
+        },
+        {
+            key: '8',
+            name: `Weight (kgs)`,
+        },
+        {
+            key: '9',
+            name: `BMI (kg/m²)`,
+        },
+        {
+            key: '10',
+            name: `BMR (kcals)`,
+        },
+        {
+            key: '11',
+            name: `BSA (m²)`,
+        }
+    ];
+
+    const initialColumns = [
+        {
+            title: 'Name'
+        },
+    ];
+
+    // Extract unique dates from the JSON array
+    const uniqueDates = caseManagerData.vitals.length > 0 ? [...caseManagerData.vitals.map((item) => item.date)] : [];
+
+    // Initialize columns for each unique date
+    const dateColumns = uniqueDates.map((date, index) => ({
+        title: moment(date).format(showDateFormat)
+    }));
+
+    const columns = [...initialColumns, ...dateColumns];
+
+
+    caseManagerData.vitals.length > 0 && caseManagerData.vitals.map((item, index) => {
+        initialRows[0][index] = item.temp ? item.temp : '-'
+        initialRows[1][index] = item.pres ? item.pres : '-'
+        initialRows[2][index] = item.resp_rate ? item.resp_rate : '-'
+        initialRows[3][index] = item.blood_press ? item.blood_press.split('/')[0] ? item.blood_press.split('/')[0] : '-' : '-'
+        initialRows[4][index] = item.blood_press ? item.blood_press.split('/')[1] ? item.blood_press.split('/')[1] : '-' : '-'
+        initialRows[5][index] = item.spo2 ? item.spo2 : '-'
+        initialRows[6][index] = item.height ? item.height : '-'
+        initialRows[7][index] = item.weight ? item.weight : '-'
+        initialRows[8][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'
+        initialRows[9][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
+        initialRows[10][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
+    });
 
     return (
         <>
@@ -214,35 +578,83 @@ function PrintHtmlPage({ printSettings }) {
 
             {/* Inline|List View|Table */}
             <div className="py-4">
-                {caseManagerData.symptoms.length > 0 && (
-                    printSettings?.prescription?.case_option[7]?.format === 'inline' ? (
+                {caseManagerData.vitals.length > 0 && printSettings?.prescription?.case_option[6]?.enable == 'Y' && (
+                    printSettings?.prescription?.case_option[6]?.format === 'inline' ? (
                         <div className="mb-3">
-                            <label className="fw-bold" style={{ fontFamily: 'roboto', fontSize: 12 }}>Symptoms:&nbsp;</label>
-                            {caseManagerData.symptoms.map((item, i) => {
+                            <label className="fw-bold" style={{ fontFamily: 'roboto', fontSize: 12 }}>Vitals & Body Composition:&nbsp;</label>
+                            {caseManagerData.vitals.map((item, i) => {
                                 return (
                                     <label key={i} style={{ fontFamily: 'roboto', fontSize: 12 }}>
-                                        <label className="fw-medium">{item.symptom_name}&nbsp;</label>
-                                        {(item.since || item.severity || item.note) ?
-                                            <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</>
-                                            :
-                                            <>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</>
-                                        }
+                                        <label className="fw-medium">{item.date}&nbsp;</label>
+                                        <>{`- ${Object.values(Object.fromEntries(Object.entries(
+                                            (
+                                                ({
+                                                    temp,
+                                                    pres,
+                                                    resp_rate,
+                                                    blood_press,
+                                                    spo2,
+                                                    height,
+                                                    weight,
+                                                    bmi,
+                                                    bmr,
+                                                    bsa,
+                                                }) => ({
+                                                    temp: temp ? `Temperature (${temp}Frh)` : '',
+                                                    pres: pres ? `Pulse (${pres}/min)` : '',
+                                                    resp_rate: resp_rate ? `Resp. Rate (${resp_rate}/min)` : '',
+                                                    systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
+                                                    diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
+                                                    spo2: spo2 ? `SPO2 (${spo2}%)` : '',
+                                                    height: height ? `Height (${height}cms)` : '',
+                                                    weight: weight ? `Weight (${weight}kgs)` : '',
+                                                    bmi: bmi ? `BMI (${parseFloat(bmi).toFixed(2)}kg/m²)` : '',
+                                                    bmr: bmr ? `BMR (${parseFloat(bmr).toFixed(2)}kcals)` : '',
+                                                    bsa: bsa ? `BSA (${parseFloat(bsa).toFixed(2)}m²)` : '',
+                                                })
+                                            )(caseManagerData.vitals[i])
+                                        ).filter(([_, v]) => v))).join(', ')}`}{caseManagerData.vitals.length - 1 != i ? ',' : ''}&nbsp;</>
                                     </label>
                                 )
                             })}
                         </div>
-                    ) : printSettings?.prescription?.case_option[0]?.format === 'listview' ? (
+                    ) : printSettings?.prescription?.case_option[6]?.format === 'listview' ? (
                         <div className="mb-3">
-                            <label className="fw-bold" style={{ fontFamily: 'roboto', fontSize: 12 }}>Symptoms:&nbsp;</label> <br />
+                            <label className="fw-bold" style={{ fontFamily: 'roboto', fontSize: 12 }}>Vitals & Body Composition:&nbsp;</label> <br />
                             <label style={{ fontFamily: 'roboto', fontSize: 12 }}>
-                                {caseManagerData.symptoms.map((item, i) => {
+                                {caseManagerData.vitals.map((item, i) => {
                                     return (
                                         <>
                                             <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
-                                            <label key={Math.random()} className="fw-medium">{item.symptom_name}&nbsp;</label>
-                                            {(item.since || item.severity || item.note) &&
-                                                <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}<br /></>
-                                            }
+                                            <label key={Math.random()} className="fw-medium">{item.date}&nbsp;</label>
+                                            <>{`- ${Object.values(Object.fromEntries(Object.entries(
+                                                (
+                                                    ({
+                                                        temp,
+                                                        pres,
+                                                        resp_rate,
+                                                        blood_press,
+                                                        spo2,
+                                                        height,
+                                                        weight,
+                                                        bmi,
+                                                        bmr,
+                                                        bsa,
+                                                    }) => ({
+                                                        temp: temp ? `Temperature (${temp}Frh)` : '',
+                                                        pres: pres ? `Pulse (${pres}/min)` : '',
+                                                        resp_rate: resp_rate ? `Resp. Rate (${resp_rate}/min)` : '',
+                                                        systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
+                                                        diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
+                                                        spo2: spo2 ? `SPO2 (${spo2}%)` : '',
+                                                        height: height ? `Height (${height}cms)` : '',
+                                                        weight: weight ? `Weight (${weight}kgs)` : '',
+                                                        bmi: bmi ? `BMI (${parseFloat(bmi).toFixed(2)}kg/m²)` : '',
+                                                        bmr: bmr ? `BMR (${parseFloat(bmr).toFixed(2)}kcals)` : '',
+                                                        bsa: bsa ? `BSA (${parseFloat(bsa).toFixed(2)}m²)` : '',
+                                                    })
+                                                )(caseManagerData.vitals[i])
+                                            ).filter(([_, v]) => v))).join(', ')}`}<br /></>
                                         </>
                                     )
                                 })}
@@ -250,21 +662,21 @@ function PrintHtmlPage({ printSettings }) {
                         </div>
                     ) : (
                         <div className="mb-3">
-                            <label className="fw-bold mb-1" style={{ fontFamily: 'roboto', fontSize: 12 }}>Symptoms:&nbsp;</label>
+                            <label className="fw-bold mb-1" style={{ fontFamily: 'roboto', fontSize: 12 }}>Vitals & Body Composition:&nbsp;</label>
                             <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
                                 <tr>
-                                    <th style={{ fontSize: 12 }}>NAME</th>
-                                    <th style={{ fontSize: 12 }}>SINCE</th>
-                                    <th style={{ fontSize: 12 }}>SEVERITY</th>
-                                    <th style={{ fontSize: 12 }}>NOTE</th>
+                                    {columns.map((item, i) => {
+                                        return (
+                                            <th style={{ fontSize: 12 }}>{item.title}</th>
+                                        )
+                                    })}
                                 </tr>
-                                {caseManagerData.symptoms.map((item, i) => {
+                                {initialRows.map((item, i) => {
                                     return (
                                         <tr key={i}>
-                                            <td style={{ fontSize: 12 }}>{item.symptom_name}</td>
-                                            <td style={{ fontSize: 12 }}>{item.since ? item.since : '-'}</td>
-                                            <td style={{ fontSize: 12 }}>{item.severity ? item.severity : '-'}</td>
-                                            <td style={{ fontSize: 12 }}>{item.note ? item.note : '-'}</td>
+                                            <td style={{ fontSize: 12 }}>{item.name}</td>
+                                            <td style={{ fontSize: 12 }}>{item['0']}</td>
+                                            <td style={{ fontSize: 12 }}>{item['1']}</td>
                                         </tr>
                                     )
                                 })}
@@ -273,7 +685,7 @@ function PrintHtmlPage({ printSettings }) {
                     )
                 )}
 
-                {caseManagerData.symptoms.length > 0 && (
+                {caseManagerData.symptoms.length > 0 && printSettings?.prescription?.case_option[0]?.enable == 'Y' &&(
                     printSettings?.prescription?.case_option[0]?.format === 'inline' ? (
                         <div className="mb-3">
                             <label className="fw-bold" style={{ fontFamily: 'roboto', fontSize: 12 }}>Symptoms:&nbsp;</label>
@@ -332,7 +744,7 @@ function PrintHtmlPage({ printSettings }) {
                     )
                 )}
 
-                {caseManagerData.examination.length > 0 && (
+                {caseManagerData.examination.length > 0 && printSettings?.prescription?.case_option[1]?.enable == 'Y' &&(
                     printSettings?.prescription?.case_option[1]?.format === 'inline' ? (
                         <div className="mb-3">
                             <label className="fw-bold" style={{ fontFamily: 'roboto', fontSize: 12 }}>Examinations:&nbsp;</label>
@@ -387,7 +799,7 @@ function PrintHtmlPage({ printSettings }) {
                     )
                 )}
 
-                {caseManagerData.diagnosis.length > 0 && (
+                {caseManagerData.diagnosis.length > 0 && printSettings?.prescription?.case_option[2]?.enable == 'Y' &&(
                     printSettings?.prescription?.case_option[2]?.format === 'inline' ? (
                         <div className="mb-3">
                             <label className="fw-bold" style={{ fontFamily: 'roboto', fontSize: 12 }}>Diagnosis:&nbsp;</label>
@@ -446,7 +858,7 @@ function PrintHtmlPage({ printSettings }) {
                     )
                 )}
 
-                {caseManagerData.medicine.length > 0 && (
+                {caseManagerData.medicine.length > 0 && printSettings?.prescription?.case_option[3]?.enable == 'Y' &&(
                     printSettings?.prescription?.case_option[3]?.format === 'inline' ? (
                         <div className="mb-3">
                             <label className="fw-bold" style={{ fontFamily: 'roboto', fontSize: 12 }}>Medication (Rx):&nbsp;</label>
@@ -555,7 +967,7 @@ function PrintHtmlPage({ printSettings }) {
                     )
                 )}
 
-                {caseManagerData.advice.length > 0 && (
+                {caseManagerData.advice.length > 0 && printSettings?.prescription?.case_option[4]?.enable == 'Y' &&(
                     printSettings?.prescription?.case_option[4]?.format === 'inline' ? (
                         <div className="mb-3">
                             <label className="fw-bold" style={{ fontFamily: 'roboto', fontSize: 12 }}>Advices:&nbsp;</label>
@@ -601,7 +1013,7 @@ function PrintHtmlPage({ printSettings }) {
                     )
                 )}
 
-                {caseManagerData.investigation.length > 0 && (
+                {caseManagerData.investigation.length > 0 && printSettings?.prescription?.case_option[5]?.enable == 'Y' &&(
                     printSettings?.prescription?.case_option[5]?.format === 'inline' ? (
                         <div className="mb-3">
                             <label className="fw-bold" style={{ fontFamily: 'roboto', fontSize: 12 }}>Lab Investigation:&nbsp;</label>
