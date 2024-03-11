@@ -45,7 +45,7 @@ function Header({ locationPath }) {
     dispatch(customizedPad(CUSTOMIZED_PAD_SENDDATA))
     dispatch(showMedicineTime());
     dispatch(showMedicineFrequency());
-    // dispatch(getDefaultPrintsettings())
+    dispatch(getDefaultPrintsettings())
   }, []);
 
   useEffect(() => {

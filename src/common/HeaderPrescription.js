@@ -228,6 +228,7 @@ function HeaderPrescription() {
                                     frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
                                 tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
                                 medicineUnit: medicineUnit,
+                                tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
                                 unique_id: uuidv4(),
                             };
                         });
@@ -850,7 +851,7 @@ function HeaderPrescription() {
 
     const checkDataFillOrNot = () => {
         if (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || medicationData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || vitalsData.length > 0) {
-            showHideModal()
+            showHideBackModal()
         } else {
             navigate('/', { replace: true });
         }
