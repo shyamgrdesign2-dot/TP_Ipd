@@ -159,6 +159,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           medicineUnit: medicineUnit,
+          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
           unique_id: uuidv4(),
         };
       });
@@ -502,7 +503,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
       value: -1,
       label: (
         <Input
-          className="w-100 segment-input"
+          className="w-100 custom-segment-input inputheight45 border-0"
           placeholder="Custom"
           value={inputSince}
           inputMode="numeric"
@@ -526,8 +527,15 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const onChangeSinceChild = useCallback(
     (key) => {
       if (hasNumber(key)) {
-        medicationData[selectedIndex].tmm_days = key.split(" ")[0];
-        medicationData[selectedIndex].tmm_duration_type = key.split(" ")[1];
+        if (key != medicationData[selectedIndex].tmm_days_duration_type) {
+          medicationData[selectedIndex].tmm_days_duration_type = key;
+          medicationData[selectedIndex].tmm_days = key.split(" ")[0];
+          medicationData[selectedIndex].tmm_duration_type = key.split(" ")[1];
+        } else {
+          medicationData[selectedIndex].tmm_days_duration_type = "";
+          medicationData[selectedIndex].tmm_days = 0;
+          medicationData[selectedIndex].tmm_duration_type = "";
+        }
         setMedicationData((prev) => [...prev]);
       }
     },
@@ -1192,15 +1200,39 @@ function TabMedicationSearch({ passIndex, onClose }) {
               </div>
               <div className="mt-3">
                 <label className="title-common mb-1">Duration</label>
-                <Segmented
+                <div className="segement-static d-flex">
+                  {SINCE_LIST.map((item, i) => {
+                    return (
+                      <button key={i}
+                        type="button"
+                        className={`btn w-100 p-0 ${sinceValue > 5 ? item.value == -1 && 'btn-segement custom-input-selected' : sinceValue == item.value && 'btn-segement'}`}
+                        onClick={() => onChangeSegmentedSinceChild(item.value)}>
+                        {item.label}
+                      </button>
+                    )
+                  })}
+                </div>
+                {/* <Segmented
                   value={sinceValue > 5 ? -1 : sinceValue}
                   className="search-segment"
                   options={SINCE_LIST}
                   onChange={onChangeSegmentedSinceChild}
-                />
+                /> */}
               </div>
               <div className="mt-3 mb-3">
-                <Segmented
+                <div className="segement-static d-flex">
+                  {sinceOptions.map((item, i) => {
+                    return (
+                      <button key={i}
+                        type="button"
+                        className={`btn w-100 ${selectedIndex != null && medicationData[selectedIndex].tmm_days_duration_type == item.value && 'btn-segement'}`}
+                        onClick={() => onChangeSinceChild(item.value)}>
+                        {item.label}
+                      </button>
+                    )
+                  })}
+                </div>
+                {/* <Segmented
                   value={
                     medicationData[selectedIndex].tmm_duration_type !==
                     undefined && medicationData[selectedIndex].tmm_days !==
@@ -1210,7 +1242,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                   className="search-segment"
                   options={sinceOptions}
                   onChange={onChangeSinceChild}
-                />
+                /> */}
               </div>
               <label className="title-common mb-1">Note</label>
               <Input.TextArea

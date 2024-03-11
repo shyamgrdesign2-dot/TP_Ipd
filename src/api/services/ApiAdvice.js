@@ -22,7 +22,7 @@ ApiAdvice.getAdviceTemplates = function (query) {
 };
 
 ApiAdvice.getFrequentlySearchedAdvice = function () {
-    return api.get(`/api/v1/advice/frequentlyAdvice`, baseUrl);
+  return api.get(`/api/v1/advice/frequentlyAdvice`, baseUrl);
 };
 
 // ApiAdvice.getFrequentlySearchedAdvice = function () {
