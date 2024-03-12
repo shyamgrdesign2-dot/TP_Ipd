@@ -189,13 +189,13 @@ function PrescriptionPrintView() {
         setNumPages(numPages);
     }
     function configurePrintUrl() {
-        message.open({
-            key: MESSAGE_KEY,
-            type: 'warning',
-            content: "Comming Soon",
-            duration: 2
-        });
-        // navigate("/configure_print_setting");
+        // message.open({
+        //     key: MESSAGE_KEY,
+        //     type: 'warning',
+        //     content: "Comming Soon",
+        //     duration: 2
+        // });
+        navigate("/configure_print_setting");
     }
 
     return (
