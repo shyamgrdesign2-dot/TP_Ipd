@@ -573,9 +573,6 @@ function PrintHtmlPage({ printSettings }) {
                 </Flex>
             </div>
 
-            {/* Page Format */}
-
-
             {/* Inline|List View|Table */}
             <div className="py-4">
                 {caseManagerData.vitals.length > 0 && printSettings?.prescription?.case_option[6]?.enable == 'Y' && (
