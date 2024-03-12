@@ -66,6 +66,9 @@ body {
     .text-primary {
         color: $theme !important;
     }
+    .text-secondary-custom {
+        color: $themesecondary !important;
+    }
     .bg-secondary {
         background-color: $themesecondary !important;
     }
@@ -273,6 +276,9 @@ body {
     }
     .ant-input-affix-wrapper {
         border-radius: 10px;
+    }
+    .image-crop {
+        height: 230px;
     }
     .ant-select {
         &.appointmentselect {
