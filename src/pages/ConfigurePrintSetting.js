@@ -45,7 +45,7 @@ function ConfigurePrintSetting() {
                     <div className="mt-3">
                         <Form.Item className="mb-0">
                             <label className="mb-1 title-common">Select Letterhead Format</label>
-                            <Radio.Group className="d-flex gender-radio">
+                            <Radio.Group className="d-flex gender-radio all-change-radio">
                                 <Radio.Button className="w-100 text-center" value="Male">Custom</Radio.Button>
                                 <Radio.Button className="w-100 text-center" value="Female">Upload Letterhead</Radio.Button>
                                 <Radio.Button className="w-100 text-center" value="Other">Own Letterhead</Radio.Button>
@@ -491,6 +491,12 @@ function ConfigurePrintSetting() {
                         allowClear
                     />
                 </Form.Item>
+                <div className="fontarial">Arial</div>
+                <div className="fonttimesroman">Arial</div>
+                <div className="fontverdana">Arial</div>
+                <div className="fontcalibri">Arial</div>
+                <div className="fonttahoma">Arial</div>
+                <div className="fontroboto">Arial</div>
                 <Form.Item>
                     <label className="mb-1">Font Size</label>
                     <Select
@@ -582,14 +588,14 @@ function ConfigurePrintSetting() {
                                         </Col>
                                         <Col lg="14">
                                             <Form.Item className="mb-0">
-                                                <Radio.Group className="d-flex gender-radio" onChange={onMainCaseOptionChange}
+                                                <Radio.Group className="d-flex gender-radio all-change-radio" onChange={onMainCaseOptionChange}
                                                     value={
                                                         printSettings?.prescription?.case_option.every(e => e.format === 'inline') ? 'inline'
                                                             : printSettings?.prescription?.case_option.every(e => e.format === 'listview') ? 'listview'
                                                                 : printSettings?.prescription?.case_option.every(e => e.format === 'table') ? 'table'
                                                                     : null}>
                                                     <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
-                                                    <Radio.Button className="w-100 text-center" value="listview">ListView</Radio.Button>
+                                                    <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
                                                     <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>
                                                 </Radio.Group>
                                             </Form.Item>
@@ -606,9 +612,9 @@ function ConfigurePrintSetting() {
                                                 </Col>
                                                 <Col lg="14">
                                                     <Form.Item className="mb-0">
-                                                        <Radio.Group className="d-flex gender-radio" onChange={(e) => onCaseOptionChange(e, 'radio', i)} value={e.format}>
+                                                        <Radio.Group className="d-flex gender-radio all-change-radio" onChange={(e) => onCaseOptionChange(e, 'radio', i)} value={e.format}>
                                                             <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
-                                                            <Radio.Button className="w-100 text-center" value="listview">ListView</Radio.Button>
+                                                            <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
                                                             <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>
                                                         </Radio.Group>
                                                     </Form.Item>
