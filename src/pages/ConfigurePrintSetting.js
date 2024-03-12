@@ -6,8 +6,12 @@ import PrintHtmlPage from "./PrintHtmlPage";
 
 import { useSelector, useDispatch } from "react-redux";
 
+import CommonModal from '../common/CommonModal';
+
 import { TAB_PRESCRIPTION, TAB_HEADER_FOOTER, TAB_PAGE_FORMAT } from "../utils/constants";
 import defaultprofile from "../assets/images/default-profile.svg";
+import rxDisplayArea from '../assets/images/rx-display-area.svg';
+import wtsp from '../assets/images/wtsp.svg';
 
 const { TextArea } = Input;
 
@@ -60,6 +64,12 @@ const FONTS_SIZE_LIST = [
     }
 ]
 function ConfigurePrintSetting() {
+
+    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+
+    const showHideBackModal = useCallback(() => {
+        setIsBackModalOpen(!isBackModalOpen);
+    }, [isBackModalOpen]);
 
     const printRef = React.useRef();
 
@@ -500,7 +510,7 @@ function ConfigurePrintSetting() {
                                                                     <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
                                                                         <Form.Item name="pm_image" />
                                                                         <input type="file" accept="image/*" />
-                                                                        <span>Upload</span>
+                                                                        <span><i className="icon-upload me-2"></i>Upload</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -508,7 +518,7 @@ function ConfigurePrintSetting() {
 
                                                         <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                                             <Col lg="18">
-                                                                <div className="title-common">See whatsApp Rx preview </div>
+                                                                <div className="title-common"><img className="img-fluid" width={25} src={wtsp} alt="Header" /> See whatsApp Rx preview </div>
                                                             </Col>
                                                             <Col lg="6">
                                                                 <div className="d-flex align-items-center">
@@ -529,7 +539,31 @@ function ConfigurePrintSetting() {
                                                             </Col>
                                                         </Row>
                                                         <div className="upload-headfoot">
-                                                            <div className="fw-medium text-decoration-underline cursor-pointer">Upload Header</div>
+                                                            <div className="fw-medium text-decoration-underline cursor-pointer" onClick={showHideBackModal}>Upload Header</div>
+
+                                                            <CommonModal
+                                                                isModalOpen={isBackModalOpen}
+                                                                onCancel={showHideBackModal}
+                                                                modalWidth={744}
+                                                                title={"Crope Image"}
+                                                                modalBody={
+                                                                    <>
+                                                                        <div className="image-crop bg-dark">
+                                                                            <img src={defaultprofile} />
+                                                                        </div>
+                                                                        <div className="mt-4">
+                                                                            <div className="d-flex align-items-center mt-2 justify-content-between">
+                                                                                <div className="fw-normal text-decoration-underline btn p-0 text-main">
+                                                                                    Discard
+                                                                                </div>
+                                                                                <div className="fw-normal text-decoration-underline btn p-0 text-main">
+                                                                                    Save
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </>
+                                                                }
+                                                            />
                                                             <div className="fs-12-1 fontroboto"> Only jpg, jpeg or png files with the max size 2mb.</div>
                                                             <Button className="btn btn-headfoot"><i className="icon-Edit me-1"></i>Edit</Button>
                                                         </div>
@@ -540,7 +574,7 @@ function ConfigurePrintSetting() {
                                                         </div>
                                                         <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                                             <Col lg="18">
-                                                                <div className="title-common">See whatsApp Rx preview </div>
+                                                                <div className="title-common"><img className="img-fluid" width={25} src={wtsp} alt="Header" />See whatsApp Rx preview </div>
                                                             </Col>
                                                             <Col lg="6">
                                                                 <div className="d-flex align-items-center">
@@ -573,7 +607,7 @@ function ConfigurePrintSetting() {
                                                                     </div>
                                                                 </Col>
                                                                 <Col lg="12">
-                                                                    <img src={defaultprofile} />
+                                                                    <img src={rxDisplayArea} />
                                                                 </Col>
                                                                 <Col lg="6">
                                                                     <div className="text-center">
@@ -589,7 +623,7 @@ function ConfigurePrintSetting() {
                                                         </div>
                                                         <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                                             <Col lg="18">
-                                                                <div className="title-common">See whatsApp Rx preview </div>
+                                                                <div className="title-common"><img className="img-fluid" width={25} src={wtsp} alt="Header" />See whatsApp Rx preview </div>
                                                             </Col>
                                                             <Col lg="6">
                                                                 <div className="d-flex align-items-center">
@@ -651,7 +685,7 @@ function ConfigurePrintSetting() {
                                                             <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
                                                                 <Form.Item name="pm_image" />
                                                                 <input type="file" accept="image/*" />
-                                                                <span>Upload New</span>
+                                                                <span><i className="icon-upload me-2"></i> Upload New</span>
                                                             </div>
                                                         </div>
                                                     </div>

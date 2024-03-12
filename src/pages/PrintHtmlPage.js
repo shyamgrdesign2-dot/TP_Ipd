@@ -8,6 +8,8 @@ import { isNumeric } from '../utils/utils'
 
 import '../assets/scss/print.scss';
 
+import defaultprofile from "../assets/images/default-profile.svg";
+
 const showDateFormat = 'DD MMM, YY'
 
 function PrintHtmlPage({ printSettings }) {
@@ -521,7 +523,7 @@ function PrintHtmlPage({ printSettings }) {
             {/* Header */}
             <div className="pb-4 print-custom-header border-bottom">
                 {/* For Upload Image Header */}
-                <img className="img-fluid" src={PrintHeaderImage} alt="Header" />
+                {/* <img className="img-fluid" src={PrintHeaderImage} alt="Header" /> */}
 
                 {/* Print RX on your letter header */}
                 {/* <div style={{marginLeft: 50, marginRight: 50, marginTop: 50, marginBottom: 50}}></div> */}
@@ -533,6 +535,31 @@ function PrintHtmlPage({ printSettings }) {
                 <div className="fontroboto" style={{ fontSize: 14 }}>
                     Hyderabad, India • 07894561230 • contact@careclinic.com
                 </div> */}
+
+                <div className="d-flex justify-content-between">
+                    <div>
+                        <div className="text-secondary-custom fw-bold fontroboto mb-2" style={{ fontSize: 18 }}>
+                            Dr. Umesh Aggarwal
+                        </div>
+                        <div className="fontroboto fw-medium" style={{ fontSize: 14 }}>
+                            MBBS, MS(Ortho), FMISS(UK) <br />
+                            Orthopaedic Surgeon <br />
+                            Medical id : 2342342
+                        </div>
+                    </div>
+                    <div>
+                        <img className="img-fluid" width={100} src={defaultprofile} alt="Header" />
+                    </div>
+                    <div className="text-end">
+                        <div className="text-secondary-custom fw-bold fontroboto mb-2" style={{ fontSize: 18 }}>
+                            Dr. Umesh Aggarwal
+                        </div>
+                        <div className="fontroboto fw-medium" style={{ fontSize: 14 }}>
+                            #14, 8th cross Ganganagar Hyderabad, India
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             {/* Patient Details */}
