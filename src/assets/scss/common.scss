@@ -279,6 +279,7 @@ body {
     }
     .image-crop {
         height: 230px;
+        overflow: hidden;
     }
     .ant-select {
         &.appointmentselect {

@@ -536,29 +536,54 @@ function PrintHtmlPage({ printSettings }) {
                     Hyderabad, India • 07894561230 • contact@careclinic.com
                 </div> */}
 
-                <div className="d-flex justify-content-between">
-                    <div>
-                        <div className="text-secondary-custom fw-bold fontroboto mb-2" style={{ fontSize: 18 }}>
-                            Dr. Umesh Aggarwal
-                        </div>
-                        <div className="fontroboto fw-medium" style={{ fontSize: 14 }}>
-                            MBBS, MS(Ortho), FMISS(UK) <br />
-                            Orthopaedic Surgeon <br />
-                            Medical id : 2342342
-                        </div>
+                {printSettings?.letterhead_format === 0 && (
+                    <div className="d-flex">
+                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? (
+                            <>
+                                <div style={{ flex: 1 }}>
+                                    <div className="text-secondary-custom fw-bold fontroboto mb-2" style={{ fontSize: 18 }}>
+                                        {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                    </div>
+                                    <div className="fontroboto fw-medium" style={{ whiteSpace: 'pre-line', fontSize: 14 }}>
+                                        {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                    </div>
+                                </div>
+                                {printSettings?.logo_enable === 'Y' && (
+                                    <div>
+                                        <img className="img-fluid" width={100} src={defaultprofile} alt="Header" />
+                                    </div>
+                                )}
+                                <div style={{ flex: 1 }} className="text-end">
+                                    <div className="text-secondary-custom fw-bold fontroboto mb-2" style={{ fontSize: 18 }}>
+                                        {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                    </div>
+                                    <div className="fontroboto fw-medium" style={{ whiteSpace: 'pre-line', fontSize: 14 }}>
+                                        {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                {printSettings?.logo_enable === 'Y' && (
+                                    <div>
+                                        <img className="img-fluid" width={100} src={defaultprofile} alt="Header" />
+                                    </div>
+                                )}
+                                {(printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' || printSettings?.header_footer?.header?.clinic_info?.enable === 'Y') && (
+                                    <div style={{ flex: 1 }} className="ms-3">
+                                        <div className="text-secondary-custom fw-bold fontroboto mb-2" style={{ fontSize: 18 }}>
+                                            {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                        </div>
+                                        <div className="fontroboto fw-medium" style={{ whiteSpace: 'pre-line', fontSize: 14 }}>
+                                            {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
-                    <div>
-                        <img className="img-fluid" width={100} src={defaultprofile} alt="Header" />
-                    </div>
-                    <div className="text-end">
-                        <div className="text-secondary-custom fw-bold fontroboto mb-2" style={{ fontSize: 18 }}>
-                            Dr. Umesh Aggarwal
-                        </div>
-                        <div className="fontroboto fw-medium" style={{ fontSize: 14 }}>
-                            #14, 8th cross Ganganagar Hyderabad, India
-                        </div>
-                    </div>
-                </div>
+                )}
+
 
             </div>
 
@@ -602,7 +627,7 @@ function PrintHtmlPage({ printSettings }) {
 
             {/* Inline|List View|Table */}
             <div className="py-4">
-                {caseManagerData.vitals.length > 0 && printSettings?.prescription?.case_option[6]?.enable == 'Y' && (
+                {caseManagerData.vitals.length > 0 && printSettings?.prescription?.case_option[6]?.enable === 'Y' && (
                     printSettings?.prescription?.case_option[6]?.format === 'inline' ? (
                         <div className="mb-3">
                             <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Vitals & Body Composition:&nbsp;</label>
@@ -709,7 +734,7 @@ function PrintHtmlPage({ printSettings }) {
                     )
                 )}
 
-                {caseManagerData.symptoms.length > 0 && printSettings?.prescription?.case_option[0]?.enable == 'Y' && (
+                {caseManagerData.symptoms.length > 0 && printSettings?.prescription?.case_option[0]?.enable === 'Y' && (
                     printSettings?.prescription?.case_option[0]?.format === 'inline' ? (
                         <div className="mb-3">
                             <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Symptoms:&nbsp;</label>
@@ -768,7 +793,7 @@ function PrintHtmlPage({ printSettings }) {
                     )
                 )}
 
-                {caseManagerData.examination.length > 0 && printSettings?.prescription?.case_option[1]?.enable == 'Y' && (
+                {caseManagerData.examination.length > 0 && printSettings?.prescription?.case_option[1]?.enable === 'Y' && (
                     printSettings?.prescription?.case_option[1]?.format === 'inline' ? (
                         <div className="mb-3">
                             <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Examinations:&nbsp;</label>
@@ -823,7 +848,7 @@ function PrintHtmlPage({ printSettings }) {
                     )
                 )}
 
-                {caseManagerData.diagnosis.length > 0 && printSettings?.prescription?.case_option[2]?.enable == 'Y' && (
+                {caseManagerData.diagnosis.length > 0 && printSettings?.prescription?.case_option[2]?.enable === 'Y' && (
                     printSettings?.prescription?.case_option[2]?.format === 'inline' ? (
                         <div className="mb-3">
                             <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Diagnosis:&nbsp;</label>
@@ -882,7 +907,7 @@ function PrintHtmlPage({ printSettings }) {
                     )
                 )}
 
-                {caseManagerData.medicine.length > 0 && printSettings?.prescription?.case_option[3]?.enable == 'Y' && (
+                {caseManagerData.medicine.length > 0 && printSettings?.prescription?.case_option[3]?.enable === 'Y' && (
                     printSettings?.prescription?.case_option[3]?.format === 'inline' ? (
                         <div className="mb-3">
                             <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Medication (Rx):&nbsp;</label>
@@ -905,9 +930,9 @@ function PrintHtmlPage({ printSettings }) {
                                                     display_qty,
                                                     tmm_remarks
                                                 }) => ({
-                                                    modiFrequency: tmf_block == 0 || tmf_block == "" ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}-${tcm_tmm_freq_evening ? tcm_tmm_freq_evening : 0}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id == tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id == tmm_freq_type).tmf_title : ''})`,
+                                                    modiFrequency: tmf_block === 0 || tmf_block === "" ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}-${tcm_tmm_freq_evening ? tcm_tmm_freq_evening : 0}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
 
-                                                    modiTiming: timingList.find((x) => x.tmt_id == tmm_time) !== undefined ? timingList.find((x) => x.tmt_id == tmm_time).tmt_title : '',
+                                                    modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
 
                                                     modiDuration: isNumeric(tmm_days) ? `${tmm_days} - ${tmm_duration_type}` : '-',
 
@@ -945,9 +970,9 @@ function PrintHtmlPage({ printSettings }) {
                                                         display_qty,
                                                         tmm_remarks
                                                     }) => ({
-                                                        modiFrequency: tmf_block == 0 || tmf_block == "" ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}-${tcm_tmm_freq_evening ? tcm_tmm_freq_evening : 0}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id == tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id == tmm_freq_type).tmf_title : ''})`,
+                                                        modiFrequency: tmf_block === 0 || tmf_block === "" ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}-${tcm_tmm_freq_evening ? tcm_tmm_freq_evening : 0}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
 
-                                                        modiTiming: timingList.find((x) => x.tmt_id == tmm_time) !== undefined ? timingList.find((x) => x.tmt_id == tmm_time).tmt_title : '',
+                                                        modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
 
                                                         modiDuration: isNumeric(tmm_days) ? `${tmm_days} - ${tmm_duration_type}` : '-',
 
@@ -979,7 +1004,7 @@ function PrintHtmlPage({ printSettings }) {
                                         <tr key={i}>
                                             <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{i + 1}</td>
                                             <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.tmm_medicine_name}<br />{item.tmm_generic}</td>
-                                            <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.tmf_block == 0 || item.tmf_block == "" ? `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning : 0}-${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon : 0}-${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening : 0}-${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id == item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id == item.tmm_freq_type).tmf_title : ''})`}<br />{timingList.find((x) => x.tmt_id == item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id == item.tmm_time).tmt_title : ''}</td>
+                                            <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.tmf_block === 0 || item.tmf_block === "" ? `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning : 0}-${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon : 0}-${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening : 0}-${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}<br />{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}</td>
                                             <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{isNumeric(item.tmm_days) ? `${item.tmm_days} - ${item.tmm_duration_type}` : '-'}</td>
                                             <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.display_qty ? item.display_qty.toFixed(2) : '-'}</td>
                                             <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.tmm_remarks ? item.tmm_remarks : '-'}</td>
@@ -991,7 +1016,7 @@ function PrintHtmlPage({ printSettings }) {
                     )
                 )}
 
-                {caseManagerData.advice.length > 0 && printSettings?.prescription?.case_option[4]?.enable == 'Y' && (
+                {caseManagerData.advice.length > 0 && printSettings?.prescription?.case_option[4]?.enable === 'Y' && (
                     printSettings?.prescription?.case_option[4]?.format === 'inline' ? (
                         <div className="mb-3">
                             <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Advices:&nbsp;</label>
@@ -1037,7 +1062,7 @@ function PrintHtmlPage({ printSettings }) {
                     )
                 )}
 
-                {caseManagerData.investigation.length > 0 && printSettings?.prescription?.case_option[5]?.enable == 'Y' && (
+                {caseManagerData.investigation.length > 0 && printSettings?.prescription?.case_option[5]?.enable === 'Y' && (
                     printSettings?.prescription?.case_option[5]?.format === 'inline' ? (
                         <div className="mb-3">
                             <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Lab Investigation:&nbsp;</label>

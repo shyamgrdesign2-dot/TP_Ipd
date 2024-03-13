@@ -91,8 +91,9 @@ function PrescriptionPrintView() {
     const [printRxUrl, setPrintRxUrl] = useState(state !== undefined ? `${state.print_rx_url}` : null);
 
     const [divWidth, setDivWidth] = useState(0);
+
     useEffect(() => {
-        setDivWidth(divRef.current.offsetWidth);
+        setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
 
     useEffect(() => {
@@ -200,7 +201,7 @@ function PrescriptionPrintView() {
 
     return (
         <>
-            <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state.tcm_id} />
+            <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} />
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">

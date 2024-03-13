@@ -884,12 +884,21 @@ function TabMedicationBox() {
 
   const onChangeFrequencyChild = useCallback(
     (item) => {
-      setChildDrawerData({
-        ...childDrawerData,
-        tmm_freq_type: item.tmf_id,
-        tmm_freq_type_name: item.tmf_title,
-        tmf_block_val: item.tmf_block_val
-      });
+      if (item.tmf_id != childDrawerData.tmm_freq_type) {
+        setChildDrawerData({
+          ...childDrawerData,
+          tmm_freq_type: item.tmf_id,
+          tmm_freq_type_name: item.tmf_title,
+          tmf_block_val: item.tmf_block_val
+        });
+      } else {
+        setChildDrawerData({
+          ...childDrawerData,
+          tmm_freq_type: 0,
+          tmm_freq_type_name: "",
+          tmf_block_val: ""
+        });
+      }
     },
     [childDrawerData]
   );
@@ -903,11 +912,19 @@ function TabMedicationBox() {
 
   const onChangeTimingChild = useCallback(
     (item) => {
-      setChildDrawerData({
-        ...childDrawerData,
-        tmm_time: item.tmt_id,
-        tmm_time_name: item.tmt_title
-      });
+      if (item.tmt_id != childDrawerData.tmm_time) {
+        setChildDrawerData({
+          ...childDrawerData,
+          tmm_time: item.tmt_id,
+          tmm_time_name: item.tmt_title
+        });
+      } else {
+        setChildDrawerData({
+          ...childDrawerData,
+          tmm_time: 0,
+          tmm_time_name: ""
+        });
+      }
     },
     [childDrawerData]
   );

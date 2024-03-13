@@ -3,6 +3,7 @@ import { Col, Tabs, Radio, Row, Form, Select, Switch, Button, Input, Checkbox } 
 import HeaderPrintSetting from "../common/HeaderPrintSetting";
 import { useReactToPrint } from 'react-to-print';
 import PrintHtmlPage from "./PrintHtmlPage";
+import Cropper from "react-cropper";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -12,6 +13,8 @@ import { TAB_PRESCRIPTION, TAB_HEADER_FOOTER, TAB_PAGE_FORMAT } from "../utils/c
 import defaultprofile from "../assets/images/default-profile.svg";
 import rxDisplayArea from '../assets/images/rx-display-area.svg';
 import wtsp from '../assets/images/wtsp.svg';
+
+import "cropperjs/dist/cropper.css";
 
 const { TextArea } = Input;
 
@@ -65,13 +68,8 @@ const FONTS_SIZE_LIST = [
 ]
 function ConfigurePrintSetting() {
 
-    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
-
-    const showHideBackModal = useCallback(() => {
-        setIsBackModalOpen(!isBackModalOpen);
-    }, [isBackModalOpen]);
-
     const printRef = React.useRef();
+    const cropperRef = React.createRef();
 
     const { defaultPrintSettings } = useSelector((state) => state.doctors);
 
@@ -81,6 +79,9 @@ function ConfigurePrintSetting() {
     const [headerFooterShowHide, setHeaderFooterShowHide] = useState(false);
     const [patientInfoShowHide, setPatientInfoShowHide] = useState(false);
     const [settingsShowHide, setSettingsShowHide] = useState(false);
+
+    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+    const [fileHeader, setFileHeader] = useState(null);
 
     const TabsPrintSetting = [
         {
@@ -179,8 +180,22 @@ function ConfigurePrintSetting() {
         [printSettings]
     );
 
+    const onPatientInfoClick = useCallback(
+        () => {
+            setPatientInfoShowHide(!patientInfoShowHide)
+        },
+        [patientInfoShowHide]
+    );
 
-    // Doctor’s information
+    const onSettingsClick = useCallback(
+        () => {
+            setSettingsShowHide(!settingsShowHide)
+        },
+        [settingsShowHide]
+    );
+
+    //Custom
+    //Doctor’s information
     const onDoctorInfoSwitchChange = useCallback(
         (checked) => {
             printSettings.header_footer.header.doctor_info.enable = checked ? 'Y' : 'N'
@@ -196,6 +211,7 @@ function ConfigurePrintSetting() {
     const onDoctorInfoPlaceChange = useCallback(
         (e) => {
             printSettings.header_footer.header.doctor_info.place = e.target.value
+            printSettings.header_footer.header.clinic_info.place = e.target.value === 'L' ? 'R' : 'L'
             setPrintSettings((prev) => {
                 return {
                     ...prev
@@ -245,6 +261,7 @@ function ConfigurePrintSetting() {
     const onClinicInfoPlaceChange = useCallback(
         (e) => {
             printSettings.header_footer.header.clinic_info.place = e.target.value
+            printSettings.header_footer.header.doctor_info.place = e.target.value === 'L' ? 'R' : 'L'
             setPrintSettings((prev) => {
                 return {
                     ...prev
@@ -291,21 +308,7 @@ function ConfigurePrintSetting() {
         [printSettings]
     );
 
-
-    const onPatientInfoClick = useCallback(
-        () => {
-            setPatientInfoShowHide(!patientInfoShowHide)
-        },
-        [patientInfoShowHide]
-    );
-
-    const onSettingsClick = useCallback(
-        () => {
-            setSettingsShowHide(!settingsShowHide)
-        },
-        [settingsShowHide]
-    );
-
+    //Upload Letterhead
 
     //TAB_PAGE_FORMAT
     const onSelectFontFamily = useCallback(
@@ -332,6 +335,25 @@ function ConfigurePrintSetting() {
         [printSettings]
     );
 
+
+    const showHideBackModal = useCallback(() => {
+        setIsBackModalOpen(!isBackModalOpen);
+    }, [isBackModalOpen]);
+
+    const handleChange = useCallback((e) => {
+        if (e.target.files?.length > 0) {
+            const fileUrl = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = () => {
+                setFileHeader({ showFile: reader.result, sendFile: fileUrl })
+                showHideBackModal()
+            };
+            reader.readAsDataURL(fileUrl);
+        }
+    },
+        [fileHeader, isBackModalOpen]
+    );
+
     return (
         <>
             <HeaderPrintSetting />
@@ -345,10 +367,10 @@ function ConfigurePrintSetting() {
                                 <div className="px-3">
                                     <div className="titleprint mb-3">Format Style</div>
                                     <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                                        <Col lg="10">
+                                        <Col lg={10}>
                                             All Change to
                                         </Col>
-                                        <Col lg="14">
+                                        <Col lg={14}>
                                             <Form.Item className="mb-0">
                                                 <Radio.Group className="d-flex gender-radio all-change-radio" onChange={onMainCaseOptionChange}
                                                     value={
@@ -365,23 +387,25 @@ function ConfigurePrintSetting() {
                                     </Row>
                                     {printSettings?.prescription?.case_option?.map((e, i) => {
                                         return (
-                                            <Row key={i} justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                                                <Col lg="10">
-                                                    <div className="d-flex align-items-center cursor-pointer" onClick={() => onCaseOptionChange(e, 'visible', i)}>
-                                                        <i className={`icon-Preview ${e.enable == 'N' && 'disable-preview'} me-2`}></i>
-                                                        <span>{e.title}</span>
-                                                    </div>
-                                                </Col>
-                                                <Col lg="14">
-                                                    <Form.Item className="mb-0">
-                                                        <Radio.Group className="d-flex gender-radio all-change-radio" onChange={(e) => onCaseOptionChange(e, 'radio', i)} value={e.format}>
-                                                            <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
-                                                            <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
-                                                            <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>
-                                                        </Radio.Group>
-                                                    </Form.Item>
-                                                </Col>
-                                            </Row>
+                                            e?.custom_status === 'Y' && (
+                                                <Row key={i} justify="space-between" className="align-items-center form_addnewpatient mb-3">
+                                                    <Col lg={10}>
+                                                        <div className="d-flex align-items-center cursor-pointer" onClick={() => onCaseOptionChange(e, 'visible', i)}>
+                                                            <i className={`icon-Preview ${e.enable === 'N' && 'disable-preview'} me-2`}></i>
+                                                            <span>{e.title}</span>
+                                                        </div>
+                                                    </Col>
+                                                    <Col lg={14}>
+                                                        <Form.Item className="mb-0">
+                                                            <Radio.Group className="d-flex gender-radio all-change-radio" onChange={(e) => onCaseOptionChange(e, 'radio', i)} value={e.format}>
+                                                                <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
+                                                                <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
+                                                                <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>
+                                                            </Radio.Group>
+                                                        </Form.Item>
+                                                    </Col>
+                                                </Row>
+                                            )
                                         )
                                     })}
                                 </div>
@@ -421,16 +445,16 @@ function ConfigurePrintSetting() {
                                                                 <div className="title-common">Doctor’s information</div>
                                                             </Col>
                                                             <Col lg="6">
-                                                                <Switch onChange={onDoctorInfoSwitchChange} checked={printSettings?.header_footer?.header?.doctor_info?.enable == 'Y' ? true : false} />
+                                                                <Switch onChange={onDoctorInfoSwitchChange} checked={printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? true : false} />
                                                             </Col>
                                                         </Row>
 
-                                                        {printSettings?.header_footer?.header?.doctor_info?.enable == 'Y' && (
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && (
                                                             <>
                                                                 <Form.Item>
                                                                     <Radio.Group className="d-flex gender-radio" onChange={onDoctorInfoPlaceChange} value={printSettings?.header_footer?.header?.doctor_info?.place}>
-                                                                        <Radio.Button className="w-100 text-center" value="L">left</Radio.Button>
-                                                                        <Radio.Button className="w-100 text-center" value="R">right</Radio.Button>
+                                                                        <Radio.Button className="w-100 text-center" value="L">Left</Radio.Button>
+                                                                        <Radio.Button className="w-100 text-center" value="R">Right</Radio.Button>
                                                                     </Radio.Group>
                                                                 </Form.Item>
                                                                 <div className="mt-3">
@@ -460,16 +484,16 @@ function ConfigurePrintSetting() {
                                                                 <div className="title-common">Clinic’s information</div>
                                                             </Col>
                                                             <Col lg="6">
-                                                                <Switch onChange={onClinicInfoSwitchChange} checked={printSettings?.header_footer?.header?.clinic_info?.enable == 'Y' ? true : false} />
+                                                                <Switch onChange={onClinicInfoSwitchChange} checked={printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? true : false} />
                                                             </Col>
                                                         </Row>
 
-                                                        {printSettings?.header_footer?.header?.clinic_info?.enable == 'Y' && (
+                                                        {printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (
                                                             <>
                                                                 <Form.Item>
                                                                     <Radio.Group className="d-flex gender-radio" onChange={onClinicInfoPlaceChange} value={printSettings?.header_footer?.header?.clinic_info?.place}>
-                                                                        <Radio.Button className="w-100 text-center" value="L">left</Radio.Button>
-                                                                        <Radio.Button className="w-100 text-center" value="R">right</Radio.Button>
+                                                                        <Radio.Button className="w-100 text-center" value="L">Left</Radio.Button>
+                                                                        <Radio.Button className="w-100 text-center" value="R">Right</Radio.Button>
                                                                     </Radio.Group>
                                                                 </Form.Item>
                                                                 <div className="mt-3">
@@ -499,11 +523,11 @@ function ConfigurePrintSetting() {
                                                                 <div className="title-common">Logo on Header</div>
                                                             </Col>
                                                             <Col lg="6">
-                                                                <Switch onChange={onLogoSwitchChange} checked={printSettings?.logo_enable == 'Y' ? true : false} />
+                                                                <Switch onChange={onLogoSwitchChange} checked={printSettings?.logo_enable === 'Y' ? true : false} />
                                                             </Col>
                                                         </Row>
 
-                                                        {printSettings?.logo_enable == 'Y' && (
+                                                        {printSettings?.logo_enable === 'Y' && (
                                                             <div className="upload-headfoot upload-headfoot1 p-3">
                                                                 <div className="d-flex align-items-center justify-content-between">
                                                                     <div className="text-start fontroboto">Upload a picture of your<br /> Logo</div>
@@ -518,7 +542,7 @@ function ConfigurePrintSetting() {
 
                                                         <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                                             <Col lg="18">
-                                                                <div className="title-common"><img className="img-fluid" width={25} src={wtsp} alt="Header" /> See whatsApp Rx preview </div>
+                                                                <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See whatsApp Rx preview </div>
                                                             </Col>
                                                             <Col lg="6">
                                                                 <div className="d-flex align-items-center">
@@ -539,8 +563,8 @@ function ConfigurePrintSetting() {
                                                             </Col>
                                                         </Row>
                                                         <div className="upload-headfoot">
-                                                            <div className="fw-medium text-decoration-underline cursor-pointer" onClick={showHideBackModal}>Upload Header</div>
-
+                                                            <div className="fw-medium text-decoration-underline cursor-pointer" onClick={handleChange}>Upload Header</div>
+                                                            <input className="image-upload-input" type="file" accept="image/*" onChange={handleChange} />
                                                             <CommonModal
                                                                 isModalOpen={isBackModalOpen}
                                                                 onCancel={showHideBackModal}
@@ -548,8 +572,19 @@ function ConfigurePrintSetting() {
                                                                 title={"Crope Image"}
                                                                 modalBody={
                                                                     <>
-                                                                        <div className="image-crop bg-dark">
-                                                                            <img src={defaultprofile} />
+                                                                        <div className="d-flex image-crop bg-dark justify-content-center align-items-center">
+                                                                            {/* <img src={fileHeader ? fileHeader?.showFile : defaultprofile} /> */}
+                                                                            <Cropper
+                                                                                ref={cropperRef}
+                                                                                // zoomTo={0.5}
+                                                                                initialAspectRatio={1}
+                                                                                // preview=".img-preview"
+                                                                                src={fileHeader ? fileHeader?.showFile : defaultprofile}
+                                                                                viewMode={3}
+                                                                                background={false}
+                                                                                autoCropArea={0.5}
+                                                                                guides={false}
+                                                                            />
                                                                         </div>
                                                                         <div className="mt-4">
                                                                             <div className="d-flex align-items-center mt-2 justify-content-between">
@@ -574,7 +609,7 @@ function ConfigurePrintSetting() {
                                                         </div>
                                                         <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                                             <Col lg="18">
-                                                                <div className="title-common"><img className="img-fluid" width={25} src={wtsp} alt="Header" />See whatsApp Rx preview </div>
+                                                                <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" />See whatsApp Rx preview </div>
                                                             </Col>
                                                             <Col lg="6">
                                                                 <div className="d-flex align-items-center">
@@ -623,7 +658,7 @@ function ConfigurePrintSetting() {
                                                         </div>
                                                         <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                                             <Col lg="18">
-                                                                <div className="title-common"><img className="img-fluid" width={25} src={wtsp} alt="Header" />See whatsApp Rx preview </div>
+                                                                <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" />See whatsApp Rx preview </div>
                                                             </Col>
                                                             <Col lg="6">
                                                                 <div className="d-flex align-items-center">
@@ -790,7 +825,7 @@ function ConfigurePrintSetting() {
                             <div className="titleprint mt-20" onClick={() => printContent()}>Preview</div>
                             <div className="border rounded-20px bg-white mt-20 overflow-hidden h-100">
                                 <div key={Math.random()} ref={printRef} style={{ padding: 20 }} className="h-100">
-                                    <PrintHtmlPage printSettings={printSettings} />
+                                    <PrintHtmlPage printSettings={printSettings} fileHeader={fileHeader} />
                                 </div>
                             </div>
                         </div>
