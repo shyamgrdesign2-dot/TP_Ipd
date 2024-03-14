@@ -401,9 +401,15 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onChangeFrequencyChild = useCallback(
     (item) => {
-      medicationData[selectedIndex].tmm_freq_type = item.tmf_id;
-      medicationData[selectedIndex].tmm_freq_type_name = item.tmf_title;
-      medicationData[selectedIndex].tmf_block_val = item.tmf_block_val;
+      if (item.tmf_id != medicationData[selectedIndex].tmm_freq_type) {
+        medicationData[selectedIndex].tmm_freq_type = item.tmf_id;
+        medicationData[selectedIndex].tmm_freq_type_name = item.tmf_title;
+        medicationData[selectedIndex].tmf_block_val = item.tmf_block_val;
+      } else {
+        medicationData[selectedIndex].tmm_freq_type = 0;
+        medicationData[selectedIndex].tmm_freq_type_name = "";
+        medicationData[selectedIndex].tmf_block_val = "";
+      }
       setMedicationData((prev) => [...prev]);
     },
     [selectedIndex, medicationData]
@@ -418,8 +424,13 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onChangeTimingChild = useCallback(
     (item) => {
-      medicationData[selectedIndex].tmm_time = item.tmt_id;
-      medicationData[selectedIndex].tmm_time_name = item.tmt_title;
+      if (item.tmt_id != medicationData[selectedIndex].tmm_time) {
+        medicationData[selectedIndex].tmm_time = item.tmt_id;
+        medicationData[selectedIndex].tmm_time_name = item.tmt_title;
+      } else {
+        medicationData[selectedIndex].tmm_time = 0;
+        medicationData[selectedIndex].tmm_time_name = "";
+      }
       setMedicationData((prev) => [...prev]);
     },
     [selectedIndex, medicationData]

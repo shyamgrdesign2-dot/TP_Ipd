@@ -66,6 +66,9 @@ body {
     .text-primary {
         color: $theme !important;
     }
+    .text-secondary-custom {
+        color: $themesecondary !important;
+    }
     .bg-secondary {
         background-color: $themesecondary !important;
     }
@@ -224,6 +227,21 @@ body {
             font-family: 'Poppins' !important;
         }
     }
+    .fontarial {
+        font-family: 'Arial' !important;
+    }
+    .fonttimesroman {
+        font-family: 'Times-Roman' !important;
+    }
+    .fontverdana {
+        font-family: 'Verdana' !important;
+    }
+    .fontcalibri {
+        font-family: 'Calibri' !important;
+    }
+    .fonttahoma {
+        font-family: Tahoma !important;
+    }
     .alert-warning {
         background-color: hsl(35, 100%, 46%, 0.1);
         color: $maincolor !important;
@@ -258,6 +276,10 @@ body {
     }
     .ant-input-affix-wrapper {
         border-radius: 10px;
+    }
+    .image-crop {
+        height: 230px;
+        overflow: hidden;
     }
     .ant-select {
         &.appointmentselect {
@@ -295,6 +317,12 @@ body {
     .ant-select .ant-select-selector {
         border-color: $bordercolor !important;
         border-radius: 10px;
+    }
+    .all-change-radio {
+        .ant-radio-button-wrapper {
+            padding-inline: 13px;
+            white-space: nowrap;
+        }
     }
     .medicine-templates {
         padding: 10px 17px;
