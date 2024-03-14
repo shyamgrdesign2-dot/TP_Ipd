@@ -30,6 +30,7 @@ import Sider from "antd/es/layout/Sider";
 function TabPrescription() {
 
     const { customizedPadLeftList, customizedPadRightList, frequencyList, timingList } = useSelector((state) => state.doctors);
+    const { vitalsPastList } = useSelector((state) => state.vitals);
 
     const { state } = useLocation();
     const { patient_data, caseManagerData } = state
@@ -142,7 +143,7 @@ function TabPrescription() {
                             {customizedPadLeftList?.map((e, i) => {
                                 return (
                                     e.tmdpm_id === 1 && e.tmdpm_status === 0 && (
-                                        <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length === 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
+                                        <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length === 0 && vitalsPastList.length === 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
                                             <div className="bg-secondary-light prescription-tab-button rounded-10px">
                                                 <img src={vitalsWhite} alt="Vitals" />
                                             </div>

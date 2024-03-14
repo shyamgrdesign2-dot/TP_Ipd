@@ -156,8 +156,9 @@ function AdviceBox() {
   const onBlurParent = useCallback(
     () => {
       setAutoCompleteFlag(false);
+      onClickParent()
     },
-    [autoCompleteFlag]
+    [autoCompleteFlag,adviceDataCheck]
   );
 
   const onSearchParent = useCallback(

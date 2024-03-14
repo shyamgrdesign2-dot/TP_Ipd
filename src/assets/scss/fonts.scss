@@ -153,6 +153,53 @@
   font-display: swap;
 }
 
+// Print setting Fonts
+
+@font-face {
+  font-family: 'Tahoma';
+  src: url('../fonts/print-fonts/Tahoma.woff2') format('woff2'),
+      url('../fonts/print-fonts/Tahoma.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Calibri';
+  src: url('../fonts/print-fonts/Calibri.woff2') format('woff2'),
+      url('../fonts/print-fonts/Calibri.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Times-Roman';
+  src: url('../fonts/print-fonts/Times-Roman.woff2') format('woff2'),
+      url('../fonts/print-fonts/Times-Roman.woff') format('woff');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Arial';
+  src: url('../fonts/print-fonts/ArialMT.woff2') format('woff2'),
+      url('../fonts/print-fonts/ArialMT.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Verdana';
+  src: url('../fonts/print-fonts/Verdana.woff2') format('woff2'),
+      url('../fonts/print-fonts/Verdana.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 // Iconmoon Icons Fonts 
 
 @font-face {
@@ -317,4 +364,7 @@
   }
   .icon-switch:before {
     content: "\e92a";
+  }
+  .icon-upload:before {
+    content: "\e92b";
   }
