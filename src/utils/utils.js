@@ -65,7 +65,7 @@ export const makeDefaultLogo = (text) => {
 export const frequencyCombination = (text) => {
   // const array = ['0', '1/2', '1/3', '1/4', '3/4', '1', '2']
   // const array = ['0', '0.5', '0.33', '0.25', '0.75', '1', '2']
-  const array = ['0', '1', '2']
+  const array = ['0', '1']
   const results = text;
   let makeArray = []
 
