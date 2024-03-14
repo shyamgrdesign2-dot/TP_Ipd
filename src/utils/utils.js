@@ -102,6 +102,21 @@ export const frequencyCombination = (text) => {
   return makeArray;
 }
 
+export const dataUrlToFile = (url, fileName) => {
+  const [mediaType, data] = url.split(",");
+
+  const mime = mediaType.match(/:(.*?);/)?.[0];
+
+  var n = data.length;
+
+  const arr = new Uint8Array(n);
+
+  while (n--) {
+    arr[n] = data.charCodeAt(n);
+  }
+
+  return new File([arr], fileName, { type: mime });
+};
 
 
 export const trimEllip = (source, length) => {

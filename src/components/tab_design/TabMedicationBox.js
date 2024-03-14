@@ -561,7 +561,7 @@ function TabMedicationBox() {
         );
       })
     );
-  }, [medicationData, selectedTab]);
+  }, [medicationData, childDrawerData, selectedTab]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useMemo(() => {

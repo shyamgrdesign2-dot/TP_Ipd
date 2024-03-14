@@ -1,20 +1,24 @@
-import React from "react";
-import PrintHeaderImage from "../assets/images/print-header.png";
+import React, { useContext } from "react";
 import { Flex, Col } from "antd";
 import moment from "moment";
 import { useSelector } from "react-redux";
 
-import { isNumeric } from '../utils/utils'
+import PrintSettingsContext from '../../context/PrintSettingsContext';
 
-import '../assets/scss/print.scss';
+import { isNumeric } from '../../utils/utils'
 
-import defaultprofile from "../assets/images/default-profile.svg";
+import defaultprofile from "../../assets/images/default-profile.svg";
+
+import '../../assets/scss/print.scss';
 
 const showDateFormat = 'DD MMM, YY'
 
-function PrintHtmlPage({ printSettings }) {
+function PrintHtmlPage() {
+
+    const { printSettings, fileHeader, fileFooter } = useContext(PrintSettingsContext);
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
+
 
     var caseManagerData = {
         "tcm_id": 132368,
@@ -439,7 +443,6 @@ function PrintHtmlPage({ printSettings }) {
     }
 
 
-
     const initialRows = [
         {
             key: '1',
@@ -535,8 +538,7 @@ function PrintHtmlPage({ printSettings }) {
                 <div className="fontroboto" style={{ fontSize: 14 }}>
                     Hyderabad, India • 07894561230 • contact@careclinic.com
                 </div> */}
-
-                {printSettings?.letterhead_format === 0 && (
+                {printSettings?.letterhead_format === 0 ? (
                     <div className="d-flex">
                         {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? (
                             <>
@@ -582,9 +584,13 @@ function PrintHtmlPage({ printSettings }) {
                             </>
                         )}
                     </div>
+                ) : (
+                    fileHeader && fileHeader?.headerImageShow && (
+                        <img
+                            style={{ width: '100%', objectFit: 'contain' }}
+                            src={fileHeader?.showFile} />
+                    )
                 )}
-
-
             </div>
 
             {/* Patient Details */}
@@ -1117,6 +1123,12 @@ function PrintHtmlPage({ printSettings }) {
                     )
                 )}
             </div>
+
+            {fileFooter && fileFooter?.footerImageShow && (
+                <img
+                    style={{ width: '100%', objectFit: 'contain' }}
+                    src={fileFooter?.showFile} />
+            )}
         </>
     );
 }
