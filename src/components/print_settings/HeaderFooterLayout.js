@@ -1,6 +1,7 @@
-import React, { useState, useCallback,useContext } from "react";
-import { Col, Radio, Row, Form, Switch, Button, Input, Checkbox, message } from "antd";
+import React, { useState, useCallback, useContext } from "react";
+import { Col, Radio, Row, Form, Switch, Button, Input, Checkbox, message, Table } from "antd";
 import Cropper from "react-cropper";
+
 
 import PrintSettingsContext from '../../context/PrintSettingsContext';
 
@@ -10,17 +11,74 @@ import { MESSAGE_KEY } from "../../utils/constants";
 import defaultprofile from "../../assets/images/default-profile.svg";
 import rxDisplayArea from '../../assets/images/rx-display-area.svg';
 import wtsp from '../../assets/images/wtsp.svg';
-
 import "cropperjs/dist/cropper.css";
+
+import { MenuOutlined } from '@ant-design/icons';
+import { DndContext } from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const { TextArea } = Input;
 
-function HeaderFooterLayout() {
+const CustomRow = ({ children, ...props }) => {
+    const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
+        id: props['data-row-key'],
+    });
+    const style = {
+        ...props.style,
+        transform: CSS.Transform.toString(
+            transform && {
+                ...transform,
+                scaleY: 1,
+            }
+        ),
+        transition,
+        ...(isDragging ? {
+            position: 'relative',
+            zIndex: 9999,
+        } : {}),
+    };
+    return (
+        <tr {...props} ref={setNodeRef} style={style} {...attributes}>
+            {React.Children.map(children, (child) => {
+                if (child.key === 'sort') {
+                    return React.cloneElement(child, {
+                        children: (
+                            <MenuOutlined
+                                ref={setActivatorNodeRef}
+                                style={{
+                                    touchAction: 'none',
+                                    cursor: 'move',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                                {...listeners}
+                            />
+                        ),
+                    });
+                } else if (child.key === 'tmdpm_status') {
+                    return React.cloneElement(child, {
+                        style: {
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        },
+                    });
+                }
+                return child;
+            })}
+        </tr>
+    );
+};
 
+function HeaderFooterLayout() {
     const cropperHeaderRef = React.createRef();
     const cropperFooterRef = React.createRef();
+    const cropperLogoRef = React.createRef();
 
-    const { printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter } = useContext(PrintSettingsContext);
+    const { printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo } = useContext(PrintSettingsContext);
 
     const [headerFooterShowHide, setHeaderFooterShowHide] = useState(false);
     const [patientInfoShowHide, setPatientInfoShowHide] = useState(false);
@@ -28,6 +86,8 @@ function HeaderFooterLayout() {
 
     const [isHeaderModalOpen, setIsHeaderModalOpen] = useState(false);
     const [isFooterModalOpen, setIsFooterModalOpen] = useState(false);
+    const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
+
 
     //TAB_HEADER_FOOTER
     const onHeaderFooterClick = useCallback(
@@ -63,6 +123,7 @@ function HeaderFooterLayout() {
         [settingsShowHide]
     );
 
+    //Header & Footer
     //Custom
     //Doctor’s information
     const onDoctorInfoSwitchChange = useCallback(
@@ -177,6 +238,53 @@ function HeaderFooterLayout() {
         [printSettings]
     );
 
+    // Logo Image
+    const showHideLogoModal = useCallback(() => {
+        setIsLogoModalOpen(!isLogoModalOpen);
+    }, [isLogoModalOpen]);
+
+    const handleLogoChange = (e) => {
+        if (e.target.files?.length > 0) {
+            const fileUrl = e.target.files[0];
+            if (fileUrl.size <= 2000000) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    setFileLogo({ logoImageShow: false, crop: true, showFile: reader.result, originalFile: fileUrl })
+                    showHideLogoModal()
+                };
+                reader.readAsDataURL(fileUrl);
+            } else {
+                message.open({
+                    key: MESSAGE_KEY,
+                    type: 'warning',
+                    content: 'Please upload image below 2mb',
+                    duration: 2
+                });
+            }
+        }
+    }
+
+    const getLogoCropData = () => {
+        if (typeof cropperLogoRef.current?.cropper !== "undefined") {
+            setFileLogo({ ...fileLogo, crop: false, showFile: cropperLogoRef.current?.cropper.getCroppedCanvas().toDataURL() })
+        }
+    };
+
+    const getLogoCropChangeData = () => {
+        if (fileLogo && !fileLogo?.crop) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setFileLogo({ ...fileLogo, logoImageShow: false, crop: true, showFile: reader.result })
+            };
+            reader.readAsDataURL(fileLogo.originalFile);
+        }
+    };
+
+    const onLogoImageSubmit = () => {
+        setFileLogo({ ...fileLogo, logoImageShow: true })
+        showHideLogoModal()
+    };
+
     //Upload Letterhead
     //Header Image
     const showHideHeaderModal = useCallback(() => {
@@ -251,6 +359,7 @@ function HeaderFooterLayout() {
         }
     }
 
+
     const getFooterCropData = () => {
         if (typeof cropperFooterRef.current?.cropper !== "undefined") {
             setFileFooter({ ...fileFooter, crop: false, showFile: cropperFooterRef.current?.cropper.getCroppedCanvas().toDataURL() })
@@ -271,6 +380,105 @@ function HeaderFooterLayout() {
         setFileFooter({ ...fileFooter, footerImageShow: true })
         showHideFooterModal()
     };
+
+
+    //Display Patient Info
+    const patientInfoTable = [
+        {
+            title: '',
+            key: 'sort',
+            colSpan: 2,
+            width: 50,
+            align: 'center',
+            dataIndex: 'sort',
+        },
+        {
+            title: '',
+            colSpan: 0,
+            dataIndex: 'title',
+            key: 'title',
+            render: (text, record) => (
+                <div>
+                    {record.title}
+                </div>
+            ),
+        },
+        {
+            title: '',
+            dataIndex: 'enable',
+            key: 'enable',
+            render: (text, record) => <Switch defaultChecked onChange={(checked) => onChangePatientInfo(checked, record)} checked={text != 'Y' ? false : true} />,
+
+        },
+    ];
+
+    const onChangePatientInfo = (checked, record) => {
+        const index = printSettings.header_footer.patient_info.findIndex(e => e.id == record.id)
+        if (index !== -1) {
+            printSettings.header_footer.patient_info[index].enable = checked ? 'Y' : 'N'
+            // setPrintSettings((prev) => { return [...prev] });
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        }
+    };
+
+    const onDragEndPatientInfo = ({ active, over }) => {
+        if (active.id !== over?.id) {
+            setPrintSettings((prev) => {
+                const activeIndex = prev.header_footer.patient_info.findIndex((i) => i.id === active.id);
+                const overIndex = prev.header_footer.patient_info.findIndex((i) => i.id === over?.id);
+                return {
+                    ...prev,
+                    header_footer: {
+                        header: { ...prev.header_footer.header },
+                        patient_info: arrayMove(prev.header_footer.patient_info, activeIndex, overIndex),
+                        margin: { ...prev.header_footer.margin },
+                        other_settings: { ...prev.header_footer.other_settings }
+                    }
+                };
+            });
+        }
+    };
+
+    //Other Settings
+    const onWatermarkSwitchChange = useCallback(
+        (checked) => {
+            printSettings.water_mark_enable = checked ? 'Y' : 'N'
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
+    const onSignatureSwitchChange = useCallback(
+        (checked) => {
+            printSettings.signature_enable = checked ? 'Y' : 'N'
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
+    const onSignaturePlaceChange = useCallback(
+        (e) => {
+            printSettings.header_footer.other_settings.signature_place = e.target.value
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
 
     return (
         <div className="px-3 form_addnewpatient">
@@ -393,11 +601,69 @@ function HeaderFooterLayout() {
                                 {printSettings?.logo_enable === 'Y' && (
                                     <div className="upload-headfoot upload-headfoot1 p-3">
                                         <div className="d-flex align-items-center justify-content-between">
-                                            <div className="text-start fontroboto">Upload a picture of your<br /> Logo</div>
+                                            {fileLogo && fileLogo?.logoImageShow ?
+                                                <img
+                                                    style={{ width: '25%', objectFit: 'contain' }}
+                                                    src={fileLogo?.showFile} /> : <div className="text-start fontroboto">Upload a picture of your<br /> Logo</div>
+                                            }
+
+
+
                                             <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
                                                 <Form.Item name="pm_image" />
-                                                <input type="file" accept="image/*" />
-                                                <span><i className="icon-upload me-2"></i>Upload</span>
+                                                <input key={Math.random()} className="image-upload-input" type="file" accept="image/*" onChange={handleLogoChange} />
+                                                <span><i className="icon-upload me-2"></i>{fileLogo && fileLogo?.logoImageShow ? 'Change' : 'Upload'}</span>
+                                                <CommonModal
+                                                    handleCancel={true}
+                                                    isModalOpen={isLogoModalOpen}
+                                                    onCancel={showHideLogoModal}
+                                                    modalWidth={744}
+                                                    // title={"Crope Image"}
+                                                    title={
+                                                        <div className='d-flex'>
+                                                            <div className='align-items-center d-flex w-100'>
+                                                                <div className="text-truncate-twolines">{'Crope Logo Image'}</div>
+                                                            </div>
+                                                            <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onLogoImageSubmit}>
+                                                                Submit
+                                                            </Button>
+                                                        </div>
+                                                    }
+                                                    modalBody={
+                                                        <>
+                                                            <div className="d-flex image-crop bg-dark justify-content-center align-items-center">
+                                                                {fileLogo && fileLogo.crop ? (
+                                                                    <Cropper
+                                                                        ref={cropperLogoRef}
+                                                                        // zoomTo={0.5}
+                                                                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                                        // initialAspectRatio={1}
+                                                                        preview=".img-preview"
+                                                                        src={fileLogo ? fileLogo?.showFile : defaultprofile}
+                                                                        viewMode={3}
+                                                                        background={false}
+                                                                        autoCropArea={0.3}
+                                                                        guides={false}
+                                                                    />
+                                                                ) : (
+                                                                    <img
+                                                                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                                        src={fileLogo ? fileLogo?.showFile : defaultprofile} />
+                                                                )}
+                                                            </div>
+                                                            <div className="mt-4">
+                                                                <div className="d-flex align-items-center mt-2 justify-content-between">
+                                                                    <div className="fw-normal text-decoration-underline btn p-0 text-main" onClick={showHideLogoModal}>
+                                                                        {fileLogo && !fileLogo?.crop ? '' : 'Discard'}
+                                                                    </div>
+                                                                    <div className="fw-normal text-decoration-underline btn p-0 text-main" onClick={() => fileLogo && !fileLogo?.crop ? getLogoCropChangeData() : getLogoCropData()}>
+                                                                        {fileLogo && !fileLogo?.crop ? 'Change' : 'Save'}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </>
+                                                    }
+                                                />
                                             </div>
                                         </div>
                                     </div>
@@ -618,9 +884,41 @@ function HeaderFooterLayout() {
                         <Button className="btn rounded-10px px-1 border" style={{ transform: patientInfoShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onPatientInfoClick}>
                             <i className="icon-right"></i>
                         </Button>
+
                     </Col>
+
                 </Row>
                 <div>Manage your patient information</div>
+                {patientInfoShowHide && (
+                    <div className="mt-4">
+                        <div className="mt-4">
+                            <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
+                                <Col lg={24}>
+                                    <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndPatientInfo}>
+                                        <SortableContext
+                                            // rowKey array
+                                            items={printSettings?.header_footer?.patient_info.map((i) => i.id)}
+                                            strategy={verticalListSortingStrategy}
+                                        >
+                                            <Table
+                                                className='customize-table'
+                                                pagination={false}
+                                                components={{
+                                                    body: {
+                                                        row: CustomRow,
+                                                    },
+                                                }}
+                                                rowKey="id"
+                                                columns={patientInfoTable}
+                                                dataSource={printSettings?.header_footer?.patient_info}
+                                            />
+                                        </SortableContext>
+                                    </DndContext>
+                                </Col>
+                            </Row>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="mb-3">
@@ -644,19 +942,20 @@ function HeaderFooterLayout() {
                                     <div className="title-common">Watermark</div>
                                 </Col>
                                 <Col lg="6">
-                                    <Switch />
+                                    <Switch onChange={onWatermarkSwitchChange} checked={printSettings?.water_mark_enable === 'Y' ? true : false} />
                                 </Col>
                             </Row>
-                            <div className="upload-headfoot upload-headfoot1 p-3">
-                                <div className="d-flex align-items-center justify-content-between">
-                                    <img src={defaultprofile} style={{ height: 75 }} />
-                                    <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
-                                        <Form.Item name="pm_image" />
-                                        <input type="file" accept="image/*" />
-                                        <span><i className="icon-upload me-2"></i> Upload New</span>
+                            {printSettings?.water_mark_enable === 'Y' && (
+                                <div className="upload-headfoot upload-headfoot1 p-3">
+                                    <div className="d-flex align-items-center justify-content-between">
+                                        <img src={defaultprofile} style={{ height: 75 }} />
+                                        <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
+                                            <Form.Item name="pm_image" />
+                                            <input type="file" accept="image/*" />
+                                            <span><i className="icon-upload me-2"></i> Upload New</span>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
+                                </div>)}
                         </div>
                         <div className="mt-4">
                             <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
@@ -664,41 +963,46 @@ function HeaderFooterLayout() {
                                     <div className="title-common">Signature</div>
                                 </Col>
                                 <Col lg="6">
-                                    <Switch />
+                                    <Switch onChange={onSignatureSwitchChange} checked={printSettings?.signature_enable === 'Y' ? true : false} />
                                 </Col>
                             </Row>
-                            <Form.Item className="mb-0 mt-3">
-                                <Radio.Group className="d-flex gender-radio">
-                                    <Radio.Button className="w-100 text-center" value="left">left</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value="Female">right</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                            <div className="border rounded-10px mt-3">
-                                <div className="upload-headfoot border-0 border-bottom rounded-bottom-0 mt-0">
-                                    <div className="fw-medium text-decoration-underline cursor-pointer">Draw or Upload Signature</div>
-                                    <Button className="btn btn-headfoot"><i className="icon-Edit me-1"></i>Edit</Button>
-                                </div>
-                                <div className="p-3">
-                                    <div className="title-common mb-3">Include in signature</div>
-                                    <div className="mb-3">
-                                        <Checkbox className="switch-name-check">Name of Doctor</Checkbox>
-                                    </div>
-                                    <div className="mb-3">
-                                        <Checkbox className="switch-name-check">Medical Registration Number</Checkbox>
-                                    </div>
-                                    <div className="mb-3">
-                                        <Checkbox className="switch-name-check">Qualifications</Checkbox>
-                                    </div>
+                            {printSettings?.signature_enable === 'Y' && (
+                                <div>
+                                    <Form.Item className="mb-0 mt-3">
+                                        <Radio.Group className="d-flex gender-radio" onChange={onSignaturePlaceChange} value={printSettings?.header_footer?.other_settings?.signature_place}>
+                                            <Radio.Button className="w-100 text-center" value="L">left</Radio.Button>
+                                            <Radio.Button className="w-100 text-center" value="R">right</Radio.Button>
+                                        </Radio.Group>
 
-                                    <TextArea
-                                        className="endreason-textarea h-76"
-                                        placeholder="Enter qualification e.g. MBBS, MS, MD"
-                                        style={{
-                                            resize: "none"
-                                        }}
-                                    />
+                                    </Form.Item>
+                                    <div className="border rounded-10px mt-3">
+                                        <div className="upload-headfoot border-0 border-bottom rounded-bottom-0 mt-0">
+                                            <div className="fw-medium text-decoration-underline cursor-pointer">Draw or Upload Signature</div>
+                                            <Button className="btn btn-headfoot"><i className="icon-Edit me-1"></i>Edit</Button>
+                                        </div>
+                                        <div className="p-3">
+                                            <div className="title-common mb-3">Include in signature</div>
+                                            <div className="mb-3">
+                                                <Checkbox className="switch-name-check">Name of Doctor</Checkbox>
+                                            </div>
+                                            <div className="mb-3">
+                                                <Checkbox className="switch-name-check">Medical Registration Number</Checkbox>
+                                            </div>
+                                            <div className="mb-3">
+                                                <Checkbox className="switch-name-check">Qualifications</Checkbox>
+                                            </div>
+
+                                            <TextArea
+                                                className="endreason-textarea h-76"
+                                                placeholder="Enter qualification e.g. MBBS, MS, MD"
+                                                style={{
+                                                    resize: "none"
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                         <div className="mt-4">
                             <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">

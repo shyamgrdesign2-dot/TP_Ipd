@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import { Flex, Col } from "antd";
 import moment from "moment";
 import { useSelector } from "react-redux";
@@ -15,7 +15,7 @@ const showDateFormat = 'DD MMM, YY'
 
 function PrintHtmlPage() {
 
-    const { printSettings, fileHeader, fileFooter } = useContext(PrintSettingsContext);
+    const { printSettings, fileHeader, fileFooter, fileLogo } = useContext(PrintSettingsContext);
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
@@ -133,13 +133,18 @@ function PrintHtmlPage() {
             "patinet_dob": "01/01/1970",
             "patinet_age": 54,
             "patinet_gender": "Male",
-            "patinet_consultaion_date": "08/03/2024 16:07:24",
+            "patinet_contact_no": "88888",
             "patinet_email": "",
+            "patinet_address": "",
+            "patinet_blood_group": "",
             "patinet_secondary_name": "",
             "patinet_secondary_contact": "",
-            "patinet_address": "",
+            "patinet_reference_id": null,
             "patinet_ht_wt": "182/80",
-            "patinet_consultation_type": null
+            "patinet_consultation_type": null,
+            "patinet_consultaion_date": "2024-03-18 09:58:22",
+            "patinet_edd_date": null,
+            "patinet_date_time": "2024-03-18 13:53:56"
         },
         "vitals": [
             {
@@ -521,6 +526,34 @@ function PrintHtmlPage() {
         initialRows[10][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
     });
 
+    const patientDataShow = (id) => {
+        var value = ''
+        if (id == 1) {
+            value = `${caseManagerData?.patient_data?.patinet_name} ${caseManagerData?.patient_data?.patinet_id}`
+        } else if (id == 2) {
+            value = `${caseManagerData?.patient_data?.patinet_date_time ? caseManagerData?.patient_data?.patinet_date_time : ''}`
+        } else if (id == 3) {
+            value = `${caseManagerData?.patient_data?.patinet_age}Years, ${caseManagerData?.patient_data?.patinet_gender}`
+        } else if (id == 4) {
+            value = `${caseManagerData?.patient_data?.patinet_contact_no ? caseManagerData?.patient_data?.patinet_contact_no : ''}`
+        } else if (id == 5) {
+            value = `${caseManagerData?.patient_data?.patinet_ht_wt ? caseManagerData?.patient_data?.patinet_ht_wt : ''}`
+        } else if (id == 6) {
+            value = `${caseManagerData?.patient_data?.patinet_blood_group ? caseManagerData?.patient_data?.patinet_blood_group : ''}`
+        } else if (id == 7) {
+            value = `${caseManagerData?.patient_data?.patinet_address ? caseManagerData?.patient_data?.patinet_address : ''}`
+        } else if (id == 8) {
+            value = `${caseManagerData?.patient_data?.patinet_consultation_type ? caseManagerData?.patient_data?.patinet_consultation_type : ''}`
+        } else if (id == 9) {
+            value = ''
+        } else if (id == 10) {
+            value = `${caseManagerData?.patient_data?.patinet_email}`
+        } else if (id == 11) {
+            value = `${caseManagerData?.patient_data?.patinet_reference_id}`
+        }
+        return value
+    }
+
     return (
         <>
             {/* Header */}
@@ -552,7 +585,11 @@ function PrintHtmlPage() {
                                 </div>
                                 {printSettings?.logo_enable === 'Y' && (
                                     <div>
-                                        <img className="img-fluid" width={100} src={defaultprofile} alt="Header" />
+                                        {fileLogo && fileLogo?.logoImageShow && (
+                                            <img
+                                                style={{ width: '50%', objectFit: 'contain' }}
+                                                src={fileLogo?.showFile} />
+                                        )}
                                     </div>
                                 )}
                                 <div style={{ flex: 1 }} className="text-end">
@@ -568,7 +605,11 @@ function PrintHtmlPage() {
                             <>
                                 {printSettings?.logo_enable === 'Y' && (
                                     <div>
-                                        <img className="img-fluid" width={100} src={defaultprofile} alt="Header" />
+                                        {fileLogo && fileLogo?.LogoImageShow && (
+                                            <img
+                                                style={{ width: '50%', objectFit: 'contain' }}
+                                                src={fileLogo?.showFile} />
+                                        )}
                                     </div>
                                 )}
                                 {(printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' || printSettings?.header_footer?.header?.clinic_info?.enable === 'Y') && (
@@ -597,36 +638,28 @@ function PrintHtmlPage() {
             <div className="py-4 border-dark border-bottom patient-details">
                 <Flex justify="space-between">
                     <Col flex={7}>
-                        <div className="details-name">
-                            <span>Patient Name & ID: </span>
-                            <span>Abhishek Baroliya, #MH-020230214002</span>
-                        </div>
-                        <div className="details-name">
-                            <span>Age/Gender: </span>
-                            <span>28 Years, Male</span>
-                        </div>
-                        <div className="details-name">
-                            <span>Height / Weight: </span>
-                            <span>170cm / 68kg</span>
-                        </div>
-                        <div className="details-name">
-                            <span>Address: </span>
-                            <span>K9 Sardar Banglow, Prahladnagar, Ahmedabad 380015, Gujarat</span>
-                        </div>
+                        {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                            return (
+                                i % 2 === 0 && (
+                                    <div key={i} className="details-name">
+                                        <span>{item.title}:</span> &nbsp;
+                                        <span>{patientDataShow(item.id)}</span>
+                                    </div>
+                                )
+                            )
+                        })}
                     </Col>
                     <Col flex={3}>
-                        <div className="details-name">
-                            <span>Date: </span>
-                            <span>22/11/2023 04:36 PM</span>
-                        </div>
-                        <div className="details-name">
-                            <span>Mobile: </span>
-                            <span>7894561230</span>
-                        </div>
-                        <div className="details-name">
-                            <span>Blood Group: </span>
-                            <span>A+</span>
-                        </div>
+                        {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                            return (
+                                i % 2 === 1 && (
+                                    <div key={i} className="details-name">
+                                        <span>{item.title}: </span>&nbsp;
+                                        <span>{patientDataShow(item.id)}</span>
+                                    </div>
+                                )
+                            )
+                        })}
                     </Col>
                 </Flex>
             </div>

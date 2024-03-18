@@ -137,7 +137,15 @@ const medicationSlice = createSlice({
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedMedicationList = action.payload.medication;
-        state.templates.unshift(action.payload);
+        const medication = {
+          tmtd_id: action.payload.tmtd_id,
+          tmtd_tmm_id: action.payload.data.map(e => e.tmm_id).toString(),
+          tmtd_tmr_type: action.payload.data.map(e => e.tcm_tmr_type).toString(),
+          tmtd_template_name: action.payload.tmtd_template_name,
+          pms_default: 0,
+          medicine_name: action.payload.data.map(e => e.tmm_medicine_name).toString()
+        }
+        state.templates.unshift(medication);
       })
       .addCase(addTemplate.rejected, (state, action) => {
         state.loading = false;
@@ -148,11 +156,19 @@ const medicationSlice = createSlice({
       .addCase(updateTemplate.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedMedicationList = action.payload.medication;
+        const medication = {
+          tmtd_id: action.payload.tmtd_id,
+          tmtd_tmm_id: action.payload.data.map(e => e.tmm_id).toString(),
+          tmtd_tmr_type: action.payload.data.map(e => e.tcm_tmr_type).toString(),
+          tmtd_template_name: action.payload.tmtd_template_name,
+          pms_default: 0,
+          medicine_name: action.payload.data.map(e => e.tmm_medicine_name).toString()
+        }
         const index = state.templates.findIndex(
           (e) => e.tmtd_id == action.payload.tmtd_id
         );
         if (index !== -1) {
-          state.templates[index] = action.payload;
+          state.templates[index] = medication;
         }
       })
       .addCase(updateTemplate.rejected, (state, action) => {
