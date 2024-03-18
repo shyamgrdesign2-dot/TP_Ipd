@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, Card } from "antd";
 
-function CommonModal({ isModalOpen, title, modalBody, modalWidth, onCancel }) {
+function CommonModal({ handleCancel, isModalOpen, title, modalBody, modalWidth, onCancel }) {
   return (
     <Modal
       open={isModalOpen}
@@ -10,7 +10,7 @@ function CommonModal({ isModalOpen, title, modalBody, modalWidth, onCancel }) {
       footer={null}
       className="modalcommon"
       width={modalWidth}
-      onCancel={onCancel}
+      onCancel={!handleCancel ? onCancel : null}
       destroyOnClose
     >
       <Card
