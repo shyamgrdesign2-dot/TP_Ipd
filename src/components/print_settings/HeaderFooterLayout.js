@@ -1,23 +1,23 @@
 import React, { useState, useCallback, useContext } from "react";
 import { Col, Radio, Row, Form, Switch, Button, Input, Checkbox, message, Table } from "antd";
 import Cropper from "react-cropper";
-
-
-import PrintSettingsContext from '../../context/PrintSettingsContext';
-
-import CommonModal from '../../common/CommonModal';
-import { MESSAGE_KEY } from "../../utils/constants";
-
-import defaultprofile from "../../assets/images/default-profile.svg";
-import rxDisplayArea from '../../assets/images/rx-display-area.svg';
-import wtsp from '../../assets/images/wtsp.svg';
-import "cropperjs/dist/cropper.css";
-
+import SignatureCanvas from 'react-signature-canvas'
 import { MenuOutlined } from '@ant-design/icons';
 import { DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+import PrintSettingsContext from '../../context/PrintSettingsContext';
+
+import CommonModal from '../../common/CommonModal';
+import { MESSAGE_KEY } from "../../utils/constants";
+import { dataUrlToFile } from "../../utils/utils";
+
+import defaultprofile from "../../assets/images/default-profile.svg";
+import rxDisplayArea from '../../assets/images/rx-display-area.svg';
+import wtsp from '../../assets/images/wtsp.svg';
+import "cropperjs/dist/cropper.css";
 
 const { TextArea } = Input;
 
@@ -76,9 +76,10 @@ const CustomRow = ({ children, ...props }) => {
 function HeaderFooterLayout() {
     const cropperHeaderRef = React.createRef();
     const cropperFooterRef = React.createRef();
-    const cropperLogoRef = React.createRef();
+    const signatureRef = React.createRef();
+    const cropperSignatureRef = React.createRef();
 
-    const { printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo } = useContext(PrintSettingsContext);
+    const { printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature } = useContext(PrintSettingsContext);
 
     const [headerFooterShowHide, setHeaderFooterShowHide] = useState(false);
     const [patientInfoShowHide, setPatientInfoShowHide] = useState(false);
@@ -86,7 +87,11 @@ function HeaderFooterLayout() {
 
     const [isHeaderModalOpen, setIsHeaderModalOpen] = useState(false);
     const [isFooterModalOpen, setIsFooterModalOpen] = useState(false);
-    const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
+    const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+    const [signatureMode, setSignatureMode] = useState('L');
+
+    const [trimmedDataURL, setTrimmedDataURL] = useState('');
+
 
 
     //TAB_HEADER_FOOTER
@@ -239,20 +244,11 @@ function HeaderFooterLayout() {
     );
 
     // Logo Image
-    const showHideLogoModal = useCallback(() => {
-        setIsLogoModalOpen(!isLogoModalOpen);
-    }, [isLogoModalOpen]);
-
     const handleLogoChange = (e) => {
         if (e.target.files?.length > 0) {
             const fileUrl = e.target.files[0];
             if (fileUrl.size <= 2000000) {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    setFileLogo({ logoImageShow: false, crop: true, showFile: reader.result, originalFile: fileUrl })
-                    showHideLogoModal()
-                };
-                reader.readAsDataURL(fileUrl);
+                setFileLogo({ imageShow: true, showFile: URL.createObjectURL(fileUrl), originalFile: fileUrl })
             } else {
                 message.open({
                     key: MESSAGE_KEY,
@@ -263,27 +259,6 @@ function HeaderFooterLayout() {
             }
         }
     }
-
-    const getLogoCropData = () => {
-        if (typeof cropperLogoRef.current?.cropper !== "undefined") {
-            setFileLogo({ ...fileLogo, crop: false, showFile: cropperLogoRef.current?.cropper.getCroppedCanvas().toDataURL() })
-        }
-    };
-
-    const getLogoCropChangeData = () => {
-        if (fileLogo && !fileLogo?.crop) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                setFileLogo({ ...fileLogo, logoImageShow: false, crop: true, showFile: reader.result })
-            };
-            reader.readAsDataURL(fileLogo.originalFile);
-        }
-    };
-
-    const onLogoImageSubmit = () => {
-        setFileLogo({ ...fileLogo, logoImageShow: true })
-        showHideLogoModal()
-    };
 
     //Upload Letterhead
     //Header Image
@@ -297,7 +272,7 @@ function HeaderFooterLayout() {
             if (fileUrl.size <= 2000000) {
                 const reader = new FileReader();
                 reader.onload = () => {
-                    setFileHeader({ headerImageShow: false, crop: true, showFile: reader.result, originalFile: fileUrl })
+                    setFileHeader({ imageShow: false, crop: true, showFile: reader.result, originalFile: fileUrl })
                     showHideHeaderModal()
                 };
                 reader.readAsDataURL(fileUrl);
@@ -314,7 +289,8 @@ function HeaderFooterLayout() {
 
     const getHeaderCropData = () => {
         if (typeof cropperHeaderRef.current?.cropper !== "undefined") {
-            setFileHeader({ ...fileHeader, crop: false, showFile: cropperHeaderRef.current?.cropper.getCroppedCanvas().toDataURL() })
+            const trimData = cropperHeaderRef.current?.cropper.getCroppedCanvas().toDataURL();
+            setFileHeader({ ...fileHeader, crop: false, showFile: trimData, uploadFile: dataUrlToFile(trimData, "header.png") })
         }
     };
 
@@ -322,14 +298,14 @@ function HeaderFooterLayout() {
         if (fileHeader && !fileHeader?.crop) {
             const reader = new FileReader();
             reader.onload = () => {
-                setFileHeader({ ...fileHeader, headerImageShow: false, crop: true, showFile: reader.result })
+                setFileHeader({ ...fileHeader, imageShow: false, crop: true, showFile: reader.result })
             };
             reader.readAsDataURL(fileHeader.originalFile);
         }
     };
 
     const onHeaderImageSubmit = () => {
-        setFileHeader({ ...fileHeader, headerImageShow: true })
+        setFileHeader({ ...fileHeader, imageShow: true })
         showHideHeaderModal()
     };
 
@@ -344,7 +320,7 @@ function HeaderFooterLayout() {
             if (fileUrl.size <= 2000000) {
                 const reader = new FileReader();
                 reader.onload = () => {
-                    setFileFooter({ footerImageShow: false, crop: true, showFile: reader.result, originalFile: fileUrl })
+                    setFileFooter({ imageShow: false, crop: true, showFile: reader.result, originalFile: fileUrl })
                     showHideFooterModal()
                 };
                 reader.readAsDataURL(fileUrl);
@@ -359,10 +335,10 @@ function HeaderFooterLayout() {
         }
     }
 
-
     const getFooterCropData = () => {
         if (typeof cropperFooterRef.current?.cropper !== "undefined") {
-            setFileFooter({ ...fileFooter, crop: false, showFile: cropperFooterRef.current?.cropper.getCroppedCanvas().toDataURL() })
+            const trimData = cropperFooterRef.current?.cropper.getCroppedCanvas().toDataURL();
+            setFileFooter({ ...fileFooter, crop: false, showFile: trimData, uploadFile: dataUrlToFile(trimData, "footer.png") })
         }
     };
 
@@ -370,14 +346,14 @@ function HeaderFooterLayout() {
         if (fileFooter && !fileFooter?.crop) {
             const reader = new FileReader();
             reader.onload = () => {
-                setFileFooter({ ...fileFooter, footerImageShow: false, crop: true, showFile: reader.result })
+                setFileFooter({ ...fileFooter, imageShow: false, crop: true, showFile: reader.result })
             };
             reader.readAsDataURL(fileFooter.originalFile);
         }
     };
 
     const onFooterImageSubmit = () => {
-        setFileFooter({ ...fileFooter, footerImageShow: true })
+        setFileFooter({ ...fileFooter, imageShow: true })
         showHideFooterModal()
     };
 
@@ -385,7 +361,6 @@ function HeaderFooterLayout() {
     //Display Patient Info
     const patientInfoTable = [
         {
-            title: '',
             key: 'sort',
             colSpan: 2,
             width: 50,
@@ -393,7 +368,6 @@ function HeaderFooterLayout() {
             dataIndex: 'sort',
         },
         {
-            title: '',
             colSpan: 0,
             dataIndex: 'title',
             key: 'title',
@@ -404,7 +378,6 @@ function HeaderFooterLayout() {
             ),
         },
         {
-            title: '',
             dataIndex: 'enable',
             key: 'enable',
             render: (text, record) => <Switch defaultChecked onChange={(checked) => onChangePatientInfo(checked, record)} checked={text != 'Y' ? false : true} />,
@@ -443,6 +416,7 @@ function HeaderFooterLayout() {
         }
     };
 
+
     //Other Settings
     const onWatermarkSwitchChange = useCallback(
         (checked) => {
@@ -456,6 +430,23 @@ function HeaderFooterLayout() {
         [printSettings]
     );
 
+    // Watermark Image
+    const handleWatermarkChange = (e) => {
+        if (e.target.files?.length > 0) {
+            const fileUrl = e.target.files[0];
+            if (fileUrl.size <= 2000000) {
+                setFileWatermark({ imageShow: true, showFile: URL.createObjectURL(fileUrl), originalFile: fileUrl })
+            } else {
+                message.open({
+                    key: MESSAGE_KEY,
+                    type: 'warning',
+                    content: 'Please upload image below 2mb',
+                    duration: 2
+                });
+            }
+        }
+    }
+
     const onSignatureSwitchChange = useCallback(
         (checked) => {
             printSettings.signature_enable = checked ? 'Y' : 'N'
@@ -467,6 +458,67 @@ function HeaderFooterLayout() {
         },
         [printSettings]
     );
+
+    //Signature Image
+    const showHideSignatureModal = useCallback(() => {
+        setIsSignatureModalOpen(!isSignatureModalOpen);
+    }, [isSignatureModalOpen]);
+
+    const onSignatureModeChange = useCallback(
+        (e) => {
+            setSignatureMode(e.target.value)
+            setFileSignature(null)
+        },
+        [signatureMode]
+    );
+
+    const handleSignatureChange = (e) => {
+        if (e.target.files?.length > 0) {
+            const fileUrl = e.target.files[0];
+            if (fileUrl.size <= 2000000) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    setFileSignature({ imageShow: false, crop: true, readFile: reader.result, originalFile: fileUrl })
+                };
+                reader.readAsDataURL(fileUrl);
+            } else {
+                message.open({
+                    key: MESSAGE_KEY,
+                    type: 'warning',
+                    content: 'Please upload image below 2mb',
+                    duration: 2
+                });
+            }
+        }
+    }
+
+    const onSignatureImageSubmit = () => {
+        setFileSignature({ ...fileSignature, imageShow: true })
+        showHideSignatureModal()
+    };
+
+    const onResetSignature = () => {
+        if (signatureRef.current) {
+            signatureRef.current?.clear();
+        }
+        setFileSignature(null)
+    };
+
+    const handleTrim = () => {
+        if (signatureMode === 'L') {
+            if (signatureRef.current?.isEmpty()) {
+                alert('Please provide signature');
+                return;
+            }
+            const trimData = signatureRef.current?.getTrimmedCanvas().toDataURL('image/png');
+            setFileSignature({ ...fileSignature, preview: true, showFile: trimData, uploadFile: dataUrlToFile(trimData, "signature.png") })
+        } else {
+            if (typeof cropperSignatureRef.current?.cropper !== "undefined") {
+                const trimData = cropperSignatureRef.current?.cropper.getCroppedCanvas().toDataURL();
+                setFileSignature({ ...fileSignature, preview: true, showFile: trimData, uploadFile: dataUrlToFile(trimData, "signature.png") })
+            }
+        }
+    }
 
     const onSignaturePlaceChange = useCallback(
         (e) => {
@@ -601,69 +653,16 @@ function HeaderFooterLayout() {
                                 {printSettings?.logo_enable === 'Y' && (
                                     <div className="upload-headfoot upload-headfoot1 p-3">
                                         <div className="d-flex align-items-center justify-content-between">
-                                            {fileLogo && fileLogo?.logoImageShow ?
+                                            {fileLogo && fileLogo?.imageShow ?
                                                 <img
                                                     style={{ width: '25%', objectFit: 'contain' }}
-                                                    src={fileLogo?.showFile} /> : <div className="text-start fontroboto">Upload a picture of your<br /> Logo</div>
+                                                    src={fileLogo?.showFile} />
+                                                :
+                                                <div className="text-start fontroboto">Upload a picture of your<br /> Logo</div>
                                             }
-
-
-
                                             <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
-                                                <Form.Item name="pm_image" />
-                                                <input key={Math.random()} className="image-upload-input" type="file" accept="image/*" onChange={handleLogoChange} />
-                                                <span><i className="icon-upload me-2"></i>{fileLogo && fileLogo?.logoImageShow ? 'Change' : 'Upload'}</span>
-                                                <CommonModal
-                                                    handleCancel={true}
-                                                    isModalOpen={isLogoModalOpen}
-                                                    onCancel={showHideLogoModal}
-                                                    modalWidth={744}
-                                                    // title={"Crope Image"}
-                                                    title={
-                                                        <div className='d-flex'>
-                                                            <div className='align-items-center d-flex w-100'>
-                                                                <div className="text-truncate-twolines">{'Crope Logo Image'}</div>
-                                                            </div>
-                                                            <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onLogoImageSubmit}>
-                                                                Submit
-                                                            </Button>
-                                                        </div>
-                                                    }
-                                                    modalBody={
-                                                        <>
-                                                            <div className="d-flex image-crop bg-dark justify-content-center align-items-center">
-                                                                {fileLogo && fileLogo.crop ? (
-                                                                    <Cropper
-                                                                        ref={cropperLogoRef}
-                                                                        // zoomTo={0.5}
-                                                                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                                                                        // initialAspectRatio={1}
-                                                                        preview=".img-preview"
-                                                                        src={fileLogo ? fileLogo?.showFile : defaultprofile}
-                                                                        viewMode={3}
-                                                                        background={false}
-                                                                        autoCropArea={0.3}
-                                                                        guides={false}
-                                                                    />
-                                                                ) : (
-                                                                    <img
-                                                                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                                                                        src={fileLogo ? fileLogo?.showFile : defaultprofile} />
-                                                                )}
-                                                            </div>
-                                                            <div className="mt-4">
-                                                                <div className="d-flex align-items-center mt-2 justify-content-between">
-                                                                    <div className="fw-normal text-decoration-underline btn p-0 text-main" onClick={showHideLogoModal}>
-                                                                        {fileLogo && !fileLogo?.crop ? '' : 'Discard'}
-                                                                    </div>
-                                                                    <div className="fw-normal text-decoration-underline btn p-0 text-main" onClick={() => fileLogo && !fileLogo?.crop ? getLogoCropChangeData() : getLogoCropData()}>
-                                                                        {fileLogo && !fileLogo?.crop ? 'Change' : 'Save'}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </>
-                                                    }
-                                                />
+                                                <input key={Math.random()} className="image-upload-input" type="file" accept="image/png" onChange={handleLogoChange} />
+                                                <span><i className="icon-upload me-2"></i>{fileLogo && fileLogo?.imageShow ? 'Change' : 'Upload'}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -911,6 +910,7 @@ function HeaderFooterLayout() {
                                                 rowKey="id"
                                                 columns={patientInfoTable}
                                                 dataSource={printSettings?.header_footer?.patient_info}
+                                                showHeader={false}
                                             />
                                         </SortableContext>
                                     </DndContext>
@@ -948,11 +948,10 @@ function HeaderFooterLayout() {
                             {printSettings?.water_mark_enable === 'Y' && (
                                 <div className="upload-headfoot upload-headfoot1 p-3">
                                     <div className="d-flex align-items-center justify-content-between">
-                                        <img src={defaultprofile} style={{ height: 75 }} />
+                                        <img src={fileWatermark && fileWatermark?.imageShow ? fileWatermark?.showFile : defaultprofile} style={{ height: 75, objectFit: 'contain' }} />
                                         <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
-                                            <Form.Item name="pm_image" />
-                                            <input type="file" accept="image/*" />
-                                            <span><i className="icon-upload me-2"></i> Upload New</span>
+                                            <input key={Math.random()} className="image-upload-input" type="file" accept="image/png" onChange={handleWatermarkChange} />
+                                            <span><i className="icon-upload me-2"></i>{fileWatermark && fileWatermark?.imageShow ? 'Change' : ' Upload New'}</span>
                                         </div>
                                     </div>
                                 </div>)}
@@ -973,11 +972,93 @@ function HeaderFooterLayout() {
                                             <Radio.Button className="w-100 text-center" value="L">left</Radio.Button>
                                             <Radio.Button className="w-100 text-center" value="R">right</Radio.Button>
                                         </Radio.Group>
-
                                     </Form.Item>
                                     <div className="border rounded-10px mt-3">
                                         <div className="upload-headfoot border-0 border-bottom rounded-bottom-0 mt-0">
-                                            <div className="fw-medium text-decoration-underline cursor-pointer">Draw or Upload Signature</div>
+                                            <div className="fw-medium text-decoration-underline cursor-pointer" onClick={showHideSignatureModal}>Draw or Upload Signature</div>
+                                            <CommonModal
+                                                handleCancel={true}
+                                                isModalOpen={isSignatureModalOpen}
+                                                onCancel={showHideSignatureModal}
+                                                modalWidth={744}
+                                                title={
+                                                    <div className='d-flex'>
+                                                        <div className='align-items-center d-flex w-100'>
+                                                            <div className="text-truncate-twolines">{'Signature Image'}</div>
+                                                        </div>
+                                                        <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onSignatureImageSubmit}>
+                                                            Submit
+                                                        </Button>
+                                                    </div>
+                                                }
+                                                modalBody={
+                                                    <>
+                                                        <div className='border border-3 rounded' >
+                                                            <div className="d-flex align-items-center justify-content-between ">
+                                                                <div className="fw-normal text-main  ms-2">
+                                                                    {'Draw Signature'}
+                                                                </div>
+                                                                <div className="me-2 mt-2 ">
+                                                                    <Form.Item className="mb-0">
+                                                                        <Radio.Group className="d-flex gender-radio" onChange={onSignatureModeChange} value={signatureMode}>
+                                                                            <Radio.Button className="w-100 text-center" value="L"><i className="icon-Edit"></i>Draw</Radio.Button>
+                                                                            <Radio.Button className="w-100 text-center" value="R" ><i className="icon-upload"></i>Upload</Radio.Button>
+                                                                        </Radio.Group>
+                                                                    </Form.Item>
+                                                                </div>
+                                                            </div>
+                                                            <div className="d-flex image-crop justify-content-center align-items-center">
+                                                                {signatureMode === 'L' ? (
+                                                                    <SignatureCanvas
+                                                                        ref={signatureRef}
+                                                                        canvasProps={{ width: 694, height: 230 }} />
+                                                                ) : (
+                                                                    <>
+                                                                        {fileSignature && fileSignature.crop ? (
+                                                                            <Cropper
+                                                                                ref={cropperSignatureRef}
+                                                                                // zoomTo={0.5}
+                                                                                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                                                // initialAspectRatio={1}
+                                                                                preview=".img-preview"
+                                                                                src={fileSignature ? fileSignature?.readFile : defaultprofile}
+                                                                                viewMode={3}
+                                                                                background={false}
+                                                                                autoCropArea={0.3}
+                                                                                guides={false}
+                                                                            />
+                                                                        ) : (
+                                                                            <>
+                                                                                <div className="fw-medium text-decoration-underline cursor-pointer">Upload Signature</div>
+                                                                                <input key={Math.random()} className="image-upload-input" type="file" accept="image/*" onChange={handleSignatureChange} />
+                                                                            </>
+                                                                        )}
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        </div> <br />
+                                                        <div className="mt-4">
+                                                            <div className="d-flex align-items-center  justify-content-between">
+                                                                <div className="fw-normal text-decoration-underline btn p-0 text-main" onClick={onResetSignature}>
+                                                                    {'Reset'}
+                                                                </div>
+                                                                <div className="fw-normal text-decoration-underline btn p-0 text-main" onClick={handleTrim}>
+                                                                    {fileSignature && fileSignature?.preview ? 'Change' : 'Save'}
+                                                                </div>
+                                                            </div>
+                                                            <div className='mt-2'>
+                                                                <div className="fw-normal text-main">
+                                                                    {'Signature Preview'}
+                                                                </div>
+                                                                <img src={fileSignature && fileSignature?.preview ? fileSignature?.showFile : ''}
+                                                                    className='border border-3'
+                                                                    alt=''
+                                                                    style={{ height: 70, width: 200, padding: 8 }} />
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                }
+                                            />
                                             <Button className="btn btn-headfoot"><i className="icon-Edit me-1"></i>Edit</Button>
                                         </div>
                                         <div className="p-3">
@@ -991,7 +1072,6 @@ function HeaderFooterLayout() {
                                             <div className="mb-3">
                                                 <Checkbox className="switch-name-check">Qualifications</Checkbox>
                                             </div>
-
                                             <TextArea
                                                 className="endreason-textarea h-76"
                                                 placeholder="Enter qualification e.g. MBBS, MS, MD"

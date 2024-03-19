@@ -27,8 +27,10 @@ function ConfigurePrintSetting() {
     const [fileHeader, setFileHeader] = useState(null);
     const [fileFooter, setFileFooter] = useState(null);
     const [fileLogo, setFileLogo] = useState(null);
+    const [fileWatermark, setFileWatermark] = useState(null);
+    const [fileSignature, setFileSignature] = useState(null);
 
-    const contextApi = { printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo };
+    const contextApi = { printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
 
     const TabsPrintSetting = [
         {

@@ -585,9 +585,9 @@ function PrintHtmlPage() {
                                 </div>
                                 {printSettings?.logo_enable === 'Y' && (
                                     <div>
-                                        {fileLogo && fileLogo?.logoImageShow && (
+                                        {fileLogo && fileLogo?.imageShow && (
                                             <img
-                                                style={{ width: '50%', objectFit: 'contain' }}
+                                                style={{ width: 100, height: 100, objectFit: 'contain' }}
                                                 src={fileLogo?.showFile} />
                                         )}
                                     </div>
@@ -605,15 +605,24 @@ function PrintHtmlPage() {
                             <>
                                 {printSettings?.logo_enable === 'Y' && (
                                     <div>
-                                        {fileLogo && fileLogo?.LogoImageShow && (
+                                        {fileLogo && fileLogo?.imageShow && (
                                             <img
-                                                style={{ width: '50%', objectFit: 'contain' }}
+                                                style={{ width: 100, height: 100, objectFit: 'contain' }}
                                                 src={fileLogo?.showFile} />
                                         )}
                                     </div>
                                 )}
-                                {(printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' || printSettings?.header_footer?.header?.clinic_info?.enable === 'Y') && (
-                                    <div style={{ flex: 1 }} className="ms-3">
+                                {(printSettings?.header_footer?.header?.doctor_info?.enable === 'Y') ? (
+                                    <div style={{ flex: 1 }} className={`${printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 'ms-3' : 'text-end'}`}>
+                                        <div className="text-secondary-custom fw-bold fontroboto mb-2" style={{ fontSize: 18 }}>
+                                            {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                        </div>
+                                        <div className="fontroboto fw-medium" style={{ whiteSpace: 'pre-line', fontSize: 14 }}>
+                                            {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                        </div>
+                                    </div>
+                                ) : printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (
+                                    <div style={{ flex: 1 }} className={`${printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 'ms-3' : 'text-end'}`}>
                                         <div className="text-secondary-custom fw-bold fontroboto mb-2" style={{ fontSize: 18 }}>
                                             {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
                                         </div>
@@ -626,7 +635,7 @@ function PrintHtmlPage() {
                         )}
                     </div>
                 ) : (
-                    fileHeader && fileHeader?.headerImageShow && (
+                    fileHeader && fileHeader?.imageShow && (
                         <img
                             style={{ width: '100%', objectFit: 'contain' }}
                             src={fileHeader?.showFile} />
@@ -1157,7 +1166,7 @@ function PrintHtmlPage() {
                 )}
             </div>
 
-            {fileFooter && fileFooter?.footerImageShow && (
+            {fileFooter && fileFooter?.imageShow && (
                 <img
                     style={{ width: '100%', objectFit: 'contain' }}
                     src={fileFooter?.showFile} />
