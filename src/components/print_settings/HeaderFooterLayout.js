@@ -74,8 +74,16 @@ const CustomRow = ({ children, ...props }) => {
 };
 
 function HeaderFooterLayout() {
+
+    const inputHeaderFile = React.createRef();
     const cropperHeaderRef = React.createRef();
+
+    const inputFooterFile = React.createRef();
     const cropperFooterRef = React.createRef();
+
+    const inputLogoFile = React.createRef();
+    const inputWatermarkFile = React.createRef();
+
     const signatureRef = React.createRef();
     const cropperSignatureRef = React.createRef();
 
@@ -655,13 +663,20 @@ function HeaderFooterLayout() {
                                         <div className="d-flex align-items-center justify-content-between">
                                             {fileLogo && fileLogo?.imageShow ?
                                                 <img
-                                                    style={{ width: '25%', objectFit: 'contain' }}
+                                                    style={{ width: '25%', objectFit: 'contain', overflow: 'hidden' }}
                                                     src={fileLogo?.showFile} />
                                                 :
                                                 <div className="text-start fontroboto">Upload a picture of your<br /> Logo</div>
                                             }
-                                            <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
-                                                <input key={Math.random()} className="image-upload-input" type="file" accept="image/png" onChange={handleLogoChange} />
+                                            <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center" onClick={() => inputLogoFile.current?.click()}>
+                                                <input
+                                                    key={Math.random()}
+                                                    ref={inputLogoFile}
+                                                    // className="image-upload-input"
+                                                    style={{ display: 'none' }}
+                                                    type="file"
+                                                    accept="image/png"
+                                                    onChange={handleLogoChange} />
                                                 <span><i className="icon-upload me-2"></i>{fileLogo && fileLogo?.imageShow ? 'Change' : 'Upload'}</span>
                                             </div>
                                         </div>
@@ -691,8 +706,27 @@ function HeaderFooterLayout() {
                                     </Col>
                                 </Row>
                                 <div className="upload-headfoot">
-                                    <div className="fw-medium text-decoration-underline cursor-pointer">Upload Header</div>
-                                    <input key={Math.random()} className="image-upload-input" type="file" accept="image/*" onChange={handleHeaderChange} />
+                                    {fileHeader && fileHeader?.imageShow ? (
+                                        <>
+                                            <img
+                                                style={{ width: '100%', objectFit: 'contain', overflow: 'hidden' }}
+                                                src={fileHeader?.showFile} />
+                                            <Button className="btn btn-headfoot" onClick={() => inputHeaderFile.current?.click()}><i className="icon-Edit me-1"></i>Edit</Button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="fw-medium text-decoration-underline cursor-pointer" onClick={() => inputHeaderFile.current?.click()}>Upload Header</div>
+                                            <div className="fs-12-1 fontroboto"> Only jpg, jpeg or png files with the max size 2mb.</div>
+                                        </>
+                                    )}
+                                    <input
+                                        key={Math.random()}
+                                        ref={inputHeaderFile}
+                                        // className="image-upload-input"
+                                        style={{ display: 'none' }}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleHeaderChange} />
                                     <CommonModal
                                         handleCancel={true}
                                         isModalOpen={isHeaderModalOpen}
@@ -704,7 +738,7 @@ function HeaderFooterLayout() {
                                                 <div className='align-items-center d-flex w-100'>
                                                     <div className="text-truncate-twolines">{'Crope Image'}</div>
                                                 </div>
-                                                <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onHeaderImageSubmit}>
+                                                <Button type='button' disabled={fileHeader && !fileHeader?.crop ? false : true} className="btn-41 btn px-4 btn-primary3 me-4" onClick={onHeaderImageSubmit}>
                                                     Submit
                                                 </Button>
                                             </div>
@@ -744,12 +778,29 @@ function HeaderFooterLayout() {
                                             </>
                                         }
                                     />
-                                    <div className="fs-12-1 fontroboto"> Only jpg, jpeg or png files with the max size 2mb.</div>
-                                    <Button className="btn btn-headfoot"><i className="icon-Edit me-1"></i>Edit</Button>
                                 </div>
                                 <div className="upload-headfoot">
-                                    <div className="fw-medium text-decoration-underline cursor-pointer">Upload Footer</div>
-                                    <input key={Math.random()} className="image-upload-input" type="file" accept="image/*" onChange={handleFooterChange} />
+                                    {fileFooter && fileFooter?.imageShow ? (
+                                        <>
+                                            <img
+                                                style={{ width: '100%', objectFit: 'contain', overflow: 'hidden' }}
+                                                src={fileFooter?.showFile} />
+                                            <Button className="btn btn-headfoot" onClick={() => inputFooterFile.current?.click()}><i className="icon-Edit me-1"></i>Edit</Button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="fw-medium text-decoration-underline cursor-pointer" onClick={() => inputFooterFile.current?.click()}>Upload Footer</div>
+                                            <div className="fs-12-1 fontroboto"> Only jpg, jpeg or png files with the max size 2mb.</div>
+                                        </>
+                                    )}
+                                    <input
+                                        key={Math.random()}
+                                        ref={inputFooterFile}
+                                        // className="image-upload-input"
+                                        style={{ display: 'none' }}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFooterChange} />
                                     <CommonModal
                                         handleCancel={true}
                                         isModalOpen={isFooterModalOpen}
@@ -801,8 +852,6 @@ function HeaderFooterLayout() {
                                             </>
                                         }
                                     />
-                                    <div className="fs-12-1 fontroboto"> Only jpg, jpeg or png files with the max size 2mb.</div>
-                                    <Button className="btn btn-headfoot"><i className="icon-Edit me-1"></i>Edit</Button>
                                 </div>
                                 <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                     <Col lg="18">
@@ -948,13 +997,23 @@ function HeaderFooterLayout() {
                             {printSettings?.water_mark_enable === 'Y' && (
                                 <div className="upload-headfoot upload-headfoot1 p-3">
                                     <div className="d-flex align-items-center justify-content-between">
-                                        <img src={fileWatermark && fileWatermark?.imageShow ? fileWatermark?.showFile : defaultprofile} style={{ height: 75, objectFit: 'contain' }} />
-                                        <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
-                                            <input key={Math.random()} className="image-upload-input" type="file" accept="image/png" onChange={handleWatermarkChange} />
-                                            <span><i className="icon-upload me-2"></i>{fileWatermark && fileWatermark?.imageShow ? 'Change' : ' Upload New'}</span>
+                                        <img
+                                            style={{ width: '25%', objectFit: 'contain', overflow: 'hidden' }}
+                                            src={fileWatermark && fileWatermark?.imageShow ? fileWatermark?.showFile : defaultprofile} />
+                                        <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center" onClick={() => inputWatermarkFile.current?.click()}>
+                                            <input
+                                                key={Math.random()}
+                                                ref={inputWatermarkFile}
+                                                // className="image-upload-input"
+                                                style={{ display: 'none' }}
+                                                type="file"
+                                                accept="image/png"
+                                                onChange={handleWatermarkChange} />
+                                            <span><i className="icon-upload me-2"></i>{fileWatermark && fileWatermark?.imageShow ? 'Change' : 'Upload New'}</span>
                                         </div>
                                     </div>
-                                </div>)}
+                                </div>
+                            )}
                         </div>
                         <div className="mt-4">
                             <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
