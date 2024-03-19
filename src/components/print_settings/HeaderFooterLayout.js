@@ -1123,10 +1123,13 @@ function HeaderFooterLayout() {
                                                                 <div className="fw-normal text-main">
                                                                     {'Signature Preview'}
                                                                 </div>
-                                                                <img src={fileSignature && fileSignature?.preview ? fileSignature?.showFile : ''}
-                                                                    className='border border-3'
-                                                                    alt=''
-                                                                    style={{ height: 70, width: 200, padding: 8 }} />
+                                                                <div style={{ height: 70, width: 200, border: '1px solid', borderColor: 'grey' }}>
+                                                                    {fileSignature && fileSignature?.preview && (
+                                                                        <img 
+                                                                        style={{ width: '100%', objectFit: 'contain', overflow: 'hidden' }} 
+                                                                        src={fileSignature?.showFile} />
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </>
