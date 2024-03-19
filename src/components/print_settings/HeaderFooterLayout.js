@@ -865,7 +865,7 @@ function HeaderFooterLayout() {
                                     </Col>
                                 </Row>
                             </div>
-                        ) : (
+                        ) : printSettings?.letterhead_format === 2 && (
                             // For Own Letterhead tab 
                             <div className="mt-5">
                                 <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
@@ -1125,9 +1125,9 @@ function HeaderFooterLayout() {
                                                                 </div>
                                                                 <div style={{ height: 70, width: 200, border: '1px solid', borderColor: 'grey' }}>
                                                                     {fileSignature && fileSignature?.preview && (
-                                                                        <img 
-                                                                        style={{ width: '100%', objectFit: 'contain', overflow: 'hidden' }} 
-                                                                        src={fileSignature?.showFile} />
+                                                                        <img
+                                                                            style={{ width: '100%', objectFit: 'contain', overflow: 'hidden' }}
+                                                                            src={fileSignature?.showFile} />
                                                                     )}
                                                                 </div>
                                                             </div>
