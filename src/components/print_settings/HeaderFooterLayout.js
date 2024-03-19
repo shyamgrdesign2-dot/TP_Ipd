@@ -84,6 +84,7 @@ function HeaderFooterLayout() {
     const inputLogoFile = React.createRef();
     const inputWatermarkFile = React.createRef();
 
+    const inputSignatureFile = React.createRef();
     const signatureRef = React.createRef();
     const cropperSignatureRef = React.createRef();
 
@@ -97,9 +98,6 @@ function HeaderFooterLayout() {
     const [isFooterModalOpen, setIsFooterModalOpen] = useState(false);
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
     const [signatureMode, setSignatureMode] = useState('L');
-
-    const [trimmedDataURL, setTrimmedDataURL] = useState('');
-
 
 
     //TAB_HEADER_FOOTER
@@ -812,7 +810,7 @@ function HeaderFooterLayout() {
                                                 <div className='align-items-center d-flex w-100'>
                                                     <div className="text-truncate-twolines">{'Crope Image'}</div>
                                                 </div>
-                                                <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onFooterImageSubmit}>
+                                                <Button type='button' disabled={fileFooter && !fileFooter?.crop ? false : true} className="btn-41 btn px-4 btn-primary3 me-4" onClick={onFooterImageSubmit}>
                                                     Submit
                                                 </Button>
                                             </div>
@@ -1034,7 +1032,16 @@ function HeaderFooterLayout() {
                                     </Form.Item>
                                     <div className="border rounded-10px mt-3">
                                         <div className="upload-headfoot border-0 border-bottom rounded-bottom-0 mt-0">
-                                            <div className="fw-medium text-decoration-underline cursor-pointer" onClick={showHideSignatureModal}>Draw or Upload Signature</div>
+                                            {fileSignature && fileSignature?.imageShow ? (
+                                                <>
+                                                    <img
+                                                        style={{ width: '100%', objectFit: 'contain', overflow: 'hidden' }}
+                                                        src={fileSignature?.showFile} />
+                                                    <Button className="btn btn-headfoot" onClick={showHideSignatureModal}><i className="icon-Edit me-1"></i>Edit</Button>
+                                                </>
+                                            ) : (
+                                                <div className="fw-medium text-decoration-underline cursor-pointer" onClick={showHideSignatureModal}>Draw or Upload Signature</div>
+                                            )}
                                             <CommonModal
                                                 handleCancel={true}
                                                 isModalOpen={isSignatureModalOpen}
@@ -1045,7 +1052,7 @@ function HeaderFooterLayout() {
                                                         <div className='align-items-center d-flex w-100'>
                                                             <div className="text-truncate-twolines">{'Signature Image'}</div>
                                                         </div>
-                                                        <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onSignatureImageSubmit}>
+                                                        <Button type='button' disabled={fileSignature && fileSignature?.preview ? false : true} className="btn-41 btn px-4 btn-primary3 me-4" onClick={onSignatureImageSubmit}>
                                                             Submit
                                                         </Button>
                                                     </div>
@@ -1088,8 +1095,15 @@ function HeaderFooterLayout() {
                                                                             />
                                                                         ) : (
                                                                             <>
-                                                                                <div className="fw-medium text-decoration-underline cursor-pointer">Upload Signature</div>
-                                                                                <input key={Math.random()} className="image-upload-input" type="file" accept="image/*" onChange={handleSignatureChange} />
+                                                                                <div className="fw-medium text-decoration-underline cursor-pointer" onClick={() => inputSignatureFile.current?.click()}>Upload Signature</div>
+                                                                                <input
+                                                                                    key={Math.random()}
+                                                                                    ref={inputSignatureFile}
+                                                                                    // className="image-upload-input"
+                                                                                    style={{ display: 'none' }}
+                                                                                    type="file"
+                                                                                    accept="image/*"
+                                                                                    onChange={handleSignatureChange} />
                                                                             </>
                                                                         )}
                                                                     </>
@@ -1118,7 +1132,6 @@ function HeaderFooterLayout() {
                                                     </>
                                                 }
                                             />
-                                            <Button className="btn btn-headfoot"><i className="icon-Edit me-1"></i>Edit</Button>
                                         </div>
                                         <div className="p-3">
                                             <div className="title-common mb-3">Include in signature</div>

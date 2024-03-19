@@ -87,7 +87,7 @@ function ConfigurePrintSetting() {
                                     <PrescriptionLayout />
                                 ) : selectedTab === TAB_HEADER_FOOTER ? (
                                     <HeaderFooterLayout />
-                                ) : (
+                                ) : selectedTab === TAB_PAGE_FORMAT && (
                                     <PageFormatLayout />
                                 )}
                             </div>
