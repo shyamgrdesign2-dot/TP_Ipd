@@ -124,6 +124,9 @@ function MedicationsBox() {
   );
 
   const onSelectParent = async (data, item) => {
+    window.Moengage.track_event("medicine_select", {
+      "value": data
+    });
     const action = await dispatch(getMedicineDetails(JSON.parse(item.key).tmm_id));
     if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {

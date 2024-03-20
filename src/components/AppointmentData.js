@@ -45,6 +45,7 @@ function AppointmentData() {
 
     const navigate = useNavigate();
 
+    const { profile } = useSelector((state) => state.doctors);
     const { queueCount, finishedCount, cancelledCount, appointmentsData, caseTypes, loading, setOnLoad } = useSelector((state) => state.records);
     const dispatch = useDispatch();
 
@@ -318,6 +319,14 @@ function AppointmentData() {
         }
     };
 
+    const onConsultClick = async (record) => {
+        window.Moengage.track_event("patient_search_consult", {
+            "doctor_id": profile?.doctor_unique_id,
+            "patient_id": record?.patient_unique_id
+        });
+        navigate("/prescription", { state: { patient_data: record } })
+    }
+
     const onPrintRxUrlClick = async (record) => {
         if (record.print_rx_url) {
             if (!isChrome && !isSafari) {
@@ -404,7 +413,7 @@ function AppointmentData() {
             render: (_, record) => (
                 <div size="middle">
                     {selectedTab !== TAB_CANCELLED && (
-                        <button className="btn btn-outline-primary btn-consult" onClick={() => selectedTab === TAB_QUEUE ? navigate("/prescription", { state: { patient_data: record } }) : onPrintRxUrlClick(record)}>
+                        <button className="btn btn-outline-primary btn-consult" onClick={() => selectedTab === TAB_QUEUE ? onConsultClick(record) : onPrintRxUrlClick(record)}>
                             {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
                         </button>
                     )}

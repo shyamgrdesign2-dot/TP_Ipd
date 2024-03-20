@@ -71,6 +71,9 @@ function TabInvestigationSearch({ passIndex, onClose }) {
 
     const onSelectParent = useCallback(
         (e) => {
+            window.Moengage.track_event("investigation_select", {
+                "value": e.investigation_name
+            });
             investigationData.push({
                 ...e,
                 note: "",
