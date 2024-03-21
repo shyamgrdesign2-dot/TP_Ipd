@@ -7,6 +7,8 @@ import PrintSettingsContext from '../../context/PrintSettingsContext';
 
 import { isNumeric } from '../../utils/utils'
 
+
+import hey from "../../assets/images/bg-hey.png";
 import QRCode from "../../assets/images/qr-code.svg";
 import Signature from "../../assets/images/signature.png";
 
@@ -675,58 +677,19 @@ function PrintHtmlPage() {
                         </Col>
                     </Flex>
                 </div>
-
+                
                 {/* Inline|List View|Table */}
-                <div className="py-4">
-                    {caseManagerData.vitals.length > 0 && printSettings?.prescription?.case_option[6]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[6]?.format === 'inline' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Vitals & Body Composition:&nbsp;</label>
-                                {caseManagerData.vitals.map((item, i) => {
-                                    return (
-                                        <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
-                                            <label className="fw-medium">{item.date}&nbsp;</label>
-                                            <>{`- ${Object.values(Object.fromEntries(Object.entries(
-                                                (
-                                                    ({
-                                                        temp,
-                                                        pres,
-                                                        resp_rate,
-                                                        blood_press,
-                                                        spo2,
-                                                        height,
-                                                        weight,
-                                                        bmi,
-                                                        bmr,
-                                                        bsa,
-                                                    }) => ({
-                                                        temp: temp ? `Temperature (${temp}Frh)` : '',
-                                                        pres: pres ? `Pulse (${pres}/min)` : '',
-                                                        resp_rate: resp_rate ? `Resp. Rate (${resp_rate}/min)` : '',
-                                                        systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
-                                                        diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
-                                                        spo2: spo2 ? `SPO2 (${spo2}%)` : '',
-                                                        height: height ? `Height (${height}cms)` : '',
-                                                        weight: weight ? `Weight (${weight}kgs)` : '',
-                                                        bmi: bmi ? `BMI (${parseFloat(bmi).toFixed(2)}kg/m²)` : '',
-                                                        bmr: bmr ? `BMR (${parseFloat(bmr).toFixed(2)}kcals)` : '',
-                                                        bsa: bsa ? `BSA (${parseFloat(bsa).toFixed(2)}m²)` : '',
-                                                    })
-                                                )(caseManagerData.vitals[i])
-                                            ).filter(([_, v]) => v))).join(', ')}`}{caseManagerData.vitals.length - 1 != i ? ',' : ''}&nbsp;</>
-                                        </label>
-                                    )
-                                })}
-                            </div>
-                        ) : printSettings?.prescription?.case_option[6]?.format === 'listview' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Vitals & Body Composition:&nbsp;</label> <br />
-                                <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                <div className="py-4 position-relative" style={{zIndex: 0}}>
+                    <img className="position-absolute translate-middle" style={{left: '50%', top: '50%', zIndex: -1, opacity: 0.5}} src={hey} />
+                    <div>
+                        {caseManagerData.vitals.length > 0 && printSettings?.prescription?.case_option[6]?.enable === 'Y' && (
+                            printSettings?.prescription?.case_option[6]?.format === 'inline' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Vitals & Body Composition:&nbsp;</label>
                                     {caseManagerData.vitals.map((item, i) => {
                                         return (
-                                            <>
-                                                <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
-                                                <label key={Math.random()} className="fw-medium">{item.date}&nbsp;</label>
+                                            <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                                <label className="fw-medium">{item.date}&nbsp;</label>
                                                 <>{`- ${Object.values(Object.fromEntries(Object.entries(
                                                     (
                                                         ({
@@ -754,258 +717,259 @@ function PrintHtmlPage() {
                                                             bsa: bsa ? `BSA (${parseFloat(bsa).toFixed(2)}m²)` : '',
                                                         })
                                                     )(caseManagerData.vitals[i])
-                                                ).filter(([_, v]) => v))).join(', ')}`}<br /></>
-                                            </>
+                                                ).filter(([_, v]) => v))).join(', ')}`}{caseManagerData.vitals.length - 1 != i ? ',' : ''}&nbsp;</>
+                                            </label>
                                         )
                                     })}
-                                </label>
-                            </div>
-                        ) : (
-                            <div className="mb-3">
-                                <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Vitals & Body Composition:&nbsp;</label>
-                                <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
-                                    <tr>
-                                        {columns.map((item, i) => {
+                                </div>
+                            ) : printSettings?.prescription?.case_option[6]?.format === 'listview' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Vitals & Body Composition:&nbsp;</label> <br />
+                                    <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                        {caseManagerData.vitals.map((item, i) => {
                                             return (
-                                                <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.title}</th>
+                                                <>
+                                                    <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
+                                                    <label key={Math.random()} className="fw-medium">{item.date}&nbsp;</label>
+                                                    <>{`- ${Object.values(Object.fromEntries(Object.entries(
+                                                        (
+                                                            ({
+                                                                temp,
+                                                                pres,
+                                                                resp_rate,
+                                                                blood_press,
+                                                                spo2,
+                                                                height,
+                                                                weight,
+                                                                bmi,
+                                                                bmr,
+                                                                bsa,
+                                                            }) => ({
+                                                                temp: temp ? `Temperature (${temp}Frh)` : '',
+                                                                pres: pres ? `Pulse (${pres}/min)` : '',
+                                                                resp_rate: resp_rate ? `Resp. Rate (${resp_rate}/min)` : '',
+                                                                systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
+                                                                diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
+                                                                spo2: spo2 ? `SPO2 (${spo2}%)` : '',
+                                                                height: height ? `Height (${height}cms)` : '',
+                                                                weight: weight ? `Weight (${weight}kgs)` : '',
+                                                                bmi: bmi ? `BMI (${parseFloat(bmi).toFixed(2)}kg/m²)` : '',
+                                                                bmr: bmr ? `BMR (${parseFloat(bmr).toFixed(2)}kcals)` : '',
+                                                                bsa: bsa ? `BSA (${parseFloat(bsa).toFixed(2)}m²)` : '',
+                                                            })
+                                                        )(caseManagerData.vitals[i])
+                                                    ).filter(([_, v]) => v))).join(', ')}`}<br /></>
+                                                </>
                                             )
                                         })}
-                                    </tr>
-                                    {initialRows.map((item, i) => {
-                                        return (
-                                            <tr key={i}>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.name}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item['0']}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item['1']}</td>
-                                            </tr>
-                                        )
-                                    })}
-                                </table>
-                            </div>
-                        )
-                    )}
+                                    </label>
+                                </div>
+                            ) : (
+                                <div className="mb-3">
+                                    <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Vitals & Body Composition:&nbsp;</label>
+                                    <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
+                                        <tr>
+                                            {columns.map((item, i) => {
+                                                return (
+                                                    <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.title}</th>
+                                                )
+                                            })}
+                                        </tr>
+                                        {initialRows.map((item, i) => {
+                                            return (
+                                                <tr key={i}>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.name}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item['0']}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item['1']}</td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </table>
+                                </div>
+                            )
+                        )}
 
-                    {caseManagerData.symptoms.length > 0 && printSettings?.prescription?.case_option[0]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[0]?.format === 'inline' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Symptoms:&nbsp;</label>
-                                {caseManagerData.symptoms.map((item, i) => {
-                                    return (
-                                        <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
-                                            <label className="fw-medium">{item.symptom_name}&nbsp;</label>
-                                            {(item.since || item.severity || item.note) ?
-                                                <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</>
-                                                :
-                                                <>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</>
-                                            }
-                                        </label>
-                                    )
-                                })}
-                            </div>
-                        ) : printSettings?.prescription?.case_option[0]?.format === 'listview' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Symptoms:&nbsp;</label> <br />
-                                <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                        {caseManagerData.symptoms.length > 0 && printSettings?.prescription?.case_option[0]?.enable === 'Y' && (
+                            printSettings?.prescription?.case_option[0]?.format === 'inline' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Symptoms:&nbsp;</label>
                                     {caseManagerData.symptoms.map((item, i) => {
                                         return (
-                                            <>
-                                                <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
-                                                <label key={Math.random()} className="fw-medium">{item.symptom_name}&nbsp;</label>
-                                                {(item.since || item.severity || item.note) &&
-                                                    <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}<br /></>
+                                            <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                                <label className="fw-medium">{item.symptom_name}&nbsp;</label>
+                                                {(item.since || item.severity || item.note) ?
+                                                    <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</>
+                                                    :
+                                                    <>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</>
                                                 }
-                                            </>
+                                            </label>
                                         )
                                     })}
-                                </label>
-                            </div>
-                        ) : (
-                            <div className="mb-3">
-                                <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Symptoms:&nbsp;</label>
-                                <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
-                                    <tr>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>SINCE</th>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>SEVERITY</th>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NOTE</th>
-                                    </tr>
-                                    {caseManagerData.symptoms.map((item, i) => {
-                                        return (
-                                            <tr key={i}>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.symptom_name}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.since ? item.since : '-'}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.severity ? item.severity : '-'}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.note ? item.note : '-'}</td>
-                                            </tr>
-                                        )
-                                    })}
-                                </table>
-                            </div>
-                        )
-                    )}
+                                </div>
+                            ) : printSettings?.prescription?.case_option[0]?.format === 'listview' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Symptoms:&nbsp;</label> <br />
+                                    <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                        {caseManagerData.symptoms.map((item, i) => {
+                                            return (
+                                                <>
+                                                    <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
+                                                    <label key={Math.random()} className="fw-medium">{item.symptom_name}&nbsp;</label>
+                                                    {(item.since || item.severity || item.note) &&
+                                                        <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}<br /></>
+                                                    }
+                                                </>
+                                            )
+                                        })}
+                                    </label>
+                                </div>
+                            ) : (
+                                <div className="mb-3">
+                                    <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Symptoms:&nbsp;</label>
+                                    <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
+                                        <tr>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>SINCE</th>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>SEVERITY</th>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NOTE</th>
+                                        </tr>
+                                        {caseManagerData.symptoms.map((item, i) => {
+                                            return (
+                                                <tr key={i}>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.symptom_name}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.since ? item.since : '-'}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.severity ? item.severity : '-'}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.note ? item.note : '-'}</td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </table>
+                                </div>
+                            )
+                        )}
 
-                    {caseManagerData.examination.length > 0 && printSettings?.prescription?.case_option[1]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[1]?.format === 'inline' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Examinations:&nbsp;</label>
-                                {caseManagerData.examination.map((item, i) => {
-                                    return (
-                                        <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
-                                            <label className="fw-medium">{item.examination_name}&nbsp;</label>
-                                            {(item.note) ?
-                                                <>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</>
-                                                :
-                                                <>{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</>
-                                            }
-                                        </label>
-                                    )
-                                })}
-                            </div>
-                        ) : printSettings?.prescription?.case_option[1]?.format === 'listview' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Examinations:&nbsp;</label> <br />
-                                <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                        {caseManagerData.examination.length > 0 && printSettings?.prescription?.case_option[1]?.enable === 'Y' && (
+                            printSettings?.prescription?.case_option[1]?.format === 'inline' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Examinations:&nbsp;</label>
                                     {caseManagerData.examination.map((item, i) => {
                                         return (
-                                            <>
-                                                <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
-                                                <label key={Math.random()} className="fw-medium">{item.examination_name}&nbsp;</label>
-                                                {(item.note) &&
-                                                    <>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}<br /></>
+                                            <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                                <label className="fw-medium">{item.examination_name}&nbsp;</label>
+                                                {(item.note) ?
+                                                    <>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</>
+                                                    :
+                                                    <>{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</>
                                                 }
-                                            </>
+                                            </label>
                                         )
                                     })}
-                                </label>
-                            </div>
-                        ) : (
-                            <div className="mb-3">
-                                <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Examinations:&nbsp;</label>
-                                <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
-                                    <tr>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NOTE</th>
-                                    </tr>
-                                    {caseManagerData.examination.map((item, i) => {
-                                        return (
-                                            <tr key={i}>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.examination_name}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.note ? item.note : '-'}</td>
-                                            </tr>
-                                        )
-                                    })}
-                                </table>
-                            </div>
-                        )
-                    )}
+                                </div>
+                            ) : printSettings?.prescription?.case_option[1]?.format === 'listview' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Examinations:&nbsp;</label> <br />
+                                    <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                        {caseManagerData.examination.map((item, i) => {
+                                            return (
+                                                <>
+                                                    <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
+                                                    <label key={Math.random()} className="fw-medium">{item.examination_name}&nbsp;</label>
+                                                    {(item.note) &&
+                                                        <>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}<br /></>
+                                                    }
+                                                </>
+                                            )
+                                        })}
+                                    </label>
+                                </div>
+                            ) : (
+                                <div className="mb-3">
+                                    <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Examinations:&nbsp;</label>
+                                    <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
+                                        <tr>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NOTE</th>
+                                        </tr>
+                                        {caseManagerData.examination.map((item, i) => {
+                                            return (
+                                                <tr key={i}>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.examination_name}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.note ? item.note : '-'}</td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </table>
+                                </div>
+                            )
+                        )}
 
-                    {caseManagerData.diagnosis.length > 0 && printSettings?.prescription?.case_option[2]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[2]?.format === 'inline' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Diagnosis:&nbsp;</label>
-                                {caseManagerData.diagnosis.map((item, i) => {
-                                    return (
-                                        <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
-                                            <label className="fw-medium">{item.tds_name}&nbsp;</label>
-                                            {(item.since || item.status || item.note) ?
-                                                <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</>
-                                                :
-                                                <>{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</>
-                                            }
-                                        </label>
-                                    )
-                                })}
-                            </div>
-                        ) : printSettings?.prescription?.case_option[2]?.format === 'listview' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Diagnosis:&nbsp;</label> <br />
-                                <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                        {caseManagerData.diagnosis.length > 0 && printSettings?.prescription?.case_option[2]?.enable === 'Y' && (
+                            printSettings?.prescription?.case_option[2]?.format === 'inline' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Diagnosis:&nbsp;</label>
                                     {caseManagerData.diagnosis.map((item, i) => {
                                         return (
-                                            <>
-                                                <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
-                                                <label key={Math.random()} className="fw-medium">{item.tds_name}&nbsp;</label>
-                                                {(item.since || item.status || item.note) &&
-                                                    <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})`}<br /></>
+                                            <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                                <label className="fw-medium">{item.tds_name}&nbsp;</label>
+                                                {(item.since || item.status || item.note) ?
+                                                    <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</>
+                                                    :
+                                                    <>{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</>
                                                 }
-                                            </>
+                                            </label>
                                         )
                                     })}
-                                </label>
-                            </div>
-                        ) : (
-                            <div className="mb-3">
-                                <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Diagnosis:&nbsp;</label>
-                                <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
-                                    <tr>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>SINCE</th>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>STATUS</th>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NOTE</th>
-                                    </tr>
-                                    {caseManagerData.diagnosis.map((item, i) => {
-                                        return (
-                                            <tr key={i}>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.tds_name}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.since ? item.since : '-'}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.status ? item.status : '-'}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.note ? item.note : '-'}</td>
-                                            </tr>
-                                        )
-                                    })}
-                                </table>
-                            </div>
-                        )
-                    )}
+                                </div>
+                            ) : printSettings?.prescription?.case_option[2]?.format === 'listview' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Diagnosis:&nbsp;</label> <br />
+                                    <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                        {caseManagerData.diagnosis.map((item, i) => {
+                                            return (
+                                                <>
+                                                    <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
+                                                    <label key={Math.random()} className="fw-medium">{item.tds_name}&nbsp;</label>
+                                                    {(item.since || item.status || item.note) &&
+                                                        <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})`}<br /></>
+                                                    }
+                                                </>
+                                            )
+                                        })}
+                                    </label>
+                                </div>
+                            ) : (
+                                <div className="mb-3">
+                                    <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Diagnosis:&nbsp;</label>
+                                    <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
+                                        <tr>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>SINCE</th>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>STATUS</th>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NOTE</th>
+                                        </tr>
+                                        {caseManagerData.diagnosis.map((item, i) => {
+                                            return (
+                                                <tr key={i}>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.tds_name}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.since ? item.since : '-'}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.status ? item.status : '-'}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.note ? item.note : '-'}</td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </table>
+                                </div>
+                            )
+                        )}
 
-                    {caseManagerData.medicine.length > 0 && printSettings?.prescription?.case_option[3]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[3]?.format === 'inline' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Medication (Rx):&nbsp;</label>
-                                {caseManagerData.medicine.map((item, i) => {
-                                    return (
-                                        <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
-                                            <label className="fw-medium">{item.tmm_medicine_name},{item.tmm_generic}&nbsp;</label>
-                                            <>{`(${Object.values(Object.fromEntries(Object.entries(
-                                                (
-                                                    ({
-                                                        tmf_block,
-                                                        tcm_tmm_freq_morning,
-                                                        tcm_tmm_freq_afternoon,
-                                                        tcm_tmm_freq_evening,
-                                                        tcm_tmm_freq_night,
-                                                        tmm_freq_type,
-                                                        tmm_time,
-                                                        tmm_days,
-                                                        tmm_duration_type,
-                                                        display_qty,
-                                                        tmm_remarks
-                                                    }) => ({
-                                                        modiFrequency: tmf_block === 0 || tmf_block === "" ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}-${tcm_tmm_freq_evening ? tcm_tmm_freq_evening : 0}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
-
-                                                        modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
-
-                                                        modiDuration: isNumeric(tmm_days) ? `${tmm_days} - ${tmm_duration_type}` : '-',
-
-                                                        modiDisplayQty: display_qty ? display_qty.toFixed(2) : '',
-
-                                                        tmm_remarks
-                                                    })
-                                                )(caseManagerData.medicine[i])
-                                            ).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.medicine.length - 1 != i ? ',' : ''}&nbsp;</>
-                                        </label>
-                                    )
-                                })}
-                            </div>
-                        ) : printSettings?.prescription?.case_option[3]?.format === 'listview' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Medication (Rx):&nbsp;</label> <br />
-                                <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                        {caseManagerData.medicine.length > 0 && printSettings?.prescription?.case_option[3]?.enable === 'Y' && (
+                            printSettings?.prescription?.case_option[3]?.format === 'inline' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Medication (Rx):&nbsp;</label>
                                     {caseManagerData.medicine.map((item, i) => {
                                         return (
-                                            <>
-                                                <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
-                                                <label key={Math.random()} className="fw-medium">{item.tmm_medicine_name},{item.tmm_generic}&nbsp;</label>
+                                            <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                                <label className="fw-medium">{item.tmm_medicine_name},{item.tmm_generic}&nbsp;</label>
                                                 <>{`(${Object.values(Object.fromEntries(Object.entries(
                                                     (
                                                         ({
@@ -1032,141 +996,182 @@ function PrintHtmlPage() {
                                                             tmm_remarks
                                                         })
                                                     )(caseManagerData.medicine[i])
-                                                ).filter(([_, v]) => v))).join(', ')})`}<br /></>
-                                            </>
+                                                ).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.medicine.length - 1 != i ? ',' : ''}&nbsp;</>
+                                            </label>
                                         )
                                     })}
-                                </label>
-                            </div>
-                        ) : (
-                            <div className="mb-3">
-                                <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Medication (Rx):&nbsp;</label>
-                                <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
-                                    <tr>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>RX</th>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>TIME & FREQUENCY</th>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>DURATION</th>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>QTY.</th>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NOTE</th>
-                                    </tr>
-                                    {caseManagerData.medicine.map((item, i) => {
-                                        return (
-                                            <tr key={i}>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{i + 1}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.tmm_medicine_name}<br />{item.tmm_generic}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.tmf_block === 0 || item.tmf_block === "" ? `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning : 0}-${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon : 0}-${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening : 0}-${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}<br />{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{isNumeric(item.tmm_days) ? `${item.tmm_days} - ${item.tmm_duration_type}` : '-'}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.display_qty ? item.display_qty.toFixed(2) : '-'}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.tmm_remarks ? item.tmm_remarks : '-'}</td>
-                                            </tr>
-                                        )
-                                    })}
-                                </table>
-                            </div>
-                        )
-                    )}
+                                </div>
+                            ) : printSettings?.prescription?.case_option[3]?.format === 'listview' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Medication (Rx):&nbsp;</label> <br />
+                                    <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                        {caseManagerData.medicine.map((item, i) => {
+                                            return (
+                                                <>
+                                                    <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
+                                                    <label key={Math.random()} className="fw-medium">{item.tmm_medicine_name},{item.tmm_generic}&nbsp;</label>
+                                                    <>{`(${Object.values(Object.fromEntries(Object.entries(
+                                                        (
+                                                            ({
+                                                                tmf_block,
+                                                                tcm_tmm_freq_morning,
+                                                                tcm_tmm_freq_afternoon,
+                                                                tcm_tmm_freq_evening,
+                                                                tcm_tmm_freq_night,
+                                                                tmm_freq_type,
+                                                                tmm_time,
+                                                                tmm_days,
+                                                                tmm_duration_type,
+                                                                display_qty,
+                                                                tmm_remarks
+                                                            }) => ({
+                                                                modiFrequency: tmf_block === 0 || tmf_block === "" ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}-${tcm_tmm_freq_evening ? tcm_tmm_freq_evening : 0}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
 
-                    {caseManagerData.advice.length > 0 && printSettings?.prescription?.case_option[4]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[4]?.format === 'inline' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Advices:&nbsp;</label>
-                                {caseManagerData.advice.map((item, i) => {
-                                    return (
-                                        <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
-                                            <label className="fw-medium">{item.advice_name}&nbsp;</label>
-                                            <>{caseManagerData.advice.length - 1 != i ? ',' : ''}&nbsp;</>
-                                        </label>
-                                    )
-                                })}
-                            </div>
-                        ) : printSettings?.prescription?.case_option[4]?.format === 'listview' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Advices:&nbsp;</label> <br />
-                                <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                                                modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
+
+                                                                modiDuration: isNumeric(tmm_days) ? `${tmm_days} - ${tmm_duration_type}` : '-',
+
+                                                                modiDisplayQty: display_qty ? display_qty.toFixed(2) : '',
+
+                                                                tmm_remarks
+                                                            })
+                                                        )(caseManagerData.medicine[i])
+                                                    ).filter(([_, v]) => v))).join(', ')})`}<br /></>
+                                                </>
+                                            )
+                                        })}
+                                    </label>
+                                </div>
+                            ) : (
+                                <div className="mb-3">
+                                    <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Medication (Rx):&nbsp;</label>
+                                    <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
+                                        <tr>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>RX</th>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>TIME & FREQUENCY</th>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>DURATION</th>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>QTY.</th>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NOTE</th>
+                                        </tr>
+                                        {caseManagerData.medicine.map((item, i) => {
+                                            return (
+                                                <tr key={i}>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{i + 1}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.tmm_medicine_name}<br />{item.tmm_generic}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.tmf_block === 0 || item.tmf_block === "" ? `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning : 0}-${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon : 0}-${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening : 0}-${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}<br />{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{isNumeric(item.tmm_days) ? `${item.tmm_days} - ${item.tmm_duration_type}` : '-'}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.display_qty ? item.display_qty.toFixed(2) : '-'}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.tmm_remarks ? item.tmm_remarks : '-'}</td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </table>
+                                </div>
+                            )
+                        )}
+
+                        {caseManagerData.advice.length > 0 && printSettings?.prescription?.case_option[4]?.enable === 'Y' && (
+                            printSettings?.prescription?.case_option[4]?.format === 'inline' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Advices:&nbsp;</label>
                                     {caseManagerData.advice.map((item, i) => {
                                         return (
-                                            <>
-                                                <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
-                                                <label key={Math.random()} className="fw-medium">{item.advice_name}&nbsp;</label><br />
-                                            </>
+                                            <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                                <label className="fw-medium">{item.advice_name}&nbsp;</label>
+                                                <>{caseManagerData.advice.length - 1 != i ? ',' : ''}&nbsp;</>
+                                            </label>
                                         )
                                     })}
-                                </label>
-                            </div>
-                        ) : (
-                            <div className="mb-3">
-                                <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Advices:&nbsp;</label>
-                                <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
-                                    <tr>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
-                                    </tr>
-                                    {caseManagerData.advice.map((item, i) => {
-                                        return (
-                                            <tr key={i}>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.advice_name}</td>
-                                            </tr>
-                                        )
-                                    })}
-                                </table>
-                            </div>
-                        )
-                    )}
+                                </div>
+                            ) : printSettings?.prescription?.case_option[4]?.format === 'listview' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Advices:&nbsp;</label> <br />
+                                    <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                        {caseManagerData.advice.map((item, i) => {
+                                            return (
+                                                <>
+                                                    <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
+                                                    <label key={Math.random()} className="fw-medium">{item.advice_name}&nbsp;</label><br />
+                                                </>
+                                            )
+                                        })}
+                                    </label>
+                                </div>
+                            ) : (
+                                <div className="mb-3">
+                                    <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Advices:&nbsp;</label>
+                                    <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
+                                        <tr>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
+                                        </tr>
+                                        {caseManagerData.advice.map((item, i) => {
+                                            return (
+                                                <tr key={i}>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.advice_name}</td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </table>
+                                </div>
+                            )
+                        )}
 
-                    {caseManagerData.investigation.length > 0 && printSettings?.prescription?.case_option[5]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[5]?.format === 'inline' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Lab Investigation:&nbsp;</label>
-                                {caseManagerData.investigation.map((item, i) => {
-                                    return (
-                                        <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
-                                            <label className="fw-medium">{item.investigation_name}&nbsp;</label>
-                                            {(item.note) ?
-                                                <>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</>
-                                                :
-                                                <>{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</>
-                                            }
-                                        </label>
-                                    )
-                                })}
-                            </div>
-                        ) : printSettings?.prescription?.case_option[5]?.format === 'listview' ? (
-                            <div className="mb-3">
-                                <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Lab Investigation:&nbsp;</label> <br />
-                                <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                        {caseManagerData.investigation.length > 0 && printSettings?.prescription?.case_option[5]?.enable === 'Y' && (
+                            printSettings?.prescription?.case_option[5]?.format === 'inline' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Lab Investigation:&nbsp;</label>
                                     {caseManagerData.investigation.map((item, i) => {
                                         return (
-                                            <>
-                                                <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
-                                                <label key={Math.random()} className="fw-medium">{item.investigation_name}&nbsp;</label>
-                                                {(item.note) &&
-                                                    <>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})`}<br /></>
+                                            <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                                <label className="fw-medium">{item.investigation_name}&nbsp;</label>
+                                                {(item.note) ?
+                                                    <>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</>
+                                                    :
+                                                    <>{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</>
                                                 }
-                                            </>
+                                            </label>
                                         )
                                     })}
-                                </label>
-                            </div>
-                        ) : (
-                            <div className="mb-3">
-                                <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Lab Investigation:&nbsp;</label>
-                                <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
-                                    <tr>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
-                                        <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NOTE</th>
-                                    </tr>
-                                    {caseManagerData.investigation.map((item, i) => {
-                                        return (
-                                            <tr key={i}>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.investigation_name}</td>
-                                                <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.note ? item.note : '-'}</td>
-                                            </tr>
-                                        )
-                                    })}
-                                </table>
-                            </div>
-                        )
-                    )}
+                                </div>
+                            ) : printSettings?.prescription?.case_option[5]?.format === 'listview' ? (
+                                <div className="mb-3">
+                                    <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Lab Investigation:&nbsp;</label> <br />
+                                    <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
+                                        {caseManagerData.investigation.map((item, i) => {
+                                            return (
+                                                <>
+                                                    <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
+                                                    <label key={Math.random()} className="fw-medium">{item.investigation_name}&nbsp;</label>
+                                                    {(item.note) &&
+                                                        <>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})`}<br /></>
+                                                    }
+                                                </>
+                                            )
+                                        })}
+                                    </label>
+                                </div>
+                            ) : (
+                                <div className="mb-3">
+                                    <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Lab Investigation:&nbsp;</label>
+                                    <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
+                                        <tr>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
+                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NOTE</th>
+                                        </tr>
+                                        {caseManagerData.investigation.map((item, i) => {
+                                            return (
+                                                <tr key={i}>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.investigation_name}</td>
+                                                    <td className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>{item.note ? item.note : '-'}</td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </table>
+                                </div>
+                            )
+                        )}
+                    </div>
                 </div>
 
                 {/* Signature & QR code section */}
