@@ -163,6 +163,9 @@ function SymptomsBox() {
 
   const onSelectParent = useCallback(
     (data, e) => {
+      window.Moengage.track_event("symptom_select", {
+        "value": data
+      });
       symptomsData.push({
         ...JSON.parse(e.key),
         since: "",

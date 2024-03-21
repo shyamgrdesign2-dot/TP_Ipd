@@ -1,11 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import { useSelector } from "react-redux";
-
-import { useLocalStorage } from "../utils/localStorage";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 function Welcome(props) {
 
@@ -14,24 +10,6 @@ function Welcome(props) {
   const { locationPath, backVisible } = props;
 
   const { profile } = useSelector((state) => state.doctors);
-
-  const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-  const [tokenData, setTokenData] = useState(null);
-
-  useEffect(() => {
-    const getTokenData = async () => {
-      const token = await getToken()
-      if (token !== undefined) {
-        try {
-          var decoded = jwtDecode(token);
-          setTokenData(decoded.result)
-        } catch (e) {
-          console.log(e)
-        }
-      }
-    }
-    getTokenData()
-  }, [PERSISTANT_STORAGE_KEY_AUTH_TOKEN]);
 
   return (
     <>
@@ -70,7 +48,7 @@ function Welcome(props) {
                   className="px-3 btn-41"
                   onClick={() => {
                     window.Moengage.track_event("walk_in_consultation_click", {
-                      "doctor_id": tokenData?.doctor_unique_id,
+                      "doctor_id": profile?.doctor_unique_id,
                       "timestamp": new Date(),
                     });
                     navigate("/walk_in_consultation")

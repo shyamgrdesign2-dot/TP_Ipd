@@ -222,7 +222,12 @@ function PrescriptionPrintView() {
                                 }
                                 <Button
                                     type="text"
-                                    onClick={() => !isChrome && !isSafari ? printInAppContent() : printContent()}
+                                    onClick={() => {
+                                        window.Moengage.track_event("print_select", {
+                                            "language": LANGUAGE_LIST.find(e => e.value === selectedLang).label
+                                        });
+                                        !isChrome && !isSafari ? printInAppContent() : printContent()
+                                    }}
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-Print"></i>}
                                 >
