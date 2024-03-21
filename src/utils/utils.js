@@ -115,9 +115,15 @@ export const dataUrlToFile = (url, fileName) => {
     arr[n] = data.charCodeAt(n);
   }
 
-  return new File([arr], fileName, { type: mime });
+  return new File([arr], fileName, { type: mime.substring(1, mime.length - 1) });
 };
 
+export const dataUrlToFileUsingFetch = async (url, fileName, mimeType) => {
+  const response = await fetch(url);
+  const buffer = await response.arrayBuffer();
+
+  return new File([buffer], fileName, { type: mimeType });
+};
 
 export const trimEllip = (source, length) => {
   if (source == null) {

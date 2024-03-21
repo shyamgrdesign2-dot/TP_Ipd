@@ -12,7 +12,7 @@ import PrintSettingsContext from '../../context/PrintSettingsContext';
 
 import CommonModal from '../../common/CommonModal';
 import { MESSAGE_KEY } from "../../utils/constants";
-import { dataUrlToFile } from "../../utils/utils";
+import { dataUrlToFile, dataUrlToFileUsingFetch } from "../../utils/utils";
 
 import defaultprofile from "../../assets/images/default-profile.svg";
 import rxDisplayArea from '../../assets/images/rx-display-area.svg';
@@ -253,13 +253,13 @@ function HeaderFooterLayout() {
     const handleLogoChange = (e) => {
         if (e.target.files?.length > 0) {
             const fileUrl = e.target.files[0];
-            if (fileUrl.size <= 2000000) {
-                setFileLogo({ imageShow: true, showFile: URL.createObjectURL(fileUrl), originalFile: fileUrl })
+            if (fileUrl.size <= 2000000 && (fileUrl.type == 'image/png' || fileUrl.type == 'image/jpeg' || fileUrl.type == 'image/jpg')) {
+                setFileLogo({ imageShow: true, showFile: URL.createObjectURL(fileUrl), uploadFile: fileUrl })
             } else {
                 message.open({
                     key: MESSAGE_KEY,
                     type: 'warning',
-                    content: 'Please upload image below 2mb',
+                    content: 'Please upload only jpg, jpeg or png files with the max size 2mb.',
                     duration: 2
                 });
             }
@@ -275,7 +275,7 @@ function HeaderFooterLayout() {
     const handleHeaderChange = (e) => {
         if (e.target.files?.length > 0) {
             const fileUrl = e.target.files[0];
-            if (fileUrl.size <= 2000000) {
+            if (fileUrl.size <= 2000000 && (fileUrl.type == 'image/png' || fileUrl.type == 'image/jpeg' || fileUrl.type == 'image/jpg')) {
                 const reader = new FileReader();
                 reader.onload = () => {
                     setFileHeader({ imageShow: false, crop: true, showFile: reader.result, originalFile: fileUrl })
@@ -286,17 +286,18 @@ function HeaderFooterLayout() {
                 message.open({
                     key: MESSAGE_KEY,
                     type: 'warning',
-                    content: 'Please upload image below 2mb',
+                    content: 'Please upload only jpg, jpeg or png files with the max size 2mb.',
                     duration: 2
                 });
             }
         }
     }
 
-    const getHeaderCropData = () => {
+    const getHeaderCropData = async () => {
         if (typeof cropperHeaderRef.current?.cropper !== "undefined") {
-            const trimData = cropperHeaderRef.current?.cropper.getCroppedCanvas().toDataURL();
-            setFileHeader({ ...fileHeader, crop: false, showFile: trimData, uploadFile: dataUrlToFile(trimData, "header.png") })
+            const trimData = cropperHeaderRef.current?.cropper.getCroppedCanvas().toDataURL(fileHeader.originalFile.type);
+            const uploadFile = await dataUrlToFileUsingFetch(trimData, "header.png", "image/png")
+            setFileHeader({ ...fileHeader, crop: false, showFile: trimData, uploadFile: uploadFile })
         }
     };
 
@@ -323,7 +324,7 @@ function HeaderFooterLayout() {
     const handleFooterChange = (e) => {
         if (e.target.files?.length > 0) {
             const fileUrl = e.target.files[0];
-            if (fileUrl.size <= 2000000) {
+            if (fileUrl.size <= 2000000 && (fileUrl.type == 'image/png' || fileUrl.type == 'image/jpeg' || fileUrl.type == 'image/jpg')) {
                 const reader = new FileReader();
                 reader.onload = () => {
                     setFileFooter({ imageShow: false, crop: true, showFile: reader.result, originalFile: fileUrl })
@@ -334,17 +335,18 @@ function HeaderFooterLayout() {
                 message.open({
                     key: MESSAGE_KEY,
                     type: 'warning',
-                    content: 'Please upload image below 2mb',
+                    content: 'Please upload only jpg, jpeg or png files with the max size 2mb.',
                     duration: 2
                 });
             }
         }
     }
 
-    const getFooterCropData = () => {
+    const getFooterCropData = async () => {
         if (typeof cropperFooterRef.current?.cropper !== "undefined") {
-            const trimData = cropperFooterRef.current?.cropper.getCroppedCanvas().toDataURL();
-            setFileFooter({ ...fileFooter, crop: false, showFile: trimData, uploadFile: dataUrlToFile(trimData, "footer.png") })
+            const trimData = cropperFooterRef.current?.cropper.getCroppedCanvas().toDataURL(fileFooter.originalFile.type);
+            const uploadFile = await dataUrlToFileUsingFetch(trimData, "footer.png", "image/png")
+            setFileFooter({ ...fileFooter, crop: false, showFile: trimData, uploadFile: uploadFile })
         }
     };
 
@@ -440,13 +442,13 @@ function HeaderFooterLayout() {
     const handleWatermarkChange = (e) => {
         if (e.target.files?.length > 0) {
             const fileUrl = e.target.files[0];
-            if (fileUrl.size <= 2000000) {
-                setFileWatermark({ imageShow: true, showFile: URL.createObjectURL(fileUrl), originalFile: fileUrl })
+            if (fileUrl.size <= 2000000 && (fileUrl.type == 'image/png' || fileUrl.type == 'image/jpeg' || fileUrl.type == 'image/jpg')) {
+                setFileWatermark({ imageShow: true, showFile: URL.createObjectURL(fileUrl), uploadFile: fileUrl })
             } else {
                 message.open({
                     key: MESSAGE_KEY,
                     type: 'warning',
-                    content: 'Please upload image below 2mb',
+                    content: 'Please upload only jpg, jpeg or png files with the max size 2mb.',
                     duration: 2
                 });
             }
@@ -481,7 +483,7 @@ function HeaderFooterLayout() {
     const handleSignatureChange = (e) => {
         if (e.target.files?.length > 0) {
             const fileUrl = e.target.files[0];
-            if (fileUrl.size <= 2000000) {
+            if (fileUrl.size <= 2000000 && (fileUrl.type == 'image/png' || fileUrl.type == 'image/jpeg' || fileUrl.type == 'image/jpg')) {
                 const reader = new FileReader();
                 reader.onload = () => {
                     setFileSignature({ imageShow: false, crop: true, readFile: reader.result, originalFile: fileUrl })
@@ -491,7 +493,7 @@ function HeaderFooterLayout() {
                 message.open({
                     key: MESSAGE_KEY,
                     type: 'warning',
-                    content: 'Please upload image below 2mb',
+                    content: 'Please upload only jpg, jpeg or png files with the max size 2mb.',
                     duration: 2
                 });
             }
@@ -510,18 +512,20 @@ function HeaderFooterLayout() {
         setFileSignature(null)
     };
 
-    const handleTrim = () => {
+    const handleTrim = async () => {
         if (signatureMode === 'L') {
             if (signatureRef.current?.isEmpty()) {
                 alert('Please provide signature');
                 return;
             }
             const trimData = signatureRef.current?.getTrimmedCanvas().toDataURL('image/png');
-            setFileSignature({ ...fileSignature, preview: true, showFile: trimData, uploadFile: dataUrlToFile(trimData, "signature.png") })
+            const uploadFile = await dataUrlToFileUsingFetch(trimData, "signature.png", "image/png")
+            setFileSignature({ ...fileSignature, preview: true, showFile: trimData, uploadFile: uploadFile })
         } else {
             if (typeof cropperSignatureRef.current?.cropper !== "undefined") {
-                const trimData = cropperSignatureRef.current?.cropper.getCroppedCanvas().toDataURL();
-                setFileSignature({ ...fileSignature, preview: true, showFile: trimData, uploadFile: dataUrlToFile(trimData, "signature.png") })
+                const trimData = cropperSignatureRef.current?.cropper.getCroppedCanvas().toDataURL(fileSignature.originalFile.type);
+                const uploadFile = await dataUrlToFileUsingFetch(trimData, "signature.png", "image/png")
+                setFileSignature({ ...fileSignature, preview: true, showFile: trimData, uploadFile: uploadFile })
             }
         }
     }

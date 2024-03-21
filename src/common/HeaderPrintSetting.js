@@ -1,10 +1,57 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Navbar } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
+import { useSelector, useDispatch } from "react-redux";
+
+import { MESSAGE_KEY } from "../utils/constants";
+import {
+    savePrintsettings,
+} from "../redux/doctorsSlice";
+
+import PrintSettingsContext from '../context/PrintSettingsContext';
 
 function HeaderPrintSetting() {
     const navigate = useNavigate();
+
+    const { loading } = useSelector((state) => state.doctors);
+    const dispatch = useDispatch();
+
+    const { printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
+
+    const onSavePrintSettingsClick = async () => {
+        var sendData = {
+            letterhead_format: printSettings?.letterhead_format,
+            whatsapp_letterhead_format: printSettings?.whatsapp_letterhead_format,
+            logo_enable: printSettings?.logo_enable,
+            water_mark_enable: printSettings?.water_mark_enable,
+            signature_enable: printSettings?.signature_enable,
+            qrcode_enable: printSettings?.qrcode_enable,
+            prescription: JSON.stringify(printSettings?.prescription),
+            header_footer: JSON.stringify(printSettings?.header_footer),
+            page_format: JSON.stringify(printSettings?.page_format),
+
+            logo_image: fileLogo ? fileLogo?.uploadFile : '',
+            header_image: fileHeader ? fileHeader?.uploadFile : '',
+            footer_image: fileFooter ? fileFooter?.uploadFile : '',
+            water_mark_image: fileWatermark ? fileWatermark?.uploadFile : '',
+            signature_image: fileSignature ? fileSignature?.uploadFile : '',
+        }
+        console.log(sendData)
+
+        const action = await dispatch(savePrintsettings(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+
+        } else {
+            message.open({
+                key: MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
+        }
+
+    };
 
     return (
         <Navbar className="justify-content-between headerprescription p-0">
@@ -23,7 +70,7 @@ function HeaderPrintSetting() {
                     <button className='btn btn-text me-14'>
                         <span>Default Settings</span>
                     </button>
-                    <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4">
+                    <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onSavePrintSettingsClick} loading={loading}>
                         Save
                     </Button>
                 </div>

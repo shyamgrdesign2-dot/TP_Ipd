@@ -7,18 +7,13 @@ import PrintSettingsContext from '../../context/PrintSettingsContext';
 
 import { isNumeric } from '../../utils/utils'
 
-
-import hey from "../../assets/images/bg-hey.png";
-import QRCode from "../../assets/images/qr-code.svg";
-import Signature from "../../assets/images/signature.png";
-
 import '../../assets/scss/print.scss';
 
 const showDateFormat = 'DD MMM, YY'
 
 function PrintHtmlPage() {
 
-    const { printSettings, fileHeader, fileFooter, fileLogo, fileSignature } = useContext(PrintSettingsContext);
+    const { printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
@@ -677,10 +672,16 @@ function PrintHtmlPage() {
                         </Col>
                     </Flex>
                 </div>
-                
+
                 {/* Inline|List View|Table */}
-                <div className="py-4 position-relative" style={{zIndex: 0}}>
-                    <img className="position-absolute translate-middle" style={{left: '50%', top: '50%', zIndex: -1, opacity: 0.5}} src={hey} />
+                <div className="py-4 position-relative" style={{ zIndex: 0 }}>
+                    {printSettings?.water_mark_enable === 'Y' && (
+                        fileWatermark && fileWatermark?.imageShow && (
+                            <img className="position-absolute translate-middle"
+                                style={{ width: '40%', height: '40%', left: '50%', top: '50%', zIndex: -1, opacity: 0.5, objectFit: 'contain' }}
+                                src={fileWatermark?.showFile} />
+                        )
+                    )}
                     <div>
                         {caseManagerData.vitals.length > 0 && printSettings?.prescription?.case_option[6]?.enable === 'Y' && (
                             printSettings?.prescription?.case_option[6]?.format === 'inline' ? (

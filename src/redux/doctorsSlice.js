@@ -135,6 +135,27 @@ export const getDefaultPrintsettings = createAsyncThunk(
   }
 );
 
+export const savePrintsettings = createAsyncThunk(
+  "printSettings/savePrintsettings",
+  async (printInfo) => {
+    const formData = new FormData();
+    Object.keys(printInfo).forEach((key) => {
+      formData.append(key, printInfo[key]);
+    });
+
+    try {
+      const result = await ApiPrintSettings.savePrintsettings(formData);
+      if (result.status) {
+        return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      throw Error(error);
+    }
+  }
+);
+
 const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
@@ -211,6 +232,16 @@ const doctorsSlice = createSlice({
       })
       .addCase(getDefaultPrintsettings.rejected, (state) => {
         state.defaultPrintSettings = null;
+      })
+      .addCase(savePrintsettings.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(savePrintsettings.fulfilled, (state, action) => {
+        console.log(action.payload)
+        state.loading = false;
+      })
+      .addCase(savePrintsettings.rejected, (state) => {
+        state.loading = false;
       });
   },
 });
