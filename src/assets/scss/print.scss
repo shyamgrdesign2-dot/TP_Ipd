@@ -5,7 +5,15 @@ body {
         color: $welcomecolor !important;
     }
 }
-
+@media print {
+    .footer-fixed {
+        position: fixed;
+        bottom: 0;
+    }
+}
+.text-blacks {
+    color: #000 !important;
+}
 .print-custom-header {
     &.border-bottom {
         border-bottom: 2px solid $welcomecolor !important;

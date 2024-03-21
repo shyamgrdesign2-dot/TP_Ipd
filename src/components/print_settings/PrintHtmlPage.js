@@ -7,7 +7,8 @@ import PrintSettingsContext from '../../context/PrintSettingsContext';
 
 import { isNumeric } from '../../utils/utils'
 
-import defaultprofile from "../../assets/images/default-profile.svg";
+import QRCode from "../../assets/images/qr-code.svg";
+import Signature from "../../assets/images/signature.png";
 
 import '../../assets/scss/print.scss';
 
@@ -674,7 +675,7 @@ function PrintHtmlPage() {
             </div>
 
             {/* Inline|List View|Table */}
-            <div className="py-4">
+            <div className="pt-4 pb-1">
                 {caseManagerData.vitals.length > 0 && printSettings?.prescription?.case_option[6]?.enable === 'Y' && (
                     printSettings?.prescription?.case_option[6]?.format === 'inline' ? (
                         <div className="mb-3">
@@ -1166,11 +1167,49 @@ function PrintHtmlPage() {
                 )}
             </div>
 
-            {fileFooter && fileFooter?.imageShow && (
-                <img
-                    style={{ width: '100%', objectFit: 'contain' }}
-                    src={fileFooter?.showFile} />
-            )}
+            {/* Signature & QR code section */}
+
+            <div className="d-flex">
+                <div style={{ flex: 1 }} className="text-end">
+                    <img
+                        style={{ width: 139, height: 60, objectFit: 'contain' }}
+                        src={Signature} />
+                </div>
+            </div>
+
+            <div className="d-flex py-3">
+                <div style={{ flex: 1 }}>
+                    <div className="d-flex align-items-center">
+                        <div>
+                            <img
+                                style={{ width: 61, height: 61, objectFit: 'contain' }}
+                                src={QRCode} />
+                        </div>
+                        <div className="fontroboto ms-2 text-blacks" style={{ fontSize: 10 }}>
+                            Scan QR code to book an appointment <br /> with your doctor or download your old <br /> digital prescription
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ flex: 1 }} className="text-end">
+                    <div className="fontroboto fw-bold fs-12-1" style={{ color: '#000 !important' }}>
+                        Dr. Smit Verma
+                    </div>
+                    <div className="fontroboto fs-12-1" style={{ color: '#000 !important' }}>
+                        Medical Registration No.: 123456798 <br />
+                        MBBS, MS, MD
+                    </div>
+                </div>
+            </div>
+
+            {/* Footer Section */}
+            <div style={{ borderTop: '2px solid #000' }}>
+                {fileFooter && fileFooter?.imageShow && (
+                    <img className="footer-fixed"
+                        style={{ width: '100%', objectFit: 'contain' }}
+                        src={fileFooter?.showFile} />
+                )}
+            </div>
         </>
     );
 }

@@ -947,7 +947,7 @@ function HeaderFooterLayout() {
                                             strategy={verticalListSortingStrategy}
                                         >
                                             <Table
-                                                className='customize-table'
+                                                className='customize-table table-display-patient'
                                                 pagination={false}
                                                 components={{
                                                     body: {
@@ -996,7 +996,7 @@ function HeaderFooterLayout() {
                                 <div className="upload-headfoot upload-headfoot1 p-3">
                                     <div className="d-flex align-items-center justify-content-between">
                                         <img
-                                            style={{ width: '25%', objectFit: 'contain', overflow: 'hidden' }}
+                                            style={{ width: '20%', objectFit: 'contain', overflow: 'hidden' }}
                                             src={fileWatermark && fileWatermark?.imageShow ? fileWatermark?.showFile : defaultprofile} />
                                         <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center" onClick={() => inputWatermarkFile.current?.click()}>
                                             <input
@@ -1059,25 +1059,25 @@ function HeaderFooterLayout() {
                                                 }
                                                 modalBody={
                                                     <>
-                                                        <div className='border border-3 rounded' >
-                                                            <div className="d-flex align-items-center justify-content-between ">
-                                                                <div className="fw-normal text-main  ms-2">
+                                                        <div>
+                                                            <div className="rounded-top-3 bg-body border border-bottom-0 d-flex align-items-center justify-content-between p-2">
+                                                                <div className="fw-medium fontroboto text-main ms-2">
                                                                     {'Draw Signature'}
                                                                 </div>
-                                                                <div className="me-2 mt-2 ">
+                                                                <div>
                                                                     <Form.Item className="mb-0">
-                                                                        <Radio.Group className="d-flex gender-radio" onChange={onSignatureModeChange} value={signatureMode}>
-                                                                            <Radio.Button className="w-100 text-center" value="L"><i className="icon-Edit"></i>Draw</Radio.Button>
-                                                                            <Radio.Button className="w-100 text-center" value="R" ><i className="icon-upload"></i>Upload</Radio.Button>
+                                                                        <Radio.Group className="d-flex gender-radio draw-upload" onChange={onSignatureModeChange} value={signatureMode}>
+                                                                            <Radio.Button className="w-100 text-center" value="L"><div className="d-flex align-items-center"><i className="fs-18 icon-Edit me-1"></i><span className="fontroboto fs-12-1 fw-medium">Draw</span></div></Radio.Button>
+                                                                            <Radio.Button className="w-100 text-center" value="R" ><div className="d-flex align-items-center"><i className="fs-16 icon-upload me-1"></i><span className="fontroboto fs-12-1 fw-medium">Upload</span></div></Radio.Button>
                                                                         </Radio.Group>
                                                                     </Form.Item>
                                                                 </div>
                                                             </div>
-                                                            <div className="d-flex image-crop justify-content-center align-items-center">
+                                                            <div className="d-flex image-crop border justify-content-center align-items-center">
                                                                 {signatureMode === 'L' ? (
                                                                     <SignatureCanvas
                                                                         ref={signatureRef}
-                                                                        canvasProps={{ width: 694, height: 230 }} />
+                                                                        canvasProps={{ width: 694, height: 189 }} />
                                                                 ) : (
                                                                     <>
                                                                         {fileSignature && fileSignature.crop ? (
@@ -1109,24 +1109,24 @@ function HeaderFooterLayout() {
                                                                     </>
                                                                 )}
                                                             </div>
-                                                        </div> <br />
-                                                        <div className="mt-4">
-                                                            <div className="d-flex align-items-center  justify-content-between">
-                                                                <div className="fw-normal text-decoration-underline btn p-0 text-main" onClick={onResetSignature}>
+                                                        </div> 
+                                                        <div>
+                                                            <div className="d-flex align-items-center justify-content-between rounded-bottom-3 border border-top-0 p-2">
+                                                                <div className="fw-medium text-decoration-underline btn p-0 text-main" onClick={onResetSignature}>
                                                                     {'Reset'}
                                                                 </div>
-                                                                <div className="fw-normal text-decoration-underline btn p-0 text-main" onClick={handleTrim}>
+                                                                <div className="fw-medium text-decoration-underline btn p-0 text-main" onClick={handleTrim}>
                                                                     {fileSignature && fileSignature?.preview ? 'Change' : 'Save'}
                                                                 </div>
                                                             </div>
-                                                            <div className='mt-2'>
-                                                                <div className="fw-normal text-main">
+                                                            <div className='mt-4'>
+                                                                <div className="fw-normal text-main fw-medium fontroboto mb-1">
                                                                     {'Signature Preview'}
                                                                 </div>
-                                                                <div style={{ height: 70, width: 200, border: '1px solid', borderColor: 'grey' }}>
+                                                                <div style={{ height: 100, width: 200, border: '1px solid', borderColor: '#E2E2EA', backgroundColor: '#FAFAFB', borderRadius: '10px' }}>
                                                                     {fileSignature && fileSignature?.preview && (
                                                                         <img
-                                                                            style={{ width: '100%', objectFit: 'contain', overflow: 'hidden' }}
+                                                                            style={{ width: '100%', height: '100px', overflow: 'hidden' }}
                                                                             src={fileSignature?.showFile} />
                                                                     )}
                                                                 </div>
