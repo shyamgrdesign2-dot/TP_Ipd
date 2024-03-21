@@ -538,6 +538,54 @@ function HeaderFooterLayout() {
         [printSettings]
     );
 
+    const onSignatureCheckbox1Change = useCallback(
+        (e) => {
+            printSettings.header_footer.other_settings.name_of_doctor_enable = e.target.checked ? 'Y' : 'N'
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
+    const onSignatureCheckbox2Change = useCallback(
+        (e) => {
+            printSettings.header_footer.other_settings.qualification_enable = e.target.checked ? 'Y' : 'N'
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
+    const onSignatureCheckbox3Change = useCallback(
+        (e) => {
+            printSettings.header_footer.other_settings.registration_no_enable = e.target.checked ? 'Y' : 'N'
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
+    const onShowQrSwitchChange = useCallback(
+        (checked) => {
+            printSettings.qrcode_enable = checked ? 'Y' : 'N'
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
     return (
         <div className="px-3 form_addnewpatient">
             <div className="border-bottom pb-3 mb-3">
@@ -1026,8 +1074,8 @@ function HeaderFooterLayout() {
                                 <div>
                                     <Form.Item className="mb-0 mt-3">
                                         <Radio.Group className="d-flex gender-radio" onChange={onSignaturePlaceChange} value={printSettings?.header_footer?.other_settings?.signature_place}>
-                                            <Radio.Button className="w-100 text-center" value="L">left</Radio.Button>
-                                            <Radio.Button className="w-100 text-center" value="R">right</Radio.Button>
+                                            <Radio.Button className="w-100 text-center" value="L">Left</Radio.Button>
+                                            <Radio.Button className="w-100 text-center" value="R">Right</Radio.Button>
                                         </Radio.Group>
                                     </Form.Item>
                                     <div className="border rounded-10px mt-3">
@@ -1109,7 +1157,7 @@ function HeaderFooterLayout() {
                                                                     </>
                                                                 )}
                                                             </div>
-                                                        </div> 
+                                                        </div>
                                                         <div>
                                                             <div className="d-flex align-items-center justify-content-between rounded-bottom-3 border border-top-0 p-2">
                                                                 <div className="fw-medium text-decoration-underline btn p-0 text-main" onClick={onResetSignature}>
@@ -1126,7 +1174,7 @@ function HeaderFooterLayout() {
                                                                 <div style={{ height: 100, width: 200, border: '1px solid', borderColor: '#E2E2EA', backgroundColor: '#FAFAFB', borderRadius: '10px' }}>
                                                                     {fileSignature && fileSignature?.preview && (
                                                                         <img
-                                                                            style={{ width: '100%', height: '100px', overflow: 'hidden' }}
+                                                                            style={{ width: '100%', height: '100px', objectFit: 'contain', overflow: 'hidden' }}
                                                                             src={fileSignature?.showFile} />
                                                                     )}
                                                                 </div>
@@ -1139,13 +1187,13 @@ function HeaderFooterLayout() {
                                         <div className="p-3">
                                             <div className="title-common mb-3">Include in signature</div>
                                             <div className="mb-3">
-                                                <Checkbox className="switch-name-check">Name of Doctor</Checkbox>
+                                                <Checkbox className="switch-name-check" onChange={onSignatureCheckbox1Change} checked={printSettings?.header_footer?.other_settings?.name_of_doctor_enable != 'Y' ? false : true} >Name of Doctor</Checkbox>
                                             </div>
                                             <div className="mb-3">
-                                                <Checkbox className="switch-name-check">Medical Registration Number</Checkbox>
+                                                <Checkbox className="switch-name-check" onChange={onSignatureCheckbox2Change} checked={printSettings?.header_footer?.other_settings?.qualification_enable != 'Y' ? false : true}>Medical Registration Number</Checkbox>
                                             </div>
                                             <div className="mb-3">
-                                                <Checkbox className="switch-name-check">Qualifications</Checkbox>
+                                                <Checkbox className="switch-name-check" onChange={onSignatureCheckbox3Change} checked={printSettings?.header_footer?.other_settings?.registration_no_enable != 'Y' ? false : true}>Qualifications</Checkbox>
                                             </div>
                                             <TextArea
                                                 className="endreason-textarea h-76"
@@ -1165,7 +1213,7 @@ function HeaderFooterLayout() {
                                     <div className="title-common">Show QR code</div>
                                 </Col>
                                 <Col lg="6">
-                                    <Switch />
+                                    <Switch onChange={onShowQrSwitchChange} checked={printSettings?.qrcode_enable === 'Y' ? true : false} />
                                 </Col>
                             </Row>
                         </div>
