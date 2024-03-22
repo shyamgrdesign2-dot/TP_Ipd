@@ -6,17 +6,11 @@ body {
     }
 }
 
-
-
-
-
+table { width: 100%; }
 
 @media print {
    thead {display: table-header-group;} 
    tfoot {display: table-footer-group;}
-   table {
-    width: 100%;
-   }
    button {display: none;}
    
    body {margin: 0;}
