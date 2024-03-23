@@ -7,8 +7,14 @@ body {
 }
 
 table { width: 100%; }
+.watermark-inprint {
+    position: absolute;
+}
 
 @media print {
+   .watermark-inprint {
+    position: fixed;
+   }
    thead {display: table-header-group;} 
    tfoot {display: table-footer-group;}
    button {display: none;}
@@ -21,16 +27,16 @@ table { width: 100%; }
     width: 100%;
   }
   .page-header, .page-header-space {
-    height: 70px;
-    margin: 10px 0;
+    height: 100px;
+    margin: 15px 0;
   }
   .page-footer, .page-footer-space {
-    height: 70px;
+    height: 100px;
   }
   .page-header {
     position: fixed;
     top: 0mm;
-    width: 100%;
+    width: 95%;
   }
 }
 

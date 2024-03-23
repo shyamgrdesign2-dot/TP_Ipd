@@ -656,9 +656,7 @@ function PrintHtmlPage() {
                 <tbody>
                     <tr>
                         <td>
-
-
-                            <div class="page" style={{lineHeight: 3}}>
+                            <div class="page">
                                 <div className="print-custom-header contentPrint border-top border-bottom">
                                     {/* Patient Details */}
                                     <div className="py-4 border-dark border-bottom patient-details">
@@ -694,8 +692,8 @@ function PrintHtmlPage() {
                                     <div className="py-4 position-relative" style={{ zIndex: 0 }}>
                                         {printSettings?.water_mark_enable === 'Y' && (
                                             fileWatermark && fileWatermark?.imageShow && (
-                                                <img className="position-absolute translate-middle"
-                                                    style={{ width: '40%', height: '40%', left: '50%', top: '50%', zIndex: -1, opacity: 0.5, objectFit: 'contain' }}
+                                                <img className="translate-middle watermark-inprint"
+                                                    style={{left: '50%', top: '50%', zIndex: -1, opacity: 0.5, objectFit: 'contain' }}
                                                     src={fileWatermark?.showFile} />
                                             )
                                         )}
