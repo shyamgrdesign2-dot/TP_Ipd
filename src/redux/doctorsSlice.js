@@ -12,6 +12,7 @@ const initialState = {
   customizedPadRightList: [],
   timingList: [],
   frequencyList: [],
+  medicineTypeList: [],
   defaultPrintSettings: null
 };
 
@@ -114,6 +115,19 @@ export const showMedicineTime = createAsyncThunk(
   async () => {
     let result = {};
     result = await ApiMedication.showMedicineTime();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const getMedicineType = createAsyncThunk(
+  "medication/getMedicineType",
+  async () => {
+    let result = {};
+    result = await ApiMedication.getMedicineType();
     if (result.status) {
       return result.data;
     } else {
@@ -226,6 +240,12 @@ const doctorsSlice = createSlice({
       })
       .addCase(showMedicineTime.rejected, (state) => {
         state.timingList = [];
+      })
+      .addCase(getMedicineType.fulfilled, (state, action) => {
+        state.medicineTypeList = action.payload;
+      })
+      .addCase(getMedicineType.rejected, (state) => {
+        state.medicineTypeList = [];
       })
       .addCase(getDefaultPrintsettings.fulfilled, (state, action) => {
         state.defaultPrintSettings = action.payload;

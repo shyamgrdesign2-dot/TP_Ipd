@@ -169,5 +169,10 @@ body {
                 outline: none !important;
             }
         }
+        &.segement-static-four {
+            .btn { 
+                width: 25%;
+            }
+        }
     }
 }

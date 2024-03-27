@@ -5,15 +5,45 @@ body {
         color: $welcomecolor !important;
     }
 }
-@media print {
-    .footer-fixed {
-        position: fixed;
-        bottom: 0;
-    }
+
+table { width: 100%; }
+.watermark-inprint {
+    position: absolute;
 }
+
+@media print {
+   .watermark-inprint {
+    position: fixed;
+   }
+   thead {display: table-header-group;} 
+   tfoot {display: table-footer-group;}
+   button {display: none;}
+   
+   body {margin: 0;}
+
+   .page-footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+  .page-header, .page-header-space {
+    height: 100px;
+    margin: 15px 0;
+  }
+  .page-footer, .page-footer-space {
+    height: 100px;
+  }
+  .page-header {
+    position: fixed;
+    top: 0mm;
+    width: 95%;
+  }
+}
+
 .text-blacks {
     color: #000 !important;
 }
+
 .print-custom-header {
     &.border-top {
         border-top: 2px solid $welcomecolor !important;
