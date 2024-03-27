@@ -11,6 +11,7 @@ import { MESSAGE_KEY } from "../utils/constants";
 import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
+import noRecordFound from '../assets/images/no-record-round.svg';
 import {
   addTemplate,
   updateTemplate,
@@ -1082,6 +1083,14 @@ function MedicationsBox() {
     console.log(sendData)
   }
 
+  const emptyText = (
+    <div className="text-center py-3">
+      <img className="mb-3" style={{width: 100}} src={noRecordFound} alt="No Result Found" />
+      <div className="title-common fontroboto mb-3">Sorry ! No results found</div>
+      <div className="fontroboto text-greycolor">The generic name is currently not listed in our <br /> database We will add it soon. </div>
+    </div>
+  );
+
   const ADD_MEDICINE_DATA = useMemo(() => {
     return (
       <CommonModal
@@ -1143,6 +1152,7 @@ function MedicationsBox() {
                     };
                   })}
                   onClear={() => onSelectGeneric("")}
+                  notFoundContent={emptyText}
                   allowClear
                 />
               </Form.Item>
