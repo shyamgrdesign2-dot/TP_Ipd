@@ -69,6 +69,10 @@ function MedicationsBox() {
   ];
   const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
 
+  //Add Custom
+  const [isAddMedicineOpen, setIsAddMedicineOpen] = useState(false);
+  const [addCustom, setAddCustom] = useState(null);
+
   useEffect(() => {
     dispatch(getMedicationTemplates());
   }, []);
@@ -112,6 +116,21 @@ function MedicationsBox() {
           </>
         ),
       });
+    } else {
+      searchParentQuery &&
+        data.push({
+          key: JSON.stringify({
+            unique_id: uuidv4(),
+            tmm_id: 0,
+            tmm_medicine_name: searchParentQuery
+          }),
+          value: searchParentQuery,
+          label: (
+            <>
+              <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
+            </>
+          ),
+        });
     }
     setParentSearchOptions(data);
   }, [parentOptionsList]);
@@ -124,43 +143,48 @@ function MedicationsBox() {
   );
 
   const onSelectParent = async (data, item) => {
-    window.Moengage.track_event("medicine_select", {
-      "value": data
-    });
-    const action = await dispatch(getMedicineDetails(JSON.parse(item.key).tmm_id));
-    if (action.meta.requestStatus === "fulfilled") {
-      const updatedData = action.payload.map((e) => {
-
-        const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
-        const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
-        const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
-
-        return {
-          ...e,
-          objectID: JSON.parse(item.key).objectID,
-          tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-          tmm_freq_type_name: e.tmf_block == 0 ?
-            `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-            : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
-          tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
-          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-          tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
-          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
-          unique_id: uuidv4(),
-        };
-      });
-      medicationData.push({
-        ...updatedData[0],
-      });
-      setMedicationData((prev) => [...prev]);
-      setSearchParentQuery("");
+    if (JSON.parse(item.key).tmm_id === 0) {
+      showHideAddMedicineModal()
+      setAddCustom(item);
     } else {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: action.error.message,
-        duration: 2,
+      window.Moengage.track_event("medicine_select", {
+        "value": data
       });
+      const action = await dispatch(getMedicineDetails(JSON.parse(item.key).tmm_id));
+      if (action.meta.requestStatus === "fulfilled") {
+        const updatedData = action.payload.map((e) => {
+
+          const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+          const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
+          const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+          return {
+            ...e,
+            objectID: JSON.parse(item.key).objectID,
+            tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+            tmm_freq_type_name: e.tmf_block == 0 ?
+              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+              : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+            tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+            tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+            tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+            unique_id: uuidv4(),
+          };
+        });
+        medicationData.push({
+          ...updatedData[0],
+        });
+        setMedicationData((prev) => [...prev]);
+        setSearchParentQuery("");
+      } else {
+        messageApi.open({
+          key: MESSAGE_KEY,
+          type: "warning",
+          content: action.error.message,
+          duration: 2,
+        });
+      }
     }
   };
 
@@ -980,6 +1004,51 @@ function MedicationsBox() {
     );
   }, [tabChange, popOver2, inputTemplateName, loading, allTemplates]);
 
+  //Add Custom
+  const showHideAddMedicineModal = useCallback(
+    () => {
+      setIsAddMedicineOpen(!isAddMedicineOpen)
+    },
+    [isAddMedicineOpen]
+  );
+
+  const ADD_MEDICINE_DATA = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={isAddMedicineOpen}
+        onCancel={showHideAddMedicineModal}
+        modalWidth={500}
+        title={"You may lose your data"}
+        modalBody={
+          <>
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className='me-3' src={alertIcon} alt="Warning" />
+                <span>
+                  Are you sure you want to delete this template?
+                </span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div onClick={() => {
+                  onDeleteTemplateClicked(removeTemplateId)
+                  showHideModal()
+                }}
+                  className="me-4 text-decoration-underline btn p-0 text-main">
+                  Yes Delete
+                </div>
+                <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                  <span>No</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+    );
+  }, [isAddMedicineOpen,addCustom, loading]);
+
   return (
     <>
       {contextHolder}
@@ -1032,6 +1101,7 @@ function MedicationsBox() {
 
         {DELETE_MODAL}
         {TABLE_MEDICATION}
+        {isAddMedicineOpen && ADD_MEDICINE_DATA}
 
         <div className="p-14">
           <AutoComplete

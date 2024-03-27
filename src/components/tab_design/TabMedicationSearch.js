@@ -70,6 +70,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const [timingMoreOptionsVisible, setTimingMoreOptionsVisible] = useState(false);
   const [frequencyMoreOptionsVisible, setFrequencyMoreOptionsVisible] = useState(false);
 
+  //Add Custom
   const [addCustom, setAddCustom] = useState(null);
   const [medicineTypeMoreOptionsVisible, setMedicineTypeMoreOptionsVisible] = useState(false);
   const [genericDrawer, setGenericDrawer] = useState(false);
