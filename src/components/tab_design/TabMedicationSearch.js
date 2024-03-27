@@ -1487,12 +1487,17 @@ function TabMedicationSearch({ passIndex, onClose }) {
             )}
             <div className="my-5">
               <label className="title-common mb-1">Select Generic Name</label>
-              <div className="inputheight38 border rounded-10px d-flex align-items-center" onClick={handleDrawerGeneric}>
-                <span className={`${addCustom?.tmm_generic ? 'text-main fw-medium' : ''} fontroboto backbar fw-normal px-2`}>{addCustom?.tmm_generic ? addCustom?.tmm_generic : 'Generic Name'}</span>
+              <div className="inputheight38 border rounded-10px d-flex align-items-center bg-white" onClick={handleDrawerGeneric}>
+                <div className="d-flex align-items-center w-100 justify-content-between">
+                  <span className={`${addCustom?.tmm_generic ? 'text-main fw-medium' : ''} fontroboto backbar fw-normal px-2`}>{addCustom?.tmm_generic ? addCustom?.tmm_generic : 'Generic Name'}</span>
+                  <span className="iconrotate270 mb-2">
+                    <i className="icon-right textcolor-29 me-2"></i>
+                  </span>
+                </div>
               </div>
             </div>
             <Drawer title="Select Generic Name" placement="right" onClose={handleDrawerGeneric} open={genericDrawer} className="modalWidth-563" width="auto">
-              <div className="medicine-templates p-3">
+              <div className="medicine-templates h-100 p-3">
                 <Input className="popinput" placeholder="Search Generic Name" onChange={onGenericSearch} prefix={<i className='icon-search me-2'></i>} allowClear />
                 <div className="mt-3">
                   {genericList.length > 0 ? (
