@@ -201,6 +201,15 @@ body {
             height: 41px;
         }
     }
+    .inputLabel-45 {
+        label {
+            height: 100% !important;
+            width: 100px;
+            &:after {
+                display: none;
+            }
+        }
+    }
     .inputheight45 {
         height: 45px;
     }

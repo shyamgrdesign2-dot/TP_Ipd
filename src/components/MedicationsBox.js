@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { AutoComplete, Input, Button, Row, Col, Select, Popover, Tabs, Spin, message, Tooltip } from "antd";
+import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, message, Tooltip } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
@@ -127,7 +127,7 @@ function MedicationsBox() {
           value: searchParentQuery,
           label: (
             <>
-              <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
+              <div className="text-primary fontroboto fs-16"> <i className="icon-Add mx-1 fs-6"></i> Add <span className="fw-medium fontroboto text-primary">"{searchParentQuery}"</span> <a className="text-primary fontroboto">as a new medicine</a></div>
             </>
           ),
         });
@@ -1018,28 +1018,86 @@ function MedicationsBox() {
         isModalOpen={isAddMedicineOpen}
         onCancel={showHideAddMedicineModal}
         modalWidth={500}
-        title={"You may lose your data"}
+        title={"Add Custom Medicine"}
         modalBody={
           <>
-            <div className="alert-warning rounded-10px p-2 patient-details">
-              <div className="d-flex align-items-center">
-                <img className='me-3' src={alertIcon} alt="Warning" />
-                <span>
-                  Are you sure you want to delete this template?
-                </span>
-              </div>
+            <div>
+              <Form.Item
+                label={<>Name <sup className="mt-3 text-danger fs-18">*</sup></>}
+                className="inputLabel-45"
+              >
+                <Input className="inputheight45 text-capitalize" />
+              </Form.Item>
+            </div>
+            <div>
+              <Form.Item
+                label={<>Type <sup className="mt-3 text-danger fs-18">*</sup></>}
+                className="inputLabel-45">
+                <Select
+                  showSearch
+                  className="inputheight45"
+                  placeholder="Select a person"
+                  optionFilterProp="children"
+                  onSearch={onSearch}
+                  options={[
+                    {
+                      value: 'jack',
+                      label: 'Jack',
+                    },
+                    {
+                      value: 'lucy',
+                      label: 'Lucy',
+                    },
+                    {
+                      value: 'tom',
+                      label: 'Tom',
+                    },
+                  ]}
+                />
+              </Form.Item>
+            </div>
+            <div>
+              <Form.Item
+                label="Generic"
+                className="inputLabel-45">
+                <Select
+                  showSearch
+                  className="inputheight45"
+                  placeholder="Select a person"
+                  optionFilterProp="children"
+                  onSearch={onSearch}
+                  options={[
+                    {
+                      value: 'jack',
+                      label: 'Jack',
+                    },
+                    {
+                      value: 'lucy',
+                      label: 'Lucy',
+                    },
+                    {
+                      value: 'tom',
+                      label: 'Tom',
+                    },
+                  ]}
+                />
+              </Form.Item>
+            </div>
+            <div>
+              <Form.Item
+                label="Company"
+                className="inputLabel-45">
+                <Input className="inputheight45 text-capitalize" />
+              </Form.Item>
             </div>
             <div className="mt-4">
               <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div onClick={() => {
-                  onDeleteTemplateClicked(removeTemplateId)
-                  showHideModal()
-                }}
-                  className="me-4 text-decoration-underline btn p-0 text-main">
-                  Yes Delete
+                <div onClick={showHideAddMedicineModal}
+                  className="me-4 btn p-0 text-main">
+                  Cancel
                 </div>
-                <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 px-4">
-                  <span>No</span>
+                <Button onClick={() => { }} disabled className="lh-lg btn btn-primary3 btn-41 px-4">
+                  <span>Add Custom Medicine</span>
                 </Button>
               </div>
             </div>
@@ -1047,7 +1105,7 @@ function MedicationsBox() {
         }
       />
     );
-  }, [isAddMedicineOpen,addCustom, loading]);
+  }, [isAddMedicineOpen, addCustom, loading]);
 
   return (
     <>

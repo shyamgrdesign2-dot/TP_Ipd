@@ -1534,7 +1534,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
               />
             </div>
             <div className="text-end">
-              <Button className='btn btn-primary3 btn-41 px-4' onClick={onAddMedicineClick} loading={loading}>
+              <Button className='btn btn-primary3 btn-41 px-4' onClick={onAddMedicineClick} loading={loading} disabled={addCustom?.tmm_medicine_name && addCustom?.tmy_id ? false : true}>
                 Add Custom Medicine
               </Button>
             </div>
