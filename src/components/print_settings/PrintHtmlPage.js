@@ -644,14 +644,14 @@ function PrintHtmlPage() {
             </div>
             <div className="print-custom-header border-top border-bottom">
                 {/* Patient Details */}
-                <div className="py-4 border-dark border-bottom patient-details">
+                <div className="py-2 border-dark border-bottom patient-details">
                     <Flex justify="space-between">
                         <Col flex={7}>
                             {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
                                 return (
                                     i % 2 === 0 && (
                                         <div key={i} className="details-name">
-                                            <span>{item.title}:</span> &nbsp;
+                                            <span style={{fontWeight:'bold'}}>{item.title}:</span> &nbsp;
                                             <span>{patientDataShow(item.id)}</span>
                                         </div>
                                     )
@@ -663,7 +663,7 @@ function PrintHtmlPage() {
                                 return (
                                     i % 2 === 1 && (
                                         <div key={i} className="details-name">
-                                            <span>{item.title}: </span>&nbsp;
+                                            <span style={{fontWeight:'bold'}}>{item.title}: </span>&nbsp;
                                             <span>{patientDataShow(item.id)}</span>
                                         </div>
                                     )
@@ -674,7 +674,7 @@ function PrintHtmlPage() {
                 </div>
 
                 {/* Inline|List View|Table */}
-                <div className="py-4 position-relative" style={{ zIndex: 0 }}>
+                <div className="py-2 position-relative" style={{ zIndex: 0 }}>
                     {printSettings?.water_mark_enable === 'Y' && (
                         fileWatermark && fileWatermark?.imageShow && (
                             <img className="position-absolute translate-middle"
@@ -685,7 +685,7 @@ function PrintHtmlPage() {
                     <div>
                         {caseManagerData.vitals.length > 0 && printSettings?.prescription?.case_option[6]?.enable === 'Y' && (
                             printSettings?.prescription?.case_option[6]?.format === 'inline' ? (
-                                <div className="mb-3">
+                                <div className="mb-2">
                                     <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Vitals & Body Composition:&nbsp;</label>
                                     {caseManagerData.vitals.map((item, i) => {
                                         return (
@@ -724,7 +724,7 @@ function PrintHtmlPage() {
                                     })}
                                 </div>
                             ) : printSettings?.prescription?.case_option[6]?.format === 'listview' ? (
-                                <div className="mb-3">
+                                <div className="mb-2">
                                     <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Vitals & Body Composition:&nbsp;</label> <br />
                                     <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
                                         {caseManagerData.vitals.map((item, i) => {
@@ -766,7 +766,7 @@ function PrintHtmlPage() {
                                     </label>
                                 </div>
                             ) : (
-                                <div className="mb-3">
+                                <div className="mb-2">
                                     <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Vitals & Body Composition:&nbsp;</label>
                                     <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
                                         <tr>
@@ -792,7 +792,7 @@ function PrintHtmlPage() {
 
                         {caseManagerData.symptoms.length > 0 && printSettings?.prescription?.case_option[0]?.enable === 'Y' && (
                             printSettings?.prescription?.case_option[0]?.format === 'inline' ? (
-                                <div className="mb-3">
+                                <div className="mb-2">
                                     <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Symptoms:&nbsp;</label>
                                     {caseManagerData.symptoms.map((item, i) => {
                                         return (
@@ -808,14 +808,14 @@ function PrintHtmlPage() {
                                     })}
                                 </div>
                             ) : printSettings?.prescription?.case_option[0]?.format === 'listview' ? (
-                                <div className="mb-3">
+                                <div className="mb-2">
                                     <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Symptoms:&nbsp;</label> <br />
                                     <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
                                         {caseManagerData.symptoms.map((item, i) => {
                                             return (
                                                 <>
-                                                    <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
-                                                    <label key={Math.random()} className="fw-medium">{item.symptom_name}&nbsp;</label>
+                                                    <label key={Math.random()} className="fw-bold mt-1">&nbsp;{i + 1}.&nbsp;</label>
+                                                    <label key={Math.random()} className="fw-bold">{item.symptom_name}&nbsp;</label>
                                                     {(item.since || item.severity || item.note) &&
                                                         <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}<br /></>
                                                     }
@@ -825,14 +825,14 @@ function PrintHtmlPage() {
                                     </label>
                                 </div>
                             ) : (
-                                <div className="mb-3">
+                                <div className="mb-2">
                                     <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Symptoms:&nbsp;</label>
                                     <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
                                         <tr>
-                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
-                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>SINCE</th>
-                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>SEVERITY</th>
-                                            <th className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NOTE</th>
+                                            <th className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NAME</th>
+                                            <th className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>SINCE</th>
+                                            <th className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>SEVERITY</th>
+                                            <th className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>NOTE</th>
                                         </tr>
                                         {caseManagerData.symptoms.map((item, i) => {
                                             return (
@@ -851,12 +851,12 @@ function PrintHtmlPage() {
 
                         {caseManagerData.examination.length > 0 && printSettings?.prescription?.case_option[1]?.enable === 'Y' && (
                             printSettings?.prescription?.case_option[1]?.format === 'inline' ? (
-                                <div className="mb-3">
+                                <div className="mb-2">
                                     <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Examinations:&nbsp;</label>
                                     {caseManagerData.examination.map((item, i) => {
                                         return (
                                             <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
-                                                <label className="fw-medium">{item.examination_name}&nbsp;</label>
+                                                <label className="fw-bold">{item.examination_name}&nbsp;</label>
                                                 {(item.note) ?
                                                     <>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</>
                                                     :
@@ -867,14 +867,14 @@ function PrintHtmlPage() {
                                     })}
                                 </div>
                             ) : printSettings?.prescription?.case_option[1]?.format === 'listview' ? (
-                                <div className="mb-3">
+                                <div className="mb-2">
                                     <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Examinations:&nbsp;</label> <br />
                                     <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
                                         {caseManagerData.examination.map((item, i) => {
                                             return (
                                                 <>
-                                                    <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
-                                                    <label key={Math.random()} className="fw-medium">{item.examination_name}&nbsp;</label>
+                                                    <label key={Math.random()} className="fw-bold mt-1">&nbsp;{i + 1}.&nbsp;</label>
+                                                    <label key={Math.random()} className="fw-bold">{item.examination_name}&nbsp;</label>
                                                     {(item.note) &&
                                                         <>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}<br /></>
                                                     }
@@ -884,7 +884,7 @@ function PrintHtmlPage() {
                                     </label>
                                 </div>
                             ) : (
-                                <div className="mb-3">
+                                <div className="mb-1">
                                     <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Examinations:&nbsp;</label>
                                     <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
                                         <tr>
@@ -906,12 +906,12 @@ function PrintHtmlPage() {
 
                         {caseManagerData.diagnosis.length > 0 && printSettings?.prescription?.case_option[2]?.enable === 'Y' && (
                             printSettings?.prescription?.case_option[2]?.format === 'inline' ? (
-                                <div className="mb-3">
+                                <div className="mb-1">
                                     <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Diagnosis:&nbsp;</label>
                                     {caseManagerData.diagnosis.map((item, i) => {
                                         return (
                                             <label key={i} className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
-                                                <label className="fw-medium">{item.tds_name}&nbsp;</label>
+                                                <label className="fw-bold">{item.tds_name}&nbsp;</label>
                                                 {(item.since || item.status || item.note) ?
                                                     <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</>
                                                     :
@@ -922,14 +922,14 @@ function PrintHtmlPage() {
                                     })}
                                 </div>
                             ) : printSettings?.prescription?.case_option[2]?.format === 'listview' ? (
-                                <div className="mb-3">
+                                <div className="mb-1">
                                     <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Diagnosis:&nbsp;</label> <br />
                                     <label className={`${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>
                                         {caseManagerData.diagnosis.map((item, i) => {
                                             return (
                                                 <>
-                                                    <label key={Math.random()} className="fw-medium mt-1">&nbsp;{i + 1}.&nbsp;</label>
-                                                    <label key={Math.random()} className="fw-medium">{item.tds_name}&nbsp;</label>
+                                                    <label key={Math.random()} className="fw-bold mt-1">&nbsp;{i + 1}.&nbsp;</label>
+                                                    <label key={Math.random()} className="fw-bold">{item.tds_name}&nbsp;</label>
                                                     {(item.since || item.status || item.note) &&
                                                         <>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})`}<br /></>
                                                     }
@@ -939,7 +939,7 @@ function PrintHtmlPage() {
                                     </label>
                                 </div>
                             ) : (
-                                <div className="mb-3">
+                                <div className="mb-1">
                                     <label className={`fw-bold mb-1 ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Diagnosis:&nbsp;</label>
                                     <table className="w-100 mb-3 print_table" cellPadding={5} cellSpacing={5}>
                                         <tr>
@@ -965,7 +965,7 @@ function PrintHtmlPage() {
 
                         {caseManagerData.medicine.length > 0 && printSettings?.prescription?.case_option[3]?.enable === 'Y' && (
                             printSettings?.prescription?.case_option[3]?.format === 'inline' ? (
-                                <div className="mb-3">
+                                <div className="mb-1">
                                     <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Medication (Rx):&nbsp;</label>
                                     {caseManagerData.medicine.map((item, i) => {
                                         return (
@@ -1074,7 +1074,7 @@ function PrintHtmlPage() {
 
                         {caseManagerData.advice.length > 0 && printSettings?.prescription?.case_option[4]?.enable === 'Y' && (
                             printSettings?.prescription?.case_option[4]?.format === 'inline' ? (
-                                <div className="mb-3">
+                                <div className="mb-1">
                                     <label className={`fw-bold ${printSettings.page_format.font_family}`} style={{ fontSize: printSettings.page_format.font_size }}>Advices:&nbsp;</label>
                                     {caseManagerData.advice.map((item, i) => {
                                         return (

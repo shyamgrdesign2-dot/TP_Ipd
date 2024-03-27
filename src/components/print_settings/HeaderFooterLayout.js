@@ -626,6 +626,7 @@ function HeaderFooterLayout() {
                                         <div className="title-common">Doctor’s information</div>
                                     </Col>
                                     <Col lg="6">
+                                    <value className="fw-medium me-2">Show</value>
                                         <Switch onChange={onDoctorInfoSwitchChange} checked={printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? true : false} />
                                     </Col>
                                 </Row>
@@ -665,6 +666,7 @@ function HeaderFooterLayout() {
                                         <div className="title-common">Clinic’s information</div>
                                     </Col>
                                     <Col lg="6">
+                                    <value className="fw-medium me-2">Show</value>
                                         <Switch onChange={onClinicInfoSwitchChange} checked={printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? true : false} />
                                     </Col>
                                 </Row>
@@ -704,6 +706,7 @@ function HeaderFooterLayout() {
                                         <div className="title-common">Logo on Header</div>
                                     </Col>
                                     <Col lg="6">
+                                    <value className="fw-medium me-2">Show</value>                
                                         <Switch onChange={onLogoSwitchChange} checked={printSettings?.logo_enable === 'Y' ? true : false} />
                                     </Col>
                                 </Row>
