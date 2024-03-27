@@ -9,6 +9,7 @@ const initialState = {
   templates: [],
   loading: false,
   error: null,
+  genericList: [],
 };
 
 export const addTemplate = createAsyncThunk(
@@ -126,6 +127,32 @@ export const getLoadPreviousRx = createAsyncThunk(
   }
 );
 
+export const searchGeneric = createAsyncThunk(
+  "medication/searchGeneric",
+  async (query) => {
+    let result = {};
+    result = await ApiMedication.searchGeneric(query);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const addMedicine = createAsyncThunk(
+  "medication/addMedicine",
+  async (data) => {
+    let result = {};
+    result = await ApiMedication.addMedicine(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 const medicationSlice = createSlice({
   name: "medication",
   initialState,
@@ -218,6 +245,22 @@ const medicationSlice = createSlice({
         } else {
           state.childOptionsList = [];
         }
+      })
+      .addCase(searchGeneric.pending, (state) => { })
+      .addCase(searchGeneric.fulfilled, (state, action) => {
+        state.genericList = action.payload;
+      })
+      .addCase(searchGeneric.rejected, (state, action) => {
+        state.genericList = [];
+      })
+      .addCase(addMedicine.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(addMedicine.fulfilled, (state) => {
+        state.loading = false
+      })
+      .addCase(addMedicine.rejected, (state) => {
+        state.loading = false
       })
   },
 });
