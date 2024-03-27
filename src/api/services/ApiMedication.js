@@ -55,6 +55,20 @@ ApiMedication.showMedicineTime = function () {
   return api.get(`/api/v1/medicine/showMedicineTime`, baseUrl);
 };
 
+ApiMedication.getMedicineType = function () {
+  return api.get(`/api/v1/medicine/getMedicineType`, baseUrl);
+};
+
+ApiMedication.searchGeneric = function (query) {
+  return api.post(`/api/v1/medicine/searchGeneric`, {
+    search: query
+  }, baseUrl);
+};
+
+ApiMedication.addMedicine = function (data) {
+  return api.post(`/api/v1/medicine/addMedicine`, data, baseUrl);
+};
+
 ApiMedication.getLoadPreviousRx = function (data) {
   return api.post(`/api/v1/medicine/getLoadPreviousRx`, data, baseUrl);
 };

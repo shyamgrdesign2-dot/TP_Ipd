@@ -254,7 +254,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
     //Child Componet
     const CHILD_DRAWER_DATA = useMemo(() => {
         return (
-            selectedIndex != null && (
+            selectedIndex != null && diagnosisData[selectedIndex] !== undefined && (
                 <>
                     <div className="h-100">
                         <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">

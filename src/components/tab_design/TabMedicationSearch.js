@@ -33,6 +33,8 @@ import { MESSAGE_KEY } from "../../utils/constants";
 import {
   getMedicineDetails,
   searchMedication,
+  searchGeneric,
+  addMedicine
 } from "../../redux/medicationSlice";
 
 import TabSearchHeader from "./TabSearchHeader";
@@ -41,8 +43,8 @@ import TabMedicationMoreModal from "./TabMedicationMoreModal";
 function TabMedicationSearch({ passIndex, onClose }) {
 
   const [messageApi, contextHolder] = message.useMessage();
-  const { frequencyList, timingList } = useSelector((state) => state.doctors);
-  const { parentOptionsList, childOptionsList } = useSelector((state) => state.medication);
+  const { frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
+  const { parentOptionsList, childOptionsList, genericList, loading } = useSelector((state) => state.medication);
   const dispatch = useDispatch();
 
   const { medicationData, setMedicationData } = useContext(CashManagerContext);
@@ -65,6 +67,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const [selectedTab, setSelectedTab] = useState(null);
   const [timingMoreOptionsVisible, setTimingMoreOptionsVisible] = useState(false);
   const [frequencyMoreOptionsVisible, setFrequencyMoreOptionsVisible] = useState(false);
+
+  const [addCustom, setAddCustom] = useState(null);
+  const [medicineTypeMoreOptionsVisible, setMedicineTypeMoreOptionsVisible] = useState(false);
+  const [genericDrawer, setGenericDrawer] = useState(false);
+  const [genericQuery, setGenericQuery] = useState('');
 
   const filteredTitles = frequencyList.filter((item) => item.tmf_block !== 0);
 
@@ -105,17 +112,17 @@ function TabMedicationSearch({ passIndex, onClose }) {
         value: e.tmm_medicine_name,
       });
     });
-    // if (searchChildQuery.length > 0) {
-    //     searchChildQuery &&
-    //         data.push({
-    //             key: JSON.stringify({
-    //                 unique_id: uuidv4(),
-    //                 change: 1,
-    //                 symptom_name: searchChildQuery
-    //             }),
-    //             value: searchChildQuery
-    //         });
-    // }
+    if (searchChildQuery.length > 0) {
+      searchChildQuery &&
+        data.push({
+          key: JSON.stringify({
+            unique_id: uuidv4(),
+            tmm_id: 0,
+            tmm_medicine_name: searchChildQuery
+          }),
+          value: searchChildQuery
+        });
+    }
     setChildSearchOptions(data);
   }, [childOptionsList]);
 
@@ -173,6 +180,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
       setSelectedIndex(medicationData.length - 1);
       setSinceValue(updatedData[0].tmm_days ? parseInt(updatedData[0].tmm_days) : 1);
       setSearchChildQuery("");
+      setAddCustom(null);
     } else {
       messageApi.open({
         key: MESSAGE_KEY,
@@ -214,6 +222,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
               onClick={() => {
                 setSelectedIndex(index);
                 setSinceValue(item.tmm_days ? parseInt(item.tmm_days) : 1);
+                setAddCustom(null);
               }}
             >
               <div className="text-truncate">
@@ -567,7 +576,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
   //Child Componet
   const CHILD_DRAWER_DATA = useMemo(() => {
     return (
-      selectedIndex != null && (
+      selectedIndex != null && medicationData[selectedIndex] !== undefined && (
         <>
           <div className="h-100">
             <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
@@ -1286,6 +1295,240 @@ function TabMedicationSearch({ passIndex, onClose }) {
     frequencyMoreOptionsVisible,
   ]);
 
+  //Add Custom
+  const handleAddCustom = (item) => {
+    setAddCustom(item);
+  }
+
+  const handleDrawerGeneric = useCallback(() => {
+    setGenericDrawer(!genericDrawer);
+  }, [genericDrawer]);
+
+  const onChangeMedicineName = useCallback(
+    (e) => {
+      setAddCustom({ ...addCustom, tmm_medicine_name: e.target.value });
+    },
+    [addCustom]
+  );
+
+  const onChangeCompanyName = useCallback(
+    (e) => {
+      setAddCustom({ ...addCustom, tmm_company: e.target.value });
+    },
+    [addCustom]
+  );
+
+  const onChangeMedicineType = useCallback(
+    (item) => {
+      setAddCustom({ ...addCustom, ...item });
+    },
+    [addCustom]
+  );
+
+  const handleMedicineTypeMoreOptionsVisible = useCallback(
+    () => {
+      setMedicineTypeMoreOptionsVisible(!medicineTypeMoreOptionsVisible)
+    },
+    [medicineTypeMoreOptionsVisible]
+  );
+
+  useEffect(() => {
+    if (genericQuery) {
+      const timeOutId = setTimeout(() => {
+        dispatch(searchGeneric(genericQuery));
+      }, 500);
+      return () => {
+        clearTimeout(timeOutId);
+      };
+    }
+  }, [genericQuery]);
+
+  const onGenericSearch = useCallback(
+    (e) => {
+      setGenericQuery(e.target.value)
+    },
+    [genericQuery]
+  );
+
+  const onSelectGeneric = (item) => {
+    setAddCustom({ ...addCustom, ...item });
+    handleDrawerGeneric()
+  }
+
+  const onAddMedicineClick = async () => {
+    var sendData = {
+      tmm_medicine_name: addCustom?.tmm_medicine_name,
+      tmm_type: addCustom?.tmy_id,
+      tmm_generic: addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : '',
+      tmm_company: addCustom?.tmm_company !== undefined ? addCustom?.tmm_company : ''
+    };
+    const action = await dispatch(addMedicine(sendData));
+    if (action.meta.requestStatus === "fulfilled") {
+      const updatedData = action.payload.map((e) => {
+        const medicineUnit = e?.medicineUnit.map((e1) => {
+          return {
+            key: JSON.stringify({ ...e1 }),
+            value: e1.tmu_id,
+            label: <>{e1.tmu_title}</>,
+          };
+        });
+
+        const unitObj = medicineUnit
+          ? medicineUnit.find((x) => x.value == e.tmm_unit)
+          : null;
+        const frequencyObj = frequencyList.find(
+          (x) => x.tmf_id == e.tmm_freq_type
+        );
+        const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+        return {
+          ...e,
+          tmm_unit_name:
+            unitObj && unitObj !== undefined
+              ? JSON.parse(unitObj.key).tmu_title
+              : "",
+          tmm_freq_type_name:
+            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmf_block_val:
+            frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+          medicineUnit: medicineUnit,
+          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+          unique_id: uuidv4(),
+        };
+      });
+      medicationData.push({
+        ...updatedData[0],
+      });
+      setMedicationData((prev) => [...prev]);
+      setSelectedIndex(medicationData.length - 1);
+      setSinceValue(updatedData[0].tmm_days ? parseInt(updatedData[0].tmm_days) : 1);
+      setSearchChildQuery("");
+      setAddCustom(null);
+    } else {
+      messageApi.open({
+        key: MESSAGE_KEY,
+        type: "warning",
+        content: action.error.message,
+        duration: 2,
+      });
+    }
+  }
+
+  const ADD_MEDICINE_DATA = useMemo(() => {
+    return (
+      <>
+        <div className="h-100">
+          <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
+            <div className="text-truncate title-common fontroboto">
+              {'Add Custom Medicine'}
+            </div>
+          </div>
+          <div className="p-4">
+            <div>
+              <label className="title-common mb-1">Medicine Name</label>
+              <Input
+                placeholder="Medicine Name"
+                value={addCustom?.tmm_medicine_name}
+                onChange={onChangeMedicineName}
+                className="inputheight38 rounded-10px"
+              />
+            </div>
+            <div className="mt-3">
+              <label className="title-common">Medicine Type</label>
+              <div className="segement-static d-flex flex-wrap">
+                {medicineTypeList.slice(0, 5).map((item, i) => {
+                  return (
+                    <>
+                      <button
+                        key={i}
+                        type="button"
+                        className={`btn mt-3 text-truncate px-1 ${addCustom?.tmy_id == item.tmy_id && "btn-segement"}`}
+                        onClick={() => onChangeMedicineType(item)}>
+                        {item.tmy_title}
+                      </button>
+                      {i == medicineTypeList.slice(0, 5).length - 1 && (
+                        <button
+                          key={-1}
+                          type="button"
+                          className={`btn mt-3 text-truncate px-1 segment-more ${medicineTypeList.slice(5, medicineTypeList.length).some((e) => e.tmy_id == addCustom?.tmy_id) && "btn-segement"}`}
+                          onClick={handleMedicineTypeMoreOptionsVisible}
+                        >
+                          {medicineTypeList.slice(5, medicineTypeList.length).some((e) => e.tmy_id == addCustom?.tmy_id) ? (
+                            <span id="selected">
+                              <i className="icon-Edit me-2 fs-21"></i>
+                              {addCustom?.tmy_title}
+                            </span>
+                          ) : (
+                            "More"
+                          )}
+                        </button>
+                      )}
+                    </>
+                  );
+                })}
+              </div>
+            </div>
+            {medicineTypeMoreOptionsVisible && (
+              <TabMedicationMoreModal
+                width='41.5%'
+                title={'Medicine Type'}
+                onClose={handleMedicineTypeMoreOptionsVisible}
+                onClick={(item) => {
+                  setMedicineTypeMoreOptionsVisible(false);
+                  onChangeMedicineType(item);
+                }}
+                label={'tmy_title'}
+                value={'tmy_id'}
+                selectedValue={addCustom?.tmy_id}
+                array={medicineTypeList.slice(5, medicineTypeList.length)} />
+            )}
+            <div className="mt-3 mb-3">
+              <label className="title-common mb-1">Select Generic Name</label>
+              <div className="inputheight38 border rounded-10px d-flex align-items-center" onClick={handleDrawerGeneric}>
+                <i className='icon-search mx-2'></i>
+                <span className="fontroboto backbar fw-normal">{addCustom?.tmm_generic ? addCustom?.tmm_generic : 'Generic Name'}</span>
+              </div>
+            </div>
+            <Drawer title="Select Generic Name" placement="right" onClose={handleDrawerGeneric} open={genericDrawer} className="modalWidth-563" width="auto">
+              <div className="medicine-templates">
+                <Input className="popinput" placeholder="Search Generic Name" onChange={onGenericSearch} prefix={<i className='icon-search me-2'></i>} allowClear />
+              </div>
+              {genericList.length > 0 &&
+                genericList.map((item, i) => {
+                  return (
+                    <Button
+                      key={i}
+                      type="text"
+                      style={{ width: item.tmm_generic.length > 26 && "250px" }}
+                      className={`${item.tmm_generic.length > 26 && "chips-custom-break"} btn btn-primary2 chips-custom mb-14 me-14`}
+                      onClick={() => onSelectGeneric(item)}>
+                      {item.tmm_generic}
+                    </Button>
+                  )
+                })
+              }
+            </Drawer>
+            <div className="mt-3 mb-3">
+              <label className="title-common mb-1">Company Name</label>
+              <Input
+                placeholder="Company Name"
+                value={addCustom?.tmm_company}
+                onChange={onChangeCompanyName}
+                className="inputheight38 rounded-10px"
+              />
+            </div>
+            <div className="mt-3 mb-3">
+              <Button className='btn btn-primary3 me-30 btn-41 px-4' onClick={onAddMedicineClick} loading={loading}>
+                Add Custom Medicine
+              </Button>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }, [addCustom, medicineTypeMoreOptionsVisible, genericDrawer, genericList, loading]);
+
   return (
     <>
       {contextHolder}
@@ -1316,79 +1559,50 @@ function TabMedicationSearch({ passIndex, onClose }) {
                       : "Frequently Used"}
                   </div>
                   <div className="mt-3 d-flex flex-wrap">
-                    {searchChildQuery.length > 0
-                      ? childSearchOptions.length > 0 &&
-                      childSearchOptions
-                        .filter(
-                          (e) =>
-                            ![
-                              ...medicationData.map(
-                                (e1) => e1.tmm_medicine_name
-                              ),
-                            ].includes(e.value)
-                        )
-                        .map((item, i) => {
-                          return (
-                            // i === childSearchOptions.length - 1 ? (
-                            //     <Button
-                            //         key={i}
-                            //         type="text"
-                            //         className="btn btn-primary2 chips-custom mb-14 me-14 d-flex align-items-center chips-addCustom"
-                            //         onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                            //         {item.value} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
-                            //     </Button>
-                            // ) : (
+                    {searchChildQuery.length > 0 ? (
+                      childSearchOptions.length > 0 &&
+                      childSearchOptions.filter((e) => ![...medicationData.map((e1) => e1.tmm_medicine_name)].includes(e.value)).map((item, i) => {
+                        return (
+                          JSON.parse(item.key).tmm_id === 0 ? (
                             <Button
                               key={i}
                               type="text"
-                              style={{
-                                width: item.value.length > 26 && "250px",
-                              }}
-                              className={`${item.value.length > 26 && "chips-custom-break"
-                                } btn btn-primary2 chips-custom mb-14 me-14`}
-                              onClick={() =>
-                                onSelectParent({ ...JSON.parse(item.key) })
-                              }
-                            >
+                              className="btn btn-primary2 chips-custom mb-14 me-14 d-flex align-items-center chips-addCustom"
+                              onClick={() => handleAddCustom({ ...JSON.parse(item.key) })}>
+                              {item.value} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
+                            </Button>
+                          ) : (
+                            <Button
+                              key={i}
+                              type="text"
+                              style={{ width: item.value.length > 26 && "250px" }}
+                              className={`${item.value.length > 26 && "chips-custom-break"} btn btn-primary2 chips-custom mb-14 me-14`}
+                              onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
                               {item.value}
                             </Button>
-                            // )
-                          );
-                        })
-                      : parentOptionsList.length > 0 &&
-                      parentOptionsList
-                        .filter(
-                          (e) =>
-                            ![
-                              ...medicationData.map(
-                                (e1) => e1.tmm_medicine_name
-                              ),
-                            ].includes(e.tmm_medicine_name)
+                          )
                         )
-                        .map((item, i) => {
-                          return (
-                            <Button
-                              key={i}
-                              type="text"
-                              style={{
-                                width:
-                                  item.tmm_medicine_name.length > 26 &&
-                                  "250px",
-                              }}
-                              className={`${item.tmm_medicine_name.length > 26 &&
-                                "chips-custom-break"
-                                } btn btn-primary2 chips-custom mb-14 me-14`}
-                              onClick={() => onSelectParent(item)}
-                            >
-                              {item.tmm_medicine_name}
-                            </Button>
-                          );
-                        })}
+                      })
+                    ) : (
+                      parentOptionsList.length > 0 &&
+                      parentOptionsList.filter((e) => ![...medicationData.map((e1) => e1.tmm_medicine_name)].includes(e.tmm_medicine_name)).map((item, i) => {
+                        return (
+                          <Button
+                            key={i}
+                            type="text"
+                            style={{ width: item.tmm_medicine_name.length > 26 && "250px" }}
+                            className={`${item.tmm_medicine_name.length > 26 && "chips-custom-break"} btn btn-primary2 chips-custom mb-14 me-14`}
+                            onClick={() => onSelectParent(item)}>
+                            {item.tmm_medicine_name}
+                          </Button>
+                        )
+                      })
+                    )}
                   </div>
                 </div>
               </div>
             </Col>
-            <Col md={10}>{CHILD_DRAWER_DATA}</Col>
+            <Col md={10}>{addCustom ? ADD_MEDICINE_DATA : CHILD_DRAWER_DATA}</Col>
           </Row>
         </div>
       </Card>

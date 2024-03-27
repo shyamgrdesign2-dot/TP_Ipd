@@ -13,8 +13,9 @@ function Quixote() {
         <PDFViewer style={{
             width: '100%',
             height: 800
-        }}>
-            <Document>
+        }}
+        showToolbar={false}>
+            <Document onRender={(e, e1) => console.log(e, e1)}>
                 <Page size="A4" style={styles.body} wrap>
                     <Text style={styles.header} fixed>
                         {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
     body: {
         paddingTop: 35,
         paddingBottom: 65,
-        paddingHorizontal: 35,
+        paddingHorizontal: '1cm',
     },
     title: {
         fontSize: 24,
