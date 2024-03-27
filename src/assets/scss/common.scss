@@ -98,6 +98,9 @@ body {
     .small, small {
         font-size: .800em;
     }
+    .text-greycolor {
+        color: $grayColor !important;
+    }
     .backbar {
         color: $grayColor !important;
         font-weight: 500;

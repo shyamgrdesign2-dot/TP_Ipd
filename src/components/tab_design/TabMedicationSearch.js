@@ -40,6 +40,8 @@ import {
 import TabSearchHeader from "./TabSearchHeader";
 import TabMedicationMoreModal from "./TabMedicationMoreModal";
 
+import noRecordFound from '../../assets/images/no-record-round.svg';
+
 function TabMedicationSearch({ passIndex, onClose }) {
 
   const [messageApi, contextHolder] = message.useMessage();
@@ -1431,13 +1433,13 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 placeholder="Medicine Name"
                 value={addCustom?.tmm_medicine_name}
                 onChange={onChangeMedicineName}
-                className="inputheight38 rounded-10px"
+                className="inputheight38 rounded-10px fw-medium"
               />
             </div>
-            <div className="mt-3">
+            <div className="my-5">
               <label className="title-common">Medicine Type</label>
-              <div className="segement-static d-flex flex-wrap">
-                {medicineTypeList.slice(0, 5).map((item, i) => {
+              <div className="segement-static segement-static-four d-flex flex-wrap">
+                {medicineTypeList.slice(0, 7).map((item, i) => {
                   return (
                     <>
                       <button
@@ -1447,14 +1449,14 @@ function TabMedicationSearch({ passIndex, onClose }) {
                         onClick={() => onChangeMedicineType(item)}>
                         {item.tmy_title}
                       </button>
-                      {i == medicineTypeList.slice(0, 5).length - 1 && (
+                      {i == medicineTypeList.slice(0, 7).length - 1 && (
                         <button
                           key={-1}
                           type="button"
-                          className={`btn mt-3 text-truncate px-1 segment-more ${medicineTypeList.slice(5, medicineTypeList.length).some((e) => e.tmy_id == addCustom?.tmy_id) && "btn-segement"}`}
+                          className={`btn mt-3 text-truncate px-1 segment-more ${medicineTypeList.slice(7, medicineTypeList.length).some((e) => e.tmy_id == addCustom?.tmy_id) && "btn-segement"}`}
                           onClick={handleMedicineTypeMoreOptionsVisible}
                         >
-                          {medicineTypeList.slice(5, medicineTypeList.length).some((e) => e.tmy_id == addCustom?.tmy_id) ? (
+                          {medicineTypeList.slice(7, medicineTypeList.length).some((e) => e.tmy_id == addCustom?.tmy_id) ? (
                             <span id="selected">
                               <i className="icon-Edit me-2 fs-21"></i>
                               {addCustom?.tmy_title}
@@ -1481,45 +1483,52 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 label={'tmy_title'}
                 value={'tmy_id'}
                 selectedValue={addCustom?.tmy_id}
-                array={medicineTypeList.slice(5, medicineTypeList.length)} />
+                array={medicineTypeList.slice(7, medicineTypeList.length)} />
             )}
-            <div className="mt-3 mb-3">
+            <div className="my-5">
               <label className="title-common mb-1">Select Generic Name</label>
               <div className="inputheight38 border rounded-10px d-flex align-items-center" onClick={handleDrawerGeneric}>
-                <i className='icon-search mx-2'></i>
-                <span className="fontroboto backbar fw-normal">{addCustom?.tmm_generic ? addCustom?.tmm_generic : 'Generic Name'}</span>
+                <span className={`${addCustom?.tmm_generic ? 'text-main fw-medium' : ''} fontroboto backbar fw-normal px-2`}>{addCustom?.tmm_generic ? addCustom?.tmm_generic : 'Generic Name'}</span>
               </div>
             </div>
             <Drawer title="Select Generic Name" placement="right" onClose={handleDrawerGeneric} open={genericDrawer} className="modalWidth-563" width="auto">
-              <div className="medicine-templates">
+              <div className="medicine-templates p-3">
                 <Input className="popinput" placeholder="Search Generic Name" onChange={onGenericSearch} prefix={<i className='icon-search me-2'></i>} allowClear />
+                <div className="mt-3">
+                  {genericList.length > 0 ? (
+                    genericList.map((item, i) => {
+                      return (
+                        <Button
+                          key={i}
+                          type="text"
+                          style={{ width: item.tmm_generic.length > 26 && "250px" }}
+                          className={`${item.tmm_generic.length > 26 && "chips-custom-break"} btn btn-primary2 chips-custom mb-14 me-14`}
+                          onClick={() => onSelectGeneric(item)}>
+                          {item.tmm_generic}
+                        </Button>
+                      )
+                    })
+                  ) : (
+                    <div className="text-center">
+                      <img className="mb-4" src={noRecordFound} alt="No Result Found" />
+                      <div className="title-common fontroboto mb-3">Sorry ! No results found</div>
+                      <div className="fontroboto text-greycolor">The generic name is currently not listed in our database <br /> We will add it soon. </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              {genericList.length > 0 &&
-                genericList.map((item, i) => {
-                  return (
-                    <Button
-                      key={i}
-                      type="text"
-                      style={{ width: item.tmm_generic.length > 26 && "250px" }}
-                      className={`${item.tmm_generic.length > 26 && "chips-custom-break"} btn btn-primary2 chips-custom mb-14 me-14`}
-                      onClick={() => onSelectGeneric(item)}>
-                      {item.tmm_generic}
-                    </Button>
-                  )
-                })
-              }
             </Drawer>
-            <div className="mt-3 mb-3">
+            <div className="my-5">
               <label className="title-common mb-1">Company Name</label>
               <Input
                 placeholder="Company Name"
                 value={addCustom?.tmm_company}
                 onChange={onChangeCompanyName}
-                className="inputheight38 rounded-10px"
+                className="inputheight38 rounded-10px text-main fw-medium"
               />
             </div>
-            <div className="mt-3 mb-3">
-              <Button className='btn btn-primary3 me-30 btn-41 px-4' onClick={onAddMedicineClick} loading={loading}>
+            <div className="text-end">
+              <Button className='btn btn-primary3 btn-41 px-4' onClick={onAddMedicineClick} loading={loading}>
                 Add Custom Medicine
               </Button>
             </div>
