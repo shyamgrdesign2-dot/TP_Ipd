@@ -21,17 +21,20 @@ import {
   singleTemplateDetails,
   getMedicineDetails,
   getLoadPreviousRx,
+  searchGeneric,
+  addMedicine
 } from "../redux/medicationSlice";
 
 const { TextArea } = Input;
 
 function MedicationsBox() {
   const [messageApi, contextHolder] = message.useMessage();
-  const { frequencyList, timingList } = useSelector((state) => state.doctors);
+  const { frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     selectedMedicationList,
     parentOptionsList,
     templates,
+    genericList,
     loading,
   } = useSelector((state) => state.medication);
   const dispatch = useDispatch();
@@ -72,6 +75,7 @@ function MedicationsBox() {
   //Add Custom
   const [isAddMedicineOpen, setIsAddMedicineOpen] = useState(false);
   const [addCustom, setAddCustom] = useState(null);
+  const [genericQuery, setGenericQuery] = useState('');
 
   useEffect(() => {
     dispatch(getMedicationTemplates());
@@ -1012,6 +1016,72 @@ function MedicationsBox() {
     [isAddMedicineOpen]
   );
 
+  const onChangeMedicineName = useCallback(
+    (e) => {
+      setAddCustom({ ...addCustom, tmm_medicine_name: e.target.value });
+    },
+    [addCustom]
+  );
+
+  const onChangeCompanyName = useCallback(
+    (e) => {
+      setAddCustom({ ...addCustom, tmm_company: e.target.value });
+    },
+    [addCustom]
+  );
+
+  const onSelectMedicineType = useCallback(
+    (data) => {
+      if (data) {
+        setAddCustom({ ...addCustom, ...JSON.parse(data) });
+      } else {
+        const { tmy_id, tmy_title, ...updatedReqData } = addCustom;
+        setAddCustom(updatedReqData)
+      }
+    },
+    [addCustom]
+  );
+
+  useEffect(() => {
+    if (genericQuery) {
+      const timeOutId = setTimeout(() => {
+        dispatch(searchGeneric(genericQuery));
+      }, 500);
+      return () => {
+        clearTimeout(timeOutId);
+      };
+    }
+  }, [genericQuery]);
+
+  const onSearchGeneric = useCallback(
+    (query) => {
+      setGenericQuery(removeBeforeWhiteSpace(query));
+    },
+    [genericQuery]
+  );
+
+  const onSelectGeneric = useCallback(
+    (data) => {
+      if (data) {
+        setAddCustom({ ...addCustom, ...JSON.parse(data) });
+      } else {
+        const { tmm_generic, ...updatedReqData } = addCustom;
+        setAddCustom(updatedReqData)
+      }
+    },
+    [addCustom]
+  );
+
+  const onAddMedicineClick = async () => {
+    var sendData = {
+      tmm_medicine_name: addCustom?.tmm_medicine_name,
+      tmm_type: addCustom?.tmy_id,
+      tmm_generic: addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : '',
+      tmm_company: addCustom?.tmm_company !== undefined ? addCustom?.tmm_company : ''
+    };
+    console.log(sendData)
+  }
+
   const ADD_MEDICINE_DATA = useMemo(() => {
     return (
       <CommonModal
@@ -1024,9 +1094,12 @@ function MedicationsBox() {
             <div>
               <Form.Item
                 label={<>Name <sup className="mt-3 text-danger fs-18">*</sup></>}
-                className="inputLabel-45"
-              >
-                <Input className="inputheight45 text-capitalize" />
+                className="inputLabel-45">
+                <Input
+                  placeholder="Medicine Name"
+                  value={addCustom?.tmm_medicine_name}
+                  onChange={onChangeMedicineName}
+                  className="inputheight45 text-capitalize" />
               </Form.Item>
             </div>
             <div>
@@ -1035,24 +1108,19 @@ function MedicationsBox() {
                 className="inputLabel-45">
                 <Select
                   showSearch
-                  className="inputheight45"
-                  placeholder="Select a person"
-                  optionFilterProp="children"
-                  onSearch={onSearch}
-                  options={[
-                    {
-                      value: 'jack',
-                      label: 'Jack',
-                    },
-                    {
-                      value: 'lucy',
-                      label: 'Lucy',
-                    },
-                    {
-                      value: 'tom',
-                      label: 'Tom',
-                    },
-                  ]}
+                  className="inputheight45 autocomplete-custom"
+                  placeholder="Medicine Type"
+                  defaultValue={addCustom?.tmy_title !== undefined ? addCustom?.tmy_title : null}
+                  value={addCustom?.tmy_title !== undefined ? addCustom?.tmy_title : null}
+                  onSelect={onSelectMedicineType}
+                  options={medicineTypeList.map((e) => {
+                    return {
+                      value: JSON.stringify({ ...e }),
+                      label: e.tmy_title,
+                    };
+                  })}
+                  onClear={() => onSelectMedicineType("")}
+                  allowClear
                 />
               </Form.Item>
             </div>
@@ -1062,24 +1130,20 @@ function MedicationsBox() {
                 className="inputLabel-45">
                 <Select
                   showSearch
-                  className="inputheight45"
-                  placeholder="Select a person"
-                  optionFilterProp="children"
-                  onSearch={onSearch}
-                  options={[
-                    {
-                      value: 'jack',
-                      label: 'Jack',
-                    },
-                    {
-                      value: 'lucy',
-                      label: 'Lucy',
-                    },
-                    {
-                      value: 'tom',
-                      label: 'Tom',
-                    },
-                  ]}
+                  className="inputheight45 autocomplete-custom"
+                  placeholder="Generic Name"
+                  defaultValue={addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : null}
+                  value={addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : null}
+                  onSearch={onSearchGeneric}
+                  onSelect={onSelectGeneric}
+                  options={genericList.map((e) => {
+                    return {
+                      value: JSON.stringify({ ...e }),
+                      label: e.tmm_generic,
+                    };
+                  })}
+                  onClear={() => onSelectGeneric("")}
+                  allowClear
                 />
               </Form.Item>
             </div>
@@ -1087,7 +1151,11 @@ function MedicationsBox() {
               <Form.Item
                 label="Company"
                 className="inputLabel-45">
-                <Input className="inputheight45 text-capitalize" />
+                <Input
+                  placeholder="Company Name"
+                  value={addCustom?.tmm_company}
+                  onChange={onChangeCompanyName}
+                  className="inputheight45 text-capitalize" />
               </Form.Item>
             </div>
             <div className="mt-4">
@@ -1096,7 +1164,7 @@ function MedicationsBox() {
                   className="me-4 btn p-0 text-main">
                   Cancel
                 </div>
-                <Button onClick={() => { }} disabled className="lh-lg btn btn-primary3 btn-41 px-4">
+                <Button className="lh-lg btn btn-primary3 btn-41 px-4" onClick={onAddMedicineClick} loading={loading} disabled={addCustom?.tmm_medicine_name && addCustom?.tmy_id ? false : true}>
                   <span>Add Custom Medicine</span>
                 </Button>
               </div>
@@ -1105,7 +1173,7 @@ function MedicationsBox() {
         }
       />
     );
-  }, [isAddMedicineOpen, addCustom, loading]);
+  }, [isAddMedicineOpen, addCustom, genericList, loading]);
 
   return (
     <>

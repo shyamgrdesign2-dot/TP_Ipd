@@ -26,7 +26,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
-import { onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber } from "../../utils/utils";
+import { onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace } from "../../utils/utils";
 
 import CashManagerContext from "../../context/CashManagerContext";
 import { MESSAGE_KEY } from "../../utils/constants";
@@ -137,60 +137,64 @@ function TabMedicationSearch({ passIndex, onClose }) {
   );
 
   const onSelectParent = async (item) => {
-    window.Moengage.track_event("medicine_select", {
-      "value": item.tmm_medicine_name
-    });
-    const action = await dispatch(getMedicineDetails(item.tmm_id));
-    if (action.meta.requestStatus === "fulfilled") {
-      const updatedData = action.payload.map((e) => {
-        const medicineUnit = e?.medicineUnit.map((e1) => {
+    if (item.tmm_id === 0) {
+      setAddCustom(item);
+    } else {
+      window.Moengage.track_event("medicine_select", {
+        "value": item.tmm_medicine_name
+      });
+      const action = await dispatch(getMedicineDetails(item.tmm_id));
+      if (action.meta.requestStatus === "fulfilled") {
+        const updatedData = action.payload.map((e) => {
+          const medicineUnit = e?.medicineUnit.map((e1) => {
+            return {
+              key: JSON.stringify({ ...e1 }),
+              value: e1.tmu_id,
+              label: <>{e1.tmu_title}</>,
+            };
+          });
+
+          const unitObj = medicineUnit
+            ? medicineUnit.find((x) => x.value == e.tmm_unit)
+            : null;
+          const frequencyObj = frequencyList.find(
+            (x) => x.tmf_id == e.tmm_freq_type
+          );
+          const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
           return {
-            key: JSON.stringify({ ...e1 }),
-            value: e1.tmu_id,
-            label: <>{e1.tmu_title}</>,
+            ...e,
+            objectID: item.objectID,
+            tmm_unit_name:
+              unitObj && unitObj !== undefined
+                ? JSON.parse(unitObj.key).tmu_title
+                : "",
+            tmm_freq_type_name:
+              frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+            tmf_block_val:
+              frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+            tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+            medicineUnit: medicineUnit,
+            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+            unique_id: uuidv4(),
           };
         });
-
-        const unitObj = medicineUnit
-          ? medicineUnit.find((x) => x.value == e.tmm_unit)
-          : null;
-        const frequencyObj = frequencyList.find(
-          (x) => x.tmf_id == e.tmm_freq_type
-        );
-        const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
-
-        return {
-          ...e,
-          objectID: item.objectID,
-          tmm_unit_name:
-            unitObj && unitObj !== undefined
-              ? JSON.parse(unitObj.key).tmu_title
-              : "",
-          tmm_freq_type_name:
-            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
-          tmf_block_val:
-            frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
-          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-          medicineUnit: medicineUnit,
-          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
-          unique_id: uuidv4(),
-        };
-      });
-      medicationData.push({
-        ...updatedData[0],
-      });
-      setMedicationData((prev) => [...prev]);
-      setSelectedIndex(medicationData.length - 1);
-      setSinceValue(updatedData[0].tmm_days ? parseInt(updatedData[0].tmm_days) : 1);
-      setSearchChildQuery("");
-      setAddCustom(null);
-    } else {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: action.error.message,
-        duration: 2,
-      });
+        medicationData.push({
+          ...updatedData[0],
+        });
+        setMedicationData((prev) => [...prev]);
+        setSelectedIndex(medicationData.length - 1);
+        setSinceValue(updatedData[0].tmm_days ? parseInt(updatedData[0].tmm_days) : 1);
+        setSearchChildQuery("");
+        setAddCustom(null);
+      } else {
+        messageApi.open({
+          key: MESSAGE_KEY,
+          type: "warning",
+          content: action.error.message,
+          duration: 2,
+        });
+      }
     }
   }
 
@@ -1299,10 +1303,6 @@ function TabMedicationSearch({ passIndex, onClose }) {
   ]);
 
   //Add Custom
-  const handleAddCustom = (item) => {
-    setAddCustom(item);
-  }
-
   const handleDrawerGeneric = useCallback(() => {
     setGenericDrawer(!genericDrawer);
   }, [genericDrawer]);
@@ -1346,9 +1346,9 @@ function TabMedicationSearch({ passIndex, onClose }) {
     }
   }, [genericQuery]);
 
-  const onGenericSearch = useCallback(
+  const onSearchGeneric = useCallback(
     (e) => {
-      setGenericQuery(e.target.value)
+      setGenericQuery(removeBeforeWhiteSpace(e.target.value))
     },
     [genericQuery]
   );
@@ -1429,7 +1429,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
           </div>
           <div className="p-4">
             <div>
-              <label className="title-common mb-1">Medicine Name</label>
+              <label className="title-common mb-1">Medicine Name<span className="text-danger fs-18">*</span></label>
               <Input
                 placeholder="Medicine Name"
                 value={addCustom?.tmm_medicine_name}
@@ -1438,7 +1438,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
               />
             </div>
             <div className="my-5">
-              <label className="title-common">Medicine Type</label>
+              <label className="title-common">Medicine Type<span className="text-danger fs-18">*</span></label>
               <div className="segement-static segement-static-four d-flex flex-wrap">
                 {medicineTypeList.slice(0, 7).map((item, i) => {
                   return (
@@ -1499,7 +1499,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             </div>
             <Drawer title="Select Generic Name" placement="right" onClose={handleDrawerGeneric} open={genericDrawer} className="modalWidth-563" width="auto">
               <div className="medicine-templates h-100 p-3">
-                <Input className="popinput" placeholder="Search Generic Name" onChange={onGenericSearch} prefix={<i className='icon-search me-2'></i>} allowClear />
+                <Input className="popinput" placeholder="Search Generic Name" onChange={onSearchGeneric} prefix={<i className='icon-search me-2'></i>} allowClear />
                 <div className="mt-3">
                   {genericList.length > 0 ? (
                     genericList.map((item, i) => {
@@ -1583,7 +1583,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                               key={i}
                               type="text"
                               className="btn btn-primary2 chips-custom mb-14 me-14 d-flex align-items-center chips-addCustom"
-                              onClick={() => handleAddCustom({ ...JSON.parse(item.key) })}>
+                              onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
                               {item.value} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
                             </Button>
                           ) : (
