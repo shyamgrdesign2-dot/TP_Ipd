@@ -1,6 +1,6 @@
 @import 'variables.scss';
 
-body {
+body .printCommon {
     div, div span, label {
         color: $welcomecolor !important;
     }

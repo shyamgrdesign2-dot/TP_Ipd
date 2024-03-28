@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { AutoComplete, Input, Button, Row, Col, Select, Popover, Tabs, Spin, message, Tooltip } from "antd";
+import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, message, Tooltip } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
@@ -11,6 +11,7 @@ import { MESSAGE_KEY } from "../utils/constants";
 import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
+import noRecordFound from '../assets/images/no-record-round.svg';
 import {
   addTemplate,
   updateTemplate,
@@ -21,17 +22,20 @@ import {
   singleTemplateDetails,
   getMedicineDetails,
   getLoadPreviousRx,
+  searchGeneric,
+  addMedicine
 } from "../redux/medicationSlice";
 
 const { TextArea } = Input;
 
 function MedicationsBox() {
   const [messageApi, contextHolder] = message.useMessage();
-  const { frequencyList, timingList } = useSelector((state) => state.doctors);
+  const { frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     selectedMedicationList,
     parentOptionsList,
     templates,
+    genericList,
     loading,
   } = useSelector((state) => state.medication);
   const dispatch = useDispatch();
@@ -68,6 +72,11 @@ function MedicationsBox() {
     { key: TAB_UPDATE_TEMPLATE, label: "Update Template" },
   ];
   const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
+
+  //Add Custom
+  const [isAddMedicineOpen, setIsAddMedicineOpen] = useState(false);
+  const [addCustom, setAddCustom] = useState(null);
+  const [genericQuery, setGenericQuery] = useState('');
 
   useEffect(() => {
     dispatch(getMedicationTemplates());
@@ -112,6 +121,21 @@ function MedicationsBox() {
           </>
         ),
       });
+    } else {
+      searchParentQuery &&
+        data.push({
+          key: JSON.stringify({
+            unique_id: uuidv4(),
+            tmm_id: 0,
+            tmm_medicine_name: searchParentQuery
+          }),
+          value: searchParentQuery,
+          label: (
+            <>
+              <div className="text-primary fontroboto fs-16"> <i className="icon-Add mx-1 fs-6"></i> Add <span className="fw-medium fontroboto text-primary">"{searchParentQuery}"</span> <a className="text-primary fontroboto">as a new medicine</a></div>
+            </>
+          ),
+        });
     }
     setParentSearchOptions(data);
   }, [parentOptionsList]);
@@ -124,43 +148,49 @@ function MedicationsBox() {
   );
 
   const onSelectParent = async (data, item) => {
-    window.Moengage.track_event("medicine_select", {
-      "value": data
-    });
-    const action = await dispatch(getMedicineDetails(JSON.parse(item.key).tmm_id));
-    if (action.meta.requestStatus === "fulfilled") {
-      const updatedData = action.payload.map((e) => {
-
-        const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
-        const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
-        const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
-
-        return {
-          ...e,
-          objectID: JSON.parse(item.key).objectID,
-          tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-          tmm_freq_type_name: e.tmf_block == 0 ?
-            `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-            : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
-          tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
-          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-          tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
-          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
-          unique_id: uuidv4(),
-        };
-      });
-      medicationData.push({
-        ...updatedData[0],
-      });
-      setMedicationData((prev) => [...prev]);
-      setSearchParentQuery("");
+    if (JSON.parse(item.key).tmm_id === 0) {
+      showHideAddMedicineModal()
+      setAddCustom(JSON.parse(item.key));
     } else {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: action.error.message,
-        duration: 2,
+      window.Moengage.track_event("medicine_select", {
+        "value": data
       });
+      const action = await dispatch(getMedicineDetails(JSON.parse(item.key).tmm_id));
+      if (action.meta.requestStatus === "fulfilled") {
+        const updatedData = action.payload.map((e) => {
+
+          const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+          const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
+          const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+          return {
+            ...e,
+            objectID: JSON.parse(item.key).objectID,
+            tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+            tmm_freq_type_name: e.tmf_block == 0 ?
+              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+              : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+            tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+            tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+            tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+            unique_id: uuidv4(),
+          };
+        });
+        medicationData.push({
+          ...updatedData[0],
+        });
+        setMedicationData((prev) => [...prev]);
+        setSearchParentQuery("");
+        setAddCustom(null);
+      } else {
+        messageApi.open({
+          key: MESSAGE_KEY,
+          type: "warning",
+          content: action.error.message,
+          duration: 2,
+        });
+      }
     }
   };
 
@@ -980,6 +1010,218 @@ function MedicationsBox() {
     );
   }, [tabChange, popOver2, inputTemplateName, loading, allTemplates]);
 
+  //Add Custom
+  const showHideAddMedicineModal = useCallback(
+    () => {
+      setIsAddMedicineOpen(!isAddMedicineOpen)
+    },
+    [isAddMedicineOpen]
+  );
+
+  const onChangeMedicineName = useCallback(
+    (e) => {
+      setAddCustom({ ...addCustom, tmm_medicine_name: e.target.value });
+    },
+    [addCustom]
+  );
+
+  const onChangeCompanyName = useCallback(
+    (e) => {
+      setAddCustom({ ...addCustom, tmm_company: e.target.value });
+    },
+    [addCustom]
+  );
+
+  const onSelectMedicineType = useCallback(
+    (data) => {
+      if (data) {
+        setAddCustom({ ...addCustom, ...JSON.parse(data) });
+      } else {
+        const { tmy_id, tmy_title, ...updatedReqData } = addCustom;
+        setAddCustom(updatedReqData)
+      }
+    },
+    [addCustom]
+  );
+
+  useEffect(() => {
+    if (genericQuery) {
+      const timeOutId = setTimeout(() => {
+        dispatch(searchGeneric(genericQuery));
+      }, 500);
+      return () => {
+        clearTimeout(timeOutId);
+      };
+    }
+  }, [genericQuery]);
+
+  const onSearchGeneric = useCallback(
+    (query) => {
+      setGenericQuery(removeBeforeWhiteSpace(query));
+    },
+    [genericQuery]
+  );
+
+  const onSelectGeneric = useCallback(
+    (data) => {
+      if (data) {
+        setAddCustom({ ...addCustom, ...JSON.parse(data) });
+      } else {
+        const { tmm_generic, ...updatedReqData } = addCustom;
+        setAddCustom(updatedReqData)
+      }
+    },
+    [addCustom]
+  );
+
+  const onAddMedicineClick = async () => {
+    var sendData = {
+      tmm_medicine_name: addCustom?.tmm_medicine_name,
+      tmm_type: addCustom?.tmy_id,
+      tmm_generic: addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : '',
+      tmm_company: addCustom?.tmm_company !== undefined ? addCustom?.tmm_company : ''
+    };
+    const action = await dispatch(addMedicine(sendData));
+    if (action.meta.requestStatus === "fulfilled") {
+      const updatedData = action.payload.map((e) => {
+
+        const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+        const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
+        const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+        return {
+          ...e,
+          tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+          tmm_freq_type_name: e.tmf_block == 0 ?
+            (e.tcm_tmm_freq_morning == 0 && e.tcm_tmm_freq_afternoon == 0 && e.tcm_tmm_freq_evening == 0 && e.tcm_tmm_freq_night == 0) ? "" :
+              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+            : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+          tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+          unique_id: uuidv4(),
+        };
+      });
+      medicationData.push({
+        ...updatedData[0],
+      });
+      setMedicationData((prev) => [...prev]);
+      setSearchParentQuery("");
+      showHideAddMedicineModal()
+      setAddCustom(null);
+    } else {
+      messageApi.open({
+        key: MESSAGE_KEY,
+        type: "warning",
+        content: action.error.message,
+        duration: 2,
+      });
+    }
+  }
+
+  const emptyText = (
+    <div className="text-center py-3">
+      <img className="mb-3" style={{ width: 100 }} src={noRecordFound} alt="No Result Found" />
+      <div className="title-common fontroboto mb-3">Sorry ! No results found</div>
+      <div className="fontroboto text-greycolor">The generic name is currently not listed in our <br /> database We will add it soon. </div>
+    </div>
+  );
+
+  const ADD_MEDICINE_DATA = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={isAddMedicineOpen}
+        onCancel={showHideAddMedicineModal}
+        modalWidth={500}
+        title={"Add Custom Medicine"}
+        modalBody={
+          <>
+            <div>
+              <Form.Item
+                label={<>Name <sup className="mt-3 text-danger fs-18">*</sup></>}
+                className="inputLabel-45">
+                <Input
+                  placeholder="Medicine Name"
+                  value={addCustom?.tmm_medicine_name}
+                  onChange={onChangeMedicineName}
+                  className="inputheight45 text-capitalize" />
+              </Form.Item>
+            </div>
+            <div>
+              <Form.Item
+                label={<>Type <sup className="mt-3 text-danger fs-18">*</sup></>}
+                className="inputLabel-45">
+                <Select
+                  showSearch
+                  className="inputheight45 autocomplete-custom"
+                  placeholder="Medicine Type"
+                  defaultValue={addCustom?.tmy_title !== undefined ? addCustom?.tmy_title : null}
+                  value={addCustom?.tmy_title !== undefined ? addCustom?.tmy_title : null}
+                  onSelect={onSelectMedicineType}
+                  options={medicineTypeList.map((e) => {
+                    return {
+                      value: JSON.stringify({ ...e }),
+                      label: e.tmy_title,
+                    };
+                  })}
+                  onClear={() => onSelectMedicineType("")}
+                  allowClear
+                />
+              </Form.Item>
+            </div>
+            <div>
+              <Form.Item
+                label="Generic"
+                className="inputLabel-45">
+                <Select
+                  showSearch
+                  className="inputheight45 autocomplete-custom"
+                  placeholder="Generic Name"
+                  defaultValue={addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : null}
+                  value={addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : null}
+                  onSearch={onSearchGeneric}
+                  onSelect={onSelectGeneric}
+                  options={genericList.map((e) => {
+                    return {
+                      value: JSON.stringify({ ...e }),
+                      label: e.tmm_generic,
+                    };
+                  })}
+                  onClear={() => onSelectGeneric("")}
+                  notFoundContent={emptyText}
+                  allowClear
+                />
+              </Form.Item>
+            </div>
+            <div>
+              <Form.Item
+                label="Company"
+                className="inputLabel-45">
+                <Input
+                  placeholder="Company Name"
+                  value={addCustom?.tmm_company}
+                  onChange={onChangeCompanyName}
+                  className="inputheight45 text-capitalize" />
+              </Form.Item>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div onClick={showHideAddMedicineModal}
+                  className="me-4 btn p-0 text-main">
+                  Cancel
+                </div>
+                <Button className="lh-lg btn btn-primary3 btn-41 px-4" onClick={onAddMedicineClick} loading={loading} disabled={addCustom?.tmm_medicine_name && addCustom?.tmy_id ? false : true}>
+                  <span>Add Custom Medicine</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+    );
+  }, [isAddMedicineOpen, addCustom, genericList, loading]);
+
   return (
     <>
       {contextHolder}
@@ -1032,6 +1274,7 @@ function MedicationsBox() {
 
         {DELETE_MODAL}
         {TABLE_MEDICATION}
+        {isAddMedicineOpen && ADD_MEDICINE_DATA}
 
         <div className="p-14">
           <AutoComplete
