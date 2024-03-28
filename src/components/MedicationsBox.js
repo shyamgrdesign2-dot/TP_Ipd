@@ -150,7 +150,7 @@ function MedicationsBox() {
   const onSelectParent = async (data, item) => {
     if (JSON.parse(item.key).tmm_id === 0) {
       showHideAddMedicineModal()
-      setAddCustom(item);
+      setAddCustom(JSON.parse(item.key));
     } else {
       window.Moengage.track_event("medicine_select", {
         "value": data
@@ -182,6 +182,7 @@ function MedicationsBox() {
         });
         setMedicationData((prev) => [...prev]);
         setSearchParentQuery("");
+        setAddCustom(null);
       } else {
         messageApi.open({
           key: MESSAGE_KEY,
@@ -1080,12 +1081,48 @@ function MedicationsBox() {
       tmm_generic: addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : '',
       tmm_company: addCustom?.tmm_company !== undefined ? addCustom?.tmm_company : ''
     };
-    console.log(sendData)
+    const action = await dispatch(addMedicine(sendData));
+    if (action.meta.requestStatus === "fulfilled") {
+      const updatedData = action.payload.map((e) => {
+
+        const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+        const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
+        const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+        return {
+          ...e,
+          tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+          tmm_freq_type_name: e.tmf_block == 0 ?
+            (e.tcm_tmm_freq_morning == 0 && e.tcm_tmm_freq_afternoon == 0 && e.tcm_tmm_freq_evening == 0 && e.tcm_tmm_freq_night == 0) ? "" :
+              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+            : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+          tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+          unique_id: uuidv4(),
+        };
+      });
+      medicationData.push({
+        ...updatedData[0],
+      });
+      setMedicationData((prev) => [...prev]);
+      setSearchParentQuery("");
+      showHideAddMedicineModal()
+      setAddCustom(null);
+    } else {
+      messageApi.open({
+        key: MESSAGE_KEY,
+        type: "warning",
+        content: action.error.message,
+        duration: 2,
+      });
+    }
   }
 
   const emptyText = (
     <div className="text-center py-3">
-      <img className="mb-3" style={{width: 100}} src={noRecordFound} alt="No Result Found" />
+      <img className="mb-3" style={{ width: 100 }} src={noRecordFound} alt="No Result Found" />
       <div className="title-common fontroboto mb-3">Sorry ! No results found</div>
       <div className="fontroboto text-greycolor">The generic name is currently not listed in our <br /> database We will add it soon. </div>
     </div>
