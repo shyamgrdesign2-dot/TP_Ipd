@@ -844,6 +844,14 @@ body {
     }
     &.upload-headfoot1 {
         background-color: $bgbody;
+        height: 82px;
+        .btn {
+            background-color: $white;
+        } 
+    }
+    &.upload-headfoot2 {
+        background-color: $white;
+        height: 82px;
         .btn {
             background-color: $white;
         } 
