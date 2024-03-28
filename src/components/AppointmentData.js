@@ -54,7 +54,7 @@ function AppointmentData({ locationPath }) {
     const { profile } = useSelector((state) => state.doctors);
 
     const [searchParams, setSearchParams] = useSearchParams();
-    const form = searchParams.get("form");
+    const from = searchParams.get("from");
     const [modalOpen, setModalOpen] = useState(false);
 
     const { queueCount, finishedCount, cancelledCount, appointmentsData, caseTypes, loading, setOnLoad } = useSelector((state) => state.records);
@@ -121,10 +121,10 @@ function AppointmentData({ locationPath }) {
     const [noDetailsModal, setNoDetailsModal] = useState(false);
 
     useEffect(() => {
-        if (locationPath == '/' && form == 'onboarding') {
+        if (locationPath == '/' && from == 'onboarding') {
             setModalOpen(true)
         }
-    }, [locationPath, form]);
+    }, [locationPath, from]);
 
     useEffect(() => {
         dispatch(getCaseTypes());
