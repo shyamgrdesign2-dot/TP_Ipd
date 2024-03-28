@@ -809,7 +809,7 @@ function PrintHtmlPage() {
                             return (
                               i % 2 === 0 && (
                                 <div key={i} className="details-name">
-                                  <span className="fw-bold">{item.title}:</span>{" "}
+                                  <span>{item.title}:</span>{" "}
                                   &nbsp;
                                   <span>{patientDataShow(item.id)}</span>
                                 </div>
@@ -824,7 +824,7 @@ function PrintHtmlPage() {
                             return (
                               i % 2 === 1 && (
                                 <div key={i} className="details-name">
-                                  <span className="fw-bold">
+                                  <span>
                                     {item.title}:{" "}
                                   </span>
                                   &nbsp;
