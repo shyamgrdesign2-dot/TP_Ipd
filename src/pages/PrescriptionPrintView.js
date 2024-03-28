@@ -263,13 +263,13 @@ function PrescriptionPrintView() {
                                     <i className="icon-right iconrotate90 ms-auto"></i>
                                 </Button>
                             </div>
-                            <div className="bg-body d-flex p-3 rounded-10px border">
+                            {/* <div className="bg-body d-flex p-3 rounded-10px border">
                                 <img src={messageSent} alt="whatsapp Message" className='align-self-baseline me-3' />
                                 <div className="fontroboto title-common">
                                     <div className="fw-normal fontroboto mb-2">WhatsApp Sent to </div>
                                     {patient_data !== undefined ? `+91 ${patient_data.pm_contact_no}` : '-'}
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </Col>
                     <Col md={17} lg={17} xl={12}>
