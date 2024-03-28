@@ -167,6 +167,9 @@ function TabMedicationBox() {
   }, [parentDrawer]);
 
   const onSelectParent = async (item) => {
+    window.Moengage.track_event("medicine_select", {
+      "value": item.tmm_medicine_name
+    });
     const action = await dispatch(getMedicineDetails(item.tmm_id));
     if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {

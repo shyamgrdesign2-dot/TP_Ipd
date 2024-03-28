@@ -100,6 +100,9 @@ function TabSymptomsBox() {
 
     const onSelectParent = useCallback(
         (e) => {
+            window.Moengage.track_event("symptom_select", {
+                "value": e.symptom_name
+            });
             symptomsData.push({
                 ...e,
                 since: "",

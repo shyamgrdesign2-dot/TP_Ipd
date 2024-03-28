@@ -22,6 +22,7 @@ const { Sider, Content } = Layout;
 
 function PatientDetails() {
 
+    const { profile } = useSelector((state) => state.doctors);
     const {
         viewCaseManagerData,
         loading,
@@ -61,10 +62,18 @@ function PatientDetails() {
     }, [tcmData]);
 
     const nextPress = () => {
+        window.Moengage.track_event("patient_detail_prev", {
+            "doctor_id": profile?.doctor_unique_id,
+            "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0
+        });
         setTcmData({ tcm_id: viewCaseManagerData?.next_tcm_id, page: tcmData.page -= 1 })
     }
 
     const prevPress = () => {
+        window.Moengage.track_event("patient_detail_next", {
+            "doctor_id": profile?.doctor_unique_id,
+            "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0
+        });
         setTcmData({ tcm_id: viewCaseManagerData?.prev_tcm_id, page: (tcmData.page += 1) })
     }
 

@@ -152,6 +152,9 @@ function InvestigationBox() {
 
   const onSelectParent = useCallback(
     (data, e) => {
+      window.Moengage.track_event("investigation_select", {
+        "value": data
+      });
       investigationData.push({
         ...JSON.parse(e.key),
         note: "",

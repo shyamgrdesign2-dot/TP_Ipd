@@ -98,6 +98,9 @@ body {
     .small, small {
         font-size: .800em;
     }
+    .text-greycolor {
+        color: $grayColor !important;
+    }
     .backbar {
         color: $grayColor !important;
         font-weight: 500;
@@ -114,6 +117,9 @@ body {
         font-style: normal;
         font-weight: 600;
         line-height: normal;
+    }
+    .textcolor-29 {
+        color: #92929D;
     }
     table, p, div, span, tr, th, td{
         font-family: 'Poppins' !important;
@@ -185,6 +191,9 @@ body {
     }
     .mb-12 {
         margin-bottom: 12px;
+    }
+    .mb-15 {
+        margin-bottom:15px;
     }
     .mb-20 {
         margin-bottom: 20px;
@@ -278,7 +287,7 @@ body {
         border-radius: 10px;
     }
     .image-crop {
-        height: 230px;
+        height: 189px;
         overflow: hidden;
     }
     .ant-select {

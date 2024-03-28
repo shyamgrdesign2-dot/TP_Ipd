@@ -85,6 +85,9 @@ function TabFollowUpBox() {
     };
 
     const onOptionPress = (e) => {
+        window.Moengage.track_event("followup_chip_select", {
+            "value": e.label
+        });
         setDateOptions([]);
         setFollowUpInput(e.label)
         setFollowUpDate(getFormattedDate(moment(moment().format(dateFormat)).add(parseInt(e.value), e.unit).format(dateFormat)))

@@ -810,13 +810,13 @@ body {
     justify-content: center;
     margin-bottom: 15px;
     position: relative;
-    .image-upload-input {
-        position: absolute;
-        left: 37%;
-        opacity: 0;
-        width: 110px;
-        top: 27px;
-    }
+    // .image-upload-input {
+    //     position: absolute;
+    //     left: 37%;
+    //     opacity: 0;
+    //     width: 110px;
+    //     top: 27px;
+    // }
     .btn-headfoot {
         position: absolute;
         right: 5px;
@@ -844,6 +844,14 @@ body {
     }
     &.upload-headfoot1 {
         background-color: $bgbody;
+        height: 82px;
+        .btn {
+            background-color: $white;
+        } 
+    }
+    &.upload-headfoot2 {
+        background-color: $white;
+        height: 82px;
         .btn {
             background-color: $white;
         } 

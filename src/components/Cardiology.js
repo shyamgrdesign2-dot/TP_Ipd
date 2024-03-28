@@ -18,8 +18,11 @@ import { isNumeric } from '../utils/utils'
 
 function Cardiology(props) {
 
-    const { frequencyList, timingList } = useSelector((state) => state.doctors);
     const navigate = useNavigate();
+
+    const { profile } = useSelector((state) => state.doctors);
+    const { frequencyList, timingList } = useSelector((state) => state.doctors);
+
     const { patient_data, tcmData, loading, viewCaseManagerData, nextPress, prevPress } = props
 
     const [filteredInfo, setFilteredInfo] = useState({});
@@ -146,10 +149,14 @@ function Cardiology(props) {
                                 </div>
                                 <div>
                                     <button className="btn p-0 ms-3" style={{ visibility: viewCaseManagerData?.doctor_data?.editCase ? 'visible' : 'hidden' }}
-                                        onClick={() =>
+                                        onClick={() => {
+                                            window.Moengage.track_event("edit_rx_click", {
+                                                "doctor_id": profile?.doctor_unique_id,
+                                                "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0,
+                                                "rx_date": viewCaseManagerData?.consultation_date
+                                            });
                                             navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: viewCaseManagerData } })
-                                        }
-                                    >
+                                        }}>
                                         <i className="icon-Edit"></i>
                                     </button>
                                     <button className="btn p-0 ms-3" onClick={() => !isChrome && !isSafari ? printInAppContent() : printContent()}>
@@ -288,9 +295,15 @@ function Cardiology(props) {
                             <div className='align-items-center text-center'>
                                 <img src={calenderBlank} width={57} height={62} alt="No vital & body composition saved for the patient!" />
                                 <p className='mt-4 fontroboto'>No any visit found for this patient yet</p>
-                                <Button onClick={() =>
-                                    navigate("/prescription", { state: { patient_data: patient_data } })
-                                } className="btn btn-primary3 btn-text-white px-5 btn-41">Start New Visit</Button>
+                                <Button
+                                    className="btn btn-primary3 btn-text-white px-5 btn-41"
+                                    onClick={() => {
+                                        window.Moengage.track_event("start_new_visit_click", {
+                                            "doctor_id": profile?.doctor_unique_id,
+                                            "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0
+                                        });
+                                        navigate("/prescription", { state: { patient_data: patient_data } })
+                                    }}>{'Start New Visit'}</Button>
                             </div>
                         )}
                     </div>

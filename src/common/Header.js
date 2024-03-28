@@ -8,7 +8,7 @@ import { isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 
 import config from "../config";
-import { getProfile, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getDefaultPrintsettings } from "../redux/doctorsSlice";
+import { getProfile, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
@@ -42,10 +42,11 @@ function Header({ locationPath }) {
 
   useEffect(() => {
     dispatch(getProfile());
-    dispatch(customizedPad(CUSTOMIZED_PAD_SENDDATA))
+    dispatch(customizedPad(CUSTOMIZED_PAD_SENDDATA));
     dispatch(showMedicineTime());
     dispatch(showMedicineFrequency());
-    // dispatch(getDefaultPrintsettings())
+    dispatch(getMedicineType());
+    dispatch(getDefaultPrintsettings());
   }, []);
 
   useEffect(() => {

@@ -12,6 +12,7 @@ const initialState = {
   customizedPadRightList: [],
   timingList: [],
   frequencyList: [],
+  medicineTypeList: [],
   defaultPrintSettings: null
 };
 
@@ -122,6 +123,19 @@ export const showMedicineTime = createAsyncThunk(
   }
 );
 
+export const getMedicineType = createAsyncThunk(
+  "medication/getMedicineType",
+  async () => {
+    let result = {};
+    result = await ApiMedication.getMedicineType();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 export const getDefaultPrintsettings = createAsyncThunk(
   "printSettings/getDefaultPrintsettings",
   async () => {
@@ -131,6 +145,27 @@ export const getDefaultPrintsettings = createAsyncThunk(
       return result.data;
     } else {
       throw Error(result.error);
+    }
+  }
+);
+
+export const savePrintsettings = createAsyncThunk(
+  "printSettings/savePrintsettings",
+  async (printInfo) => {
+    const formData = new FormData();
+    Object.keys(printInfo).forEach((key) => {
+      formData.append(key, printInfo[key]);
+    });
+
+    try {
+      const result = await ApiPrintSettings.savePrintsettings(formData);
+      if (result.status) {
+        return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      throw Error(error);
     }
   }
 );
@@ -206,11 +241,27 @@ const doctorsSlice = createSlice({
       .addCase(showMedicineTime.rejected, (state) => {
         state.timingList = [];
       })
+      .addCase(getMedicineType.fulfilled, (state, action) => {
+        state.medicineTypeList = action.payload;
+      })
+      .addCase(getMedicineType.rejected, (state) => {
+        state.medicineTypeList = [];
+      })
       .addCase(getDefaultPrintsettings.fulfilled, (state, action) => {
         state.defaultPrintSettings = action.payload;
       })
       .addCase(getDefaultPrintsettings.rejected, (state) => {
         state.defaultPrintSettings = null;
+      })
+      .addCase(savePrintsettings.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(savePrintsettings.fulfilled, (state, action) => {
+        console.log(action.payload)
+        state.loading = false;
+      })
+      .addCase(savePrintsettings.rejected, (state) => {
+        state.loading = false;
       });
   },
 });
