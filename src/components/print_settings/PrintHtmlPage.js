@@ -549,43 +549,37 @@ function PrintHtmlPage() {
     if (id == 1) {
       value = `${caseManagerData?.patient_data?.patinet_name} ${caseManagerData?.patient_data?.patinet_id}`;
     } else if (id == 2) {
-      value = `${
-        caseManagerData?.patient_data?.patinet_date_time
-          ? caseManagerData?.patient_data?.patinet_date_time
-          : ""
-      }`;
+      value = `${caseManagerData?.patient_data?.patinet_date_time
+        ? caseManagerData?.patient_data?.patinet_date_time
+        : ""
+        }`;
     } else if (id == 3) {
       value = `${caseManagerData?.patient_data?.patinet_age}Years, ${caseManagerData?.patient_data?.patinet_gender}`;
     } else if (id == 4) {
-      value = `${
-        caseManagerData?.patient_data?.patinet_contact_no
-          ? caseManagerData?.patient_data?.patinet_contact_no
-          : ""
-      }`;
+      value = `${caseManagerData?.patient_data?.patinet_contact_no
+        ? caseManagerData?.patient_data?.patinet_contact_no
+        : ""
+        }`;
     } else if (id == 5) {
-      value = `${
-        caseManagerData?.patient_data?.patinet_ht_wt
-          ? caseManagerData?.patient_data?.patinet_ht_wt
-          : ""
-      }`;
+      value = `${caseManagerData?.patient_data?.patinet_ht_wt
+        ? caseManagerData?.patient_data?.patinet_ht_wt
+        : ""
+        }`;
     } else if (id == 6) {
-      value = `${
-        caseManagerData?.patient_data?.patinet_blood_group
-          ? caseManagerData?.patient_data?.patinet_blood_group
-          : ""
-      }`;
+      value = `${caseManagerData?.patient_data?.patinet_blood_group
+        ? caseManagerData?.patient_data?.patinet_blood_group
+        : ""
+        }`;
     } else if (id == 7) {
-      value = `${
-        caseManagerData?.patient_data?.patinet_address
-          ? caseManagerData?.patient_data?.patinet_address
-          : ""
-      }`;
+      value = `${caseManagerData?.patient_data?.patinet_address
+        ? caseManagerData?.patient_data?.patinet_address
+        : ""
+        }`;
     } else if (id == 8) {
-      value = `${
-        caseManagerData?.patient_data?.patinet_consultation_type
-          ? caseManagerData?.patient_data?.patinet_consultation_type
-          : ""
-      }`;
+      value = `${caseManagerData?.patient_data?.patinet_consultation_type
+        ? caseManagerData?.patient_data?.patinet_consultation_type
+        : ""
+        }`;
     } else if (id == 9) {
       value = "";
     } else if (id == 10) {
@@ -618,7 +612,7 @@ function PrintHtmlPage() {
             <div className="d-flex">
               {printSettings?.header_footer?.header?.doctor_info?.enable ===
                 "Y" &&
-              printSettings?.header_footer?.header?.clinic_info?.enable ===
+                printSettings?.header_footer?.header?.clinic_info?.enable ===
                 "Y" ? (
                 <>
                   <div style={{ flex: 1 }}>
@@ -629,9 +623,9 @@ function PrintHtmlPage() {
                       {printSettings?.header_footer?.header?.doctor_info
                         ?.place === "L"
                         ? printSettings?.header_footer?.header?.doctor_info
-                            ?.header
+                          ?.header
                         : printSettings?.header_footer?.header?.clinic_info
-                            ?.header}
+                          ?.header}
                     </div>
                     <div
                       className="fontroboto fw-medium"
@@ -640,9 +634,9 @@ function PrintHtmlPage() {
                       {printSettings?.header_footer?.header?.doctor_info
                         ?.place === "L"
                         ? printSettings?.header_footer?.header?.doctor_info
-                            ?.subheader
+                          ?.subheader
                         : printSettings?.header_footer?.header?.clinic_info
-                            ?.subheader}
+                          ?.subheader}
                     </div>
                   </div>
                   {printSettings?.logo_enable === "Y" && (
@@ -667,9 +661,9 @@ function PrintHtmlPage() {
                       {printSettings?.header_footer?.header?.doctor_info
                         ?.place === "R"
                         ? printSettings?.header_footer?.header?.doctor_info
-                            ?.header
+                          ?.header
                         : printSettings?.header_footer?.header?.clinic_info
-                            ?.header}
+                          ?.header}
                     </div>
                     <div
                       className="fontroboto fw-medium"
@@ -678,9 +672,9 @@ function PrintHtmlPage() {
                       {printSettings?.header_footer?.header?.doctor_info
                         ?.place === "R"
                         ? printSettings?.header_footer?.header?.doctor_info
-                            ?.subheader
+                          ?.subheader
                         : printSettings?.header_footer?.header?.clinic_info
-                            ?.subheader}
+                          ?.subheader}
                     </div>
                   </div>
                 </>
@@ -701,15 +695,14 @@ function PrintHtmlPage() {
                     </div>
                   )}
                   {printSettings?.header_footer?.header?.doctor_info?.enable ===
-                  "Y" ? (
+                    "Y" ? (
                     <div
                       style={{ flex: 1 }}
-                      className={`${
-                        printSettings?.header_footer?.header?.doctor_info
-                          ?.place === "L"
-                          ? ""
-                          : "text-end"
-                      }`}
+                      className={`${printSettings?.header_footer?.header?.doctor_info
+                        ?.place === "L"
+                        ? ""
+                        : "text-end"
+                        }`}
                     >
                       <div
                         className="text-secondary-custom fw-bold fontroboto mb-2"
@@ -718,9 +711,9 @@ function PrintHtmlPage() {
                         {printSettings?.header_footer?.header?.doctor_info
                           ?.enable === "Y"
                           ? printSettings?.header_footer?.header?.doctor_info
-                              ?.header
+                            ?.header
                           : printSettings?.header_footer?.header?.clinic_info
-                              ?.header}
+                            ?.header}
                       </div>
                       <div
                         className="fontroboto fw-medium"
@@ -729,9 +722,9 @@ function PrintHtmlPage() {
                         {printSettings?.header_footer?.header?.doctor_info
                           ?.enable === "Y"
                           ? printSettings?.header_footer?.header?.doctor_info
-                              ?.subheader
+                            ?.subheader
                           : printSettings?.header_footer?.header?.clinic_info
-                              ?.subheader}
+                            ?.subheader}
                       </div>
                     </div>
                   ) : (
@@ -739,12 +732,11 @@ function PrintHtmlPage() {
                       ?.enable === "Y" && (
                       <div
                         style={{ flex: 1 }}
-                        className={`${
-                          printSettings?.header_footer?.header?.clinic_info
-                            ?.place === "L"
-                            ? ""
-                            : "text-end"
-                        }`}
+                        className={`${printSettings?.header_footer?.header?.clinic_info
+                          ?.place === "L"
+                          ? ""
+                          : "text-end"
+                          }`}
                       >
                         <div
                           className="text-secondary-custom fw-bold fontroboto mb-2"
@@ -753,9 +745,9 @@ function PrintHtmlPage() {
                           {printSettings?.header_footer?.header?.doctor_info
                             ?.enable === "Y"
                             ? printSettings?.header_footer?.header?.doctor_info
-                                ?.header
+                              ?.header
                             : printSettings?.header_footer?.header?.clinic_info
-                                ?.header}
+                              ?.header}
                         </div>
                         <div
                           className="fontroboto fw-medium"
@@ -764,9 +756,9 @@ function PrintHtmlPage() {
                           {printSettings?.header_footer?.header?.doctor_info
                             ?.enable === "Y"
                             ? printSettings?.header_footer?.header?.doctor_info
-                                ?.subheader
+                              ?.subheader
                             : printSettings?.header_footer?.header?.clinic_info
-                                ?.subheader}
+                              ?.subheader}
                         </div>
                       </div>
                     )
@@ -862,9 +854,9 @@ function PrintHtmlPage() {
                     <div>
                       {caseManagerData.vitals.length > 0 &&
                         printSettings?.prescription?.case_option[6]?.enable ===
-                          "Y" &&
+                        "Y" &&
                         (printSettings?.prescription?.case_option[6]?.format ===
-                        "inline" ? (
+                          "inline" ? (
                           <div
                             className="mb-15"
                             style={{
@@ -919,16 +911,14 @@ function PrintHtmlPage() {
                                               : "",
                                             systolic: blood_press
                                               ? blood_press.split("/")[0]
-                                                ? `Systolic (${
-                                                    blood_press.split("/")[0]
-                                                  }mmHg)`
+                                                ? `Systolic (${blood_press.split("/")[0]
+                                                }mmHg)`
                                                 : ""
                                               : "",
                                             diastolic: blood_press
                                               ? blood_press.split("/")[1]
-                                                ? `Diastolic (${
-                                                    blood_press.split("/")[1]
-                                                  }mmHg)`
+                                                ? `Diastolic (${blood_press.split("/")[1]
+                                                }mmHg)`
                                                 : ""
                                               : "",
                                             spo2: spo2 ? `SPO2 (${spo2}%)` : "",
@@ -940,18 +930,18 @@ function PrintHtmlPage() {
                                               : "",
                                             bmi: bmi
                                               ? `BMI (${parseFloat(bmi).toFixed(
-                                                  2
-                                                )}kg/m²)`
+                                                2
+                                              )}kg/m²)`
                                               : "",
                                             bmr: bmr
                                               ? `BMR (${parseFloat(bmr).toFixed(
-                                                  2
-                                                )}kcals)`
+                                                2
+                                              )}kcals)`
                                               : "",
                                             bsa: bsa
                                               ? `BSA (${parseFloat(bsa).toFixed(
-                                                  2
-                                                )}m²)`
+                                                2
+                                              )}m²)`
                                               : "",
                                           }))(caseManagerData.vitals[i])
                                         ).filter(([_, v]) => v)
@@ -967,7 +957,7 @@ function PrintHtmlPage() {
                             })}
                           </div>
                         ) : printSettings?.prescription?.case_option[6]
-                            ?.format === "listview" ? (
+                          ?.format === "listview" ? (
                           <div
                             className="mb-15"
                             style={{
@@ -1031,16 +1021,14 @@ function PrintHtmlPage() {
                                                 : "",
                                               systolic: blood_press
                                                 ? blood_press.split("/")[0]
-                                                  ? `Systolic (${
-                                                      blood_press.split("/")[0]
-                                                    }mmHg)`
+                                                  ? `Systolic (${blood_press.split("/")[0]
+                                                  }mmHg)`
                                                   : ""
                                                 : "",
                                               diastolic: blood_press
                                                 ? blood_press.split("/")[1]
-                                                  ? `Diastolic (${
-                                                      blood_press.split("/")[1]
-                                                    }mmHg)`
+                                                  ? `Diastolic (${blood_press.split("/")[1]
+                                                  }mmHg)`
                                                   : ""
                                                 : "",
                                               spo2: spo2
@@ -1054,18 +1042,18 @@ function PrintHtmlPage() {
                                                 : "",
                                               bmi: bmi
                                                 ? `BMI (${parseFloat(
-                                                    bmi
-                                                  ).toFixed(2)}kg/m²)`
+                                                  bmi
+                                                ).toFixed(2)}kg/m²)`
                                                 : "",
                                               bmr: bmr
                                                 ? `BMR (${parseFloat(
-                                                    bmr
-                                                  ).toFixed(2)}kcals)`
+                                                  bmr
+                                                ).toFixed(2)}kcals)`
                                                 : "",
                                               bsa: bsa
                                                 ? `BSA (${parseFloat(
-                                                    bsa
-                                                  ).toFixed(2)}m²)`
+                                                  bsa
+                                                ).toFixed(2)}m²)`
                                                 : "",
                                             }))(caseManagerData.vitals[i])
                                           ).filter(([_, v]) => v)
@@ -1152,9 +1140,9 @@ function PrintHtmlPage() {
 
                       {caseManagerData.symptoms.length > 0 &&
                         printSettings?.prescription?.case_option[0]?.enable ===
-                          "Y" &&
+                        "Y" &&
                         (printSettings?.prescription?.case_option[0]?.format ===
-                        "inline" ? (
+                          "inline" ? (
                           <div
                             className="mb-15"
                             style={{
@@ -1213,7 +1201,7 @@ function PrintHtmlPage() {
                             })}
                           </div>
                         ) : printSettings?.prescription?.case_option[0]
-                            ?.format === "listview" ? (
+                          ?.format === "listview" ? (
                           <div
                             className="mb-15"
                             style={{
@@ -1253,21 +1241,21 @@ function PrintHtmlPage() {
                                     {(item.since ||
                                       item.severity ||
                                       item.note) && (
-                                      <>
-                                        {`(${Object.values(
-                                          Object.fromEntries(
-                                            Object.entries(
-                                              (({ since, severity, note }) => ({
-                                                since,
-                                                severity,
-                                                note,
-                                              }))(caseManagerData.symptoms[i])
-                                            ).filter(([_, v]) => v)
-                                          )
-                                        ).join(", ")})`}
-                                        <br />
-                                      </>
-                                    )}
+                                        <>
+                                          {`(${Object.values(
+                                            Object.fromEntries(
+                                              Object.entries(
+                                                (({ since, severity, note }) => ({
+                                                  since,
+                                                  severity,
+                                                  note,
+                                                }))(caseManagerData.symptoms[i])
+                                              ).filter(([_, v]) => v)
+                                            )
+                                          ).join(", ")})`}
+                                          <br />
+                                        </>
+                                      )}
                                   </>
                                 );
                               })}
@@ -1379,9 +1367,9 @@ function PrintHtmlPage() {
 
                       {caseManagerData.examination.length > 0 &&
                         printSettings?.prescription?.case_option[1]?.enable ===
-                          "Y" &&
+                        "Y" &&
                         (printSettings?.prescription?.case_option[1]?.format ===
-                        "inline" ? (
+                          "inline" ? (
                           <div
                             className="mb-15"
                             style={{
@@ -1421,7 +1409,7 @@ function PrintHtmlPage() {
                                         )
                                       ).join(", ")})`}
                                       {caseManagerData.examination.length - 1 !=
-                                      i
+                                        i
                                         ? ","
                                         : ""}
                                       &nbsp;
@@ -1429,7 +1417,7 @@ function PrintHtmlPage() {
                                   ) : (
                                     <>
                                       {caseManagerData.examination.length - 1 !=
-                                      i
+                                        i
                                         ? ","
                                         : ""}
                                       &nbsp;
@@ -1440,7 +1428,7 @@ function PrintHtmlPage() {
                             })}
                           </div>
                         ) : printSettings?.prescription?.case_option[1]
-                            ?.format === "listview" ? (
+                          ?.format === "listview" ? (
                           <div
                             className="mb-15"
                             style={{
@@ -1566,9 +1554,9 @@ function PrintHtmlPage() {
 
                       {caseManagerData.diagnosis.length > 0 &&
                         printSettings?.prescription?.case_option[2]?.enable ===
-                          "Y" &&
+                        "Y" &&
                         (printSettings?.prescription?.case_option[2]?.format ===
-                        "inline" ? (
+                          "inline" ? (
                           <div className="mb-15 lh-18">
                             <label
                               className={`fw-bold ${printSettings.page_format.font_family}`}
@@ -1622,7 +1610,7 @@ function PrintHtmlPage() {
                             })}
                           </div>
                         ) : printSettings?.prescription?.case_option[2]
-                            ?.format === "listview" ? (
+                          ?.format === "listview" ? (
                           <div
                             className="mb-15"
                             style={{
@@ -1662,21 +1650,21 @@ function PrintHtmlPage() {
                                     {(item.since ||
                                       item.status ||
                                       item.note) && (
-                                      <>
-                                        {`(${Object.values(
-                                          Object.fromEntries(
-                                            Object.entries(
-                                              (({ since, status, note }) => ({
-                                                since,
-                                                status,
-                                                note,
-                                              }))(caseManagerData.diagnosis[i])
-                                            ).filter(([_, v]) => v)
-                                          )
-                                        ).join(", ")})`}
-                                        <br />
-                                      </>
-                                    )}
+                                        <>
+                                          {`(${Object.values(
+                                            Object.fromEntries(
+                                              Object.entries(
+                                                (({ since, status, note }) => ({
+                                                  since,
+                                                  status,
+                                                  note,
+                                                }))(caseManagerData.diagnosis[i])
+                                              ).filter(([_, v]) => v)
+                                            )
+                                          ).join(", ")})`}
+                                          <br />
+                                        </>
+                                      )}
                                   </>
                                 );
                               })}
@@ -1788,9 +1776,9 @@ function PrintHtmlPage() {
 
                       {caseManagerData.medicine.length > 0 &&
                         printSettings?.prescription?.case_option[3]?.enable ===
-                          "Y" &&
+                        "Y" &&
                         (printSettings?.prescription?.case_option[3]?.format ===
-                        "inline" ? (
+                          "inline" ? (
                           <div className="mb-15 lh-18">
                             <label
                               className={`fw-bold ${printSettings.page_format.font_family}`}
@@ -1833,45 +1821,40 @@ function PrintHtmlPage() {
                                           }) => ({
                                             modiFrequency:
                                               tmf_block === 0 ||
-                                              tmf_block === ""
-                                                ? `${
-                                                    tcm_tmm_freq_morning
-                                                      ? tcm_tmm_freq_morning
-                                                      : 0
-                                                  }-${
-                                                    tcm_tmm_freq_afternoon
-                                                      ? tcm_tmm_freq_afternoon
-                                                      : 0
-                                                  }-${
-                                                    tcm_tmm_freq_evening
-                                                      ? tcm_tmm_freq_evening
-                                                      : 0
-                                                  }-${
-                                                    tcm_tmm_freq_night
-                                                      ? tcm_tmm_freq_night
-                                                      : 0
-                                                  }`
-                                                : `0-0-0-0 (${
-                                                    frequencyList.find(
-                                                      (x) =>
-                                                        x.tmf_id ===
-                                                        tmm_freq_type
-                                                    ) !== undefined
-                                                      ? frequencyList.find(
-                                                          (x) =>
-                                                            x.tmf_id ===
-                                                            tmm_freq_type
-                                                        ).tmf_title
-                                                      : ""
-                                                  })`,
+                                                tmf_block === ""
+                                                ? `${tcm_tmm_freq_morning
+                                                  ? tcm_tmm_freq_morning
+                                                  : 0
+                                                }-${tcm_tmm_freq_afternoon
+                                                  ? tcm_tmm_freq_afternoon
+                                                  : 0
+                                                }-${tcm_tmm_freq_evening
+                                                  ? tcm_tmm_freq_evening
+                                                  : 0
+                                                }-${tcm_tmm_freq_night
+                                                  ? tcm_tmm_freq_night
+                                                  : 0
+                                                }`
+                                                : `0-0-0-0 (${frequencyList.find(
+                                                  (x) =>
+                                                    x.tmf_id ===
+                                                    tmm_freq_type
+                                                ) !== undefined
+                                                  ? frequencyList.find(
+                                                    (x) =>
+                                                      x.tmf_id ===
+                                                      tmm_freq_type
+                                                  ).tmf_title
+                                                  : ""
+                                                })`,
 
                                             modiTiming:
                                               timingList.find(
                                                 (x) => x.tmt_id === tmm_time
                                               ) !== undefined
                                                 ? timingList.find(
-                                                    (x) => x.tmt_id === tmm_time
-                                                  ).tmt_title
+                                                  (x) => x.tmt_id === tmm_time
+                                                ).tmt_title
                                                 : "",
 
                                             modiDuration: isNumeric(tmm_days)
@@ -1897,7 +1880,7 @@ function PrintHtmlPage() {
                             })}
                           </div>
                         ) : printSettings?.prescription?.case_option[3]
-                            ?.format === "listview" ? (
+                          ?.format === "listview" ? (
                           <div
                             className="mb-15"
                             style={{
@@ -1954,46 +1937,41 @@ function PrintHtmlPage() {
                                             }) => ({
                                               modiFrequency:
                                                 tmf_block === 0 ||
-                                                tmf_block === ""
-                                                  ? `${
-                                                      tcm_tmm_freq_morning
-                                                        ? tcm_tmm_freq_morning
-                                                        : 0
-                                                    }-${
-                                                      tcm_tmm_freq_afternoon
-                                                        ? tcm_tmm_freq_afternoon
-                                                        : 0
-                                                    }-${
-                                                      tcm_tmm_freq_evening
-                                                        ? tcm_tmm_freq_evening
-                                                        : 0
-                                                    }-${
-                                                      tcm_tmm_freq_night
-                                                        ? tcm_tmm_freq_night
-                                                        : 0
-                                                    }`
-                                                  : `0-0-0-0 (${
-                                                      frequencyList.find(
-                                                        (x) =>
-                                                          x.tmf_id ===
-                                                          tmm_freq_type
-                                                      ) !== undefined
-                                                        ? frequencyList.find(
-                                                            (x) =>
-                                                              x.tmf_id ===
-                                                              tmm_freq_type
-                                                          ).tmf_title
-                                                        : ""
-                                                    })`,
+                                                  tmf_block === ""
+                                                  ? `${tcm_tmm_freq_morning
+                                                    ? tcm_tmm_freq_morning
+                                                    : 0
+                                                  }-${tcm_tmm_freq_afternoon
+                                                    ? tcm_tmm_freq_afternoon
+                                                    : 0
+                                                  }-${tcm_tmm_freq_evening
+                                                    ? tcm_tmm_freq_evening
+                                                    : 0
+                                                  }-${tcm_tmm_freq_night
+                                                    ? tcm_tmm_freq_night
+                                                    : 0
+                                                  }`
+                                                  : `0-0-0-0 (${frequencyList.find(
+                                                    (x) =>
+                                                      x.tmf_id ===
+                                                      tmm_freq_type
+                                                  ) !== undefined
+                                                    ? frequencyList.find(
+                                                      (x) =>
+                                                        x.tmf_id ===
+                                                        tmm_freq_type
+                                                    ).tmf_title
+                                                    : ""
+                                                  })`,
 
                                               modiTiming:
                                                 timingList.find(
                                                   (x) => x.tmt_id === tmm_time
                                                 ) !== undefined
                                                   ? timingList.find(
-                                                      (x) =>
-                                                        x.tmt_id === tmm_time
-                                                    ).tmt_title
+                                                    (x) =>
+                                                      x.tmt_id === tmm_time
+                                                  ).tmt_title
                                                   : "",
 
                                               modiDuration: isNumeric(tmm_days)
@@ -2123,43 +2101,38 @@ function PrintHtmlPage() {
                                       }}
                                     >
                                       {item.tmf_block === 0 ||
-                                      item.tmf_block === ""
-                                        ? `${
-                                            item.tcm_tmm_freq_morning
-                                              ? item.tcm_tmm_freq_morning
-                                              : 0
-                                          }-${
-                                            item.tcm_tmm_freq_afternoon
-                                              ? item.tcm_tmm_freq_afternoon
-                                              : 0
-                                          }-${
-                                            item.tcm_tmm_freq_evening
-                                              ? item.tcm_tmm_freq_evening
-                                              : 0
-                                          }-${
-                                            item.tcm_tmm_freq_night
-                                              ? item.tcm_tmm_freq_night
-                                              : 0
-                                          }`
-                                        : `0-0-0-0 (${
-                                            frequencyList.find(
-                                              (x) =>
-                                                x.tmf_id === item.tmm_freq_type
-                                            ) !== undefined
-                                              ? frequencyList.find(
-                                                  (x) =>
-                                                    x.tmf_id ===
-                                                    item.tmm_freq_type
-                                                ).tmf_title
-                                              : ""
-                                          })`}
+                                        item.tmf_block === ""
+                                        ? `${item.tcm_tmm_freq_morning
+                                          ? item.tcm_tmm_freq_morning
+                                          : 0
+                                        }-${item.tcm_tmm_freq_afternoon
+                                          ? item.tcm_tmm_freq_afternoon
+                                          : 0
+                                        }-${item.tcm_tmm_freq_evening
+                                          ? item.tcm_tmm_freq_evening
+                                          : 0
+                                        }-${item.tcm_tmm_freq_night
+                                          ? item.tcm_tmm_freq_night
+                                          : 0
+                                        }`
+                                        : `0-0-0-0 (${frequencyList.find(
+                                          (x) =>
+                                            x.tmf_id === item.tmm_freq_type
+                                        ) !== undefined
+                                          ? frequencyList.find(
+                                            (x) =>
+                                              x.tmf_id ===
+                                              item.tmm_freq_type
+                                          ).tmf_title
+                                          : ""
+                                        })`}
                                       <br />
                                       {timingList.find(
                                         (x) => x.tmt_id === item.tmm_time
                                       ) !== undefined
                                         ? timingList.find(
-                                            (x) => x.tmt_id === item.tmm_time
-                                          ).tmt_title
+                                          (x) => x.tmt_id === item.tmm_time
+                                        ).tmt_title
                                         : ""}
                                     </td>
                                     <td
@@ -2204,9 +2177,9 @@ function PrintHtmlPage() {
 
                       {caseManagerData.advice.length > 0 &&
                         printSettings?.prescription?.case_option[4]?.enable ===
-                          "Y" &&
+                        "Y" &&
                         (printSettings?.prescription?.case_option[4]?.format ===
-                        "inline" ? (
+                          "inline" ? (
                           <div
                             className="mb-15"
                             style={{
@@ -2245,7 +2218,7 @@ function PrintHtmlPage() {
                             })}
                           </div>
                         ) : printSettings?.prescription?.case_option[4]
-                            ?.format === "listview" ? (
+                          ?.format === "listview" ? (
                           <div
                             className="mb-15"
                             style={{
@@ -2340,9 +2313,9 @@ function PrintHtmlPage() {
 
                       {caseManagerData.investigation.length > 0 &&
                         printSettings?.prescription?.case_option[5]?.enable ===
-                          "Y" &&
+                        "Y" &&
                         (printSettings?.prescription?.case_option[5]?.format ===
-                        "inline" ? (
+                          "inline" ? (
                           <div
                             className="mb-15"
                             style={{
@@ -2383,7 +2356,7 @@ function PrintHtmlPage() {
                                       ).join(", ")})`}
                                       {caseManagerData.investigation.length -
                                         1 !=
-                                      i
+                                        i
                                         ? ","
                                         : ""}
                                       &nbsp;
@@ -2392,7 +2365,7 @@ function PrintHtmlPage() {
                                     <>
                                       {caseManagerData.investigation.length -
                                         1 !=
-                                      i
+                                        i
                                         ? ","
                                         : ""}
                                       &nbsp;
@@ -2403,7 +2376,7 @@ function PrintHtmlPage() {
                             })}
                           </div>
                         ) : printSettings?.prescription?.case_option[5]
-                            ?.format === "listview" ? (
+                          ?.format === "listview" ? (
                           <div
                             className="mb-15"
                             style={{
@@ -2537,10 +2510,9 @@ function PrintHtmlPage() {
                         <div className="d-flex">
                           <div
                             style={{ flex: 1 }}
-                            className={`${
-                              printSettings?.header_footer?.other_settings
-                                ?.signature_place === "R" && "text-end"
-                            }`}
+                            className={`${printSettings?.header_footer?.other_settings
+                              ?.signature_place === "R" && "text-end"
+                              }`}
                           >
                             <img
                               style={{
@@ -2554,7 +2526,7 @@ function PrintHtmlPage() {
                         </div>
                       )}
                     {printSettings?.qrcode_enable === "Y" &&
-                    printSettings?.signature_enable === "Y" ? (
+                      printSettings?.signature_enable === "Y" ? (
                       printSettings?.header_footer?.other_settings
                         ?.signature_place === "R" ? (
                         <div className="d-flex pb-4">
@@ -2581,39 +2553,41 @@ function PrintHtmlPage() {
                             </div>
                           </div>
                           <div style={{ flex: 1 }} className={"text-end"}>
-                            <div
-                              className="fontroboto fw-bold fs-12-1"
-                              style={{ color: "#000 !important" }}
-                            >
-                              {caseManagerData?.doctor_data?.doctor_name}
-                            </div>
-                            <div
-                              className="fontroboto fs-12-1"
-                              style={{ color: "#000 !important" }}
-                            >
-                              Medical Registration No.:{" "}
-                              {caseManagerData?.doctor_data?.gmc_no} <br />
-                              {caseManagerData?.doctor_data?.um_qualifications}
-                            </div>
+                            {printSettings?.header_footer?.other_settings?.name_of_doctor_enable === 'Y' && (
+                              <div className="fontroboto fw-bold fs-12-1" style={{ color: "#000 !important" }}>
+                                {caseManagerData?.doctor_data?.doctor_name}
+                              </div>
+                            )}
+                            {printSettings?.header_footer?.other_settings?.registration_no_enable === 'Y' && (
+                              <div className="fontroboto fw-bold fs-12-1" style={{ color: "#000 !important" }}>
+                                {`Medical Registration No.: ${caseManagerData?.doctor_data?.gmc_no}`}
+                              </div>
+                            )}
+                            {printSettings?.header_footer?.other_settings?.qualification_enable === 'Y' && (
+                              <div className="fontroboto fw-bold fs-12-1" style={{ color: "#000 !important" }}>
+                                {printSettings?.header_footer?.other_settings?.qualification ? printSettings?.header_footer?.other_settings?.qualification : caseManagerData?.doctor_data?.um_qualifications}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ) : (
                         <div className="d-flex pb-4">
                           <div style={{ flex: 1 }}>
-                            <div
-                              className="fontroboto fw-bold fs-12-1"
-                              style={{ color: "#000 !important" }}
-                            >
-                              {caseManagerData?.doctor_data?.doctor_name}
-                            </div>
-                            <div
-                              className="fontroboto fs-12-1"
-                              style={{ color: "#000 !important" }}
-                            >
-                              Medical Registration No.:{" "}
-                              {caseManagerData?.doctor_data?.gmc_no} <br />
-                              {caseManagerData?.doctor_data?.um_qualifications}
-                            </div>
+                            {printSettings?.header_footer?.other_settings?.name_of_doctor_enable === 'Y' && (
+                              <div className="fontroboto fw-bold fs-12-1" style={{ color: "#000 !important" }}>
+                                {caseManagerData?.doctor_data?.doctor_name}
+                              </div>
+                            )}
+                            {printSettings?.header_footer?.other_settings?.registration_no_enable === 'Y' && (
+                              <div className="fontroboto fw-bold fs-12-1" style={{ color: "#000 !important" }}>
+                                {`Medical Registration No.: ${caseManagerData?.doctor_data?.gmc_no}`}
+                              </div>
+                            )}
+                            {printSettings?.header_footer?.other_settings?.qualification_enable === 'Y' && (
+                              <div className="fontroboto fw-bold fs-12-1" style={{ color: "#000 !important" }}>
+                                {printSettings?.header_footer?.other_settings?.qualification ? printSettings?.header_footer?.other_settings?.qualification : caseManagerData?.doctor_data?.um_qualifications}
+                              </div>
+                            )}
                           </div>
                           <div className={"text-end"}>
                             <div className="d-flex align-items-center">
@@ -2670,28 +2644,25 @@ function PrintHtmlPage() {
                           {printSettings?.signature_enable === "Y" && (
                             <div
                               style={{ flex: 1 }}
-                              className={`${
-                                printSettings?.header_footer?.other_settings
-                                  ?.signature_place === "R" && "text-end"
-                              }`}
+                              className={`${printSettings?.header_footer?.other_settings
+                                ?.signature_place === "R" && "text-end"
+                                }`}
                             >
-                              <div
-                                className="fontroboto fw-bold fs-12-1"
-                                style={{ color: "#000 !important" }}
-                              >
-                                {caseManagerData?.doctor_data?.doctor_name}
-                              </div>
-                              <div
-                                className="fontroboto fs-12-1"
-                                style={{ color: "#000 !important" }}
-                              >
-                                Medical Registration No.:{" "}
-                                {caseManagerData?.doctor_data?.gmc_no} <br />
-                                {
-                                  caseManagerData?.doctor_data
-                                    ?.um_qualifications
-                                }
-                              </div>
+                              {printSettings?.header_footer?.other_settings?.name_of_doctor_enable === 'Y' && (
+                                <div className="fontroboto fw-bold fs-12-1" style={{ color: "#000 !important" }}>
+                                  {caseManagerData?.doctor_data?.doctor_name}
+                                </div>
+                              )}
+                              {printSettings?.header_footer?.other_settings?.registration_no_enable === 'Y' && (
+                                <div className="fontroboto fw-bold fs-12-1" style={{ color: "#000 !important" }}>
+                                  {`Medical Registration No.: ${caseManagerData?.doctor_data?.gmc_no}`}
+                                </div>
+                              )}
+                              {printSettings?.header_footer?.other_settings?.qualification_enable === 'Y' && (
+                                <div className="fontroboto fw-bold fs-12-1" style={{ color: "#000 !important" }}>
+                                  {printSettings?.header_footer?.other_settings?.qualification ? printSettings?.header_footer?.other_settings?.qualification : caseManagerData?.doctor_data?.um_qualifications}
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>

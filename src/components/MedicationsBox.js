@@ -8,7 +8,7 @@ import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric } from "../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
@@ -56,10 +56,10 @@ function MedicationsBox() {
   const [frequencyOptions, setFrequencyOptions] = useState([]);
   const [sinceOptions, setSinceOptions] = useState([]);
   const SINCE_OPTIONS = [
-    { value: "day(s)", label: "Days" },
-    { value: "week(s)", label: "Weeks" },
-    { value: "month(s)", label: "Months" },
-    { value: "year(s)", label: "Years" },
+    { value: "Day(s)", label: "Days" },
+    { value: "Week(s)", label: "Weeks" },
+    { value: "Month(s)", label: "Months" },
+    { value: "Year(s)", label: "Years" },
   ];
 
   //PopOver2
@@ -129,7 +129,7 @@ function MedicationsBox() {
             tmm_id: 0,
             tmm_medicine_name: searchParentQuery
           }),
-          value: searchParentQuery,
+          value: `${searchParentQuery}${Math.random()}`,
           label: (
             <>
               <div className="text-primary fontroboto fs-16"> <i className="icon-Add mx-1 fs-6"></i> Add <span className="fw-medium fontroboto text-primary">"{searchParentQuery}"</span> <a className="text-primary fontroboto">as a new medicine</a></div>
@@ -153,7 +153,7 @@ function MedicationsBox() {
       setAddCustom(JSON.parse(item.key));
     } else {
       window.Moengage.track_event("medicine_select", {
-        "value": data
+        "value": JSON.parse(item.key).tmm_medicine_name
       });
       const action = await dispatch(getMedicineDetails(JSON.parse(item.key).tmm_id));
       if (action.meta.requestStatus === "fulfilled") {
@@ -196,7 +196,7 @@ function MedicationsBox() {
 
   const onSearchUnitPerDoseChid = useCallback(
     (query, i) => {
-      const updateQuery = onlyNumberFormat(query);
+      const updateQuery = onlyDecimalFormat(query);
       medicationData[i].tmm_dosage_unit_name = updateQuery;
       medicationData[i].tmm_dosage = '';
       medicationData[i].tmm_unit = 0;
@@ -431,7 +431,7 @@ function MedicationsBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      medicationData[i].tmm_remarks = e.target.value;
+      medicationData[i].tmm_remarks = capitalizeAfterSentence(e.target.value);
       setMedicationData((prev) => [...prev]);
     },
     [medicationData]
@@ -1121,6 +1121,7 @@ function MedicationsBox() {
   }
 
   const emptyText = (
+    genericQuery.length > 0 &&
     <div className="text-center py-3">
       <img className="mb-3" style={{ width: 100 }} src={noRecordFound} alt="No Result Found" />
       <div className="title-common fontroboto mb-3">Sorry ! No results found</div>

@@ -1,10 +1,22 @@
-import React, { useContext } from 'react';
-import ReactPDF, { Font, Page, Text, View, Image, PDFViewer, Document, StyleSheet } from '@react-pdf/renderer';
+import React, { useContext, useEffect } from 'react';
+import ReactPDF, { Font, Text, View, Image, PDFViewer, Document, Page, StyleSheet } from '@react-pdf/renderer';
 
 import PrintSettingsContext from '../context/PrintSettingsContext';
 import moment from "moment";
 import { useSelector } from "react-redux";
 import { isNumeric } from '../utils/utils'
+import ViewPDF from '../components/print_settings/ViewPDF';
+import { saveAs } from 'file-saver';
+
+import { Col, Row, Select, Button, message, Spin } from "antd";
+import { renderPDF } from '../components/print_settings/renderPDF';
+
+
+// import { pdfjs, Document, Page } from "react-pdf";
+// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+//     "pdfjs-dist/build/pdf.worker.min.js",
+//     import.meta.url
+// ).toString();
 
 
 const showDateFormat = 'DD MMM, YY'
@@ -546,710 +558,83 @@ function Quixote() {
         return value
     }
 
+    const [pdfUrl, setPdfUrl] = React.useState(null)
+    const [numPages, setNumPages] = React.useState();
+    const [pageNumber, setPageNumber] = React.useState(1);
+
+    function onDocumentLoadSuccess({ numPages }) {
+        setNumPages(numPages);
+    }
+    // useEffect(() => {
+    //     const makePDFUrl = async () => {
+    //         // const { renderPDF } = await import('../components/print_settings/renderPDF');
+    //         const blob = await renderPDF({ caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature });
+    //         setPdfUrl(URL.createObjectURL(blob))
+    //     }
+    //     makePDFUrl()
+    // }, [renderPDF]);
+
     return (
-        <PDFViewer
-            // showToolbar={false}
-            style={{
-                width: '100%',
-                height: 800
-            }}>
-            <Document>
-                <Page size="A4" style={{ padding: 30 }} wrap>
-                    <View style={{ flex: 1 }}>
+        <>
+            {/* <button
+                onClick={async () => {
+                    const { renderPDF } = await import('../components/print_settings/renderPDF');
+                    const blob = await renderPDF({ caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature });
+                    saveAs(blob, `${Date.now()}.pdf`);
+                }}>
+                Download
+            </button>
 
-                        <View style={{ marginBottom: 29 }} fixed>
-                            {printSettings?.letterhead_format === 0 ? (
-                                <View>
-                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? (
-                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                            <View style={{ flex: 1 }}>
-                                                <Text style={{ fontSize: 18, color: '#A461D8', fontFamily: 'Roboto', fontWeight: 700 }}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
-                                                </Text>
-                                                <Text style={{ fontSize: 14, color: '#454551', marginTop: 4, fontFamily: 'Roboto', fontWeight: 500 }}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
-                                                </Text>
-                                            </View>
-                                            {printSettings?.logo_enable === 'Y' && (
-                                                <View style={{ width: 82, height: 82, overflow: 'hidden', marginHorizontal: 16 }}>
-                                                    {fileLogo && fileLogo?.imageShow && (
-                                                        <Image
-                                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                                                            src={fileLogo?.showFile}
-                                                        />
-                                                    )}
-                                                </View>
-                                            )}
-                                            <View style={{ flex: 1, textAlign: 'right' }}>
-                                                <Text style={{ fontSize: 18, color: '#A461D8', fontFamily: 'Roboto', fontWeight: 700 }}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
-                                                </Text>
-                                                <Text style={{ fontSize: 14, color: '#454551', marginTop: 4, fontFamily: 'Roboto', fontWeight: 500 }}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    ) : (
-                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                            {printSettings?.logo_enable === 'Y' && (
-                                                <View style={{ width: 82, height: 82, overflow: 'hidden' }}>
-                                                    {fileLogo && fileLogo?.imageShow && (
-                                                        <Image
-                                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                                                            src={fileLogo?.showFile}
-                                                        />
-                                                    )}
-                                                </View>
-                                            )}
-                                            {(printSettings?.header_footer?.header?.doctor_info?.enable === 'Y') ? (
-                                                <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 'left' : 'right', weight: '189px' }}>
-                                                    <Text style={{ fontSize: 18, color: '#A461D8', fontFamily: 'Roboto', fontWeight: 700 }}>
-                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
-                                                    </Text>
-                                                    <Text style={{ fontSize: 14, color: '#454551', marginTop: 4, fontFamily: 'Roboto', fontWeight: 500 }}>
-                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
-                                                    </Text>
-                                                </View>
-                                            ) : printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (
-                                                <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 'left' : 'right', weight: '130px' }}>
-                                                    <Text style={{ fontSize: 18, color: '#A461D8', fontFamily: 'Roboto', fontWeight: 700 }}>
-                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
-                                                    </Text>
-                                                    <Text style={{ fontSize: 14, color: '#454551', marginTop: 4, fontFamily: 'Roboto', fontWeight: 500 }}>
-                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
-                                                    </Text>
-                                                </View>
-                                            )}
-                                        </View>
-                                    )}
-                                </View>
-                            ) : printSettings?.letterhead_format === 1 && (
-                                fileHeader && fileHeader?.imageShow && (
-                                    <Image
-                                        style={{ width: '100%', objectFit: 'contain' }}
-                                        src={fileHeader?.showFile}
-                                    />
-                                )
-                            )}
-                        </View>
+            <button
+                onClick={async () => {
+                    const { renderPDF } = await import('../components/print_settings/renderPDF');
+                    const blob = await renderPDF({ caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature });
+                    setPdfUrl(URL.createObjectURL(blob))
+                }}>
+                View
+            </button>
 
-                        <View style={{ flex: 1 }}>
+            <Document
+                loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
+                error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
+                noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
+                file={pdfUrl}
+                onLoadSuccess={onDocumentLoadSuccess}>
+                {Array.apply(null, Array(numPages))
+                    .map((x, i) => i + 1)
+                    .map((page) => {
+                        return (
+                            <Page
+                                // width={divWidth}
+                                pageNumber={page}
+                                renderTextLayer={false}
+                                renderAnnotationLayer={false}
+                            />
+                        );
+                    })}
+            </Document> */}
 
-                            {printSettings?.water_mark_enable === 'Y' && (
-                                fileWatermark && fileWatermark?.imageShow && (
-                                    <Image
-                                        style={{
-                                            width: 100, height: 100, objectFit: 'contain', zIndex: -1, opacity: 0.3,
-                                            position: 'absolute', top: '40%', left: '40%'
-                                        }}
-                                        src={fileWatermark?.showFile}
-                                        fixed />
-                                )
-                            )}
-
-                            <View style={{ backgroundColor: '#171725', height: 2, width: '100%' }} />
-
-                            <View style={{ flexDirection: 'row', marginVertical: 15 }}>
-                                <View style={{ flex: 1, marginRight: 8 }}>
-                                    {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
-                                        return (
-                                            i % 2 === 0 && (
-                                                <View key={i} style={{ flexDirection: 'row', paddingVertical: 3 }}>
-                                                    <Text style={{ fontSize: 10, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{`${item.title}: `}</Text>
-                                                    <Text style={{ fontSize: 10, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{patientDataShow(item.id)}</Text>
-                                                </View>
-                                            )
-                                        )
-                                    })}
-                                </View>
-                                <View style={{ flex: 1, marginLeft: 8 }}>
-                                    {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
-                                        return (
-                                            i % 2 === 1 && (
-                                                <View key={i} style={{ flexDirection: 'row', paddingVertical: 3 }}>
-                                                    <Text style={{ fontSize: 10, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{`${item.title}: `}</Text>
-                                                    <Text style={{ fontSize: 10, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{patientDataShow(item.id)}</Text>
-                                                </View>
-                                            )
-                                        )
-                                    })}
-                                </View>
-                            </View>
-
-                            <View style={{ backgroundColor: '#171725', height: 1, width: '100%' }} />
-
-                            <View>
-                                {caseManagerData.symptoms.length > 0 && printSettings?.prescription?.case_option[0]?.enable === 'Y' && (
-                                    printSettings?.prescription?.case_option[0]?.format === 'inline' ? (
-                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Symptoms:&nbsp;</Text>
-                                            {caseManagerData.symptoms.map((item, i) => {
-                                                return (
-                                                    <Text key={i}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
-                                                        {(item.since || item.severity || item.note) ?
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                            :
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                        }
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : printSettings?.prescription?.case_option[0]?.format === 'listview' ? (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Symptoms:&nbsp;</Text>
-                                            {caseManagerData.symptoms.map((item, i) => {
-                                                return (
-                                                    <Text key={i} style={{ marginTop: i == 0 ? 4 : 2 }}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
-                                                        {(item.since || item.severity || item.note) &&
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                                        }
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Symptoms:&nbsp;</Text>
-                                            <View style={styles.table}>
-                                                <View style={styles.row}>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>NAME</Text>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>SINCE</Text>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>SEVERITY</Text>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>NOTE</Text>
-                                                </View>
-                                                {caseManagerData.symptoms.map((item, i) => (
-                                                    <View style={styles.row} key={i}>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }]}>{item.symptom_name}</Text>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item.severity ? item.severity : '-'}</Text>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
-                                                    </View>
-                                                ))}
-                                            </View>
-                                        </View>
-                                    )
-                                )}
-
-                                {caseManagerData.examination.length > 0 && printSettings?.prescription?.case_option[1]?.enable === 'Y' && (
-                                    printSettings?.prescription?.case_option[1]?.format === 'inline' ? (
-                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Examinations:&nbsp;</Text>
-                                            {caseManagerData.examination.map((item, i) => {
-                                                return (
-                                                    <Text key={i}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
-                                                        {(item.note) ?
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                            :
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                        }
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : printSettings?.prescription?.case_option[1]?.format === 'listview' ? (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Examinations:&nbsp;</Text>
-                                            {caseManagerData.examination.map((item, i) => {
-                                                return (
-                                                    <Text key={i} style={{ marginTop: i == 0 ? 4 : 2 }}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
-                                                        {(item.since || item.severity || item.note) &&
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                                        }
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Examinations:&nbsp;</Text>
-                                            <View style={styles.table}>
-                                                <View style={styles.row}>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>NAME</Text>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>NOTE</Text>
-                                                </View>
-                                                {caseManagerData.examination.map((item, i) => (
-                                                    <View style={styles.row} key={i}>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }]}>{item.examination_name}</Text>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
-                                                    </View>
-                                                ))}
-                                            </View>
-                                        </View>
-                                    )
-                                )}
-
-                                {caseManagerData.diagnosis.length > 0 && printSettings?.prescription?.case_option[2]?.enable === 'Y' && (
-                                    printSettings?.prescription?.case_option[2]?.format === 'inline' ? (
-                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
-                                            {caseManagerData.diagnosis.map((item, i) => {
-                                                return (
-                                                    <Text key={i}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
-                                                        {(item.since || item.status || item.note) ?
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                            :
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                        }
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : printSettings?.prescription?.case_option[2]?.format === 'listview' ? (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
-                                            {caseManagerData.diagnosis.map((item, i) => {
-                                                return (
-                                                    <Text key={i} style={{ marginTop: i == 0 ? 4 : 2 }}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
-                                                        {(item.since || item.severity || item.note) &&
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                                        }
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
-                                            <View style={styles.table}>
-                                                <View style={styles.row}>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>NAME</Text>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>SINCE</Text>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>STATUS</Text>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>NOTE</Text>
-                                                </View>
-                                                {caseManagerData.diagnosis.map((item, i) => (
-                                                    <View style={styles.row} key={i}>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }]}>{item.tds_name}</Text>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item.status ? item.status : '-'}</Text>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
-                                                    </View>
-                                                ))}
-                                            </View>
-                                        </View>
-                                    )
-                                )}
-
-                                {caseManagerData.medicine.length > 0 && printSettings?.prescription?.case_option[3]?.enable === 'Y' && (
-                                    printSettings?.prescription?.case_option[3]?.format === 'inline' ? (
-                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
-                                            {caseManagerData.medicine.map((item, i) => {
-                                                return (
-                                                    <Text key={i}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{item.tmm_medicine_name}&nbsp;</Text>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                                            {`(${Object.values(Object.fromEntries(Object.entries(
-                                                                (
-                                                                    ({
-                                                                        tmm_generic,
-                                                                        tmf_block,
-                                                                        tcm_tmm_freq_morning,
-                                                                        tcm_tmm_freq_afternoon,
-                                                                        tcm_tmm_freq_evening,
-                                                                        tcm_tmm_freq_night,
-                                                                        tmm_freq_type,
-                                                                        tmm_time,
-                                                                        tmm_days,
-                                                                        tmm_duration_type,
-                                                                        display_qty,
-                                                                        tmm_remarks
-                                                                    }) => ({
-                                                                        tmm_generic,
-                                                                        modiFrequency: tmf_block === 0 || tmf_block === "" ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}-${tcm_tmm_freq_evening ? tcm_tmm_freq_evening : 0}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
-
-                                                                        modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
-
-                                                                        modiDuration: isNumeric(tmm_days) ? `${tmm_days} - ${tmm_duration_type}` : '-',
-
-                                                                        modiDisplayQty: display_qty ? display_qty.toFixed(2) : '',
-
-                                                                        tmm_remarks
-                                                                    })
-                                                                )(caseManagerData.medicine[i])
-                                                            ).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.medicine.length - 1 != i ? ',' : ''}&nbsp;
-                                                        </Text>
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : printSettings?.prescription?.case_option[3]?.format === 'listview' ? (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
-                                            {caseManagerData.medicine.map((item, i) => {
-                                                return (
-                                                    <Text key={i} style={{ marginTop: i == 0 ? 4 : 2 }}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{item.tmm_medicine_name}&nbsp;</Text>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                                            {`(${Object.values(Object.fromEntries(Object.entries(
-                                                                (
-                                                                    ({
-                                                                        tmm_generic,
-                                                                        tmf_block,
-                                                                        tcm_tmm_freq_morning,
-                                                                        tcm_tmm_freq_afternoon,
-                                                                        tcm_tmm_freq_evening,
-                                                                        tcm_tmm_freq_night,
-                                                                        tmm_freq_type,
-                                                                        tmm_time,
-                                                                        tmm_days,
-                                                                        tmm_duration_type,
-                                                                        display_qty,
-                                                                        tmm_remarks
-                                                                    }) => ({
-                                                                        tmm_generic,
-                                                                        modiFrequency: tmf_block === 0 || tmf_block === "" ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}-${tcm_tmm_freq_evening ? tcm_tmm_freq_evening : 0}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
-
-                                                                        modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
-
-                                                                        modiDuration: isNumeric(tmm_days) ? `${tmm_days} - ${tmm_duration_type}` : '-',
-
-                                                                        modiDisplayQty: display_qty ? display_qty.toFixed(2) : '',
-
-                                                                        tmm_remarks
-                                                                    })
-                                                                )(caseManagerData.medicine[i])
-                                                            ).filter(([_, v]) => v))).join(', ')})\n`}
-                                                        </Text>
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
-                                            <View style={styles.table}>
-                                                <View style={styles.row}>
-                                                    <Text style={[styles.cell, { flex: 0.2, fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>RX</Text>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>NAME</Text>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>TIME & FREQUENCY</Text>
-                                                    <Text style={[styles.cell, { flex: 0.5, fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>DURATION</Text>
-                                                    <Text style={[styles.cell, { flex: 0.4, fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>QTY.</Text>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>NOTE</Text>
-                                                </View>
-                                                {caseManagerData.medicine.map((item, i) => (
-                                                    <View style={styles.row} key={i}>
-                                                        <Text style={[styles.cell, { flex: 0.2, fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }]}>{i + 1}</Text>
-                                                        <View style={styles.cell}>
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{item.tmm_medicine_name}</Text>
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{item.tmm_generic}</Text>
-                                                        </View>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item.tmf_block === 0 || item.tmf_block === "" ? `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning : 0}-${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon : 0}-${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening : 0}-${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}</Text>
-                                                        <Text style={[styles.cell, { flex: 0.5, fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{isNumeric(item.tmm_days) ? `${item.tmm_days} - ${item.tmm_duration_type}` : '-'}</Text>
-                                                        <Text style={[styles.cell, { flex: 0.4, fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item.display_qty ? item.display_qty.toFixed(2) : '-'}</Text>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item.tmm_remarks ? item.tmm_remarks : '-'}</Text>
-                                                    </View>
-                                                ))}
-                                            </View>
-                                        </View>
-                                    )
-                                )}
-
-                                {caseManagerData.advice.length > 0 && printSettings?.prescription?.case_option[4]?.enable === 'Y' && (
-                                    printSettings?.prescription?.case_option[4]?.format === 'inline' ? (
-                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Advices:&nbsp;</Text>
-                                            {caseManagerData.advice.map((item, i) => {
-                                                return (
-                                                    <Text key={i}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{caseManagerData.advice.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : printSettings?.prescription?.case_option[4]?.format === 'listview' ? (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Advices:&nbsp;</Text>
-                                            {caseManagerData.advice.map((item, i) => {
-                                                return (
-                                                    <Text key={i} style={{ marginTop: i == 0 ? 4 : 2 }}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Advices:&nbsp;</Text>
-                                            <View style={styles.table}>
-                                                <View style={styles.row}>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>NAME</Text>
-                                                </View>
-                                                {caseManagerData.advice.map((item, i) => (
-                                                    <View style={styles.row} key={i}>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item.advice_name}</Text>
-                                                    </View>
-                                                ))}
-                                            </View>
-                                        </View>
-                                    )
-                                )}
-
-                                {caseManagerData.investigation.length > 0 && printSettings?.prescription?.case_option[5]?.enable === 'Y' && (
-                                    printSettings?.prescription?.case_option[5]?.format === 'inline' ? (
-                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
-                                            {caseManagerData.investigation.map((item, i) => {
-                                                return (
-                                                    <Text key={i}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
-                                                        {(item.note) ?
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                            :
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                        }
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : printSettings?.prescription?.case_option[5]?.format === 'listview' ? (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
-                                            {caseManagerData.investigation.map((item, i) => {
-                                                return (
-                                                    <Text key={i} style={{ marginTop: i == 0 ? 4 : 2 }}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
-                                                        {(item.since || item.severity || item.note) &&
-                                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                                        }
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
-                                            <View style={styles.table}>
-                                                <View style={styles.row}>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>NAME</Text>
-                                                    <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>NOTE</Text>
-                                                </View>
-                                                {caseManagerData.investigation.map((item, i) => (
-                                                    <View style={styles.row} key={i}>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }]}>{item.investigation_name}</Text>
-                                                        <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
-                                                    </View>
-                                                ))}
-                                            </View>
-                                        </View>
-                                    )
-                                )}
-
-                                {caseManagerData.vitals.length > 0 && printSettings?.prescription?.case_option[6]?.enable === 'Y' && (
-                                    printSettings?.prescription?.case_option[6]?.format === 'inline' ? (
-                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
-                                            {caseManagerData.vitals.map((item, i) => {
-                                                return (
-                                                    <Text key={i}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{item.date}&nbsp;</Text>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                                            {`- ${Object.values(Object.fromEntries(Object.entries(
-                                                                (
-                                                                    ({
-                                                                        temp,
-                                                                        pres,
-                                                                        resp_rate,
-                                                                        blood_press,
-                                                                        spo2,
-                                                                        height,
-                                                                        weight,
-                                                                        bmi,
-                                                                        bmr,
-                                                                        bsa,
-                                                                    }) => ({
-                                                                        temp: temp ? `Temperature (${temp}Frh)` : '',
-                                                                        pres: pres ? `Pulse (${pres}/min)` : '',
-                                                                        resp_rate: resp_rate ? `Resp. Rate (${resp_rate}/min)` : '',
-                                                                        systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
-                                                                        diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
-                                                                        spo2: spo2 ? `SPO2 (${spo2}%)` : '',
-                                                                        height: height ? `Height (${height}cms)` : '',
-                                                                        weight: weight ? `Weight (${weight}kgs)` : '',
-                                                                        bmi: bmi ? `BMI (${parseFloat(bmi).toFixed(2)}kg/m²)` : '',
-                                                                        bmr: bmr ? `BMR (${parseFloat(bmr).toFixed(2)}kcals)` : '',
-                                                                        bsa: bsa ? `BSA (${parseFloat(bsa).toFixed(2)}m²)` : '',
-                                                                    })
-                                                                )(caseManagerData.vitals[i])
-                                                            ).filter(([_, v]) => v))).join(', ')}`}{caseManagerData.vitals.length - 1 != i ? ',' : ''}&nbsp;
-                                                        </Text>
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : printSettings?.prescription?.case_option[6]?.format === 'listview' ? (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
-                                            {caseManagerData.vitals.map((item, i) => {
-                                                return (
-                                                    <Text key={i} style={{ marginTop: i == 0 ? 4 : 2 }}>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }}>{item.date}&nbsp;</Text>
-                                                        <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                                            {`- ${Object.values(Object.fromEntries(Object.entries(
-                                                                (
-                                                                    ({
-                                                                        temp,
-                                                                        pres,
-                                                                        resp_rate,
-                                                                        blood_press,
-                                                                        spo2,
-                                                                        height,
-                                                                        weight,
-                                                                        bmi,
-                                                                        bmr,
-                                                                        bsa,
-                                                                    }) => ({
-                                                                        temp: temp ? `Temperature (${temp}Frh)` : '',
-                                                                        pres: pres ? `Pulse (${pres}/min)` : '',
-                                                                        resp_rate: resp_rate ? `Resp. Rate (${resp_rate}/min)` : '',
-                                                                        systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
-                                                                        diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
-                                                                        spo2: spo2 ? `SPO2 (${spo2}%)` : '',
-                                                                        height: height ? `Height (${height}cms)` : '',
-                                                                        weight: weight ? `Weight (${weight}kgs)` : '',
-                                                                        bmi: bmi ? `BMI (${parseFloat(bmi).toFixed(2)}kg/m²)` : '',
-                                                                        bmr: bmr ? `BMR (${parseFloat(bmr).toFixed(2)}kcals)` : '',
-                                                                        bsa: bsa ? `BSA (${parseFloat(bsa).toFixed(2)}m²)` : '',
-                                                                    })
-                                                                )(caseManagerData.vitals[i])
-                                                            ).filter(([_, v]) => v))).join(', ')}\n`}
-                                                        </Text>
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    ) : (
-                                        <View style={{ marginTop: 15 }}>
-                                            <Text style={{ fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
-                                            <View style={styles.table}>
-                                                <View style={styles.row}>
-                                                    {columns.map((item, i) => {
-                                                        return (
-                                                            <Text style={[styles.cell, { fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 500 }]}>{item.title}</Text>
-                                                        )
-                                                    })}
-                                                </View>
-                                                {initialRows.map((item, i) => {
-                                                    return (
-                                                        <View style={styles.row} key={i}>
-                                                            <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 500 }]}>{item.name}</Text>
-                                                            <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item['0']}</Text>
-                                                            <Text style={[styles.cell, { fontSize: 12, color: '#171725', fontFamily: 'Roboto', fontWeight: 400 }]}>{item['1']}</Text>
-                                                        </View>
-                                                    )
-                                                })}
-                                            </View>
-                                        </View>
-                                    )
-                                )}
-                            </View>
-
-                            <View style={{ marginTop: 30 }}>
-                                {printSettings?.signature_enable === 'Y' && fileSignature && fileSignature?.imageShow && (
-                                    <View style={{ alignSelf: printSettings?.header_footer?.other_settings?.signature_place === 'R' && 'flex-end' }}>
-                                        <Image
-                                            style={{ width: 139, height: 60, objectFit: 'contain' }}
-                                            src={fileSignature?.showFile} />
-                                    </View>
-                                )}
-
-                                {printSettings?.qrcode_enable === 'Y' && printSettings?.signature_enable === 'Y' ? (
-                                    printSettings?.header_footer?.other_settings?.signature_place === 'R' ? (
-                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-                                                <Image
-                                                    style={{ width: 61, height: 61, objectFit: 'contain' }}
-                                                    src={printSettings?.qrcode} />
-                                                <Text style={{ fontSize: 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                                    {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
-                                                </Text>
-                                            </View>
-                                            <View style={{ flex: 1, textAlign: 'right' }} >
-                                                <Text style={{ fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 700 }}>
-                                                    {caseManagerData?.doctor_data?.doctor_name}
-                                                </Text>
-                                                <Text style={{ fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                                    Medical Registration No.: {`${caseManagerData?.doctor_data?.gmc_no}\n${caseManagerData?.doctor_data?.um_qualifications}`}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    ) : (
-                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                            <View style={{ flex: 1 }} >
-                                                <Text style={{ fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 700 }}>
-                                                    {caseManagerData?.doctor_data?.doctor_name}
-                                                </Text>
-                                                <Text style={{ fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                                    Medical Registration No.: {`${caseManagerData?.doctor_data?.gmc_no}\n${caseManagerData?.doctor_data?.um_qualifications}`}
-                                                </Text>
-                                            </View>
-                                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
-                                                <Image
-                                                    style={{ width: 61, height: 61, objectFit: 'contain' }}
-                                                    src={printSettings?.qrcode} />
-                                                <Text style={{ fontSize: 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                                    {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    )
-                                ) : (printSettings?.qrcode_enable === 'Y' || printSettings?.signature_enable === 'Y') && (
-                                    <View style={{ flexDirection: 'row' }}>
-                                        {printSettings?.qrcode_enable === 'Y' && (
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <Image
-                                                    style={{ width: 61, height: 61, objectFit: 'contain' }}
-                                                    src={printSettings?.qrcode} />
-                                                <Text style={{ fontSize: 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                                    {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
-                                                </Text>
-                                            </View>
-                                        )}
-                                        {printSettings?.signature_enable === 'Y' && (
-                                            <View style={{ flex: 1, textAlign: printSettings?.header_footer?.other_settings?.signature_place === 'R' && 'right' }} >
-                                                <Text style={{ fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 700 }}>
-                                                    {caseManagerData?.doctor_data?.doctor_name}
-                                                </Text>
-                                                <Text style={{ fontSize: 12, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                                    Medical Registration No.: {`${caseManagerData?.doctor_data?.gmc_no}\n${caseManagerData?.doctor_data?.um_qualifications}`}
-                                                </Text>
-                                            </View>
-                                        )}
-                                    </View>
-                                )}
-                            </View>
-
-                        </View>
-
-                        <View style={{ marginTop: 29 }} fixed>
-                            {printSettings?.letterhead_format === 1 && (
-                                fileFooter && fileFooter?.imageShow && (
-                                    <Image
-                                        style={{ width: '100%', objectFit: 'contain' }}
-                                        src={fileFooter?.showFile} />
-                                )
-                            )}
-                        </View>
-
-                    </View>
-                </Page>
-            </Document>
-        </PDFViewer >
+            <PDFViewer
+                showToolbar={false}
+                style={{
+                    width: '100%',
+                    height: 800
+                }}>
+                <ViewPDF
+                    caseManagerData={caseManagerData}
+                    columns={columns}
+                    initialRows={initialRows}
+                    frequencyList={frequencyList}
+                    timingList={timingList}
+                    printSettings={printSettings}
+                    fileHeader={fileHeader}
+                    fileFooter={fileFooter}
+                    fileLogo={fileLogo}
+                    fileWatermark={fileWatermark}
+                    fileSignature={fileSignature}
+                />
+            </PDFViewer >
+        </>
     )
 };
 
@@ -1263,6 +648,36 @@ Font.register({
 });
 
 const styles = StyleSheet.create({
+    mainTitle: {
+        fontSize: 18,
+        color: '#A461D8',
+        fontFamily: 'Roboto',
+        fontWeight: 700
+    },
+    subTitle: {
+        fontSize: 14,
+        color: '#454551',
+        fontFamily: 'Roboto',
+        fontWeight: 500
+    },
+    displayPatient: {
+        fontSize: 10,
+        color: '#171725',
+        fontFamily: 'Roboto'
+    },
+    mainCasemanager: {
+        flexDirection: 'row',
+        flexWrap: 'wrap'
+    },
+    extraText: {
+        fontSize: 12,
+        color: '#171725',
+        fontFamily: 'Roboto',
+    },
+    directionCasemanager: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
     table: {
         marginTop: 4,
         borderTop: '1px solid #171725',
@@ -1275,7 +690,6 @@ const styles = StyleSheet.create({
     cell: {
         flex: 1,
         padding: 6,
-        paddingBottom: 13,
         borderRight: '1px solid #171725',
     }
 });

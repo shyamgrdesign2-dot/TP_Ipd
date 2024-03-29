@@ -39,7 +39,8 @@ import {
   onlyDecimalFormat,
   removeBeforeWhiteSpace,
   isNumeric,
-  hasNumber
+  hasNumber,
+  capitalizeAfterSentence
 } from "../../utils/utils";
 import Medicationicon from "../../assets/images/Medication.svg";
 import {
@@ -92,10 +93,10 @@ function TabMedicationBox() {
 
   const [selectedIndex, setSelectedIndex] = useState(null);
   const SINCE_OPTIONS = [
-    { value: "day(s)", label: "D" },
-    { value: "week(s)", label: "W" },
-    { value: "month(s)", label: "M" },
-    { value: "year(s)", label: "Y" },
+    { value: "Day(s)", label: "D" },
+    { value: "Week(s)", label: "W" },
+    { value: "Month(s)", label: "M" },
+    { value: "Year(s)", label: "Y" },
   ];
   const [sinceValue, setSinceValue] = useState(1);
   const [inputSince, setInputSince] = useState("");
@@ -700,7 +701,7 @@ function TabMedicationBox() {
 
   const onChangeDosageChild = useCallback(
     (e) => {
-      const updateQuery = onlyNumberFormat(e.target.value);
+      const updateQuery = onlyDecimalFormat(e.target.value);
       setChildDrawerData({ ...childDrawerData, tmm_dosage: updateQuery });
     },
     [childDrawerData]
@@ -1050,7 +1051,7 @@ function TabMedicationBox() {
 
   const onChangeInputNoteChild = useCallback(
     (e) => {
-      setChildDrawerData({ ...childDrawerData, tmm_remarks: e.target.value });
+      setChildDrawerData({ ...childDrawerData, tmm_remarks: capitalizeAfterSentence(e.target.value) });
     },
     [childDrawerData]
   );
@@ -1107,7 +1108,7 @@ function TabMedicationBox() {
                         ? childDrawerData.tmm_dosage
                         : ""
                     }
-                    inputMode="numeric"
+                    inputMode="decimal"
                     onChange={onChangeDosageChild}
                     className="inputheight38 rounded-10px"
                   />

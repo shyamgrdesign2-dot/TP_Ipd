@@ -37,6 +37,7 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
                 pm_contact_no: patients_details.pm_contact_no,
                 pm_gender: `${patients_details.pm_gender.charAt(0).toUpperCase()}${patients_details.pm_gender.slice(1)}`,
                 pm_dob: dayjs(moment(patients_details.pm_dob).format(dateFormat), dateFormat),
+                pm_reference_id: patients_details.pm_reference_id,
                 pm_pincode: patients_details.pm_pincode,
                 pm_city: patients_details.pm_city,
                 pm_state: patients_details.pm_state,
@@ -271,6 +272,13 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
                             </Form.Item>
                         </Col>
                     </Row>
+                    <Col xs={24} sm={24} md={10} lg={10}>
+                        <Form.Item
+                            name="pm_reference_id"
+                            label="Patient Reference ID">
+                            <Input placeholder="Patient Reference ID" className="text-capitalize" />
+                        </Form.Item>
+                    </Col>
                 </>
             )}
         </div>

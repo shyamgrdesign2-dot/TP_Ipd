@@ -26,7 +26,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
-import { onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace } from "../../utils/utils";
+import { onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../../utils/utils";
 
 import CashManagerContext from "../../context/CashManagerContext";
 import { MESSAGE_KEY } from "../../utils/constants";
@@ -56,10 +56,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const [selectedIndex, setSelectedIndex] = useState(passIndex);
   const SINCE_OPTIONS = [
-    { value: "day(s)", label: "D" },
-    { value: "week(s)", label: "W" },
-    { value: "month(s)", label: "M" },
-    { value: "year(s)", label: "Y" },
+    { value: "Day(s)", label: "D" },
+    { value: "Week(s)", label: "W" },
+    { value: "Month(s)", label: "M" },
+    { value: "Year(s)", label: "Y" },
   ];
 
   const [sinceValue, setSinceValue] = useState(medicationData[passIndex] !== undefined && medicationData[passIndex].tmm_days ? parseInt(medicationData[passIndex].tmm_days) : 1);
@@ -123,7 +123,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             tmm_id: 0,
             tmm_medicine_name: searchChildQuery
           }),
-          value: searchChildQuery
+          value: `${searchChildQuery}${Math.random()}`,
         });
     }
     setChildSearchOptions(data);
@@ -270,7 +270,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onChangeDosageChild = useCallback(
     (e) => {
-      const updateQuery = onlyNumberFormat(e.target.value);
+      const updateQuery = onlyDecimalFormat(e.target.value);
       medicationData[selectedIndex].tmm_dosage = updateQuery;
       setMedicationData((prev) => [...prev]);
     },
@@ -574,7 +574,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onChangeInputNoteChild = useCallback(
     (e) => {
-      medicationData[selectedIndex].tmm_remarks = e.target.value;
+      medicationData[selectedIndex].tmm_remarks = capitalizeAfterSentence(e.target.value);
       setMedicationData((prev) => [...prev]);
     },
     [selectedIndex, medicationData]
@@ -608,7 +608,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                           ? medicationData[selectedIndex].tmm_dosage
                           : ""
                       }
-                      inputMode="numeric"
+                      inputMode="decimal"
                       onChange={onChangeDosageChild}
                       className="inputheight38 rounded-10px"
                     />
@@ -1515,6 +1515,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                       )
                     })
                   ) : (
+                    genericQuery.length > 0 &&
                     <div className="text-center">
                       <img className="mb-4" src={noRecordFound} alt="No Result Found" />
                       <div className="title-common fontroboto mb-3">Sorry ! No results found</div>
@@ -1542,7 +1543,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         </div>
       </>
     );
-  }, [addCustom, medicineTypeMoreOptionsVisible, genericDrawer, genericList, loading]);
+  }, [addCustom, medicineTypeMoreOptionsVisible, genericDrawer, genericQuery, genericList, loading]);
 
   return (
     <>

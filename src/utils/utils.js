@@ -36,6 +36,11 @@ export const isAlphabet = (str) => {
   return /^[a-zA-z\s]*$/.test(str);
 }
 
+export const capitalizeAfterSentence = (text) => {
+  const regex = /([.?!]\s*|^)([a-z])/g;
+  return text.replace(regex, (match, p1, p2) => p1 + p2.toUpperCase());
+}
+
 export const makeDefaultLogo = (text) => {
   var fullName = text !== undefined ? text.trim() : ''
   if (!fullName) {

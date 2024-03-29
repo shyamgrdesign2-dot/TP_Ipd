@@ -556,7 +556,7 @@ function HeaderFooterLayout() {
 
     const onSignatureCheckbox2Change = useCallback(
         (e) => {
-            printSettings.header_footer.other_settings.qualification_enable = e.target.checked ? 'Y' : 'N'
+            printSettings.header_footer.other_settings.registration_no_enable = e.target.checked ? 'Y' : 'N'
             setPrintSettings((prev) => {
                 return {
                     ...prev
@@ -568,7 +568,19 @@ function HeaderFooterLayout() {
 
     const onSignatureCheckbox3Change = useCallback(
         (e) => {
-            printSettings.header_footer.other_settings.registration_no_enable = e.target.checked ? 'Y' : 'N'
+            printSettings.header_footer.other_settings.qualification_enable = e.target.checked ? 'Y' : 'N'
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
+    const onSignatureQualificationChange = useCallback(
+        (e) => {
+            printSettings.header_footer.other_settings.qualification = e.target.value
             setPrintSettings((prev) => {
                 return {
                     ...prev
@@ -598,7 +610,7 @@ function HeaderFooterLayout() {
                         <div className="titleprint">Header & Footer</div>
                     </Col>
                     <Col lg="6">
-                        <Button className="btn rounded-10px px-1 border" style={{ transform: headerFooterShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onHeaderFooterClick}>
+                        <Button className="btn rounded-10px px-1 border px-3-15" style={{ transform: headerFooterShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onHeaderFooterClick}>
                             <i className="icon-right"></i>
                         </Button>
                     </Col>
@@ -626,7 +638,7 @@ function HeaderFooterLayout() {
                                         <div className="title-common">Doctor’s information</div>
                                     </Col>
                                     <Col lg="6">
-                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' &&(<span className="fw-medium me-2 text-greycolor fs-16">Show</span>)}
+                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && (<span className="fw-medium me-2 text-greycolor fs-16">Show</span>)}
                                         <Switch onChange={onDoctorInfoSwitchChange} checked={printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? true : false} />
                                     </Col>
                                 </Row>
@@ -666,7 +678,7 @@ function HeaderFooterLayout() {
                                         <div className="title-common">Clinic's information</div>
                                     </Col>
                                     <Col lg="6">
-                                     {printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' &&(<span className="fw-medium me-2      text-greycolor fs-16">Show</span>)}
+                                        {printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (<span className="fw-medium me-2      text-greycolor fs-16">Show</span>)}
                                         <Switch onChange={onClinicInfoSwitchChange} checked={printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? true : false} />
                                     </Col>
                                 </Row>
@@ -706,7 +718,7 @@ function HeaderFooterLayout() {
                                         <div className="title-common">Logo on Header</div>
                                     </Col>
                                     <Col lg="6">
-                                   <span className="fw-medium me-2 text-greycolor fs-16">{printSettings?.logo_enable === 'Y'?'Show':'Hide'}</span>
+                                        <span className="fw-medium me-2 text-greycolor fs-16">{printSettings?.logo_enable === 'Y' ? 'Show' : 'Hide'}</span>
                                         <Switch onChange={onLogoSwitchChange} checked={printSettings?.logo_enable === 'Y' ? true : false} />
                                     </Col>
                                 </Row>
@@ -982,7 +994,7 @@ function HeaderFooterLayout() {
                         <div className="titleprint">Display Patient Info</div>
                     </Col>
                     <Col lg="6">
-                        <Button className="btn rounded-10px px-1 border" style={{ transform: patientInfoShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onPatientInfoClick}>
+                        <Button className="btn rounded-10px px-1 border px-3-15" style={{ transform: patientInfoShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onPatientInfoClick}>
                             <i className="icon-right"></i>
                         </Button>
 
@@ -1029,7 +1041,7 @@ function HeaderFooterLayout() {
                         <div className="titleprint">Other Settings</div>
                     </Col>
                     <Col lg="6">
-                        <Button className="btn rounded-10px px-1 border" style={{ transform: settingsShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onSettingsClick}>
+                        <Button className="btn rounded-10px px-1 border px-3-15" style={{ transform: settingsShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onSettingsClick}>
                             <i className="icon-right"></i>
                         </Button>
                     </Col>
@@ -1197,10 +1209,10 @@ function HeaderFooterLayout() {
                                                 <Checkbox className="switch-name-check" onChange={onSignatureCheckbox1Change} checked={printSettings?.header_footer?.other_settings?.name_of_doctor_enable != 'Y' ? false : true} >Name of Doctor</Checkbox>
                                             </div>
                                             <div className="mb-3">
-                                                <Checkbox className="switch-name-check" onChange={onSignatureCheckbox2Change} checked={printSettings?.header_footer?.other_settings?.qualification_enable != 'Y' ? false : true}>Medical Registration Number</Checkbox>
+                                                <Checkbox className="switch-name-check" onChange={onSignatureCheckbox2Change} checked={printSettings?.header_footer?.other_settings?.registration_no_enable != 'Y' ? false : true}>Medical Registration Number</Checkbox>
                                             </div>
                                             <div className="mb-3">
-                                                <Checkbox className="switch-name-check" onChange={onSignatureCheckbox3Change} checked={printSettings?.header_footer?.other_settings?.registration_no_enable != 'Y' ? false : true}>Qualifications</Checkbox>
+                                                <Checkbox className="switch-name-check" onChange={onSignatureCheckbox3Change} checked={printSettings?.header_footer?.other_settings?.qualification_enable != 'Y' ? false : true}>Qualifications</Checkbox>
                                             </div>
                                             <TextArea
                                                 className="endreason-textarea h-76"
@@ -1208,6 +1220,8 @@ function HeaderFooterLayout() {
                                                 style={{
                                                     resize: "none"
                                                 }}
+                                                onChange={onSignatureQualificationChange}
+                                                value={printSettings?.header_footer?.other_settings?.qualification}
                                             />
                                         </div>
                                     </div>

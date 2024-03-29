@@ -22,7 +22,7 @@ import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { removeBeforeWhiteSpace } from "../utils/utils";
+import { removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Adviceicon from "../assets/images/advice.svg";
 import {
   addTemplate,
@@ -158,12 +158,12 @@ function AdviceBox() {
       setAutoCompleteFlag(false);
       onClickParent()
     },
-    [autoCompleteFlag,adviceDataCheck]
+    [autoCompleteFlag, adviceDataCheck]
   );
 
   const onSearchParent = useCallback(
     (query) => {
-      setSearchQuery(removeBeforeWhiteSpace(query));
+      setSearchQuery(capitalizeAfterSentence(removeBeforeWhiteSpace(query)));
     },
     [searchQuery]
   );
@@ -198,7 +198,7 @@ function AdviceBox() {
   );
 
   function onClickParent() {
-    const data = [...adviceDataCheck, ...adviceData]
+    const data = [...adviceData, ...adviceDataCheck]
     setAdviceData(data);
     setAdviceDataCheck([])
     setSearchQuery("");
@@ -575,7 +575,7 @@ function AdviceBox() {
 
   const onChangeInputNoteChild = useCallback(
     (e) => {
-      const updateQuery = removeBeforeWhiteSpace(e.target.value)
+      const updateQuery = capitalizeAfterSentence(removeBeforeWhiteSpace(e.target.value))
       setChildDrawerData({ ...childDrawerData, advice_name: updateQuery })
     },
     [childDrawerData]

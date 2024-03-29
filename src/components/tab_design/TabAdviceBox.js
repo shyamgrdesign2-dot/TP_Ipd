@@ -9,7 +9,7 @@ import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
-import { removeBeforeWhiteSpace } from "../../utils/utils";
+import { removeBeforeWhiteSpace, capitalizeAfterSentence } from "../../utils/utils";
 import Adviceicon from "../../assets/images/advice.svg";
 import {
     addTemplate,
@@ -86,7 +86,7 @@ function TabAdviceBox() {
 
     const onSelectParent = useCallback(
         (e) => {
-            adviceData.unshift({
+            adviceData.push({
                 ...e,
             });
             setAdviceData((prev) => [...prev]);
@@ -418,7 +418,7 @@ function TabAdviceBox() {
 
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            const updateQuery = removeBeforeWhiteSpace(e.target.value)
+            const updateQuery = capitalizeAfterSentence(removeBeforeWhiteSpace(e.target.value))
             setChildDrawerData({ ...childDrawerData, advice_name: updateQuery })
         },
         [childDrawerData]

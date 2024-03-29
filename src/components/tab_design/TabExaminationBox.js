@@ -9,7 +9,7 @@ import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
-import { removeBeforeWhiteSpace } from "../../utils/utils";
+import { removeBeforeWhiteSpace, capitalizeAfterSentence } from "../../utils/utils";
 import Examinationicon from "../../assets/images/Examination.svg";
 import {
     addTemplate,
@@ -434,7 +434,7 @@ function TabExaminationBox() {
 
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            setChildDrawerData({ ...childDrawerData, note: e.target.value })
+            setChildDrawerData({ ...childDrawerData, note: capitalizeAfterSentence(e.target.value) })
         },
         [childDrawerData]
     );
