@@ -141,7 +141,10 @@ function HeaderPrescription() {
         }
     };
 
-    const onTemplateSelected = async (tmoc_id) => {
+    const onTemplateSelected = async (tmoc_id, tmoc_template_name) => {
+        window.Moengage.track_event("one_click_template_select", {
+            "template_name": tmoc_template_name
+        });
         const action = await dispatch(oneClickSingleTemplateDetails(tmoc_id));
         if (action.meta.requestStatus === "fulfilled") {
             const data = action.payload
@@ -532,13 +535,13 @@ function HeaderPrescription() {
                                 >
                                     <div
                                         className="round-box"
-                                        onClick={() => onTemplateSelected(template.tmoc_id)}
+                                        onClick={() => onTemplateSelected(template.tmoc_id, template.tmoc_template_name)}
                                     >
                                         <i className="icon-template"></i>
                                     </div>
                                     <div
                                         className="text-truncate w-100"
-                                        onClick={() => onTemplateSelected(template.tmoc_id)}
+                                        onClick={() => onTemplateSelected(template.tmoc_id, template.tmoc_template_name)}
                                     >
                                         <div className="title text-main2">{template.tmoc_template_name}</div>
                                         <div className="text-truncate">{template.medicine_name}</div>
@@ -662,7 +665,7 @@ function HeaderPrescription() {
                             matchedTemplates.map((template, i) => {
                                 return (
                                     <div className="align-items-center d-flex justify-content-between medicine-templates" key={i}>
-                                        <div className="align-items-center d-flex text-truncate w-100" onClick={() => onTemplateSelected(template.tmoc_id)}>
+                                        <div className="align-items-center d-flex text-truncate w-100" onClick={() => onTemplateSelected(template.tmoc_id, template.tmoc_template_name)}>
                                             <div className="round-box"><i className="icon-template"></i></div>
                                             <div className="text-truncate w-100">
                                                 <div className="title text-main2">{template.tmoc_template_name}</div>

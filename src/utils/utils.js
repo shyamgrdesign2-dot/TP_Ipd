@@ -36,6 +36,11 @@ export const isAlphabet = (str) => {
   return /^[a-zA-z\s]*$/.test(str);
 }
 
+export const capitalizeAfterSentence = (text) => {
+  const regex = /([.?!]\s*|^)([a-z])/g;
+  return text.replace(regex, (match, p1, p2) => p1 + p2.toUpperCase());
+}
+
 export const makeDefaultLogo = (text) => {
   var fullName = text !== undefined ? text.trim() : ''
   if (!fullName) {
@@ -115,9 +120,15 @@ export const dataUrlToFile = (url, fileName) => {
     arr[n] = data.charCodeAt(n);
   }
 
-  return new File([arr], fileName, { type: mime });
+  return new File([arr], fileName, { type: mime.substring(1, mime.length - 1) });
 };
 
+export const dataUrlToFileUsingFetch = async (url, fileName, mimeType) => {
+  const response = await fetch(url);
+  const buffer = await response.arrayBuffer();
+
+  return new File([buffer], fileName, { type: mimeType });
+};
 
 export const trimEllip = (source, length) => {
   if (source == null) {

@@ -4,7 +4,7 @@ import { Button, Card, Row, Col, Segmented, Input } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import { onlyNumberFormat, hasNumber } from "../../utils/utils";
+import { onlyNumberFormat, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import {
@@ -84,6 +84,9 @@ function TabSymptomsSearch({ passIndex, onClose }) {
 
     const onSelectParent = useCallback(
         (e) => {
+            window.Moengage.track_event("symptom_select", {
+                "value": e.symptom_name
+            });
             symptomsData.push({
                 ...e,
                 since: "",
@@ -244,7 +247,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
     );
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            symptomsData[selectedIndex].note = e.target.value;
+            symptomsData[selectedIndex].note = capitalizeAfterSentence(e.target.value);
             setSymptomsData((prev) => [...prev]);
         },
         [selectedIndex, symptomsData]
@@ -253,7 +256,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
     //Child Componet
     const CHILD_DRAWER_DATA = useMemo(() => {
         return (
-            selectedIndex != null && (
+            selectedIndex != null && symptomsData[selectedIndex] !== undefined && (
                 <>
                     <div className="h-100">
                         <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
@@ -393,7 +396,6 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                                 )
                                             })
                                         ) : (
-
                                             parentOptionsList.length > 0 &&
                                             parentOptionsList.filter(e => ![...symptomsData.map(e1 => e1.symptom_name)].includes(e.symptom_name)).map((item, i) => {
                                                 return (

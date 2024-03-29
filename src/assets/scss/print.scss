@@ -1,12 +1,53 @@
 @import 'variables.scss';
 
-body {
+body .printCommon {
     div, div span, label {
         color: $welcomecolor !important;
     }
 }
 
+table { width: 100%; }
+.watermark-inprint {
+    position: absolute;
+}
+
+@media print {
+   .watermark-inprint {
+    position: fixed;
+   }
+   thead {display: table-header-group;} 
+   tfoot {display: table-footer-group;}
+   button {display: none;}
+   
+   body {margin: 0;}
+
+   .page-footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+  .page-header, .page-header-space {
+    height: 100px;
+    margin: 15px 0;
+  }
+  .page-footer, .page-footer-space {
+    height: 100px;
+  }
+  .page-header {
+    position: fixed;
+    top: 0mm;
+    width: 95%;
+  }
+}
+
+.text-blacks {
+    color: #000 !important;
+}
+
 .print-custom-header {
+    &.border-top {
+        border-top: 2px solid $welcomecolor !important;
+    }
     &.border-bottom {
         border-bottom: 2px solid $welcomecolor !important;
     }
@@ -15,10 +56,12 @@ body {
     border-color: $welcomecolor;
 }
 
-.patient-details {
+.patient-details-print {
+    padding:10px 0;
     .details-name {
         span {
             font-size: 10px;
+            line-height:16px;
             &:first-child {
                 font-weight: 500;
             }
@@ -31,20 +74,23 @@ table tr th {
     font-weight: 600;
 }
 
-table tr td {
-    &:first-child {
-        font-weight: 600;
-    }
-    color: $welcomecolor !important;
-}
 table {
     &.print_table {
         border: 1px solid $welcomecolor;
         border-collapse: collapse;
         tr {
+            th {
+                font-weight: 500 !important;
+            }
             th, td {
                 border: 1px solid $welcomecolor;
                 border-collapse: collapse;
+                color: $welcomecolor !important;
+                line-height: normal;
+                font-weight: 400;
+                &:first-child {
+                    font-weight: 500;
+                }
             }
         }
 
@@ -66,3 +112,18 @@ table {
 
     }
 }
+.patient-details-print{
+    .details-name {
+        line-height: 18px;
+        font-weight: 400;
+    }
+
+}
+.print-middle{
+    padding:9px 0 0 0;
+}
+.lh-18{line-height:18px;}
+
+
+
+

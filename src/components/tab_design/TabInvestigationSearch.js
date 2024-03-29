@@ -71,6 +71,9 @@ function TabInvestigationSearch({ passIndex, onClose }) {
 
     const onSelectParent = useCallback(
         (e) => {
+            window.Moengage.track_event("investigation_select", {
+                "value": e.investigation_name
+            });
             investigationData.push({
                 ...e,
                 note: "",
@@ -126,7 +129,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
     //Child Componet
     const CHILD_DRAWER_DATA = useMemo(() => {
         return (
-            selectedIndex != null && (
+            selectedIndex != null && investigationData[selectedIndex] !== undefined && (
                 <>
                     <div className="h-100">
                         <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">

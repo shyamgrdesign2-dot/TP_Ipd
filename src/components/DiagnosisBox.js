@@ -26,7 +26,7 @@ import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from "../context/CashManagerContext";
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Diagnosisicon from "../assets/images/Diagnosis.svg";
 import {
   addTemplate,
@@ -301,7 +301,7 @@ function DiagnosisBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      diagnosisData[i].note = e.target.value;
+      diagnosisData[i].note = capitalizeAfterSentence(e.target.value);
       setDiagnosisData((prev) => [...prev]);
     },
     [diagnosisData]

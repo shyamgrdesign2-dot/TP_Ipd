@@ -9,7 +9,7 @@ import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace, hasNumber } from "../../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
 import Symptomsicon from "../../assets/images/Symptoms.svg";
 import {
     addTemplate,
@@ -100,6 +100,9 @@ function TabSymptomsBox() {
 
     const onSelectParent = useCallback(
         (e) => {
+            window.Moengage.track_event("symptom_select", {
+                "value": e.symptom_name
+            });
             symptomsData.push({
                 ...e,
                 since: "",
@@ -554,7 +557,7 @@ function TabSymptomsBox() {
     );
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            setChildDrawerData({ ...childDrawerData, note: e.target.value })
+            setChildDrawerData({ ...childDrawerData, note: capitalizeAfterSentence(e.target.value) })
         },
         [childDrawerData]
     );

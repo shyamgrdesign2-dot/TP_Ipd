@@ -26,8 +26,11 @@ function ConfigurePrintSetting() {
     const [printSettings, setPrintSettings] = useState(null);
     const [fileHeader, setFileHeader] = useState(null);
     const [fileFooter, setFileFooter] = useState(null);
+    const [fileLogo, setFileLogo] = useState(null);
+    const [fileWatermark, setFileWatermark] = useState(null);
+    const [fileSignature, setFileSignature] = useState(null);
 
-    const contextApi = { printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter };
+    const contextApi = { printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
 
     const TabsPrintSetting = [
         {
@@ -84,7 +87,7 @@ function ConfigurePrintSetting() {
                                     <PrescriptionLayout />
                                 ) : selectedTab === TAB_HEADER_FOOTER ? (
                                     <HeaderFooterLayout />
-                                ) : (
+                                ) : selectedTab === TAB_PAGE_FORMAT && (
                                     <PageFormatLayout />
                                 )}
                             </div>

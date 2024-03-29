@@ -5,7 +5,7 @@ import moment from "moment";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
-import { getFormattedDate, onlyNumberFormat } from "../../utils/utils";
+import { getFormattedDate, onlyNumberFormat, capitalizeAfterSentence } from "../../utils/utils";
 import dayjs from "dayjs";
 import Notes from "../../assets/images/notes.svg";
 import followUp from "../../assets/images/followup.svg";
@@ -85,6 +85,9 @@ function TabFollowUpBox() {
     };
 
     const onOptionPress = (e) => {
+        window.Moengage.track_event("followup_chip_select", {
+            "value": e.label
+        });
         setDateOptions([]);
         setFollowUpInput(e.label)
         setFollowUpDate(getFormattedDate(moment(moment().format(dateFormat)).add(parseInt(e.value), e.unit).format(dateFormat)))
@@ -92,7 +95,7 @@ function TabFollowUpBox() {
 
     const onChangeNote = useCallback(
         (e) => {
-            setAdditionalNote(e.target.value)
+            setAdditionalNote(capitalizeAfterSentence(e.target.value))
         },
         [additionalNote]
     );

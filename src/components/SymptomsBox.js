@@ -20,7 +20,7 @@ import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Symptomsicon from "../assets/images/Symptoms.svg";
 import {
   addTemplate,
@@ -163,6 +163,9 @@ function SymptomsBox() {
 
   const onSelectParent = useCallback(
     (data, e) => {
+      window.Moengage.track_event("symptom_select", {
+        "value": data
+      });
       symptomsData.push({
         ...JSON.parse(e.key),
         since: "",
@@ -290,7 +293,7 @@ function SymptomsBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      symptomsData[i].note = e.target.value;
+      symptomsData[i].note = capitalizeAfterSentence(e.target.value);
       setSymptomsData((prev) => [...prev]);
     },
     [symptomsData]

@@ -40,7 +40,7 @@ const uat = {
     medication_api_url: `https://medicine-uat.azurewebsites.net/`,
     vitals_api_url: `https://vital-uat.azurewebsites.net`,
     casemanager_api_url: `https://casemanager-uat.azurewebsites.net`,
-    printsettings_api_url: `https://printsettings-webservice.azurewebsites.net`,
+    printsettings_api_url: `https://printsetting-uat.azurewebsites.net`,
     sso_to_pm_url: `https://pm-uat-dhspl-2.tatvacare.in/api/get_doctor_sso_token.php`,
     sso_to_pm_username: `PM_40d30f01184aedc47`,
     sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,

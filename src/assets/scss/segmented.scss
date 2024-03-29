@@ -169,5 +169,13 @@ body {
                 outline: none !important;
             }
         }
+        &.segement-static-four {
+            .btn { 
+                width: 25%;
+                    &:nth-child(-n+4) {
+                        margin-top: 5px !important;
+                    }
+            }
+        }
     }
 }
