@@ -598,7 +598,7 @@ function HeaderFooterLayout() {
                         <div className="titleprint">Header & Footer</div>
                     </Col>
                     <Col lg="6">
-                        <Button className="btn rounded-10px px-1 border" style={{ transform: headerFooterShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onHeaderFooterClick}>
+                        <Button className="btn rounded-10px px-1 border px-3-15" style={{ transform: headerFooterShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onHeaderFooterClick}>
                             <i className="icon-right"></i>
                         </Button>
                     </Col>
@@ -982,7 +982,7 @@ function HeaderFooterLayout() {
                         <div className="titleprint">Display Patient Info</div>
                     </Col>
                     <Col lg="6">
-                        <Button className="btn rounded-10px px-1 border" style={{ transform: patientInfoShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onPatientInfoClick}>
+                        <Button className="btn rounded-10px px-1 border px-3-15" style={{ transform: patientInfoShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onPatientInfoClick}>
                             <i className="icon-right"></i>
                         </Button>
 
@@ -1029,7 +1029,7 @@ function HeaderFooterLayout() {
                         <div className="titleprint">Other Settings</div>
                     </Col>
                     <Col lg="6">
-                        <Button className="btn rounded-10px px-1 border" style={{ transform: settingsShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onSettingsClick}>
+                        <Button className="btn rounded-10px px-1 border px-3-15" style={{ transform: settingsShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onSettingsClick}>
                             <i className="icon-right"></i>
                         </Button>
                     </Col>
