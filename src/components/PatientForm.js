@@ -36,7 +36,7 @@ function PatientForm({ mode = ADD, patient_data }) {
         form.validateFields().then(async (values) => {
             const finalValues = {
                 ...values,
-                pm_salutation: values.pm_salutation !== undefined ? values.pm_salutation : '',
+                pm_reference_id: values.pm_reference_id !== undefined ? values.pm_reference_id : '',                pm_salutation: values.pm_salutation !== undefined ? values.pm_salutation : '',
                 pm_pincode: values.pm_pincode !== undefined ? values.pm_pincode : '',
                 pm_dob: values['pm_dob'] ? values['pm_dob'].format('YYYY-MM-DD') : values['dob'],
                 pm_city: values.pm_city !== undefined ? values.pm_city : '',
