@@ -270,7 +270,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onChangeDosageChild = useCallback(
     (e) => {
-      const updateQuery = onlyNumberFormat(e.target.value);
+      const updateQuery = onlyDecimalFormat(e.target.value);
       medicationData[selectedIndex].tmm_dosage = updateQuery;
       setMedicationData((prev) => [...prev]);
     },
@@ -608,7 +608,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                           ? medicationData[selectedIndex].tmm_dosage
                           : ""
                       }
-                      inputMode="numeric"
+                      inputMode="decimal"
                       onChange={onChangeDosageChild}
                       className="inputheight38 rounded-10px"
                     />

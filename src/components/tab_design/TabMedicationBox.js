@@ -700,7 +700,7 @@ function TabMedicationBox() {
 
   const onChangeDosageChild = useCallback(
     (e) => {
-      const updateQuery = onlyNumberFormat(e.target.value);
+      const updateQuery = onlyDecimalFormat(e.target.value);
       setChildDrawerData({ ...childDrawerData, tmm_dosage: updateQuery });
     },
     [childDrawerData]
@@ -1107,7 +1107,7 @@ function TabMedicationBox() {
                         ? childDrawerData.tmm_dosage
                         : ""
                     }
-                    inputMode="numeric"
+                    inputMode="decimal"
                     onChange={onChangeDosageChild}
                     className="inputheight38 rounded-10px"
                   />

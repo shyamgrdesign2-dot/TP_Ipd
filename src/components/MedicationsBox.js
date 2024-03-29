@@ -8,7 +8,7 @@ import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric } from "../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
@@ -196,7 +196,7 @@ function MedicationsBox() {
 
   const onSearchUnitPerDoseChid = useCallback(
     (query, i) => {
-      const updateQuery = onlyNumberFormat(query);
+      const updateQuery = onlyDecimalFormat(query);
       medicationData[i].tmm_dosage_unit_name = updateQuery;
       medicationData[i].tmm_dosage = '';
       medicationData[i].tmm_unit = 0;
