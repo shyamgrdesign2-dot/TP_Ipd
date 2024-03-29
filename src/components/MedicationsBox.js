@@ -56,10 +56,10 @@ function MedicationsBox() {
   const [frequencyOptions, setFrequencyOptions] = useState([]);
   const [sinceOptions, setSinceOptions] = useState([]);
   const SINCE_OPTIONS = [
-    { value: "day(s)", label: "Days" },
-    { value: "week(s)", label: "Weeks" },
-    { value: "month(s)", label: "Months" },
-    { value: "year(s)", label: "Years" },
+    { value: "Day(s)", label: "Days" },
+    { value: "Week(s)", label: "Weeks" },
+    { value: "Month(s)", label: "Months" },
+    { value: "Year(s)", label: "Years" },
   ];
 
   //PopOver2
@@ -129,7 +129,7 @@ function MedicationsBox() {
             tmm_id: 0,
             tmm_medicine_name: searchParentQuery
           }),
-          value: searchParentQuery,
+          value: `${searchParentQuery}${Math.random()}`,
           label: (
             <>
               <div className="text-primary fontroboto fs-16"> <i className="icon-Add mx-1 fs-6"></i> Add <span className="fw-medium fontroboto text-primary">"{searchParentQuery}"</span> <a className="text-primary fontroboto">as a new medicine</a></div>
@@ -153,7 +153,7 @@ function MedicationsBox() {
       setAddCustom(JSON.parse(item.key));
     } else {
       window.Moengage.track_event("medicine_select", {
-        "value": data
+        "value": JSON.parse(item.key).tmm_medicine_name
       });
       const action = await dispatch(getMedicineDetails(JSON.parse(item.key).tmm_id));
       if (action.meta.requestStatus === "fulfilled") {

@@ -92,10 +92,10 @@ function TabMedicationBox() {
 
   const [selectedIndex, setSelectedIndex] = useState(null);
   const SINCE_OPTIONS = [
-    { value: "day(s)", label: "D" },
-    { value: "week(s)", label: "W" },
-    { value: "month(s)", label: "M" },
-    { value: "year(s)", label: "Y" },
+    { value: "Day(s)", label: "D" },
+    { value: "Week(s)", label: "W" },
+    { value: "Month(s)", label: "M" },
+    { value: "Year(s)", label: "Y" },
   ];
   const [sinceValue, setSinceValue] = useState(1);
   const [inputSince, setInputSince] = useState("");
