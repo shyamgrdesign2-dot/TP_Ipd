@@ -20,7 +20,7 @@ import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Examinationicon from "../assets/images/Examination.svg";
 import {
   addTemplate,
@@ -236,7 +236,7 @@ function ExaminationBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      examinationData[i].note = e.target.value;
+      examinationData[i].note = capitalizeAfterSentence(e.target.value);
       setExaminationData((prev) => [...prev]);
     },
     [examinationData]

@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../../context/CashManagerContext';
-import { removeBeforeWhiteSpace } from "../../utils/utils";
+import { removeBeforeWhiteSpace, capitalizeAfterSentence } from "../../utils/utils";
 import {
     searchAdvice
 } from "../../redux/adviceSlice";
@@ -65,14 +65,14 @@ function TabAdviceSearch({ passIndex, onClose }) {
 
     const onSearchParent = useCallback(
         (query) => {
-            setSearchChildQuery(query);
+            setSearchChildQuery(capitalizeAfterSentence(query));
         },
         [searchChildQuery]
     );
 
     const onSelectParent = useCallback(
         (e) => {
-            adviceData.unshift({
+            adviceData.push({
                 ...e,
             });
             setAdviceData((prev) => [...prev]);
@@ -103,7 +103,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
 
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            const updateQuery = removeBeforeWhiteSpace(e.target.value)
+            const updateQuery = capitalizeAfterSentence(removeBeforeWhiteSpace(e.target.value))
             setChildDrawerData({ ...childDrawerData, advice_name: updateQuery })
         },
         [childDrawerData]

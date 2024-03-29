@@ -8,7 +8,7 @@ import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat } from "../utils/utils";
+import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
@@ -431,7 +431,7 @@ function MedicationsBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      medicationData[i].tmm_remarks = e.target.value;
+      medicationData[i].tmm_remarks = capitalizeAfterSentence(e.target.value);
       setMedicationData((prev) => [...prev]);
     },
     [medicationData]

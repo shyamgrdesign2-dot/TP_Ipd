@@ -26,7 +26,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
-import { onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace } from "../../utils/utils";
+import { onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../../utils/utils";
 
 import CashManagerContext from "../../context/CashManagerContext";
 import { MESSAGE_KEY } from "../../utils/constants";
@@ -574,7 +574,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onChangeInputNoteChild = useCallback(
     (e) => {
-      medicationData[selectedIndex].tmm_remarks = e.target.value;
+      medicationData[selectedIndex].tmm_remarks = capitalizeAfterSentence(e.target.value);
       setMedicationData((prev) => [...prev]);
     },
     [selectedIndex, medicationData]

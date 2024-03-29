@@ -11,7 +11,7 @@ import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
 import { MESSAGE_KEY } from "../../utils/constants";
-import { removeBeforeWhiteSpace, hasNumber } from "../../utils/utils";
+import { removeBeforeWhiteSpace, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
 import Diagnosisicon from "../../assets/images/Diagnosis.svg";
 import {
     addTemplate,
@@ -556,7 +556,7 @@ function TabDiagnosisBox() {
     );
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            setChildDrawerData({ ...childDrawerData, note: e.target.value })
+            setChildDrawerData({ ...childDrawerData, note: capitalizeAfterSentence(e.target.value) })
         },
         [childDrawerData]
     );

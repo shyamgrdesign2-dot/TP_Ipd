@@ -39,7 +39,8 @@ import {
   onlyDecimalFormat,
   removeBeforeWhiteSpace,
   isNumeric,
-  hasNumber
+  hasNumber,
+  capitalizeAfterSentence
 } from "../../utils/utils";
 import Medicationicon from "../../assets/images/Medication.svg";
 import {
@@ -1050,7 +1051,7 @@ function TabMedicationBox() {
 
   const onChangeInputNoteChild = useCallback(
     (e) => {
-      setChildDrawerData({ ...childDrawerData, tmm_remarks: e.target.value });
+      setChildDrawerData({ ...childDrawerData, tmm_remarks: capitalizeAfterSentence(e.target.value) });
     },
     [childDrawerData]
   );

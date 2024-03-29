@@ -15,7 +15,6 @@ import HeaderFooterLayout from "../components/print_settings/HeaderFooterLayout"
 import PageFormatLayout from "../components/print_settings/PageFormatLayout";
 
 import "cropperjs/dist/cropper.css";
-import Quixote from "./Quixote";
 
 function ConfigurePrintSetting() {
 
@@ -98,8 +97,7 @@ function ConfigurePrintSetting() {
                                 <div className="titleprint mt-20" onClick={() => printContent()}>Preview</div>
                                 <div className="border rounded-20px bg-white mt-20 overflow-hidden h-100">
                                     <div key={Math.random()} ref={printRef} style={{ padding: 20 }} className="h-100">
-                                        {/* <PrintHtmlPage />\ */}
-                                        <Quixote />
+                                        <PrintHtmlPage />
                                     </div>
                                 </div>
                             </div>
