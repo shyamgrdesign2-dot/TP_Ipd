@@ -1515,6 +1515,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                       )
                     })
                   ) : (
+                    genericQuery.length > 0 &&
                     <div className="text-center">
                       <img className="mb-4" src={noRecordFound} alt="No Result Found" />
                       <div className="title-common fontroboto mb-3">Sorry ! No results found</div>
@@ -1542,7 +1543,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         </div>
       </>
     );
-  }, [addCustom, medicineTypeMoreOptionsVisible, genericDrawer, genericList, loading]);
+  }, [addCustom, medicineTypeMoreOptionsVisible, genericDrawer, genericQuery, genericList, loading]);
 
   return (
     <>

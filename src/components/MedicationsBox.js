@@ -1121,6 +1121,7 @@ function MedicationsBox() {
   }
 
   const emptyText = (
+    genericQuery.length > 0 &&
     <div className="text-center py-3">
       <img className="mb-3" style={{ width: 100 }} src={noRecordFound} alt="No Result Found" />
       <div className="title-common fontroboto mb-3">Sorry ! No results found</div>
