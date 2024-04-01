@@ -7,6 +7,7 @@ import PrintSettingsContext from '../context/PrintSettingsContext';
 
 import HeaderPrintSetting from "../common/HeaderPrintSetting";
 import PrintHtmlPage from "../components/print_settings/PrintHtmlPage";
+import Quixote from "./Quixote";
 
 import { TAB_PRESCRIPTION, TAB_HEADER_FOOTER, TAB_PAGE_FORMAT } from "../utils/constants";
 
@@ -15,6 +16,7 @@ import HeaderFooterLayout from "../components/print_settings/HeaderFooterLayout"
 import PageFormatLayout from "../components/print_settings/PageFormatLayout";
 
 import "cropperjs/dist/cropper.css";
+
 
 function ConfigurePrintSetting() {
 
@@ -96,9 +98,9 @@ function ConfigurePrintSetting() {
                             <div className="mx-auto overflow-y-auto" style={{ width: 900 }}>
                                 <div className="titleprint mt-20" onClick={() => printContent()}>Preview</div>
                                 <div className="border rounded-20px bg-white mt-20 overflow-hidden h-100">
-                                    <div key={Math.random()} ref={printRef} style={{ padding: 20 }} className="h-100">
-                                        <PrintHtmlPage />
-                                    </div>
+                                    {/* <div key={Math.random()} ref={printRef} style={{ padding: 20 }} className="h-100"> */}
+                                        <Quixote />
+                                    {/* </div> */}
                                 </div>
                             </div>
                         </Col>
