@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import { Col, Radio, Row, Form, Switch, Button, Input, message } from "antd";
 import Cropper from "react-cropper";
+import { Navbar } from 'react-bootstrap';
 
 import Quixote from "../../pages/Quixote";
 import PrintSettingsContext from '../../context/PrintSettingsContext';
@@ -16,7 +17,9 @@ import HeaderWhatsAppSetting from "../../common/HeaderWhatsAppSetting";
 
 const { TextArea } = Input;
 
-function WhatsappConfigure() {
+function WhatsappConfigure(props) {
+
+    const { handleDrawerOwnLetterHead } = props
 
     const inputHeaderFile = React.createRef();
     const cropperHeaderRef = React.createRef();
@@ -287,9 +290,32 @@ function WhatsappConfigure() {
         showHideFooterModal()
     };
 
+    const onWhatsappSaveSettingsClick = async () => {
+
+    };
+
     return (
         <>
-            <HeaderWhatsAppSetting />
+            <Navbar className="justify-content-between headerprescription p-0">
+                <div className='align-items-center d-flex w-100 h-100 justify-content-between'>
+                    <div className='align-items-center d-flex h-100 w-100'>
+                        <div className='border-end h-100 text-center me-2'>
+                            <div className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer' onClick={handleDrawerOwnLetterHead}>
+                                <i className='icon-right'></i>
+                            </div>
+                        </div>
+                        <div className='title-common'>
+                            Whatsapp Rx Preview
+                        </div>
+                    </div>
+                    <div className='d-flex align-items-center justify-content-end w-100'>
+                        <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onWhatsappSaveSettingsClick}>
+                            Save
+                        </Button>
+                    </div>
+                </div>
+            </Navbar>
+
             {/* <style scoped>{css}</style> */}
             <div className={'w-100 bg-body wrapper2'}>
                 <Row justify="space-between">

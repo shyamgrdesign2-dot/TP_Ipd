@@ -660,7 +660,7 @@ function HeaderFooterLayout() {
                                         <div className="mt-3">
                                             <Form.Item>
                                                 <label className="mb-1">Header</label>
-                                                <Input className='inputheight41-group' onChange={onDoctorInfoHeaderChange} value={printSettings?.header_footer?.header?.doctor_info?.header} />
+                                                <Input className='inputheight41-group' placeholder="Enter Doctor Name" onChange={onDoctorInfoHeaderChange} value={printSettings?.header_footer?.header?.doctor_info?.header} />
                                             </Form.Item>
                                         </div>
                                         <div className="mt-3">
@@ -668,6 +668,7 @@ function HeaderFooterLayout() {
                                                 <label className="mb-1">Subheader</label>
                                                 <TextArea
                                                     className="endreason-textarea subheader-textarea"
+                                                    placeholder="Enter Information (Ex: MBBS, MD)"
                                                     style={{
                                                         resize: "none"
                                                     }}
@@ -700,7 +701,7 @@ function HeaderFooterLayout() {
                                         <div className="mt-3">
                                             <Form.Item>
                                                 <label className="mb-1">Header</label>
-                                                <Input className='inputheight41-group' onChange={onClinicInfoHeaderChange} value={printSettings?.header_footer?.header?.clinic_info?.header} />
+                                                <Input className='inputheight41-group' placeholder="Enter Clinic Name" onChange={onClinicInfoHeaderChange} value={printSettings?.header_footer?.header?.clinic_info?.header} />
                                             </Form.Item>
                                         </div>
                                         <div className="mt-3">
@@ -708,6 +709,7 @@ function HeaderFooterLayout() {
                                                 <label className="mb-1">Subheader</label>
                                                 <TextArea
                                                     className="endreason-textarea subheader-textarea"
+                                                    placeholder="Enter Clinic Address"
                                                     style={{
                                                         resize: "none"
                                                     }}
@@ -988,7 +990,7 @@ function HeaderFooterLayout() {
                                     </Col>
                                 </Row>
                                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerOwnLetterHead} open={isOwnLetterHead} width="100%">
-                                    <WhatsappConfigure />
+                                    <WhatsappConfigure handleDrawerOwnLetterHead={handleDrawerOwnLetterHead}/>
                                 </Drawer>
                             </div>
                         )}
