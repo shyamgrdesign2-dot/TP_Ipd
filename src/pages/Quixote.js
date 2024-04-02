@@ -342,7 +342,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 "tmm_freq_type": 0,
                 "tmf_block": 0,
                 "tcm_tmr_type": "M",
-                "display_qty": 18,
+                "display_qty": 18.25526541561516,
                 "medicineUnit": [
                     {
                         "tmu_id": 1,
