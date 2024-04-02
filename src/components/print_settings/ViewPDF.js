@@ -92,15 +92,18 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     }
     return (
         <Document>
-            <Page size="A4" style={{
-                paddingTop: printSettings?.letterhead_format != 2 ? 30 : printSettings?.header_footer?.margin?.top ? printSettings?.header_footer?.margin?.top * 37.795275591 : 0,
-                paddingBottom: printSettings?.letterhead_format != 2 ? 30 : printSettings?.header_footer?.margin?.bottom ? printSettings?.header_footer?.margin?.bottom * 37.795275591 : 0,
-                paddingLeft: printSettings?.letterhead_format != 2 ? 30 : printSettings?.header_footer?.margin?.left ? printSettings?.header_footer?.margin?.left * 37.795275591 : 0,
-                paddingRight: printSettings?.letterhead_format != 2 ? 30 : printSettings?.header_footer?.margin?.right ? printSettings?.header_footer?.margin?.right * 37.795275591 : 0,
-            }} wrap>
+            <Page
+                size="A4"
+                style={{
+                    paddingTop: mode == NORMAL ? printSettings?.letterhead_format != 2 ? 30 : printSettings?.header_footer?.margin?.top ? printSettings?.header_footer?.margin?.top * 37.795275591 : 0 : 30,
+                    paddingBottom: mode == NORMAL ? printSettings?.letterhead_format != 2 ? 30 : printSettings?.header_footer?.margin?.bottom ? printSettings?.header_footer?.margin?.bottom * 37.795275591 : 0 : 30,
+                    paddingLeft: mode == NORMAL ? printSettings?.letterhead_format != 2 ? 30 : printSettings?.header_footer?.margin?.left ? printSettings?.header_footer?.margin?.left * 37.795275591 : 0 : 30,
+                    paddingRight: mode == NORMAL ? printSettings?.letterhead_format != 2 ? 30 : printSettings?.header_footer?.margin?.right ? printSettings?.header_footer?.margin?.right * 37.795275591 : 0 : 30,
+                }}
+                wrap>
                 <View style={{ flex: 1 }}>
 
-                    <View style={{ marginBottom: 29 }} fixed>
+                    <View style={{ marginBottom: mode == NORMAL ? printSettings?.letterhead_format != 2 ? 29 : 0 : 29 }} fixed>
                         {mode == NORMAL ? (
                             printSettings?.letterhead_format === 0 ? (
                                 <View>
@@ -787,7 +790,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             )}
                         </View>
 
-                        <View style={{ marginTop: 30 }}>
+                        <View style={{ marginTop: 29 }}>
                             {printSettings?.signature_enable === 'Y' && fileSignature && fileSignature?.imageShow && (
                                 <View style={{ alignSelf: printSettings?.header_footer?.other_settings?.signature_place === 'R' && 'flex-end' }}>
                                     <Image
@@ -891,12 +894,22 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                     </View>
 
-                    <View style={{ marginTop: 29 }} fixed>
-                        {printSettings?.letterhead_format === 1 && (
-                            fileFooter && fileFooter?.imageShow && (
-                                <Image
-                                    style={{ width: '100%', objectFit: 'contain' }}
-                                    src={fileFooter?.showFile} />
+                    <View style={{ marginTop: mode == NORMAL ? printSettings?.letterhead_format != 2 ? 29 : 0 : 29 }} fixed>
+                        {mode == NORMAL ? (
+                            printSettings?.letterhead_format === 1 && (
+                                fileFooter && fileFooter?.imageShow && (
+                                    <Image
+                                        style={{ width: '100%', objectFit: 'contain' }}
+                                        src={fileFooter?.showFile} />
+                                )
+                            )
+                        ) : (
+                            printSettings?.whatsapp_letterhead_format === 1 && (
+                                fileFooter && fileFooter?.imageShow && (
+                                    <Image
+                                        style={{ width: '100%', objectFit: 'contain' }}
+                                        src={fileFooter?.showFile} />
+                                )
                             )
                         )}
                     </View>

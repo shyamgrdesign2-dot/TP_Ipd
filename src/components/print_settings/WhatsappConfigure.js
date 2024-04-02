@@ -290,10 +290,11 @@ function WhatsappConfigure(props) {
     };
 
     const onWhatsappSaveSettingsClick = async () => {
-        setPrintSettings(JSON.parse(JSON.stringify(printSettings)))
+        setPrintSettings(JSON.parse(JSON.stringify(printSettingsCopy)))
         setFileHeader(fileHeaderCopy)
         setFileFooter(fileFooterCopy)
         setFileLogo(fileLogoCopy)
+        handleDrawerOwnLetterHead()
     };
 
     return (
