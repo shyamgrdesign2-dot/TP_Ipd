@@ -1,6 +1,7 @@
 import React from 'react';
 import { Font, Page, Text, View, Image, Document, StyleSheet } from '@react-pdf/renderer';
 import { isNumeric } from '../../utils/utils'
+import { NORMAL, WHATSAPP } from '../../utils/constants';
 
 Font.register({
     family: 'Roboto',
@@ -58,9 +59,9 @@ const styles = StyleSheet.create({
     }
 });
 
-const ViewPDF = (Props) => {
+const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    const { caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = Props
+    const { caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = props
 
     const patientDataShow = (id) => {
         var value = ''
@@ -89,86 +90,167 @@ const ViewPDF = (Props) => {
         }
         return value
     }
-
     return (
         <Document>
-            <Page size="A4" style={{ padding: 30 }} wrap>
+            <Page size="A4" style={{
+                paddingTop: printSettings?.letterhead_format != 2 ? 30 : printSettings?.header_footer?.margin?.top ? printSettings?.header_footer?.margin?.top * 37.795275591 : 0,
+                paddingBottom: printSettings?.letterhead_format != 2 ? 30 : printSettings?.header_footer?.margin?.bottom ? printSettings?.header_footer?.margin?.bottom * 37.795275591 : 0,
+                paddingLeft: printSettings?.letterhead_format != 2 ? 30 : printSettings?.header_footer?.margin?.left ? printSettings?.header_footer?.margin?.left * 37.795275591 : 0,
+                paddingRight: printSettings?.letterhead_format != 2 ? 30 : printSettings?.header_footer?.margin?.right ? printSettings?.header_footer?.margin?.right * 37.795275591 : 0,
+            }} wrap>
                 <View style={{ flex: 1 }}>
 
                     <View style={{ marginBottom: 29 }} fixed>
-                        {printSettings?.letterhead_format === 0 ? (
-                            <View>
-                                {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? (
-                                    <View style={styles.directionCasemanager}>
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={styles.mainTitle}>
-                                                {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
-                                            </Text>
-                                            <Text style={[styles.subTitle, { marginTop: 4 }]}>
-                                                {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
-                                            </Text>
-                                        </View>
-                                        {printSettings?.logo_enable === 'Y' && (
-                                            <View style={{ width: 82, height: 82, overflow: 'hidden', marginHorizontal: 16 }}>
-                                                {fileLogo && fileLogo?.imageShow && (
-                                                    <Image
-                                                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                                                        src={fileLogo?.showFile}
-                                                    />
-                                                )}
-                                            </View>
-                                        )}
-                                        <View style={{ flex: 1, textAlign: 'right' }}>
-                                            <Text style={styles.mainTitle}>
-                                                {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
-                                            </Text>
-                                            <Text style={[styles.subTitle, { marginTop: 4 }]}>
-                                                {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                ) : (
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        {printSettings?.logo_enable === 'Y' && (
-                                            <View style={{ width: 82, height: 82, overflow: 'hidden' }}>
-                                                {fileLogo && fileLogo?.imageShow && (
-                                                    <Image
-                                                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                                                        src={fileLogo?.showFile}
-                                                    />
-                                                )}
-                                            </View>
-                                        )}
-                                        {(printSettings?.header_footer?.header?.doctor_info?.enable === 'Y') ? (
-                                            <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 'left' : 'right', weight: '189px' }}>
+                        {mode == NORMAL ? (
+                            printSettings?.letterhead_format === 0 ? (
+                                <View>
+                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? (
+                                        <View style={styles.directionCasemanager}>
+                                            <View style={{ flex: 1 }}>
                                                 <Text style={styles.mainTitle}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
                                                 </Text>
                                                 <Text style={[styles.subTitle, { marginTop: 4 }]}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
                                                 </Text>
                                             </View>
-                                        ) : printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (
-                                            <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 'left' : 'right', weight: '130px' }}>
+                                            {printSettings?.logo_enable === 'Y' && (
+                                                <View style={{ width: 82, height: 82, overflow: 'hidden', marginHorizontal: 16 }}>
+                                                    {fileLogo && fileLogo?.imageShow && (
+                                                        <Image
+                                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                            src={fileLogo?.showFile}
+                                                        />
+                                                    )}
+                                                </View>
+                                            )}
+                                            <View style={{ flex: 1, textAlign: 'right' }}>
                                                 <Text style={styles.mainTitle}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
                                                 </Text>
                                                 <Text style={[styles.subTitle, { marginTop: 4 }]}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
                                                 </Text>
                                             </View>
-                                        )}
-                                    </View>
-                                )}
-                            </View>
-                        ) : printSettings?.letterhead_format === 1 && (
-                            fileHeader && fileHeader?.imageShow && (
-                                <Image
-                                    style={{ width: '100%', objectFit: 'contain' }}
-                                    src={fileHeader?.showFile}
-                                />
+                                        </View>
+                                    ) : (
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            {printSettings?.logo_enable === 'Y' && (
+                                                <View style={{ width: 82, height: 82, overflow: 'hidden' }}>
+                                                    {fileLogo && fileLogo?.imageShow && (
+                                                        <Image
+                                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                            src={fileLogo?.showFile}
+                                                        />
+                                                    )}
+                                                </View>
+                                            )}
+                                            {(printSettings?.header_footer?.header?.doctor_info?.enable === 'Y') ? (
+                                                <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 'left' : 'right', weight: '189px' }}>
+                                                    <Text style={styles.mainTitle}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    </Text>
+                                                    <Text style={[styles.subTitle, { marginTop: 4 }]}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    </Text>
+                                                </View>
+                                            ) : printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (
+                                                <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 'left' : 'right', weight: '130px' }}>
+                                                    <Text style={styles.mainTitle}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    </Text>
+                                                    <Text style={[styles.subTitle, { marginTop: 4 }]}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    </Text>
+                                                </View>
+                                            )}
+                                        </View>
+                                    )}
+                                </View>
+                            ) : printSettings?.letterhead_format === 1 && (
+                                fileHeader && fileHeader?.imageShow && (
+                                    <Image
+                                        style={{ width: '100%', objectFit: 'contain' }}
+                                        src={fileHeader?.showFile}
+                                    />
+                                )
+                            )
+                        ) : mode == WHATSAPP && (
+                            printSettings?.whatsapp_letterhead_format === 0 ? (
+                                <View>
+                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? (
+                                        <View style={styles.directionCasemanager}>
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={styles.mainTitle}>
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                </Text>
+                                                <Text style={[styles.subTitle, { marginTop: 4 }]}>
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                </Text>
+                                            </View>
+                                            {printSettings?.logo_enable === 'Y' && (
+                                                <View style={{ width: 82, height: 82, overflow: 'hidden', marginHorizontal: 16 }}>
+                                                    {fileLogo && fileLogo?.imageShow && (
+                                                        <Image
+                                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                            src={fileLogo?.showFile}
+                                                        />
+                                                    )}
+                                                </View>
+                                            )}
+                                            <View style={{ flex: 1, textAlign: 'right' }}>
+                                                <Text style={styles.mainTitle}>
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                </Text>
+                                                <Text style={[styles.subTitle, { marginTop: 4 }]}>
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    ) : (
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            {printSettings?.logo_enable === 'Y' && (
+                                                <View style={{ width: 82, height: 82, overflow: 'hidden' }}>
+                                                    {fileLogo && fileLogo?.imageShow && (
+                                                        <Image
+                                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                            src={fileLogo?.showFile}
+                                                        />
+                                                    )}
+                                                </View>
+                                            )}
+                                            {(printSettings?.header_footer?.header?.doctor_info?.enable === 'Y') ? (
+                                                <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 'left' : 'right', weight: '189px' }}>
+                                                    <Text style={styles.mainTitle}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    </Text>
+                                                    <Text style={[styles.subTitle, { marginTop: 4 }]}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    </Text>
+                                                </View>
+                                            ) : printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (
+                                                <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 'left' : 'right', weight: '130px' }}>
+                                                    <Text style={styles.mainTitle}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    </Text>
+                                                    <Text style={[styles.subTitle, { marginTop: 4 }]}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    </Text>
+                                                </View>
+                                            )}
+                                        </View>
+                                    )}
+                                </View>
+                            ) : printSettings?.whatsapp_letterhead_format === 1 && (
+                                fileHeader && fileHeader?.imageShow && (
+                                    <Image
+                                        style={{ width: '100%', objectFit: 'contain' }}
+                                        src={fileHeader?.showFile}
+                                    />
+                                )
                             )
                         )}
+
                     </View>
 
                     <View style={{ flex: 1 }}>

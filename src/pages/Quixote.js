@@ -4,6 +4,8 @@ import ReactPDF, { Font, Text, View, Image, PDFViewer, Document, Page, StyleShee
 import PrintSettingsContext from '../context/PrintSettingsContext';
 import moment from "moment";
 import { useSelector } from "react-redux";
+
+import { NORMAL } from "../utils/constants";
 import { isNumeric } from '../utils/utils'
 import ViewPDF from '../components/print_settings/ViewPDF';
 import { saveAs } from 'file-saver';
@@ -21,7 +23,8 @@ import { renderPDF } from '../components/print_settings/renderPDF';
 
 const showDateFormat = 'DD MMM, YY'
 
-function Quixote() {
+function Quixote({ mode = NORMAL, ...props }) {
+
     const { printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
@@ -621,15 +624,16 @@ function Quixote() {
                     height: 800
                 }}>
                 <ViewPDF
+                    mode={mode}
                     caseManagerData={caseManagerData}
                     columns={columns}
                     initialRows={initialRows}
                     frequencyList={frequencyList}
                     timingList={timingList}
-                    printSettings={printSettings}
-                    fileHeader={fileHeader}
-                    fileFooter={fileFooter}
-                    fileLogo={fileLogo}
+                    printSettings={mode == NORMAL ? printSettings : props.printSettingsCopy}
+                    fileHeader={mode == NORMAL ? fileHeader : props.fileHeaderCopy}
+                    fileFooter={mode == NORMAL ? fileFooter : props.fileFooterCopy}
+                    fileLogo={mode == NORMAL ? fileLogo : props.fileLogoCopy}
                     fileWatermark={fileWatermark}
                     fileSignature={fileSignature}
                 />

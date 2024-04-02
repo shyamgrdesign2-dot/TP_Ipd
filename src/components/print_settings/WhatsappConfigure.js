@@ -7,13 +7,12 @@ import Quixote from "../../pages/Quixote";
 import PrintSettingsContext from '../../context/PrintSettingsContext';
 
 import CommonModal from '../../common/CommonModal';
-import { MESSAGE_KEY } from "../../utils/constants";
+import { MESSAGE_KEY, WHATSAPP } from "../../utils/constants";
 import { dataUrlToFileUsingFetch } from "../../utils/utils";
 
 import wtsp from '../../assets/images/wtsp.svg';
 
 import defaultprofile from "../../assets/images/default-profile.svg";
-import HeaderWhatsAppSetting from "../../common/HeaderWhatsAppSetting";
 
 const { TextArea } = Input;
 
@@ -291,7 +290,10 @@ function WhatsappConfigure(props) {
     };
 
     const onWhatsappSaveSettingsClick = async () => {
-
+        setPrintSettings(JSON.parse(JSON.stringify(printSettings)))
+        setFileHeader(fileHeaderCopy)
+        setFileFooter(fileFooterCopy)
+        setFileLogo(fileLogoCopy)
     };
 
     return (
@@ -618,7 +620,12 @@ function WhatsappConfigure(props) {
                         <div className="mx-auto overflow-y-auto" style={{ width: 900 }}>
                             <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" /> Whatsapp Preview</div>
                             <div className="border rounded-20px bg-white mt-20 overflow-hidden h-100">
-                                <Quixote />
+                                <Quixote
+                                    mode={WHATSAPP}
+                                    printSettingsCopy={printSettingsCopy}
+                                    fileHeaderCopy={fileHeaderCopy}
+                                    fileFooterCopy={fileFooterCopy}
+                                    fileLogoCopy={fileLogoCopy} />
                             </div>
                         </div>
                     </Col>

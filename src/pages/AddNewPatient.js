@@ -1,6 +1,8 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 
+import { ADD } from "../utils/constants";
+
 import PatientForm from "../components/PatientForm";
 
 function AddNewPatient() {
@@ -9,7 +11,7 @@ function AddNewPatient() {
     const { patient_data } = state != null && state
 
     return (
-        <PatientForm mode="ADD" patient_data={patient_data} />
+        <PatientForm mode={ADD} patient_data={patient_data} />
     );
 
 }

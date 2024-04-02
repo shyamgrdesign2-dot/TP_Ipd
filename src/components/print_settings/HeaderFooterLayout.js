@@ -371,6 +371,54 @@ function HeaderFooterLayout() {
         showHideFooterModal()
     };
 
+    //Own Letterhead
+    const onTopMarginChange = useCallback(
+        (e) => {
+            printSettings.header_footer.margin.top = e.target.value
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
+    const onLeftMarginChange = useCallback(
+        (e) => {
+            printSettings.header_footer.margin.left = e.target.value
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
+    const onRightMarginChange = useCallback(
+        (e) => {
+            printSettings.header_footer.margin.right = e.target.value
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
+    const onBottomMarginChange = useCallback(
+        (e) => {
+            printSettings.header_footer.margin.bottom = e.target.value
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
 
     //Display Patient Info
     const patientInfoTable = [
@@ -951,13 +999,13 @@ function HeaderFooterLayout() {
                                 <div className="">
                                     <div className="my-3 text-center">
                                         <label className="mb-1">Top (cm)</label> <br />
-                                        <Input className='inputheight41-group' style={{ width: 70 }} />
+                                        <Input className='inputheight41-group' value={printSettings?.header_footer?.margin?.top} onChange={onTopMarginChange} style={{ width: 70 }} />
                                     </div>
                                     <Row className="align-items-center justify-content-around form_addnewpatient mb-1">
                                         <Col lg="6">
                                             <div className="text-center">
                                                 <label className="mb-1">Left (cm)</label> <br />
-                                                <Input className='inputheight41-group' style={{ width: 70 }} />
+                                                <Input className='inputheight41-group' value={printSettings?.header_footer?.margin?.left} onChange={onLeftMarginChange} style={{ width: 70 }} />
                                             </div>
                                         </Col>
                                         <Col lg="12">
@@ -966,12 +1014,12 @@ function HeaderFooterLayout() {
                                         <Col lg="6">
                                             <div className="text-center">
                                                 <label className="mb-1">Right (cm)</label> <br />
-                                                <Input className='inputheight41-group' style={{ width: 70 }} />
+                                                <Input className='inputheight41-group' value={printSettings?.header_footer?.margin?.right} onChange={onRightMarginChange} style={{ width: 70 }} />
                                             </div>
                                         </Col>
                                     </Row>
                                     <div className="my-3 text-center">
-                                        <Input className='inputheight41-group' style={{ width: 70 }} /> <br />
+                                        <Input className='inputheight41-group' value={printSettings?.header_footer?.margin?.bottom} onChange={onBottomMarginChange} style={{ width: 70 }} /> <br />
                                         <label className="mb-1">Bottom (cm)</label>
                                     </div>
                                 </div>
@@ -990,7 +1038,7 @@ function HeaderFooterLayout() {
                                     </Col>
                                 </Row>
                                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerOwnLetterHead} open={isOwnLetterHead} width="100%">
-                                    <WhatsappConfigure handleDrawerOwnLetterHead={handleDrawerOwnLetterHead}/>
+                                    <WhatsappConfigure handleDrawerOwnLetterHead={handleDrawerOwnLetterHead} />
                                 </Drawer>
                             </div>
                         )}

@@ -9,7 +9,7 @@ import HeaderPrintSetting from "../common/HeaderPrintSetting";
 import PrintHtmlPage from "../components/print_settings/PrintHtmlPage";
 import Quixote from "./Quixote";
 
-import { TAB_PRESCRIPTION, TAB_HEADER_FOOTER, TAB_PAGE_FORMAT } from "../utils/constants";
+import { TAB_PRESCRIPTION, TAB_HEADER_FOOTER, TAB_PAGE_FORMAT, NORMAL } from "../utils/constants";
 
 import PrescriptionLayout from "../components/print_settings/PrescriptionLayout";
 import HeaderFooterLayout from "../components/print_settings/HeaderFooterLayout";
@@ -99,7 +99,7 @@ function ConfigurePrintSetting() {
                                 <div className="titleprint mt-20" onClick={() => printContent()}>Preview</div>
                                 <div className="border rounded-20px bg-white mt-20 overflow-hidden h-100">
                                     {/* <div key={Math.random()} ref={printRef} style={{ padding: 20 }} className="h-100"> */}
-                                        <Quixote />
+                                    <Quixote mode={NORMAL} />
                                     {/* </div> */}
                                 </div>
                             </div>
