@@ -562,11 +562,11 @@ body {
     .vitals-wrapper {
         display: flex;
 
-        .scrollvitals {
-            &::-webkit-scrollbar {
-                height: 0 !important;
-            }
-        }
+        // .scrollvitals {
+        //     &::-webkit-scrollbar {
+        //         height: 0 !important;
+        //     }
+        // }
 
         .vitals-wrap-body {
             &:first-child {
