@@ -46,7 +46,7 @@ function Header({ locationPath }) {
     dispatch(showMedicineTime());
     dispatch(showMedicineFrequency());
     dispatch(getMedicineType());
-    dispatch(getDefaultPrintsettings());
+    dispatch(getDefaultPrintsettings({ default: false }));
   }, []);
 
   useEffect(() => {

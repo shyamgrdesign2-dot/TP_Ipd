@@ -94,7 +94,7 @@ function Quixote({ mode = NORMAL, ...props }) {
 
     return (
         <PDFViewer
-            showToolbar={true}
+            showToolbar={false}
             style={{
                 width: '100%',
                 height: 800

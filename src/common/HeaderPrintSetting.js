@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { MESSAGE_KEY } from "../utils/constants";
 import {
+    getDefaultPrintsettings,
     savePrintsettings,
 } from "../redux/doctorsSlice";
 
@@ -24,6 +25,10 @@ function HeaderPrintSetting() {
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
+    const onDefaultPrintsettings = async () => {
+        dispatch(getDefaultPrintsettings({ default: true }));
+    };
+
     const onSavePrintSettingsClick = async () => {
         if (printSettings?.letterhead_format == 0 && printSettings?.header_footer?.header?.doctor_info?.enable == 'N' && printSettings?.header_footer?.header?.clinic_info?.enable == 'N' && printSettings?.logo_enable == 'N') {
             message.open({
@@ -40,7 +45,6 @@ function HeaderPrintSetting() {
                 duration: 2
             });
         } else {
-            console.log(fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature)
             var sendData = {
                 letterhead_format: printSettings?.letterhead_format,
                 whatsapp_letterhead_format: printSettings?.whatsapp_letterhead_format,
@@ -52,9 +56,7 @@ function HeaderPrintSetting() {
                 logo_enable: printSettings?.letterhead_format == 0 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 0) ?
                     printSettings?.logo_enable
                     : 'N',
-                logo_image: printSettings?.letterhead_format == 0 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 0) ?
-                    fileLogo ? fileLogo?.uploadFile : ''
-                    : '',
+                logo_image: '',
 
                 header_image: printSettings?.letterhead_format == 1 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 1) ?
                     fileHeader ? fileHeader?.uploadFile : ''
@@ -70,18 +72,17 @@ function HeaderPrintSetting() {
                 signature_image: fileSignature ? fileSignature?.uploadFile : '',
             }
 
-            console.log(sendData)
-            // const action = await dispatch(savePrintsettings(sendData));
-            // if (action.meta.requestStatus === "fulfilled") {
-            //     navigate(-1)
-            // } else {
-            //     message.open({
-            //         key: MESSAGE_KEY,
-            //         type: 'warning',
-            //         content: action.error.message,
-            //         duration: 2
-            //     });
-            // }
+            const action = await dispatch(savePrintsettings(sendData));
+            if (action.meta.requestStatus === "fulfilled") {
+                navigate(-2)
+            } else {
+                message.open({
+                    key: MESSAGE_KEY,
+                    type: 'warning',
+                    content: action.error.message,
+                    duration: 2
+                });
+            }
         }
     };
 
@@ -137,7 +138,7 @@ function HeaderPrintSetting() {
                     </div>
                 </div>
                 <div className='d-flex align-items-center justify-content-end w-100'>
-                    <button className='btn btn-text me-14'>
+                    <button className='btn btn-text me-14' onClick={onDefaultPrintsettings}>
                         <span>Default Settings</span>
                     </button>
                     <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onSavePrintSettingsClick} loading={loading}>
