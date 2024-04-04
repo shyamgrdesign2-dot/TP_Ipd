@@ -80,6 +80,8 @@ function HeaderPrintSetting() {
                 signature_image: fileSignature ? fileSignature?.uploadFile : '',
             }
 
+            console.log(sendData)
+            
             const action = await dispatch(savePrintsettings(sendData));
             if (action.meta.requestStatus === "fulfilled") {
                 navigate(-1)
