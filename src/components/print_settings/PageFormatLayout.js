@@ -4,10 +4,10 @@ import { Form, Select } from "antd";
 import PrintSettingsContext from '../../context/PrintSettingsContext';
 
 const FONTS_FAMILY_LIST = [
-    {
-        value: 'Arial',
-        label: (<div className="fontarial">Arial</div>),
-    },
+    // {
+    //     value: 'Arial',
+    //     label: (<div className="fontarial">Arial</div>),
+    // },
     {
         value: 'Times-Roman',
         label: (<div className="fonttimesroman">Times Roman</div>),
