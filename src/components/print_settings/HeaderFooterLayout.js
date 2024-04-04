@@ -677,9 +677,9 @@ function HeaderFooterLayout() {
                             <Form.Item className="mb-0">
                                 <label className="mb-1 title-common">Select Letterhead Format</label>
                                 <Radio.Group className="d-flex gender-radio all-change-radio" onChange={onLetterheadFormatChange} value={printSettings?.letterhead_format}>
-                                    <Radio.Button className="w-100 text-center" value={0}>Custom</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value={1}>Upload Letterhead</Radio.Button>
                                     <Radio.Button className="w-100 text-center" value={2}>Own Letterhead</Radio.Button>
+                                    <Radio.Button className="w-100 text-center" value={1}>Upload Letterhead</Radio.Button>
+                                    <Radio.Button className="w-100 text-center" value={0}>Custom</Radio.Button>
                                 </Radio.Group>
                             </Form.Item>
                         </div>
