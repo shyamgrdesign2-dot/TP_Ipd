@@ -53,17 +53,25 @@ function HeaderPrintSetting() {
                 header_footer: JSON.stringify(printSettings?.header_footer),
                 page_format: JSON.stringify(printSettings?.page_format),
 
-                logo_enable: printSettings?.letterhead_format == 0 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 0) ?
-                    printSettings?.logo_enable
-                    : 'N',
-                logo_image: '',
+                // logo_enable: printSettings?.letterhead_format == 0 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 0) ?
+                //     printSettings?.logo_enable
+                //     : 'N',
+                // logo_image: printSettings?.letterhead_format == 0 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 0) ?
+                //     fileLogo ? fileLogo?.uploadFile : ''
+                //     : 'N',
 
-                header_image: printSettings?.letterhead_format == 1 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 1) ?
-                    fileHeader ? fileHeader?.uploadFile : ''
-                    : '',
-                footer_image: printSettings?.letterhead_format == 1 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 1) ?
-                    fileFooter ? fileFooter?.uploadFile : ''
-                    : '',
+                // header_image: printSettings?.letterhead_format == 1 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 1) ?
+                //     fileHeader ? fileHeader?.uploadFile : ''
+                //     : '',
+                // footer_image: printSettings?.letterhead_format == 1 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 1) ?
+                //     fileFooter ? fileFooter?.uploadFile : ''
+                //     : '',
+
+                logo_enable: printSettings?.logo_enable,
+                logo_image: fileLogo ? fileLogo?.uploadFile : '',
+
+                header_image: fileHeader ? fileHeader?.uploadFile : '',
+                footer_image: fileFooter ? fileFooter?.uploadFile : '',
 
                 water_mark_enable: printSettings?.water_mark_enable,
                 water_mark_image: fileWatermark ? fileWatermark?.uploadFile : '',
@@ -74,7 +82,7 @@ function HeaderPrintSetting() {
 
             const action = await dispatch(savePrintsettings(sendData));
             if (action.meta.requestStatus === "fulfilled") {
-                navigate(-2)
+                navigate(-1)
             } else {
                 message.open({
                     key: MESSAGE_KEY,

@@ -355,15 +355,15 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             {caseManagerData.symptoms.length > 0 && printSettings?.prescription?.case_option[0]?.enable === 'Y' && (
                                 printSettings?.prescription?.case_option[0]?.format === 'inline' ? (
                                     <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
                                         {caseManagerData.symptoms.map((item, i) => {
                                             return (
                                                 <Text key={i}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
                                                     {(item.since || item.severity || item.note) ?
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                         :
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                     }
                                                 </Text>
                                             )
@@ -371,14 +371,14 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </Text>
                                 ) : printSettings?.prescription?.case_option[0]?.format === 'listview' ? (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
                                         {caseManagerData.symptoms.map((item, i) => {
                                             return (
                                                 <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
                                                     {(item.since || item.severity || item.note) &&
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
                                                     }
                                                 </Text>
                                             )
@@ -386,20 +386,20 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </View>
                                 ) : (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
                                         <View style={styles.table}>
                                             <View style={styles.row}>
-                                                <Text style={[styles.cell, { fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
-                                                <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>SEVERITY</Text>
-                                                <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
+                                                <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SEVERITY</Text>
+                                                <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
                                             </View>
                                             {caseManagerData.symptoms.map((item, i) => (
                                                 <View style={styles.row} key={i}>
-                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }]}>{item.symptom_name}</Text>
-                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
-                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>{item.severity ? item.severity : '-'}</Text>
-                                                    <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
+                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.symptom_name}</Text>
+                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
+                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.severity ? item.severity : '-'}</Text>
+                                                    <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
                                                 </View>
                                             ))}
                                         </View>
@@ -410,15 +410,15 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             {caseManagerData.examination.length > 0 && printSettings?.prescription?.case_option[1]?.enable === 'Y' && (
                                 printSettings?.prescription?.case_option[1]?.format === 'inline' ? (
                                     <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
                                         {caseManagerData.examination.map((item, i) => {
                                             return (
                                                 <Text key={i}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
                                                     {(item.note) ?
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                         :
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                     }
                                                 </Text>
                                             )
@@ -426,14 +426,14 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </Text>
                                 ) : printSettings?.prescription?.case_option[1]?.format === 'listview' ? (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
                                         {caseManagerData.examination.map((item, i) => {
                                             return (
                                                 <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
                                                     {(item.since || item.severity || item.note) &&
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
                                                     }
                                                 </Text>
                                             )
@@ -441,16 +441,16 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </View>
                                 ) : (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
                                         <View style={styles.table}>
                                             <View style={styles.row}>
-                                                <Text style={[styles.cell, { fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                <Text style={[styles.cell, { fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
                                             </View>
                                             {caseManagerData.examination.map((item, i) => (
                                                 <View style={styles.row} key={i}>
-                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }]}>{item.examination_name}</Text>
-                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
+                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.examination_name}</Text>
+                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
                                                 </View>
                                             ))}
                                         </View>
@@ -461,15 +461,15 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             {caseManagerData.diagnosis.length > 0 && printSettings?.prescription?.case_option[2]?.enable === 'Y' && (
                                 printSettings?.prescription?.case_option[2]?.format === 'inline' ? (
                                     <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
                                         {caseManagerData.diagnosis.map((item, i) => {
                                             return (
                                                 <Text key={i}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
                                                     {(item.since || item.status || item.note) ?
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                         :
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                     }
                                                 </Text>
                                             )
@@ -477,14 +477,14 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </Text>
                                 ) : printSettings?.prescription?.case_option[2]?.format === 'listview' ? (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
                                         {caseManagerData.diagnosis.map((item, i) => {
                                             return (
                                                 <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
                                                     {(item.since || item.severity || item.note) &&
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
                                                     }
                                                 </Text>
                                             )
@@ -492,20 +492,20 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </View>
                                 ) : (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
                                         <View style={styles.table}>
                                             <View style={styles.row}>
-                                                <Text style={[styles.cell, { fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
-                                                <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
-                                                <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
+                                                <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
+                                                <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
                                             </View>
                                             {caseManagerData.diagnosis.map((item, i) => (
                                                 <View style={styles.row} key={i}>
-                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }]}>{item.tds_name}</Text>
-                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
-                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>{item.status ? item.status : '-'}</Text>
-                                                    <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
+                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.tds_name}</Text>
+                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
+                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.status ? item.status : '-'}</Text>
+                                                    <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
                                                 </View>
                                             ))}
                                         </View>
@@ -516,12 +516,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             {caseManagerData.medicine.length > 0 && printSettings?.prescription?.case_option[3]?.enable === 'Y' && (
                                 printSettings?.prescription?.case_option[3]?.format === 'inline' ? (
                                     <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
                                         {caseManagerData.medicine.map((item, i) => {
                                             return (
                                                 <Text key={i}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>{item.tmm_medicine_name}&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tmm_medicine_name}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                         {`(${Object.values(Object.fromEntries(Object.entries(
                                                             (
                                                                 ({
@@ -558,13 +558,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </Text>
                                 ) : printSettings?.prescription?.case_option[3]?.format === 'listview' ? (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
                                         {caseManagerData.medicine.map((item, i) => {
                                             return (
                                                 <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>{item.tmm_medicine_name}&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tmm_medicine_name}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                         {`(${Object.values(Object.fromEntries(Object.entries(
                                                             (
                                                                 ({
@@ -601,33 +601,33 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </View>
                                 ) : (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
                                         <View style={styles.table}>
                                             <View style={styles.row}>
-                                                <Text style={[styles.cell, { flex: 0.05, fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>RX</Text>
-                                                <Text style={[styles.cell, { fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>TIME & FREQUENCY</Text>
-                                                <Text style={[styles.cell, { flex: 0.28, fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
-                                                <Text style={[styles.cell, { flex: 0.15, fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>QTY.</Text>
-                                                <Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                <Text style={[styles.cell, { flex: 0.05, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>RX</Text>
+                                                <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>TIME & FREQUENCY</Text>
+                                                <Text style={[styles.cell, { flex: 0.28, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
+                                                <Text style={[styles.cell, { flex: 0.15, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>QTY.</Text>
+                                                <Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
                                             </View>
                                             {caseManagerData.medicine.map((item, i) => (
                                                 <View style={styles.row} key={i}>
-                                                    <Text style={[styles.cell, { flex: 0.05, color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }]}>{i + 1}</Text>
+                                                    <Text style={[styles.cell, { flex: 0.05, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{i + 1}</Text>
                                                     <View style={styles.cell}>
-                                                        <Text style={[{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }]}>{item.tmm_medicine_name}</Text>
-                                                        <Text style={[{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>{item.tmm_generic}</Text>
+                                                        <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.tmm_medicine_name}</Text>
+                                                        <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.tmm_generic}</Text>
                                                     </View>
-                                                    <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>
+                                                    <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                         {item.tmf_block === 0 || item.tmf_block === "" ? `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning : 0}-${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon : 0}-${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening : 0}-${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}
                                                     </Text>
-                                                    <Text style={[styles.cell, { flex: 0.28, color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>
+                                                    <Text style={[styles.cell, { flex: 0.28, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                         {isNumeric(item.tmm_days) ? `${item.tmm_days} - ${item.tmm_duration_type}` : '-'}
                                                     </Text>
-                                                    <Text style={[styles.cell, { flex: 0.15, color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>
+                                                    <Text style={[styles.cell, { flex: 0.15, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                         {item.display_qty ? item.display_qty.toFixed(2).replace(/\.00$/, '') : '-'}
                                                     </Text>
-                                                    <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>
+                                                    <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                         {item.tmm_remarks ? item.tmm_remarks : '-'}
                                                     </Text>
                                                 </View>
@@ -640,38 +640,38 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             {caseManagerData.advice.length > 0 && printSettings?.prescription?.case_option[4]?.enable === 'Y' && (
                                 printSettings?.prescription?.case_option[4]?.format === 'inline' ? (
                                     <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
                                         {caseManagerData.advice.map((item, i) => {
                                             return (
                                                 <Text key={i}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{caseManagerData.advice.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.advice.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                 </Text>
                                             )
                                         })}
                                     </Text>
                                 ) : printSettings?.prescription?.case_option[4]?.format === 'listview' ? (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
                                         {caseManagerData.advice.map((item, i) => {
                                             return (
                                                 <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
                                                 </Text>
                                             )
                                         })}
                                     </View>
                                 ) : (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
                                         <View style={styles.table}>
                                             <View style={styles.row}>
-                                                <Text style={[styles.cell, { fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
                                             </View>
                                             {caseManagerData.advice.map((item, i) => (
                                                 <View style={styles.row} key={i}>
-                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>{item.advice_name}</Text>
+                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.advice_name}</Text>
                                                 </View>
                                             ))}
                                         </View>
@@ -682,15 +682,15 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             {caseManagerData.investigation.length > 0 && printSettings?.prescription?.case_option[5]?.enable === 'Y' && (
                                 printSettings?.prescription?.case_option[5]?.format === 'inline' ? (
                                     <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
                                         {caseManagerData.investigation.map((item, i) => {
                                             return (
                                                 <Text key={i}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
                                                     {(item.note) ?
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                         :
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                     }
                                                 </Text>
                                             )
@@ -698,14 +698,14 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </Text>
                                 ) : printSettings?.prescription?.case_option[5]?.format === 'listview' ? (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
                                         {caseManagerData.investigation.map((item, i) => {
                                             return (
                                                 <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
                                                     {(item.since || item.severity || item.note) &&
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
                                                     }
                                                 </Text>
                                             )
@@ -713,16 +713,16 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </View>
                                 ) : (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
                                         <View style={styles.table}>
                                             <View style={styles.row}>
-                                                <Text style={[styles.cell, { fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                <Text style={[styles.cell, { fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
                                             </View>
                                             {caseManagerData.investigation.map((item, i) => (
                                                 <View style={styles.row} key={i}>
-                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }]}>{item.investigation_name}</Text>
-                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
+                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.investigation_name}</Text>
+                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
                                                 </View>
                                             ))}
                                         </View>
@@ -733,12 +733,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             {caseManagerData.vitals.length > 0 && printSettings?.prescription?.case_option[6]?.enable === 'Y' && (
                                 printSettings?.prescription?.case_option[6]?.format === 'inline' ? (
                                     <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
                                         {caseManagerData.vitals.map((item, i) => {
                                             return (
                                                 <Text key={i}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>{item.date}&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.date}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                         {`- ${Object.values(Object.fromEntries(Object.entries(
                                                             (
                                                                 ({
@@ -774,13 +774,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </Text>
                                 ) : printSettings?.prescription?.case_option[6]?.format === 'listview' ? (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
                                         {caseManagerData.vitals.map((item, i) => {
                                             return (
                                                 <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }}>{item.date}&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }}>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.date}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                         {`- ${Object.values(Object.fromEntries(Object.entries(
                                                             (
                                                                 ({
@@ -816,21 +816,21 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </View>
                                 ) : (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
                                         <View style={styles.table}>
                                             <View style={styles.row}>
                                                 {columns.map((item, i) => {
                                                     return (
-                                                        <Text style={[styles.cell, { fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500, color: '#000' }]}>{item.title}</Text>
+                                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>{item.title}</Text>
                                                     )
                                                 })}
                                             </View>
                                             {initialRows.map((item, i) => {
                                                 return (
                                                     <View style={styles.row} key={i}>
-                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 500 }]}>{item.name}</Text>
-                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>{item['0']}</Text>
-                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings.page_format.font_family, fontSize: PX_TO_PT * printSettings.page_format.font_size, fontWeight: 400 }]}>{item['1']}</Text>
+                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.name}</Text>
+                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['0']}</Text>
+                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['1']}</Text>
                                                     </View>
                                                 )
                                             })}
@@ -838,6 +838,14 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </View>
                                 )
                             )}
+
+                            {caseManagerData.visit_advice != '' && (
+                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
+                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.visit_advice}</Text>
+                                </Text>
+                            )}
+
                         </View>
 
                         <View style={{ marginTop: PX_TO_PT * 29 }}>
