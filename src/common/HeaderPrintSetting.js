@@ -25,41 +25,69 @@ function HeaderPrintSetting() {
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
     const onSavePrintSettingsClick = async () => {
-        var sendData = {
-            letterhead_format: printSettings?.letterhead_format,
-            whatsapp_letterhead_format: printSettings?.whatsapp_letterhead_format,
-            logo_enable: printSettings?.logo_enable,
-            water_mark_enable: printSettings?.water_mark_enable,
-            signature_enable: printSettings?.signature_enable,
-            qrcode_enable: printSettings?.qrcode_enable,
-            prescription: JSON.stringify(printSettings?.prescription),
-            header_footer: JSON.stringify(printSettings?.header_footer),
-            page_format: JSON.stringify(printSettings?.page_format),
-
-            logo_image: fileLogo ? fileLogo?.uploadFile : '',
-            header_image: fileHeader ? fileHeader?.uploadFile : '',
-            footer_image: fileFooter ? fileFooter?.uploadFile : '',
-            water_mark_image: fileWatermark ? fileWatermark?.uploadFile : '',
-            signature_image: fileSignature ? fileSignature?.uploadFile : '',
-        }
-        console.log(sendData)
-
-        const action = await dispatch(savePrintsettings(sendData));
-        if (action.meta.requestStatus === "fulfilled") {
-
-        } else {
+        if (printSettings?.letterhead_format == 0 && printSettings?.header_footer?.header?.doctor_info?.enable == 'N' && printSettings?.header_footer?.header?.clinic_info?.enable == 'N' && printSettings?.logo_enable == 'N') {
             message.open({
                 key: MESSAGE_KEY,
                 type: 'warning',
-                content: action.error.message,
+                content: `Enable at least one option (Doctor’s information, Clinic's information, Logo on Header)`,
                 duration: 2
             });
-        }
+        } else if (printSettings?.letterhead_format == 1 && !fileHeader) {
+            message.open({
+                key: MESSAGE_KEY,
+                type: 'warning',
+                content: `Upload header`,
+                duration: 2
+            });
+        } else {
+            console.log(fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature)
+            var sendData = {
+                letterhead_format: printSettings?.letterhead_format,
+                whatsapp_letterhead_format: printSettings?.whatsapp_letterhead_format,
+                qrcode_enable: printSettings?.qrcode_enable,
+                prescription: JSON.stringify(printSettings?.prescription),
+                header_footer: JSON.stringify(printSettings?.header_footer),
+                page_format: JSON.stringify(printSettings?.page_format),
 
+                logo_enable: printSettings?.letterhead_format == 0 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 0) ?
+                    printSettings?.logo_enable
+                    : 'N',
+                logo_image: printSettings?.letterhead_format == 0 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 0) ?
+                    fileLogo ? fileLogo?.uploadFile : ''
+                    : '',
+
+                header_image: printSettings?.letterhead_format == 1 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 1) ?
+                    fileHeader ? fileHeader?.uploadFile : ''
+                    : '',
+                footer_image: printSettings?.letterhead_format == 1 || (printSettings?.letterhead_format == 2 && printSettings?.whatsapp_letterhead_format == 1) ?
+                    fileFooter ? fileFooter?.uploadFile : ''
+                    : '',
+
+                water_mark_enable: printSettings?.water_mark_enable,
+                water_mark_image: fileWatermark ? fileWatermark?.uploadFile : '',
+
+                signature_enable: printSettings?.signature_enable,
+                signature_image: fileSignature ? fileSignature?.uploadFile : '',
+            }
+
+            console.log(sendData)
+            // const action = await dispatch(savePrintsettings(sendData));
+            // if (action.meta.requestStatus === "fulfilled") {
+            //     navigate(-1)
+            // } else {
+            //     message.open({
+            //         key: MESSAGE_KEY,
+            //         type: 'warning',
+            //         content: action.error.message,
+            //         duration: 2
+            //     });
+            // }
+        }
     };
 
     const checkDataFillOrNot = () => {
-        showHideBackModal()
+        navigate(-1)
+        // showHideBackModal()
     }
 
     const showHideBackModal = useCallback(() => {

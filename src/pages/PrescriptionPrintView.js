@@ -189,14 +189,24 @@ function PrescriptionPrintView() {
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
     }
-    function configurePrintUrl() {
-        // message.open({
-        //     key: MESSAGE_KEY,
-        //     type: 'warning',
-        //     content: "Comming Soon",
-        //     duration: 2
-        // });
-        navigate("/configure_print_setting");
+
+    const configurePrintUrl = async () => {
+        var sendData = {
+            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            tcm_id: state.tcm_id,
+            configurePrintSetting: true
+        }
+        const action = await dispatch(viewCaseManager(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            navigate("/configure_print_setting", { state: { patient_data: patient_data, caseManagerData: action.payload } })
+        } else {
+            message.open({
+                key: MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
+        }
     }
 
     return (

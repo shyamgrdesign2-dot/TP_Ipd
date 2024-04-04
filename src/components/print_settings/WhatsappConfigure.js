@@ -626,7 +626,8 @@ function WhatsappConfigure(props) {
                                     printSettingsCopy={printSettingsCopy}
                                     fileHeaderCopy={fileHeaderCopy}
                                     fileFooterCopy={fileFooterCopy}
-                                    fileLogoCopy={fileLogoCopy} />
+                                    fileLogoCopy={fileLogoCopy}
+                                />
                             </div>
                         </div>
                     </Col>
