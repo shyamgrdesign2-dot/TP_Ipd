@@ -1,6 +1,8 @@
 import React from "react";
 import { Button, Spin } from "antd";
 import { Navbar } from 'react-bootstrap';
+import { isMobile } from "react-device-detect";
+
 import { NORMAL } from "../../utils/constants";
 import Quixote from "../../pages/Quixote";
 import wtsp from '../../assets/images/wtsp.svg';
@@ -35,7 +37,7 @@ function WhatsappConfigureView(props) {
                 <div className="mx-auto">
                     <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" /> WhatsApp Preview</div>
                     <div className="border rounded-20px bg-white mt-20 overflow-auto" style={{ height: 'calc(100vh - 136px)' }}>
-                        <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
+                        {isMobile && (<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />)}
                         <Quixote mode={NORMAL} />
                     </div>
                 </div>

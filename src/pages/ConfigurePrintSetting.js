@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback,useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Col, Tabs, Row, Spin } from "antd";
 import { useReactToPrint } from 'react-to-print';
 import { useSelector, useDispatch } from "react-redux";
+import { isMobile } from "react-device-detect";
 
 import PrintSettingsContext from '../context/PrintSettingsContext';
 
@@ -20,14 +21,10 @@ import "cropperjs/dist/cropper.css";
 function ConfigurePrintSetting() {
 
     const printRef = useRef();
-    const divRef = useRef(null);
 
     const { defaultPrintSettings } = useSelector((state) => state.doctors);
 
     const { state } = useLocation();
-    // const { caseManagerData } = state
-    
-    const [divWidth, setDivWidth] = useState(0);
 
     const [selectedTab, setSelectedTab] = useState(TAB_PRESCRIPTION);
     const [printSettings, setPrintSettings] = useState(null);
@@ -37,7 +34,7 @@ function ConfigurePrintSetting() {
     const [fileWatermark, setFileWatermark] = useState(null);
     const [fileSignature, setFileSignature] = useState(null);
 
-    const contextApi = { divWidth, state, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
+    const contextApi = { state, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
 
     const TabsPrintSetting = [
         {
@@ -53,10 +50,6 @@ function ConfigurePrintSetting() {
             label: 'Page Format'
         },
     ];
-
-    useEffect(() => {
-        setDivWidth(divRef.current?.offsetWidth);
-    }, [divRef]);
 
     const printContent = useReactToPrint({
         content: () => printRef.current,
@@ -101,8 +94,8 @@ function ConfigurePrintSetting() {
                         <Col xl={16} lg={14} className="overflow-y-auto pdfMobile-Class">
                             <div className="mx-auto overflow-y-auto">
                                 <div className="titleprint mt-20" onClick={() => printContent()}>Preview</div>
-                                <div ref={divRef} className="border rounded-20px bg-body mt-20 overflow-y-auto" style={{ height: 'calc(100vh - 136px)' }}>
-                                    <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
+                                <div className="border rounded-20px bg-body mt-20 overflow-y-auto" style={{ height: 'calc(100vh - 136px)' }}>
+                                    {isMobile && (<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />)}
                                     <Quixote mode={NORMAL} />
                                 </div>
                             </div>

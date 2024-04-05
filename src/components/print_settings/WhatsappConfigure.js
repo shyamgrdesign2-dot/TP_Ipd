@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useContext } from "react";
 import { Col, Radio, Row, Form, Switch, Button, Input, message, Spin } from "antd";
 import Cropper from "react-cropper";
 import { Navbar } from 'react-bootstrap';
+import { isMobile } from "react-device-detect";
 
 import Quixote from "../../pages/Quixote";
 import PrintSettingsContext from '../../context/PrintSettingsContext';
@@ -35,11 +36,8 @@ function WhatsappConfigure(props) {
     const [fileFooterCopy, setFileFooterCopy] = useState(null);
     const [fileLogoCopy, setFileLogoCopy] = useState(null);
 
-    const [headerFooterShowHide, setHeaderFooterShowHide] = useState(false);
-
     const [isHeaderModalOpen, setIsHeaderModalOpen] = useState(false);
     const [isFooterModalOpen, setIsFooterModalOpen] = useState(false);
-
 
     useEffect(() => {
         setPrintSettingsCopy(JSON.parse(JSON.stringify(printSettings)));
@@ -621,7 +619,7 @@ function WhatsappConfigure(props) {
                         <div className="mx-auto overflow-y-auto">
                             <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" />WhatsApp Preview</div>
                             <div className="border rounded-20px bg-body mt-20 overflow-y-auto" style={{ height: 'calc(100vh - 136px)' }}>
-                                <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
+                                {isMobile && (<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />)}
                                 <Quixote
                                     mode={WHATSAPP}
                                     printSettingsCopy={printSettingsCopy}
