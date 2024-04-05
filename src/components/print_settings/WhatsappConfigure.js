@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import { Col, Radio, Row, Form, Switch, Button, Input, message } from "antd";
+import { Col, Radio, Row, Form, Switch, Button, Input, message, Spin } from "antd";
 import Cropper from "react-cropper";
 import { Navbar } from 'react-bootstrap';
 
@@ -322,7 +322,7 @@ function WhatsappConfigure(props) {
             {/* <style scoped>{css}</style> */}
             <div className={'w-100 bg-body wrapper2'}>
                 <Row justify="space-between">
-                    <Col lg={8} className="pe-4">
+                    <Col xl={8} lg={10} className="pe-3">
                         <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                             <div className="px-3 form_addnewpatient">
                                 <div className="mt-4">
@@ -617,10 +617,11 @@ function WhatsappConfigure(props) {
                             </div>
                         </div>
                     </Col>
-                    <Col lg={16} className="overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
-                        <div className="mx-auto overflow-y-auto" style={{ width: 825 }}>
-                            <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" /> WhatsApp Preview</div>
-                            <div className="border rounded-20px bg-white mt-20 overflow-hidden h-100">
+                    <Col xl={16} lg={14} className="overflow-y-auto pdfMobile-Class">
+                        <div className="mx-auto overflow-y-auto">
+                            <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" />WhatsApp Preview</div>
+                            <div className="border rounded-20px bg-body mt-20 overflow-y-auto" style={{ height: 'calc(100vh - 136px)' }}>
+                                <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
                                 <Quixote
                                     mode={WHATSAPP}
                                     printSettingsCopy={printSettingsCopy}

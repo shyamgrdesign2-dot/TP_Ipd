@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "antd";
+import { Button, Spin } from "antd";
 import { Navbar } from 'react-bootstrap';
 import { NORMAL } from "../../utils/constants";
 import Quixote from "../../pages/Quixote";
@@ -31,10 +31,11 @@ function WhatsappConfigureView(props) {
                 </div>
             </Navbar>
 
-            <div className={'w-100 bg-body wrapper2'}>
-                <div className="mx-auto overflow-y-auto" style={{ width: 825 }}>
+            <div className={'w-100 bg-body d-flex wrapper2'}>
+                <div className="mx-auto">
                     <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" /> WhatsApp Preview</div>
-                    <div className="border rounded-20px bg-white mt-20 overflow-hidden h-100">
+                    <div className="border rounded-20px bg-white mt-20 overflow-auto" style={{ height: 'calc(100vh - 136px)' }}>
+                        <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
                         <Quixote mode={NORMAL} />
                     </div>
                 </div>

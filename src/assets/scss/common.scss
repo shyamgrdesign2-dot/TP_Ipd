@@ -458,4 +458,43 @@ body {
             }
         } 
     }
+
+    .mobile__pdf__container {
+        #viewerContainer {
+            position: relative;
+            overflow: hidden;
+            width: 100% !important;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            .pdfViewer {
+                overflow: hidden;
+                .page {
+                    border-image: none;
+                    border: none;
+                    background-color: transparent;
+                    margin: 0;
+                }
+            }
+        }
+    }
+    #errorWrapper, #loadingBar {
+        display: none !important;
+    }
+    .pdfMobile-Class {
+        .mobile__pdf__container {
+            #viewerContainer {
+                .page {
+                    width: 100% !important;
+                    #page1 {
+                        width: 100% !important;
+                    }
+                }
+                .canvasWrapper {
+                    width: 100% !important;
+                }
+            }
+        }
+    }
 }

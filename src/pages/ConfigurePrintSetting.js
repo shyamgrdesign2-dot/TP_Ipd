@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback,useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { Col, Tabs, Row } from "antd";
+import { Col, Tabs, Row, Spin } from "antd";
 import { useReactToPrint } from 'react-to-print';
 import { useSelector, useDispatch } from "react-redux";
 
@@ -19,12 +19,15 @@ import "cropperjs/dist/cropper.css";
 
 function ConfigurePrintSetting() {
 
-    const printRef = React.useRef();
+    const printRef = useRef();
+    const divRef = useRef(null);
 
     const { defaultPrintSettings } = useSelector((state) => state.doctors);
 
     const { state } = useLocation();
-    const { caseManagerData } = state
+    // const { caseManagerData } = state
+    
+    const [divWidth, setDivWidth] = useState(0);
 
     const [selectedTab, setSelectedTab] = useState(TAB_PRESCRIPTION);
     const [printSettings, setPrintSettings] = useState(null);
@@ -34,7 +37,7 @@ function ConfigurePrintSetting() {
     const [fileWatermark, setFileWatermark] = useState(null);
     const [fileSignature, setFileSignature] = useState(null);
 
-    const contextApi = { state, caseManagerData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
+    const contextApi = { divWidth, state, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
 
     const TabsPrintSetting = [
         {
@@ -50,6 +53,10 @@ function ConfigurePrintSetting() {
             label: 'Page Format'
         },
     ];
+
+    useEffect(() => {
+        setDivWidth(divRef.current?.offsetWidth);
+    }, [divRef]);
 
     const printContent = useReactToPrint({
         content: () => printRef.current,
@@ -79,7 +86,7 @@ function ConfigurePrintSetting() {
                 {/* <style scoped>{css}</style> */}
                 <div className={'w-100 bg-body wrapper2'}>
                     <Row justify="space-between">
-                        <Col lg={8} className="pe-4">
+                        <Col xl={8} lg={10} className="pe-3">
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                                 <Tabs defaultActiveKey="1" items={TabsPrintSetting} onChange={onTabChange} className="print-tabs" />
                                 {selectedTab === TAB_PRESCRIPTION ? (
@@ -91,10 +98,11 @@ function ConfigurePrintSetting() {
                                 )}
                             </div>
                         </Col>
-                        <Col lg={16} className="overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
-                            <div className="mx-auto overflow-y-auto" style={{ width: 900 }}>
+                        <Col xl={16} lg={14} className="overflow-y-auto pdfMobile-Class">
+                            <div className="mx-auto overflow-y-auto">
                                 <div className="titleprint mt-20" onClick={() => printContent()}>Preview</div>
-                                <div className="border rounded-20px bg-white mt-20 overflow-hidden h-100">
+                                <div ref={divRef} className="border rounded-20px bg-body mt-20 overflow-y-auto" style={{ height: 'calc(100vh - 136px)' }}>
+                                    <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
                                     <Quixote mode={NORMAL} />
                                 </div>
                             </div>

@@ -839,12 +839,17 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                                 )
                             )}
 
-                            {caseManagerData.visit_advice != '' && (
-                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                            {caseManagerData.follow_up_date || caseManagerData.visit_advice ? (
+                                <Text style={{ marginTop: PX_TO_PT * 15 }}>
                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
-                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.visit_advice}</Text>
+                                    {caseManagerData.follow_up_date && (
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{caseManagerData.follow_up_date}&nbsp;</Text>
+                                    )}
+                                    {caseManagerData.visit_advice && (
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.visit_advice}</Text>
+                                    )}
                                 </Text>
-                            )}
+                            ) : null}
 
                         </View>
 
