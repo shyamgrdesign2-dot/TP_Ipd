@@ -18,9 +18,8 @@ import { MESSAGE_KEY } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import {
-    viewCaseManager,
-} from "../redux/caseManagerSlice";
+import { viewCaseManager } from "../redux/caseManagerSlice";
+import { setConfigurePrintData } from "../redux/doctorsSlice";
 
 // import { pdfjs, Document, Page } from "react-pdf";
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -198,7 +197,8 @@ function PrescriptionPrintView() {
         }
         const action = await dispatch(viewCaseManager(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            navigate("/configure_print_setting", { state: { ...state, caseManagerData: action.payload } })
+            await dispatch(setConfigurePrintData({ ...state, caseManagerData: action.payload }));
+            navigate("/configure_print_setting")
         } else {
             message.open({
                 key: MESSAGE_KEY,

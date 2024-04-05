@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { PDFViewer, BlobProvider, pdf } from '@react-pdf/renderer';
-import { MobilePDFReader } from 'reactjs-pdf-reader';
+import { PDFReader,MobilePDFReader } from 'reactjs-pdf-reader';
 import { isMobile } from "react-device-detect";
 
 import PrintSettingsContext from '../context/PrintSettingsContext';
@@ -16,8 +16,8 @@ const showDateFormat = 'DD MMM, YY'
 
 function Quixote({ mode = NORMAL, ...props }) {
 
-    const { state, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
-    const caseManagerData = state ? state?.caseManagerData : null
+    const { configurePrintData, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
+    const caseManagerData = configurePrintData ? configurePrintData?.caseManagerData : null
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
@@ -100,47 +100,46 @@ function Quixote({ mode = NORMAL, ...props }) {
     const [pdfUrl, setPdfUrl] = useState(null)
 
     useEffect(() => {
-        const makePDFUrl = async () => {
-            var make_data = {
-                mode: mode,
-                caseManagerData: caseManagerData,
-                columns: columns,
-                initialRows: initialRows,
-                frequencyList: frequencyList,
-                timingList: timingList,
-                printSettings: mode == NORMAL ? printSettings : props.printSettingsCopy,
-                fileHeader: mode == NORMAL ? fileHeader : props.fileHeaderCopy,
-                fileFooter: mode == NORMAL ? fileFooter : props.fileFooterCopy,
-                fileLogo: mode == NORMAL ? fileLogo : props.fileLogoCopy,
-                fileWatermark: fileWatermark,
-                fileSignature: fileSignature,
-            }
-            const blob = await renderPDF({ ...make_data });
-            setPdfUrl(URL.createObjectURL(blob))
-        }
         // const makePDFUrl = async () => {
-        //     const blob = await pdf(<PDF
-        //         mode={mode}
-        //         caseManagerData={caseManagerData}
-        //         columns={columns}
-        //         initialRows={initialRows}
-        //         frequencyList={frequencyList}
-        //         timingList={timingList}
-        //         printSettings={mode == NORMAL ? printSettings : props.printSettingsCopy}
-        //         fileHeader={mode == NORMAL ? fileHeader : props.fileHeaderCopy}
-        //         fileFooter={mode == NORMAL ? fileFooter : props.fileFooterCopy}
-        //         fileLogo={mode == NORMAL ? fileLogo : props.fileLogoCopy}
-        //         fileWatermark={fileWatermark}
-        //         fileSignature={fileSignature}
-        //     />).toBlob();
+        //     var make_data = {
+        //         mode: mode,
+        //         caseManagerData: caseManagerData,
+        //         columns: columns,
+        //         initialRows: initialRows,
+        //         frequencyList: frequencyList,
+        //         timingList: timingList,
+        //         printSettings: mode == NORMAL ? printSettings : props.printSettingsCopy,
+        //         fileHeader: mode == NORMAL ? fileHeader : props.fileHeaderCopy,
+        //         fileFooter: mode == NORMAL ? fileFooter : props.fileFooterCopy,
+        //         fileLogo: mode == NORMAL ? fileLogo : props.fileLogoCopy,
+        //         fileWatermark: fileWatermark,
+        //         fileSignature: fileSignature,
+        //     }
+        //     const blob = await renderPDF({ ...make_data });
         //     setPdfUrl(URL.createObjectURL(blob))
         // }
+        const makePDFUrl = async () => {
+            const blob = await pdf(<PDF
+                mode={mode}
+                caseManagerData={caseManagerData}
+                columns={columns}
+                initialRows={initialRows}
+                frequencyList={frequencyList}
+                timingList={timingList}
+                printSettings={mode == NORMAL ? printSettings : props.printSettingsCopy}
+                fileHeader={mode == NORMAL ? fileHeader : props.fileHeaderCopy}
+                fileFooter={mode == NORMAL ? fileFooter : props.fileFooterCopy}
+                fileLogo={mode == NORMAL ? fileLogo : props.fileLogoCopy}
+                fileWatermark={fileWatermark}
+                fileSignature={fileSignature}
+            />).toBlob();
+            setPdfUrl(URL.createObjectURL(blob))
+        }
         caseManagerData && isMobile && makePDFUrl()
     }, [mode, printSettings, fileHeader, fileFooter, fileSignature, fileWatermark, fileLogo]);
 
     return (
         <>
-
             {isMobile ? (
                 // <BlobProvider document={<PDF
                 //     mode={mode}
@@ -163,7 +162,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 //         return <MobilePDFReader key={Math.random()} url={`${url1}#toolbar=0&navpanes=0&scrollbar=0`} isShowHeader={false} isShowFooter={false} />
                 //     }}
                 // </BlobProvider>
-                <MobilePDFReader key={Math.random()} url={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`} isShowHeader={false} isShowFooter={false} />
+                pdfUrl && (<MobilePDFReader key={Math.random()} url={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`} isShowHeader={false} isShowFooter={false} />)
             ) : (
                 <PDFViewer
                     showToolbar={false}

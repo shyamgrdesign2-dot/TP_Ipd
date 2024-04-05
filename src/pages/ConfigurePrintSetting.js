@@ -22,9 +22,7 @@ function ConfigurePrintSetting() {
 
     const printRef = useRef();
 
-    const { defaultPrintSettings } = useSelector((state) => state.doctors);
-
-    const { state } = useLocation();
+    const { defaultPrintSettings, configurePrintData } = useSelector((state) => state.doctors);
 
     const [selectedTab, setSelectedTab] = useState(TAB_PRESCRIPTION);
     const [printSettings, setPrintSettings] = useState(null);
@@ -34,7 +32,7 @@ function ConfigurePrintSetting() {
     const [fileWatermark, setFileWatermark] = useState(null);
     const [fileSignature, setFileSignature] = useState(null);
 
-    const contextApi = { state, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
+    const contextApi = { configurePrintData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
 
     const TabsPrintSetting = [
         {
