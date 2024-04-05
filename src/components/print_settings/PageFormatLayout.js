@@ -4,28 +4,28 @@ import { Form, Select } from "antd";
 import PrintSettingsContext from '../../context/PrintSettingsContext';
 
 const FONTS_FAMILY_LIST = [
+    // {
+    //     value: 'Arial',
+    //     label: (<div className="fontarial">Arial</div>),
+    // },
     {
-        value: 'fontarial',
-        label: (<div className="fontarial">Arial</div>),
-    },
-    {
-        value: 'fonttimesroman',
+        value: 'Times-Roman',
         label: (<div className="fonttimesroman">Times Roman</div>),
     },
     {
-        value: 'fontverdana',
+        value: 'Verdana',
         label: (<div className="fontverdana">Verdana</div>),
     },
     {
-        value: 'fontcalibri',
+        value: 'Calibri',
         label: (<div className="fontcalibri">Calibri</div>),
     },
     {
-        value: 'fonttahoma',
+        value: 'Tahoma',
         label: (<div className="fonttahoma">Tahoma</div>),
     },
     {
-        value: 'fontroboto',
+        value: 'Roboto',
         label: (<div className="fontroboto">Roboto</div>),
     }
 ]

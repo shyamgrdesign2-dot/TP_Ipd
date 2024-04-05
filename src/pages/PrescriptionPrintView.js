@@ -189,14 +189,24 @@ function PrescriptionPrintView() {
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
     }
-    function configurePrintUrl() {
-        message.open({
-            key: MESSAGE_KEY,
-            type: 'warning',
-            content: "Comming Soon",
-            duration: 2
-        });
-        // navigate("/configure_print_setting");
+
+    const configurePrintUrl = async () => {
+        var sendData = {
+            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            tcm_id: state.tcm_id,
+            configurePrintSetting: true
+        }
+        const action = await dispatch(viewCaseManager(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            navigate("/configure_print_setting", { state: { ...state, caseManagerData: action.payload } })
+        } else {
+            message.open({
+                key: MESSAGE_KEY,
+                type: 'warning',
+                content: action.error.message,
+                duration: 2
+            });
+        }
     }
 
     return (
@@ -209,7 +219,7 @@ function PrescriptionPrintView() {
 
                         {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
                             <i className="icon-setting me-2"></i>
-                            <span className="text-decoration-underline fw-medium"> Configure Print Setting </span>
+                            <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                         </div>
                         }
                         <div className={`${!isMobile ? 'rounded-20px mt-20' : 'border-top-0 border-start-0 border-bottom-0'} border p-20 bg-white d-flex justify-content-between flex-column`}
@@ -217,7 +227,7 @@ function PrescriptionPrintView() {
                             <div>
                                 {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38">
                                     <i className="icon-setting me-2"></i>
-                                    <span className="text-decoration-underline fw-medium"> Configure Print Setting </span>
+                                    <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                                 </div>
                                 }
                                 <Button

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useContext } from "react";
-import { Col, Radio, Row, Form, Switch, Button, Input, Checkbox, message, Table } from "antd";
+import { Col, Radio, Row, Form, Switch, Button, Input, Checkbox, message, Table, Drawer } from "antd";
 import Cropper from "react-cropper";
 import SignatureCanvas from 'react-signature-canvas'
 import { MenuOutlined } from '@ant-design/icons';
@@ -17,7 +17,9 @@ import { dataUrlToFile, dataUrlToFileUsingFetch } from "../../utils/utils";
 import defaultprofile from "../../assets/images/default-profile.svg";
 import rxDisplayArea from '../../assets/images/rx-display-area.svg';
 import wtsp from '../../assets/images/wtsp.svg';
-import "cropperjs/dist/cropper.css";
+import WhatsappConfigure from "./WhatsappConfigure";
+import Quixote from "../../pages/Quixote";
+import WhatsappConfigureView from "./WhatsappConfigureView";
 
 const { TextArea } = Input;
 
@@ -90,6 +92,9 @@ function HeaderFooterLayout() {
 
     const { printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature } = useContext(PrintSettingsContext);
 
+    const [isOwnLetterHead, setIsOwnLetterHead] = useState(false);
+    const [isHandleDrawerWhatsappView, setIsHandleDrawerWhatsappView] = useState(false);
+
     const [headerFooterShowHide, setHeaderFooterShowHide] = useState(false);
     const [patientInfoShowHide, setPatientInfoShowHide] = useState(false);
     const [settingsShowHide, setSettingsShowHide] = useState(false);
@@ -135,6 +140,15 @@ function HeaderFooterLayout() {
     );
 
     //Header & Footer
+    const handleDrawerOwnLetterHead = useCallback(() => {
+        setIsOwnLetterHead(!isOwnLetterHead);
+    }, [isOwnLetterHead]);
+
+    //Custom Header & Footer
+    const handleDrawerWhatsappView = useCallback(() => {
+        setIsHandleDrawerWhatsappView(!isHandleDrawerWhatsappView);
+    }, [isHandleDrawerWhatsappView]);
+
     //Custom
     //Doctor’s information
     const onDoctorInfoSwitchChange = useCallback(
@@ -365,6 +379,62 @@ function HeaderFooterLayout() {
         showHideFooterModal()
     };
 
+    //Own Letterhead
+    const onTopMarginChange = useCallback(
+        (e) => {
+            if (e.target.value <= 15) {
+                printSettings.header_footer.margin.top = e.target.value
+                setPrintSettings((prev) => {
+                    return {
+                        ...prev
+                    };
+                });
+            }
+        },
+        [printSettings]
+    );
+
+    const onLeftMarginChange = useCallback(
+        (e) => {
+            if (e.target.value <= 10) {
+                printSettings.header_footer.margin.left = e.target.value
+                setPrintSettings((prev) => {
+                    return {
+                        ...prev
+                    };
+                });
+            }
+        },
+        [printSettings]
+    );
+
+    const onRightMarginChange = useCallback(
+        (e) => {
+            if (e.target.value <= 10) {
+                printSettings.header_footer.margin.right = e.target.value
+                setPrintSettings((prev) => {
+                    return {
+                        ...prev
+                    };
+                });
+            }
+        },
+        [printSettings]
+    );
+
+    const onBottomMarginChange = useCallback(
+        (e) => {
+            if (e.target.value <= 15) {
+                printSettings.header_footer.margin.bottom = e.target.value
+                setPrintSettings((prev) => {
+                    return {
+                        ...prev
+                    };
+                });
+            }
+        },
+        [printSettings]
+    );
 
     //Display Patient Info
     const patientInfoTable = [
@@ -623,9 +693,9 @@ function HeaderFooterLayout() {
                             <Form.Item className="mb-0">
                                 <label className="mb-1 title-common">Select Letterhead Format</label>
                                 <Radio.Group className="d-flex gender-radio all-change-radio" onChange={onLetterheadFormatChange} value={printSettings?.letterhead_format}>
-                                    <Radio.Button className="w-100 text-center" value={0}>Custom</Radio.Button>
-                                    <Radio.Button className="w-100 text-center" value={1}>Upload Letterhead</Radio.Button>
                                     <Radio.Button className="w-100 text-center" value={2}>Own Letterhead</Radio.Button>
+                                    <Radio.Button className="w-100 text-center" value={1}>Upload Letterhead</Radio.Button>
+                                    <Radio.Button className="w-100 text-center" value={0}>Custom</Radio.Button>
                                 </Radio.Group>
                             </Form.Item>
                         </div>
@@ -654,7 +724,7 @@ function HeaderFooterLayout() {
                                         <div className="mt-3">
                                             <Form.Item>
                                                 <label className="mb-1">Header</label>
-                                                <Input className='inputheight41-group' onChange={onDoctorInfoHeaderChange} value={printSettings?.header_footer?.header?.doctor_info?.header} />
+                                                <Input className='inputheight41-group' placeholder="Enter Doctor Name" onChange={onDoctorInfoHeaderChange} value={printSettings?.header_footer?.header?.doctor_info?.header} />
                                             </Form.Item>
                                         </div>
                                         <div className="mt-3">
@@ -662,6 +732,7 @@ function HeaderFooterLayout() {
                                                 <label className="mb-1">Subheader</label>
                                                 <TextArea
                                                     className="endreason-textarea subheader-textarea"
+                                                    placeholder="Enter Information (Ex: MBBS, MD)"
                                                     style={{
                                                         resize: "none"
                                                     }}
@@ -694,7 +765,7 @@ function HeaderFooterLayout() {
                                         <div className="mt-3">
                                             <Form.Item>
                                                 <label className="mb-1">Header</label>
-                                                <Input className='inputheight41-group' onChange={onClinicInfoHeaderChange} value={printSettings?.header_footer?.header?.clinic_info?.header} />
+                                                <Input className='inputheight41-group' placeholder="Enter Clinic Name" onChange={onClinicInfoHeaderChange} value={printSettings?.header_footer?.header?.clinic_info?.header} />
                                             </Form.Item>
                                         </div>
                                         <div className="mt-3">
@@ -702,6 +773,7 @@ function HeaderFooterLayout() {
                                                 <label className="mb-1">Subheader</label>
                                                 <TextArea
                                                     className="endreason-textarea subheader-textarea"
+                                                    placeholder="Enter Clinic Address"
                                                     style={{
                                                         resize: "none"
                                                     }}
@@ -750,17 +822,20 @@ function HeaderFooterLayout() {
 
                                 <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                     <Col lg="18">
-                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See whatsApp Rx preview </div>
+                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
                                     </Col>
                                     <Col lg="6">
-                                        <div className="d-flex align-items-center">
+                                        <div className="d-flex align-items-center" onClick={handleDrawerWhatsappView}>
                                             <i className="icon-Preview"></i>
                                             <button className='btn btn-text'>
-                                                <span>Default Settings</span>
+                                                <span>Preview Now</span>
                                             </button>
                                         </div>
                                     </Col>
                                 </Row>
+                                <Drawer closeIcon={false} placement="right" onClose={handleDrawerWhatsappView} open={isHandleDrawerWhatsappView} width="100%" height="100%">
+                                    <WhatsappConfigureView  handleDrawerWhatsappView={handleDrawerWhatsappView}/>
+                                </Drawer>
                             </div>
                         ) : printSettings?.letterhead_format === 1 ? (
                             //For Upload Letter head tab
@@ -920,17 +995,20 @@ function HeaderFooterLayout() {
                                 </div>
                                 <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                     <Col lg="18">
-                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" />See whatsApp Rx preview </div>
+                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
                                     </Col>
                                     <Col lg="6">
-                                        <div className="d-flex align-items-center">
+                                        <div className="d-flex align-items-center" onClick={handleDrawerWhatsappView}>
                                             <i className="icon-Preview"></i>
                                             <button className='btn btn-text'>
-                                                <span>Default Settings</span>
+                                                <span>Preview Now</span>
                                             </button>
                                         </div>
                                     </Col>
                                 </Row>
+                                <Drawer closeIcon={false} placement="right" onClose={handleDrawerWhatsappView} open={isHandleDrawerWhatsappView} width="100%" height="100%">
+                                    <WhatsappConfigureView  handleDrawerWhatsappView={handleDrawerWhatsappView}/>
+                                </Drawer>
                             </div>
                         ) : printSettings?.letterhead_format === 2 && (
                             // For Own Letterhead tab 
@@ -943,13 +1021,13 @@ function HeaderFooterLayout() {
                                 <div className="">
                                     <div className="my-3 text-center">
                                         <label className="mb-1">Top (cm)</label> <br />
-                                        <Input className='inputheight41-group' style={{ width: 70 }} />
+                                        <Input className='inputheight41-group' value={printSettings?.header_footer?.margin?.top} onChange={onTopMarginChange} style={{ width: 70 }} />
                                     </div>
                                     <Row className="align-items-center justify-content-around form_addnewpatient mb-1">
                                         <Col lg="6">
                                             <div className="text-center">
                                                 <label className="mb-1">Left (cm)</label> <br />
-                                                <Input className='inputheight41-group' style={{ width: 70 }} />
+                                                <Input className='inputheight41-group' value={printSettings?.header_footer?.margin?.left} onChange={onLeftMarginChange} style={{ width: 70 }} />
                                             </div>
                                         </Col>
                                         <Col lg="12">
@@ -958,28 +1036,32 @@ function HeaderFooterLayout() {
                                         <Col lg="6">
                                             <div className="text-center">
                                                 <label className="mb-1">Right (cm)</label> <br />
-                                                <Input className='inputheight41-group' style={{ width: 70 }} />
+                                                <Input className='inputheight41-group' value={printSettings?.header_footer?.margin?.right} onChange={onRightMarginChange} style={{ width: 70 }} />
                                             </div>
                                         </Col>
                                     </Row>
                                     <div className="my-3 text-center">
-                                        <Input className='inputheight41-group' style={{ width: 70 }} /> <br />
+                                        <Input className='inputheight41-group' value={printSettings?.header_footer?.margin?.bottom} onChange={onBottomMarginChange} style={{ width: 70 }} /> <br />
                                         <label className="mb-1">Bottom (cm)</label>
                                     </div>
                                 </div>
                                 <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                     <Col lg="18">
-                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" />See whatsApp Rx preview </div>
+                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
+                                        <div className="fontroboto text-greycolor" style={{ marginLeft: 37, fontSize: 13 }}> You can edit your WhatsApp preview </div>
                                     </Col>
                                     <Col lg="6">
-                                        <div className="d-flex align-items-center">
+                                        <div className="d-flex align-items-center" onClick={handleDrawerOwnLetterHead}>
                                             <i className="icon-Preview"></i>
                                             <button className='btn btn-text'>
-                                                <span>Default Settings</span>
+                                                <span>Preview Now</span>
                                             </button>
                                         </div>
                                     </Col>
                                 </Row>
+                                <Drawer closeIcon={false} placement="right" onClose={handleDrawerOwnLetterHead} open={isOwnLetterHead} width="100%">
+                                    <WhatsappConfigure handleDrawerOwnLetterHead={handleDrawerOwnLetterHead} />
+                                </Drawer>
                             </div>
                         )}
 

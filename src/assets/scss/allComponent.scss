@@ -562,11 +562,11 @@ body {
     .vitals-wrapper {
         display: flex;
 
-        .scrollvitals {
-            &::-webkit-scrollbar {
-                height: 0 !important;
-            }
-        }
+        // .scrollvitals {
+        //     &::-webkit-scrollbar {
+        //         height: 0 !important;
+        //     }
+        // }
 
         .vitals-wrap-body {
             &:first-child {
@@ -855,5 +855,31 @@ body {
         .btn {
             background-color: $white;
         } 
+    }
+}
+
+// Desable in configure print setting
+.Preview-color-icon {
+    .icon-Preview {
+        color: $theme;
+    }    
+    .disable-preview {
+        position: relative;
+        color: #a1a1a1;
+        &:after {
+            position: absolute;
+            content: "";
+            left: 11px;
+            top: -2px;
+            height: 25px;
+            width: 1.5px;
+            background-color: #a1a1a1;
+            transform: rotate(25deg);
+    
+        }
+    }
+    span {
+        font-family: 'roboto';
+        font-weight: 500;
     }
 }

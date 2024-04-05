@@ -1,6 +1,8 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 
+import { EDIT } from "../utils/constants";
+
 import PatientForm from "../components/PatientForm";
 
 function EditNewPatient() {
@@ -9,7 +11,7 @@ function EditNewPatient() {
     const { patient_data } = state
 
     return (
-        <PatientForm mode="EDIT" patient_data={patient_data} />
+        <PatientForm mode={EDIT} patient_data={patient_data} />
     );
 
 }

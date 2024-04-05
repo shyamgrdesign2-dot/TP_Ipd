@@ -13,3 +13,6 @@ export const TAB_PAGE_FORMAT = 3;
 
 export const ADD = 'ADD'
 export const EDIT = 'EDIT'
+
+export const NORMAL = 'NORMAL'
+export const WHATSAPP = 'WHATSAPP'
