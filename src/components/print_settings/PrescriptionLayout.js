@@ -68,7 +68,7 @@ function PrescriptionLayout() {
                     e?.custom_status === 'Y' && (
                         <Row key={i} justify="space-between" className="align-items-center form_addnewpatient mb-3">
                             <Col lg={10}>
-                                <div className="d-flex align-items-center cursor-pointer" onClick={() => onCaseOptionChange(e, 'visible', i)}>
+                                <div className="d-flex align-items-center cursor-pointer Preview-color-icon" onClick={() => onCaseOptionChange(e, 'visible', i)}>
                                     <i className={`icon-Preview ${e.enable === 'N' && 'disable-preview'} me-2`}></i>
                                     <span>{e.title}</span>
                                 </div>

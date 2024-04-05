@@ -299,16 +299,16 @@ function WhatsappConfigure(props) {
 
     return (
         <>
-            <Navbar className="justify-content-between headerprescription p-0">
+            <Navbar className="justify-content-between headerprescription bg-white p-0">
                 <div className='align-items-center d-flex w-100 h-100 justify-content-between'>
                     <div className='align-items-center d-flex h-100 w-100'>
-                        <div className='border-end h-100 text-center me-2'>
+                        <div className='border-end h-100 text-center me-4'>
                             <div className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer' onClick={handleDrawerOwnLetterHead}>
                                 <i className='icon-right'></i>
                             </div>
                         </div>
                         <div className='title-common'>
-                            Whatsapp Rx Preview
+                            WhatsApp Rx Preview
                         </div>
                     </div>
                     <div className='d-flex align-items-center justify-content-end w-100'>
@@ -328,7 +328,7 @@ function WhatsappConfigure(props) {
                                 <div className="mt-4">
                                     <div className="mt-3">
                                         <Form.Item className="mb-0">
-                                            <label className="mb-1 title-common">Select Whatsapp Rx Format</label>
+                                            <label className="mb-1 title-common">Select WhatsApp Rx Format</label>
                                             <Radio.Group className="d-flex gender-radio all-change-radio" onChange={onWhatsappLetterheadFormatChange} value={printSettingsCopy?.whatsapp_letterhead_format}>
                                                 <Radio.Button className="w-100 text-center" value={0}>Custom</Radio.Button>
                                                 <Radio.Button className="w-100 text-center" value={1}>Upload</Radio.Button>
@@ -618,8 +618,8 @@ function WhatsappConfigure(props) {
                         </div>
                     </Col>
                     <Col lg={16} className="overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
-                        <div className="mx-auto overflow-y-auto" style={{ width: 900 }}>
-                            <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" /> Whatsapp Preview</div>
+                        <div className="mx-auto overflow-y-auto" style={{ width: 825 }}>
+                            <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" /> WhatsApp Preview</div>
                             <div className="border rounded-20px bg-white mt-20 overflow-hidden h-100">
                                 <Quixote
                                     mode={WHATSAPP}
