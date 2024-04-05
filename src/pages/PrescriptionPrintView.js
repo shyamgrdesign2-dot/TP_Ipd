@@ -198,7 +198,7 @@ function PrescriptionPrintView() {
         }
         const action = await dispatch(viewCaseManager(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            navigate("/configure_print_setting", { state: { patient_data: patient_data, caseManagerData: action.payload } })
+            navigate("/configure_print_setting", { state: { ...state, caseManagerData: action.payload } })
         } else {
             message.open({
                 key: MESSAGE_KEY,

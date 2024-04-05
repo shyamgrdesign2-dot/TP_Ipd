@@ -15,13 +15,13 @@ import alertIcon from '../assets/images/alertIcon.svg';
 
 import PrintSettingsContext from '../context/PrintSettingsContext';
 
-function HeaderPrintSetting() {
+function HeaderPrintSetting({ defaultPrintSettings }) {
     const navigate = useNavigate();
 
     const { loading } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
-    const { printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
+    const { state, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
@@ -81,10 +81,10 @@ function HeaderPrintSetting() {
             }
 
             console.log(sendData)
-            
+
             const action = await dispatch(savePrintsettings(sendData));
             if (action.meta.requestStatus === "fulfilled") {
-                navigate(-1)
+                navigate('/prescription_print_view', { replace: true, state: { ...state } })
             } else {
                 message.open({
                     key: MESSAGE_KEY,
@@ -97,8 +97,11 @@ function HeaderPrintSetting() {
     };
 
     const checkDataFillOrNot = () => {
-        navigate(-1)
-        // showHideBackModal()
+        if (JSON.stringify(defaultPrintSettings) == JSON.stringify(printSettings)) {
+            navigate('/prescription_print_view', { replace: true, state: { ...state } })
+        } else {
+            showHideBackModal()
+        }
     }
 
     const showHideBackModal = useCallback(() => {
@@ -131,7 +134,7 @@ function HeaderPrintSetting() {
                                     </div>
                                     <div className="mt-4">
                                         <div className="d-flex align-items-center mt-2 justify-content-end">
-                                            <div onClick={() => navigate('/', { replace: true })} className="me-4 text-decoration-underline btn p-0 text-main">
+                                            <div onClick={() => navigate('/prescription_print_view', { replace: true, state: { ...state } })} className="me-4 text-decoration-underline btn p-0 text-main">
                                                 Yes Leave
                                             </div>
                                             <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">
