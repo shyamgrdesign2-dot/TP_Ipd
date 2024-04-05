@@ -18,6 +18,8 @@ import defaultprofile from "../../assets/images/default-profile.svg";
 import rxDisplayArea from '../../assets/images/rx-display-area.svg';
 import wtsp from '../../assets/images/wtsp.svg';
 import WhatsappConfigure from "./WhatsappConfigure";
+import Quixote from "../../pages/Quixote";
+import WhatsappConfigureView from "./WhatsappConfigureView";
 
 const { TextArea } = Input;
 
@@ -91,6 +93,7 @@ function HeaderFooterLayout() {
     const { printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature } = useContext(PrintSettingsContext);
 
     const [isOwnLetterHead, setIsOwnLetterHead] = useState(false);
+    const [isHandleDrawerWhatsappView, setIsHandleDrawerWhatsappView] = useState(false);
 
     const [headerFooterShowHide, setHeaderFooterShowHide] = useState(false);
     const [patientInfoShowHide, setPatientInfoShowHide] = useState(false);
@@ -140,6 +143,11 @@ function HeaderFooterLayout() {
     const handleDrawerOwnLetterHead = useCallback(() => {
         setIsOwnLetterHead(!isOwnLetterHead);
     }, [isOwnLetterHead]);
+
+    //Custom Header & Footer
+    const handleDrawerWhatsappView = useCallback(() => {
+        setIsHandleDrawerWhatsappView(!isHandleDrawerWhatsappView);
+    }, [isHandleDrawerWhatsappView]);
 
     //Custom
     //Doctor’s information
@@ -374,48 +382,56 @@ function HeaderFooterLayout() {
     //Own Letterhead
     const onTopMarginChange = useCallback(
         (e) => {
-            printSettings.header_footer.margin.top = e.target.value
-            setPrintSettings((prev) => {
-                return {
-                    ...prev
-                };
-            });
+            if (e.target.value <= 15) {
+                printSettings.header_footer.margin.top = e.target.value
+                setPrintSettings((prev) => {
+                    return {
+                        ...prev
+                    };
+                });
+            }
         },
         [printSettings]
     );
 
     const onLeftMarginChange = useCallback(
         (e) => {
-            printSettings.header_footer.margin.left = e.target.value
-            setPrintSettings((prev) => {
-                return {
-                    ...prev
-                };
-            });
+            if (e.target.value <= 10) {
+                printSettings.header_footer.margin.left = e.target.value
+                setPrintSettings((prev) => {
+                    return {
+                        ...prev
+                    };
+                });
+            }
         },
         [printSettings]
     );
 
     const onRightMarginChange = useCallback(
         (e) => {
-            printSettings.header_footer.margin.right = e.target.value
-            setPrintSettings((prev) => {
-                return {
-                    ...prev
-                };
-            });
+            if (e.target.value <= 10) {
+                printSettings.header_footer.margin.right = e.target.value
+                setPrintSettings((prev) => {
+                    return {
+                        ...prev
+                    };
+                });
+            }
         },
         [printSettings]
     );
 
     const onBottomMarginChange = useCallback(
         (e) => {
-            printSettings.header_footer.margin.bottom = e.target.value
-            setPrintSettings((prev) => {
-                return {
-                    ...prev
-                };
-            });
+            if (e.target.value <= 15) {
+                printSettings.header_footer.margin.bottom = e.target.value
+                setPrintSettings((prev) => {
+                    return {
+                        ...prev
+                    };
+                });
+            }
         },
         [printSettings]
     );
@@ -806,10 +822,10 @@ function HeaderFooterLayout() {
 
                                 <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                     <Col lg="18">
-                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See whatsApp Rx preview </div>
+                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
                                     </Col>
                                     <Col lg="6">
-                                        <div className="d-flex align-items-center">
+                                        <div className="d-flex align-items-center" onClick={handleDrawerWhatsappView}>
                                             <i className="icon-Preview"></i>
                                             <button className='btn btn-text'>
                                                 <span>Preview Now</span>
@@ -817,6 +833,9 @@ function HeaderFooterLayout() {
                                         </div>
                                     </Col>
                                 </Row>
+                                <Drawer closeIcon={false} placement="right" onClose={handleDrawerWhatsappView} open={isHandleDrawerWhatsappView} width="100%" height="100%">
+                                    <WhatsappConfigureView  handleDrawerWhatsappView={handleDrawerWhatsappView}/>
+                                </Drawer>
                             </div>
                         ) : printSettings?.letterhead_format === 1 ? (
                             //For Upload Letter head tab
@@ -976,10 +995,10 @@ function HeaderFooterLayout() {
                                 </div>
                                 <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                     <Col lg="18">
-                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See whatsApp Rx preview </div>
+                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
                                     </Col>
                                     <Col lg="6">
-                                        <div className="d-flex align-items-center">
+                                        <div className="d-flex align-items-center" onClick={handleDrawerWhatsappView}>
                                             <i className="icon-Preview"></i>
                                             <button className='btn btn-text'>
                                                 <span>Preview Now</span>
@@ -987,6 +1006,9 @@ function HeaderFooterLayout() {
                                         </div>
                                     </Col>
                                 </Row>
+                                <Drawer closeIcon={false} placement="right" onClose={handleDrawerWhatsappView} open={isHandleDrawerWhatsappView} width="100%" height="100%">
+                                    <WhatsappConfigureView  handleDrawerWhatsappView={handleDrawerWhatsappView}/>
+                                </Drawer>
                             </div>
                         ) : printSettings?.letterhead_format === 2 && (
                             // For Own Letterhead tab 
@@ -1025,8 +1047,8 @@ function HeaderFooterLayout() {
                                 </div>
                                 <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                     <Col lg="18">
-                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See whatsApp Rx preview </div>
-                                        <div className="fontroboto text-greycolor" style={{ marginLeft: 37, fontSize: 13 }}> You can edit your whatsapp preview </div>
+                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
+                                        <div className="fontroboto text-greycolor" style={{ marginLeft: 37, fontSize: 13 }}> You can edit your WhatsApp preview </div>
                                     </Col>
                                     <Col lg="6">
                                         <div className="d-flex align-items-center" onClick={handleDrawerOwnLetterHead}>
