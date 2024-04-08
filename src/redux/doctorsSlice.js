@@ -13,8 +13,7 @@ const initialState = {
   timingList: [],
   frequencyList: [],
   medicineTypeList: [],
-  defaultPrintSettings: null,
-  configurePrintData: null
+  defaultPrintSettings: null
 };
 
 export const getProfile = createAsyncThunk(
@@ -177,9 +176,6 @@ const doctorsSlice = createSlice({
   reducers: {
     changeLogoStatus: (state) => {
       state.profile = { ...state.profile, NavigatetoTatvaPedia: 1 }
-    },
-    setConfigurePrintData: (state, action) => {
-      state.configurePrintData = { ...action.payload }
     }
   },
   extraReducers: (builder) => {
@@ -270,5 +266,5 @@ const doctorsSlice = createSlice({
   },
 });
 
-export const { changeLogoStatus, setConfigurePrintData } = doctorsSlice.actions
+export const { changeLogoStatus } = doctorsSlice.actions
 export default doctorsSlice.reducer;

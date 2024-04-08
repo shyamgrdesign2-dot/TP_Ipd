@@ -98,15 +98,6 @@ function ConfigurePrintSetting() {
                                 )}
                             </div>
                         </Col>
-                        {/* <Col xl={16} lg={14} className="overflow-y-auto pdfMobile-Class">
-                            <div className="mx-auto overflow-y-auto">
-                                <div className="titleprint mt-20" onClick={() => printContent()}>Preview</div>
-                                <div ref={divRef} className={`${isMobile ? 'border rounded-20px bg-body mt-20' : 'position-relative'} overflow-y-auto`} style={{ height: 'calc(100vh - 136px)' }}>
-                                    <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
-                                    <Quixote mode={NORMAL} />
-                                </div>
-                            </div>
-                        </Col> */}
                         <Col xl={16} lg={14}>
                             <div className="mx-auto overflow-y-auto " style={{width: isMobile ? 580 : 900}} >
                                 <div className="titleprint mt-20" onClick={() => printContent()}>Preview</div>

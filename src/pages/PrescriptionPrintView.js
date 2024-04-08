@@ -19,7 +19,6 @@ import { MESSAGE_KEY } from "../utils/constants";
 import { useSelector, useDispatch } from "react-redux";
 
 import { viewCaseManager } from "../redux/caseManagerSlice";
-import { setConfigurePrintData } from "../redux/doctorsSlice";
 
 import { pdfjs, Document, Page } from "react-pdf";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
@@ -198,8 +197,6 @@ function PrescriptionPrintView() {
         }
         const action = await dispatch(viewCaseManager(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            // await dispatch(setConfigurePrintData({ ...state, caseManagerData: action.payload }));
-            // navigate("/configure_print_setting")
             navigate('/configure_print_setting', { state: { caseManagerData: action.payload } })
         } else {
             message.open({
