@@ -26,7 +26,7 @@ import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from "../context/CashManagerContext";
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
+import { isNumeric, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Diagnosisicon from "../assets/images/Diagnosis.svg";
 import {
   addTemplate,
@@ -182,6 +182,16 @@ function DiagnosisBox() {
       setSearchParentQuery("");
     },
     [searchParentQuery, diagnosisData]
+  );
+
+  const onBlurSinceChid = useCallback(
+    (i) => {
+      if (isNumeric(diagnosisData[i].since)) {
+        diagnosisData[i].since = `${diagnosisData[i].since} Year`;
+        setDiagnosisData((prev) => [...prev]);
+      }
+    },
+    [diagnosisData]
   );
 
   //Child AutoComplete
@@ -522,6 +532,7 @@ function DiagnosisBox() {
                 bordered={false}
                 defaultOpen={false}
                 onSearch={(query) => onSearchSinceChid(query, index)}
+                onBlur={() => onBlurSinceChid(index)}
                 options={sinceOptions}
                 className="autocomplete-custom w-100 inputborder"
                 defaultActiveFirstOption={true}
