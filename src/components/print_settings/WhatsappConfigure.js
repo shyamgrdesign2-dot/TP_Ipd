@@ -327,7 +327,7 @@ function WhatsappConfigure(props) {
                                     <div className="mt-3">
                                         <Form.Item className="mb-0">
                                             <label className="mb-1 title-common">Select WhatsApp Rx Format</label>
-                                            <Radio.Group className="d-flex gender-radio all-change-radio" onChange={onWhatsappLetterheadFormatChange} value={printSettingsCopy?.whatsapp_letterhead_format}>
+                                            <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onWhatsappLetterheadFormatChange} value={printSettingsCopy?.whatsapp_letterhead_format}>
                                                 <Radio.Button className="w-100 text-center" value={0}>Custom</Radio.Button>
                                                 <Radio.Button className="w-100 text-center" value={1}>Upload</Radio.Button>
                                             </Radio.Group>
@@ -350,7 +350,7 @@ function WhatsappConfigure(props) {
                                             {printSettingsCopy?.header_footer?.header?.doctor_info?.enable === 'Y' && (
                                                 <>
                                                     <Form.Item>
-                                                        <Radio.Group className="d-flex gender-radio" onChange={onDoctorInfoPlaceChange} value={printSettingsCopy?.header_footer?.header?.doctor_info?.place}>
+                                                        <Radio.Group className={`d-flex gender-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onDoctorInfoPlaceChange} value={printSettingsCopy?.header_footer?.header?.doctor_info?.place}>
                                                             <Radio.Button className="w-100 text-center" value="L">Left</Radio.Button>
                                                             <Radio.Button className="w-100 text-center" value="R">Right</Radio.Button>
                                                         </Radio.Group>
@@ -390,7 +390,7 @@ function WhatsappConfigure(props) {
                                             {printSettingsCopy?.header_footer?.header?.clinic_info?.enable === 'Y' && (
                                                 <>
                                                     <Form.Item>
-                                                        <Radio.Group className="d-flex gender-radio" onChange={onClinicInfoPlaceChange} value={printSettingsCopy?.header_footer?.header?.clinic_info?.place}>
+                                                        <Radio.Group className={`d-flex gender-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onClinicInfoPlaceChange} value={printSettingsCopy?.header_footer?.header?.clinic_info?.place}>
                                                             <Radio.Button className="w-100 text-center" value="L">Left</Radio.Button>
                                                             <Radio.Button className="w-100 text-center" value="R">Right</Radio.Button>
                                                         </Radio.Group>
@@ -615,18 +615,19 @@ function WhatsappConfigure(props) {
                             </div>
                         </div>
                     </Col>
-                    <Col xl={16} lg={14} className="overflow-y-auto pdfMobile-Class">
-                        <div className="mx-auto overflow-y-auto">
+                    <Col xl={16} lg={14}>
+                        <div className="mx-auto overflow-y-auto " style={{ width: isMobile ? 580 : 900 }} >
                             <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" />WhatsApp Preview</div>
-                            <div className="border rounded-20px bg-body mt-20 overflow-y-auto" style={{ height: 'calc(100vh - 136px)' }}>
-                                {isMobile && (<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />)}
-                                <Quixote
-                                    mode={WHATSAPP}
-                                    printSettingsCopy={printSettingsCopy}
-                                    fileHeaderCopy={fileHeaderCopy}
-                                    fileFooterCopy={fileFooterCopy}
-                                    fileLogoCopy={fileLogoCopy}
-                                />
+                            <div className="rounded-20px bg-white mt-20 overflow-hidden">
+                                <div className="position-relative printheight">
+                                    <Quixote
+                                        mode={WHATSAPP}
+                                        printSettingsCopy={printSettingsCopy}
+                                        fileHeaderCopy={fileHeaderCopy}
+                                        fileFooterCopy={fileFooterCopy}
+                                        fileLogoCopy={fileLogoCopy}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </Col>

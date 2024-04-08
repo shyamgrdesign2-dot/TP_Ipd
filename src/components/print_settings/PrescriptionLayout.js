@@ -3,6 +3,8 @@ import { Col, Radio, Row, Form } from "antd";
 
 import PrintSettingsContext from '../../context/PrintSettingsContext';
 
+import { isMobile } from 'react-device-detect';
+
 function PrescriptionLayout() {
 
     const { printSettings, setPrintSettings } = useContext(PrintSettingsContext);
@@ -50,7 +52,7 @@ function PrescriptionLayout() {
                 </Col>
                 <Col lg={14}>
                     <Form.Item className="mb-0">
-                        <Radio.Group className="d-flex gender-radio all-change-radio" onChange={onMainCaseOptionChange}
+                        <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onMainCaseOptionChange}
                             value={
                                 printSettings?.prescription?.case_option.every(e => e.format === 'inline') ? 'inline'
                                     : printSettings?.prescription?.case_option.every(e => e.format === 'listview') ? 'listview'
@@ -75,7 +77,7 @@ function PrescriptionLayout() {
                             </Col>
                             <Col lg={14}>
                                 <Form.Item className="mb-0">
-                                    <Radio.Group className="d-flex gender-radio all-change-radio" onChange={(e) => onCaseOptionChange(e, 'radio', i)} value={e.format}>
+                                    <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={(e) => onCaseOptionChange(e, 'radio', i)} value={e.format}>
                                         <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
                                         <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
                                         <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>

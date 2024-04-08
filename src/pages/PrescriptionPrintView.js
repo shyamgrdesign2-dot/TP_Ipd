@@ -7,7 +7,7 @@ import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { useReactToPrint } from 'react-to-print';
 
-import { PDFReader } from 'reactjs-pdf-reader';
+// import { PDFReader } from 'reactjs-pdf-reader';
 
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
@@ -21,7 +21,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { viewCaseManager } from "../redux/caseManagerSlice";
 import { setConfigurePrintData } from "../redux/doctorsSlice";
 
-// import { pdfjs, Document, Page } from "react-pdf";
+import { pdfjs, Document, Page } from "react-pdf";
+const worker = require('pdfjs-dist/build/pdf.worker.min.js')
+pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 //     "pdfjs-dist/build/pdf.worker.min.js",
 //     import.meta.url
@@ -183,7 +185,6 @@ function PrescriptionPrintView() {
     };
 
     const [numPages, setNumPages] = useState();
-    const [pageNumber, setPageNumber] = useState(1);
 
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
@@ -197,8 +198,9 @@ function PrescriptionPrintView() {
         }
         const action = await dispatch(viewCaseManager(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            await dispatch(setConfigurePrintData({ ...state, caseManagerData: action.payload }));
-            navigate("/configure_print_setting")
+            // await dispatch(setConfigurePrintData({ ...state, caseManagerData: action.payload }));
+            // navigate("/configure_print_setting")
+            navigate('/configure_print_setting', { state: { caseManagerData: action.payload } })
         } else {
             message.open({
                 key: MESSAGE_KEY,
@@ -295,9 +297,9 @@ function PrescriptionPrintView() {
                                     />
                                 </div>
                             </div>
-                            <div className="border rounded-20px bg-white mt-20 overflow-hidden">
+                            <div className="rounded-20px bg-white mt-20 overflow-hidden">
                                 <div ref={divRef} className="printheight">
-                                    {/* <div ref={printRef} className="position-relative h-100">
+                                    <div ref={printRef} className="position-relative h-100">
                                         <Document
                                             loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
                                             error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
@@ -317,9 +319,9 @@ function PrescriptionPrintView() {
                                                     );
                                                 })}
                                         </Document>
-                                    </div> */}
-                                    <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
-                                    <PDFReader key={selectedLang} ref={printRef} width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} />
+                                    </div>
+                                    {/* <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
+                                    <PDFReader key={selectedLang} ref={printRef} width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} /> */}
                                     {/* <embed className="printBox" ref={printRef} src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed> */}
                                     {/* <iframe
                                         src="https://pms-upgrade.azurewebsites.net/case_manager/pdf_casemanager_send.php?pdf_id=MTI3Njgx&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ=#toolbar=0&navpanes=0&scrollbar=0"

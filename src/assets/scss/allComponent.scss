@@ -310,7 +310,19 @@
     border-radius: 20px;
     overflow-y: auto;
     overflow-x: hidden;
-
+    .react-pdf__Document {
+        background-color: $bgbody;
+        .react-pdf__Page {
+            background-color: $bgbody !important;
+            border: 1px solid $bordercolor;
+            margin-bottom: 15px;
+            border-radius: 20px;
+            .react-pdf__Page__canvas {
+                border-radius: 20px;
+                width: 100% !important;
+            }
+        }
+    }
     #my-pdf {
         z-index: 1;
         position: relative;

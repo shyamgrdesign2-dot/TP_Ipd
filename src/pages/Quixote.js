@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { PDFViewer, BlobProvider, pdf } from '@react-pdf/renderer';
-import { PDFReader,MobilePDFReader } from 'reactjs-pdf-reader';
+import { PDFReader, MobilePDFReader } from 'reactjs-pdf-reader';
 import { isMobile } from "react-device-detect";
+import { Col, Tabs, Row, Spin } from "antd";
 
 import PrintSettingsContext from '../context/PrintSettingsContext';
 import moment from "moment";
@@ -12,12 +13,15 @@ import ViewPDF from '../components/print_settings/ViewPDF';
 import { renderPDF } from '../components/print_settings/renderPDF';
 import { PDF } from '../components/print_settings/PDF';
 
+import { pdfjs, Document, Page } from "react-pdf";
+const worker = require('pdfjs-dist/build/pdf.worker.min.js')
+pdfjs.GlobalWorkerOptions.workerSrc = worker
+
 const showDateFormat = 'DD MMM, YY'
 
 function Quixote({ mode = NORMAL, ...props }) {
 
-    const { configurePrintData, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
-    const caseManagerData = configurePrintData ? configurePrintData?.caseManagerData : null
+    const { divWidth, caseManagerData, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
@@ -98,6 +102,7 @@ function Quixote({ mode = NORMAL, ...props }) {
     });
 
     const [pdfUrl, setPdfUrl] = useState(null)
+    const [numPages, setNumPages] = useState();
 
     useEffect(() => {
         // const makePDFUrl = async () => {
@@ -119,7 +124,7 @@ function Quixote({ mode = NORMAL, ...props }) {
         //     setPdfUrl(URL.createObjectURL(blob))
         // }
         const makePDFUrl = async () => {
-            const blob = await pdf(<PDF
+            const blob = await pdf(<ViewPDF
                 mode={mode}
                 caseManagerData={caseManagerData}
                 columns={columns}
@@ -135,56 +140,48 @@ function Quixote({ mode = NORMAL, ...props }) {
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
         }
-        caseManagerData && isMobile && makePDFUrl()
-    }, [mode, printSettings, fileHeader, fileFooter, fileSignature, fileWatermark, fileLogo]);
+        caseManagerData && makePDFUrl()
+    }, [
+        mode,
+        props.printSettingsCopy,
+        props.fileHeaderCopy,
+        props.fileFooterCopy,
+        props.fileLogoCopy,
+        printSettings,
+        fileHeader,
+        fileFooter,
+        fileSignature,
+        fileWatermark,
+        fileLogo
+    ]);
+
+    const onDocumentLoadSuccess = ({ numPages }) => {
+        setNumPages(numPages)
+    }
 
     return (
         <>
-            {isMobile ? (
-                // <BlobProvider document={<PDF
-                //     mode={mode}
-                //     caseManagerData={caseManagerData}
-                //     columns={columns}
-                //     initialRows={initialRows}
-                //     frequencyList={frequencyList}
-                //     timingList={timingList}
-                //     printSettings={mode == NORMAL ? printSettings : props.printSettingsCopy}
-                //     fileHeader={mode == NORMAL ? fileHeader : props.fileHeaderCopy}
-                //     fileFooter={mode == NORMAL ? fileFooter : props.fileFooterCopy}
-                //     fileLogo={mode == NORMAL ? fileLogo : props.fileLogoCopy}
-                //     fileWatermark={fileWatermark}
-                //     fileSignature={fileSignature}
-                // />}>
-                //     {({ blob, url1, loading, error }) => {
-                //         // Do whatever you need with blob here
-                //         // console.log(blob)
-                //         console.log(loading, URL.createObjectURL(blob))
-                //         return <MobilePDFReader key={Math.random()} url={`${url1}#toolbar=0&navpanes=0&scrollbar=0`} isShowHeader={false} isShowFooter={false} />
-                //     }}
-                // </BlobProvider>
-                pdfUrl && (<MobilePDFReader key={Math.random()} url={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`} isShowHeader={false} isShowFooter={false} />)
-            ) : (
-                <PDFViewer
-                    showToolbar={false}
-                    style={{
-                        width: '100%',
-                        height: 800
-                    }}>
-                    <ViewPDF
-                        mode={mode}
-                        caseManagerData={caseManagerData}
-                        columns={columns}
-                        initialRows={initialRows}
-                        frequencyList={frequencyList}
-                        timingList={timingList}
-                        printSettings={mode == NORMAL ? printSettings : props.printSettingsCopy}
-                        fileHeader={mode == NORMAL ? fileHeader : props.fileHeaderCopy}
-                        fileFooter={mode == NORMAL ? fileFooter : props.fileFooterCopy}
-                        fileLogo={mode == NORMAL ? fileLogo : props.fileLogoCopy}
-                        fileWatermark={fileWatermark}
-                        fileSignature={fileSignature}
-                    />
-                </PDFViewer >
+            {pdfUrl && (
+                <Document
+                    loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%", height: '100%' }} />}
+                    error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
+                    noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
+                    file={pdfUrl}
+                    onLoadSuccess={onDocumentLoadSuccess}>
+                    {Array.apply(null, Array(numPages))
+                        .map((x, i) => i + 1)
+                        .map((page) => {
+                            return (
+                                <Page
+                                    key={Math.random()}
+                                    width={divWidth}
+                                    pageNumber={page}
+                                    renderTextLayer={false}
+                                    renderAnnotationLayer={false}
+                                />
+                            );
+                        })}
+                </Document>
             )}
         </>
     )

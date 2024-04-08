@@ -21,9 +21,14 @@ import "cropperjs/dist/cropper.css";
 function ConfigurePrintSetting() {
 
     const printRef = useRef();
+    const divRef = useRef(null);
 
-    const { defaultPrintSettings, configurePrintData } = useSelector((state) => state.doctors);
+    const { defaultPrintSettings } = useSelector((state) => state.doctors);
 
+    const { state } = useLocation();
+    const { caseManagerData } = state
+
+    const [divWidth, setDivWidth] = useState(0);
     const [selectedTab, setSelectedTab] = useState(TAB_PRESCRIPTION);
     const [printSettings, setPrintSettings] = useState(null);
     const [fileHeader, setFileHeader] = useState(null);
@@ -32,7 +37,11 @@ function ConfigurePrintSetting() {
     const [fileWatermark, setFileWatermark] = useState(null);
     const [fileSignature, setFileSignature] = useState(null);
 
-    const contextApi = { configurePrintData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
+    useEffect(() => {
+        setDivWidth(divRef.current?.offsetWidth);
+    }, [divRef]);
+
+    const contextApi = { divWidth, caseManagerData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
 
     const TabsPrintSetting = [
         {
@@ -89,12 +98,22 @@ function ConfigurePrintSetting() {
                                 )}
                             </div>
                         </Col>
-                        <Col xl={16} lg={14} className="overflow-y-auto pdfMobile-Class">
+                        {/* <Col xl={16} lg={14} className="overflow-y-auto pdfMobile-Class">
                             <div className="mx-auto overflow-y-auto">
                                 <div className="titleprint mt-20" onClick={() => printContent()}>Preview</div>
-                                <div className="border rounded-20px bg-body mt-20 overflow-y-auto" style={{ height: 'calc(100vh - 136px)' }}>
-                                    {isMobile && (<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />)}
+                                <div ref={divRef} className={`${isMobile ? 'border rounded-20px bg-body mt-20' : 'position-relative'} overflow-y-auto`} style={{ height: 'calc(100vh - 136px)' }}>
+                                    <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
                                     <Quixote mode={NORMAL} />
+                                </div>
+                            </div>
+                        </Col> */}
+                        <Col xl={16} lg={14}>
+                            <div className="mx-auto overflow-y-auto " style={{width: isMobile ? 580 : 900}} >
+                                <div className="titleprint mt-20" onClick={() => printContent()}>Preview</div>
+                                <div ref={divRef} className="rounded-20px bg-white mt-20 overflow-hidden">
+                                    <div className="position-relative printheight">
+                                        <Quixote mode={NORMAL} />
+                                    </div>
                                 </div>
                             </div>
                         </Col>

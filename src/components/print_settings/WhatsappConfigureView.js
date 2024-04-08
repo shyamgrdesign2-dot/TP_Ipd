@@ -32,12 +32,10 @@ function WhatsappConfigureView(props) {
                     </div>
                 </div>
             </Navbar>
-
-            <div className={'w-100 bg-body d-flex wrapper2'}>
-                <div className="mx-auto">
-                    <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" /> WhatsApp Preview</div>
-                    <div className="border rounded-20px bg-white mt-20 overflow-auto" style={{ height: 'calc(100vh - 136px)' }}>
-                        {isMobile && (<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />)}
+            <div className="mx-auto overflow-y-auto " style={{ width: isMobile ? 580 : 900 }} >
+                <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" /> WhatsApp Preview</div>
+                <div className="rounded-20px bg-white mt-20 overflow-hidden">
+                    <div className="position-relative printheight">
                         <Quixote mode={NORMAL} />
                     </div>
                 </div>
