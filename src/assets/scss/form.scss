@@ -72,20 +72,24 @@ body {
             }
             &.segmented-radio-mobile {
                 .ant-radio-button-wrapper{
-                    background-color: var(--White-Gradient, linear-gradient(180deg, rgba(255, 255, 255, 0.00) 0%, #E2E2EA 100%));
+                    background: var(--White-Gradient, linear-gradient(180deg, rgba(255, 255, 255, 255) 0%, #E2E2EA 100%));
                     height: 32px;
                     line-height: 2.4;
                     span {
                         font-family: 'roboto' !important;
+                        color: $maincolor;
                     }
-                    &.ant-radio-button-wrapper-checked {
+                    &.ant-radio-button-wrapper-checked{
+                        background: $theme;
                         background-color: $theme;
                         border-color: $theme;
                         &:before {
-                            background-color: $theme;;
+                            background: $theme;
+                            background-color: $theme;
                         }
                         span {
                             color: $white !important;
+                            background: $theme;
                         }
                     }
                     &:first-child {
