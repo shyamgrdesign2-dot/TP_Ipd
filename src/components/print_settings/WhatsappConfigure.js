@@ -358,7 +358,7 @@ function WhatsappConfigure(props) {
                                                     <div className="mt-3">
                                                         <Form.Item>
                                                             <label className="mb-1">Header</label>
-                                                            <Input className='inputheight41-group' onChange={onDoctorInfoHeaderChange} value={printSettingsCopy?.header_footer?.header?.doctor_info?.header} />
+                                                            <Input className='inputheight41-group' placeholder="Enter Doctor Name" onChange={onDoctorInfoHeaderChange} value={printSettingsCopy?.header_footer?.header?.doctor_info?.header} />
                                                         </Form.Item>
                                                     </div>
                                                     <div className="mt-3">
@@ -366,6 +366,7 @@ function WhatsappConfigure(props) {
                                                             <label className="mb-1">Subheader</label>
                                                             <TextArea
                                                                 className="endreason-textarea subheader-textarea"
+                                                                placeholder="Enter Information (Ex: MBBS, MD)"
                                                                 style={{
                                                                     resize: "none"
                                                                 }}
@@ -398,7 +399,7 @@ function WhatsappConfigure(props) {
                                                     <div className="mt-3">
                                                         <Form.Item>
                                                             <label className="mb-1">Header</label>
-                                                            <Input className='inputheight41-group' onChange={onClinicInfoHeaderChange} value={printSettingsCopy?.header_footer?.header?.clinic_info?.header} />
+                                                            <Input className='inputheight41-group' placeholder="Enter Doctor Name" onChange={onClinicInfoHeaderChange} value={printSettingsCopy?.header_footer?.header?.clinic_info?.header} />
                                                         </Form.Item>
                                                     </div>
                                                     <div className="mt-3">
@@ -406,6 +407,7 @@ function WhatsappConfigure(props) {
                                                             <label className="mb-1">Subheader</label>
                                                             <TextArea
                                                                 className="endreason-textarea subheader-textarea"
+                                                                placeholder="Enter Information (Ex: MBBS, MD)"
                                                                 style={{
                                                                     resize: "none"
                                                                 }}
