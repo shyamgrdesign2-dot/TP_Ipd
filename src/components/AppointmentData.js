@@ -850,11 +850,11 @@ function AppointmentData({ locationPath }) {
                         <div style={{ flex: 1, margin: 20 }}>
 
                             <figure>
-                                <img src={welcomdoc} style={{ width: window.innerWidth / 14, height: window.innerWidth / 14 }} />
+                                <img src={welcomdoc} style={{ width: window.innerWidth / 17, height: window.innerWidth / 17 }} />
                             </figure>
 
                             <div className='d-flex'>
-                                <div style={{ flex: 1, marginRight: 20 }}>
+                                <div style={{ flex: 1, marginRight: 35 }}>
                                     <div>
                                         <h2 className="fw-medium mb-2" style={{fontSize: 16}}>Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')},</h2>
                                         <h3 className="fw-semibold mb-5" style={{ fontSize: 48 }}>Welcome to TatvaPractice</h3>
