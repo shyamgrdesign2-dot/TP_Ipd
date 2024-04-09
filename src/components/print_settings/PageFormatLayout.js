@@ -94,7 +94,7 @@ function PageFormatLayout() {
             <Form.Item>
                 <label className="mb-1">Font Family</label>
                 <Select
-                    showSearch
+                    // showSearch
                     className="autocomplete-custom"
                     placeholder="Select font family"
                     options={FONTS_FAMILY_LIST}
@@ -107,7 +107,7 @@ function PageFormatLayout() {
             <Form.Item>
                 <label className="mb-1">Font Size</label>
                 <Select
-                    showSearch
+                    // showSearch
                     className="autocomplete-custom"
                     placeholder="Select font size"
                     options={FONTS_SIZE_LIST}
