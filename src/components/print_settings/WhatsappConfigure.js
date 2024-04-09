@@ -399,7 +399,7 @@ function WhatsappConfigure(props) {
                                                     <div className="mt-3">
                                                         <Form.Item>
                                                             <label className="mb-1">Header</label>
-                                                            <Input className='inputheight41-group' placeholder="Enter Doctor Name" onChange={onClinicInfoHeaderChange} value={printSettingsCopy?.header_footer?.header?.clinic_info?.header} />
+                                                            <Input className='inputheight41-group' placeholder="Enter Clinic Name" onChange={onClinicInfoHeaderChange} value={printSettingsCopy?.header_footer?.header?.clinic_info?.header} />
                                                         </Form.Item>
                                                     </div>
                                                     <div className="mt-3">
@@ -407,7 +407,7 @@ function WhatsappConfigure(props) {
                                                             <label className="mb-1">Subheader</label>
                                                             <TextArea
                                                                 className="endreason-textarea subheader-textarea"
-                                                                placeholder="Enter Information (Ex: MBBS, MD)"
+                                                                placeholder="Enter Clinic Address"
                                                                 style={{
                                                                     resize: "none"
                                                                 }}

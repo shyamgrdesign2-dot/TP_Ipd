@@ -147,10 +147,10 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
                                     <div className="mt-4">
                                         <div className="d-flex align-items-center mt-2 justify-content-end">
                                             <div onClick={onYesLeaveClick} className="me-4 text-decoration-underline btn p-0 text-main">
-                                                Yes Leave
+                                                {flag == 1 ? 'Yes Leave' : 'Yes'}
                                             </div>
                                             <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">
-                                                <span>No, Stay</span>
+                                                <span>{flag == 1 ? 'No, Stay' : 'No'}</span>
                                             </Button>
                                         </div>
                                     </div>
