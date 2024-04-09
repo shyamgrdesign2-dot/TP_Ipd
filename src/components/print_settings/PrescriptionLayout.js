@@ -46,7 +46,7 @@ function PrescriptionLayout() {
     return (
         <div className="px-3">
             <div className="titleprint mb-3">Format Style</div>
-            <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
+            <Row justify="space-between" className="align-items-center form_addnewpatient mb-28">
                 <Col lg={10}>
                     All Change to
                 </Col>
@@ -68,7 +68,7 @@ function PrescriptionLayout() {
             {printSettings?.prescription?.case_option?.map((e, i) => {
                 return (
                     e?.custom_status === 'Y' && (
-                        <Row key={i} justify="space-between" className="align-items-center form_addnewpatient mb-3">
+                        <Row key={i} justify="space-between" className="align-items-center form_addnewpatient mb-28">
                             <Col lg={10}>
                                 <div className="d-flex align-items-center cursor-pointer Preview-color-icon" onClick={() => onCaseOptionChange(e, 'visible', i)}>
                                     <i className={`icon-Preview ${e.enable === 'N' && 'disable-preview'} me-2`}></i>
