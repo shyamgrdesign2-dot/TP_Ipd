@@ -1,5 +1,8 @@
-import React, { useContext } from 'react';
-import { PDFViewer } from '@react-pdf/renderer';
+import React, { useState, useEffect, useContext } from 'react';
+import { PDFViewer, BlobProvider, pdf } from '@react-pdf/renderer';
+import { PDFReader, MobilePDFReader } from 'reactjs-pdf-reader';
+import { isMobile } from "react-device-detect";
+import { Col, Tabs, Row, Spin } from "antd";
 
 import PrintSettingsContext from '../context/PrintSettingsContext';
 import moment from "moment";
@@ -7,13 +10,18 @@ import { useSelector } from "react-redux";
 
 import { NORMAL } from "../utils/constants";
 import ViewPDF from '../components/print_settings/ViewPDF';
+import { renderPDF } from '../components/print_settings/renderPDF';
+import { PDF } from '../components/print_settings/PDF';
+
+import { pdfjs, Document, Page } from "react-pdf";
+const worker = require('pdfjs-dist/build/pdf.worker.min.js')
+pdfjs.GlobalWorkerOptions.workerSrc = worker
 
 const showDateFormat = 'DD MMM, YY'
 
 function Quixote({ mode = NORMAL, ...props }) {
 
-    const { state, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
-    const { caseManagerData } = state
+    const { divWidth, caseManagerData, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
@@ -70,7 +78,7 @@ function Quixote({ mode = NORMAL, ...props }) {
         },
     ];
     // Extract unique dates from the JSON array
-    const uniqueDates = caseManagerData.vitals.length > 0 ? [...caseManagerData.vitals.map((item) => item.date)] : [];
+    const uniqueDates = caseManagerData && caseManagerData.vitals.length > 0 ? [...caseManagerData.vitals.map((item) => item.date)] : [];
 
     // Initialize columns for each unique date
     const dateColumns = uniqueDates.map((date, index) => ({
@@ -79,7 +87,7 @@ function Quixote({ mode = NORMAL, ...props }) {
 
     const columns = [...initialColumns, ...dateColumns];
 
-    caseManagerData.vitals.length > 0 && caseManagerData.vitals.map((item, index) => {
+    caseManagerData && caseManagerData.vitals.length > 0 && caseManagerData.vitals.map((item, index) => {
         initialRows[0][index] = item.temp ? item.temp : '-'
         initialRows[1][index] = item.pres ? item.pres : '-'
         initialRows[2][index] = item.resp_rate ? item.resp_rate : '-'
@@ -93,14 +101,30 @@ function Quixote({ mode = NORMAL, ...props }) {
         initialRows[10][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
     });
 
-    return (
-        <PDFViewer
-            showToolbar={false}
-            style={{
-                width: '100%',
-                height: 800
-            }}>
-            <ViewPDF
+    const [pdfUrl, setPdfUrl] = useState(null)
+    const [numPages, setNumPages] = useState();
+
+    useEffect(() => {
+        // const makePDFUrl = async () => {
+        //     var make_data = {
+        //         mode: mode,
+        //         caseManagerData: caseManagerData,
+        //         columns: columns,
+        //         initialRows: initialRows,
+        //         frequencyList: frequencyList,
+        //         timingList: timingList,
+        //         printSettings: mode == NORMAL ? printSettings : props.printSettingsCopy,
+        //         fileHeader: mode == NORMAL ? fileHeader : props.fileHeaderCopy,
+        //         fileFooter: mode == NORMAL ? fileFooter : props.fileFooterCopy,
+        //         fileLogo: mode == NORMAL ? fileLogo : props.fileLogoCopy,
+        //         fileWatermark: fileWatermark,
+        //         fileSignature: fileSignature,
+        //     }
+        //     const blob = await renderPDF({ ...make_data });
+        //     setPdfUrl(URL.createObjectURL(blob))
+        // }
+        const makePDFUrl = async () => {
+            const blob = await pdf(<ViewPDF
                 mode={mode}
                 caseManagerData={caseManagerData}
                 columns={columns}
@@ -113,8 +137,53 @@ function Quixote({ mode = NORMAL, ...props }) {
                 fileLogo={mode == NORMAL ? fileLogo : props.fileLogoCopy}
                 fileWatermark={fileWatermark}
                 fileSignature={fileSignature}
-            />
-        </PDFViewer >
+            />).toBlob();
+            setPdfUrl(URL.createObjectURL(blob))
+        }
+        caseManagerData && makePDFUrl()
+    }, [
+        mode,
+        props.printSettingsCopy,
+        props.fileHeaderCopy,
+        props.fileFooterCopy,
+        props.fileLogoCopy,
+        printSettings,
+        fileHeader,
+        fileFooter,
+        fileSignature,
+        fileWatermark,
+        fileLogo
+    ]);
+
+    const onDocumentLoadSuccess = ({ numPages }) => {
+        setNumPages(numPages)
+    }
+
+    return (
+        <>
+            {pdfUrl && (
+                <Document
+                    loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%", height: '100%' }} />}
+                    error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
+                    noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
+                    file={pdfUrl}
+                    onLoadSuccess={onDocumentLoadSuccess}>
+                    {Array.apply(null, Array(numPages))
+                        .map((x, i) => i + 1)
+                        .map((page) => {
+                            return (
+                                <Page
+                                    key={Math.random()}
+                                    width={divWidth}
+                                    pageNumber={page}
+                                    renderTextLayer={false}
+                                    renderAnnotationLayer={false}
+                                />
+                            );
+                        })}
+                </Document>
+            )}
+        </>
     )
 };
 

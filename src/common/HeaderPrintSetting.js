@@ -21,7 +21,7 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
     const { loading } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
-    const { state, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
+    const { printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
@@ -84,7 +84,7 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
 
             const action = await dispatch(savePrintsettings(sendData));
             if (action.meta.requestStatus === "fulfilled") {
-                navigate('/prescription_print_view', { replace: true, state: { ...state } })
+                navigate(-1)
             } else {
                 message.open({
                     key: MESSAGE_KEY,
@@ -98,7 +98,7 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
 
     const checkDataFillOrNot = () => {
         if (JSON.stringify(defaultPrintSettings) == JSON.stringify(printSettings)) {
-            navigate('/prescription_print_view', { replace: true, state: { ...state } })
+            navigate(-1)
         } else {
             showHideBackModal()
         }
@@ -134,7 +134,7 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
                                     </div>
                                     <div className="mt-4">
                                         <div className="d-flex align-items-center mt-2 justify-content-end">
-                                            <div onClick={() => navigate('/prescription_print_view', { replace: true, state: { ...state } })} className="me-4 text-decoration-underline btn p-0 text-main">
+                                            <div onClick={() => navigate(-1)} className="me-4 text-decoration-underline btn p-0 text-main">
                                                 Yes Leave
                                             </div>
                                             <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">

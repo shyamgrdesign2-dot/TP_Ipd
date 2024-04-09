@@ -3,6 +3,8 @@ import { Col, Radio, Row, Form } from "antd";
 
 import PrintSettingsContext from '../../context/PrintSettingsContext';
 
+import { isMobile } from 'react-device-detect';
+
 function PrescriptionLayout() {
 
     const { printSettings, setPrintSettings } = useContext(PrintSettingsContext);
@@ -44,13 +46,13 @@ function PrescriptionLayout() {
     return (
         <div className="px-3">
             <div className="titleprint mb-3">Format Style</div>
-            <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
+            <Row justify="space-between" className="align-items-center form_addnewpatient mb-28">
                 <Col lg={10}>
                     All Change to
                 </Col>
                 <Col lg={14}>
                     <Form.Item className="mb-0">
-                        <Radio.Group className="d-flex gender-radio all-change-radio" onChange={onMainCaseOptionChange}
+                        <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onMainCaseOptionChange}
                             value={
                                 printSettings?.prescription?.case_option.every(e => e.format === 'inline') ? 'inline'
                                     : printSettings?.prescription?.case_option.every(e => e.format === 'listview') ? 'listview'
@@ -66,7 +68,7 @@ function PrescriptionLayout() {
             {printSettings?.prescription?.case_option?.map((e, i) => {
                 return (
                     e?.custom_status === 'Y' && (
-                        <Row key={i} justify="space-between" className="align-items-center form_addnewpatient mb-3">
+                        <Row key={i} justify="space-between" className="align-items-center form_addnewpatient mb-28">
                             <Col lg={10}>
                                 <div className="d-flex align-items-center cursor-pointer Preview-color-icon" onClick={() => onCaseOptionChange(e, 'visible', i)}>
                                     <i className={`icon-Preview ${e.enable === 'N' && 'disable-preview'} me-2`}></i>
@@ -75,7 +77,7 @@ function PrescriptionLayout() {
                             </Col>
                             <Col lg={14}>
                                 <Form.Item className="mb-0">
-                                    <Radio.Group className="d-flex gender-radio all-change-radio" onChange={(e) => onCaseOptionChange(e, 'radio', i)} value={e.format}>
+                                    <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={(e) => onCaseOptionChange(e, 'radio', i)} value={e.format}>
                                         <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
                                         <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
                                         <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>

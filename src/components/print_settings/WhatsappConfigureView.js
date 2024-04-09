@@ -1,6 +1,8 @@
 import React from "react";
-import { Button } from "antd";
+import { Button, Spin } from "antd";
 import { Navbar } from 'react-bootstrap';
+import { isMobile } from "react-device-detect";
+
 import { NORMAL } from "../../utils/constants";
 import Quixote from "../../pages/Quixote";
 import wtsp from '../../assets/images/wtsp.svg';
@@ -30,11 +32,10 @@ function WhatsappConfigureView(props) {
                     </div>
                 </div>
             </Navbar>
-
-            <div className={'w-100 bg-body wrapper2'}>
-                <div className="mx-auto overflow-y-auto" style={{ width: 825 }}>
-                    <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" /> WhatsApp Preview</div>
-                    <div className="border rounded-20px bg-white mt-20 overflow-hidden h-100">
+            <div className="mx-auto overflow-y-auto " style={{ width: isMobile ? 580 : 900 }} >
+                <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" /> WhatsApp Preview</div>
+                <div className="rounded-20px bg-white mt-20 overflow-hidden">
+                    <div className="position-relative printheight">
                         <Quixote mode={NORMAL} />
                     </div>
                 </div>

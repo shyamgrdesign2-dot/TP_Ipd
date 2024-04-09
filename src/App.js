@@ -14,6 +14,8 @@ import { useLocalStorage } from "./utils/localStorage";
 import PrescriptionPrintView from "./pages/PrescriptionPrintView";
 import TabPrescription from "./pages/tab_design/TabPrescription";
 import ConfigurePrintSetting from "./pages/ConfigurePrintSetting";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorFallback from "./common/ErrorFallback";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -33,17 +35,30 @@ function App() {
 
   return (
     <>
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <Routes>
-            <Route path="/*" element={<AppointmentList />} />
-            <Route path="patient_details" element={<PatientDetails />} />
-            <Route path="prescription" element={isMobile ? <TabPrescription /> : <Prescription />} />
-            <Route path="prescription_print_view" element={<PrescriptionPrintView />} />
-            <Route path="configure_print_setting" element={<ConfigurePrintSetting />} />
-          </Routes>
-        </PersistGate>
-      </Provider>
+      <ErrorBoundary
+        FallbackComponent={ErrorFallback}
+        onError={(error) => {
+          // You can also log the error to an error reporting service like AppSignal
+          // logErrorToMyService(error, errorInfo);
+          console.error(error);
+        }}
+        onReset={(details) => {
+          // Reset the state of your app so the error doesn't happen again
+          console.error(details);
+        }}
+      >
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <Routes>
+              <Route path="/*" element={<AppointmentList />} />
+              <Route path="patient_details" element={<PatientDetails />} />
+              <Route path="prescription" element={isMobile ? <TabPrescription /> : <Prescription />} />
+              <Route path="prescription_print_view" element={<PrescriptionPrintView />} />
+              <Route path="configure_print_setting" element={<ConfigurePrintSetting />} />
+            </Routes>
+          </PersistGate>
+        </Provider>
+      </ErrorBoundary>
     </>
   );
 }

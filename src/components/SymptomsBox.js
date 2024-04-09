@@ -20,7 +20,7 @@ import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
+import { isNumeric, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Symptomsicon from "../assets/images/Symptoms.svg";
 import {
   addTemplate,
@@ -274,6 +274,17 @@ function SymptomsBox() {
     [sinceOptions, symptomsData]
   );
 
+  const onBlurSinceChid = useCallback(
+    (i) => {
+      if (isNumeric(symptomsData[i].since)) {
+        symptomsData[i].since = `${symptomsData[i].since} Day`;
+        setSymptomsData((prev) => [...prev]);
+      }
+    },
+    [symptomsData]
+  );
+
+
   const onSelectSinceChild = useCallback(
     (data, i) => {
       setSinceOptions([]);
@@ -513,6 +524,7 @@ function SymptomsBox() {
                 bordered={false}
                 defaultOpen={false}
                 onSearch={(query) => onSearchSinceChid(query, index)}
+                onBlur={() => onBlurSinceChid(index)}
                 options={sinceOptions}
                 className="autocomplete-custom w-100 inputborder"
                 defaultActiveFirstOption={true}

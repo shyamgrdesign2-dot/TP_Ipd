@@ -8,6 +8,8 @@ import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+import { isMobile } from 'react-device-detect';
+
 import PrintSettingsContext from '../../context/PrintSettingsContext';
 
 import CommonModal from '../../common/CommonModal';
@@ -692,7 +694,7 @@ function HeaderFooterLayout() {
                         <div className="mt-3">
                             <Form.Item className="mb-0">
                                 <label className="mb-1 title-common">Select Letterhead Format</label>
-                                <Radio.Group className="d-flex gender-radio all-change-radio" onChange={onLetterheadFormatChange} value={printSettings?.letterhead_format}>
+                                <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onLetterheadFormatChange} value={printSettings?.letterhead_format}>
                                     <Radio.Button className="w-100 text-center" value={2}>Own Letterhead</Radio.Button>
                                     <Radio.Button className="w-100 text-center" value={1}>Upload Letterhead</Radio.Button>
                                     <Radio.Button className="w-100 text-center" value={0}>Custom</Radio.Button>
@@ -716,7 +718,7 @@ function HeaderFooterLayout() {
                                 {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && (
                                     <>
                                         <Form.Item>
-                                            <Radio.Group className="d-flex gender-radio" onChange={onDoctorInfoPlaceChange} value={printSettings?.header_footer?.header?.doctor_info?.place}>
+                                            <Radio.Group className={`d-flex gender-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onDoctorInfoPlaceChange} value={printSettings?.header_footer?.header?.doctor_info?.place}>
                                                 <Radio.Button className="w-100 text-center" value="L">Left</Radio.Button>
                                                 <Radio.Button className="w-100 text-center" value="R">Right</Radio.Button>
                                             </Radio.Group>
@@ -757,7 +759,7 @@ function HeaderFooterLayout() {
                                 {printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (
                                     <>
                                         <Form.Item>
-                                            <Radio.Group className="d-flex gender-radio" onChange={onClinicInfoPlaceChange} value={printSettings?.header_footer?.header?.clinic_info?.place}>
+                                            <Radio.Group className={`d-flex gender-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onClinicInfoPlaceChange} value={printSettings?.header_footer?.header?.clinic_info?.place}>
                                                 <Radio.Button className="w-100 text-center" value="L">Left</Radio.Button>
                                                 <Radio.Button className="w-100 text-center" value="R">Right</Radio.Button>
                                             </Radio.Group>
@@ -1174,7 +1176,7 @@ function HeaderFooterLayout() {
                             {printSettings?.signature_enable === 'Y' && (
                                 <div>
                                     <Form.Item className="mb-0 mt-3">
-                                        <Radio.Group className="d-flex gender-radio" onChange={onSignaturePlaceChange} value={printSettings?.header_footer?.other_settings?.signature_place}>
+                                        <Radio.Group className={`d-flex gender-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onSignaturePlaceChange} value={printSettings?.header_footer?.other_settings?.signature_place}>
                                             <Radio.Button className="w-100 text-center" value="L">Left</Radio.Button>
                                             <Radio.Button className="w-100 text-center" value="R">Right</Radio.Button>
                                         </Radio.Group>
@@ -1215,7 +1217,7 @@ function HeaderFooterLayout() {
                                                                 </div>
                                                                 <div>
                                                                     <Form.Item className="mb-0">
-                                                                        <Radio.Group className="d-flex gender-radio draw-upload" onChange={onSignatureModeChange} value={signatureMode}>
+                                                                        <Radio.Group className={`d-flex gender-radio draw-upload ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onSignatureModeChange} value={signatureMode}>
                                                                             <Radio.Button className="w-100 text-center" value="L"><div className="d-flex align-items-center"><i className="fs-18 icon-Edit me-1"></i><span className="fontroboto fs-12-1 fw-medium">Draw</span></div></Radio.Button>
                                                                             <Radio.Button className="w-100 text-center" value="R" ><div className="d-flex align-items-center"><i className="fs-16 icon-upload me-1"></i><span className="fontroboto fs-12-1 fw-medium">Upload</span></div></Radio.Button>
                                                                         </Radio.Group>
