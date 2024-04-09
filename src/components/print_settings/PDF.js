@@ -189,7 +189,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                                     ) : (
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             {printSettings?.logo_enable === 'Y' && (
-                                                <View style={{ width: 82, height: 82, overflow: 'hidden' }}>
+                                                <View style={{ width: 82, height: 82, overflow: 'hidden', marginLeft: 8 }}>
                                                     {fileLogo && fileLogo?.imageShow && (
                                                         <Image
                                                             style={{ width: '100%', height: '100%', objectFit: 'contain' }}
@@ -199,7 +199,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                                                 </View>
                                             )}
                                             {(printSettings?.header_footer?.header?.doctor_info?.enable === 'Y') ? (
-                                                <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 'left' : 'right', weight: '189px' }}>
+                                                <View style={{ flex: 1, textAlign: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 'left' : 'right', weight: '189px' }}>
                                                     <Text style={styles.mainTitle}>
                                                         {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
                                                     </Text>
@@ -208,7 +208,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                                                     </Text>
                                                 </View>
                                             ) : printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (
-                                                <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 'left' : 'right', weight: '130px' }}>
+                                                <View style={{ flex: 1, textAlign: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 'left' : 'right', weight: '130px' }}>
                                                     <Text style={styles.mainTitle}>
                                                         {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
                                                     </Text>
