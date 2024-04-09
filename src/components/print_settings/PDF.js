@@ -891,7 +891,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                                             )}
                                             {printSettings?.header_footer?.other_settings?.qualification_enable === 'Y' && (
                                                 <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
-                                                    {caseManagerData?.doctor_data?.um_qualifications}
+                                                    {printSettings?.header_footer?.other_settings?.qualification ? printSettings?.header_footer?.other_settings?.qualification : caseManagerData?.doctor_data?.um_qualifications}
                                                 </Text>
                                             )}
                                         </View>
@@ -911,7 +911,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                                             )}
                                             {printSettings?.header_footer?.other_settings?.qualification_enable === 'Y' && (
                                                 <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
-                                                    {caseManagerData?.doctor_data?.um_qualifications}
+                                                    {printSettings?.header_footer?.other_settings?.qualification ? printSettings?.header_footer?.other_settings?.qualification : caseManagerData?.doctor_data?.um_qualifications}
                                                 </Text>
                                             )}
                                         </View>

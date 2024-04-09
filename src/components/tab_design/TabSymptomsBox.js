@@ -519,9 +519,9 @@ function TabSymptomsBox() {
     ];
 
     const SEVERITY_LIST = [
-        { value: "severe", label: "Severe" },
-        { value: "moderate", label: "Moderate" },
-        { value: "mild", label: "Mild" },
+        { value: "Severe", label: "Severe" },
+        { value: "Moderate", label: "Moderate" },
+        { value: "Mild", label: "Mild" },
     ];
 
     const onChangeSegmentedSinceChild = useCallback(

@@ -204,9 +204,9 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
     ];
 
     const STATUS_LIST = [
-        { value: "ruled out", label: "Ruled Out" },
-        { value: "suspected", label: "Suspected" },
-        { value: "confirmed", label: "Confirmed" },
+        { value: "Ruled Out", label: "Ruled Out" },
+        { value: "Suspected", label: "Suspected" },
+        { value: "Confirmed", label: "Confirmed" },
     ];
 
     const onChangeSegmentedSinceChild = useCallback(

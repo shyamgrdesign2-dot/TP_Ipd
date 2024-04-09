@@ -188,6 +188,14 @@ function PrescriptionPrintView() {
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
     }
+    // async function onDocumentLoadSuccess(successEvent) {
+    //     setNumPages(successEvent?.numPages);
+    //     const data = await successEvent.getData()
+    //     const blob = new Blob([data], { type: 'application/pdf' })
+    //     setTimeout(() => {
+    //         window.open(URL.createObjectURL(blob))
+    //       }, 500);
+    // }
 
     const configurePrintUrl = async () => {
         var sendData = {

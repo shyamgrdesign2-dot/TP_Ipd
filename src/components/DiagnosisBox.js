@@ -52,9 +52,9 @@ function DiagnosisBox() {
   // const [diagnosisData, setDiagnosisData] = useState([]);
 
   const STATUS_LIST = [
-    { value: "ruled out", label: "Ruled Out" },
-    { value: "suspected", label: "Suspected" },
-    { value: "confirmed", label: "Confirmed" },
+    { value: "Ruled Out", label: "Ruled Out" },
+    { value: "Suspected", label: "Suspected" },
+    { value: "Confirmed", label: "Confirmed" },
   ];
 
   //PopOver1
