@@ -856,8 +856,8 @@ function AppointmentData({ locationPath }) {
                             <div className='d-flex'>
                                 <div style={{ flex: 1, marginRight: 20 }}>
                                     <div>
-                                        <h2 className="fw-semibold fs-4">Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')},</h2>
-                                        <h3 className="fw-semibold" style={{ fontSize: 40 }}>Welcome to TatvaPractice</h3>
+                                        <h2 className="fw-medium mb-2" style={{fontSize: 16}}>Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')},</h2>
+                                        <h3 className="fw-semibold mb-5" style={{ fontSize: 48 }}>Welcome to TatvaPractice</h3>
                                     </div>
                                     <div style={{ background: '#fef4f5', padding: 15, borderRadius: 10 }}>
                                         <span>
@@ -872,7 +872,8 @@ function AppointmentData({ locationPath }) {
                                     </div>
                                 </div>
                                 <figure>
-                                    <img src={docimg} style={{ width: '100%', height: window.innerHeight / 1.9, objectFit: 'contain' }} />
+                                    {/* <img src={docimg} style={{ width: '100%', height: window.innerHeight / 1.9, objectFit: 'contain' }} /> */}
+                                    <iframe width="498" height="392" className="rounded-4" src="https://www.youtube.com/embed/s0G0-8jY-ng?si=jrjYESgFK6hVzti3&amp;controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                                 </figure>
                             </div>
 
