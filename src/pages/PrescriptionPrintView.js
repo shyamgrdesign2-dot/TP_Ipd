@@ -328,7 +328,9 @@ function PrescriptionPrintView() {
                                                 .map((page) => {
                                                     return (
                                                         <Page
-                                                            className={printBlob ? 'pdf__Page_afterload' : null}
+                                                            key={Math.random()}
+                                                            className={printBlob ? 'react-pdf__Page_afterload' : null}
+                                                            loading={null}
                                                             width={divWidth}
                                                             pageNumber={page}
                                                             renderTextLayer={false}
