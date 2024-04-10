@@ -179,8 +179,8 @@ function Quixote({ mode = NORMAL, ...props }) {
                         .map((page) => {
                             return (
                                 <Page
-                                    className={loadSuccess ? 'pdf__Page_afterload':null}
                                     key={Math.random()}
+                                    className={loadSuccess ? 'react-pdf__Page_afterload' : null}
                                     loading={null}
                                     width={divWidth}
                                     pageNumber={page}
