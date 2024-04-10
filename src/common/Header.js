@@ -329,7 +329,8 @@ function Header({ locationPath }) {
         <div>
           <img onClick={() => !isChrome && !isSafari && showHideLogoModal()}
             src={require("../assets/images/logo.png")}
-            className={`d-inline-block align-top ${!isChrome && !isSafari && 'cursor-pointer'}`} style={{ height: '30px' }}
+            className={`d-inline-block align-top ${!isChrome && !isSafari && 'cursor-pointer'}`} 
+            style={{width:'110px'  }}
             alt="Logo"
           />
           <Popover open={popOver} onOpenChange={showHideNavigateToTatvaPedia} content={NAVIGATE_TO_TATVAPEDIA}
