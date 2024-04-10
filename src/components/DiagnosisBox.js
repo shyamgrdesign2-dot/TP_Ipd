@@ -184,16 +184,6 @@ function DiagnosisBox() {
     [searchParentQuery, diagnosisData]
   );
 
-  const onBlurSinceChid = useCallback(
-    (i) => {
-      if (isNumeric(diagnosisData[i].since)) {
-        diagnosisData[i].since = `${diagnosisData[i].since} Year`;
-        setDiagnosisData((prev) => [...prev]);
-      }
-    },
-    [diagnosisData]
-  );
-
   //Child AutoComplete
   useEffect(() => {
     if (searchChildQuery) {
@@ -280,8 +270,8 @@ function DiagnosisBox() {
         const options = SINCE_OPTIONS.map((option) => {
           return {
             key: Math.random(),
-            value: `${updateQuery} ${option.value}`,
-            label: <>{`${updateQuery} ${option.label}`}</>,
+            value: `${updateQuery} ${updateQuery <= 1 ? option.value : `${option.value}(s)`}`,
+            label: <>{`${updateQuery} ${updateQuery <= 1 ? option.label : `${option.label}(s)`}`}</>,
           };
         });
         setSinceOptions(options);
@@ -290,6 +280,16 @@ function DiagnosisBox() {
       }
     },
     [sinceOptions, diagnosisData]
+  );
+
+  const onBlurSinceChid = useCallback(
+    (i) => {
+      if (isNumeric(diagnosisData[i].since)) {
+        diagnosisData[i].since = `${diagnosisData[i].since} ${parseInt(diagnosisData[i].since) <= 1 ? 'Year' : 'Year(s)'}`;
+        setDiagnosisData((prev) => [...prev]);
+      }
+    },
+    [diagnosisData]
   );
 
   const onSelectSinceChild = useCallback(

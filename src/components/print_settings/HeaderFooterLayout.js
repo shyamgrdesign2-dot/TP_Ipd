@@ -836,7 +836,7 @@ function HeaderFooterLayout() {
                                     </Col>
                                 </Row>
                                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerWhatsappView} open={isHandleDrawerWhatsappView} width="100%" height="100%">
-                                    <WhatsappConfigureView  handleDrawerWhatsappView={handleDrawerWhatsappView}/>
+                                    <WhatsappConfigureView handleDrawerWhatsappView={handleDrawerWhatsappView} />
                                 </Drawer>
                             </div>
                         ) : printSettings?.letterhead_format === 1 ? (
@@ -1009,7 +1009,7 @@ function HeaderFooterLayout() {
                                     </Col>
                                 </Row>
                                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerWhatsappView} open={isHandleDrawerWhatsappView} width="100%" height="100%">
-                                    <WhatsappConfigureView  handleDrawerWhatsappView={handleDrawerWhatsappView}/>
+                                    <WhatsappConfigureView handleDrawerWhatsappView={handleDrawerWhatsappView} />
                                 </Drawer>
                             </div>
                         ) : printSettings?.letterhead_format === 2 && (
