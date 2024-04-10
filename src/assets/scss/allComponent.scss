@@ -312,7 +312,7 @@
     overflow-x: hidden;
     .react-pdf__Document {
         background-color: $bgbody;
-        .react-pdf__Page {
+        .react-pdf__Page_afterload {
             background-color: $bgbody !important;
             border: 1px solid $bordercolor;
             margin-bottom: 15px;

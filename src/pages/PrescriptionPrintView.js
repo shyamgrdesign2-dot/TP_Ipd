@@ -91,6 +91,8 @@ function PrescriptionPrintView() {
     const [printRxUrl, setPrintRxUrl] = useState(state !== undefined ? `${state.print_rx_url}` : null);
 
     const [divWidth, setDivWidth] = useState(0);
+    const [numPages, setNumPages] = useState();
+    const [printBlob, setPrintBlob] = useState(null);
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
@@ -115,9 +117,23 @@ function PrescriptionPrintView() {
         });
     }, []);
 
-    const printContent = useReactToPrint({
-        content: () => printRef.current,
-    });
+    // const printContent = useReactToPrint({
+    //     content: () => printRef.current,
+    // });
+
+    const printContent = async () => {
+        var blobURL = URL.createObjectURL(printBlob);
+        var iframe = document.createElement('iframe'); //load content in an iframe to print later
+        document.body.appendChild(iframe);
+        iframe.style.display = 'none';
+        iframe.src = blobURL;
+        iframe.onload = function () {
+            setTimeout(function () {
+                iframe.focus();
+                iframe.contentWindow.print();
+            }, 1);
+        };
+    };
 
     const printInAppContent = async () => {
         navigate(`/prescription_print_view/?url=${printUrl}&key=print`, { replace: true, state: state })
@@ -183,19 +199,15 @@ function PrescriptionPrintView() {
         }
     };
 
-    const [numPages, setNumPages] = useState();
-
-    function onDocumentLoadSuccess({ numPages }) {
-        setNumPages(numPages);
-    }
-    // async function onDocumentLoadSuccess(successEvent) {
-    //     setNumPages(successEvent?.numPages);
-    //     const data = await successEvent.getData()
-    //     const blob = new Blob([data], { type: 'application/pdf' })
-    //     setTimeout(() => {
-    //         window.open(URL.createObjectURL(blob))
-    //       }, 500);
+    // function onDocumentLoadSuccess({ numPages }) {
+    //     setNumPages(numPages);
     // }
+    async function onDocumentLoadSuccess(successEvent) {
+        setNumPages(successEvent?.numPages);
+        const data = await successEvent.getData()
+        const blob = new Blob([data], { type: 'application/pdf' })
+        setPrintBlob(blob)
+    }
 
     const configurePrintUrl = async () => {
         var sendData = {
@@ -316,6 +328,7 @@ function PrescriptionPrintView() {
                                                 .map((page) => {
                                                     return (
                                                         <Page
+                                                            className={printBlob ? 'pdf__Page_afterload' : null}
                                                             width={divWidth}
                                                             pageNumber={page}
                                                             renderTextLayer={false}

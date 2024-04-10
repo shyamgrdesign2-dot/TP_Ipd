@@ -863,7 +863,7 @@ function AppointmentData({ locationPath }) {
                                         <span>
                                             <img src={suporticon} alt={""} />
                                         </span>
-                                        <h3 className="fs-6 fw-medium" style={{ marginTop: 9 }}>We will connect you soon</h3>
+                                        <h3 className="fs-6 fw-medium" style={{ marginTop: 9 }}>We will connect with you soon</h3>
                                         <p className="fs-7 fw-normal">
                                             We will contact you within 24 hours to assist you in setting
                                             up your digital clinic and provide a walkthrough for writing
