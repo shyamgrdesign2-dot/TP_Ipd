@@ -77,7 +77,7 @@ function Quixote({ mode = NORMAL, ...props }) {
             title: 'Name'
         },
     ];
-   
+
     // Extract unique dates from the JSON array
     const uniqueDates = caseManagerData && caseManagerData.vitals.length > 0 ? [...caseManagerData.vitals.slice(0, 2).map((item) => item.date)] : [];
 
@@ -104,6 +104,7 @@ function Quixote({ mode = NORMAL, ...props }) {
 
     const [pdfUrl, setPdfUrl] = useState(null)
     const [numPages, setNumPages] = useState();
+    const [loadSuccess, setLoadSuccesss] = useState(false);
 
     useEffect(() => {
         // const makePDFUrl = async () => {
@@ -142,6 +143,9 @@ function Quixote({ mode = NORMAL, ...props }) {
             setPdfUrl(URL.createObjectURL(blob))
         }
         caseManagerData && makePDFUrl()
+        return () => {
+            setLoadSuccesss(false)
+        };
     }, [
         mode,
         props.printSettingsCopy,
@@ -158,6 +162,7 @@ function Quixote({ mode = NORMAL, ...props }) {
 
     const onDocumentLoadSuccess = ({ numPages }) => {
         setNumPages(numPages)
+        setLoadSuccesss(true)
     }
 
     return (
@@ -174,7 +179,9 @@ function Quixote({ mode = NORMAL, ...props }) {
                         .map((page) => {
                             return (
                                 <Page
+                                    className={loadSuccess ? 'pdf__Page_afterload':null}
                                     key={Math.random()}
+                                    loading={null}
                                     width={divWidth}
                                     pageNumber={page}
                                     renderTextLayer={false}
