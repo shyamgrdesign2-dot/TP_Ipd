@@ -56,7 +56,7 @@ const prod = {
     medication_api_url: `https://medicine-prod.azurewebsites.net/`,
     vitals_api_url: `https://vital-prod.azurewebsites.net`,
     casemanager_api_url: `https://casemanager-prod.azurewebsites.net`,
-    printsettings_api_url: `https://printsettings-webservice.azurewebsites.net`,
+    printsettings_api_url: `https://printsetting-prod.azurewebsites.net`,
     sso_to_pm_url: `https://practice.tatvacare.in/api/get_doctor_sso_token.php`,
     sso_to_pm_username: `PM_45dy48vh8sc4i1dum`,
     sso_to_pm_password: `481541at-j4xc-4817-q5xz-a4rt48c69bt1`,
