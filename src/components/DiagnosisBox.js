@@ -26,7 +26,7 @@ import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from "../context/CashManagerContext";
 import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
+import { isNumeric, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Diagnosisicon from "../assets/images/Diagnosis.svg";
 import {
   addTemplate,
@@ -52,9 +52,9 @@ function DiagnosisBox() {
   // const [diagnosisData, setDiagnosisData] = useState([]);
 
   const STATUS_LIST = [
-    { value: "ruled out", label: "Ruled Out" },
-    { value: "suspected", label: "Suspected" },
-    { value: "confirmed", label: "Confirmed" },
+    { value: "Ruled Out", label: "Ruled Out" },
+    { value: "Suspected", label: "Suspected" },
+    { value: "Confirmed", label: "Confirmed" },
   ];
 
   //PopOver1
@@ -270,8 +270,8 @@ function DiagnosisBox() {
         const options = SINCE_OPTIONS.map((option) => {
           return {
             key: Math.random(),
-            value: `${updateQuery} ${option.value}`,
-            label: <>{`${updateQuery} ${option.label}`}</>,
+            value: `${updateQuery} ${updateQuery <= 1 ? option.value : `${option.value}(s)`}`,
+            label: <>{`${updateQuery} ${updateQuery <= 1 ? option.label : `${option.label}(s)`}`}</>,
           };
         });
         setSinceOptions(options);
@@ -280,6 +280,16 @@ function DiagnosisBox() {
       }
     },
     [sinceOptions, diagnosisData]
+  );
+
+  const onBlurSinceChid = useCallback(
+    (i) => {
+      if (isNumeric(diagnosisData[i].since)) {
+        diagnosisData[i].since = `${diagnosisData[i].since} ${parseInt(diagnosisData[i].since) <= 1 ? 'Year' : 'Year(s)'}`;
+        setDiagnosisData((prev) => [...prev]);
+      }
+    },
+    [diagnosisData]
   );
 
   const onSelectSinceChild = useCallback(
@@ -522,6 +532,7 @@ function DiagnosisBox() {
                 bordered={false}
                 defaultOpen={false}
                 onSearch={(query) => onSearchSinceChid(query, index)}
+                onBlur={() => onBlurSinceChid(index)}
                 options={sinceOptions}
                 className="autocomplete-custom w-100 inputborder"
                 defaultActiveFirstOption={true}

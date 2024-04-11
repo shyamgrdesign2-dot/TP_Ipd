@@ -197,15 +197,21 @@ const caseManagerSlice = createSlice({
             .addCase(editCaseManager.rejected, (state) => {
                 state.loading = false;
             })
-            .addCase(viewCaseManager.pending, (state) => {
-                state.loading = true;
+            .addCase(viewCaseManager.pending, (state, action) => {
+                if (action.meta.arg.configurePrintSetting === undefined) {
+                    state.loading = true
+                }
             })
             .addCase(viewCaseManager.fulfilled, (state, action) => {
-                state.loading = false;
+                if (action.meta.arg.configurePrintSetting === undefined) {
+                    state.loading = false;
+                }
                 state.viewCaseManagerData = action.payload;
             })
-            .addCase(viewCaseManager.rejected, (state) => {
-                state.loading = false;
+            .addCase(viewCaseManager.rejected, (state, action) => {
+                if (action.meta.arg.configurePrintSetting === undefined) {
+                    state.loading = false;
+                }
                 state.viewCaseManagerData = null;
             })
             .addCase(sendCashsheetWhatsapp.pending, (state) => {

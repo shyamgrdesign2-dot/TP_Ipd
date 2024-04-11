@@ -138,9 +138,9 @@ export const getMedicineType = createAsyncThunk(
 
 export const getDefaultPrintsettings = createAsyncThunk(
   "printSettings/getDefaultPrintsettings",
-  async () => {
+  async (data) => {
     let result = {};
-    result = await ApiPrintSettings.getDefaultPrintsettings();
+    result = await ApiPrintSettings.getDefaultPrintsettings(data);
     if (result.status) {
       return result.data;
     } else {
@@ -257,8 +257,8 @@ const doctorsSlice = createSlice({
         state.loading = true;
       })
       .addCase(savePrintsettings.fulfilled, (state, action) => {
-        console.log(action.payload)
         state.loading = false;
+        state.defaultPrintSettings = action.payload;
       })
       .addCase(savePrintsettings.rejected, (state) => {
         state.loading = false;

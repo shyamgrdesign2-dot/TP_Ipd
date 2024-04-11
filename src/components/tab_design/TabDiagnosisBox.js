@@ -454,7 +454,7 @@ function TabDiagnosisBox() {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
-                    value: `${sinceValue} ${option.value}`,
+                    value: `${sinceValue} ${sinceValue <= 1 ? option.value : `${option.value}(s)`}`,
                     label: <>{`${sinceValue}${option.label}`}</>,
                 };
             });
@@ -463,7 +463,7 @@ function TabDiagnosisBox() {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
-                    value: `${inputSince} ${option.value}`,
+                    value: `${inputSince} ${inputSince <= 1 ? option.value : `${option.value}(s)`}`,
                     label: <>{`${inputSince}${option.label}`}</>,
                 };
             });
@@ -489,7 +489,7 @@ function TabDiagnosisBox() {
                 const options = SINCE_OPTIONS.map((option) => {
                     return {
                         key: Math.random(),
-                        value: `${updateQuery} ${option.value}`,
+                        value: `${updateQuery} ${updateQuery <= 1 ? option.value : `${option.value}(s)`}`,
                         label: <>{`${updateQuery}${option.label}`}</>,
                     };
                 });
@@ -518,9 +518,9 @@ function TabDiagnosisBox() {
     ];
 
     const STATUS_LIST = [
-        { value: "ruled out", label: "Ruled Out" },
-        { value: "suspected", label: "Suspected" },
-        { value: "confirmed", label: "Confirmed" },
+        { value: "Ruled Out", label: "Ruled Out" },
+        { value: "Suspected", label: "Suspected" },
+        { value: "Confirmed", label: "Confirmed" },
     ];
 
     const onChangeSegmentedSinceChild = useCallback(

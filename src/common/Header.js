@@ -46,7 +46,7 @@ function Header({ locationPath }) {
     dispatch(showMedicineTime());
     dispatch(showMedicineFrequency());
     dispatch(getMedicineType());
-    // dispatch(getDefaultPrintsettings());
+    dispatch(getDefaultPrintsettings({ default: false }));
   }, []);
 
   useEffect(() => {
@@ -329,8 +329,8 @@ function Header({ locationPath }) {
         <div>
           <img onClick={() => !isChrome && !isSafari && showHideLogoModal()}
             src={require("../assets/images/logo.png")}
-            className={`d-inline-block align-top ${!isChrome && !isSafari && 'cursor-pointer'}`}
-            style={{ width: '110px' }}
+            className={`d-inline-block align-top ${!isChrome && !isSafari && 'cursor-pointer'}`} 
+            style={{width:'110px'  }}
             alt="Logo"
           />
           <Popover open={popOver} onOpenChange={showHideNavigateToTatvaPedia} content={NAVIGATE_TO_TATVAPEDIA}

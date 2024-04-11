@@ -210,10 +210,13 @@ body {
 }
 
 .modal-onbording {
-    .ant-modal-content {
-        padding: 0;
-        border-radius: 20px;
-        overflow: hidden;
+    &.ant-modal {
+        width: 1045px !important;
+        .ant-modal-content {
+            padding: 0;
+            border-radius: 20px;
+            overflow: hidden;
+        }
     }
 }
 
