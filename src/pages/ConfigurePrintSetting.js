@@ -65,11 +65,11 @@ function ConfigurePrintSetting() {
     useEffect(() => {
         const copyPrintSettings = JSON.parse(JSON.stringify(defaultPrintSettings))
         setPrintSettings(copyPrintSettings);
-        copyPrintSettings?.logo_enable == 'Y' && setFileLogo({ imageShow: true, showFile: copyPrintSettings.logo_image });
+        copyPrintSettings?.logo_enable == 'Y' && copyPrintSettings.logo_image && setFileLogo({ imageShow: true, showFile: copyPrintSettings.logo_image });
         copyPrintSettings?.header_image && setFileHeader({ imageShow: true, showFile: copyPrintSettings.header_image });
         copyPrintSettings?.footer_image && setFileFooter({ imageShow: true, showFile: copyPrintSettings.footer_image });
-        copyPrintSettings?.water_mark_enable == 'Y' && setFileWatermark({ imageShow: true, showFile: copyPrintSettings.water_mark_image });
-        copyPrintSettings?.signature_enable == 'Y' && setFileSignature({ imageShow: true, showFile: copyPrintSettings.signature_image });
+        copyPrintSettings?.water_mark_enable == 'Y' && copyPrintSettings.water_mark_image && setFileWatermark({ imageShow: true, showFile: copyPrintSettings.water_mark_image });
+        copyPrintSettings?.signature_enable == 'Y' && copyPrintSettings.signature_image && setFileSignature({ imageShow: true, showFile: copyPrintSettings.signature_image });
     }, [defaultPrintSettings]);
 
     const onTabChange = useCallback(
