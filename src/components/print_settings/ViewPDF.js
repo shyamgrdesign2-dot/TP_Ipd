@@ -880,12 +880,16 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         printSettings?.header_footer?.other_settings?.signature_place === 'R' ? (
                             <View style={styles.directionCasemanager}>
                                 <View style={[styles.directionCasemanager, { flex: 1 }]} >
-                                    <Image
-                                        style={{ width: 61, height: 61, objectFit: 'contain' }}
-                                        src={printSettings?.qrcode} />
-                                    <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                        {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
-                                    </Text>
+                                    {printSettings?.qrcode && (
+                                        <>
+                                            <Image
+                                                style={{ width: 61, height: 61, objectFit: 'contain' }}
+                                                src={printSettings?.qrcode} />
+                                            <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
+                                                {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
+                                            </Text>
+                                        </>
+                                    )}
                                 </View>
                                 <View style={{ flex: 1, textAlign: 'right' }} >
                                     {printSettings?.header_footer?.other_settings?.name_of_doctor_enable === 'Y' && (
@@ -925,12 +929,16 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     )}
                                 </View>
                                 <View style={[styles.directionCasemanager, { flex: 1, justifyContent: 'flex-end' }]}>
-                                    <Image
-                                        style={{ width: 61, height: 61, objectFit: 'contain' }}
-                                        src={printSettings?.qrcode} />
-                                    <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                        {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
-                                    </Text>
+                                    {printSettings?.qrcode && (
+                                        <>
+                                            <Image
+                                                style={{ width: 61, height: 61, objectFit: 'contain' }}
+                                                src={printSettings?.qrcode} />
+                                            <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
+                                                {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
+                                            </Text>
+                                        </>
+                                    )}
                                 </View>
                             </View>
                         )
@@ -938,12 +946,16 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         <View style={{ flexDirection: 'row' }}>
                             {printSettings?.qrcode_enable === 'Y' && (
                                 <View style={styles.directionCasemanager}>
-                                    <Image
-                                        style={{ width: 61, height: 61, objectFit: 'contain' }}
-                                        src={printSettings?.qrcode} />
-                                    <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                        {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
-                                    </Text>
+                                    {printSettings?.qrcode && (
+                                        <>
+                                            <Image
+                                                style={{ width: 61, height: 61, objectFit: 'contain' }}
+                                                src={printSettings?.qrcode} />
+                                            <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
+                                                {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
+                                            </Text>
+                                        </>
+                                    )}
                                 </View>
                             )}
                             {printSettings?.signature_enable === 'Y' && (
