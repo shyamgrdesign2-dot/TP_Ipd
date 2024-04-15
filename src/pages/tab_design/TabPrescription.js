@@ -20,12 +20,14 @@ import TabFollowUpBox from "../../components/tab_design/TabFollowUpBox";
 import VitalsBox from "../../components/VitalsBox";
 import TabVitalsList from "../../components/tab_design/TabVitalsList";
 import vitalsWhite from '../../assets/images/vitals-white.svg';
+import HistoryWhite from '../../assets/images/medical-history-white.svg';
 // import medicalHistoryWhite from '../../assets/images/medical-history-white.svg';
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import vaccinationWhite from '../../assets/images/vaccination-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
 // import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
+import HistoryBox from "../../components/HistoryBox";
 
 function TabPrescription() {
 
@@ -52,6 +54,7 @@ function TabPrescription() {
     const [collapsed, setCollapsed] = useState(false);
     const [collapsedFlag, setCollapsedFlag] = useState(1);
     const [vitalDrawer, setVitalDrawer] = useState(false);
+    const [historyDrawer, setHistoryDrawer] = useState(false);
 
     useEffect(() => {
         if (caseManagerData !== undefined) {
@@ -133,6 +136,12 @@ function TabPrescription() {
         setVitalDrawer(!vitalDrawer);
     }, [collapsedFlag, collapsed, vitalDrawer]);
 
+
+    // Drawer History
+    const handleDrawerHistory = useCallback(() => {
+        setHistoryDrawer(!historyDrawer);
+    }, [historyDrawer]);
+
     return (
         <CashManagerContext.Provider value={contextApi}>
             <>
@@ -143,12 +152,20 @@ function TabPrescription() {
                             {customizedPadLeftList?.map((e, i) => {
                                 return (
                                     e.tmdpm_id === 1 && e.tmdpm_status === 0 && (
-                                        <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length === 0 && vitalsPastList.length === 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
-                                            <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                                                <img src={vitalsWhite} alt="Vitals" />
-                                            </div>
-                                            <label className="text-white mt-1">Vitals</label>
-                                        </button>
+                                        <>
+                                            <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length === 0 && vitalsPastList.length === 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
+                                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                                    <img src={vitalsWhite} alt="Vitals" />
+                                                </div>
+                                                <label className="text-white mt-1">Vitals</label>
+                                            </button>
+                                            <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => handleDrawerHistory()}>
+                                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                                    <img src={HistoryWhite} alt="Vitals" />
+                                                </div>
+                                                <label className="text-white mt-1">History</label>
+                                            </button>
+                                        </>
                                     )
                                 )
                             })}
@@ -207,6 +224,9 @@ function TabPrescription() {
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerVital} open={vitalDrawer} className="modalWidth-700" width="auto">
                     <VitalsBox handleDrawerVital={handleDrawerVital} handleCollapsed={(flag) => handleCollapsed(flag)} />
+                </Drawer >
+                <Drawer closeIcon={false} placement="right" onClose={handleDrawerHistory} open={historyDrawer} width="100%">
+                    <HistoryBox/>
                 </Drawer >
             </>
         </CashManagerContext.Provider>
