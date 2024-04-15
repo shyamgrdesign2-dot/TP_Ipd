@@ -17,12 +17,28 @@ ApiCaseManager.oneClickDeleteTemplate = function (templateId) {
     return api.get(`/api/v1/casemanager/oneclickDeleteTemplate/${templateId}`, baseUrl);
 };
 
-ApiCaseManager.oneClickTemplatesList = function (query) {
+ApiCaseManager.oneClickTemplatesList = function () {
     return api.get(`/api/v1/casemanager/oneclickTemplateList`, baseUrl);
 };
 
 ApiCaseManager.oneClickSingleTemplateDetails = function (templateId) {
     return api.get(`/api/v1/casemanager/oneclickSingleTemplateDetails/${templateId}`, baseUrl);
+};
+
+ApiCaseManager.addFollowupTemplate = function (template) {
+    return api.post(`/api/v1/casemanager/addFollowupTemplate`, template, baseUrl);
+};
+
+ApiCaseManager.editFollowupTemplate = function (template) {
+    return api.post(`/api/v1/casemanager/editFollowupTemplate`, template, baseUrl);
+};
+
+ApiCaseManager.deleteFollowupTemplate = function (templateId) {
+    return api.get(`/api/v1/casemanager/deleteFollowupTemplate/${templateId}`, baseUrl);
+};
+
+ApiCaseManager.listFollowupTemplate = function () {
+    return api.get(`/api/v1/casemanager/listFollowupTemplate`, baseUrl);
 };
 
 ApiCaseManager.addCaseManager = function (data) {
