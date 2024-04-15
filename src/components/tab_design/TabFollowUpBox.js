@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { Input, Button, Drawer, Tabs, message, Select, Card, Spin, Row, Col, DatePicker } from 'antd';
+import { Input, Button, Drawer, Tabs, message, Select, Card, Spin, Row, Col, DatePicker, Tooltip } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
 
@@ -124,7 +124,7 @@ function TabFollowUpBox() {
                                 <img className='me-2' src={followUp} alt="Symptoms" />
                                 <div className="title-common">Follow-up</div>
                             </div>
-                            <div className="d-flex calender-merge-input">
+                            <div className="d-flex calender-merge-input mt-3">
                                 <Input className="w-100 calnder-input1" placeholder="e.g. 3 Days" value={followUpInput} inputMode="numeric" onChange={onChangeFollowUp} allowClear />
                                 <DatePicker inputReadOnly disabledDate={disabledDate} onChange={onDateChanged} />
                             </div>
@@ -143,9 +143,17 @@ function TabFollowUpBox() {
                             </div>
                         </Col>
                         <Col md={16}>
-                            <div className="d-flex align-items-center mb-14">
-                                <img className='me-2' src={Notes} alt="Symptoms" />
-                                <div className="title-common">Additional Notes</div>
+                            <div className="d-flex align-items-center justify-content-between mb-14">
+                                <div className="d-flex align-items-center">
+                                    <img className='me-2' src={Notes} alt="Symptoms" />
+                                    <div className="title-common">Additional Notes</div>
+                                </div>
+                                <div className="d-flex align-items-center">
+                                    <button className='btn d-flex align-items-center btn-text py-0'> <i className="icon-template me-2"></i> <span>Templates</span></button>
+                                    <Tooltip placement="bottom" title={(additionalNote.length > 0) ? "" : "Please enter some Examination to save a template"}>
+                                        <button className='btn d-flex align-items-center btn-text py-0' > <i className="icon-save me-2"></i> <span>Save</span></button>
+                                    </Tooltip>
+                                </div>
                             </div>
                             <div className="textarea-save">
                                 <Input.TextArea placeholder="Enter any specific note here" onFocus={onFocusClick} onBlur={onSaveButtonClick} value={additionalNote} className="textareaPlaceholder fontroboto text-main" rows={3} onChange={onChangeNote} />
