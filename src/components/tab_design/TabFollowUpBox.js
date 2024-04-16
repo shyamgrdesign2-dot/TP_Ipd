@@ -81,9 +81,9 @@ function TabFollowUpBox() {
             setFollowUpDate(null)
             if (updateQuery.length > 0) {
                 const options = [
-                    { value: `${updateQuery}`, unit: 'day', label: `${updateQuery} Days` },
-                    { value: `${updateQuery}`, unit: 'week', label: `${updateQuery} Weeks` },
-                    { value: `${updateQuery}`, unit: 'month', label: `${updateQuery} Months` },
+                    { value: `${updateQuery}`, unit: 'day', label: `${updateQuery} ${updateQuery <= 1 ? 'Day' : 'Days'}` },
+                    { value: `${updateQuery}`, unit: 'week', label: `${updateQuery} ${updateQuery <= 1 ? 'Week' : 'Weeks'}` },
+                    { value: `${updateQuery}`, unit: 'month', label: `${updateQuery} ${updateQuery <= 1 ? 'Month' : 'Months'}` },
                 ];
                 setDateOptions(options);
             } else {
@@ -121,11 +121,11 @@ function TabFollowUpBox() {
             // const months = moment.duration(dateB.diff(dateC)).asMonths();
 
             if (months > 0) {
-                setFollowUpInput(`${months} Months`)
+                setFollowUpInput(`${months} ${months <= 1 ? 'Month' : 'Months'}`)
             } else if (weeks > 0) {
-                setFollowUpInput(`${weeks} Weeks`)
+                setFollowUpInput(`${weeks} ${weeks <= 1 ? 'Week' : 'Weeks'}`)
             } else {
-                setFollowUpInput(`${days} Days`)
+                setFollowUpInput(`${days} ${days <= 1 ? 'Day' : 'Days'}`)
             }
             setFollowUpDate(getFormattedDate(moment(moment().format(dateFormat)).add(days, 'day').format(dateFormat)))
             setDateOptions([]);
