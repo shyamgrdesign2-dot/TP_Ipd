@@ -99,7 +99,7 @@ function ConfigurePrintSetting() {
                             </div>
                         </Col>
                         <Col xl={16} lg={14}>
-                            <div className="mx-auto overflow-y-auto " style={{width: isMobile ? 580 : 900}} >
+                            <div className="mx-auto overflow-y-auto " style={{ width: isMobile ? 580 : 900 }} >
                                 <div className="titleprint mt-20" onClick={() => printContent()}>Preview</div>
                                 <div ref={divRef} className="rounded-20px bg-white mt-20 overflow-hidden">
                                     <div className="position-relative printheight">
