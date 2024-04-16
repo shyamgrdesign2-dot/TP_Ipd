@@ -4,6 +4,8 @@ import { Col, Tabs, Row, Spin } from "antd";
 import { useReactToPrint } from 'react-to-print';
 import { useSelector, useDispatch } from "react-redux";
 import { isMobile } from "react-device-detect";
+import QRCode from 'qrcode'
+import config from '../config';
 
 import PrintSettingsContext from '../context/PrintSettingsContext';
 
@@ -63,13 +65,19 @@ function ConfigurePrintSetting() {
     });
 
     useEffect(() => {
-        const copyPrintSettings = JSON.parse(JSON.stringify(defaultPrintSettings))
-        setPrintSettings(copyPrintSettings);
-        copyPrintSettings?.logo_enable == 'Y' && copyPrintSettings.logo_image && setFileLogo({ imageShow: true, showFile: copyPrintSettings.logo_image });
-        copyPrintSettings?.header_image && setFileHeader({ imageShow: true, showFile: copyPrintSettings.header_image });
-        copyPrintSettings?.footer_image && setFileFooter({ imageShow: true, showFile: copyPrintSettings.footer_image });
-        copyPrintSettings?.water_mark_enable == 'Y' && copyPrintSettings.water_mark_image && setFileWatermark({ imageShow: true, showFile: copyPrintSettings.water_mark_image });
-        copyPrintSettings?.signature_enable == 'Y' && copyPrintSettings.signature_image && setFileSignature({ imageShow: true, showFile: copyPrintSettings.signature_image });
+        const makeData = async () => {
+            const copyPrintSettings = JSON.parse(JSON.stringify({
+                ...defaultPrintSettings,
+                qrcode: await QRCode.toDataURL(`${config.doctor_website_url}${parseInt(defaultPrintSettings?.um_contact, 10).toString(36)}_${defaultPrintSettings?.hm_refer_code}`)
+            }))
+            setPrintSettings(copyPrintSettings);
+            copyPrintSettings?.logo_enable == 'Y' && copyPrintSettings.logo_image && setFileLogo({ imageShow: true, showFile: copyPrintSettings.logo_image });
+            copyPrintSettings?.header_image && setFileHeader({ imageShow: true, showFile: copyPrintSettings.header_image });
+            copyPrintSettings?.footer_image && setFileFooter({ imageShow: true, showFile: copyPrintSettings.footer_image });
+            copyPrintSettings?.water_mark_enable == 'Y' && copyPrintSettings.water_mark_image && setFileWatermark({ imageShow: true, showFile: copyPrintSettings.water_mark_image });
+            copyPrintSettings?.signature_enable == 'Y' && copyPrintSettings.signature_image && setFileSignature({ imageShow: true, showFile: copyPrintSettings.signature_image });
+        }
+        makeData()
     }, [defaultPrintSettings]);
 
     const onTabChange = useCallback(
