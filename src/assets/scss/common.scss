@@ -74,6 +74,9 @@ body {
     }
     .bg-secondary-light {
         background-color: $themesecondarylight;
+        &:active, .active {
+            background-color: $white;
+        }
     }
     .fs-12 {
         span, label {
@@ -507,6 +510,11 @@ body {
             z-index: 1;
             position: relative;
         }
+    }
+    .title-hypertension {
+        font-size: 24px;
+        font-weight: 600;
+        letter-spacing: 0.1px;
     }
     .medical-history-section {
         .ant-collapse-expand-icon {

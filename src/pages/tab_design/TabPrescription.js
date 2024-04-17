@@ -28,6 +28,7 @@ import HistoryWhite from '../../assets/images/medical-history-white.svg';
 // import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
 import HistoryBox from "../../components/HistoryBox";
+import TabHistoryList from "../../components/tab_design/TabHistoryList";
 
 function TabPrescription() {
 
@@ -205,6 +206,11 @@ function TabPrescription() {
                                 <TabVitalsList handleDrawerVital={handleDrawerVital} handleCollapsed={() => setCollapsed(!collapsed)} />
                             )}
                         </Sider>
+                        <Sider trigger={null} collapsible collapsed={collapsed} className={collapsed ? 'tabsider' : 'tabsider1'}>
+                            {collapsedFlag === 1 && (
+                                <TabHistoryList handleDrawerVital={handleDrawerVital} handleCollapsed={() => setCollapsed(!collapsed)} />
+                            )}
+                        </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                             <Content>
                                 {customizedPadRightList?.map((e, i) => {
@@ -226,7 +232,7 @@ function TabPrescription() {
                     <VitalsBox handleDrawerVital={handleDrawerVital} handleCollapsed={(flag) => handleCollapsed(flag)} />
                 </Drawer >
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerHistory} open={historyDrawer} width="100%">
-                    <HistoryBox/>
+                    <HistoryBox handleDrawerHistory={handleDrawerHistory}/>
                 </Drawer >
             </>
         </CashManagerContext.Provider>
