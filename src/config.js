@@ -13,4 +13,5 @@ export default {
   sso_to_pm_url: env.sso_to_pm_url,
   sso_to_pm_username: env.sso_to_pm_username,
   sso_to_pm_password: env.sso_to_pm_password,
+  doctor_website_url: env.doctor_website_url,
 }
