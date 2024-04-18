@@ -7,7 +7,7 @@ import SidebarPatient from '../common/SidebarPatient'
 import Welcome1 from '../common/Welcome1'
 import VitalsBodyComposition from '../components/VitalsBodyComposition';
 // import LabParameters from '../components/LabParameters';
-// import MedicalHistory from '../components/MedicalHistory';
+import MedicalHistory from '../components/MedicalHistory';
 // import Vaccination from '../components/Vaccination';
 import Cardiology from '../components/Cardiology';
 import variables from '../assets/scss/variables.scss'
@@ -106,8 +106,8 @@ function PatientDetails() {
                             <div className='row'>
                                 <div className='col-lg-5 col-md-12 col-12'>
                                     <VitalsBodyComposition loading={loading} passVitals={viewCaseManagerData ? [...viewCaseManagerData.vitals].reverse().slice(0, 2) : viewCaseManagerData} />
-                                    {/* <MedicalHistory />
-                                            <LabParameters />
+                                    <MedicalHistory />
+                                          {/*   <LabParameters />
                                             <Vaccination /> */}
                                 </div>
                                 <div className='col-lg-7 col-md-12 col-12'>
