@@ -8,8 +8,8 @@ import InActiveverticleUpDown from '../assets/images/inactive-verticle-up-down.s
 
 import NoHypertension from '../assets/images/no-hypertension.png';
 
-function HistoryBox(props) {
-    const { handleDrawerHistory } = props
+function MedicalHistoryBox(props) {
+    const { handleDrawerMedicalHistory } = props
 
     const onChange = (e) => {
         console.log(`checked = ${e.target.checked}`);
@@ -23,7 +23,7 @@ function HistoryBox(props) {
         console.log('search:', value);
     };
     const filterOption = (input, option) =>
-    (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+        (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
     return (
         <>
@@ -32,7 +32,7 @@ function HistoryBox(props) {
                     <div className='modalCard-header h-60 align-items-center justify-content-between d-flex'>
                         <div className='align-items-center d-flex h-100'>
                             <div className='border-end h-100 text-center me-3'>
-                                <div onClick={handleDrawerHistory} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                                <div onClick={handleDrawerMedicalHistory} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
                                     <i className='icon-right'></i>
                                 </div>
                             </div>
@@ -273,4 +273,4 @@ function HistoryBox(props) {
 }
 
 
-export default React.memo(HistoryBox);
+export default React.memo(MedicalHistoryBox);
