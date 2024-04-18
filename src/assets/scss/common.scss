@@ -72,12 +72,6 @@ body {
     .bg-secondary {
         background-color: $themesecondary !important;
     }
-    .bg-secondary-light {
-        background-color: $themesecondarylight;
-        &:active, .active {
-            background-color: $white;
-        }
-    }
     .fs-12 {
         span, label {
             font-size: 12px !important;
