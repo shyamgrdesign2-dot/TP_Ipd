@@ -378,6 +378,15 @@
             padding: 0px;
         }
     }
+    &.history-sider-box {
+        .ant-collapse-header {
+            background-color: $bgbody;
+            padding: 0;
+        }
+        .ant-collapse-content {
+            background-color: $bgbody;
+        }
+    }
 }
 
 // Tablet design

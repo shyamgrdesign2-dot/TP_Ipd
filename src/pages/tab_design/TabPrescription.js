@@ -20,8 +20,9 @@ import TabFollowUpBox from "../../components/tab_design/TabFollowUpBox";
 import VitalsBox from "../../components/VitalsBox";
 import TabVitalsList from "../../components/tab_design/TabVitalsList";
 import vitalsWhite from '../../assets/images/vitals-white.svg';
+import vitalsNormal from '../../assets/images/Vitals.svg';
 import HistoryWhite from '../../assets/images/medical-history-white.svg';
-// import medicalHistoryWhite from '../../assets/images/medical-history-white.svg';
+import medicalHistoryNormal from '../../assets/images/Medical-History.svg';
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import vaccinationWhite from '../../assets/images/vaccination-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
@@ -155,14 +156,16 @@ function TabPrescription() {
                                     e.tmdpm_id === 1 && e.tmdpm_status === 0 && (
                                         <>
                                             <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length === 0 && vitalsPastList.length === 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
-                                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                                                    <img src={vitalsWhite} alt="Vitals" />
+                                                <div className="prescription-tab-button rounded-10px">
+                                                    <img className="sider-white" src={vitalsWhite} alt="Vitals" />
+                                                    <img className="sider-normal" src={vitalsNormal} alt="Vitals" />
                                                 </div>
                                                 <label className="text-white mt-1">Vitals</label>
                                             </button>
                                             <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => handleDrawerHistory()}>
-                                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                                                    <img src={HistoryWhite} alt="Vitals" />
+                                                <div className="prescription-tab-button rounded-10px">
+                                                    <img className="sider-white" src={HistoryWhite} alt="Medical History" />
+                                                    <img className="sider-normal" src={medicalHistoryNormal} alt="Medical History" />
                                                 </div>
                                                 <label className="text-white mt-1">History</label>
                                             </button>
@@ -171,31 +174,31 @@ function TabPrescription() {
                                 )
                             })}
                             {/* <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={medicalHistoryWhite} alt="History" />
                                 </div>
                                 <label className="text-white mt-1">History</label>
                             </button>
                             <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={labParametersWhite} alt="Lab" />
                                 </div>
                                 <label className="text-white mt-1">Lab</label>
                             </button>
                             <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={vaccinationWhite} alt="Vaccine" />
                                 </div>
                                 <label className="text-white mt-1">Vaccine</label>
                             </button>
                             <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={notesWhite} alt="Notes" />
                                 </div>
                                 <label className="text-white mt-1">Notes</label>
                             </button>
                             <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={docsWhite} alt="Docs" />
                                 </div>
                                 <label className="text-white mt-1">Docs</label>
