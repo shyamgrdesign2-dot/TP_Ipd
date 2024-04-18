@@ -201,6 +201,10 @@ body {
     .p-10 {
         padding: 10px;
     }
+    .py-5px-3px {
+        padding-top: 5px;
+        padding-bottom: 3px;
+    }
     .p-14 {
         padding: 14px;
     }
@@ -389,6 +393,12 @@ body {
     .text-truncate-twolines {
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .text-truncate-threelines {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }

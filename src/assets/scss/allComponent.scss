@@ -379,12 +379,34 @@
         }
     }
     &.history-sider-box {
-        .ant-collapse-header {
-            background-color: $bgbody;
-            padding: 0;
-        }
-        .ant-collapse-content {
-            background-color: $bgbody;
+        &.ant-collapse {
+            background-color: transparent;
+            .ant-collapse-item {
+                border-bottom: 1px dashed $bordercolor !important;
+                padding: 10px 0;
+                &.ant-collapse-item-active {
+                    border: 0 !important;
+                    padding-bottom: 0;
+                }
+                .ant-collapse-header {
+                    background-color: $bgbody;
+                    padding: 0;
+                    .ant-collapse-expand-icon:after {
+                        width: 22px;
+                        height: 22px;
+                        border-radius: 5px;
+                        padding: 0px 3px;
+                    }
+                }
+                .ant-collapse-content {
+                    background-color: $bgbody;
+                    border-top: 0;
+                    border-bottom: 1px dashed $bordercolor;
+                    border-radius: 0 !important;
+                    padding-bottom: 5px;
+                    // margin-bottom: 10px;
+                }
+            }
         }
     }
 }

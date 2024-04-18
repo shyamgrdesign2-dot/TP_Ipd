@@ -15,17 +15,31 @@ function MedicalHistory() {
                             <img src={MedicalHistoryicon} alt="Medical History" className='me-3' />
                             Medical History
                         </div>
-                        <a>
+                        {/* <a>
                             <img src={arrowright} alt="vitals" />
-                        </a>
+                        </a> */}
                     </div>
                 </Card.Header>
                 <Card.Body className='cardbody-data'>
-                    <div className='mb-2'>
-                        <label>Medical Problems</label> : <span>Hypothyroidism</span> - <label>Since</label> : <span>3-6 Months</span>, <label>Medication</label> : <span>No</span>
+                    <div className='fw-semibold'>Medical Problems</div>
+                    <div className='border rounded px-2 my-2'>
+                        <div className='my-2'>
+                            <span>Issue</span> : <label>Diabetes</label> | <span>Since</span> : <label>1 Year</label> | <span>Status</span> : <label>Active</label> | <span>Medication</span> : <label>No</label>
+                        </div>
+                        <div className='my-2'>
+                            <span>Issue</span> : <label>Hypertension</label> | <span>Since</span> : <label>1 Year</label> | <span>Status</span> : <label>Active</label>
+                        </div>
+                        <div className='my-2'>
+                            <span>Note</span> : <label>Consulted many doctors</label>
+                        </div>
                     </div>
-                    <div>
-                        <label>Lifestyle</label> : <span>Smoking</span> - <label>Yes</label>, <label>Since</label> : <span>2 Years</span>, <label>Quantity</label> : <span> 2 unit/day</span>
+                    <div className='border rounded px-2 my-2'>
+                        <div className='my-2'>
+                            <label>No Hypertension</label>
+                        </div>
+                    </div>
+                    <div className='text-center'>
+                        <label className='text-primary fw-semibold d-inline'>View more</label>
                     </div>
                 </Card.Body>
             </Card>
