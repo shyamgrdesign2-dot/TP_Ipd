@@ -543,7 +543,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                                                             tmm_time,
                                                             tmm_days,
                                                             tmm_duration_type,
-                                                            display_qty,
+                                                            // display_qty,
                                                             tmm_remarks
                                                         }) => ({
                                                             tmm_generic,
@@ -553,7 +553,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
 
                                                             modiDuration: isNumeric(tmm_days) ? `${tmm_days} - ${tmm_duration_type}` : '-',
 
-                                                            modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
+                                                            // modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
 
                                                             tmm_remarks
                                                         })
@@ -586,7 +586,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                                                             tmm_time,
                                                             tmm_days,
                                                             tmm_duration_type,
-                                                            display_qty,
+                                                            // display_qty,
                                                             tmm_remarks
                                                         }) => ({
                                                             tmm_generic,
@@ -596,7 +596,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
 
                                                             modiDuration: isNumeric(tmm_days) ? `${tmm_days} - ${tmm_duration_type}` : '-',
 
-                                                            modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
+                                                            // modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
 
                                                             tmm_remarks
                                                         })
@@ -616,7 +616,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                                         <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
                                         <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>TIME & FREQUENCY</Text>
                                         <Text style={[styles.cell, { flex: 0.28, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
-                                        <Text style={[styles.cell, { flex: 0.15, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>QTY.</Text>
+                                        {/* <Text style={[styles.cell, { flex: 0.15, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>QTY.</Text> */}
                                         <Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
                                     </View>
                                     {caseManagerData.medicine.map((item, i) => (
@@ -632,9 +632,9 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                                             <Text style={[styles.cell, { flex: 0.28, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                 {isNumeric(item.tmm_days) ? `${item.tmm_days} - ${item.tmm_duration_type}` : '-'}
                                             </Text>
-                                            <Text style={[styles.cell, { flex: 0.15, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                            {/* <Text style={[styles.cell, { flex: 0.15, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                 {item.display_qty ? item.display_qty.toFixed(2).replace(/\.00$/, '') : '-'}
-                                            </Text>
+                                            </Text> */}
                                             <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                 {item.tmm_remarks ? item.tmm_remarks : '-'}
                                             </Text>
@@ -880,12 +880,16 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                         printSettings?.header_footer?.other_settings?.signature_place === 'R' ? (
                             <View style={styles.directionCasemanager}>
                                 <View style={[styles.directionCasemanager, { flex: 1 }]} >
-                                    <Image
-                                        style={{ width: 61, height: 61, objectFit: 'contain' }}
-                                        src={printSettings?.qrcode} />
-                                    <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                        {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
-                                    </Text>
+                                    {printSettings?.qrcode && (
+                                        <>
+                                            <Image
+                                                style={{ width: 61, height: 61, objectFit: 'contain' }}
+                                                src={printSettings?.qrcode} />
+                                            <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
+                                                {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
+                                            </Text>
+                                        </>
+                                    )}
                                 </View>
                                 <View style={{ flex: 1, textAlign: 'right' }} >
                                     {printSettings?.header_footer?.other_settings?.name_of_doctor_enable === 'Y' && (
@@ -925,12 +929,16 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                                     )}
                                 </View>
                                 <View style={[styles.directionCasemanager, { flex: 1, justifyContent: 'flex-end' }]}>
-                                    <Image
-                                        style={{ width: 61, height: 61, objectFit: 'contain' }}
-                                        src={printSettings?.qrcode} />
-                                    <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                        {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
-                                    </Text>
+                                    {printSettings?.qrcode && (
+                                        <>
+                                            <Image
+                                                style={{ width: 61, height: 61, objectFit: 'contain' }}
+                                                src={printSettings?.qrcode} />
+                                            <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
+                                                {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
+                                            </Text>
+                                        </>
+                                    )}
                                 </View>
                             </View>
                         )
@@ -938,12 +946,16 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                         <View style={{ flexDirection: 'row' }}>
                             {printSettings?.qrcode_enable === 'Y' && (
                                 <View style={styles.directionCasemanager}>
-                                    <Image
-                                        style={{ width: 61, height: 61, objectFit: 'contain' }}
-                                        src={printSettings?.qrcode} />
-                                    <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                        {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
-                                    </Text>
+                                    {printSettings?.qrcode && (
+                                        <>
+                                            <Image
+                                                style={{ width: 61, height: 61, objectFit: 'contain' }}
+                                                src={printSettings?.qrcode} />
+                                            <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
+                                                {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
+                                            </Text>
+                                        </>
+                                    )}
                                 </View>
                             )}
                             {printSettings?.signature_enable === 'Y' && (
