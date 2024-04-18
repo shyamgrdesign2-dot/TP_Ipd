@@ -710,7 +710,7 @@ function HeaderFooterLayout() {
                                         <div className="title-common">Doctor’s information</div>
                                     </Col>
                                     <Col lg="6">
-                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && (<span className="fw-medium me-2 text-greycolor fs-16">Show</span>)}
+                                        <span className="fw-medium me-2 text-greycolor fs-16">{printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? 'Show' : 'Hide'}</span>
                                         <Switch onChange={onDoctorInfoSwitchChange} checked={printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? true : false} />
                                     </Col>
                                 </Row>
@@ -751,7 +751,7 @@ function HeaderFooterLayout() {
                                         <div className="title-common">Clinic's information</div>
                                     </Col>
                                     <Col lg="6">
-                                        {printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (<span className="fw-medium me-2      text-greycolor fs-16">Show</span>)}
+                                        <span className="fw-medium me-2 text-greycolor fs-16">{printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? 'Show' : 'Hide'}</span>
                                         <Switch onChange={onClinicInfoSwitchChange} checked={printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? true : false} />
                                     </Col>
                                 </Row>
