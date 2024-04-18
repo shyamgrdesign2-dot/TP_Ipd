@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { PDFViewer, BlobProvider, pdf } from '@react-pdf/renderer';
-import { PDFReader, MobilePDFReader } from 'reactjs-pdf-reader';
-import { isMobile } from "react-device-detect";
-import { Col, Tabs, Row, Spin } from "antd";
+import { pdf } from '@react-pdf/renderer';
+import { Spin } from "antd";
 
 import PrintSettingsContext from '../context/PrintSettingsContext';
 import moment from "moment";
