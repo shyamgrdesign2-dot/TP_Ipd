@@ -99,7 +99,9 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
     };
 
     const checkDataFillOrNot = () => {
-        if (JSON.stringify(defaultPrintSettings) == JSON.stringify(printSettings)) {
+        let update_json = { ...printSettings }
+        delete update_json['qrcode']
+        if (JSON.stringify(defaultPrintSettings) == JSON.stringify(update_json)) {
             navigate(-1)
         } else {
             setFlag(1)

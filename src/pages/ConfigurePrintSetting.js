@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { Col, Tabs, Row, Spin } from "antd";
-import { useReactToPrint } from 'react-to-print';
+import { Col, Tabs, Row } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { isMobile } from "react-device-detect";
 import QRCode from 'qrcode'
@@ -22,7 +21,6 @@ import "cropperjs/dist/cropper.css";
 
 function ConfigurePrintSetting() {
 
-    const printRef = useRef();
     const divRef = useRef(null);
 
     const { defaultPrintSettings } = useSelector((state) => state.doctors);
@@ -60,9 +58,6 @@ function ConfigurePrintSetting() {
         },
     ];
 
-    const printContent = useReactToPrint({
-        content: () => printRef.current,
-    });
 
     useEffect(() => {
         const makeData = async () => {
@@ -108,7 +103,7 @@ function ConfigurePrintSetting() {
                         </Col>
                         <Col xl={16} lg={14}>
                             <div className="mx-auto overflow-y-auto " style={{ width: isMobile ? 580 : 900 }} >
-                                <div className="titleprint mt-20" onClick={() => printContent()}>Preview</div>
+                                <div className="titleprint mt-20">Preview</div>
                                 <div ref={divRef} className="rounded-20px bg-white mt-20 overflow-hidden">
                                     <div className="position-relative printheight">
                                         <Quixote mode={NORMAL} />
