@@ -287,12 +287,28 @@ function WhatsappConfigure(props) {
         showHideFooterModal()
     };
 
-    const onWhatsappSaveSettingsClick = async () => {
-        setPrintSettings(JSON.parse(JSON.stringify(printSettingsCopy)))
-        setFileHeader(fileHeaderCopy)
-        setFileFooter(fileFooterCopy)
-        setFileLogo(fileLogoCopy)
-        handleDrawerOwnLetterHead()
+    const onWhatsappSaveSettingsClick = () => {
+        if (printSettingsCopy?.whatsapp_letterhead_format == 0 && printSettingsCopy?.header_footer?.header?.doctor_info?.enable == 'N' && printSettingsCopy?.header_footer?.header?.clinic_info?.enable == 'N' && printSettingsCopy?.logo_enable == 'N') {
+            message.open({
+                key: MESSAGE_KEY,
+                type: 'warning',
+                content: `Enable at least one option (Doctor's information, Clinic's information, Logo on Header)`,
+                duration: 2
+            });
+        } else if (printSettingsCopy?.whatsapp_letterhead_format == 1 && !fileHeader) {
+            message.open({
+                key: MESSAGE_KEY,
+                type: 'warning',
+                content: `Upload header`,
+                duration: 2
+            });
+        } else {
+            setPrintSettings(JSON.parse(JSON.stringify(printSettingsCopy)))
+            setFileHeader(fileHeaderCopy)
+            setFileFooter(fileFooterCopy)
+            setFileLogo(fileLogoCopy)
+            handleDrawerOwnLetterHead()
+        }
     };
 
     return (
@@ -342,7 +358,7 @@ function WhatsappConfigure(props) {
                                                     <div className="title-common">Doctor’s information</div>
                                                 </Col>
                                                 <Col lg="6">
-                                                    {printSettingsCopy?.header_footer?.header?.doctor_info?.enable === 'Y' && (<span className="fw-medium me-2 text-greycolor fs-16">Show</span>)}
+                                                    <span className="fw-medium me-2 text-greycolor fs-16">{printSettingsCopy?.header_footer?.header?.doctor_info?.enable === 'Y' ? 'Show' : 'Hide'}</span>
                                                     <Switch onChange={onDoctorInfoSwitchChange} checked={printSettingsCopy?.header_footer?.header?.doctor_info?.enable === 'Y' ? true : false} />
                                                 </Col>
                                             </Row>
@@ -383,7 +399,7 @@ function WhatsappConfigure(props) {
                                                     <div className="title-common">Clinic's information</div>
                                                 </Col>
                                                 <Col lg="6">
-                                                    {printSettingsCopy?.header_footer?.header?.clinic_info?.enable === 'Y' && (<span className="fw-medium me-2      text-greycolor fs-16">Show</span>)}
+                                                    <span className="fw-medium me-2 text-greycolor fs-16">{printSettingsCopy?.header_footer?.header?.clinic_info?.enable === 'Y' ? 'Show' : 'Hide'}</span>
                                                     <Switch onChange={onClinicInfoSwitchChange} checked={printSettingsCopy?.header_footer?.header?.clinic_info?.enable === 'Y' ? true : false} />
                                                 </Col>
                                             </Row>
