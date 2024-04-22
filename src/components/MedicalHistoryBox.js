@@ -63,7 +63,7 @@ function MedicalHistoryBox(props) {
 
     const [popOver, setPopOver] = useState(false);
     const RELATIONSHIP_LIST = ['Father', 'Mother', 'Grandparents', 'Uncle', 'Aunty', 'Sibling', 'Relatives']
-
+    const [selectedRelationship, setSelectedRelationship] = useState([]);
 
     // useEffect(() => {
     //     defaultList.length === 0 && dispatch(listSectionwithTag());
@@ -108,6 +108,7 @@ function MedicalHistoryBox(props) {
             })
         }
         setSinceValue(medicalHistoryData[i].tags[i1].since ? parseInt(medicalHistoryData[i].tags[i1].since.split(" ")[0]) : 1)
+        setSelectedRelationship(medicalHistoryData[i].tags[i1].relationship ? medicalHistoryData[i].tags[i1].relationship.split(', ') : [])
     }, [addEditData, selectData, medicalHistoryData]);
 
     const onEnableClick = useCallback((tmmhs_id, tmmhst_id, i, i1) => {
@@ -132,6 +133,7 @@ function MedicalHistoryBox(props) {
             return newArray;
         })
         setSinceValue(medicalHistoryData[i].tags[i1].since ? parseInt(medicalHistoryData[i].tags[i1].since.split(" ")[0]) : 1)
+        setSelectedRelationship(medicalHistoryData[i].tags[i1].relationship ? medicalHistoryData[i].tags[i1].relationship.split(', ') : [])
     }, [addEditData, selectData, medicalHistoryData]);
 
 
@@ -351,27 +353,45 @@ function MedicalHistoryBox(props) {
         setPopOver(!popOver);
     }, [popOver]);
 
+    const onCheckboxClick = (e) => {
+        const index = selectedRelationship.indexOf(e);
+        if (index !== -1) {
+            selectedRelationship.splice(index, 1);
+        } else {
+            selectedRelationship.push(e)
+        }
+        setSelectedRelationship((prev) => [...prev])
+    }
+
+    const onChangeRelationship = () => {
+        medicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].relationship = selectedRelationship.join(', ')
+        setMedicalHistoryData((prev) => [...prev]);
+    }
+
     const RELATIONSHIP_CONTENT = useCallback(() => {
         return (
-            <div className="pop-body">
+            <div className="pop-body pop-h-none">
                 {RELATIONSHIP_LIST.map((e, i) => {
                     return (
                         <div className="px-3 py-2" key={i}>
-                            <Checkbox className="advice-check">{e}</Checkbox>
+                            <Checkbox className="advice-check" checked={selectedRelationship.includes(e)} onClick={() => onCheckboxClick(e)}>{e}</Checkbox>
                         </div>
                     )
                 })}
                 <div className="d-flex justify-content-end align-items-center my-2 pt-2 border-top">
-                    <Button className='btn mx-3 p-0 shadow-none border-0'>
+                    <Button className='btn mx-3 p-0 shadow-none border-0' onClick={showHidePopover}>
                         Cancel
                     </Button>
-                    <Button className='btn mx-3 p-0 btn-save' onClick={onAddEditSaveClick} loading={loading}>
+                    <Button className='btn mx-3 p-0 btn-save' onClick={() => {
+                        showHidePopover()
+                        onChangeRelationship()
+                    }}>
                         Save
                     </Button>
                 </div>
             </div>
         );
-    }, [popOver]);
+    }, [popOver, selectedRelationship]);
 
     return (
         <>
@@ -573,7 +593,7 @@ function MedicalHistoryBox(props) {
                                                             arrow={false}
                                                             overlayClassName="pop-350 pp-0"
                                                             placement="bottom">
-                                                            <Input className="popinput" readOnly value={searchQuery} placeholder="Search relationship" suffix={<i className='icon-search me-2'></i>} allowClear />
+                                                            <Input className="popinput" readOnly value={medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Search relationship" suffix={<i className='icon-right iconrotate270 ms-2'></i>} allowClear />
                                                         </Popover>
                                                     </div>
                                                 )}
