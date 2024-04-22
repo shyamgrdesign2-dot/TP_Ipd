@@ -23,7 +23,7 @@ import {
 
 function MedicalHistoryBox(props) {
 
-    const { handleDrawerMedicalHistory } = props
+    const { handleDrawerMedicalHistory, handleCollapsed } = props
 
     const [messageApi, contextHolder] = message.useMessage();
     const {
@@ -407,7 +407,7 @@ function MedicalHistoryBox(props) {
                             </div>
                             <div className="title-common">Medical History</div>
                         </div>
-                        <Button className='btn btn-primary3 btn-41 px-4 me-20'>
+                        <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => handleCollapsed(2)}>
                             Save
                         </Button>
                     </div>

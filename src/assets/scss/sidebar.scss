@@ -244,21 +244,24 @@ body {
             margin: 0 auto;
             background-color: $themesecondarylight;
             box-shadow: 1px 2px 5px 0px rgba(74, 46, 96, 0.12);
-            .sider-white {
-                display: block;
-            }
-            .sider-normal {
-                display: none;
-            }
-            &:active, .active, &:hover, &:focus {
+            &:active, &.active, &:hover, &:focus {
                 background-color: $white;
-                .sider-white {
-                    display: none;
-                }
-                .sider-normal {
-                    display: block;
-                }
             }
+            // .sider-white {
+            //     display: block;
+            // }
+            // .sider-normal {
+            //     display: none;
+            // }
+            // &:active, .active, &:hover, &:focus {
+            //     background-color: $white;
+            //     .sider-white {
+            //         display: none;
+            //     }
+            //     .sider-normal {
+            //         display: block;
+            //     }
+            // }
         }
         label {
             font-family: 'Roboto';
