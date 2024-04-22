@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Routes, Route, useSearchParams } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { isMobile } from 'react-device-detect';
+import { isMobile } from "react-device-detect";
 
 import AppointmentList from "./pages/AppointmentList";
 import PatientDetails from "./pages/PatientDetails";
@@ -16,6 +16,7 @@ import TabPrescription from "./pages/tab_design/TabPrescription";
 import ConfigurePrintSetting from "./pages/ConfigurePrintSetting";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
+import Vaccination from "./pages/vaccination/Vaccination";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -28,7 +29,7 @@ function App() {
 
   useEffect(() => {
     const pathname = window.location.pathname;
-    if (pathname == '/' && authToken) {
+    if (pathname == "/" && authToken) {
       setToken(authToken);
     }
   }, [window.location.pathname, authToken]);
@@ -51,10 +52,20 @@ function App() {
           <PersistGate loading={null} persistor={persistor}>
             <Routes>
               <Route path="/*" element={<AppointmentList />} />
+              <Route path="/vaccine" element={<Vaccination />} />
               <Route path="patient_details" element={<PatientDetails />} />
-              <Route path="prescription" element={isMobile ? <TabPrescription /> : <Prescription />} />
-              <Route path="prescription_print_view" element={<PrescriptionPrintView />} />
-              <Route path="configure_print_setting" element={<ConfigurePrintSetting />} />
+              <Route
+                path="prescription"
+                element={isMobile ? <TabPrescription /> : <Prescription />}
+              />
+              <Route
+                path="prescription_print_view"
+                element={<PrescriptionPrintView />}
+              />
+              <Route
+                path="configure_print_setting"
+                element={<ConfigurePrintSetting />}
+              />
             </Routes>
           </PersistGate>
         </Provider>

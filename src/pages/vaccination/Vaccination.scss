@@ -1,0 +1,46 @@
+.vaccinationWrapper {
+  width: 100%;
+  .vaccinationContainer {
+    margin: 40px;
+    height: max-content;
+    padding: 20px 0px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    z-index: 0;
+    .vaccinationTitle {
+      height: 122px;
+      background-color: rgba(252, 218, 218, 0.3);
+      padding: 20px;
+      border-radius: 16px;
+
+      .vaccineImg {
+        margin-bottom: 24px;
+        padding-right: 50px;
+      }
+    }
+
+    .datesContainer {
+      display: flex;
+      column-gap: 10px;
+      margin: 48px 0 20px 0;
+      .btnStyle {
+        border: 1px solid rgba(75, 74, 213, 0.2) !important;
+        padding: 6px 16px 6px 16px;
+        height: 36px;
+        &:hover {
+          border: 1px solid #4b4ad5 !important;
+          background-color: rgba(75, 74, 213, 0.1) !important;
+        }
+      }
+    }
+    .selectAllContainer {
+      margin: 10px 10px 28px;
+      .checkboxStyle {
+        border-color: #4b4ad5;
+      }
+      .selectAll {
+        margin-left: 15px;
+      }
+    }
+  }
+}
