@@ -1,0 +1,47 @@
+.vaccineCardContainer {
+  width: 400px;
+  height: 230px;
+  position: relative;
+  overflow: hidden;
+
+  .vaccineStatus {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  .statusMessage {
+    background: #19bb7a;
+    border-radius: 0 8px 0 22px;
+    padding: 2px 16px 2px 16px;
+    text-align: center;
+    color: #ffffff;
+  }
+  .cardDetails {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+
+    .vaccineName {
+      line-height: 36px;
+      font-size: 20px;
+    }
+    .vaccineDetails {
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 500;
+    }
+    .dueDetails {
+      background: antiquewhite;
+      width: fit-content;
+      padding: 10;
+      border-radius: 8;
+      line-height: 8;
+
+      .dueMessage {
+        line-height: 18px;
+      }
+    }
+  }
+}
