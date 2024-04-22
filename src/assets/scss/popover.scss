@@ -57,6 +57,9 @@ body {
         .pop-body {
             max-height: 200px;
             overflow-y: auto;
+            &.pop-h-none {
+                max-height: none;
+            }
         }
     }
 }
