@@ -1,19 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./Vaccination.scss";
 
-import { Button, Checkbox, Col, message } from "antd";
+import { Checkbox } from "antd";
 import HeaderVaccine from "./components/HeaderVaccine";
 import VaccineCard from "./components/vaccineCard/VaccineCard";
-import SelectionPopup from "./components/selectionPopup/SelectionPopup";
-import { MESSAGE_KEY } from "../../utils/constants";
 import VaccineFilter from "./vaccineFilter/VaccineFilter";
 import { Flex } from "antd";
 
 function Vaccination() {
+  const [isFixed, setIsFixed] = useState(false);
+
+  const handleScroll = (e) => {
+    const scrollTop = e.target.scrollTop;
+    if (scrollTop > 147) {
+      setIsFixed(true);
+    } else {
+      setIsFixed(false);
+    }
+  };
+
   return (
     <div className="vaccinationWrapper">
       <HeaderVaccine />
-      <div className="vaccinationContainer position-relative">
+      <div
+        id="wrap"
+        onScroll={handleScroll}
+        style={{ overflowY: "auto", position: "relative" }}
+        className="vaccinationContainer position-relative"
+      >
         <div className="vaccinationTitle bg-welcome d-flex justify-content-between align-items-center">
           <div>
             <h2>Vaccination</h2>
@@ -27,13 +41,18 @@ function Vaccination() {
             alt="Vaccine"
           />
         </div>
-        <VaccineFilter />
+        <div className={isFixed ? "fix-search" : ""}>
+          <VaccineFilter />
+        </div>
         <div className="selectAllContainer scrollable-content">
           <Checkbox className="checkboxStyle" />
           <span className="selectAll">Select All</span>
         </div>
 
         <Flex justify="space-between" gap={24} wrap={"wrap"}>
+          <VaccineCard />
+          <VaccineCard />
+          <VaccineCard />
           <VaccineCard />
           <VaccineCard />
           <VaccineCard />

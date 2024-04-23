@@ -56,7 +56,7 @@ const VaccineFilter = () => {
           style={{
             cursor: "pointer",
             transform: scrollToStart ? "rotate(180deg)" : "rotate(0deg)",
-            marginTop: "10px",
+            marginBottom: "12px",
           }}
         />
       ) : null}
@@ -70,6 +70,7 @@ const VaccineFilter = () => {
               key={i}
               type="text"
               className="btnStyle btn px-5-16 btn-fw-bold fs-12 mb-12 me-12"
+              style={{ margin: "0" }}
               onClick={() => window.alert(item.value + " clicked")}
             >
               <span className="btnText">{item.label}</span>
@@ -85,7 +86,7 @@ const VaccineFilter = () => {
           style={{
             cursor: "pointer",
             transform: scrollToStart ? "rotate(180deg)" : "rotate(0deg)",
-            marginTop: "10px",
+            marginBottom: "5px",
           }}
         />
       ) : null}
