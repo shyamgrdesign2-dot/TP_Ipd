@@ -259,6 +259,9 @@ body {
         background-color: hsl(35, 100%, 46%, 0.1);
         color: $maincolor !important;
     }
+    .read-or-hide {
+        color: $theme !important;
+    }
     .cursor-pointer {
         cursor: pointer;
     }

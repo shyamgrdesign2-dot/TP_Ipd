@@ -36,6 +36,23 @@ function MedicalHistoryBox(props) {
     const { medicalHistoryData, setMedicalHistoryData } = useContext(CashManagerContext);
     // const [ medicalHistoryData, setMedicalHistoryData] = useState([]);
 
+    const MEDICAL_PROBLEM = {
+        since: '',
+        status: '',
+        medication: '',
+        note: ''
+    }
+    const FAMILY_HISTORY = {
+        since: '',
+        relationship: '',
+        note: ''
+    }
+    const OTHERS = {
+        since: '',
+        status: '',
+        note: ''
+    }
+
     const [selectData, setSelectData] = useState(null);
     const [addEditData, setAddEditData] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
@@ -95,14 +112,21 @@ function MedicalHistoryBox(props) {
             section_index: i,
             tag_index: i1
         });
+        let initial = {}
+        if (tmmhs_id === 2) {
+            initial = { ...MEDICAL_PROBLEM }
+        } else if (tmmhs_id === 3) {
+            initial = { ...FAMILY_HISTORY }
+        } else {
+            initial = { ...OTHERS }
+        }
         if (medicalHistoryData[i].tags[i1].enable === undefined || medicalHistoryData[i].tags[i1].enable === "-") {
             setMedicalHistoryData((prev) => {
                 const newArray = [...prev];
                 newArray[i].tags[i1] = {
                     ...newArray[i].tags[i1],
-                    enable: "Y",
-                    status: "",
-                    note: ""
+                    ...initial,
+                    enable: "Y"
                 };
                 return newArray;
             })
@@ -119,16 +143,23 @@ function MedicalHistoryBox(props) {
             section_index: i,
             tag_index: i1
         });
+        let initial = {}
+        if (tmmhs_id === 2) {
+            initial = { ...MEDICAL_PROBLEM }
+        } else if (tmmhs_id === 3) {
+            initial = { ...FAMILY_HISTORY }
+        } else {
+            initial = { ...OTHERS }
+        }
         setMedicalHistoryData((prev) => {
             const newArray = [...prev];
             newArray[i].tags[i1] = {
                 ...newArray[i].tags[i1],
+                ...initial,
                 enable: newArray[i].tags[i1].enable !== undefined ?
                     newArray[i].tags[i1].enable === "Y" ? "N"
                         : newArray[i].tags[i1].enable === "N" ? "-" : "Y"
-                    : "Y",
-                status: "",
-                note: ""
+                    : "Y"
             };
             return newArray;
         })
@@ -219,7 +250,7 @@ function MedicalHistoryBox(props) {
                 setMedicalHistoryData((prev) => {
                     const newArray = [...prev];
                     newArray[index].tags = [
-                        ...updatedData,
+                        ...updatedData.map(({ unique_id, ...rest }) => rest),
                     ];
                     return newArray;
                 })
@@ -414,7 +445,7 @@ function MedicalHistoryBox(props) {
                 </div>
                 <Row>
                     <Col lg={15}>
-                        <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 194px)' }}>
+                        <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 61px)' }}>
                             {medicalHistoryData.length > 0 ? (
                                 medicalHistoryData?.map((e, i) => {
                                     return (
@@ -455,7 +486,7 @@ function MedicalHistoryBox(props) {
                         </div>
                     </Col>
                     <Col lg={9}>
-                        <div className="bg-body overflow-y-auto" style={{ height: 'calc(100vh - 194px)' }}>
+                        <div className="bg-body overflow-y-auto" style={{ height: 'calc(100vh - 61px)' }}>
                             {addEditData ? (
                                 <div>
                                     <div className="selectedchip-header1 d-flex flex-column justify-content-center title px-20">

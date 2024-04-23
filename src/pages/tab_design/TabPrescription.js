@@ -151,13 +151,13 @@ function TabPrescription() {
 
     const handleCollapsed = useCallback((flag) => {
         setCollapsedFlag(flag);
-        setCollapsed(false)
+        !collapsed && setCollapsed(!collapsed)
         if (flag === 1) {
             handleDrawerVital();
         } else if (flag === 2) {
             handleDrawerMedicalHistory();
         }
-    }, [collapsedFlag, collapsed]);
+    }, [collapsedFlag, collapsed, vitalDrawer, medicalHistoryDrawer]);
 
 
     return (
@@ -221,7 +221,7 @@ function TabPrescription() {
                             {collapsedFlag === 1 ? (
                                 <TabVitalsList handleDrawerVital={handleDrawerVital} handleCollapsed={() => setCollapsed(!collapsed)} />
                             ) : collapsedFlag === 2 && (
-                                <TabMedicalHistoryList handleDrawerMedicalHistory={handleDrawerMedicalHistory} handleCollapsed={() => setCollapsed(!collapsed)} />
+                                <TabMedicalHistoryList handleDrawerMedicalHistory={handleDrawerMedicalHistory} handleCollapsed={() => setCollapsed(!collapsed)} collapsed={collapsed} collapsedFlag={collapsedFlag} medicalHistoryDrawer={medicalHistoryDrawer} />
                             )}
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>

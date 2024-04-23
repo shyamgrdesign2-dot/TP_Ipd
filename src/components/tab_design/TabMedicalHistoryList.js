@@ -1,64 +1,101 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Button, Collapse } from 'antd';
+
+import { useSelector, useDispatch } from "react-redux";
+
+import CashManagerContext from '../../context/CashManagerContext';
+
+// Read More content
+const ReadMore = ({ children }) => {
+    const text = children;
+    const [isReadMore, setIsReadMore] = useState(true);
+    const toggleReadMore = () => {
+        setIsReadMore(!isReadMore);
+    };
+    return (
+        <p className="text mb-0 fontroboto lh-base">
+            {isReadMore && text.length > 70 ? text.slice(0, 70) : text}
+            <span onClick={toggleReadMore} className="read-or-hide">
+                {text.length > 70 ? isReadMore ? "... View More" : " View Less" : ""}
+            </span>
+        </p>
+    );
+};
 
 function TabMedicalHistoryList(props) {
 
-    const { handleDrawerMedicalHistory, handleCollapsed } = props
+    const { handleDrawerMedicalHistory, handleCollapsed, collapsed, collapsedFlag, medicalHistoryDrawer } = props
 
-    // Accordian for History
-    const accordionItems = [
-        {
-            key: '1',
-            label: <div className="fw-semibold">Medical Problems</div>,
-            children:
-                <>
-                    <div className="d-flex align-items-center my-2">
-                        <div className="text-history font-roboto fw-medium">Issue&nbsp;:&nbsp;</div>
-                        <div className="fontroboto text-history fw-normal">&nbsp;Diabetes</div>
-                    </div>
-                    <div className="d-flex align-items-center my-2">
-                        <div className="text-history fontroboto fw-medium">Since&nbsp;:&nbsp;</div>
-                        <div className="fontroboto text-history fw-normal">&nbsp;1 Year</div>
-                    </div>
-                    <div className="d-flex align-items-center my-2">
-                        <div className="text-history fontroboto fw-medium">Status&nbsp;:&nbsp;</div>
-                        <div className="fontroboto text-history fw-normal">&nbsp;Active</div>
-                    </div>
-                    <div className="my-2">
-                        <div className="text-history fontroboto fw-medium">Notes&nbsp;:&nbsp;</div>
-                        <div className="fontroboto text-main fw-normal fs-12-1 border rounded-3 px-2 py-5px-3px text-truncate-threelines">Cannot get exposed to dust which comes after sweeping Cannot get exposed to dust which comes after sweeping</div>
-                    </div>
-                    <div className="fontroboto text-history fw-normal">No Hypothyroidism</div>
-                </>
-        },
-    ];
+    const { defaultList } = useSelector((state) => state.medicalhistory);
 
-    const accordionItems2 = [
-        {
-            key: '2',
-            label: <div className="fw-semibold">Allergies</div>,
-            children:
-                <>
-                    <div className="d-flex align-items-center my-2">
-                        <div className="text-history font-roboto fw-medium">Issue&nbsp;:&nbsp;</div>
-                        <div className="fontroboto text-history fw-normal">&nbsp;Diabetes</div>
-                    </div>
-                    <div className="d-flex align-items-center my-2">
-                        <div className="text-history fontroboto fw-medium">Since&nbsp;:&nbsp;</div>
-                        <div className="fontroboto text-history fw-normal">&nbsp;1 Year</div>
-                    </div>
-                    <div className="d-flex align-items-center my-2">
-                        <div className="text-history fontroboto fw-medium">Status&nbsp;:&nbsp;</div>
-                        <div className="fontroboto text-history fw-normal">&nbsp;Active</div>
-                    </div>
-                    <div className="my-2">
-                        <div className="text-history fontroboto fw-medium">Notes&nbsp;:&nbsp;</div>
-                        <div className="fontroboto text-main fw-normal fs-12-1 border rounded-3 px-2 py-5px-3px text-truncate-threelines">Cannot get exposed to dust which comes after sweeping Cannot get exposed to dust which comes after sweeping</div>
-                    </div>
-                    <div className="fontroboto text-history fw-normal">No Hypothyroidism</div>
-                </>
-        },
-    ];
+    const { medicalHistoryData, setMedicalHistoryData } = useContext(CashManagerContext);
+    // const [ medicalHistoryData, setMedicalHistoryData] = useState([]);
+
+    const [accordionItems, setAccordionItems] = useState([]);
+
+    useEffect(() => {
+        if (JSON.stringify(defaultList) != JSON.stringify(medicalHistoryData) && collapsed && collapsedFlag == 2 && !medicalHistoryDrawer) {
+            const data = []
+            medicalHistoryData?.map((e, i) => {
+                if (e?.no_know_history || e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N').length > 0) {
+                    return data.push({
+                        key: `${i + 1}`,
+                        label: <div className="fw-semibold">{e?.title}</div>,
+                        children:
+                            !e?.no_know_history ? (
+                                e?.tags?.map((e1, i1) => {
+                                    return (
+                                        e1?.enable == 'Y' ? (
+                                            <>
+                                                <div key={Math.random()} className="d-flex my-2">
+                                                    <div className="text-history font-roboto fw-medium">Issue&nbsp;:&nbsp;</div>
+                                                    <div className="fontroboto text-history fw-normal">{e1?.title}</div>
+                                                </div>
+                                                {e1?.since && (
+                                                    <div key={Math.random()} className="d-flex my-2">
+                                                        <div className="text-history fontroboto fw-medium">Since&nbsp;:&nbsp;</div>
+                                                        <div className="fontroboto text-history fw-normal">{e1?.since}</div>
+                                                    </div>
+                                                )}
+                                                {e?.tmmhs_id != 3 && e1?.status && (
+                                                    <div key={Math.random()} className="d-flex my-2">
+                                                        <div className="text-history fontroboto fw-medium">Status&nbsp;:&nbsp;</div>
+                                                        <div className="fontroboto text-history fw-normal">{e1?.status}</div>
+                                                    </div>
+                                                )}
+                                                {e?.tmmhs_id == 3 && e1?.relationship && (
+                                                    <div key={Math.random()} className="d-flex my-2">
+                                                        <div className="text-history fontroboto fw-medium">Relationship&nbsp;:&nbsp;</div>
+                                                        <div className="fontroboto text-history fw-normal">{e1?.relationship}</div>
+                                                    </div>
+                                                )}
+                                                {e1?.note && (
+                                                    <div key={Math.random()} className="my-2">
+                                                        <div className="text-history fontroboto fw-medium">Notes&nbsp;:&nbsp;</div>
+                                                        <div className="border rounded-3 px-2 py-5px-3px">
+                                                            <ReadMore>
+                                                                {e1?.note}
+                                                            </ReadMore>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </>
+                                        ) : e1?.enable == 'N' ? (
+                                            <div key={Math.random()} className="fontroboto text-history fw-normal">{`No ${e1?.title}`}</div>
+                                        ) : (
+                                            null
+                                        )
+                                    )
+                                })
+                            ) : (
+                                <div className="fontroboto text-history fw-normal">{`No known history`}</div>
+                            )
+                    });
+                }
+            });
+            setAccordionItems(data)
+        }
+    }, [collapsed, collapsedFlag, medicalHistoryDrawer]);
 
     return (
         <>
@@ -68,7 +105,7 @@ function TabMedicalHistoryList(props) {
                     <i className='icon-Contract fs-21 text-white p-0'></i>
                 </Button>
             </div>
-            <div className="overflow-y-auto" style={{ height: "calc(100vh - 247px)" }}>
+            <div className="overflow-y-auto" style={{ height: "calc(100vh - 108px)" }}>
                 <div className="p-10">
                     <Button className='btn btn-input d-flex w-100 align-items-center btn-41' onClick={handleDrawerMedicalHistory}>
                         <i className='icon-Add me-2 fs-21'></i>
@@ -76,7 +113,6 @@ function TabMedicalHistoryList(props) {
                     </Button>
                     <div className="border rounded-3 bg-body mt-3 p-10">
                         <Collapse items={accordionItems} defaultActiveKey={['1']} className="prescriptiontab-accordian history-sider-box" expandIconPosition={'end'} />
-                        <Collapse items={accordionItems2} defaultActiveKey={['2']} className="prescriptiontab-accordian history-sider-box" expandIconPosition={'end'} />
                     </div>
                 </div>
             </div>
