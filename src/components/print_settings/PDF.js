@@ -551,7 +551,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
 
                                                             modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
 
-                                                            modiDuration: isNumeric(tmm_days) ? `${tmm_days} - ${tmm_duration_type}` : '-',
+                                                            modiDuration: isNumeric(tmm_days) ? `${tmm_days} ${tmm_duration_type}` : '-',
 
                                                             // modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
 
@@ -594,7 +594,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
 
                                                             modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
 
-                                                            modiDuration: isNumeric(tmm_days) ? `${tmm_days} - ${tmm_duration_type}` : '-',
+                                                            modiDuration: isNumeric(tmm_days) ? `${tmm_days} ${tmm_duration_type}` : '-',
 
                                                             // modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
 
@@ -630,7 +630,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                                                 {item.tmf_block === 0 || item.tmf_block === "" ? `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning : 0}-${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon : 0}-${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening : 0}-${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}
                                             </Text>
                                             <Text style={[styles.cell, { flex: 0.28, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                {isNumeric(item.tmm_days) ? `${item.tmm_days} - ${item.tmm_duration_type}` : '-'}
+                                                {isNumeric(item.tmm_days) ? `${item.tmm_days} ${item.tmm_duration_type}` : '-'}
                                             </Text>
                                             {/* <Text style={[styles.cell, { flex: 0.15, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                 {item.display_qty ? item.display_qty.toFixed(2).replace(/\.00$/, '') : '-'}
