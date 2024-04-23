@@ -23,9 +23,9 @@ import MedicalHistoryBox from "../../components/MedicalHistoryBox";
 import TabMedicalHistoryList from "../../components/tab_design/TabMedicalHistoryList";
 
 import vitalsWhite from '../../assets/images/vitals-white.svg';
-import vitalsNormal from '../../assets/images/Vitals.svg';
+import vitalsDark from '../../assets/images/vitals-dark.svg';
 import medicalHistoryWhite from '../../assets/images/medical-history-white.svg';
-import medicalHistoryNormal from '../../assets/images/Medical-History.svg';
+import medicalHistoryDark from '../../assets/images/medical-history-dark.svg';
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import vaccinationWhite from '../../assets/images/vaccination-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
@@ -172,14 +172,14 @@ function TabPrescription() {
                                     e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
                                         <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => vitalsData.length === 0 && vitalsPastList.length === 0 ? handleDrawerVital() : openCollapsed(1)}>
                                             <div className={`prescription-tab-button rounded-10px ${collapsedFlag == 1 && 'active'}`}>
-                                                <img src={collapsedFlag == 1 ? vitalsNormal : vitalsWhite} alt="Vitals" />
+                                                <img src={collapsedFlag == 1 ? vitalsDark : vitalsWhite} alt="Vitals" />
                                             </div>
                                             <label className="text-white mt-1">Vitals</label>
                                         </button>
                                     ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
                                         <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => medicalHistoryData.length === 0 || JSON.stringify(defaultList) == JSON.stringify(medicalHistoryData) ? handleDrawerMedicalHistory() : openCollapsed(2)}>
                                             <div className={`prescription-tab-button rounded-10px ${collapsedFlag == 2 && 'active'}`}>
-                                                <img src={collapsedFlag == 2 ? medicalHistoryNormal : medicalHistoryWhite} alt="Medical History" />
+                                                <img src={collapsedFlag == 2 ? medicalHistoryDark : medicalHistoryWhite} alt="Medical History" />
                                             </div>
                                             <label className="text-white mt-1">History</label>
                                         </button>
