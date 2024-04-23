@@ -471,7 +471,7 @@ function MedicalHistoryBox(props) {
                                                 <div className="d-flex align-items-center">
                                                     <div className="titleprint">{e?.title}</div>
                                                     <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseClick(i)}>
-                                                        <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${e?.isExpand ? 'iconrotatehistory90' : 'iconrotate270'}`}></i>
+                                                        <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${e?.isExpand ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                                                     </Button>
                                                 </div>
                                                 <div className="d-flex align-items-center">
