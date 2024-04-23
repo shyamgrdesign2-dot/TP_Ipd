@@ -7,6 +7,62 @@ import VaccineCard from "./components/vaccineCard/VaccineCard";
 import VaccineFilter from "./vaccineFilter/VaccineFilter";
 import { Flex } from "antd";
 
+const vaccineData1 = {
+  name: "Vaccine Name",
+  fullName: "Hepatiis B",
+  brand: "Vaccine Brand",
+  moreDetails: [
+    ["Brand: ", "Vaccine Brand"],
+    ["Given Date: ", "20 April 2024"],
+    ["Note: ", "Temperature is high"],
+  ],
+  dueDate: "20 April 2024",
+  basedOn: "DOB",
+  isDelayed: false,
+  isVaccineGiven: true,
+};
+
+const vaccineData2 = {
+  name: "Vaccine Name",
+  fullName: "Hepatiis B",
+  brand: "Vaccine Brand",
+  moreDetails: [
+    ["Brand: ", "Vaccine Brand"],
+    ["Note: ", "Temperature is high"],
+  ],
+  dueDate: "20 April 2024",
+  basedOn: "DOB",
+  isDelayed: false,
+  isVaccineGiven: false,
+};
+const vaccineData3 = {
+  name: "Vaccine Name",
+  fullName: "Hepatiis B",
+  brand: "Vaccine Brand",
+  moreDetails: [
+    ["Brand: ", "Vaccine Brand"],
+    ["Given Date: ", "20 April 2024"],
+    ["Note: ", "Temperature is high"],
+  ],
+  dueDate: "20 April 2024",
+  basedOn: "DOB",
+  isDelayed: true,
+  isVaccineGiven: true,
+};
+const vaccineData4 = {
+  name: "Vaccine Name",
+  fullName: "Hepatiis B",
+  brand: "Vaccine Brand",
+  moreDetails: [
+    ["Brand: ", "Vaccine Brand"],
+    ["Updated Due Date: ", "28 April 2024"],
+    ["Note: ", "Temperature is high"],
+  ],
+  dueDate: "20 April 2024",
+  basedOn: "DOB",
+  isDelayed: true,
+};
+
 function Vaccination() {
   const [isFixed, setIsFixed] = useState(false);
 
@@ -50,15 +106,15 @@ function Vaccination() {
         </div>
 
         <Flex justify="space-between" gap={24} wrap={"wrap"}>
-          <VaccineCard />
-          <VaccineCard />
-          <VaccineCard />
-          <VaccineCard />
-          <VaccineCard />
-          <VaccineCard />
-          <VaccineCard />
-          <VaccineCard />
-          <VaccineCard />
+          <VaccineCard vaccineData={vaccineData1} />
+          <VaccineCard vaccineData={vaccineData2} />
+          <VaccineCard vaccineData={vaccineData3} />
+          <VaccineCard vaccineData={vaccineData4} />
+          <VaccineCard vaccineData={vaccineData1} />
+          <VaccineCard vaccineData={vaccineData1} />
+          <VaccineCard vaccineData={vaccineData1} />
+          <VaccineCard vaccineData={vaccineData1} />
+          <VaccineCard vaccineData={vaccineData1} />
         </Flex>
       </div>
     </div>

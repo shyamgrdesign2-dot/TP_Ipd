@@ -4,26 +4,20 @@ import cardWave from "../../../../assets/images/cardWave.svg";
 import "./VaccineCard.scss";
 import SelectionPopup from "../selectionPopup/SelectionPopup";
 
-const VaccineCard = () => {
+const VaccineCard = ({ vaccineData }) => {
   const [selectedCard, setSelectedCard] = useState(false);
   const [selectedValue, setSelectedValue] = useState(null);
 
   const vaccineDetails = (details) => {
-    return details.map((item) => {
+    return details?.map((item) => {
       return (
         <div className="d-flex direction-column">
-          <div className="vaccineDetails">{item[0]}</div>
-          <div>{item[1]}</div>
+          <div className="vaccineDetailsKey">{item[0]}</div>
+          <div className="vaccineDetailsValue">{item[1]}</div>
         </div>
       );
     });
   };
-
-  const details = [
-    ["Brand: ", "Vaccine Brand"],
-    ["Given Date: ", "20 April 2024"],
-    ["Note: ", "Temperature is high"],
-  ];
 
   const checkboxHandler = () => {
     const data = selectedValue?.length || 0 + 1;
@@ -39,16 +33,26 @@ const VaccineCard = () => {
     <>
       <Card className="vaccineCardContainer" bodyStyle={{ height: "100%" }}>
         {/* Vaccine status Indicator */}
-        <div className="vaccineStatus">
-          <span className="statusMessage">Given</span>
+        <div
+          className={`vaccineStatus ${
+            vaccineData?.isVaccineGiven ? "vaccineGiven" : ""
+          }`}
+        >
+          <span
+            className={`statusMessage ${
+              vaccineData?.isVaccineGiven ? "vaccineGiven" : ""
+            }`}
+          >
+            {vaccineData?.isVaccineGiven ? "Given" : "Due"}
+          </span>
         </div>
         <div className="cardDetails">
           {/* Main Content */}
           <Row gutter={16}>
             <Col span={16}>
               <div>
-                <div className="vaccineName">Vaccine Name</div>
-                {vaccineDetails(details)}
+                <div className="vaccineName">{vaccineData.name}</div>
+                {vaccineDetails(vaccineData.moreDetails)}
               </div>
             </Col>
             <Col span={8}>
@@ -59,11 +63,19 @@ const VaccineCard = () => {
           </Row>
 
           {/* Due Date Info */}
-          <Row className="dueDetails">
+          <Row
+            className={`dueDetails ${
+              vaccineData?.isDelayed
+                ? "isDelayed"
+                : vaccineData?.isVaccineGiven
+                ? "isGiven"
+                : ""
+            }`}
+          >
             <Col>
               <div className="d-flex flex-column dueMessage">
-                <div>Due date: 25 April 2024</div>
-                <div>Based on DOB</div>
+                <div>Due date: {vaccineData.dueDate}</div>
+                <div>Based on {vaccineData.basedOn}</div>
               </div>
             </Col>
           </Row>
@@ -73,8 +85,8 @@ const VaccineCard = () => {
             position: "absolute",
             bottom: -13,
             right: -11,
-            width: 578,
-            height: 208,
+            width: 545,
+            height: 195,
             backgroundImage: `url('${cardWave}')`,
             backgroundSize: "cover",
           }}

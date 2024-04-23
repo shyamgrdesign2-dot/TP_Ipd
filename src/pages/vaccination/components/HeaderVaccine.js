@@ -32,7 +32,7 @@ function HeaderVaccine() {
     <Navbar className="justify-content-between headerprescription p-0">
       <Container fluid className="h-100 gx-0 w-100">
         <Row className="h-100 align-items-center w-100 justify-content-between">
-          <Col lg="auto" className="h-100">
+          <Col sm="auto" md="auto" lg="auto" className="h-100 w-auto">
             <div className="align-items-center d-flex h-100">
               <div className="border-end h-100 text-center">
                 <div
@@ -80,7 +80,7 @@ function HeaderVaccine() {
               <ProfilePopover patient_data={patient_data} />
             </div>
           </Col>
-          <Col lg="auto">
+          <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
             <div className="align-items-center d-flex h-100">
               <Button
                 type="button"
