@@ -163,6 +163,21 @@ function TabPrescription() {
     }, [collapsedFlag, collapsed, vitalDrawer, medicalHistoryDrawer]);
 
 
+    const checkDataFillOrNot = async () => {
+        const medicalHistory = medicalHistoryData?.map((e, i) => {
+            return {
+                ...e,
+                no_know_history: e?.no_know_history !== undefined ? e?.no_know_history : false,
+                tags: !e?.no_know_history ? e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N') : []
+            }
+        })
+        if (medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length) {
+            handleDrawerMedicalHistory()
+        } else {
+            openCollapsed(2)
+        }
+    }
+
     return (
         <CashManagerContext.Provider value={contextApi}>
             <>
@@ -180,7 +195,7 @@ function TabPrescription() {
                                             <label className="text-white mt-1">Vitals</label>
                                         </button>
                                     ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
-                                        <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => medicalHistoryData.length === 0 || JSON.stringify(defaultList) == JSON.stringify(medicalHistoryData) ? handleDrawerMedicalHistory() : openCollapsed(2)}>
+                                        <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={checkDataFillOrNot}>
                                             <div className={`prescription-tab-button rounded-10px ${collapsedFlag == 2 && 'active'}`}>
                                                 <img src={collapsedFlag == 2 ? medicalHistoryDark : medicalHistoryWhite} alt="Medical History" />
                                             </div>

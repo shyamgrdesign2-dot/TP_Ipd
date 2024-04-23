@@ -112,7 +112,7 @@ function TabMedicalHistoryList(props) {
                         Add or Edit History
                     </Button>
                     <div className="border rounded-3 bg-body mt-3 p-10">
-                        <Collapse items={accordionItems} defaultActiveKey={['1']} className="prescriptiontab-accordian history-sider-box" expandIconPosition={'end'} />
+                        <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box" expandIconPosition={'end'} />
                     </div>
                 </div>
             </div>

@@ -107,6 +107,7 @@ function MedicalHistoryBox(props) {
                     ],
                 }))
             ] : data1;
+            console.log(mergedArray)
             setMedicalHistoryData(JSON.parse(JSON.stringify(mergedArray)));
         }
     }, [defaultList]);

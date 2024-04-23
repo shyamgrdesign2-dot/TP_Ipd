@@ -828,6 +828,7 @@ function HeaderPrescription() {
                     tags: !e?.no_know_history ? e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N') : []
                 }
             })
+            
             var sendData = {
                 action: tcmId == 0 ? 'add' : 'edit',
                 tcm_id: tcmId,
@@ -843,7 +844,7 @@ function HeaderPrescription() {
                 vitals: vitalsData,
                 follow_up_date: followUpDate,
                 visit_advice: additionalNote,
-                medical_history: medicalHistory
+                medical_history: medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length ? [] : medicalHistory
             }
 
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
