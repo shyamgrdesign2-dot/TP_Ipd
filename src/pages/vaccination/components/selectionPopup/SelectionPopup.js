@@ -1,51 +1,56 @@
-import React, { useState } from "react";
-import { Drawer, Select, Button, Space } from "antd";
-import "./SelectionPopup.scss"; // Import CSS file for styling
+import React from "react";
+import { Drawer, Button } from "antd";
+import "./SelectionPopup.scss";
 
-const { Option } = Select;
-
-const SelectionPopup = ({ onClose }) => {
-  const [visible, setVisible] = useState(false);
-  const [selectedValue, setSelectedValue] = useState(null);
-
-  const handleOpen = () => {
-    setVisible(true);
-  };
-
-  const handleClose = () => {
-    setVisible(false);
+const SelectionPopup = ({
+  visible,
+  onClose,
+  selectedValue,
+  setSelectedValue,
+}) => {
+  const handleClear = () => {
+    setSelectedValue(null);
     onClose();
   };
 
-  const handleClear = () => {
-    setSelectedValue(null);
-  };
-
   const handleUpdate = () => {
-    // Perform any action with the selected value
-    console.log("Selected value:", selectedValue);
-    handleClose();
+    onClose();
   };
 
   return (
-    <div className="selection-popup">
-      <Button onClick={handleOpen}>Open Popup</Button>
-      <Drawer
-        placement="bottom"
-        closable={false}
-        // onClose={handleClose}
-        visible={visible}
-        height={80} // Set the height of the popup to 150px
-        width={350} // Set the width of the popup to 350px
-        mask={false} // Prevents blurring of background
-      >
-        <Button onClick={handleClear}>Clear</Button>
-        <Button type="primary" onClick={handleUpdate}>
-          Update
+    <Drawer
+      placement="bottom"
+      closable={false}
+      open={visible}
+      height={80}
+      mask={false} // Prevents blurring of background
+      style={{
+        width: "405px",
+        bottom: "18px",
+        position: "absolute",
+      }}
+    >
+      <div className="drawerContainer">
+        <span className="selectedStyle">{selectedValue} Selected</span>
+        <Button
+          shape={"round"}
+          size={"large"}
+          className="btnStyle"
+          onClick={handleClear}
+        >
+          <span className="clearStyle">Clear</span>
         </Button>
-      </Drawer>
-    </div>
+        <Button
+          size={"large"}
+          shape={"round"}
+          type="primary"
+          onClick={handleUpdate}
+        >
+          <span>Add Vaccine</span>
+        </Button>
+      </div>
+    </Drawer>
   );
 };
 
-export default SelectionPopup;
+export default React.memo(SelectionPopup);
