@@ -534,6 +534,9 @@ body {
         .collapseButton {
           width: 24px;
           height: 24px;
+          &:hover {
+            color: $maincolor !important;
+          }
         }
         .history-badge {
             border: 1px solid $bordercolor;
