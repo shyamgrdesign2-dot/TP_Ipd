@@ -91,7 +91,24 @@ function MedicalHistoryBox(props) {
     }, []);
 
     useEffect(() => {
-        setMedicalHistoryData(JSON.parse(JSON.stringify(defaultList)));
+        if (defaultList.length > 0) {
+            const data1 = JSON.parse(JSON.stringify(defaultList))
+            const data2 = JSON.parse(JSON.stringify(medicalHistoryData))
+            const mergedArray = data2.length > 0 ? [
+                ...data1.map(e => ({
+                    ...e,
+                    ...(data2?.find(x => x.tmmhs_id === e.tmmhs_id) || {}),
+                    tags: [
+                        ...e?.tags.map(tag => ({
+                            ...tag,
+                            ...(data2?.find(x => x.tmmhs_id === e.tmmhs_id)?.tags?.find(x1 => x1.tmmhst_id === tag.tmmhst_id) || {})
+                        })),
+                        ...data2?.find(x => x.tmmhs_id === e.tmmhs_id)?.tags?.filter(item2 => !e?.tags?.find(item1 => item1.tmmhst_id === item2.tmmhst_id))
+                    ],
+                }))
+            ] : data1;
+            setMedicalHistoryData(JSON.parse(JSON.stringify(mergedArray)));
+        }
     }, [defaultList]);
 
     const onNoKnownHistoryChange = useCallback((e, i) => {
@@ -202,7 +219,7 @@ function MedicalHistoryBox(props) {
                     key: JSON.stringify({
                         unique_id: uuidv4(),
                         tmmhst_id: 0,
-                        um_id: 0,
+                        pms_default: 1,
                         title: searchQuery
                     }),
                     value: searchQuery
@@ -454,7 +471,7 @@ function MedicalHistoryBox(props) {
                                                 <div className="d-flex align-items-center">
                                                     <div className="titleprint">{e?.title}</div>
                                                     <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseClick(i)}>
-                                                        <i className="icon-right d-block iconrotate270 fs-18"></i>
+                                                        <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${e?.isExpand ? 'iconrotatehistory90' : 'iconrotate270'}`}></i>
                                                     </Button>
                                                 </div>
                                                 <div className="d-flex align-items-center">
@@ -467,7 +484,7 @@ function MedicalHistoryBox(props) {
                                             <div className="d-flex flex-wrap">
                                                 {!e?.no_know_history && !e?.isExpand && e?.tags?.map((e1, i1) => {
                                                     return (
-                                                        <div key={i1} className={`history-badge ${e1?.enable !== undefined ? e1?.enable === "Y" ? 'history-active' : e1?.enable === "N" ? 'history-inactive' : '' : ''}`}>
+                                                        <div key={e1?.tmmhst_id} className={`history-badge ${e1?.enable !== undefined ? e1?.enable === "Y" ? 'history-active' : e1?.enable === "N" ? 'history-inactive' : '' : ''}`}>
                                                             <div onClick={() => onTagClick(e?.tmmhs_id, e1?.tmmhst_id, i, i1)}>{e1?.title}</div>
                                                             <span onClick={() => onEnableClick(e?.tmmhs_id, e1?.tmmhst_id, i, i1)}>{e1?.enable !== undefined ? e1?.enable : "-"}<img src={e1?.enable !== undefined ? e1?.enable === "Y" ? ActiveverticleUpDown : e1?.enable === "N" ? InActiveverticleUpDown : verticleUpDown : verticleUpDown} />
                                                             </span>
@@ -523,7 +540,7 @@ function MedicalHistoryBox(props) {
                                             ) : (
                                                 addEditData?.tags?.filter(e => !e.delete).map((e, i) => {
                                                     return (
-                                                        <div key={i} className="border rounded-10px px-2 py-1 d-flex align-items-center me-3 mb-2 bg-white fontroboto">
+                                                        <div key={e?.tmmhst_id} className="border rounded-10px px-2 py-1 d-flex align-items-center me-3 mb-2 bg-white fontroboto">
                                                             {e?.title}
                                                             <i className="ms-2 icon-Cross fs-18" onClick={() => onRemoveTag(e, i)}></i>
                                                         </div>
@@ -532,7 +549,7 @@ function MedicalHistoryBox(props) {
                                             )}
                                         </div>
                                         <div className="d-flex justify-content-end align-items-center mt-4">
-                                            <Button className='btn btn-text me-4 p-0 shadow-none border-0'>
+                                            <Button className='btn btn-text me-4 p-0 shadow-none border-0' onClick={() => setAddEditData(null)}>
                                                 Cancel
                                             </Button>
                                             <Button className='btn btn-primary3 btn-41 px-4' onClick={onAddEditSaveClick} loading={loading}>

@@ -71,6 +71,9 @@ function TabPrescription() {
                 });
                 setVitalsData(updatedData)
             }
+            if (caseManagerData.medical_history.length > 0 && customizedPadLeftList.findIndex(e => e.tmdpm_id === 3 && e.tmdpm_status === 0) !== -1) {
+                setMedicalHistoryData(JSON.parse(JSON.stringify(caseManagerData.medical_history)))
+            }
             if (caseManagerData.symptoms.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 5 && e.tmdpm_status === 0) !== -1) {
                 setSymptomsData(caseManagerData.symptoms)
             }
