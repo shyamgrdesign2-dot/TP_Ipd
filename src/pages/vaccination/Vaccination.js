@@ -6,66 +6,171 @@ import HeaderVaccine from "./components/HeaderVaccine";
 import VaccineCard from "./components/vaccineCard/VaccineCard";
 import VaccineFilter from "./vaccineFilter/VaccineFilter";
 import { Flex } from "antd";
+import SelectionPopup from "./components/selectionPopup/SelectionPopup";
 
-const vaccineData1 = {
-  name: "Vaccine Name",
-  fullName: "Hepatiis B",
-  brand: "Vaccine Brand",
-  moreDetails: [
-    ["Brand: ", "Vaccine Brand"],
-    ["Given Date: ", "20 April 2024"],
-    ["Note: ", "Temperature is high"],
-  ],
-  dueDate: "20 April 2024",
-  basedOn: "DOB",
-  isDelayed: false,
-  isVaccineGiven: true,
-};
-
-const vaccineData2 = {
-  name: "Vaccine Name",
-  fullName: "Hepatiis B",
-  brand: "Vaccine Brand",
-  moreDetails: [
-    ["Brand: ", "Vaccine Brand"],
-    ["Note: ", "Temperature is high"],
-  ],
-  dueDate: "20 April 2024",
-  basedOn: "DOB",
-  isDelayed: false,
-  isVaccineGiven: false,
-};
-const vaccineData3 = {
-  name: "Vaccine Name",
-  fullName: "Hepatiis B",
-  brand: "Vaccine Brand",
-  moreDetails: [
-    ["Brand: ", "Vaccine Brand"],
-    ["Given Date: ", "20 April 2024"],
-    ["Note: ", "Temperature is high"],
-  ],
-  dueDate: "20 April 2024",
-  basedOn: "DOB",
-  isDelayed: true,
-  isVaccineGiven: true,
-};
-const vaccineData4 = {
-  name: "Vaccine Name",
-  fullName: "Hepatiis B",
-  brand: "Vaccine Brand",
-  moreDetails: [
-    ["Brand: ", "Vaccine Brand"],
-    ["Updated Due Date: ", "28 April 2024"],
-    ["Note: ", "Temperature is high"],
-  ],
-  dueDate: "20 April 2024",
-  basedOn: "DOB",
-  isDelayed: true,
-};
+const vaccinesData = [
+  {
+    vaccineId: 1,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Given Date: ", "20 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    basedOn: "DOB",
+    isDelayed: false,
+    isVaccineGiven: true,
+  },
+  {
+    vaccineId: 2,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    basedOn: "DOB",
+    isDelayed: false,
+    isVaccineGiven: false,
+  },
+  {
+    vaccineId: 3,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Given Date: ", "20 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    basedOn: "DOB",
+    isDelayed: true,
+    isVaccineGiven: true,
+  },
+  {
+    vaccineId: 4,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Updated Due Date: ", "28 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    basedOn: "DOB",
+    isDelayed: true,
+  },
+  {
+    vaccineId: 5,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Given Date: ", "20 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    basedOn: "DOB",
+    isDelayed: false,
+    isVaccineGiven: true,
+  },
+  {
+    vaccineId: 6,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Given Date: ", "20 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    basedOn: "DOB",
+    isDelayed: false,
+    isVaccineGiven: true,
+  },
+  {
+    vaccineId: 7,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Given Date: ", "20 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    basedOn: "DOB",
+    isDelayed: false,
+    isVaccineGiven: true,
+  },
+  {
+    vaccineId: 8,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Given Date: ", "20 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    basedOn: "DOB",
+    isDelayed: false,
+    isVaccineGiven: true,
+  },
+  {
+    vaccineId: 9,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Given Date: ", "20 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    basedOn: "DOB",
+    isDelayed: false,
+    isVaccineGiven: true,
+  },
+];
 
 function Vaccination() {
   const [isFixed, setIsFixed] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedCards, setSelectedCards] = useState([]);
 
+  const handleSelectAll = (event) => {
+    const checked = event?.target?.checked;
+    setSelectAll(checked);
+    if (checked) {
+      setSelectedCards(
+        vaccinesData.map((vaccineData) => vaccineData.vaccineId)
+      );
+    } else {
+      setSelectedCards([]);
+    }
+  };
+
+  const handleCardCheckboxChange = (id) => {
+    let newSelectedCards = [...selectedCards];
+    if (newSelectedCards.includes(id)) {
+      newSelectedCards = newSelectedCards.filter((cardId) => cardId !== id);
+    } else {
+      newSelectedCards.push(id);
+    }
+    setSelectedCards(newSelectedCards);
+    setSelectAll(newSelectedCards.length === vaccinesData.length);
+  };
   const handleScroll = (e) => {
     const scrollTop = e.target.scrollTop;
     if (scrollTop > 147) {
@@ -97,26 +202,38 @@ function Vaccination() {
             alt="Vaccine"
           />
         </div>
-        <div className={isFixed ? "fix-search" : ""}>
+        <div className={isFixed ? "fixFilter" : ""}>
           <VaccineFilter />
         </div>
         <div className="selectAllContainer scrollable-content">
-          <Checkbox className="checkboxStyle" />
+          <Checkbox
+            className="checkboxStyle"
+            checked={selectAll}
+            onChange={handleSelectAll}
+          />
           <span className="selectAll">Select All</span>
         </div>
 
         <Flex justify="space-between" gap={24} wrap={"wrap"}>
-          <VaccineCard vaccineData={vaccineData1} />
-          <VaccineCard vaccineData={vaccineData2} />
-          <VaccineCard vaccineData={vaccineData3} />
-          <VaccineCard vaccineData={vaccineData4} />
-          <VaccineCard vaccineData={vaccineData1} />
-          <VaccineCard vaccineData={vaccineData1} />
-          <VaccineCard vaccineData={vaccineData1} />
-          <VaccineCard vaccineData={vaccineData1} />
-          <VaccineCard vaccineData={vaccineData1} />
+          {vaccinesData?.map((vaccineData) => (
+            <VaccineCard
+              key={vaccineData.vaccineId}
+              vaccineData={vaccineData}
+              selectedCards={selectedCards}
+              handleCardCheckboxChange={handleCardCheckboxChange}
+              setSelectedCards={setSelectedCards}
+            />
+          ))}
         </Flex>
       </div>
+      {selectedCards.length ? (
+        <SelectionPopup
+          visible={!!selectedCards.length}
+          onClose={handleSelectAll}
+          selectedValue={selectedCards.length}
+          setSelectedCards={setSelectedCards}
+        />
+      ) : null}
     </div>
   );
 }

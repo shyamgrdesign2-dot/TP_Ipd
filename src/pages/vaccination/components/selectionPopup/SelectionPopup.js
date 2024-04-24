@@ -6,10 +6,10 @@ const SelectionPopup = ({
   visible,
   onClose,
   selectedValue,
-  setSelectedValue,
+  setSelectedCards,
 }) => {
   const handleClear = () => {
-    setSelectedValue(null);
+    setSelectedCards([]);
     onClose();
   };
 

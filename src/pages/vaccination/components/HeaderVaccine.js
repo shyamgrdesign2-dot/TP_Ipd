@@ -28,6 +28,14 @@ function HeaderVaccine() {
     }
   };
 
+  const saveBtnHandler = () => {
+    console.log("saveBtnHandler");
+  };
+
+  const printBtnHandler = () => {
+    console.log("printBtnHandler");
+  };
+
   return (
     <Navbar className="justify-content-between headerprescription p-0">
       <Container fluid className="h-100 gx-0 w-100">
@@ -85,14 +93,14 @@ function HeaderVaccine() {
               <Button
                 type="button"
                 className="btn-41 btn px-4 me-4 ant-btn-text btn-input"
-                // onClick={onCustomizePadClick}
+                onClick={saveBtnHandler}
               >
                 Save
               </Button>
               <Button
                 type="button"
                 className="btn-41 btn px-4 me-4 ant-btn-text btn-input"
-                // onClick={onCustomizePadClick}
+                onClick={printBtnHandler}
               >
                 Print
               </Button>
