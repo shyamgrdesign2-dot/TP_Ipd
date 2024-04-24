@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Button, Card, Row, Col, Checkbox, Input, message, Spin, Popover } from 'antd';
+import { Button, Card, Row, Col, Form, Radio, Checkbox, Input, message, Spin, Popover } from 'antd';
+
+import { isMobile } from 'react-device-detect';
 
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -629,6 +631,17 @@ function MedicalHistoryBox(props) {
                                                                 )
                                                             })}
                                                         </div>
+                                                        {/* <Form.Item className="mt-3 form_addnewpatient">
+                                                            <Radio.Group
+                                                                className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`}
+                                                                value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status}>
+                                                                {STATUS_LIST.map((item, i) => {
+                                                                    return (
+                                                                        <Radio.Button  style={{height:47,alignItems:'center',justifyContent:'center',display: 'flex'}} className="w-100 text-center" value={item.value} onClick={() => onChangeStatus(item.value)}>{item.label}</Radio.Button>
+                                                                    )
+                                                                })}
+                                                            </Radio.Group>
+                                                        </Form.Item> */}
                                                     </div>
                                                 )}
                                                 {selectData?.tmmhs_id == 2 && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status == 'Active' && (
