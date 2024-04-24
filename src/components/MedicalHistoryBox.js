@@ -35,6 +35,7 @@ function MedicalHistoryBox(props) {
 
     const { medicalHistoryData, setMedicalHistoryData } = useContext(CashManagerContext);
     // const [ medicalHistoryData, setMedicalHistoryData] = useState([]);
+    const [cloneMedicalHistoryData, setCloneMedicalHistoryData] = useState([])
 
     const MEDICAL_PROBLEM = {
         since: '',
@@ -107,20 +108,19 @@ function MedicalHistoryBox(props) {
                     ],
                 }))
             ] : data1;
-            console.log(mergedArray)
-            setMedicalHistoryData(JSON.parse(JSON.stringify(mergedArray)));
+            setCloneMedicalHistoryData(JSON.parse(JSON.stringify(mergedArray)));
         }
     }, [defaultList]);
 
     const onNoKnownHistoryChange = useCallback((e, i) => {
-        medicalHistoryData[i].no_know_history = e.target.checked
-        setMedicalHistoryData((prev) => [...prev]);
-    }, [medicalHistoryData]);
+        cloneMedicalHistoryData[i].no_know_history = e.target.checked
+        setCloneMedicalHistoryData((prev) => [...prev]);
+    }, [cloneMedicalHistoryData]);
 
     const onExpandCollapseClick = useCallback((i) => {
-        medicalHistoryData[i].isExpand = !medicalHistoryData[i].isExpand
-        setMedicalHistoryData((prev) => [...prev]);
-    }, [medicalHistoryData]);
+        cloneMedicalHistoryData[i].isExpand = !cloneMedicalHistoryData[i].isExpand
+        setCloneMedicalHistoryData((prev) => [...prev]);
+    }, [cloneMedicalHistoryData]);
 
     const onTagClick = useCallback((tmmhs_id, tmmhst_id, i, i1) => {
         setAddEditData(null)
@@ -138,8 +138,8 @@ function MedicalHistoryBox(props) {
         } else {
             initial = { ...OTHERS }
         }
-        if (medicalHistoryData[i].tags[i1].enable === undefined || medicalHistoryData[i].tags[i1].enable === "-") {
-            setMedicalHistoryData((prev) => {
+        if (cloneMedicalHistoryData[i].tags[i1].enable === undefined || cloneMedicalHistoryData[i].tags[i1].enable === "-") {
+            setCloneMedicalHistoryData((prev) => {
                 const newArray = [...prev];
                 newArray[i].tags[i1] = {
                     ...newArray[i].tags[i1],
@@ -149,9 +149,9 @@ function MedicalHistoryBox(props) {
                 return newArray;
             })
         }
-        setSinceValue(medicalHistoryData[i].tags[i1].since ? parseInt(medicalHistoryData[i].tags[i1].since.split(" ")[0]) : 1)
-        setSelectedRelationship(medicalHistoryData[i].tags[i1].relationship ? medicalHistoryData[i].tags[i1].relationship.split(', ') : [])
-    }, [addEditData, selectData, medicalHistoryData]);
+        setSinceValue(cloneMedicalHistoryData[i].tags[i1].since ? parseInt(cloneMedicalHistoryData[i].tags[i1].since.split(" ")[0]) : 1)
+        setSelectedRelationship(cloneMedicalHistoryData[i].tags[i1].relationship ? cloneMedicalHistoryData[i].tags[i1].relationship.split(', ') : [])
+    }, [addEditData, selectData, cloneMedicalHistoryData]);
 
     const onEnableClick = useCallback((tmmhs_id, tmmhst_id, i, i1) => {
         setAddEditData(null)
@@ -169,7 +169,7 @@ function MedicalHistoryBox(props) {
         } else {
             initial = { ...OTHERS }
         }
-        setMedicalHistoryData((prev) => {
+        setCloneMedicalHistoryData((prev) => {
             const newArray = [...prev];
             newArray[i].tags[i1] = {
                 ...newArray[i].tags[i1],
@@ -181,9 +181,9 @@ function MedicalHistoryBox(props) {
             };
             return newArray;
         })
-        setSinceValue(medicalHistoryData[i].tags[i1].since ? parseInt(medicalHistoryData[i].tags[i1].since.split(" ")[0]) : 1)
-        setSelectedRelationship(medicalHistoryData[i].tags[i1].relationship ? medicalHistoryData[i].tags[i1].relationship.split(', ') : [])
-    }, [addEditData, selectData, medicalHistoryData]);
+        setSinceValue(cloneMedicalHistoryData[i].tags[i1].since ? parseInt(cloneMedicalHistoryData[i].tags[i1].since.split(" ")[0]) : 1)
+        setSelectedRelationship(cloneMedicalHistoryData[i].tags[i1].relationship ? cloneMedicalHistoryData[i].tags[i1].relationship.split(', ') : [])
+    }, [addEditData, selectData, cloneMedicalHistoryData]);
 
 
     const onAddEditClick = useCallback((e) => {
@@ -264,8 +264,8 @@ function MedicalHistoryBox(props) {
                     const data = sendData?.tags?.find(e1 => e1.unique_id == e.unique_id)
                     return { ...e, ...data };
                 });
-                const index = medicalHistoryData?.findIndex(e => e.tmmhs_id == sendData.tmmhs_id)
-                setMedicalHistoryData((prev) => {
+                const index = cloneMedicalHistoryData?.findIndex(e => e.tmmhs_id == sendData.tmmhs_id)
+                setCloneMedicalHistoryData((prev) => {
                     const newArray = [...prev];
                     newArray[index].tags = [
                         ...updatedData.map(({ unique_id, ...rest }) => rest),
@@ -318,8 +318,8 @@ function MedicalHistoryBox(props) {
         (e) => {
             const updateQuery = onlyNumberFormat(e.target.value);
             setInputSince(updateQuery);
-            medicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since = ''
-            setMedicalHistoryData((prev) => [...prev]);
+            cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since = ''
+            setCloneMedicalHistoryData((prev) => [...prev]);
             if (updateQuery.length > 0) {
                 const options = SINCE_OPTIONS.map((option) => {
                     return {
@@ -340,7 +340,7 @@ function MedicalHistoryBox(props) {
                 setSinceOptions(options);
             }
         },
-        [inputSince, sinceOptions, medicalHistoryData]
+        [inputSince, sinceOptions, cloneMedicalHistoryData]
     );
 
     const SINCE_LIST = [
@@ -355,48 +355,48 @@ function MedicalHistoryBox(props) {
     const onChangeSegmentedSinceChild = useCallback(
         (key) => {
             setSinceValue(key)
-            medicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since = ''
-            setMedicalHistoryData((prev) => [...prev]);
+            cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since = ''
+            setCloneMedicalHistoryData((prev) => [...prev]);
         },
-        [sinceValue, medicalHistoryData]
+        [sinceValue, cloneMedicalHistoryData]
     );
 
     const onChangeSinceChild = useCallback(
         (key) => {
             if (hasNumber(key)) {
-                if (key != medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since) {
-                    medicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since = key
+                if (key != cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since) {
+                    cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since = key
                 } else {
-                    medicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since = ''
+                    cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since = ''
                 }
-                setMedicalHistoryData((prev) => [...prev]);
+                setCloneMedicalHistoryData((prev) => [...prev]);
             }
         },
-        [selectData, medicalHistoryData]
+        [selectData, cloneMedicalHistoryData]
     );
 
     const onChangeStatus = useCallback((key) => {
-        if (key != medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status) {
-            medicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].status = key
+        if (key != cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status) {
+            cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].status = key
         } else {
-            medicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].status = ''
+            cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].status = ''
         }
-        setMedicalHistoryData((prev) => [...prev]);
-    }, [selectData, medicalHistoryData]);
+        setCloneMedicalHistoryData((prev) => [...prev]);
+    }, [selectData, cloneMedicalHistoryData]);
 
     const onChangeMedication = useCallback((key) => {
-        if (key != medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication) {
-            medicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].medication = key
+        if (key != cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication) {
+            cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].medication = key
         } else {
-            medicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].medication = ''
+            cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].medication = ''
         }
-        setMedicalHistoryData((prev) => [...prev]);
-    }, [selectData, medicalHistoryData]);
+        setCloneMedicalHistoryData((prev) => [...prev]);
+    }, [selectData, cloneMedicalHistoryData]);
 
     const onChangeInputNote = useCallback((e) => {
-        medicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].note = capitalizeAfterSentence(e.target.value)
-        setMedicalHistoryData((prev) => [...prev]);
-    }, [selectData, medicalHistoryData]);
+        cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].note = capitalizeAfterSentence(e.target.value)
+        setCloneMedicalHistoryData((prev) => [...prev]);
+    }, [selectData, cloneMedicalHistoryData]);
 
     const showHidePopover = useCallback(() => {
         setPopOver(!popOver);
@@ -413,8 +413,8 @@ function MedicalHistoryBox(props) {
     }
 
     const onChangeRelationship = () => {
-        medicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].relationship = selectedRelationship.join(', ')
-        setMedicalHistoryData((prev) => [...prev]);
+        cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].relationship = selectedRelationship.join(', ')
+        setCloneMedicalHistoryData((prev) => [...prev]);
     }
 
     const RELATIONSHIP_CONTENT = useCallback(() => {
@@ -442,6 +442,23 @@ function MedicalHistoryBox(props) {
         );
     }, [popOver, selectedRelationship]);
 
+    const onSaveClicked = async () => {
+        const medicalHistory = cloneMedicalHistoryData?.map((e) => {
+            return {
+                ...e,
+                no_know_history: e?.no_know_history !== undefined ? e?.no_know_history : false,
+                tags: !e?.no_know_history ? e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N') : []
+            }
+        })
+        if (medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length) {
+            setMedicalHistoryData([])
+            handleDrawerMedicalHistory()
+        } else {
+            setMedicalHistoryData(JSON.parse(JSON.stringify(medicalHistory)))
+            handleCollapsed(2)
+        }
+    }
+
     return (
         <>
             {contextHolder}
@@ -456,7 +473,7 @@ function MedicalHistoryBox(props) {
                             </div>
                             <div className="title-common">Medical History</div>
                         </div>
-                        <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={() => handleCollapsed(2)}>
+                        <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={onSaveClicked}>
                             Save
                         </Button>
                     </div>
@@ -464,8 +481,8 @@ function MedicalHistoryBox(props) {
                 <Row>
                     <Col lg={15}>
                         <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 61px)' }}>
-                            {medicalHistoryData.length > 0 ? (
-                                medicalHistoryData?.map((e, i) => {
+                            {cloneMedicalHistoryData.length > 0 ? (
+                                cloneMedicalHistoryData?.map((e, i) => {
                                     return (
                                         <div key={i} className="border-bottom px-4 pt-3 pb-2">
                                             <div className="d-flex align-items-center justify-content-between mb-3">
@@ -561,10 +578,10 @@ function MedicalHistoryBox(props) {
                                 </div>
                             ) : (
                                 selectData ? (
-                                    medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.enable == 'Y' ? (
+                                    cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.enable == 'Y' ? (
                                         <div>
                                             <div className="selectedchip-header1 d-flex flex-column justify-content-center title px-20">
-                                                <span className="text-truncate">{medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title}</span>
+                                                <span className="text-truncate">{cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title}</span>
                                             </div>
 
                                             <div className="p-3">
@@ -589,7 +606,7 @@ function MedicalHistoryBox(props) {
                                                             return (
                                                                 <button key={i}
                                                                     type="button"
-                                                                    className={`btn w-100 ${medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since == item.value && 'btn-segement'}`}
+                                                                    className={`btn w-100 ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since == item.value && 'btn-segement'}`}
                                                                     onClick={() => onChangeSinceChild(item.value)}>
                                                                     {item.label}
                                                                 </button>
@@ -605,7 +622,7 @@ function MedicalHistoryBox(props) {
                                                                 return (
                                                                     <button key={i}
                                                                         type="button"
-                                                                        className={`btn w-100 ${medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status !== undefined && medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status == item.value && 'btn-segement'}`}
+                                                                        className={`btn w-100 ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status == item.value && 'btn-segement'}`}
                                                                         onClick={() => onChangeStatus(item.value)}>
                                                                         {item.label}
                                                                     </button>
@@ -614,7 +631,7 @@ function MedicalHistoryBox(props) {
                                                         </div>
                                                     </div>
                                                 )}
-                                                {selectData?.tmmhs_id == 2 && medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status == 'Active' && (
+                                                {selectData?.tmmhs_id == 2 && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status == 'Active' && (
                                                     <div className="mt-5">
                                                         <label className="title-common mb-1"> Medication</label>
                                                         <div className="segement-static d-flex">
@@ -622,7 +639,7 @@ function MedicalHistoryBox(props) {
                                                                 return (
                                                                     <button key={i}
                                                                         type="button"
-                                                                        className={`btn w-100 ${medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication !== undefined && medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication == item.value && 'btn-segement'}`}
+                                                                        className={`btn w-100 ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication == item.value && 'btn-segement'}`}
                                                                         onClick={() => onChangeMedication(item.value)}>
                                                                         {item.label}
                                                                     </button>
@@ -642,23 +659,23 @@ function MedicalHistoryBox(props) {
                                                             arrow={false}
                                                             overlayClassName="pop-350 pp-0"
                                                             placement="bottom">
-                                                            <Input className="popinput" readOnly value={medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Search relationship" suffix={<i className='icon-right iconrotate270 ms-2'></i>} allowClear />
+                                                            <Input className="popinput" readOnly value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Search relationship" suffix={<i className='icon-right iconrotate270 ms-2'></i>} allowClear />
                                                         </Popover>
                                                     </div>
                                                 )}
                                                 <div className="mt-5">
                                                     <label className="title-common mb-1">Note</label>
-                                                    <Input.TextArea value={medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note !== undefined && medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note} placeholder="Enter any specific notes here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNote} />
+                                                    <Input.TextArea value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note} placeholder="Enter any specific notes here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNote} />
                                                 </div>
                                             </div>
                                         </div>
-                                    ) : medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.enable == 'N' && (
+                                    ) : cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.enable == 'N' && (
                                         <div className="text-center">
                                             <img className="mt-4 mb-3" style={{ width: 135 }} src={NoHypertension} alt="No Result Found" />
-                                            <div className="title-hypertension">{`No ${medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title} !`}</div>
+                                            <div className="title-hypertension">{`No ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title} !`}</div>
                                             <div className="fontroboto text-main title fw-normal mt-2">
                                                 You have selected that patient does not <br />
-                                                have {medicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title}
+                                                have {cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title}
                                             </div>
                                         </div>
                                     )

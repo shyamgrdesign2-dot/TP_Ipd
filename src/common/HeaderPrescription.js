@@ -821,14 +821,6 @@ function HeaderPrescription() {
                 duration: 2
             });
         } else {
-            const medicalHistory = medicalHistoryData?.map((e, i) => {
-                return {
-                    ...e,
-                    no_know_history: e?.no_know_history !== undefined ? e?.no_know_history : false,
-                    tags: !e?.no_know_history ? e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N') : []
-                }
-            })
-            
             var sendData = {
                 action: tcmId == 0 ? 'add' : 'edit',
                 tcm_id: tcmId,
@@ -844,7 +836,7 @@ function HeaderPrescription() {
                 vitals: vitalsData,
                 follow_up_date: followUpDate,
                 visit_advice: additionalNote,
-                medical_history: medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length ? [] : medicalHistory
+                medical_history: medicalHistoryData
             }
 
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))

@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Button, Collapse } from 'antd';
 
-import { useSelector, useDispatch } from "react-redux";
-
 import CashManagerContext from '../../context/CashManagerContext';
 
 // Read More content
@@ -24,17 +22,14 @@ const ReadMore = ({ children }) => {
 
 function TabMedicalHistoryList(props) {
 
-    const { handleDrawerMedicalHistory, handleCollapsed, collapsed, collapsedFlag, medicalHistoryDrawer } = props
+    const { handleDrawerMedicalHistory, handleCollapsed } = props
 
-    const { defaultList } = useSelector((state) => state.medicalhistory);
-
-    const { medicalHistoryData, setMedicalHistoryData } = useContext(CashManagerContext);
-    // const [ medicalHistoryData, setMedicalHistoryData] = useState([]);
+    const { medicalHistoryData } = useContext(CashManagerContext);
 
     const [accordionItems, setAccordionItems] = useState([]);
 
     useEffect(() => {
-        if (JSON.stringify(defaultList) != JSON.stringify(medicalHistoryData) && collapsed && collapsedFlag == 2 && !medicalHistoryDrawer) {
+        if (medicalHistoryData.length > 0) {
             const data = []
             medicalHistoryData?.map((e, i) => {
                 if (e?.no_know_history || e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N').length > 0) {
@@ -94,8 +89,10 @@ function TabMedicalHistoryList(props) {
                 }
             });
             setAccordionItems(data)
+        } else {
+            setAccordionItems([])
         }
-    }, [collapsed, collapsedFlag, medicalHistoryDrawer]);
+    }, [medicalHistoryData]);
 
     return (
         <>
@@ -111,9 +108,11 @@ function TabMedicalHistoryList(props) {
                         <i className='icon-Add me-2 fs-21'></i>
                         Add or Edit History
                     </Button>
-                    <div className="border rounded-3 bg-body mt-3 p-10">
-                        <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box" expandIconPosition={'end'} />
-                    </div>
+                    {medicalHistoryData.length > 0 && (
+                        <div className="border rounded-3 bg-body mt-3 p-10">
+                            <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box" expandIconPosition={'end'} />
+                        </div>
+                    )}
                 </div>
             </div>
         </>
