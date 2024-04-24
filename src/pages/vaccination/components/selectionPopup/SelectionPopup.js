@@ -25,7 +25,7 @@ const SelectionPopup = ({
       height={80}
       mask={false} // Prevents blurring of background
       style={{
-        width: "405px",
+        width: "436px",
         bottom: "18px",
         position: "absolute",
       }}
@@ -46,7 +46,7 @@ const SelectionPopup = ({
           type="primary"
           onClick={handleUpdate}
         >
-          <span>Add Vaccine</span>
+          <span>Update Vaccine</span>
         </Button>
       </div>
     </Drawer>

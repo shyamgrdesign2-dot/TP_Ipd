@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import "./Vaccination.scss";
 
-import { Checkbox } from "antd";
+import { Checkbox, Drawer } from "antd";
 import HeaderVaccine from "./components/HeaderVaccine";
 import VaccineCard from "./components/vaccineCard/VaccineCard";
 import VaccineFilter from "./vaccineFilter/VaccineFilter";
 import { Flex } from "antd";
 import SelectionPopup from "./components/selectionPopup/SelectionPopup";
+import closeFill from "../../assets/images/closeFill.svg";
 
 const vaccinesData = [
   {
@@ -15,12 +16,11 @@ const vaccinesData = [
     fullName: "Hepatiis B",
     brand: "Vaccine Brand",
     moreDetails: [
-      ["Brand: ", "Vaccine Brand"],
-      ["Given Date: ", "20 April 2024"],
-      ["Note: ", "Temperature is high"],
+      ["Brand : ", " Vaccine Brand"],
+      ["Given Date : ", " 20 April 2024"],
+      ["Note : ", " Temperature is high"],
     ],
     dueDate: "20 April 2024",
-    basedOn: "DOB",
     isDelayed: false,
     isVaccineGiven: true,
   },
@@ -30,11 +30,10 @@ const vaccinesData = [
     fullName: "Hepatiis B",
     brand: "Vaccine Brand",
     moreDetails: [
-      ["Brand: ", "Vaccine Brand"],
-      ["Note: ", "Temperature is high"],
+      ["Brand : ", "Vaccine Brand"],
+      ["Note : ", "Temperature is high"],
     ],
     dueDate: "20 April 2024",
-    basedOn: "DOB",
     isDelayed: false,
     isVaccineGiven: false,
   },
@@ -49,7 +48,6 @@ const vaccinesData = [
       ["Note: ", "Temperature is high"],
     ],
     dueDate: "20 April 2024",
-    basedOn: "DOB",
     isDelayed: true,
     isVaccineGiven: true,
   },
@@ -64,7 +62,6 @@ const vaccinesData = [
       ["Note: ", "Temperature is high"],
     ],
     dueDate: "20 April 2024",
-    basedOn: "DOB",
     isDelayed: true,
   },
   {
@@ -78,7 +75,6 @@ const vaccinesData = [
       ["Note: ", "Temperature is high"],
     ],
     dueDate: "20 April 2024",
-    basedOn: "DOB",
     isDelayed: false,
     isVaccineGiven: true,
   },
@@ -93,7 +89,6 @@ const vaccinesData = [
       ["Note: ", "Temperature is high"],
     ],
     dueDate: "20 April 2024",
-    basedOn: "DOB",
     isDelayed: false,
     isVaccineGiven: true,
   },
@@ -108,7 +103,6 @@ const vaccinesData = [
       ["Note: ", "Temperature is high"],
     ],
     dueDate: "20 April 2024",
-    basedOn: "DOB",
     isDelayed: false,
     isVaccineGiven: true,
   },
@@ -123,7 +117,6 @@ const vaccinesData = [
       ["Note: ", "Temperature is high"],
     ],
     dueDate: "20 April 2024",
-    basedOn: "DOB",
     isDelayed: false,
     isVaccineGiven: true,
   },
@@ -133,12 +126,11 @@ const vaccinesData = [
     fullName: "Hepatiis B",
     brand: "Vaccine Brand",
     moreDetails: [
-      ["Brand: ", "Vaccine Brand"],
-      ["Given Date: ", "20 April 2024"],
-      ["Note: ", "Temperature is high"],
+      ["Brand : ", " Vaccine Brand"],
+      ["Given Date : ", " 20 April 2024"],
+      ["Note : ", " Temperature is high"],
     ],
     dueDate: "20 April 2024",
-    basedOn: "DOB",
     isDelayed: false,
     isVaccineGiven: true,
   },
@@ -148,6 +140,7 @@ function Vaccination() {
   const [isFixed, setIsFixed] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedCards, setSelectedCards] = useState([]);
+  const [warningMsg, setWarningMsg] = useState("");
 
   const handleSelectAll = (event) => {
     const checked = event?.target?.checked;
@@ -158,6 +151,7 @@ function Vaccination() {
       );
     } else {
       setSelectedCards([]);
+      setWarningMsg("");
     }
   };
 
@@ -166,11 +160,32 @@ function Vaccination() {
     if (newSelectedCards.includes(id)) {
       newSelectedCards = newSelectedCards.filter((cardId) => cardId !== id);
     } else {
-      newSelectedCards.push(id);
+      if (newSelectedCards.length) {
+        const currentIdData = vaccinesData.find(
+          (vaccineData) => vaccineData.vaccineId === id
+        );
+        if (
+          newSelectedCards[0].isVaccineGiven === currentIdData.isVaccineGiven
+        ) {
+          newSelectedCards.push(id);
+        } else {
+          setWarningMsg(
+            "Given vaccine and Due Vaccines cannot be selected togather!"
+          );
+          newSelectedCards = [id];
+        }
+      } else {
+        newSelectedCards.push(id);
+      }
     }
     setSelectedCards(newSelectedCards);
     setSelectAll(newSelectedCards.length === vaccinesData.length);
   };
+
+  const warningMsgHandler = () => {
+    setWarningMsg("");
+  };
+
   const handleScroll = (e) => {
     const scrollTop = e.target.scrollTop;
     if (scrollTop > 147) {
@@ -226,6 +241,30 @@ function Vaccination() {
           ))}
         </Flex>
       </div>
+      {warningMsg ? (
+        <Drawer
+          placement="bottom"
+          closable={false}
+          open={!!warningMsg}
+          height={44}
+          mask={false} // Prevents blurring of background
+          style={{
+            width: "513px",
+            bottom: "110px",
+            position: "absolute",
+          }}
+        >
+          <div className="warningStyle">
+            {warningMsg}
+            <img
+              src={closeFill}
+              alt="close"
+              className="closeImg"
+              onClick={warningMsgHandler}
+            />
+          </div>
+        </Drawer>
+      ) : null}
       {selectedCards.length ? (
         <SelectionPopup
           visible={!!selectedCards.length}

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "antd";
-import chevron from "../../../assets/images/chevron.svg";
+import chevron from "../../../assets/images/arrow-box-right.svg";
+import "./VaccineFilter.scss";
 
 const VaccineFilter = () => {
   const [scrollToStart, setScrollToStart] = useState(false);
@@ -56,7 +57,7 @@ const VaccineFilter = () => {
           style={{
             cursor: "pointer",
             transform: scrollToStart ? "rotate(180deg)" : "rotate(0deg)",
-            marginBottom: "12px",
+            marginBottom: "5px",
           }}
         />
       ) : null}

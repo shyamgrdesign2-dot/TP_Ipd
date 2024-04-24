@@ -70,8 +70,8 @@ const VaccineCard = ({
         >
           <Col>
             <div className="d-flex flex-column dueMessage">
-              <div>Due date: {vaccineData.dueDate}</div>
-              <div>Based on {vaccineData.basedOn}</div>
+              <div>Due date : {vaccineData.dueDate}</div>
+              <div>Based on DOB</div>
             </div>
           </Col>
         </Row>
