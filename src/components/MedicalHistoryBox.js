@@ -728,7 +728,7 @@ function MedicalHistoryBox(props) {
                                                                 value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status}>
                                                                 {STATUS_LIST.map((item, i) => {
                                                                     return (
-                                                                        <Radio.Button className="w-100 text-center" value={item.value} onClick={() => onChangeStatus(item.value)}>{item.label}</Radio.Button>
+                                                                        <Radio.Button className={`w-100 text-center ${isMobile ? 'segment-47' : ''}`} value={item.value} onClick={() => onChangeStatus(item.value)}>{item.label}</Radio.Button>
                                                                     )
                                                                 })}
                                                             </Radio.Group>
@@ -756,7 +756,7 @@ function MedicalHistoryBox(props) {
                                                                 value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication}>
                                                                 {MEDICATION_LIST.map((item, i) => {
                                                                     return (
-                                                                        <Radio.Button className="w-100 text-center" value={item.value} onClick={() => onChangeMedication(item.value)}>{item.label}</Radio.Button>
+                                                                        <Radio.Button className={`w-100 text-center ${isMobile ? 'segment-47' : ''}`} value={item.value} onClick={() => onChangeMedication(item.value)}>{item.label}</Radio.Button>
                                                                     )
                                                                 })}
                                                             </Radio.Group>
