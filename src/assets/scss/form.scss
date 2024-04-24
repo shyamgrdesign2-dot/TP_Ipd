@@ -108,6 +108,11 @@ body {
                     justify-content: center;
                 }
             }
+            .text-segment {
+                span {
+                    color: $theme !important;
+                }
+            }
             &.ant-radio-group-small {
                 .ant-radio-button-wrapper{
                     height: 30px;

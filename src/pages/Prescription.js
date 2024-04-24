@@ -9,6 +9,7 @@ import CashManagerContext from '../context/CashManagerContext';
 import { useSelector } from "react-redux";
 
 import vitals from "../assets/images/Vitals.svg";
+import MedicalHistory from "../assets/images/Medical-History.svg";
 import HeaderPrescription from "../common/HeaderPrescription";
 import hey from "../assets/images/bg-hey.png";
 
@@ -23,7 +24,7 @@ import TabFollowUpBox from "../components/tab_design/TabFollowUpBox";
 import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
 import MedicalHistoryBox from "../components/MedicalHistoryBox";
-import TabMedicalHistoryList from "../components/tab_design/TabMedicalHistoryList";
+import MedicalHistoryList from "../components/tab_design/MedicalHistoryList";
 
 import { Content } from "antd/es/layout/layout";
 
@@ -161,7 +162,7 @@ function Prescription() {
                     <div key={i} className="prescription-box-sm p-14">
                       <div className="d-flex align-items-center justify-content-between">
                         <div className="d-flex align-items-center">
-                          <img src={vitals} alt="vitals" className="me-3" />
+                          <img src={MedicalHistory} alt="Medical History" className="me-3" />
                           <div className="title-common">Medical History</div>
                         </div>
                         <button className="btn d-flex align-items-center btn-text" onClick={handleDrawerMedicalHistory}>
@@ -170,7 +171,7 @@ function Prescription() {
                         </button>
                       </div>
                       {collapsedFlag === 2 && (
-                        <TabMedicalHistoryList />
+                        <MedicalHistoryList />
                       )}
                     </div>
                   )

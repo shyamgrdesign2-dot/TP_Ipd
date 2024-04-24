@@ -708,7 +708,7 @@ function MedicalHistoryBox(props) {
 
                                                 )}
                                                 {selectData?.tmmhs_id != 3 && (
-                                                    <div className="mt-5">
+                                                    <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
                                                         <label className="title-common mb-1">Status</label>
                                                         {/* <div className="segement-static d-flex">
                                                             {STATUS_LIST.map((item, i) => {
@@ -728,7 +728,7 @@ function MedicalHistoryBox(props) {
                                                                 value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status}>
                                                                 {STATUS_LIST.map((item, i) => {
                                                                     return (
-                                                                        <Radio.Button className={`w-100 text-center ${isMobile ? 'segment-47' : ''}`} value={item.value} onClick={() => onChangeStatus(item.value)}>{item.label}</Radio.Button>
+                                                                        <Radio.Button className={`w-100 text-center ${isMobile ? 'segment-47' : 'text-segment'}`} value={item.value} onClick={() => onChangeStatus(item.value)}>{item.label}</Radio.Button>
                                                                     )
                                                                 })}
                                                             </Radio.Group>
@@ -736,7 +736,7 @@ function MedicalHistoryBox(props) {
                                                     </div>
                                                 )}
                                                 {selectData?.tmmhs_id == 2 && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status == 'Active' && (
-                                                    <div className="mt-5">
+                                                    <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
                                                         <label className="title-common mb-1"> Medication</label>
                                                         {/* <div className="segement-static d-flex">
                                                             {MEDICATION_LIST.map((item, i) => {
@@ -756,7 +756,7 @@ function MedicalHistoryBox(props) {
                                                                 value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication}>
                                                                 {MEDICATION_LIST.map((item, i) => {
                                                                     return (
-                                                                        <Radio.Button className={`w-100 text-center ${isMobile ? 'segment-47' : ''}`} value={item.value} onClick={() => onChangeMedication(item.value)}>{item.label}</Radio.Button>
+                                                                        <Radio.Button className={`w-100 text-center ${isMobile ? 'segment-47' : 'text-segment'}`} value={item.value} onClick={() => onChangeMedication(item.value)}>{item.label}</Radio.Button>
                                                                     )
                                                                 })}
                                                             </Radio.Group>
@@ -764,7 +764,7 @@ function MedicalHistoryBox(props) {
                                                     </div>
                                                 )}
                                                 {selectData?.tmmhs_id == 3 && isMobile && (
-                                                    <div className="mt-5">
+                                                    <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
                                                         <label className="title-common mb-1"> Relationship</label>
                                                         <Popover
                                                             open={popOver}
@@ -778,7 +778,7 @@ function MedicalHistoryBox(props) {
                                                         </Popover>
                                                     </div>
                                                 )}
-                                                <div className="mt-5">
+                                                <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
                                                     <label className="title-common mb-1">Note</label>
                                                     <Input.TextArea value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note} placeholder="Enter any specific notes here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNote} />
                                                 </div>

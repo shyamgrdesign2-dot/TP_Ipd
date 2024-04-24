@@ -32,61 +32,71 @@ function TabMedicalHistoryList(props) {
         if (medicalHistoryData.length > 0) {
             const data = []
             medicalHistoryData?.map((e, i) => {
-                if (e?.no_know_history || e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N').length > 0) {
-                    return data.push({
-                        key: `${i + 1}`,
-                        label: <div className="fw-semibold">{e?.title}</div>,
-                        children:
-                            !e?.no_know_history ? (
-                                e?.tags?.map((e1, i1) => {
-                                    return (
-                                        e1?.enable == 'Y' ? (
-                                            <>
+                // if (e?.no_know_history || e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N').length > 0) {
+                // }
+                return data.push({
+                    key: `${i + 1}`,
+                    label: <div className="fw-semibold">{e?.title}</div>,
+                    children:
+                        !e?.no_know_history ? (
+                            e?.tags?.map((e1, i1) => {
+                                return (
+                                    e1?.enable == 'Y' ? (
+                                        <>
+                                            <div key={Math.random()} className="d-flex my-2">
+                                                <div className="text-history font-roboto fw-medium">Issue&nbsp;:&nbsp;</div>
+                                                <div className="fontroboto text-history fw-normal">{e1?.title}</div>
+                                            </div>
+                                            {e1?.since && (
                                                 <div key={Math.random()} className="d-flex my-2">
-                                                    <div className="text-history font-roboto fw-medium">Issue&nbsp;:&nbsp;</div>
-                                                    <div className="fontroboto text-history fw-normal">{e1?.title}</div>
+                                                    <div className="text-history fontroboto fw-medium">Since&nbsp;:&nbsp;</div>
+                                                    <div className="fontroboto text-history fw-normal">{e1?.since}</div>
                                                 </div>
-                                                {e1?.since && (
-                                                    <div key={Math.random()} className="d-flex my-2">
-                                                        <div className="text-history fontroboto fw-medium">Since&nbsp;:&nbsp;</div>
-                                                        <div className="fontroboto text-history fw-normal">{e1?.since}</div>
-                                                    </div>
-                                                )}
-                                                {e?.tmmhs_id != 3 && e1?.status && (
-                                                    <div key={Math.random()} className="d-flex my-2">
-                                                        <div className="text-history fontroboto fw-medium">Status&nbsp;:&nbsp;</div>
-                                                        <div className="fontroboto text-history fw-normal">{e1?.status}</div>
-                                                    </div>
-                                                )}
-                                                {e?.tmmhs_id == 3 && e1?.relationship && (
-                                                    <div key={Math.random()} className="d-flex my-2">
-                                                        <div className="text-history fontroboto fw-medium">Relationship&nbsp;:&nbsp;</div>
-                                                        <div className="fontroboto text-history fw-normal">{e1?.relationship}</div>
-                                                    </div>
-                                                )}
-                                                {e1?.note && (
-                                                    <div key={Math.random()} className="my-2">
-                                                        <div className="text-history fontroboto fw-medium">Notes&nbsp;:&nbsp;</div>
-                                                        <div className="border rounded-3 px-2 py-5px-3px">
-                                                            <ReadMore>
-                                                                {e1?.note}
-                                                            </ReadMore>
+                                            )}
+                                            {e?.tmmhs_id != 3 && (
+                                                <>
+                                                    {e1?.status && (
+                                                        <div key={Math.random()} className="d-flex my-2">
+                                                            <div className="text-history fontroboto fw-medium">Status&nbsp;:&nbsp;</div>
+                                                            <div className="fontroboto text-history fw-normal">{e1?.status}</div>
                                                         </div>
+                                                    )}
+                                                    {e1?.medication && (
+                                                        <div key={Math.random()} className="d-flex my-2">
+                                                            <div className="text-history fontroboto fw-medium">Medication&nbsp;:&nbsp;</div>
+                                                            <div className="fontroboto text-history fw-normal">{e1?.medication}</div>
+                                                        </div>
+                                                    )}
+                                                </>
+                                            )}
+                                            {e?.tmmhs_id == 3 && e1?.relationship && (
+                                                <div key={Math.random()} className="d-flex my-2">
+                                                    <div className="text-history fontroboto fw-medium">Relationship&nbsp;:&nbsp;</div>
+                                                    <div className="fontroboto text-history fw-normal">{e1?.relationship}</div>
+                                                </div>
+                                            )}
+                                            {e1?.note && (
+                                                <div key={Math.random()} className="my-2">
+                                                    <div className="text-history fontroboto fw-medium">Notes&nbsp;:&nbsp;</div>
+                                                    <div className="border rounded-3 px-2 py-5px-3px">
+                                                        <ReadMore>
+                                                            {e1?.note}
+                                                        </ReadMore>
                                                     </div>
-                                                )}
-                                            </>
-                                        ) : e1?.enable == 'N' ? (
-                                            <div key={Math.random()} className="fontroboto text-history fw-normal">{`No ${e1?.title}`}</div>
-                                        ) : (
-                                            null
-                                        )
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : e1?.enable == 'N' ? (
+                                        <div key={Math.random()} className="fontroboto text-history fw-normal">{`No ${e1?.title}`}</div>
+                                    ) : (
+                                        null
                                     )
-                                })
-                            ) : (
-                                <div className="fontroboto text-history fw-normal">{`No known history`}</div>
-                            )
-                    });
-                }
+                                )
+                            })
+                        ) : (
+                            <div className="fontroboto text-history fw-normal">{`No known history`}</div>
+                        )
+                });
             });
             setAccordionItems(data)
         } else {
