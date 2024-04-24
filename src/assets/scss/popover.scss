@@ -1,5 +1,11 @@
 body {
     .ant-popover {
+        &.poover-13 {
+            width: 13%;
+        }
+        &.poover-34 {
+            width: 34%;
+        }
         &.pop-260 {
             max-width: 260px;
             width: 100%;

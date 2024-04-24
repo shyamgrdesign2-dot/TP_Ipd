@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Button, Card, Row, Col, Form, Radio, Checkbox, Input, message, Spin, Popover } from 'antd';
+import { Button, Card, Row, Col, Form, Radio, AutoComplete, Checkbox, Input, message, Spin, Popover } from 'antd';
 
 import { isMobile } from 'react-device-detect';
 
@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../context/CashManagerContext';
 import { MESSAGE_KEY } from "../utils/constants";
-import { removeBeforeWhiteSpace, onlyNumberFormat, hasNumber, capitalizeAfterSentence } from "../utils/utils";
+import { removeBeforeWhiteSpace, onlyNumberFormat, hasNumber, capitalizeAfterSentence, isNumeric } from "../utils/utils";
 
 import noRecordFound from '../assets/images/no-record-round.svg';
 import verticleUpDown from '../assets/images/verticle-up-down.svg';
@@ -71,6 +71,14 @@ function MedicalHistoryBox(props) {
     const [sinceValue, setSinceValue] = useState(1);
     const [inputSince, setInputSince] = useState('');
     const [sinceOptions, setSinceOptions] = useState([]);
+
+    const SINCE_OPTIONS_WEB = [
+        { value: "Hour", label: "Hour" },
+        { value: "Day", label: "Day" },
+        { value: "Week", label: "Week" },
+        { value: "Month", label: "Month" },
+        { value: "Year", label: "Year" },
+    ];
 
     const STATUS_LIST = [
         { value: "Active", label: "Active" },
@@ -285,34 +293,37 @@ function MedicalHistoryBox(props) {
         }
     }
 
+    // Since Tab
     useEffect(() => {
-        if (sinceValue !== -1) {
-            const options = SINCE_OPTIONS.map((option) => {
-                return {
-                    key: Math.random(),
-                    value: `${sinceValue} ${sinceValue <= 1 ? option.value : `${option.value}(s)`}`,
-                    label: <>{`${sinceValue}${option.label}`}</>,
-                };
-            });
-            setSinceOptions(options);
-        } else if (inputSince.length > 0) {
-            const options = SINCE_OPTIONS.map((option) => {
-                return {
-                    key: Math.random(),
-                    value: `${inputSince} ${inputSince <= 1 ? option.value : `${option.value}(s)`}`,
-                    label: <>{`${inputSince}${option.label}`}</>,
-                };
-            });
-            setSinceOptions(options);
-        } else {
-            const options = SINCE_OPTIONS.map((option) => {
-                return {
-                    key: Math.random(),
-                    value: `${option.value}`,
-                    label: <>{`${option.label}`}</>,
-                };
-            });
-            setSinceOptions(options);
+        if (isMobile) {
+            if (sinceValue !== -1) {
+                const options = SINCE_OPTIONS.map((option) => {
+                    return {
+                        key: Math.random(),
+                        value: `${sinceValue} ${sinceValue <= 1 ? option.value : `${option.value}(s)`}`,
+                        label: <>{`${sinceValue}${option.label}`}</>,
+                    };
+                });
+                setSinceOptions(options);
+            } else if (inputSince.length > 0) {
+                const options = SINCE_OPTIONS.map((option) => {
+                    return {
+                        key: Math.random(),
+                        value: `${inputSince} ${inputSince <= 1 ? option.value : `${option.value}(s)`}`,
+                        label: <>{`${inputSince}${option.label}`}</>,
+                    };
+                });
+                setSinceOptions(options);
+            } else {
+                const options = SINCE_OPTIONS.map((option) => {
+                    return {
+                        key: Math.random(),
+                        value: `${option.value}`,
+                        label: <>{`${option.label}`}</>,
+                    };
+                });
+                setSinceOptions(options);
+            }
         }
     }, [sinceValue]);
 
@@ -376,6 +387,48 @@ function MedicalHistoryBox(props) {
         },
         [selectData, cloneMedicalHistoryData]
     );
+
+    // Since Web
+    const onSearchSinceChid = useCallback(
+        (query) => {
+            const updateQuery = onlyNumberFormat(query);
+            cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since = updateQuery
+            setCloneMedicalHistoryData((prev) => [...prev]);
+            if (updateQuery) {
+                const options = SINCE_OPTIONS_WEB.map((option) => {
+                    return {
+                        key: Math.random(),
+                        value: `${updateQuery} ${updateQuery <= 1 ? option.value : `${option.value}(s)`}`,
+                        label: <>{`${updateQuery} ${updateQuery <= 1 ? option.label : `${option.label}(s)`}`}</>,
+                    };
+                });
+                setSinceOptions(options);
+            } else {
+                setSinceOptions([]);
+            }
+        },
+        [sinceOptions, cloneMedicalHistoryData]
+    );
+
+    const onBlurSinceChid = useCallback(
+        () => {
+            if (isNumeric(cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since)) {
+                cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since = `${cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since} ${parseInt(cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since) <= 1 ? 'Day' : 'Day(s)'}`;
+                setCloneMedicalHistoryData((prev) => [...prev]);
+            }
+        },
+        [cloneMedicalHistoryData]
+    );
+
+    const onSelectSinceChild = useCallback(
+        (data) => {
+            setSinceOptions([]);
+            cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since = data;
+            setCloneMedicalHistoryData((prev) => [...prev]);
+        },
+        [sinceOptions, cloneMedicalHistoryData]
+    );
+
 
     const onChangeStatus = useCallback((key) => {
         if (key != cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status) {
@@ -587,39 +640,77 @@ function MedicalHistoryBox(props) {
                                             </div>
 
                                             <div className="p-3">
-                                                <div className="mt-2">
-                                                    <label className="title-common mb-1"> Since</label>
-                                                    <div className="segement-static d-flex">
-                                                        {SINCE_LIST.map((item, i) => {
-                                                            return (
-                                                                <button key={i}
-                                                                    type="button"
-                                                                    className={`btn w-100 p-0 ${sinceValue > 5 ? item.value == -1 && 'btn-segement custom-input-selected' : sinceValue == item.value && 'btn-segement'}`}
-                                                                    onClick={() => onChangeSegmentedSinceChild(item.value)}>
-                                                                    {item.label}
-                                                                </button>
-                                                            )
-                                                        })}
-                                                    </div>
-                                                </div>
-                                                <div className="mt-3">
-                                                    <div className="segement-static d-flex">
-                                                        {sinceOptions.map((item, i) => {
-                                                            return (
-                                                                <button key={i}
-                                                                    type="button"
-                                                                    className={`btn w-100 ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since == item.value && 'btn-segement'}`}
-                                                                    onClick={() => onChangeSinceChild(item.value)}>
-                                                                    {item.label}
-                                                                </button>
-                                                            )
-                                                        })}
-                                                    </div>
-                                                </div>
+                                                {isMobile ? (
+                                                    <>
+                                                        <div className="mt-2">
+                                                            <label className="title-common mb-1"> Since</label>
+                                                            <div className="segement-static d-flex">
+                                                                {SINCE_LIST.map((item, i) => {
+                                                                    return (
+                                                                        <button key={i}
+                                                                            type="button"
+                                                                            className={`btn w-100 p-0 ${sinceValue > 5 ? item.value == -1 && 'btn-segement custom-input-selected' : sinceValue == item.value && 'btn-segement'}`}
+                                                                            onClick={() => onChangeSegmentedSinceChild(item.value)}>
+                                                                            {item.label}
+                                                                        </button>
+                                                                    )
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                        <div className="mt-3">
+                                                            <div className="segement-static d-flex">
+                                                                {sinceOptions.map((item, i) => {
+                                                                    return (
+                                                                        <button key={i}
+                                                                            type="button"
+                                                                            className={`btn w-100 ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since == item.value && 'btn-segement'}`}
+                                                                            onClick={() => onChangeSinceChild(item.value)}>
+                                                                            {item.label}
+                                                                        </button>
+                                                                    )
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <Row gutter={20} className="mt-2">
+                                                        <Col lg={selectData?.tmmhs_id == 3 ? 12 : 24} >
+                                                            <label className="title-common mb-1"> Since</label>
+                                                            <AutoComplete
+                                                                defaultValue={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since}
+                                                                value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since}
+                                                                placeholder="Since"
+                                                                defaultOpen={false}
+                                                                onSearch={(query) => onSearchSinceChid(query)}
+                                                                onBlur={() => onBlurSinceChid()}
+                                                                options={sinceOptions}
+                                                                className="autocomplete-custom w-100"
+                                                                defaultActiveFirstOption={true}
+                                                                onSelect={(data) => onSelectSinceChild(data)}
+                                                            />
+                                                        </Col>
+                                                        {selectData?.tmmhs_id == 3 && (
+                                                            <Col lg={12}>
+                                                                <label className="title-common mb-1"> Relationship</label>
+                                                                <Popover
+                                                                    open={popOver}
+                                                                    onOpenChange={showHidePopover}
+                                                                    content={RELATIONSHIP_CONTENT}
+                                                                    trigger="click"
+                                                                    arrow={false}
+                                                                    overlayClassName="pp-0 poover-13"
+                                                                    placement="bottom">
+                                                                    <Input className="popinput input-tuncate" readOnly value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Search relationship" suffix={<i className='icon-right iconrotate270 ms-2'></i>} />
+                                                                </Popover>
+                                                            </Col>
+                                                        )}
+                                                    </Row>
+
+                                                )}
                                                 {selectData?.tmmhs_id != 3 && (
                                                     <div className="mt-5">
                                                         <label className="title-common mb-1">Status</label>
-                                                        <div className="segement-static d-flex">
+                                                        {/* <div className="segement-static d-flex">
                                                             {STATUS_LIST.map((item, i) => {
                                                                 return (
                                                                     <button key={i}
@@ -630,24 +721,24 @@ function MedicalHistoryBox(props) {
                                                                     </button>
                                                                 )
                                                             })}
-                                                        </div>
-                                                        {/* <Form.Item className="mt-3 form_addnewpatient">
+                                                        </div> */}
+                                                        <Form.Item className="form_addnewpatient">
                                                             <Radio.Group
                                                                 className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`}
                                                                 value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status}>
                                                                 {STATUS_LIST.map((item, i) => {
                                                                     return (
-                                                                        <Radio.Button  style={{height:47,alignItems:'center',justifyContent:'center',display: 'flex'}} className="w-100 text-center" value={item.value} onClick={() => onChangeStatus(item.value)}>{item.label}</Radio.Button>
+                                                                        <Radio.Button style={{ height: 47, alignItems: 'center', justifyContent: 'center', display: 'flex' }} className="w-100 text-center" value={item.value} onClick={() => onChangeStatus(item.value)}>{item.label}</Radio.Button>
                                                                     )
                                                                 })}
                                                             </Radio.Group>
-                                                        </Form.Item> */}
+                                                        </Form.Item>
                                                     </div>
                                                 )}
                                                 {selectData?.tmmhs_id == 2 && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status == 'Active' && (
                                                     <div className="mt-5">
                                                         <label className="title-common mb-1"> Medication</label>
-                                                        <div className="segement-static d-flex">
+                                                        {/* <div className="segement-static d-flex">
                                                             {MEDICATION_LIST.map((item, i) => {
                                                                 return (
                                                                     <button key={i}
@@ -658,10 +749,21 @@ function MedicalHistoryBox(props) {
                                                                     </button>
                                                                 )
                                                             })}
-                                                        </div>
+                                                        </div> */}
+                                                        <Form.Item className="form_addnewpatient">
+                                                            <Radio.Group
+                                                                className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`}
+                                                                value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication}>
+                                                                {MEDICATION_LIST.map((item, i) => {
+                                                                    return (
+                                                                        <Radio.Button style={{ height: 47, alignItems: 'center', justifyContent: 'center', display: 'flex' }} className="w-100 text-center" value={item.value} onClick={() => onChangeMedication(item.value)}>{item.label}</Radio.Button>
+                                                                    )
+                                                                })}
+                                                            </Radio.Group>
+                                                        </Form.Item>
                                                     </div>
                                                 )}
-                                                {selectData?.tmmhs_id == 3 && (
+                                                {selectData?.tmmhs_id == 3 && isMobile && (
                                                     <div className="mt-5">
                                                         <label className="title-common mb-1"> Relationship</label>
                                                         <Popover
@@ -670,7 +772,7 @@ function MedicalHistoryBox(props) {
                                                             content={RELATIONSHIP_CONTENT}
                                                             trigger="click"
                                                             arrow={false}
-                                                            overlayClassName="pop-350 pp-0"
+                                                            overlayClassName="poover-34 pp-0"
                                                             placement="bottom">
                                                             <Input className="popinput" readOnly value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Search relationship" suffix={<i className='icon-right iconrotate270 ms-2'></i>} allowClear />
                                                         </Popover>

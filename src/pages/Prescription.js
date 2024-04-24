@@ -22,11 +22,15 @@ import TabFollowUpBox from "../components/tab_design/TabFollowUpBox";
 
 import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
+import MedicalHistoryBox from "../components/MedicalHistoryBox";
+import TabMedicalHistoryList from "../components/tab_design/TabMedicalHistoryList";
+
 import { Content } from "antd/es/layout/layout";
 
 function Prescription() {
 
   const { customizedPadLeftList, customizedPadRightList, frequencyList, timingList } = useSelector((state) => state.doctors);
+  const { vitalsPastList } = useSelector((state) => state.vitals);
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state
@@ -40,13 +44,15 @@ function Prescription() {
   const [investigationData, setInvestigationData] = useState([]);
   const [medicationData, setMedicationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
+  const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState('');
 
-  const contextApi = { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote };
+  const contextApi = { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote };
 
   const [collapsedFlag, setCollapsedFlag] = useState(1);
   const [vitalDrawer, setVitalDrawer] = useState(false);
+  const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -55,6 +61,9 @@ function Prescription() {
           return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
         });
         setVitalsData(updatedData)
+      }
+      if (caseManagerData.medical_history.length > 0 && customizedPadLeftList.findIndex(e => e.tmdpm_id === 3 && e.tmdpm_status === 0) !== -1) {
+        setMedicalHistoryData(JSON.parse(JSON.stringify(caseManagerData.medical_history)))
       }
       if (caseManagerData.symptoms.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 5 && e.tmdpm_status === 0) !== -1) {
         setSymptomsData(caseManagerData.symptoms)
@@ -107,11 +116,20 @@ function Prescription() {
     setVitalDrawer(!vitalDrawer);
   }, [vitalDrawer]);
 
+  // Drawer Medical History
+  const handleDrawerMedicalHistory = useCallback(() => {
+    setMedicalHistoryDrawer(!medicalHistoryDrawer);
+  }, [medicalHistoryDrawer]);
+
   //Handle Sider
   const handleCollapsed = useCallback((flag) => {
     setCollapsedFlag(flag);
-    setVitalDrawer(!vitalDrawer);
-  }, [collapsedFlag, vitalDrawer]);
+    if (flag === 1) {
+      handleDrawerVital();
+    } else if (flag === 2) {
+      handleDrawerMedicalHistory();
+    }
+  }, [collapsedFlag, vitalDrawer, medicalHistoryDrawer]);
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -123,7 +141,7 @@ function Prescription() {
             <div className="col-lg-4 col-md-12 col-12">
               {customizedPadLeftList?.map((e, i) => {
                 return (
-                  e.tmdpm_id === 1 && e.tmdpm_status === 0 && (
+                  e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm p-14">
                       <div className="d-flex align-items-center justify-content-between">
                         <div className="d-flex align-items-center">
@@ -132,11 +150,27 @@ function Prescription() {
                         </div>
                         <button className="btn d-flex align-items-center btn-text" onClick={handleDrawerVital}>
                           {" "}
-                          <i className={`${vitalsData.length > 0 ? 'icon-Edit' : 'icon-Add'} me-1 fs-5`}></i> <span>{`${vitalsData.length > 0 ? 'Edit' : 'Add'}`}</span>
+                          <i className={`${vitalsData.length === 0 && vitalsPastList.length === 0 ? 'icon-Edit' : 'icon-Add'} me-1 fs-5`}></i> <span>{`${vitalsData.length === 0 && vitalsPastList.length === 0 ? 'Edit' : 'Add'}`}</span>
                         </button>
                       </div>
                       {collapsedFlag === 1 && (
                         <VitalsList />
+                      )}
+                    </div>
+                  ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
+                    <div key={i} className="prescription-box-sm p-14">
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center">
+                          <img src={vitals} alt="vitals" className="me-3" />
+                          <div className="title-common">Medical History</div>
+                        </div>
+                        <button className="btn d-flex align-items-center btn-text" onClick={handleDrawerMedicalHistory}>
+                          {" "}
+                          <i className={`${medicalHistoryData.length > 0 ? 'icon-Edit' : 'icon-Add'} me-1 fs-5`}></i> <span>{`${medicalHistoryData.length > 0 ? 'Edit' : 'Add'}`}</span>
+                        </button>
+                      </div>
+                      {collapsedFlag === 2 && (
+                        <TabMedicalHistoryList />
                       )}
                     </div>
                   )
@@ -169,6 +203,9 @@ function Prescription() {
         </div>
         <Drawer closeIcon={false} placement="right" onClose={handleDrawerVital} open={vitalDrawer} className="modalWidth-700" width="auto">
           <VitalsBox handleDrawerVital={handleDrawerVital} handleCollapsed={(flag) => handleCollapsed(flag)} />
+        </Drawer >
+        <Drawer closeIcon={false} placement="right" onClose={handleDrawerMedicalHistory} open={medicalHistoryDrawer} width="75%">
+          <MedicalHistoryBox handleDrawerMedicalHistory={handleDrawerMedicalHistory} handleCollapsed={(flag) => handleCollapsed(flag)} />
         </Drawer >
       </>
     </CashManagerContext.Provider>
