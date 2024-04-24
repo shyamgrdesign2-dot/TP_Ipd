@@ -1,32 +1,209 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import "./Vaccination.scss";
 
-import { Button, Checkbox, Col } from "antd";
+import { Checkbox, Drawer } from "antd";
 import HeaderVaccine from "./components/HeaderVaccine";
 import VaccineCard from "./components/vaccineCard/VaccineCard";
+import VaccineFilter from "./vaccineFilter/VaccineFilter";
+import { Flex } from "antd";
+import SelectionPopup from "./components/selectionPopup/SelectionPopup";
+import closeFill from "../../assets/images/closeFill.svg";
+
+const vaccinesData = [
+  {
+    vaccineId: 1,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand : ", " Vaccine Brand"],
+      ["Given Date : ", " 20 April 2024"],
+      ["Note : ", " Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    isDelayed: false,
+    isVaccineGiven: true,
+  },
+  {
+    vaccineId: 2,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand : ", "Vaccine Brand"],
+      ["Note : ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    isDelayed: false,
+    isVaccineGiven: false,
+  },
+  {
+    vaccineId: 3,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Given Date: ", "20 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    isDelayed: true,
+    isVaccineGiven: true,
+  },
+  {
+    vaccineId: 4,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Updated Due Date: ", "28 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    isDelayed: true,
+  },
+  {
+    vaccineId: 5,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Given Date: ", "20 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    isDelayed: false,
+    isVaccineGiven: true,
+  },
+  {
+    vaccineId: 6,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Given Date: ", "20 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    isDelayed: false,
+    isVaccineGiven: true,
+  },
+  {
+    vaccineId: 7,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Given Date: ", "20 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    isDelayed: false,
+    isVaccineGiven: true,
+  },
+  {
+    vaccineId: 8,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand: ", "Vaccine Brand"],
+      ["Given Date: ", "20 April 2024"],
+      ["Note: ", "Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    isDelayed: false,
+    isVaccineGiven: true,
+  },
+  {
+    vaccineId: 9,
+    name: "Vaccine Name",
+    fullName: "Hepatiis B",
+    brand: "Vaccine Brand",
+    moreDetails: [
+      ["Brand : ", " Vaccine Brand"],
+      ["Given Date : ", " 20 April 2024"],
+      ["Note : ", " Temperature is high"],
+    ],
+    dueDate: "20 April 2024",
+    isDelayed: false,
+    isVaccineGiven: true,
+  },
+];
 
 function Vaccination() {
-  const { state } = useLocation();
-  const navigate = useNavigate();
+  const [isFixed, setIsFixed] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedCards, setSelectedCards] = useState([]);
+  const [warningMsg, setWarningMsg] = useState("");
 
-  const [dateOptions, setDateOptions] = useState([
-    { value: "Birth", unit: "day", label: "Birth" },
-    { value: "6 Weeks", unit: "week", label: "6 Weeks" },
-    { value: "10 Weeks", unit: "week", label: "10 Weeks" },
-    { value: "14 Weeks", unit: "month", label: "14 Weeks" },
-    { value: "6 Months", unit: "month", label: "6 Months" },
-    { value: "7 Months", unit: "month", label: "7 Months" },
-    { value: "6-9 Months", unit: "month", label: "6-9 Months" },
-    { value: "9 Months", unit: "month", label: "9 Months" },
-    { value: "9 Months", unit: "month", label: "12 Months" },
-    { value: "9 Months", unit: "month", label: "12-15 Months" },
-  ]);
+  const handleSelectAll = (event) => {
+    const checked = event?.target?.checked;
+    setSelectAll(checked);
+    if (checked) {
+      setSelectedCards(
+        vaccinesData.map((vaccineData) => vaccineData.vaccineId)
+      );
+    } else {
+      setSelectedCards([]);
+      setWarningMsg("");
+    }
+  };
+
+  const handleCardCheckboxChange = (id) => {
+    let newSelectedCards = [...selectedCards];
+    if (newSelectedCards.includes(id)) {
+      newSelectedCards = newSelectedCards.filter((cardId) => cardId !== id);
+    } else {
+      if (newSelectedCards.length) {
+        const currentIdData = vaccinesData.find(
+          (vaccineData) => vaccineData.vaccineId === id
+        );
+        if (
+          newSelectedCards[0].isVaccineGiven === currentIdData.isVaccineGiven
+        ) {
+          newSelectedCards.push(id);
+        } else {
+          setWarningMsg(
+            "Given vaccine and Due Vaccines cannot be selected togather!"
+          );
+          newSelectedCards = [id];
+        }
+      } else {
+        newSelectedCards.push(id);
+      }
+    }
+    setSelectedCards(newSelectedCards);
+    setSelectAll(newSelectedCards.length === vaccinesData.length);
+  };
+
+  const warningMsgHandler = () => {
+    setWarningMsg("");
+  };
+
+  const handleScroll = (e) => {
+    const scrollTop = e.target.scrollTop;
+    if (scrollTop > 147) {
+      setIsFixed(true);
+    } else {
+      setIsFixed(false);
+    }
+  };
 
   return (
     <div className="vaccinationWrapper">
       <HeaderVaccine />
-      <div className="vaccinationContainer position-relative">
+      <div
+        id="wrap"
+        onScroll={handleScroll}
+        style={{ overflowY: "auto", position: "relative" }}
+        className="vaccinationContainer position-relative"
+      >
         <div className="vaccinationTitle bg-welcome d-flex justify-content-between align-items-center">
           <div>
             <h2>Vaccination</h2>
@@ -40,32 +217,62 @@ function Vaccination() {
             alt="Vaccine"
           />
         </div>
-        <div className="datesContainer">
-          {dateOptions.length > 0 &&
-            dateOptions.map((item, i) => {
-              return (
-                <Button
-                  key={i}
-                  type="text"
-                  className="btnStyle btn px-5-16 btn-fw-bold fs-12 mb-12 me-12"
-                  onClick={() => window.alert(item.value + " clicked")}
-                >
-                  {item.label}
-                </Button>
-              );
-            })}
+        <div className={isFixed ? "fixFilter" : ""}>
+          <VaccineFilter />
         </div>
-        <div className="selectAllContainer">
-          <Checkbox className="checkboxStyle" />
+        <div className="selectAllContainer scrollable-content">
+          <Checkbox
+            className="checkboxStyle"
+            checked={selectAll}
+            onChange={handleSelectAll}
+          />
           <span className="selectAll">Select All</span>
         </div>
 
-        <div className="d-flex gap-4">
-          <VaccineCard />
-          <VaccineCard />
-          <VaccineCard />
-        </div>
+        <Flex justify="space-between" gap={24} wrap={"wrap"}>
+          {vaccinesData?.map((vaccineData) => (
+            <VaccineCard
+              key={vaccineData.vaccineId}
+              vaccineData={vaccineData}
+              selectedCards={selectedCards}
+              handleCardCheckboxChange={handleCardCheckboxChange}
+              setSelectedCards={setSelectedCards}
+            />
+          ))}
+        </Flex>
       </div>
+      {warningMsg ? (
+        <Drawer
+          placement="bottom"
+          closable={false}
+          open={!!warningMsg}
+          height={44}
+          mask={false} // Prevents blurring of background
+          style={{
+            width: "513px",
+            bottom: "110px",
+            position: "absolute",
+          }}
+        >
+          <div className="warningStyle">
+            {warningMsg}
+            <img
+              src={closeFill}
+              alt="close"
+              className="closeImg"
+              onClick={warningMsgHandler}
+            />
+          </div>
+        </Drawer>
+      ) : null}
+      {selectedCards.length ? (
+        <SelectionPopup
+          visible={!!selectedCards.length}
+          onClose={handleSelectAll}
+          selectedValue={selectedCards.length}
+          setSelectedCards={setSelectedCards}
+        />
+      ) : null}
     </div>
   );
 }

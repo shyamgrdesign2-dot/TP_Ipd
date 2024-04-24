@@ -1,6 +1,18 @@
 .vaccineCardContainer {
-  width: 400px;
-  height: 230px;
+  width: 425px;
+  height: 218px;
+
+  @media only screen and (min-width: 1080px) {
+    width: 316px;
+  }
+
+  @media only screen and (min-width: 1200px) {
+    width: 355px;
+  }
+
+  @media only screen and (min-width: 1400px) {
+    width: 422px;
+  }
   position: relative;
   overflow: hidden;
 
@@ -8,13 +20,18 @@
     position: absolute;
     top: 0;
     right: 0;
+    width: 72px;
+    background: #ed8a00;
+    border-radius: 0 8px 0 22px;
   }
-  .statusMessage {
+  .vaccineGiven {
     background: #19bb7a;
     border-radius: 0 8px 0 22px;
+  }
+  .statusMessage {
     padding: 2px 16px 2px 16px;
     text-align: center;
-    color: #ffffff;
+    color: #ffffff !important;
   }
   .cardDetails {
     display: flex;
@@ -25,23 +42,52 @@
 
     .vaccineName {
       line-height: 36px;
-      font-size: 20px;
+      font-size: 16px;
+
+      @media only screen and (min-width: 1200px) {
+        line-height: 36px;
+        font-size: 20px;
+      }
     }
-    .vaccineDetails {
-      font-size: 14px;
-      line-height: 21px;
+    .vaccineDetailsKey {
+      font-size: 12px;
+      line-height: 18px;
+
       font-weight: 500;
+
+      @media only screen and (min-width: 1200px) {
+        font-size: 14px;
+        line-height: 21px;
+      }
+    }
+    .vaccineDetailsValue {
+      font-size: 12px;
+      line-height: 18px;
+      @media only screen and (min-width: 1200px) {
+        font-size: 14px;
+        line-height: 21px;
+      }
     }
     .dueDetails {
       background: antiquewhite;
       width: fit-content;
-      padding: 10;
-      border-radius: 8;
-      line-height: 8;
+      padding: 10px;
+      border-radius: 8px;
+      line-height: 8px;
 
       .dueMessage {
         line-height: 18px;
       }
     }
+    .isGiven {
+      background: #d1f1e4;
+    }
+    .isDelayed {
+      background: #fcdada;
+    }
   }
+}
+
+.ant-checkbox .ant-checkbox-inner {
+  border-color: #4b4ad5;
 }

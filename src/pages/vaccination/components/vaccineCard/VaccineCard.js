@@ -3,51 +3,74 @@ import { Card, Checkbox, Row, Col } from "antd";
 import cardWave from "../../../../assets/images/cardWave.svg";
 import "./VaccineCard.scss";
 
-const VaccineCard = () => {
+const VaccineCard = ({
+  vaccineData,
+  selectedCards,
+  handleCardCheckboxChange,
+}) => {
   const vaccineDetails = (details) => {
-    return details.map((item) => {
+    return details?.map((item) => {
       return (
-        <div className="d-flex direction-column">
-          <div className="vaccineDetails">{item[0]}</div>
-          <div>{item[1]}</div>
+        <div key={item[0]} className="d-flex direction-column">
+          <div className="vaccineDetailsKey">{item[0]}</div>
+          <div className="vaccineDetailsValue">{item[1]}</div>
         </div>
       );
     });
   };
 
-  const details = [
-    ["Brand: ", "Vaccine Brand"],
-    ["Given Date: ", "20 April 2024"],
-    ["Note: ", "Temperature is high"],
-  ];
+  const checkboxHandler = () => {
+    handleCardCheckboxChange(vaccineData?.vaccineId);
+  };
 
   return (
     <Card className="vaccineCardContainer" bodyStyle={{ height: "100%" }}>
       {/* Vaccine status Indicator */}
-      <div className="vaccineStatus">
-        <span className="statusMessage">Given</span>
+      <div
+        className={`vaccineStatus ${
+          vaccineData?.isVaccineGiven ? "vaccineGiven" : ""
+        }`}
+      >
+        <span
+          className={`statusMessage ${
+            vaccineData?.isVaccineGiven ? "vaccineGiven" : ""
+          }`}
+        >
+          {vaccineData?.isVaccineGiven ? "Given" : "Due"}
+        </span>
       </div>
       <div className="cardDetails">
         {/* Main Content */}
         <Row gutter={16}>
           <Col span={16}>
             <div>
-              <div className="vaccineName">Vaccine Name</div>
-              {vaccineDetails(details)}
+              <div className="vaccineName">{vaccineData.name}</div>
+              {vaccineDetails(vaccineData.moreDetails)}
             </div>
           </Col>
           <Col span={8}>
             <div className="d-flex justify-content-end">
-              <Checkbox onChange={() => window.alert("checkbox clicked")} />
+              <Checkbox
+                onChange={checkboxHandler}
+                checked={selectedCards.includes(vaccineData?.vaccineId)}
+              />
             </div>
           </Col>
         </Row>
 
         {/* Due Date Info */}
-        <Row className="dueDetails">
+        <Row
+          className={`dueDetails ${
+            vaccineData?.isDelayed
+              ? "isDelayed"
+              : vaccineData?.isVaccineGiven
+              ? "isGiven"
+              : ""
+          }`}
+        >
           <Col>
             <div className="d-flex flex-column dueMessage">
-              <div>Due date: 25 April 2024</div>
+              <div>Due date : {vaccineData.dueDate}</div>
               <div>Based on DOB</div>
             </div>
           </Col>
@@ -58,8 +81,8 @@ const VaccineCard = () => {
           position: "absolute",
           bottom: -13,
           right: -11,
-          width: 578,
-          height: 208,
+          width: 545,
+          height: 195,
           backgroundImage: `url('${cardWave}')`,
           backgroundSize: "cover",
         }}
