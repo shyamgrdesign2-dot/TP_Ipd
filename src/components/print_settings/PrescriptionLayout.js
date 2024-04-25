@@ -67,7 +67,7 @@ function PrescriptionLayout() {
             </Row>
             {printSettings?.prescription?.case_option?.map((e, i) => {
                 return (
-                    e?.custom_status === 'Y' && (
+                    // e?.custom_status === 'Y' && (
                         <Row key={i} justify="space-between" className="align-items-center form_addnewpatient mb-28">
                             <Col lg={10}>
                                 <div className="d-flex align-items-center cursor-pointer Preview-color-icon" onClick={() => onCaseOptionChange(e, 'visible', i)}>
@@ -85,7 +85,7 @@ function PrescriptionLayout() {
                                 </Form.Item>
                             </Col>
                         </Row>
-                    )
+                    // )
                 )
             })}
         </div>

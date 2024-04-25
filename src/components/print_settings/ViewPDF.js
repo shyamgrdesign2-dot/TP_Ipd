@@ -849,6 +849,92 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         )
                     )}
 
+                    {caseManagerData.medical_history.length > 0 && printSettings?.prescription?.case_option[7]?.enable === 'Y' && (
+                        printSettings?.prescription?.case_option[7]?.format === 'inline' ? (
+                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
+                                {caseManagerData.medical_history.map((item, i) => {
+                                    return (
+                                        <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+                                            {!item?.no_know_history ? (
+                                                item?.tags?.length > 0 && (
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;
+                                                        {item.tags.map((item1, i1) => {
+                                                            return (
+                                                                <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                    {`(${item1.enable == 'Y' ?
+                                                                        `${Object.values(Object.fromEntries(Object.entries((
+                                                                            ({
+                                                                                title,
+                                                                                since,
+                                                                                status,
+                                                                                medication,
+                                                                                relationship,
+                                                                                note
+                                                                            }) => ({
+                                                                                title: `Issue : ${title}`,
+                                                                                since: since && `Since : ${since}`,
+                                                                                status: status && `Status : ${status}`,
+                                                                                medication: medication && `Medication : ${medication}`,
+                                                                                relationship: relationship && `Relationship : ${relationship}`,
+                                                                                note: note && `Note : ${note}`,
+                                                                            })
+                                                                        )(item1)).filter(([_, v]) => v))).join(' | ')}`
+                                                                        :
+                                                                        ` No ${item1.title}`
+                                                                        })`}{item.tags.length - 1 != i1 ? ',' : ''}&nbsp;
+                                                                </Text>
+                                                            )
+                                                        })}
+                                                        {'\n'}</Text>
+                                                )
+                                            ) : (
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(No known history)`}</Text>
+                                                </Text>
+                                            )}
+                                        </Text>
+                                    )
+                                })}
+                            </View>
+                        ) : printSettings?.prescription?.case_option[7]?.format === 'listview' ? (
+                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                {caseManagerData.symptoms.map((item, i) => {
+                                    return (
+                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
+                                            {(item.since || item.severity || item.note) &&
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                            }
+                                        </Text>
+                                    )
+                                })}
+                            </View>
+                        ) : (
+                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                <View style={styles.table}>
+                                    <View style={styles.row}>
+                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
+                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SEVERITY</Text>
+                                        <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                    </View>
+                                    {caseManagerData.symptoms.map((item, i) => (
+                                        <View style={styles.row} key={i}>
+                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.symptom_name}</Text>
+                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
+                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.severity ? item.severity : '-'}</Text>
+                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
+                                        </View>
+                                    ))}
+                                </View>
+                            </View>
+                        )
+                    )}
+
                     {caseManagerData.follow_up_date && (
                         <Text style={{ marginTop: PX_TO_PT * 15 }}>
                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>

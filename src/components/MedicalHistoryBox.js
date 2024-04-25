@@ -549,7 +549,7 @@ function MedicalHistoryBox(props) {
                                                     </Button>
                                                 </div>
                                                 <div className="d-flex align-items-center">
-                                                    <Checkbox className="fontroboto" onChange={(e) => onNoKnownHistoryChange(e, i)}>No known history</Checkbox>
+                                                    <Checkbox className="fontroboto" checked={e?.no_know_history} onChange={(e) => onNoKnownHistoryChange(e, i)}>No known history</Checkbox>
                                                     <button className='btn d-flex ms-1 align-items-center btn-text pe-0' onClick={() => onAddEditClick(e)}>
                                                         <i className="icon-setting me-2"></i> <span>Add & Edit</span>
                                                     </button>

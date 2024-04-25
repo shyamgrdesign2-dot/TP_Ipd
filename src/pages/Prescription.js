@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import { Drawer } from 'antd';
+import { Drawer, Button } from 'antd';
 import moment from 'moment';
 import { v4 as uuidv4 } from "uuid";
 
@@ -163,7 +163,11 @@ function Prescription() {
                         <div className="d-flex align-items-center">
                           <img src={MedicalHistory} alt="Medical History" className="me-3" />
                           <div className="title-common">Medical History</div>
+                          <Button className="btn border rounded-3 px-1 ms-3 collapseButton">
+                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${true ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                          </Button>
                         </div>
+
                         <button className="btn d-flex align-items-center btn-text" onClick={handleDrawerMedicalHistory}>
                           {" "}
                           <i className={`${medicalHistoryData.length > 0 ? 'icon-Edit' : 'icon-Add'} me-1 fs-5`}></i> <span>{`${medicalHistoryData.length > 0 ? 'Edit' : 'Add'}`}</span>
