@@ -102,7 +102,9 @@ function HeaderVaccine() {
                 className="btn-41 btn px-4 me-4 ant-btn-text btn-input"
                 onClick={printBtnHandler}
               >
+                <i className="icon-Print" />
                 Print
+                <i className="icon-right" />
               </Button>
             </div>
           </Col>

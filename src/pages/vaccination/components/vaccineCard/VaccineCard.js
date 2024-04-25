@@ -47,7 +47,7 @@ const VaccineCard = ({
           <Col span={16}>
             <div>
               <div className="vaccineName">{vaccineData.name}</div>
-              <div>{vaccineData.fullName}</div>
+              {!vaccineData.brand ? <div>{vaccineData.fullName}</div> : null}
               {vaccineDetails(vaccineData.moreDetails)}
             </div>
           </Col>

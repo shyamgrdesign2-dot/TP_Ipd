@@ -23,22 +23,22 @@ const VaccineFilter = () => {
   };
 
   const [dateOptions, setDateOptions] = useState([
-    { value: "Birth", unit: "day", label: "Birth" },
-    { value: "6 Weeks", unit: "week", label: "6 Weeks" },
-    { value: "10 Weeks", unit: "week", label: "10 Weeks" },
-    { value: "14 Weeks", unit: "month", label: "14 Weeks" },
-    { value: "6 Months", unit: "month", label: "6 Months" },
-    { value: "7 Months", unit: "month", label: "7 Months" },
-    { value: "6-9 Months", unit: "month", label: "6-9 Months" },
-    { value: "9 Months", unit: "month", label: "9 Months" },
-    { value: "9 Months", unit: "month", label: "12 Months" },
-    { value: "9 Months", unit: "month", label: "12-15 Months" },
-    { value: "Birth", unit: "day", label: "15 Months" },
-    { value: "6 Weeks", unit: "week", label: "16-18 Months" },
-    { value: "6 Weeks", unit: "week", label: "18-19 Months" },
-    { value: "10 Weeks", unit: "week", label: "4-6 years" },
-    { value: "14 Weeks", unit: "month", label: "9-15 years" },
-    { value: "6 Months", unit: "month", label: "10-12 years" },
+    { value: "Birth", alert: "success", unit: "day", label: "Birth" },
+    { value: "6 Weeks", alert: "success", unit: "week", label: "6 Weeks" },
+    { value: "10 Weeks", alert: "failure", unit: "week", label: "10 Weeks" },
+    { value: "14 Weeks", alert: "failure", unit: "month", label: "14 Weeks" },
+    { value: "6 Months", alert: "failure", unit: "month", label: "6 Months" },
+    { value: "7 Months", alert: null, unit: "month", label: "7 Months" },
+    { value: "6-9 Months", alert: null, unit: "month", label: "6-9 Months" },
+    { value: "9 Months", alert: null, unit: "month", label: "9 Months" },
+    { value: "9 Months", alert: null, unit: "month", label: "12 Months" },
+    { value: "9 Months", alert: null, unit: "month", label: "12-15 Months" },
+    { value: "Birth", alert: null, unit: "day", label: "15 Months" },
+    { value: "6 Weeks", alert: null, unit: "week", label: "16-18 Months" },
+    { value: "6 Weeks", alert: null, unit: "week", label: "18-19 Months" },
+    { value: "10 Weeks", alert: null, unit: "week", label: "4-6 years" },
+    { value: "14 Weeks", alert: null, unit: "month", label: "9-15 years" },
+    { value: "6 Months", alert: null, unit: "month", label: "10-12 years" },
     {
       value: "7 Months",
       unit: "month",
@@ -74,6 +74,13 @@ const VaccineFilter = () => {
               style={{ margin: "0" }}
               onClick={() => window.alert(item.value + " clicked")}
             >
+              {item.alert ? (
+                <span
+                  className={`alertStyle ${
+                    item.alert === "success" ? "success" : "failure"
+                  }`}
+                />
+              ) : null}
               <span className="btnText">{item.label}</span>
             </Button>
           ))}
