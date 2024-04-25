@@ -93,7 +93,7 @@ function TabMedicalHistoryList(props) {
                                     )
                                 })
                             ) : (
-                                <div className="fontroboto text-history fw-normal">{`No known history`}</div>
+                                <div className="fontroboto border rounded p-1 my-2 text-history fw-normal">{`No known history`}</div>
                             )
                     });
                 }
