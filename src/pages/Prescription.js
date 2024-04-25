@@ -31,7 +31,6 @@ import { Content } from "antd/es/layout/layout";
 function Prescription() {
 
   const { customizedPadLeftList, customizedPadRightList, frequencyList, timingList } = useSelector((state) => state.doctors);
-  const { vitalsPastList } = useSelector((state) => state.vitals);
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state
@@ -151,7 +150,7 @@ function Prescription() {
                         </div>
                         <button className="btn d-flex align-items-center btn-text" onClick={handleDrawerVital}>
                           {" "}
-                          <i className={`${vitalsData.length === 0 && vitalsPastList.length === 0 ? 'icon-Edit' : 'icon-Add'} me-1 fs-5`}></i> <span>{`${vitalsData.length === 0 && vitalsPastList.length === 0 ? 'Edit' : 'Add'}`}</span>
+                          <i className={`${vitalsData.length > 0 ? 'icon-Edit' : 'icon-Add'} me-1 fs-5`}></i> <span>{`${vitalsData.length > 0 ? 'Edit' : 'Add'}`}</span>
                         </button>
                       </div>
                       {collapsedFlag === 1 && (

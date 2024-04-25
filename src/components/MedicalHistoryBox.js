@@ -500,7 +500,8 @@ function MedicalHistoryBox(props) {
     const onSaveClicked = async () => {
         const medicalHistory = cloneMedicalHistoryData?.map((e) => {
             return {
-                ...e,
+                title: e?.title,
+                tmmhs_id: e?.tmmhs_id,
                 no_know_history: e?.no_know_history !== undefined ? e?.no_know_history : false,
                 tags: !e?.no_know_history ? e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N') : []
             }

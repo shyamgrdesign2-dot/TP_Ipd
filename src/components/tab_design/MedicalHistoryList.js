@@ -1,31 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Button, Collapse } from 'antd';
+import { Collapse } from 'antd';
 
 import CashManagerContext from '../../context/CashManagerContext';
 
-// Read More content
-const ReadMore = ({ children }) => {
-    const text = children;
-    const [isReadMore, setIsReadMore] = useState(true);
-    const toggleReadMore = () => {
-        setIsReadMore(!isReadMore);
-    };
-    return (
-        <p className="text mb-0 fontroboto lh-base">
-            {isReadMore && text.length > 70 ? text.slice(0, 70) : text}
-            <span onClick={toggleReadMore} className="read-or-hide">
-                {text.length > 70 ? isReadMore ? "... View More" : " View Less" : ""}
-            </span>
-        </p>
-    );
-};
-
 function MedicalHistoryList(props) {
-
-    const { handleDrawerMedicalHistory, handleCollapsed } = props
-
     const { medicalHistoryData } = useContext(CashManagerContext);
-
     const [accordionItems, setAccordionItems] = useState([]);
 
     useEffect(() => {
@@ -86,7 +65,7 @@ function MedicalHistoryList(props) {
                                 )}
                             </div>
                         ) : (
-                            <div className="fontroboto text-history fw-normal">{`No known history`}</div>
+                            <div className="fontroboto border rounded p-2 my-2 text-history fw-normal">{`No known history`}</div>
                         )
                 });
             });
