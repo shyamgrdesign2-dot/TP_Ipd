@@ -99,7 +99,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                 ) : (
                                     <div className='align-items-center text-center'>
                                         <img src={heartBeat} width={57} height={52} alt="No vital & body composition saved for the patient!" />
-                                        <p className='mt-4 fontroboto'>No vital & body composition saved <br /> for the patient!</p>
+                                        <p className='mt-4 fontroboto'>No Medical History saved <br /> for the patient!</p>
                                     </div>
                                 )}
                             </div>
