@@ -3,6 +3,8 @@ import { Button, Collapse } from 'antd';
 
 import { useSelector, useDispatch } from "react-redux";
 
+import { ADD, EDIT } from "../../utils/constants";
+
 import CashManagerContext from '../../context/CashManagerContext';
 
 import {
@@ -14,7 +16,7 @@ const showDateFormat = 'DD MMM, YY'
 
 function TabVitalsList(props) {
 
-    const { handleDrawerVital, handleCollapsed } = props
+    const { mode = ADD, handleDrawerVital, handleCollapsed } = props
 
     const {
         selectedVitalsList,
@@ -29,16 +31,19 @@ function TabVitalsList(props) {
         var sendData = {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
             pam_id: patient_data !== undefined && patient_data.pam_id !== undefined ? patient_data.pam_id : 0,
+            mode: mode
         }
         dispatch(getVitals(sendData));
     }, []);
 
-    // useEffect(() => {
-    //     const updatedData = selectedVitalsList.map((e, i) => {
-    //         return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
-    //     });
-    //     setVitalsData(updatedData);
-    // }, [selectedVitalsList]);
+    useEffect(() => {
+        if (mode === ADD) {
+            const updatedData = selectedVitalsList.map((e, i) => {
+                return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
+            });
+            setVitalsData(updatedData);
+        }
+    }, [selectedVitalsList]);
 
     const PAST_VITALS = useMemo(() => {
         return (

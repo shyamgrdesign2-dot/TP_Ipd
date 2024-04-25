@@ -873,7 +873,7 @@ function AppointmentData({ locationPath }) {
                                 </div>
                                 <figure>
                                     {/* <img src={docimg} style={{ width: '100%', height: window.innerHeight / 1.9, objectFit: 'contain' }} /> */}
-                                    <iframe width="498" height="392" className="rounded-4" src="https://www.youtube.com/embed/s0G0-8jY-ng?si=4xKY2tsFjGHv6qSg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                                    <iframe width="498" height="392" className="rounded-4" src="https://www.youtube.com/embed/ENARZJhE0iI?si=v_iN0Pygybp4ewqu" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                                 </figure>
                             </div>
 

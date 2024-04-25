@@ -6,7 +6,7 @@ import moment from "moment";
 import { isMobile } from "react-device-detect";
 
 import { ADD, EDIT } from "../utils/constants";
-import { calculateAge, onlyNumberFormat,removeBeforeWhiteSpace } from "../utils/utils";
+import { calculateAge, onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
 
 import { useDispatch, useSelector } from "react-redux";
 import { listSalutation } from "../redux/appointmentsSlice";
@@ -123,36 +123,41 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
     };
 
     const handleSalutationChange = value => {
-        console.log(value)
-        if (value === "Mr" || value === "S/O") {
-            form.setFieldsValue({
-                pm_gender: 'Male'
-            });
-        } else if (value === "Miss" || value === "Mrs" || value === "Ms." || value === "D/O") {
-            form.setFieldsValue({
-                pm_gender: 'Female'
-            });
-        } else {
-            form.setFieldsValue({
-                pm_gender: ''
-            });
+        const getGender = form.getFieldsValue()?.pm_gender
+        if (!getGender && getGender === undefined) {
+            if (value === "Mr" || value === "S/O") {
+                form.setFieldsValue({
+                    pm_gender: 'Male'
+                });
+            } else if (value === "Miss" || value === "Mrs" || value === "Ms." || value === "D/O") {
+                form.setFieldsValue({
+                    pm_gender: 'Female'
+                });
+            } else {
+                form.setFieldsValue({
+                    pm_gender: ''
+                });
+            }
         }
     };
 
     const handleGenderChange = e => {
-        const value = e.target.value
-        if (value === "Male") {
-            form.setFieldsValue({
-                pm_salutation: 'Mr'
-            });
-        } else if (value === "Female") {
-            form.setFieldsValue({
-                pm_salutation: 'Ms.'
-            });
-        } else {
-            form.setFieldsValue({
-                pm_salutation: null
-            });
+        const getSalutation = form.getFieldsValue()?.pm_salutation
+        if (!getSalutation && getSalutation === undefined) {
+            const value = e.target.value
+            if (value === "Male") {
+                form.setFieldsValue({
+                    pm_salutation: 'Mr'
+                });
+            } else if (value === "Female") {
+                form.setFieldsValue({
+                    pm_salutation: 'Ms.'
+                });
+            } else {
+                form.setFieldsValue({
+                    pm_salutation: null
+                });
+            }
         }
     };
 

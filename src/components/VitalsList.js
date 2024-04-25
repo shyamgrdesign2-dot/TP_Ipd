@@ -3,6 +3,8 @@ import { Input } from 'antd';
 
 import { useSelector, useDispatch } from "react-redux";
 
+import { ADD, EDIT } from "../utils/constants";
+
 import CashManagerContext from '../context/CashManagerContext';
 
 import {
@@ -12,7 +14,9 @@ import moment from "moment";
 
 const showDateFormat = 'DD MMM, YY'
 
-function VitalsList() {
+function VitalsList(props) {
+
+    const { mode = ADD } = props
 
     const {
         selectedVitalsList,
@@ -27,16 +31,19 @@ function VitalsList() {
         var sendData = {
             patient_unique_id: state !== undefined ? state.patient_unique_id : 0,
             pam_id: state !== undefined && state.pam_id !== undefined ? state.pam_id : 0,
+            mode: mode
         }
         dispatch(getVitals(sendData));
     }, []);
 
-    // useEffect(() => {
-    //     const updatedData = selectedVitalsList.map((e, i) => {
-    //         return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
-    //     });
-    //     setVitalsData(updatedData);
-    // }, [selectedVitalsList]);
+    useEffect(() => {
+        if (mode === ADD) {
+            const updatedData = selectedVitalsList.map((e, i) => {
+                return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
+            });
+            setVitalsData(updatedData);
+        }
+    }, [selectedVitalsList]);
 
     const TODAY_VITALS = useMemo(() => {
         return (
