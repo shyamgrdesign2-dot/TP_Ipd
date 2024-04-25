@@ -105,7 +105,7 @@ function PatientDetails() {
                         <div className="appointment-wrap PatientDetailswrap">
                             <div className='row'>
                                 <div className='col-lg-5 col-md-12 col-12'>
-                                    {viewCaseManagerData.vitals && viewCaseManagerData.vitals.length > 0 && (
+                                    {viewCaseManagerData && viewCaseManagerData?.vitals?.length > 0 && (
                                         <VitalsBodyComposition loading={loading} passVitals={viewCaseManagerData ? [...viewCaseManagerData.vitals].reverse().slice(0, 2) : viewCaseManagerData} />
                                     )}
                                     <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
