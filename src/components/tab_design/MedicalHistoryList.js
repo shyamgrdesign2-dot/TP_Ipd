@@ -82,7 +82,7 @@ function MedicalHistoryList(props) {
             <div className="overflow-y-auto" style={{ maxHeight: "661px" }}>
                 <div>
                     {medicalHistoryData.length > 0 && (
-                        <div className="border rounded-3 mt-2 p-10">
+                        <div className="p-10">
                             <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box history-sider-box-white" expandIconPosition={'end'} />
                         </div>
                     )}
