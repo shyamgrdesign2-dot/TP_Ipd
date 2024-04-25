@@ -5,9 +5,9 @@ import { Checkbox, Drawer } from "antd";
 import HeaderVaccine from "./components/HeaderVaccine";
 import VaccineCard from "./components/vaccineCard/VaccineCard";
 import VaccineFilter from "./vaccineFilter/VaccineFilter";
-import { Flex } from "antd";
 import SelectionPopup from "./components/selectionPopup/SelectionPopup";
 import closeFill from "../../assets/images/closeFill.svg";
+import { Row, Col } from "react-bootstrap";
 
 const vaccinesData = [
   {
@@ -21,6 +21,7 @@ const vaccinesData = [
       ["Note : ", " Temperature is high"],
     ],
     dueDate: "20 April 2024",
+    givenDate: "20 April 2024",
     isDelayed: false,
     isVaccineGiven: true,
   },
@@ -47,7 +48,8 @@ const vaccinesData = [
       ["Given Date: ", "20 April 2024"],
       ["Note: ", "Temperature is high"],
     ],
-    dueDate: "20 April 2024",
+    dueDate: "22 April 2024",
+    givenDate: "20 April 2024",
     isDelayed: true,
     isVaccineGiven: true,
   },
@@ -71,10 +73,11 @@ const vaccinesData = [
     brand: "Vaccine Brand",
     moreDetails: [
       ["Brand: ", "Vaccine Brand"],
-      ["Given Date: ", "20 April 2024"],
+      ["Given Date: ", "22 April 2024"],
       ["Note: ", "Temperature is high"],
     ],
-    dueDate: "20 April 2024",
+    dueDate: "22 April 2024",
+    givenDate: "22 April 2024",
     isDelayed: false,
     isVaccineGiven: true,
   },
@@ -83,28 +86,18 @@ const vaccinesData = [
     name: "Vaccine Name",
     fullName: "Hepatiis B",
     brand: "Vaccine Brand",
-    moreDetails: [
-      ["Brand: ", "Vaccine Brand"],
-      ["Given Date: ", "20 April 2024"],
-      ["Note: ", "Temperature is high"],
-    ],
-    dueDate: "20 April 2024",
+    moreDetails: [],
     isDelayed: false,
-    isVaccineGiven: true,
+    isVaccineGiven: false,
   },
   {
     vaccineId: 7,
     name: "Vaccine Name",
     fullName: "Hepatiis B",
     brand: "Vaccine Brand",
-    moreDetails: [
-      ["Brand: ", "Vaccine Brand"],
-      ["Given Date: ", "20 April 2024"],
-      ["Note: ", "Temperature is high"],
-    ],
-    dueDate: "20 April 2024",
-    isDelayed: false,
-    isVaccineGiven: true,
+    moreDetails: [],
+    isDelayed: true,
+    isVaccineGiven: false,
   },
   {
     vaccineId: 8,
@@ -165,9 +158,20 @@ function Vaccination() {
           (vaccineData) => vaccineData.vaccineId === id
         );
         if (
-          newSelectedCards[0].isVaccineGiven === currentIdData.isVaccineGiven
+          vaccinesData[selectedCards[0] - 1].isVaccineGiven ===
+          currentIdData.isVaccineGiven
         ) {
-          newSelectedCards.push(id);
+          if (
+            vaccinesData[selectedCards[0] - 1].givenDate ===
+            currentIdData.givenDate
+          ) {
+            newSelectedCards.push(id);
+          } else {
+            setWarningMsg(
+              "Vaccine given on different dates can't be selected together!"
+            );
+            newSelectedCards = [id];
+          }
         } else {
           setWarningMsg(
             "Given vaccine and Due Vaccines cannot be selected togather!"
@@ -229,17 +233,18 @@ function Vaccination() {
           <span className="selectAll">Select All</span>
         </div>
 
-        <Flex justify="space-between" gap={24} wrap={"wrap"}>
+        <Row xs={1} sm={2} md={2} lg={3} className="gy-4">
           {vaccinesData?.map((vaccineData) => (
-            <VaccineCard
-              key={vaccineData.vaccineId}
-              vaccineData={vaccineData}
-              selectedCards={selectedCards}
-              handleCardCheckboxChange={handleCardCheckboxChange}
-              setSelectedCards={setSelectedCards}
-            />
+            <Col key={vaccineData.vaccineId} className="gx-4">
+              <VaccineCard
+                vaccineData={vaccineData}
+                selectedCards={selectedCards}
+                handleCardCheckboxChange={handleCardCheckboxChange}
+                setSelectedCards={setSelectedCards}
+              />
+            </Col>
           ))}
-        </Flex>
+        </Row>
       </div>
       {warningMsg ? (
         <Drawer

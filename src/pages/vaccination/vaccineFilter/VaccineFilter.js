@@ -50,14 +50,14 @@ const VaccineFilter = () => {
     <div className="d-flex align-items-center">
       {scrollToStart ? (
         <img
-          className="me-3 clickable"
+          className="me-3 clickable imageStyle"
           src={chevron}
           alt="chevron"
           onClick={handleToggleScroll}
           style={{
             cursor: "pointer",
             transform: scrollToStart ? "rotate(180deg)" : "rotate(0deg)",
-            marginBottom: "5px",
+            margin: "0 5px 0 5px",
           }}
         />
       ) : null}
@@ -70,7 +70,7 @@ const VaccineFilter = () => {
             <Button
               key={i}
               type="text"
-              className="btnStyle btn px-5-16 btn-fw-bold fs-12 mb-12 me-12"
+              className="btnStyle btn px-5-16 fs-14"
               style={{ margin: "0" }}
               onClick={() => window.alert(item.value + " clicked")}
             >
@@ -79,17 +79,20 @@ const VaccineFilter = () => {
           ))}
       </div>
       {!scrollToStart ? (
-        <img
-          className="me-3 clickable"
-          src={chevron}
-          alt="chevron"
-          onClick={handleToggleScroll}
-          style={{
-            cursor: "pointer",
-            transform: scrollToStart ? "rotate(180deg)" : "rotate(0deg)",
-            marginBottom: "5px",
-          }}
-        />
+        <div className="imageStyle">
+          <div className="blurOverlay" />
+          <img
+            className="clickable"
+            src={chevron}
+            alt="chevron"
+            onClick={handleToggleScroll}
+            style={{
+              cursor: "pointer",
+              transform: scrollToStart ? "rotate(180deg)" : "rotate(0deg)",
+              margin: "0 0 5px 5px",
+            }}
+          />
+        </div>
       ) : null}
     </div>
   );

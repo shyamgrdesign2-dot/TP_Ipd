@@ -26,25 +26,28 @@ const VaccineCard = ({
   return (
     <Card className="vaccineCardContainer" bodyStyle={{ height: "100%" }}>
       {/* Vaccine status Indicator */}
-      <div
-        className={`vaccineStatus ${
-          vaccineData?.isVaccineGiven ? "vaccineGiven" : ""
-        }`}
-      >
-        <span
-          className={`statusMessage ${
+      {vaccineData?.isVaccineGiven || vaccineData?.dueDate ? (
+        <div
+          className={`vaccineStatus ${
             vaccineData?.isVaccineGiven ? "vaccineGiven" : ""
           }`}
         >
-          {vaccineData?.isVaccineGiven ? "Given" : "Due"}
-        </span>
-      </div>
+          <span
+            className={`statusMessage ${
+              vaccineData?.isVaccineGiven ? "vaccineGiven" : ""
+            }`}
+          >
+            {vaccineData?.isVaccineGiven ? "Given" : "Due"}
+          </span>
+        </div>
+      ) : null}
       <div className="cardDetails">
         {/* Main Content */}
         <Row gutter={16}>
           <Col span={16}>
             <div>
               <div className="vaccineName">{vaccineData.name}</div>
+              <div>{vaccineData.fullName}</div>
               {vaccineDetails(vaccineData.moreDetails)}
             </div>
           </Col>

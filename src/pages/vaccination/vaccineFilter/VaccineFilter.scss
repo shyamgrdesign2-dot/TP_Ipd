@@ -1,8 +1,8 @@
 .datesContainer {
   display: flex;
-  column-gap: 10px;
+  column-gap: 24px;
   margin: 20px 0;
-  overflow-x: hidden;
+  overflow-x: scroll;
   .btnStyle {
     border: 1px solid rgba(75, 74, 213, 0.2) !important;
     padding: 6px 16px 6px 16px;
@@ -25,4 +25,26 @@
       background-color: rgba(75, 74, 213, 0.1) !important;
     }
   }
+}
+
+.imageStyle {
+  position: relative;
+  display: none;
+  @media only screen and (min-width: 1200px) {
+    display: block;
+  }
+}
+
+.blurOverlay {
+  position: absolute;
+  top: -4px;
+  left: -20px;
+  width: 20px;
+  height: 38px;
+  backdrop-filter: blur(1px); /* Adjust blur amount as needed */
+  z-index: 1;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
