@@ -4,7 +4,7 @@ import "./Vaccination.scss";
 import { Checkbox, Drawer } from "antd";
 import HeaderVaccine from "./components/HeaderVaccine";
 import VaccineCard from "./components/vaccineCard/VaccineCard";
-import VaccineFilter from "./vaccineFilter/VaccineFilter";
+import VaccineFilter from "./components/vaccineFilter/VaccineFilter";
 import SelectionPopup from "./components/selectionPopup/SelectionPopup";
 import closeFill from "../../assets/images/closeFill.svg";
 import { Row, Col } from "react-bootstrap";

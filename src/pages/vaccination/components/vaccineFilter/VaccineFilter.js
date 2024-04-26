@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button, Tooltip } from "antd";
-import chevron from "../../../assets/images/arrow-box-right.svg";
-import closeFill from "../../../assets/images/closeFill.svg";
+import chevron from "../../../../assets/images/arrow-box-right.svg";
+import closeFill from "../../../../assets/images/closeFill.svg";
 import "./VaccineFilter.scss";
 
 const VaccineFilter = () => {
