@@ -61,3 +61,29 @@
 *::-webkit-scrollbar {
   display: none;
 }
+
+.ant-tooltip .ant-tooltip-inner {
+  background-color: #ffffff;
+  width: 320px;
+  height: 93px;
+  border-radius: 10px;
+  padding: 12px;
+
+  .warning {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 6px;
+    background-color: rgba(240, 69, 69, 1);
+  }
+  .imageStyle {
+    cursor: pointer;
+    margin: 0px;
+  }
+}
+
+.ant-tooltip-placement-bottomLeft .ant-tooltip-arrow,
+.ant-tooltip-placement-topLeft .ant-tooltip-arrow {
+  --antd-arrow-background-color: #ffffff;
+  left: 30px;
+}

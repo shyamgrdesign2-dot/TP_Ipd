@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Button } from "antd";
+import { Button, Tooltip } from "antd";
 import chevron from "../../../assets/images/arrow-box-right.svg";
+import closeFill from "../../../assets/images/closeFill.svg";
 import "./VaccineFilter.scss";
 
 const VaccineFilter = () => {
@@ -26,8 +27,8 @@ const VaccineFilter = () => {
     { value: "Birth", alert: "success", unit: "day", label: "Birth" },
     { value: "6 Weeks", alert: "success", unit: "week", label: "6 Weeks" },
     { value: "10 Weeks", alert: "failure", unit: "week", label: "10 Weeks" },
-    { value: "14 Weeks", alert: "failure", unit: "month", label: "14 Weeks" },
-    { value: "6 Months", alert: "failure", unit: "month", label: "6 Months" },
+    { value: "14 Weeks", alert: null, unit: "month", label: "14 Weeks" },
+    { value: "6 Months", alert: null, unit: "month", label: "6 Months" },
     { value: "7 Months", alert: null, unit: "month", label: "7 Months" },
     { value: "6-9 Months", alert: null, unit: "month", label: "6-9 Months" },
     { value: "9 Months", alert: null, unit: "month", label: "9 Months" },
@@ -45,6 +46,40 @@ const VaccineFilter = () => {
       label: "2nd, 3rd, 4th and 5th years",
     },
   ]);
+
+  const [showTooltip, setShowTooltip] = useState(true);
+
+  useEffect(() => {
+    // This effect will run when the component mounts (page is visited)
+    // Set a timeout to hide the tooltip after a certain delay (e.g., 5 seconds)
+    const timer = setTimeout(() => {
+      setShowTooltip(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const pendingVaccines = dateOptions.filter(
+    (item) => item.alert === "failure"
+  );
+
+  const tooltipTitle = () => {
+    return (
+      <>
+        <div className="d-flex align-items-center justify-content-between">
+          <span className="warning" />
+          <div style={{ paddingLeft: "16px" }}>Vaccine Pending!</div>
+          <img
+            className="imageStyle"
+            src={closeFill}
+            alt="closeFill"
+            onClick={() => setShowTooltip(false)}
+          />
+        </div>
+        <div>Pending vaccine detected for this timeframe.</div>
+      </>
+    );
+  };
 
   return (
     <div className="d-flex align-items-center">
@@ -67,22 +102,32 @@ const VaccineFilter = () => {
       >
         {dateOptions.length > 0 &&
           dateOptions.map((item, i) => (
-            <Button
-              key={i}
-              type="text"
-              className="btnStyle btn px-5-16 fs-14"
-              style={{ margin: "0" }}
-              onClick={() => window.alert(item.value + " clicked")}
+            <Tooltip
+              title={tooltipTitle}
+              visible={
+                showTooltip &&
+                pendingVaccines.length === 1 &&
+                item.alert === "failure"
+              }
+              placement="topLeft"
             >
-              {item.alert ? (
-                <span
-                  className={`alertStyle ${
-                    item.alert === "success" ? "success" : "failure"
-                  }`}
-                />
-              ) : null}
-              <span className="btnText">{item.label}</span>
-            </Button>
+              <Button
+                key={i}
+                type="text"
+                className="btnStyle btn px-5-16 fs-14"
+                style={{ margin: "0" }}
+                onClick={() => window.alert(item.value + " clicked")}
+              >
+                {item.alert ? (
+                  <span
+                    className={`alertStyle ${
+                      item.alert === "success" ? "success" : "failure"
+                    }`}
+                  />
+                ) : null}
+                <span className="btnText">{item.label}</span>
+              </Button>
+            </Tooltip>
           ))}
       </div>
       {!scrollToStart ? (

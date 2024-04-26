@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useContext } from "react";
 import { Container, Navbar, Row, Col } from "react-bootstrap";
-import { Button } from "antd";
+import { Button, Dropdown, Menu } from "antd";
 import { useNavigate } from "react-router-dom";
 
 import CashManagerContext from "../../../context/CashManagerContext";
@@ -32,9 +32,29 @@ function HeaderVaccine() {
     console.log("saveBtnHandler");
   };
 
-  const printBtnHandler = () => {
+  const printBtnHandler = (e) => {
+    e.preventDefault();
     console.log("printBtnHandler");
   };
+
+  function handleMenuClick(e) {
+    window.alert("selected print!");
+  }
+
+  const menu = (
+    <Menu>
+      <Menu.Item
+        key="1"
+        className="btn-41 btn btn-input"
+        onClick={handleMenuClick}
+      >
+        All
+      </Menu.Item>
+      <Menu.Item key="2" className="btn-41 btn" onClick={handleMenuClick}>
+        Given
+      </Menu.Item>
+    </Menu>
+  );
 
   return (
     <Navbar className="justify-content-between headerprescription p-0">
@@ -92,19 +112,38 @@ function HeaderVaccine() {
             <div className="align-items-center d-flex h-100">
               <Button
                 type="button"
-                className="btn-41 btn px-4 me-4 ant-btn-text btn-input"
+                className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
                 onClick={saveBtnHandler}
+                icon={<i className="icon-Preview" />}
               >
-                Save
+                Preview
               </Button>
+              <Dropdown overlay={menu}>
+                <Button
+                  type="button"
+                  className="btn-41 btn px-4 me-4 ant-btn-text btn-input"
+                  onClick={printBtnHandler}
+                  style={{
+                    display: "flex",
+                    columnGap: "5px",
+                    alignItems: "center",
+                  }}
+                >
+                  <i className="icon-Print" />
+                  Print
+                  <i
+                    className="icon-right"
+                    style={{ display: "block", transform: `rotate(270deg)` }}
+                  />
+                </Button>
+              </Dropdown>
               <Button
                 type="button"
-                className="btn-41 btn px-4 me-4 ant-btn-text btn-input"
-                onClick={printBtnHandler}
+                className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
+                onClick={saveBtnHandler}
+                icon={<i className="icon-save" />}
               >
-                <i className="icon-Print" />
-                Print
-                <i className="icon-right" />
+                Save
               </Button>
             </div>
           </Col>
