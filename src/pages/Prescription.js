@@ -163,9 +163,9 @@ function Prescription() {
                         <div className="d-flex align-items-center">
                           <img src={MedicalHistory} alt="Medical History" className="me-3" />
                           <div className="title-common">Medical History</div>
-                          <Button className="btn border rounded-3 px-1 ms-3 collapseButton">
+                          {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton">
                             <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${true ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
-                          </Button>
+                          </Button> */}
                         </div>
 
                         <button className="btn d-flex align-items-center btn-text" onClick={handleDrawerMedicalHistory}>
