@@ -881,7 +881,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             })
                                                                         )(item1)).filter(([_, v]) => v))).join(' | ')}`
                                                                         :
-                                                                        ` No ${item1.title}`
+                                                                        `No ${item1.title}`
                                                                         })`}{item.tags.length - 1 != i1 ? ',' : ''}&nbsp;
                                                                 </Text>
                                                             )
@@ -899,15 +899,53 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             </View>
                         ) : printSettings?.prescription?.case_option[7]?.format === 'listview' ? (
                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
-                                {caseManagerData.symptoms.map((item, i) => {
+                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
+                                {caseManagerData.medical_history.map((item, i) => {
+                                    let abcd = 97
                                     return (
-                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
-                                            {(item.since || item.severity || item.note) &&
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                            }
+                                        <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+                                            {!item?.no_know_history ? (
+                                                item?.tags?.length > 0 && (
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, lineHeight: 1.4 }}>&nbsp;{i + 1}. {item.title}&nbsp;:</Text>
+                                                        {item.tags.map((item1, i1) => {
+                                                            return (
+                                                                <>
+                                                                    <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;</Text>
+                                                                    <Text key={i1} style={{ lineHeight: 1.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                        {`(${item1.enable == 'Y' ?
+                                                                            `${Object.values(Object.fromEntries(Object.entries((
+                                                                                ({
+                                                                                    title,
+                                                                                    since,
+                                                                                    status,
+                                                                                    medication,
+                                                                                    relationship,
+                                                                                    note
+                                                                                }) => ({
+                                                                                    title: `Issue : ${title}`,
+                                                                                    since: since && `Since : ${since}`,
+                                                                                    status: status && `Status : ${status}`,
+                                                                                    medication: medication && `Medication : ${medication}`,
+                                                                                    relationship: relationship && `Relationship : ${relationship}`,
+                                                                                    note: note && `Note : ${note}`,
+                                                                                })
+                                                                            )(item1)).filter(([_, v]) => v))).join(' | ')}`
+                                                                            :
+                                                                            `No ${item1.title}`
+                                                                            })`}
+                                                                    </Text>
+                                                                </>
+                                                            )
+                                                        })}
+                                                        {'\n'}</Text>
+                                                )
+                                            ) : (
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}. {item.title}&nbsp;:
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(No known history)`}</Text>
+                                                </Text>
+                                            )}
                                         </Text>
                                     )
                                 })}
