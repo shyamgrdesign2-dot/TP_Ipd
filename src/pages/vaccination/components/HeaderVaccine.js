@@ -1,18 +1,20 @@
 import React, { useState, useCallback, useContext } from "react";
 import { Container, Navbar, Row, Col } from "react-bootstrap";
-import { Button } from "antd";
+import { Button, Dropdown, Menu } from "antd";
 import { useNavigate } from "react-router-dom";
 
 import CashManagerContext from "../../../context/CashManagerContext";
 import ProfilePopover from "../../../common/ProfilePopover";
 import CommonModal from "../../../common/CommonModal";
 import alertIcon from "../../../assets/images/alertIcon.svg";
+import Preview from "./preview/Preview";
 
 function HeaderVaccine() {
   const navigate = useNavigate();
   const { patient_data } = useContext(CashManagerContext);
 
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const [shouldShowPreview, setShowPreview] = useState(false);
 
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
@@ -32,9 +34,38 @@ function HeaderVaccine() {
     console.log("saveBtnHandler");
   };
 
-  const printBtnHandler = () => {
+  const printBtnHandler = (e) => {
+    e.preventDefault();
     console.log("printBtnHandler");
   };
+
+  function handleMenuClick(e) {
+    window.alert("selected print!");
+  }
+
+  function previewBtnHandler() {
+    setShowPreview((prevState) => !prevState);
+  }
+
+  const menu = (
+    <Menu>
+      <Menu.Item
+        key="1"
+        className="btn btn-41 btn-input border-0 border-transparent"
+        style={{ border: "none", borderBottom: "2px solid transparent" }}
+        onClick={handleMenuClick}
+      >
+        All
+      </Menu.Item>
+      <Menu.Item
+        key="2"
+        className="btn-41 btn btn-input"
+        onClick={handleMenuClick}
+      >
+        Given
+      </Menu.Item>
+    </Menu>
+  );
 
   return (
     <Navbar className="justify-content-between headerprescription p-0">
@@ -92,21 +123,43 @@ function HeaderVaccine() {
             <div className="align-items-center d-flex h-100">
               <Button
                 type="button"
-                className="btn-41 btn px-4 me-4 ant-btn-text btn-input"
-                onClick={saveBtnHandler}
+                className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
+                onClick={previewBtnHandler}
+                icon={<i className="icon-Preview" />}
               >
-                Save
+                Preview
               </Button>
+              <Dropdown overlay={menu}>
+                <Button
+                  type="button"
+                  className="btn-41 btn px-4 me-4 ant-btn-text btn-input"
+                  onClick={printBtnHandler}
+                  style={{
+                    display: "flex",
+                    columnGap: "5px",
+                    alignItems: "center",
+                  }}
+                >
+                  <i className="icon-Print" />
+                  Print
+                  <i
+                    className="icon-right"
+                    style={{ display: "block", transform: `rotate(270deg)` }}
+                  />
+                </Button>
+              </Dropdown>
               <Button
                 type="button"
-                className="btn-41 btn px-4 me-4 ant-btn-text btn-input"
-                onClick={printBtnHandler}
+                className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
+                onClick={saveBtnHandler}
+                icon={<i className="icon-save" />}
               >
-                Print
+                Save
               </Button>
             </div>
           </Col>
         </Row>
+        {shouldShowPreview ? <Preview onCancel={previewBtnHandler} /> : null}
       </Container>
     </Navbar>
   );

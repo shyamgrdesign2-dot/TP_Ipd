@@ -1,18 +1,5 @@
 .vaccineCardContainer {
-  width: 425px;
   height: 218px;
-
-  @media only screen and (min-width: 1080px) {
-    width: 316px;
-  }
-
-  @media only screen and (min-width: 1200px) {
-    width: 355px;
-  }
-
-  @media only screen and (min-width: 1400px) {
-    width: 422px;
-  }
   position: relative;
   overflow: hidden;
 
