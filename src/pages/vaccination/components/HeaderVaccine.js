@@ -7,12 +7,14 @@ import CashManagerContext from "../../../context/CashManagerContext";
 import ProfilePopover from "../../../common/ProfilePopover";
 import CommonModal from "../../../common/CommonModal";
 import alertIcon from "../../../assets/images/alertIcon.svg";
+import Preview from "./preview/Preview";
 
 function HeaderVaccine() {
   const navigate = useNavigate();
   const { patient_data } = useContext(CashManagerContext);
 
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const [shouldShowPreview, setShowPreview] = useState(false);
 
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
@@ -41,16 +43,25 @@ function HeaderVaccine() {
     window.alert("selected print!");
   }
 
+  function previewBtnHandler() {
+    setShowPreview((prevState) => !prevState);
+  }
+
   const menu = (
     <Menu>
       <Menu.Item
         key="1"
-        className="btn-41 btn btn-input"
+        className="btn btn-41 btn-input border-0 border-transparent"
+        style={{ border: "none", borderBottom: "2px solid transparent" }}
         onClick={handleMenuClick}
       >
         All
       </Menu.Item>
-      <Menu.Item key="2" className="btn-41 btn" onClick={handleMenuClick}>
+      <Menu.Item
+        key="2"
+        className="btn-41 btn btn-input"
+        onClick={handleMenuClick}
+      >
         Given
       </Menu.Item>
     </Menu>
@@ -113,7 +124,7 @@ function HeaderVaccine() {
               <Button
                 type="button"
                 className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
-                onClick={saveBtnHandler}
+                onClick={previewBtnHandler}
                 icon={<i className="icon-Preview" />}
               >
                 Preview
@@ -148,6 +159,7 @@ function HeaderVaccine() {
             </div>
           </Col>
         </Row>
+        {shouldShowPreview ? <Preview onCancel={previewBtnHandler} /> : null}
       </Container>
     </Navbar>
   );
