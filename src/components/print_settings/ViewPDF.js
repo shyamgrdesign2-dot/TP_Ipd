@@ -143,7 +143,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     const medical_history_title = (id) => {
         var value = ''
         if (id == 2 || id == 3) {
-            value = `Issue :`
+            value = `Issue : `
         } else if (id == 4) {
             value = `Allergies to : `
         } else if (id == 1) {
@@ -968,23 +968,25 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     {item1.enable == 'Y' ? (
                                                                         <>
                                                                             <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;{item1.title}&nbsp;</Text>
-                                                                            <Text key={i1} style={{ lineHeight: 1.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                {`(${Object.values(Object.fromEntries(Object.entries((
-                                                                                    ({
-                                                                                        since,
-                                                                                        status,
-                                                                                        medication,
-                                                                                        relationship,
-                                                                                        note
-                                                                                    }) => ({
-                                                                                        since: since && `Since : ${since}`,
-                                                                                        status: status && `Status : ${status}`,
-                                                                                        medication: medication && `Medication : ${medication}`,
-                                                                                        relationship: relationship && `Relationship : ${relationship}`,
-                                                                                        note: note && `Note : ${note}`,
-                                                                                    })
-                                                                                )(item1)).filter(([_, v]) => v))).join(' | ')})`}
-                                                                            </Text>
+                                                                            {(item1.since || item1.status || item1.medication || item1.relationship || item1.note) &&
+                                                                                <Text key={i1} style={{ lineHeight: 1.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                    {`(${Object.values(Object.fromEntries(Object.entries((
+                                                                                        ({
+                                                                                            since,
+                                                                                            status,
+                                                                                            medication,
+                                                                                            relationship,
+                                                                                            note
+                                                                                        }) => ({
+                                                                                            since: since && `Since : ${since}`,
+                                                                                            status: status && `Status : ${status}`,
+                                                                                            medication: medication && `Medication : ${medication}`,
+                                                                                            relationship: relationship && `Relationship : ${relationship}`,
+                                                                                            note: note && `Note : ${note}`,
+                                                                                        })
+                                                                                    )(item1)).filter(([_, v]) => v))).join(' | ')})`}
+                                                                                </Text>
+                                                                            }
                                                                         </>
                                                                     ) : (
                                                                         <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;{`No ${item1.title}`}&nbsp;</Text>
@@ -1008,47 +1010,61 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
                                 {caseManagerData.medical_history.map((item, i) => {
                                     return (
-                                        <>
-                                            <Text style={{ color: '#000', marginTop: 20, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 5, marginBottom: 0, borderTop: 1, borderLeft: 1, borderRight: 1, borderStyle: 'solid', borderColor: '#171725', backgroundColor: '#E2E2EA' }}>{item.title}:</Text>
-                                            {!item?.no_know_history ? (
-                                                <View key={i} style={styles.table}>
-                                                    <View style={styles.row}>
-                                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
-                                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
-                                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICATION</Text>
-                                                        {item?.tmmhs_id === 3 && (
-                                                            <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Relationship</Text>
-                                                        )}
-                                                        <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                        (item?.no_know_history || item?.tags?.length > 0) && (
+                                            <>
+                                                <Text style={{ color: '#000', marginTop: PX_TO_PT * 20, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`${item.title} : `}</Text>
+                                                {!item?.no_know_history ? (
+                                                    <View key={i} style={styles.table}>
+                                                        <View style={styles.row}>
+                                                            <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                            <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
+                                                            {item?.tmmhs_id != 3 && (
+                                                                <>
+                                                                    <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
+                                                                    {item?.tmmhs_id == 2 && (
+                                                                        <Text style={[styles.cell, { flex: 0.25, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICATION</Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                            {item?.tmmhs_id === 3 && (
+                                                                <Text style={[styles.cell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>RELATIVE</Text>
+                                                            )}
+                                                            <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                        </View>
+                                                        {item?.tags?.filter(x => x.enable == 'Y')?.map((item1, i1) => {
+                                                            return (
+                                                                <View style={styles.row} key={i1}>
+                                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item1.title}</Text>
+                                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.since ? item1.since : '-'}</Text>
+                                                                    {item?.tmmhs_id != 3 && (
+                                                                        <>
+                                                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.status ? item1.status : '-'}</Text>
+                                                                            {item?.tmmhs_id == 2 && (
+                                                                                <Text style={[styles.cell, { flex: 0.25, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.medication ? item1.medication : '-'}</Text>
+                                                                            )}
+                                                                        </>
+                                                                    )}
+                                                                    {item?.tmmhs_id === 3 && (
+                                                                        <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.relationship ? item1.relationship : '-'}</Text>
+                                                                    )}
+                                                                    <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
+                                                                </View>
+                                                            )
+                                                        })}
+                                                        {item?.tags?.filter(x => x.enable == 'N')?.map((item1, i1) => {
+                                                            return (
+                                                                <View style={styles.row} key={i1}>
+                                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`No ${item1.title}`}</Text>
+                                                                </View>
+                                                            )
+                                                        })}
                                                     </View>
-                                                    {item.tags.map((item, i1) => {
-                                                        return (
-                                                            <View style={styles.row} key={i1}>
-                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>
-                                                                    {`${item.enable == 'Y' ? (
-                                                                        `${item.title}`
-                                                                    ) : (
-                                                                        `No ${item.title}`
-                                                                    )
-                                                                        }`}
-                                                                </Text>
-                                                                <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
-                                                                <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.status ? item.status : '-'}</Text>
-                                                                <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.medication ? item.medication : '-'}</Text>
-                                                                {item.relationship && (
-                                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.relationship ? item.relationship : '-'}</Text>
-                                                                )}
-                                                                <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
-                                                            </View>
-                                                        )
-                                                    })}
-                                                </View>
-                                            ) : (
-                                                <Text style={{ color: '#000', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, padding: 5, border: 1, borderStyle: 'solid', borderColor: '#171725' }}>{`No known history`}</Text>
+                                                ) : (
+                                                    <Text style={{ color: '#000', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, border: 1, borderStyle: 'solid', borderColor: '#171725' }}>{`No known history`}</Text>
 
-                                            )}
-                                        </>
+                                                )}
+                                            </>
+                                        )
                                     )
                                 })}
                             </View>
