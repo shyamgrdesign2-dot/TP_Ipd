@@ -981,7 +981,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                             since: since && `Since : ${since}`,
                                                                                             status: status && `Status : ${status}`,
                                                                                             medication: medication && `Medication : ${medication}`,
-                                                                                            relationship: relationship && `Relationship : ${relationship}`,
+                                                                                            relationship: relationship && `Relative : ${relationship}`,
                                                                                             note: note && `Note : ${note}`,
                                                                                         })
                                                                                     )(item1)).filter(([_, v]) => v))).join(' | ')})`}
