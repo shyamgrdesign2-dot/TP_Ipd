@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector } from "react-redux";
 
+import { ADD, EDIT } from "../../utils/constants";
+
 import CashManagerContext from '../../context/CashManagerContext';
 import HeaderPrescription from "../../common/HeaderPrescription";
 import TabSymptomsBox from "../../components/tab_design/TabSymptomsBox";
@@ -185,7 +187,7 @@ function TabPrescription() {
                         </div>
                         <Sider trigger={null} collapsible collapsed={collapsed} className={collapsed ? 'tabsider' : 'tabsider1'}>
                             {collapsedFlag === 1 && (
-                                <TabVitalsList handleDrawerVital={handleDrawerVital} handleCollapsed={() => setCollapsed(!collapsed)} />
+                                <TabVitalsList mode={caseManagerData !== undefined ? EDIT : ADD} handleDrawerVital={handleDrawerVital} handleCollapsed={() => setCollapsed(!collapsed)} />
                             )}
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>

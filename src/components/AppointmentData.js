@@ -874,7 +874,6 @@ function AppointmentData({ locationPath }) {
                                 <figure>
                                     {/* <img src={docimg} style={{ width: '100%', height: window.innerHeight / 1.9, objectFit: 'contain' }} /> */}
                                     <iframe width="498" height="392" className="rounded-4" src="https://www.youtube.com/embed/ENARZJhE0iI?si=1TPlavqb5nvR0vx3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                                        
                                 </figure>
                             </div>
 
