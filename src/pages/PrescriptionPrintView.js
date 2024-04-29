@@ -261,7 +261,7 @@ function PrescriptionPrintView() {
                                     icon={<i className="icon-Print"></i>}
                                 >
                                     <span className="fw-semibold">Print</span>
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                                 {/* <Button
 
@@ -270,7 +270,7 @@ function PrescriptionPrintView() {
                                     icon={<i className="icon-billings"></i>}
                                 >
                                     <span className="fw-semibold">Create Bill</span>
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button> */}
                                 <Button
                                     type="text"
@@ -279,7 +279,7 @@ function PrescriptionPrintView() {
                                     onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
                                 >
                                     <span className="fw-semibold">Download</span>
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                                 <Button
                                     type="text"
@@ -289,7 +289,7 @@ function PrescriptionPrintView() {
                                     loading={loading}
                                 >
                                     <span className="fw-semibold">Edit Prescription</span>
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                             </div>
                             {/* <div className="bg-body d-flex p-3 rounded-10px border">

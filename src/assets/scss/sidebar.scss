@@ -242,6 +242,26 @@ body {
             justify-content: center;
             align-items: center;
             margin: 0 auto;
+            background-color: $themesecondarylight;
+            box-shadow: 1px 2px 5px 0px rgba(74, 46, 96, 0.12);
+            &:active, &.active, &:hover, &:focus {
+                background-color: $white;
+            }
+            // .sider-white {
+            //     display: block;
+            // }
+            // .sider-normal {
+            //     display: none;
+            // }
+            // &:active, .active, &:hover, &:focus {
+            //     background-color: $white;
+            //     .sider-white {
+            //         display: none;
+            //     }
+            //     .sider-normal {
+            //         display: block;
+            //     }
+            // }
         }
         label {
             font-family: 'Roboto';
@@ -251,5 +271,8 @@ body {
             line-height: 18px;
             letter-spacing: 0.1px;
         }
+    }
+    .text-history {
+        color: $historytext;
     }
 }

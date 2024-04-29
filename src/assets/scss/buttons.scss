@@ -179,6 +179,35 @@ body {
             }
         }
 
+        &.btn-save {
+            border-radius: 10px;
+            background-color: transparent;
+            height: 33px;
+            font-weight: 500 !important;
+            i {
+                font-size: 19px;
+            }
+            span {
+                font-family: 'Poppins';
+                font-style: normal;
+                line-height: normal;
+                letter-spacing: 0.1px;
+                color: $theme !important;
+                font-size: 14px;
+                font-weight: 500 !important;
+            }
+
+            &:hover,
+            &:focus,
+            &:active {
+                border: 0;
+                box-shadow: none !important;
+            }
+            &:focus-visible {
+                outline: none;
+            }
+        }
+
         &.btn-input {
             border-radius: 10px;
             border: 1px solid $theme !important;

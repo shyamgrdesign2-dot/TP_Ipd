@@ -139,17 +139,11 @@ export const addPatient = createAsyncThunk(
         Object.keys(patientInfo).forEach((key) => {
             formData.append(key, patientInfo[key]);
         });
-
-        try {
-            const result = await ApiAppointments.addPatient(formData);
-            if (result.status) {
-                return result.data;
-            } else {
-                throw Error(result.error);
-            }
-        } catch (error) {
-            console.log("error: ", error);
-            throw Error(error);
+        const result = await ApiAppointments.addPatient(formData);
+        if (result.status) {
+            return result.data;
+        } else {
+            throw Error(result.error);
         }
     }
 );

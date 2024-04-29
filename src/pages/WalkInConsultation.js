@@ -216,7 +216,7 @@ function WalkInConsultation() {
                                         }
                                     >
                                         View Patient Details{" "}
-                                        <i className="icon-right iconrotate90 ms-auto" />
+                                        <i className="icon-right iconrotate180 ms-auto" />
                                     </Button>
                                     {/* </Link> */}
                                 </div>
@@ -234,7 +234,7 @@ function WalkInConsultation() {
                                     }}
                                 >
                                     Start Consult{" "}
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                             </div>
                         </div>

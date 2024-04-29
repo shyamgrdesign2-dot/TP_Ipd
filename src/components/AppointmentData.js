@@ -753,7 +753,7 @@ function AppointmentData({ locationPath }) {
                                         className="dateoutline"
                                         disabled={date.startDate !== date.endDate}
                                         onClick={nextDatePress}>
-                                        <i className="icon-right text-main d-block iconrotate90"></i>
+                                        <i className="icon-right text-main d-block iconrotate180"></i>
                                     </Button>
                                 </ButtonGroup>
                                 <Select

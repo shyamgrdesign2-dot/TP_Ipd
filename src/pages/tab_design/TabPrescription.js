@@ -21,13 +21,20 @@ import TabFollowUpBox from "../../components/tab_design/TabFollowUpBox";
 
 import VitalsBox from "../../components/VitalsBox";
 import TabVitalsList from "../../components/tab_design/TabVitalsList";
+import MedicalHistoryBox from "../../components/MedicalHistoryBox";
+import TabMedicalHistoryList from "../../components/tab_design/TabMedicalHistoryList";
+
 import vitalsWhite from '../../assets/images/vitals-white.svg';
-// import medicalHistoryWhite from '../../assets/images/medical-history-white.svg';
+import vitalsDark from '../../assets/images/vitals-dark.svg';
+import medicalHistoryWhite from '../../assets/images/medical-history-white.svg';
+import medicalHistoryDark from '../../assets/images/medical-history-dark.svg';
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import vaccinationWhite from '../../assets/images/vaccination-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
 // import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
+
+
 
 function TabPrescription() {
 
@@ -46,14 +53,16 @@ function TabPrescription() {
     const [investigationData, setInvestigationData] = useState([]);
     const [medicationData, setMedicationData] = useState([]);
     const [vitalsData, setVitalsData] = useState([]);
+    const [medicalHistoryData, setMedicalHistoryData] = useState([]);
     const [followUpDate, setFollowUpDate] = useState(null);
     const [additionalNote, setAdditionalNote] = useState('');
 
-    const contextApi = { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote };
+    const contextApi = { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote };
 
     const [collapsed, setCollapsed] = useState(false);
-    const [collapsedFlag, setCollapsedFlag] = useState(1);
+    const [collapsedFlag, setCollapsedFlag] = useState(null);
     const [vitalDrawer, setVitalDrawer] = useState(false);
+    const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
 
     useEffect(() => {
         if (caseManagerData !== undefined) {
@@ -62,6 +71,9 @@ function TabPrescription() {
                     return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
                 });
                 setVitalsData(updatedData)
+            }
+            if (caseManagerData.medical_history.length > 0 && customizedPadLeftList.findIndex(e => e.tmdpm_id === 3 && e.tmdpm_status === 0) !== -1) {
+                setMedicalHistoryData(JSON.parse(JSON.stringify(caseManagerData.medical_history)))
             }
             if (caseManagerData.symptoms.length > 0 && customizedPadRightList.findIndex(e => e.tmdpm_id === 5 && e.tmdpm_status === 0) !== -1) {
                 setSymptomsData(caseManagerData.symptoms)
@@ -125,15 +137,31 @@ function TabPrescription() {
 
     // Drawer Vitals
     const handleDrawerVital = useCallback(() => {
+        setCollapsedFlag(1);
         setVitalDrawer(!vitalDrawer);
-    }, [vitalDrawer]);
+    }, [collapsedFlag, vitalDrawer]);
+
+    // Drawer Medical History
+    const handleDrawerMedicalHistory = useCallback(() => {
+        setCollapsedFlag(2);
+        setMedicalHistoryDrawer(!medicalHistoryDrawer);
+    }, [collapsedFlag, medicalHistoryDrawer]);
 
     //Handle Sider
+    const openCollapsed = useCallback((flag) => {
+        setCollapsedFlag(flag);
+        setCollapsed(true)
+    }, [collapsedFlag, collapsed]);
+
     const handleCollapsed = useCallback((flag) => {
         setCollapsedFlag(flag);
         !collapsed && setCollapsed(!collapsed)
-        setVitalDrawer(!vitalDrawer);
-    }, [collapsedFlag, collapsed, vitalDrawer]);
+        if (flag === 1) {
+            handleDrawerVital();
+        } else if (flag === 2) {
+            handleDrawerMedicalHistory();
+        }
+    }, [collapsedFlag, collapsed, vitalDrawer, medicalHistoryDrawer]);
 
     return (
         <CashManagerContext.Provider value={contextApi}>
@@ -144,50 +172,59 @@ function TabPrescription() {
                         <div className="prescription-sidebar">
                             {customizedPadLeftList?.map((e, i) => {
                                 return (
-                                    e.tmdpm_id === 1 && e.tmdpm_status === 0 && (
-                                        <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => !collapsed && vitalsData.length === 0 && vitalsPastList.length === 0 ? handleDrawerVital() : setCollapsed(!collapsed)}>
-                                            <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                                                <img src={vitalsWhite} alt="Vitals" />
+                                    e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
+                                        <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => vitalsData.length === 0 && vitalsPastList.length === 0 ? handleDrawerVital() : openCollapsed(1)}>
+                                            <div className={`prescription-tab-button rounded-10px ${collapsedFlag == 1 && 'active'}`}>
+                                                <img src={collapsedFlag == 1 ? vitalsDark : vitalsWhite} alt="Vitals" />
                                             </div>
                                             <label className="text-white mt-1">Vitals</label>
+                                        </button>
+                                    ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
+                                        <button key={i} type='button' className="mb-3 text-center btn btn-action" onClick={() => medicalHistoryData.length === 0 ? handleDrawerMedicalHistory() : openCollapsed(2)}>
+                                            <div className={`prescription-tab-button rounded-10px ${collapsedFlag == 2 && 'active'}`}>
+                                                <img src={collapsedFlag == 2 ? medicalHistoryDark : medicalHistoryWhite} alt="Medical History" />
+                                            </div>
+                                            <label className="text-white mt-1">History</label>
                                         </button>
                                     )
                                 )
                             })}
                             {/* <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={medicalHistoryWhite} alt="History" />
                                 </div>
                                 <label className="text-white mt-1">History</label>
                             </button>
                             <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={labParametersWhite} alt="Lab" />
                                 </div>
                                 <label className="text-white mt-1">Lab</label>
                             </button>
                             <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={vaccinationWhite} alt="Vaccine" />
                                 </div>
                                 <label className="text-white mt-1">Vaccine</label>
                             </button>
                             <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={notesWhite} alt="Notes" />
                                 </div>
                                 <label className="text-white mt-1">Notes</label>
                             </button>
                             <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={docsWhite} alt="Docs" />
                                 </div>
                                 <label className="text-white mt-1">Docs</label>
                             </button> */}
                         </div>
                         <Sider trigger={null} collapsible collapsed={collapsed} className={collapsed ? 'tabsider' : 'tabsider1'}>
-                            {collapsedFlag === 1 && (
-                                <TabVitalsList mode={caseManagerData !== undefined ? EDIT : ADD} handleDrawerVital={handleDrawerVital} handleCollapsed={() => setCollapsed(!collapsed)} />
+                            {collapsedFlag === 1 ? (
+                                <TabVitalsList handleDrawerVital={handleDrawerVital} handleCollapsed={() => setCollapsed(!collapsed)} />
+                            ) : collapsedFlag === 2 && (
+                                <TabMedicalHistoryList handleDrawerMedicalHistory={handleDrawerMedicalHistory} handleCollapsed={() => setCollapsed(!collapsed)} />
                             )}
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
@@ -209,6 +246,9 @@ function TabPrescription() {
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerVital} open={vitalDrawer} className="modalWidth-700" width="auto">
                     <VitalsBox handleDrawerVital={handleDrawerVital} handleCollapsed={(flag) => handleCollapsed(flag)} />
+                </Drawer >
+                <Drawer closeIcon={false} placement="right" onClose={handleDrawerMedicalHistory} open={medicalHistoryDrawer} width="100%">
+                    <MedicalHistoryBox handleDrawerMedicalHistory={handleDrawerMedicalHistory} handleCollapsed={(flag) => handleCollapsed(flag)} />
                 </Drawer >
             </>
         </CashManagerContext.Provider>
