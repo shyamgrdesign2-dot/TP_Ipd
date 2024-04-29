@@ -222,7 +222,7 @@ function TabPrescription() {
                         </div>
                         <Sider trigger={null} collapsible collapsed={collapsed} className={collapsed ? 'tabsider' : 'tabsider1'}>
                             {collapsedFlag === 1 ? (
-                                <TabVitalsList handleDrawerVital={handleDrawerVital} handleCollapsed={() => setCollapsed(!collapsed)} />
+                                <TabVitalsList mode={caseManagerData !== undefined ? EDIT : ADD} handleDrawerVital={handleDrawerVital} handleCollapsed={() => setCollapsed(!collapsed)} />
                             ) : collapsedFlag === 2 && (
                                 <TabMedicalHistoryList handleDrawerMedicalHistory={handleDrawerMedicalHistory} handleCollapsed={() => setCollapsed(!collapsed)} />
                             )}
