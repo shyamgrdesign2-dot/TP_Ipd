@@ -2040,7 +2040,7 @@ function PrintHtmlPage() {
                                       printSettings.page_format.font_size,
                                   }}
                                 >
-                                  TIME & FREQUENCY
+                                  FREQUENCY
                                 </th>
                                 <th
                                   className={`${printSettings.page_format.font_family}`}
