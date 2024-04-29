@@ -168,10 +168,9 @@ const columns = [
 const customRowClassName = (record, index) => {
   // Add condition here to determine whether to apply the custom style
   if (index % 2 === 0) {
-    // return "conditionCheck"; // Apply custom style to rows that meet the condition
-    return { borderBottom: "none" };
+    return "conditionCheck"; // Apply custom style to rows that meet the condition
   }
-  return {}; // No custom style applied
+  return ""; // No custom style applied
 };
 
 const Preview = ({ onCancel }) => {
@@ -208,7 +207,7 @@ const Preview = ({ onCancel }) => {
             columns={columns}
             pagination={false}
             className="custom-table"
-            style={customRowClassName}
+            customRowClassName={customRowClassName}
           />
         </div>
       </Modal>
