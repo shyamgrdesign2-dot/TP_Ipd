@@ -1,5 +1,9 @@
 * {
     scrollbar-width: auto;
+    &::selection {
+        background-color: $theme;
+        color: $white;
+    }
 }
 *::-webkit-scrollbar {
     width: 5px;
@@ -15,9 +19,6 @@
 body {
     font-family: 'Poppins' !important;
     color: $maincolor;
-    &::selection {
-        background-color: $themesecondary;
-    }
     a {
         text-decoration: none;
     }

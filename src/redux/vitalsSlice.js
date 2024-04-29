@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+import { ADD, EDIT } from "../utils/constants";
+
 import ApiVitals from "../api/services/ApiVitals";
 
 const initialState = {
@@ -56,7 +58,21 @@ const vitalsSlice = createSlice({
             })
             .addCase(getVitals.fulfilled, (state, action) => {
                 state.loading = false;
-                state.vitalsPastList = action.payload;
+
+                console.log(action.meta.arg)
+                if (action.meta.arg.mode === ADD && action.meta.arg.pam_id !== 0) {
+                    const updatedWithPamId = action.payload.filter((e) =>
+                        e.pam_id == action.meta.arg.pam_id
+                    );
+                    state.selectedVitalsList = [...updatedWithPamId];
+
+                    const updatedWithoutPamId = action.payload.filter((e) =>
+                        e.pam_id != action.meta.arg.pam_id
+                    );
+                    state.vitalsPastList = [...updatedWithoutPamId];
+                } else {
+                    state.vitalsPastList = action.payload
+                }
             })
             .addCase(getVitals.rejected, (state) => {
                 state.loading = false;

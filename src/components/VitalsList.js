@@ -3,6 +3,8 @@ import { Input } from 'antd';
 
 import { useSelector, useDispatch } from "react-redux";
 
+import { ADD, EDIT } from "../utils/constants";
+
 import CashManagerContext from '../context/CashManagerContext';
 
 import {
@@ -12,7 +14,9 @@ import moment from "moment";
 
 const showDateFormat = 'DD MMM, YY'
 
-function VitalsList() {
+function VitalsList(props) {
+
+    const { mode = ADD } = props
 
     const {
         selectedVitalsList,
@@ -21,22 +25,25 @@ function VitalsList() {
     } = useSelector((state) => state.vitals);
     const dispatch = useDispatch();
 
-    const { state, vitalsData, setVitalsData } = useContext(CashManagerContext);
+    const { patient_data, vitalsData, setVitalsData } = useContext(CashManagerContext);
 
     useEffect(() => {
         var sendData = {
-            patient_unique_id: state !== undefined ? state.patient_unique_id : 0,
-            pam_id: state !== undefined && state.pam_id !== undefined ? state.pam_id : 0,
+            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            pam_id: patient_data !== undefined && patient_data.pam_id !== undefined ? patient_data.pam_id : 0,
+            mode: mode
         }
         dispatch(getVitals(sendData));
     }, []);
 
-    // useEffect(() => {
-    //     const updatedData = selectedVitalsList.map((e, i) => {
-    //         return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
-    //     });
-    //     setVitalsData(updatedData);
-    // }, [selectedVitalsList]);
+    useEffect(() => {
+        if (mode === ADD) {
+            const updatedData = selectedVitalsList.map((e, i) => {
+                return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
+            });
+            setVitalsData(updatedData);
+        }
+    }, [selectedVitalsList]);
 
     const TODAY_VITALS = useMemo(() => {
         return (

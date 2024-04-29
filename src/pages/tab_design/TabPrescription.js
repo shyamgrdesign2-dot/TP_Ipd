@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector } from "react-redux";
 
+import { ADD, EDIT } from "../../utils/constants";
+
 import CashManagerContext from '../../context/CashManagerContext';
 import HeaderPrescription from "../../common/HeaderPrescription";
 import TabSymptomsBox from "../../components/tab_design/TabSymptomsBox";

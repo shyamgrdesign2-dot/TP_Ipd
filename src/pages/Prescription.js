@@ -8,6 +8,8 @@ import CashManagerContext from '../context/CashManagerContext';
 
 import { useSelector } from "react-redux";
 
+import { ADD, EDIT } from "../utils/constants";
+
 import vitals from "../assets/images/Vitals.svg";
 import MedicalHistory from "../assets/images/Medical-History.svg";
 import HeaderPrescription from "../common/HeaderPrescription";
@@ -154,7 +156,7 @@ function Prescription() {
                         </button>
                       </div>
                       {collapsedFlag === 1 && (
-                        <VitalsList />
+                        <VitalsList mode={caseManagerData !== undefined ? EDIT : ADD} />
                       )}
                     </div>
                   ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
