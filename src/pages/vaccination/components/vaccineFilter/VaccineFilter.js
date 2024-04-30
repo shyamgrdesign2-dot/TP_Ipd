@@ -131,7 +131,7 @@ const VaccineFilter = () => {
           ))}
       </div>
       {!scrollToStart ? (
-        <div className="imageStyle">
+        <div className="vaccineFilterStyle">
           <div className="blurOverlay" />
           <img
             className="clickable"

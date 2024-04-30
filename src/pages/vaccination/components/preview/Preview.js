@@ -1,13 +1,14 @@
 import React from "react";
-import { Modal, Table } from "antd";
+import { Modal } from "antd";
 import closeFill from "../../../../assets/images/closeFill.svg";
 import "./Preview.scss";
+import VaccineTable from "../vaccineTable/VaccineTable";
 
 const dataSource = [
   {
     key: "1",
     name: "John Doe",
-    age: 30,
+    age: "Birth",
     remarks: "New York",
     vaccine: "vaccine 1",
     brand: "brand 1",
@@ -17,7 +18,7 @@ const dataSource = [
   {
     key: "2",
     name: "Jane Smith",
-    age: 25,
+    age: "Birth",
     remarks: "Los Angeles",
     vaccine: "vaccine 1",
     brand: "brand 1",
@@ -27,7 +28,7 @@ const dataSource = [
   {
     key: "3",
     name: "Alice Johnson",
-    age: 35,
+    age: "Birth",
     remarks: "Chicago",
     vaccine: "vaccine 1",
     brand: "brand 1",
@@ -37,7 +38,7 @@ const dataSource = [
   {
     key: "4",
     name: "Bob Brown",
-    age: 40,
+    age: "6 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
     brand: "brand 1",
@@ -47,7 +48,7 @@ const dataSource = [
   {
     key: "5",
     name: "Bob Brown",
-    age: 40,
+    age: "6 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
     brand: "brand 1",
@@ -57,7 +58,7 @@ const dataSource = [
   {
     key: "6",
     name: "Bob Brown",
-    age: 40,
+    age: "6 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
     brand: "brand 1",
@@ -67,7 +68,7 @@ const dataSource = [
   {
     key: "7",
     name: "Bob Brown",
-    age: 40,
+    age: "6 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
     brand: "brand 1",
@@ -77,7 +78,7 @@ const dataSource = [
   {
     key: "8",
     name: "Bob Brown",
-    age: 40,
+    age: "8 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
     brand: "brand 1",
@@ -87,7 +88,7 @@ const dataSource = [
   {
     key: "9",
     name: "Bob Brown",
-    age: 40,
+    age: "8 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
     brand: "brand 1",
@@ -97,7 +98,7 @@ const dataSource = [
   {
     key: "10",
     name: "Bob Brown",
-    age: 40,
+    age: "8 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
     brand: "brand 1",
@@ -107,7 +108,7 @@ const dataSource = [
   {
     key: "11",
     name: "Bob Brown",
-    age: 40,
+    age: "10 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
     brand: "brand 1",
@@ -117,7 +118,7 @@ const dataSource = [
   {
     key: "12",
     name: "Bob Brown",
-    age: 40,
+    age: "12 Weeks",
     vaccine: "vaccine 1",
     brand: "brand 1",
     dueDate: "12 April 2024",
@@ -126,6 +127,7 @@ const dataSource = [
       "Houston HoustonHoustonHoustonHouston HoustonHouston HoustonHouston HoustonHouston HoustonHoustonHouston HoustonHouston",
   },
 ];
+
 const columns = [
   {
     title: "Age",
@@ -165,15 +167,7 @@ const columns = [
   },
 ];
 
-const customRowClassName = (record, index) => {
-  // Add condition here to determine whether to apply the custom style
-  if (index % 2 === 0) {
-    return "conditionCheck"; // Apply custom style to rows that meet the condition
-  }
-  return ""; // No custom style applied
-};
-
-const Preview = ({ onCancel }) => {
+const Preview = ({ onCancel, shouldShowPreview }) => {
   return (
     <div>
       <Modal
@@ -192,7 +186,7 @@ const Preview = ({ onCancel }) => {
           </div>
         }
         centered
-        visible={true} // Change 'open' to 'visible'
+        open={shouldShowPreview}
         closeIcon={false}
         width={1114}
         height={708}
@@ -201,14 +195,8 @@ const Preview = ({ onCancel }) => {
         show={true}
         onHide={onCancel}
       >
-        <div className="table-container tableStyle">
-          <Table
-            dataSource={dataSource}
-            columns={columns}
-            pagination={false}
-            className="custom-table"
-            customRowClassName={customRowClassName}
-          />
+        <div className="tableContainer">
+          <VaccineTable dataSource={dataSource} columns={columns} />
         </div>
       </Modal>
     </div>

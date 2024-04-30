@@ -159,7 +159,12 @@ function HeaderVaccine() {
             </div>
           </Col>
         </Row>
-        {shouldShowPreview ? <Preview onCancel={previewBtnHandler} /> : null}
+        {shouldShowPreview ? (
+          <Preview
+            onCancel={previewBtnHandler}
+            shouldShowPreview={shouldShowPreview}
+          />
+        ) : null}
       </Container>
     </Navbar>
   );
