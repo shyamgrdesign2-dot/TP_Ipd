@@ -59,7 +59,6 @@ const vitalsSlice = createSlice({
             .addCase(getVitals.fulfilled, (state, action) => {
                 state.loading = false;
 
-                console.log(action.meta.arg)
                 if (action.meta.arg.mode === ADD && action.meta.arg.pam_id !== 0) {
                     const updatedWithPamId = action.payload.filter((e) =>
                         e.pam_id == action.meta.arg.pam_id

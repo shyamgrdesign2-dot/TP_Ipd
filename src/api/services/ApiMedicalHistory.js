@@ -5,6 +5,10 @@ const baseUrl = { customBaseUrl: config.medicalhistory_api_url }
 
 const ApiMedicalHistory = {};
 
+ApiMedicalHistory.getPatientLastHistory = function (data) {
+  return api.post(`/api/v1/medicalhistory/getPatientLastHistory`, data, baseUrl);
+};
+
 ApiMedicalHistory.listSectionwithTag = function () {
   return api.get(`/api/v1/medicalhistory/listSectionwithTag`, baseUrl);
 };

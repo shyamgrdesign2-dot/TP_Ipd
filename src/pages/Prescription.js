@@ -4,17 +4,15 @@ import { Drawer, Button } from 'antd';
 import moment from 'moment';
 import { v4 as uuidv4 } from "uuid";
 
-import CashManagerContext from '../context/CashManagerContext';
-
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 import { ADD, EDIT } from "../utils/constants";
 
-import vitals from "../assets/images/Vitals.svg";
-import MedicalHistory from "../assets/images/Medical-History.svg";
-import HeaderPrescription from "../common/HeaderPrescription";
-import hey from "../assets/images/bg-hey.png";
+import { getVitals } from "../redux/vitalsSlice";
+import { getPatientLastHistory } from "../redux/medicalhistorySlice";
 
+import CashManagerContext from '../context/CashManagerContext';
+import HeaderPrescription from "../common/HeaderPrescription";
 import SymptomsBox from "../components/SymptomsBox";
 import ExaminationBox from "../components/ExaminationBox";
 import DiagnosisBox from "../components/DiagnosisBox";
@@ -25,14 +23,22 @@ import TabFollowUpBox from "../components/tab_design/TabFollowUpBox";
 
 import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
+
 import MedicalHistoryBox from "../components/MedicalHistoryBox";
 import MedicalHistoryList from "../components/tab_design/MedicalHistoryList";
+
+import vitals from "../assets/images/Vitals.svg";
+import MedicalHistory from "../assets/images/Medical-History.svg";
+
+import hey from "../assets/images/bg-hey.png";
 
 import { Content } from "antd/es/layout/layout";
 
 function Prescription() {
 
   const { customizedPadLeftList, customizedPadRightList, frequencyList, timingList } = useSelector((state) => state.doctors);
+  const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
+  const dispatch = useDispatch();
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state
@@ -132,6 +138,35 @@ function Prescription() {
       handleDrawerMedicalHistory();
     }
   }, [collapsedFlag, vitalDrawer, medicalHistoryDrawer]);
+
+  useEffect(() => {
+    const patientLastHistory = async () => {
+      const V_action = await dispatch(getVitals({
+        patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+        pam_id: patient_data !== undefined && patient_data.pam_id !== undefined ? patient_data.pam_id : 0,
+        mode: caseManagerData !== undefined ? EDIT : ADD
+      }));
+
+      if (caseManagerData === undefined) {
+        const MH_action = await dispatch(getPatientLastHistory({
+          patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0
+        }));
+        if (MH_action.meta.requestStatus === "fulfilled") {
+          setMedicalHistoryData(JSON.parse(JSON.stringify(MH_action.payload)))
+        }
+      }
+    }
+    patientLastHistory()
+  }, []);
+
+  useEffect(() => {
+    if (caseManagerData === undefined) {
+      const updatedData = selectedVitalsList.map((e, i) => {
+        return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
+      });
+      setVitalsData(updatedData);
+    }
+  }, [selectedVitalsList]);
 
   return (
     <CashManagerContext.Provider value={contextApi}>
