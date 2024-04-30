@@ -272,7 +272,7 @@ function MedicalHistoryBox(props) {
             if (action.payload.tags.length > 0) {
                 const updatedData = action.payload?.tags?.map((e, i) => {
                     const data = sendData?.tags?.find(e1 => e1.unique_id == e.unique_id)
-                    return { ...e, ...data };
+                    return { ...data, ...e };
                 });
                 const index = cloneMedicalHistoryData?.findIndex(e => e.tmmhs_id == sendData.tmmhs_id)
                 setCloneMedicalHistoryData((prev) => {
