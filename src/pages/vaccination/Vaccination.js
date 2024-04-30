@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./Vaccination.scss";
 
 import { Checkbox, Drawer } from "antd";
-import HeaderVaccine from "./components/HeaderVaccine";
+import VaccineHeader from "./components/vaccineHeader/VaccineHeader";
 import VaccineCard from "./components/vaccineCard/VaccineCard";
 import VaccineFilter from "./components/vaccineFilter/VaccineFilter";
 import SelectionPopup from "./components/selectionPopup/SelectionPopup";
@@ -199,7 +199,7 @@ function Vaccination() {
 
   return (
     <div className="vaccinationWrapper">
-      <HeaderVaccine />
+      <VaccineHeader />
       <div
         id="wrap"
         onScroll={handleScroll}

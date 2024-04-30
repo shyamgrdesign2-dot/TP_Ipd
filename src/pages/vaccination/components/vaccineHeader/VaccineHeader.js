@@ -3,13 +3,14 @@ import { Container, Navbar, Row, Col } from "react-bootstrap";
 import { Button, Dropdown, Menu } from "antd";
 import { useNavigate } from "react-router-dom";
 
-import CashManagerContext from "../../../context/CashManagerContext";
-import ProfilePopover from "../../../common/ProfilePopover";
-import CommonModal from "../../../common/CommonModal";
-import alertIcon from "../../../assets/images/alertIcon.svg";
-import Preview from "./preview/Preview";
+import CashManagerContext from "../../../../context/CashManagerContext";
+import ProfilePopover from "../../../../common/ProfilePopover";
+import CommonModal from "../../../../common/CommonModal";
+import alertIcon from "../../../../assets/images/alertIcon.svg";
+import Preview from "./../preview/Preview";
+import "./VaccineHeader.scss";
 
-function HeaderVaccine() {
+function VaccineHeader() {
   const navigate = useNavigate();
   const { patient_data } = useContext(CashManagerContext);
 
@@ -34,11 +35,6 @@ function HeaderVaccine() {
     console.log("saveBtnHandler");
   };
 
-  const printBtnHandler = (e) => {
-    e.preventDefault();
-    console.log("printBtnHandler");
-  };
-
   function handleMenuClick(e) {
     window.alert("selected print!");
   }
@@ -51,8 +47,7 @@ function HeaderVaccine() {
     <Menu>
       <Menu.Item
         key="1"
-        className="btn btn-41 btn-input border-0 border-transparent"
-        style={{ border: "none", borderBottom: "2px solid transparent" }}
+        className="btn btn-41 btn-input printMenu"
         onClick={handleMenuClick}
       >
         All
@@ -60,6 +55,7 @@ function HeaderVaccine() {
       <Menu.Item
         key="2"
         className="btn-41 btn btn-input"
+        style={{ border: "0 !important" }}
         onClick={handleMenuClick}
       >
         Given
@@ -130,23 +126,14 @@ function HeaderVaccine() {
                 Preview
               </Button>
               <Dropdown overlay={menu}>
-                <Button
-                  type="button"
-                  className="btn-41 btn px-4 me-4 ant-btn-text btn-input"
-                  onClick={printBtnHandler}
-                  style={{
-                    display: "flex",
-                    columnGap: "5px",
-                    alignItems: "center",
-                  }}
-                >
+                <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
                   <i className="icon-Print" />
-                  Print
+                  <span className="btn-input">Print</span>
                   <i
                     className="icon-right"
                     style={{ display: "block", transform: `rotate(270deg)` }}
                   />
-                </Button>
+                </div>
               </Dropdown>
               <Button
                 type="button"
@@ -170,4 +157,4 @@ function HeaderVaccine() {
   );
 }
 
-export default React.memo(HeaderVaccine);
+export default React.memo(VaccineHeader);
