@@ -5,9 +5,12 @@ import { Content } from "antd/es/layout/layout";
 import moment from 'moment';
 import { v4 as uuidv4 } from "uuid";
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 import { ADD, EDIT } from "../../utils/constants";
+
+import { getVitals } from "../../redux/vitalsSlice";
+import { getPatientLastHistory } from "../../redux/medicalhistorySlice";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import HeaderPrescription from "../../common/HeaderPrescription";
@@ -34,12 +37,11 @@ import medicalHistoryDark from '../../assets/images/medical-history-dark.svg';
 // import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
 
-
-
 function TabPrescription() {
 
     const { customizedPadLeftList, customizedPadRightList, frequencyList, timingList } = useSelector((state) => state.doctors);
-    const { vitalsPastList } = useSelector((state) => state.vitals);
+    const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
+    const dispatch = useDispatch();
 
     const { state } = useLocation();
     const { patient_data, caseManagerData } = state
@@ -163,6 +165,36 @@ function TabPrescription() {
         }
     }, [collapsedFlag, collapsed, vitalDrawer, medicalHistoryDrawer]);
 
+
+    useEffect(() => {
+        const patientLastHistory = async () => {
+            const V_action = await dispatch(getVitals({
+                patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+                pam_id: patient_data !== undefined && patient_data.pam_id !== undefined ? patient_data.pam_id : 0,
+                mode: caseManagerData !== undefined ? EDIT : ADD
+            }));
+
+            if (caseManagerData === undefined) {
+                const MH_action = await dispatch(getPatientLastHistory({
+                    patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0
+                }));
+                if (MH_action.meta.requestStatus === "fulfilled") {
+                    setMedicalHistoryData(JSON.parse(JSON.stringify(MH_action.payload)))
+                }
+            }
+        }
+        patientLastHistory()
+    }, []);
+
+    useEffect(() => {
+        if (caseManagerData === undefined) {
+            const updatedData = selectedVitalsList.map((e, i) => {
+                return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
+            });
+            setVitalsData(updatedData);
+        }
+    }, [selectedVitalsList]);
+
     return (
         <CashManagerContext.Provider value={contextApi}>
             <>
@@ -224,7 +256,7 @@ function TabPrescription() {
                             {collapsedFlag === 1 ? (
                                 <TabVitalsList mode={caseManagerData !== undefined ? EDIT : ADD} handleDrawerVital={handleDrawerVital} handleCollapsed={() => setCollapsed(!collapsed)} />
                             ) : collapsedFlag === 2 && (
-                                <TabMedicalHistoryList handleDrawerMedicalHistory={handleDrawerMedicalHistory} handleCollapsed={() => setCollapsed(!collapsed)} />
+                                <TabMedicalHistoryList mode={caseManagerData !== undefined ? EDIT : ADD} handleDrawerMedicalHistory={handleDrawerMedicalHistory} handleCollapsed={() => setCollapsed(!collapsed)} />
                             )}
                         </Sider>
                         <div className="p-20 w-100 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>

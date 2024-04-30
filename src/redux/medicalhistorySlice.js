@@ -9,6 +9,19 @@ const initialState = {
   error: null,
 };
 
+export const getPatientLastHistory = createAsyncThunk(
+  "medicalHistory/getPatientLastHistory",
+  async (data) => {
+    let result = {};
+    result = await ApiMedicalHistory.getPatientLastHistory(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 export const listSectionwithTag = createAsyncThunk(
   "medicalHistory/listSectionwithTag",
   async () => {
