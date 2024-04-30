@@ -1,7 +1,7 @@
 import React from "react";
 import "./VaccineTable.scss";
 
-const TableComponent = ({ dataSource, columns }) => {
+const VaccineTable = ({ dataSource, columns, isPreview }) => {
   const groupDataByCommonIDs = (data) => {
     const groupedData = [];
     const idSet = new Set();
@@ -43,18 +43,29 @@ const TableComponent = ({ dataSource, columns }) => {
         {group.map((item, itemIndex) => (
           <tr key={itemIndex}>
             {itemIndex === 0 && (
-              <td
-                className="cell"
-                style={{ verticalAlign: "middle" }}
-                rowSpan={group.length}
-              >
+              <td className="cell" rowSpan={group.length}>
                 {item.age}
               </td>
             )}
             <td className="cell">{item.name}</td>
             <td className="cell">{item.brand}</td>
-            <td className="cell">{item.dueDate}</td>
-            <td className="cell">{item.givenDate}</td>
+            <td className="cell">
+              <div className="dateCell">
+                {item.dueDate}
+                {item.isOverDue && isPreview ? (
+                  <span className="overDue">Over Due</span>
+                ) : null}
+              </div>
+            </td>
+
+            <td className="cell">
+              <div className="dateCell">
+                {item.givenDate}
+                {item.givenDate && isPreview ? (
+                  <span className="given">Given</span>
+                ) : null}
+              </div>
+            </td>
             <td className="cell">{item.remarks}</td>
           </tr>
         ))}
@@ -72,4 +83,4 @@ const TableComponent = ({ dataSource, columns }) => {
   );
 };
 
-export default TableComponent;
+export default VaccineTable;

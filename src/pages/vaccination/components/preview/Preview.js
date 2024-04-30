@@ -12,8 +12,9 @@ const dataSource = [
     remarks: "New York",
     vaccine: "vaccine 1",
     brand: "brand 1",
-    dueDate: "12 April 2024",
-    givenDate: "12 April 2024",
+    dueDate: "12 APR 2024",
+    givenDate: "12 APR 2024",
+    isOverDue: false,
   },
   {
     key: "2",
@@ -22,8 +23,9 @@ const dataSource = [
     remarks: "Los Angeles",
     vaccine: "vaccine 1",
     brand: "brand 1",
-    dueDate: "12 April 2024",
-    givenDate: "12 April 2024",
+    dueDate: "12 APR 2024",
+    givenDate: "12 APR 2024",
+    isOverDue: false,
   },
   {
     key: "3",
@@ -32,8 +34,9 @@ const dataSource = [
     remarks: "Chicago",
     vaccine: "vaccine 1",
     brand: "brand 1",
-    dueDate: "12 April 2024",
-    givenDate: "12 April 2024",
+    dueDate: "12 APR 2024",
+    givenDate: "12 APR 2024",
+    isOverDue: true,
   },
   {
     key: "4",
@@ -41,9 +44,10 @@ const dataSource = [
     age: "6 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
-    brand: "brand 1",
-    dueDate: "12 April 2024",
-    givenDate: "12 April 2024",
+    brand: "",
+    dueDate: "12 APR 2024",
+    givenDate: "",
+    isOverDue: true,
   },
   {
     key: "5",
@@ -51,9 +55,10 @@ const dataSource = [
     age: "6 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
-    brand: "brand 1",
-    dueDate: "12 April 2024",
-    givenDate: "12 April 2024",
+    brand: "",
+    dueDate: "12 APR 2024",
+    givenDate: "",
+    isOverDue: false,
   },
   {
     key: "6",
@@ -61,9 +66,10 @@ const dataSource = [
     age: "6 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
-    brand: "brand 1",
-    dueDate: "12 April 2024",
-    givenDate: "12 April 2024",
+    brand: "",
+    dueDate: "12 APR 2024",
+    givenDate: "",
+    isOverDue: false,
   },
   {
     key: "7",
@@ -71,9 +77,10 @@ const dataSource = [
     age: "6 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
-    brand: "brand 1",
-    dueDate: "12 April 2024",
-    givenDate: "12 April 2024",
+    brand: "",
+    dueDate: "12 APR 2024",
+    givenDate: "",
+    isOverDue: false,
   },
   {
     key: "8",
@@ -81,9 +88,10 @@ const dataSource = [
     age: "8 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
-    brand: "brand 1",
-    dueDate: "12 April 2024",
-    givenDate: "12 April 2024",
+    brand: "",
+    dueDate: "12 APR 2024",
+    givenDate: "",
+    isOverDue: false,
   },
   {
     key: "9",
@@ -91,9 +99,10 @@ const dataSource = [
     age: "8 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
-    brand: "brand 1",
-    dueDate: "12 April 2024",
-    givenDate: "12 April 2024",
+    brand: "",
+    dueDate: "12 APR 2024",
+    givenDate: "",
+    isOverDue: false,
   },
   {
     key: "10",
@@ -101,9 +110,10 @@ const dataSource = [
     age: "8 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
-    brand: "brand 1",
-    dueDate: "12 April 2024",
-    givenDate: "12 April 2024",
+    brand: "",
+    dueDate: "12 APR 2024",
+    givenDate: "",
+    isOverDue: false,
   },
   {
     key: "11",
@@ -111,20 +121,23 @@ const dataSource = [
     age: "10 Weeks",
     remarks: "Houston",
     vaccine: "vaccine 1",
-    brand: "brand 1",
-    dueDate: "12 April 2024",
-    givenDate: "12 April 2024",
+    brand: "",
+    dueDate: "12 APR 2024",
+    givenDate: "",
+    isOverDue: false,
   },
   {
     key: "12",
     name: "Bob Brown",
     age: "12 Weeks",
     vaccine: "vaccine 1",
-    brand: "brand 1",
-    dueDate: "12 April 2024",
-    givenDate: "12 April 2024",
+    brand: "",
+    dueDate: "12 APR 2024",
+    givenDate: "",
     remarks:
       "Houston HoustonHoustonHoustonHouston HoustonHouston HoustonHouston HoustonHouston HoustonHoustonHouston HoustonHouston",
+
+    isOverDue: false,
   },
 ];
 
@@ -196,7 +209,11 @@ const Preview = ({ onCancel, shouldShowPreview }) => {
         onHide={onCancel}
       >
         <div className="tableContainer">
-          <VaccineTable dataSource={dataSource} columns={columns} />
+          <VaccineTable
+            dataSource={dataSource}
+            columns={columns}
+            isPreview={true}
+          />
         </div>
       </Modal>
     </div>

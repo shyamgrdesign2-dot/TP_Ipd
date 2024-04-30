@@ -13,6 +13,25 @@
   line-height: 18px;
   background-color: #fff;
   padding: 6px 20px !important;
+
+  .dateCell {
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
+
+    span {
+      border-radius: 4px;
+      padding: 2px 4px;
+      line-height: 18px;
+    }
+  }
+
+  .overDue {
+    background-color: #fcdada;
+  }
+  .given {
+    background-color: #d1f1e4;
+  }
 }
 .headerCellStyle {
   font-size: 14px;
