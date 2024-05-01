@@ -39,7 +39,7 @@ function HeaderPrescription() {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
-    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
+    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
@@ -836,6 +836,7 @@ function HeaderPrescription() {
                 vitals: vitalsData,
                 follow_up_date: followUpDate,
                 visit_advice: additionalNote,
+                medical_history: medicalHistoryData
             }
 
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
@@ -853,7 +854,7 @@ function HeaderPrescription() {
     }
 
     const checkDataFillOrNot = () => {
-        if (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || medicationData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || vitalsData.length > 0) {
+        if (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || medicationData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0) {
             showHideBackModal()
         } else {
             navigate('/', { replace: true });
@@ -988,8 +989,8 @@ function HeaderPrescription() {
                                 </div>
                             </Tooltip> */}
 
-                            <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || followUpDate || additionalNote) ? "" : "Please fill your prescription to end visit."}>
-                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || followUpDate || additionalNote) && onEndVisitClick()} loading={loading}>
+                            <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote) ? "" : "Please fill your prescription to end visit."}>
+                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote) && onEndVisitClick()} loading={loading}>
                                     <i className='icon-exit me-2'></i>
                                     End Visit
                                 </Button>

@@ -37,6 +37,10 @@ import {
     endVisit
 } from "../redux/appointmentsSlice";
 
+import {
+    changeSortOrder
+} from "../redux/doctorsSlice";
+
 import docimg from "../assets/images/docimg.png";
 import welcomdoc from "../assets/images/welcom-doc.svg";
 import suporticon from "../assets/images/suport-icon.svg";
@@ -51,7 +55,7 @@ function AppointmentData({ locationPath }) {
 
     const navigate = useNavigate();
 
-    const { profile } = useSelector((state) => state.doctors);
+    const { sort_order, profile } = useSelector((state) => state.doctors);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const from = searchParams.get("from");
@@ -406,8 +410,10 @@ function AppointmentData({ locationPath }) {
             dataIndex: "time",
             key: "time",
             ellipsis: true,
-            sorter: (a, b) => {
-
+            sortDirections: ['descend', 'ascend', 'descend'],
+            sortOrder: sort_order,
+            sorter: (a, b, sortOrder) => {
+                dispatch(changeSortOrder(sortOrder))
                 const lhsDateTime = `${a.apDate} ${a.apTime}`;
                 const lhsLongTime = moment(lhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
 
@@ -753,7 +759,7 @@ function AppointmentData({ locationPath }) {
                                         className="dateoutline"
                                         disabled={date.startDate !== date.endDate}
                                         onClick={nextDatePress}>
-                                        <i className="icon-right text-main d-block iconrotate90"></i>
+                                        <i className="icon-right text-main d-block iconrotate180"></i>
                                     </Button>
                                 </ButtonGroup>
                                 <Select
@@ -856,7 +862,7 @@ function AppointmentData({ locationPath }) {
                             <div className='d-flex'>
                                 <div style={{ flex: 1, marginRight: 35 }}>
                                     <div>
-                                        <h2 className="fw-medium mb-2" style={{fontSize: 16}}>Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')},</h2>
+                                        <h2 className="fw-medium mb-2" style={{ fontSize: 16 }}>Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')},</h2>
                                         <h3 className="fw-semibold mb-5" style={{ fontSize: 48 }}>Welcome to TatvaPractice</h3>
                                     </div>
                                     <div style={{ background: '#fef4f5', padding: 15, borderRadius: 10 }}>

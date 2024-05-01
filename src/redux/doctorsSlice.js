@@ -5,6 +5,7 @@ import ApiMedication from "../api/services/ApiMedication";
 import ApiPrintSettings from "../api/services/ApiPrintSettings";
 
 const initialState = {
+  sort_order: 'descend',
   profile: null,
   loading: false,
   error: null,
@@ -176,6 +177,9 @@ const doctorsSlice = createSlice({
   reducers: {
     changeLogoStatus: (state) => {
       state.profile = { ...state.profile, NavigatetoTatvaPedia: 1 }
+    },
+    changeSortOrder: (state, action) => {
+      state.sort_order = action.payload
     }
   },
   extraReducers: (builder) => {
@@ -266,5 +270,5 @@ const doctorsSlice = createSlice({
   },
 });
 
-export const { changeLogoStatus } = doctorsSlice.actions
+export const { changeLogoStatus, changeSortOrder } = doctorsSlice.actions
 export default doctorsSlice.reducer;
