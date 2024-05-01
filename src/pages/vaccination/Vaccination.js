@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./Vaccination.scss";
-
 import { Checkbox, Drawer } from "antd";
 import VaccineHeader from "./components/vaccineHeader/VaccineHeader";
 import VaccineCard from "./components/vaccineCard/VaccineCard";
@@ -8,6 +7,9 @@ import VaccineFilter from "./components/vaccineFilter/VaccineFilter";
 import SelectionPopup from "./components/selectionPopup/SelectionPopup";
 import closeFill from "../../assets/images/closeFill.svg";
 import { Row, Col } from "react-bootstrap";
+import UpdateVaccine from "./components/updateVaccine/UpdateVaccine";
+import VaccinationChart from "./components/vaccinationChart/vaccinationChart";
+import { useReactToPrint } from "react-to-print";
 
 const vaccinesData = [
   {
@@ -132,6 +134,8 @@ function Vaccination() {
   const [selectAll, setSelectAll] = useState(false);
   const [selectedCards, setSelectedCards] = useState([]);
   const [warningMsg, setWarningMsg] = useState("");
+  const [showUpdate, setShowUpdate] = useState(false);
+  const printableRef = useRef(null);
 
   const handleSelectAll = (event) => {
     const checked = event?.target?.checked;
@@ -197,9 +201,13 @@ function Vaccination() {
     }
   };
 
+  const handlePrint = useReactToPrint({
+    content: () => printableRef.current,
+  });
+
   return (
     <div className="vaccinationWrapper">
-      <VaccineHeader />
+      <VaccineHeader handlePrint={handlePrint} />
       <div
         id="wrap"
         onScroll={handleScroll}
@@ -274,8 +282,15 @@ function Vaccination() {
           onClose={handleSelectAll}
           selectedValue={selectedCards.length}
           setSelectedCards={setSelectedCards}
+          setShowUpdate={setShowUpdate}
         />
       ) : null}
+      <UpdateVaccine show={showUpdate} setShow={setShowUpdate} />
+      <div style={{ display: "none" }}>
+        <div ref={printableRef}>
+          <VaccinationChart vaccineData={[]} />
+        </div>
+      </div>
     </div>
   );
 }

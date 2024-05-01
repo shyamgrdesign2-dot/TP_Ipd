@@ -7,6 +7,7 @@ const SelectionPopup = ({
   onClose,
   selectedValue,
   setSelectedCards,
+  setShowUpdate,
 }) => {
   const handleClear = () => {
     setSelectedCards([]);
@@ -14,6 +15,7 @@ const SelectionPopup = ({
   };
 
   const handleUpdate = () => {
+    setShowUpdate(true);
     onClose();
   };
 

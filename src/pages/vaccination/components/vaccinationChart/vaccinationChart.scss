@@ -1,0 +1,67 @@
+  @media print {
+
+    .print-template {
+        /* Add styles for the print version */
+        /* For example: */
+        page-break-after: always; /* Ensure each print page starts a new page */
+        font-size: 12px; /* Adjust font size for printing */
+        /* Add any other styles you want for printing */
+        margin: 30px;
+      }
+  
+    .details {
+      /* Styles for the repeated content */
+      /* For example, you can ensure it appears on every printed page */
+      position: fixed;
+      top: 0;
+      left: 300;
+      right: 300;
+      padding: 10px; /* Add padding to create space */
+      background-color: white; /* Optional: add a background color */
+      z-index: 999; /* Ensure it appears above other content */
+
+      width:  555px;
+    height: 56px;
+    padding: 10px 16px 10px 16px;
+    gap: 10px;
+    border-radius: 6px;
+    border: 2px solid #EAECF0;
+    display: flex;
+    font-size: 12px;
+    margin: 20px;
+    }
+  
+    .vaccine-table-wrapper {
+        margin: 60px; /* Adjust margin-top to create space below the fixed section */
+      }
+    
+      .vaccine-table-wrapper table {
+        width: 100%; /* Ensure the table takes full width */
+        // border-collapse: collapse;
+        margin: 60px;
+
+      }
+
+    //   @page {
+    //     margin-top: 100px; /* Adjust margin-top for second and subsequent pages */
+    //   }
+    
+    //   @page :first {
+    //     margin-top: 0; /* Reset margin-top for the first page */
+    //   }
+
+      .header {
+        position: fixed;
+        top: 0;
+        left: 200;
+        right: 200;
+        background-color: #ffffff; /* Add background color for visibility */
+        padding: 10px;
+        z-index: 9999; /* Ensure it appears above other content */
+        margin-bottom: 30;
+        font-weight: 600;
+      }
+  }
+  
+  
+

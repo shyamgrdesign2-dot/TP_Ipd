@@ -10,7 +10,7 @@ import alertIcon from "../../../../assets/images/alertIcon.svg";
 import Preview from "./../preview/Preview";
 import "./VaccineHeader.scss";
 
-function VaccineHeader() {
+function VaccineHeader({ handlePrint }) {
   const navigate = useNavigate();
   const { patient_data } = useContext(CashManagerContext);
 
@@ -36,7 +36,8 @@ function VaccineHeader() {
   };
 
   function handleMenuClick(e) {
-    window.alert("selected print!");
+    // window.alert("selected print!");
+    handlePrint();
   }
 
   function previewBtnHandler() {
