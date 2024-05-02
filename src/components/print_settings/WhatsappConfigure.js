@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import { Col, Radio, Row, Form, Switch, Button, Input, message, Spin } from "antd";
+import { Col, Radio, Row, Form, Switch, Button, Input, Spin } from "antd";
 import Cropper from "react-cropper";
 import { Navbar } from 'react-bootstrap';
 import { isMobile } from "react-device-detect";
@@ -8,8 +8,8 @@ import Quixote from "../../pages/Quixote";
 import PrintSettingsContext from '../../context/PrintSettingsContext';
 
 import CommonModal from '../../common/CommonModal';
-import { MESSAGE_KEY, WHATSAPP } from "../../utils/constants";
-import { dataUrlToFileUsingFetch } from "../../utils/utils";
+import { WHATSAPP } from "../../utils/constants";
+import { errorMessage, dataUrlToFileUsingFetch } from "../../utils/utils";
 
 import wtsp from '../../assets/images/wtsp.svg';
 
@@ -178,12 +178,7 @@ function WhatsappConfigure(props) {
             if (fileUrl.size <= 2000000 && (fileUrl.type == 'image/png' || fileUrl.type == 'image/jpeg' || fileUrl.type == 'image/jpg')) {
                 setFileLogoCopy({ imageShow: true, showFile: URL.createObjectURL(fileUrl), uploadFile: fileUrl })
             } else {
-                message.open({
-                    key: MESSAGE_KEY,
-                    type: 'warning',
-                    content: 'Please upload only jpg, jpeg or png files with the max size 2mb.',
-                    duration: 2
-                });
+                errorMessage('Please upload only jpg, jpeg or png files with the max size 2mb.')
             }
         }
     }
@@ -205,12 +200,7 @@ function WhatsappConfigure(props) {
                 };
                 reader.readAsDataURL(fileUrl);
             } else {
-                message.open({
-                    key: MESSAGE_KEY,
-                    type: 'warning',
-                    content: 'Please upload only jpg, jpeg or png files with the max size 2mb.',
-                    duration: 2
-                });
+                errorMessage('Please upload only jpg, jpeg or png files with the max size 2mb.')
             }
         }
     }
@@ -254,12 +244,7 @@ function WhatsappConfigure(props) {
                 };
                 reader.readAsDataURL(fileUrl);
             } else {
-                message.open({
-                    key: MESSAGE_KEY,
-                    type: 'warning',
-                    content: 'Please upload only jpg, jpeg or png files with the max size 2mb.',
-                    duration: 2
-                });
+                errorMessage('Please upload only jpg, jpeg or png files with the max size 2mb.')
             }
         }
     }
@@ -289,19 +274,9 @@ function WhatsappConfigure(props) {
 
     const onWhatsappSaveSettingsClick = () => {
         if (printSettingsCopy?.whatsapp_letterhead_format == 0 && printSettingsCopy?.header_footer?.header?.doctor_info?.enable == 'N' && printSettingsCopy?.header_footer?.header?.clinic_info?.enable == 'N' && printSettingsCopy?.logo_enable == 'N') {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: `Enable at least one option (Doctor's information, Clinic's information, Logo on Header)`,
-                duration: 2
-            });
+            errorMessage(`Enable at least one option (Doctor's information, Clinic's information, Logo on Header)`)
         } else if (printSettingsCopy?.whatsapp_letterhead_format == 1 && !fileHeader) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: `Upload header`,
-                duration: 2
-            });
+            errorMessage(`Upload header`)
         } else {
             setPrintSettings(JSON.parse(JSON.stringify(printSettingsCopy)))
             setFileHeader(fileHeaderCopy)

@@ -19,6 +19,8 @@ import {
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 
+import { errorMessage } from "../utils/utils";
+
 import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../utils/constants";
 import noData from "../assets/images/nodata-found.svg";
 import visitEnd from '../assets/images/end-visit.svg';
@@ -227,12 +229,7 @@ function AppointmentData({ locationPath }) {
                         endDate: moment(date.endDate).add(1, 'day').format(dateFormat),
                     })
                 } else {
-                    message.open({
-                        key: MESSAGE_KEY,
-                        type: 'warning',
-                        content: `Can't select next date`,
-                        duration: 5,
-                    });
+                    errorMessage(`Can't select next date`)
                 }
             } else {
                 setPageNo(0)

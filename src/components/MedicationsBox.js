@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, message, Tooltip } from "antd";
+import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
@@ -7,8 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence } from "../utils/utils";
+import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
@@ -29,7 +28,6 @@ import {
 const { TextArea } = Input;
 
 function MedicationsBox() {
-  const [messageApi, contextHolder] = message.useMessage();
   const { frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     selectedMedicationList,
@@ -184,12 +182,7 @@ function MedicationsBox() {
         setSearchParentQuery("");
         setAddCustom(null);
       } else {
-        messageApi.open({
-          key: MESSAGE_KEY,
-          type: "warning",
-          content: action.error.message,
-          duration: 2,
-        });
+        errorMessage(action.error)
       }
     }
   };
@@ -488,12 +481,7 @@ function MedicationsBox() {
       });
       setMedicationData([...medicationData, ...updatedData]);
     } else {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: action.error.message,
-        duration: 2,
-      });
+      errorMessage(action.error)
     }
   };
 
@@ -522,24 +510,14 @@ function MedicationsBox() {
       setMedicationData([...medicationData, ...updatedData]);
       showHideTemplatesListPopover();
     } else {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: action.error.message,
-        duration: 2,
-      });
+      errorMessage(action.error)
     }
   };
 
   const onDeleteTemplateClicked = async (tmtd_id) => {
     const action = await dispatch(deleteTemplate(tmtd_id));
     if (action.meta.requestStatus === "rejected") {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   };
 
@@ -567,19 +545,9 @@ function MedicationsBox() {
 
   const onAddTemplateClicked = async () => {
     if (medicationData.length == 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 medication added',
-        duration: 2
-      });
+      errorMessage('At least 1 medication added')
     } else if (medicationData.filter((e) => e.tmm_medicine_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup medication name',
-        duration: 2
-      });
+      errorMessage('Please fillup medication name')
     } else {
       var sendData = {
         tmtd_template_name: inputTemplateName,
@@ -606,19 +574,9 @@ function MedicationsBox() {
 
   const onUpdateTemplateClicked = async () => {
     if (medicationData.length == 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 medication added',
-        duration: 2
-      });
+      errorMessage('At least 1 medication added')
     } else if (medicationData.filter(e => e.tmm_medicine_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup medication name',
-        duration: 2
-      });
+      errorMessage('Please fillup medication name')
     } else {
       var data = JSON.parse(inputTemplateName);
       var sendData = {
@@ -1111,12 +1069,7 @@ function MedicationsBox() {
       showHideAddMedicineModal()
       setAddCustom(null);
     } else {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: action.error.message,
-        duration: 2,
-      });
+      errorMessage(action.error)
     }
   }
 
@@ -1225,7 +1178,6 @@ function MedicationsBox() {
 
   return (
     <>
-      {contextHolder}
       <div>
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">

@@ -1,11 +1,10 @@
 import React, { useContext } from 'react';
 import { Navbar } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { Button, message } from 'antd';
+import { Button } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 
-import { MESSAGE_KEY } from "../utils/constants";
-import { makeDefaultLogo } from "../utils/utils";
+import { errorMessage, makeDefaultLogo } from "../utils/utils";
 import {
     sendCashsheetWhatsapp,
 } from "../redux/caseManagerSlice";
@@ -27,12 +26,7 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id }) {
         if (action.meta.requestStatus === "fulfilled") {
             navigate('/', { replace: true })
         } else {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
 
     };

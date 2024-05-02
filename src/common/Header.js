@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { Select, Button, Checkbox, message, Popover } from "antd";
+import { Select, Button, Checkbox, Popover } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 import { isChrome, isSafari } from "react-device-detect";
@@ -13,8 +13,7 @@ import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
-import { makeDefaultLogo } from "../utils/utils";
-import { MESSAGE_KEY } from "../utils/constants";
+import { errorMessage, makeDefaultLogo } from "../utils/utils";
 import CommonModal from './CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 
@@ -195,12 +194,7 @@ function Header({ locationPath }) {
         });
       }
     } else {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   }
 
@@ -286,12 +280,7 @@ function Header({ locationPath }) {
       await dispatch(changeLogoStatus())
       showHideNavigateToTatvaPedia()
     } else {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   }
 
