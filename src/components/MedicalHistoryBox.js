@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Button, Card, Row, Col, Form, Radio, AutoComplete, Checkbox, Input, message, Spin, Popover } from 'antd';
+import { Button, Card, Row, Col, Form, Radio, AutoComplete, Checkbox, Input, Spin, Popover } from 'antd';
 
 import { isMobile } from 'react-device-detect';
 
@@ -8,8 +8,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
 import CashManagerContext from '../context/CashManagerContext';
-import { MESSAGE_KEY } from "../utils/constants";
-import { removeBeforeWhiteSpace, onlyNumberFormat, hasNumber, capitalizeAfterSentence, isNumeric } from "../utils/utils";
+import { errorMessage, removeBeforeWhiteSpace, onlyNumberFormat, hasNumber, capitalizeAfterSentence, isNumeric } from "../utils/utils";
 
 import noRecordFound from '../assets/images/no-record-round.svg';
 import verticleUpDown from '../assets/images/verticle-up-down.svg';
@@ -26,8 +25,6 @@ import {
 function MedicalHistoryBox(props) {
 
     const { handleDrawerMedicalHistory, handleCollapsed } = props
-
-    const [messageApi, contextHolder] = message.useMessage();
     const {
         searchList,
         defaultList,
@@ -284,12 +281,7 @@ function MedicalHistoryBox(props) {
                 })
             }
         } else {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     }
 
@@ -517,7 +509,6 @@ function MedicalHistoryBox(props) {
 
     return (
         <>
-            {contextHolder}
             <Card bordered={false} className="search-modalCard">
                 <div>
                     <div className='modalCard-header h-60 align-items-center justify-content-between d-flex'>
