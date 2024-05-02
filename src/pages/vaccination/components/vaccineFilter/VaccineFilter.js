@@ -103,8 +103,9 @@ const VaccineFilter = () => {
         {dateOptions.length > 0 &&
           dateOptions.map((item, i) => (
             <Tooltip
+              key={i}
               title={tooltipTitle}
-              visible={
+              open={
                 showTooltip &&
                 pendingVaccines.length === 1 &&
                 item.alert === "failure"

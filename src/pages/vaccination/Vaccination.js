@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Vaccination.scss";
 
 import { Checkbox, Drawer } from "antd";
@@ -8,6 +8,7 @@ import VaccineFilter from "./components/vaccineFilter/VaccineFilter";
 import SelectionPopup from "./components/selectionPopup/SelectionPopup";
 import closeFill from "../../assets/images/closeFill.svg";
 import { Row, Col } from "react-bootstrap";
+import { getPaientDetails, getVaccineTemplates } from "./service";
 
 const vaccinesData = [
   {
@@ -132,6 +133,16 @@ function Vaccination() {
   const [selectAll, setSelectAll] = useState(false);
   const [selectedCards, setSelectedCards] = useState([]);
   const [warningMsg, setWarningMsg] = useState("");
+
+  const getVaccineTemplate = async () => {
+    const data1 = getVaccineTemplates();
+    const data2 = getPaientDetails();
+    console.log("data1", data1, data2);
+  };
+
+  useEffect(() => {
+    const data = getVaccineTemplate();
+  }, []);
 
   const handleSelectAll = (event) => {
     const checked = event?.target?.checked;
