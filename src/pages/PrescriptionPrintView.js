@@ -9,6 +9,8 @@ import { useReactToPrint } from 'react-to-print';
 
 // import { PDFReader } from 'reactjs-pdf-reader';
 
+import { errorMessage } from "../utils/utils";
+
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
 import messageSent from '../assets/images/message-sent.svg';
@@ -190,12 +192,7 @@ function PrescriptionPrintView() {
         if (action.meta.requestStatus === "fulfilled") {
             navigate("/prescription", { replace: true, state: { patient_data: patient_data, caseManagerData: action.payload } })
         } else {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
@@ -219,12 +216,7 @@ function PrescriptionPrintView() {
         if (action.meta.requestStatus === "fulfilled") {
             navigate('/configure_print_setting', { state: { caseManagerData: action.payload } })
         } else {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     }
 
