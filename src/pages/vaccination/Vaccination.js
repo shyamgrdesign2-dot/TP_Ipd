@@ -135,9 +135,9 @@ function Vaccination() {
   const [warningMsg, setWarningMsg] = useState("");
 
   const getVaccineTemplate = async () => {
-    const data1 = getVaccineTemplates();
-    const data2 = getPaientDetails();
-    console.log("data1", data1, data2);
+    const data1 = await getVaccineTemplates();
+    const data2 = await getPaientDetails();
+    console.log("data", data1, data2);
   };
 
   useEffect(() => {
