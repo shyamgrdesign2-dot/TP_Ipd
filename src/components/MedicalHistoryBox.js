@@ -279,6 +279,13 @@ function MedicalHistoryBox(props) {
                     ];
                     return newArray;
                 })
+            } else {
+                const index = cloneMedicalHistoryData?.findIndex(e => e.tmmhs_id == sendData.tmmhs_id)
+                setCloneMedicalHistoryData((prev) => {
+                    const newArray = [...prev];
+                    newArray[index].tags = [];
+                    return newArray;
+                })
             }
         } else {
             errorMessage(action.error)
@@ -345,7 +352,7 @@ function MedicalHistoryBox(props) {
                 setSinceOptions(options);
             }
         },
-        [inputSince, sinceOptions, cloneMedicalHistoryData]
+        [selectData, inputSince, sinceOptions, cloneMedicalHistoryData]
     );
 
     const SINCE_LIST = [
@@ -363,7 +370,7 @@ function MedicalHistoryBox(props) {
             cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since = ''
             setCloneMedicalHistoryData((prev) => [...prev]);
         },
-        [sinceValue, cloneMedicalHistoryData]
+        [selectData, sinceValue, cloneMedicalHistoryData]
     );
 
     const onChangeSinceChild = useCallback(
@@ -399,7 +406,7 @@ function MedicalHistoryBox(props) {
                 setSinceOptions([]);
             }
         },
-        [sinceOptions, cloneMedicalHistoryData]
+        [selectData, sinceOptions, cloneMedicalHistoryData]
     );
 
     const onBlurSinceChid = useCallback(
@@ -409,7 +416,7 @@ function MedicalHistoryBox(props) {
                 setCloneMedicalHistoryData((prev) => [...prev]);
             }
         },
-        [cloneMedicalHistoryData]
+        [selectData, cloneMedicalHistoryData]
     );
 
     const onSelectSinceChild = useCallback(
@@ -418,7 +425,7 @@ function MedicalHistoryBox(props) {
             cloneMedicalHistoryData[selectData?.section_index].tags[selectData?.tag_index].since = data;
             setCloneMedicalHistoryData((prev) => [...prev]);
         },
-        [sinceOptions, cloneMedicalHistoryData]
+        [selectData, sinceOptions, cloneMedicalHistoryData]
     );
 
 
@@ -542,14 +549,14 @@ function MedicalHistoryBox(props) {
                                                 <div className="d-flex align-items-center">
                                                     <Checkbox className="fontroboto" checked={e?.no_know_history} onChange={(e) => onNoKnownHistoryChange(e, i)}>No known history</Checkbox>
                                                     <button className='btn d-flex ms-1 align-items-center btn-text pe-0' onClick={() => onAddEditClick(e)}>
-                                                        <i className="icon-setting me-2"></i> <span>Add & Edit</span>
+                                                        <i className="icon-setting me-2"></i> <span>Edit & Add</span>
                                                     </button>
                                                 </div>
                                             </div>
                                             <div className="d-flex flex-wrap">
                                                 {!e?.no_know_history && !e?.isExpand && e?.tags?.map((e1, i1) => {
                                                     return (
-                                                        <div key={e1?.tmmhst_id} className={`history-badge ${e1?.enable !== undefined ? e1?.enable === "Y" ? 'history-active' : e1?.enable === "N" ? 'history-inactive' : '' : ''}`}>
+                                                        <div key={Math.random()} className={`history-badge ${e1?.enable !== undefined ? e1?.enable === "Y" ? 'history-active' : e1?.enable === "N" ? 'history-inactive' : '' : ''}`}>
                                                             <div onClick={() => onTagClick(e?.tmmhs_id, e1?.tmmhst_id, i, i1)}>{e1?.title}</div>
                                                             <span onClick={() => onEnableClick(e?.tmmhs_id, e1?.tmmhst_id, i, i1)}>{e1?.enable !== undefined ? e1?.enable : "-"}<img src={e1?.enable !== undefined ? e1?.enable === "Y" ? ActiveverticleUpDown : e1?.enable === "N" ? InActiveverticleUpDown : verticleUpDown : verticleUpDown} />
                                                             </span>
@@ -576,7 +583,7 @@ function MedicalHistoryBox(props) {
                                     </div>
                                     <div className="p-3">
                                         <div className="mt-1 mb-3">
-                                            <Input className="popinput" onChange={onSearch} value={searchQuery} placeholder="Search Allergy" prefix={<i className='icon-search me-2'></i>} allowClear />
+                                            <Input className="popinput" onChange={onSearch} value={searchQuery} placeholder={`Search ${addEditData?.title}`} prefix={<i className='icon-search me-2'></i>} allowClear />
                                         </div>
                                         <div className="d-flex flex-wrap">
                                             {searchQuery.length > 0 ? (
@@ -605,7 +612,7 @@ function MedicalHistoryBox(props) {
                                             ) : (
                                                 addEditData?.tags?.filter(e => !e.delete).map((e, i) => {
                                                     return (
-                                                        <div key={e?.tmmhst_id} className="border rounded-10px px-2 py-1 d-flex align-items-center me-3 mb-2 bg-white fontroboto">
+                                                        <div key={Math.random()} className="border rounded-10px px-2 py-1 d-flex align-items-center me-3 mb-2 bg-white fontroboto">
                                                             {e?.title}
                                                             <i className="ms-2 icon-Cross fs-18" onClick={() => onRemoveTag(e, i)}></i>
                                                         </div>
@@ -692,7 +699,7 @@ function MedicalHistoryBox(props) {
                                                                     arrow={false}
                                                                     overlayClassName="pp-0 poover-13"
                                                                     placement="bottom">
-                                                                    <Input className="popinput input-tuncate" readOnly value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Search relationship" suffix={<i className='icon-right iconrotate270 ms-2'></i>} />
+                                                                    <Input className="popinput input-tuncate" readOnly value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Select relationship" suffix={<i className='icon-right iconrotate270 ms-2'></i>} />
                                                                 </Popover>
                                                             </Col>
                                                         )}
@@ -720,7 +727,7 @@ function MedicalHistoryBox(props) {
                                                                 value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status}>
                                                                 {STATUS_LIST.map((item, i) => {
                                                                     return (
-                                                                        <Radio.Button className={`w-100 text-center ${isMobile ? 'segment-47' : 'text-segment'}`} value={item.value} onClick={() => onChangeStatus(item.value)}>{item.label}</Radio.Button>
+                                                                        <Radio.Button key={i} className={`w-100 text-center ${isMobile ? 'segment-47' : 'text-segment'}`} value={item.value} onClick={() => onChangeStatus(item.value)}>{item.label}</Radio.Button>
                                                                     )
                                                                 })}
                                                             </Radio.Group>
@@ -748,7 +755,7 @@ function MedicalHistoryBox(props) {
                                                                 value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication}>
                                                                 {MEDICATION_LIST.map((item, i) => {
                                                                     return (
-                                                                        <Radio.Button className={`w-100 text-center ${isMobile ? 'segment-47' : 'text-segment'}`} value={item.value} onClick={() => onChangeMedication(item.value)}>{item.label}</Radio.Button>
+                                                                        <Radio.Button key={i} className={`w-100 text-center ${isMobile ? 'segment-47' : 'text-segment'}`} value={item.value} onClick={() => onChangeMedication(item.value)}>{item.label}</Radio.Button>
                                                                     )
                                                                 })}
                                                             </Radio.Group>
@@ -766,7 +773,7 @@ function MedicalHistoryBox(props) {
                                                             arrow={false}
                                                             overlayClassName="poover-34 pp-0"
                                                             placement="bottom">
-                                                            <Input className="popinput" readOnly value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Search relationship" suffix={<i className='icon-right iconrotate270 ms-2'></i>} allowClear />
+                                                            <Input className="popinput" readOnly value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Select relationship" suffix={<i className='icon-right iconrotate270 ms-2'></i>} allowClear />
                                                         </Popover>
                                                     </div>
                                                 )}
@@ -781,7 +788,7 @@ function MedicalHistoryBox(props) {
                                             <img className="mt-4 mb-3" style={{ width: 135 }} src={NoHypertension} alt="No Result Found" />
                                             <div className="title-hypertension">{`No ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title} !`}</div>
                                             <div className="fontroboto text-main title fw-normal mt-2">
-                                                You have selected that patient does not <br />
+                                                You have selected as patient does not <br />
                                                 have {cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title}
                                             </div>
                                         </div>

@@ -957,7 +957,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 {caseManagerData.medical_history.map((item, i) => {
                                     let abcd = 97
                                     return (
-                                        <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4, marginTop: 5 }}>
+                                        <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
                                             {!item?.no_know_history ? (
                                                 item?.tags?.length > 0 && (
                                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
