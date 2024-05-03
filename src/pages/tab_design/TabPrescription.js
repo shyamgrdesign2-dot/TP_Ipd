@@ -5,7 +5,12 @@ import { Content } from "antd/es/layout/layout";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+
+import { ADD, EDIT } from "../../utils/constants";
+
+import { getVitals } from "../../redux/vitalsSlice";
+import { getPatientLastHistory } from "../../redux/medicalhistorySlice";
 
 import CashManagerContext from "../../context/CashManagerContext";
 import HeaderPrescription from "../../common/HeaderPrescription";
@@ -19,11 +24,15 @@ import TabFollowUpBox from "../../components/tab_design/TabFollowUpBox";
 
 import VitalsBox from "../../components/VitalsBox";
 import TabVitalsList from "../../components/tab_design/TabVitalsList";
+import MedicalHistoryBox from "../../components/MedicalHistoryBox";
+import TabMedicalHistoryList from "../../components/tab_design/TabMedicalHistoryList";
+
 import vitalsWhite from "../../assets/images/vitals-white.svg";
-import vaccinationWhite from "../../assets/images/vaccination-white.svg";
-// import medicalHistoryWhite from '../../assets/images/medical-history-white.svg';
+import vitalsDark from "../../assets/images/vitals-dark.svg";
+import medicalHistoryWhite from "../../assets/images/medical-history-white.svg";
+import medicalHistoryDark from "../../assets/images/medical-history-dark.svg";
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
-// import vaccinationWhite from '../../assets/images/vaccination-white.svg';
+import vaccinationWhite from "../../assets/images/vaccination-white.svg";
 // import notesWhite from '../../assets/images/notes-white.svg';
 // import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
@@ -35,9 +44,12 @@ function TabPrescription() {
     frequencyList,
     timingList,
   } = useSelector((state) => state.doctors);
-  const { vitalsPastList } = useSelector((state) => state.vitals);
-
+  const { selectedVitalsList, vitalsPastList } = useSelector(
+    (state) => state.vitals
+  );
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
@@ -53,6 +65,7 @@ function TabPrescription() {
   const [investigationData, setInvestigationData] = useState([]);
   const [medicationData, setMedicationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
+  const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
 
@@ -74,6 +87,8 @@ function TabPrescription() {
     setMedicationData,
     vitalsData,
     setVitalsData,
+    medicalHistoryData,
+    setMedicalHistoryData,
     followUpDate,
     setFollowUpDate,
     additionalNote,
@@ -81,8 +96,9 @@ function TabPrescription() {
   };
 
   const [collapsed, setCollapsed] = useState(false);
-  const [collapsedFlag, setCollapsedFlag] = useState(1);
+  const [collapsedFlag, setCollapsedFlag] = useState(null);
   const [vitalDrawer, setVitalDrawer] = useState(false);
+  const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -100,6 +116,16 @@ function TabPrescription() {
           };
         });
         setVitalsData(updatedData);
+      }
+      if (
+        caseManagerData.medical_history.length > 0 &&
+        customizedPadLeftList.findIndex(
+          (e) => e.tmdpm_id === 3 && e.tmdpm_status === 0
+        ) !== -1
+      ) {
+        setMedicalHistoryData(
+          JSON.parse(JSON.stringify(caseManagerData.medical_history))
+        );
       }
       if (
         caseManagerData.symptoms.length > 0 &&
@@ -205,18 +231,79 @@ function TabPrescription() {
 
   // Drawer Vitals
   const handleDrawerVital = useCallback(() => {
+    setCollapsedFlag(1);
     setVitalDrawer(!vitalDrawer);
-  }, [vitalDrawer]);
+  }, [collapsedFlag, vitalDrawer]);
+
+  // Drawer Medical History
+  const handleDrawerMedicalHistory = useCallback(() => {
+    setCollapsedFlag(2);
+    setMedicalHistoryDrawer(!medicalHistoryDrawer);
+  }, [collapsedFlag, medicalHistoryDrawer]);
 
   //Handle Sider
+  const openCollapsed = useCallback(
+    (flag) => {
+      setCollapsedFlag(flag);
+      setCollapsed(true);
+    },
+    [collapsedFlag, collapsed]
+  );
+
   const handleCollapsed = useCallback(
     (flag) => {
       setCollapsedFlag(flag);
       !collapsed && setCollapsed(!collapsed);
-      setVitalDrawer(!vitalDrawer);
+      if (flag === 1) {
+        handleDrawerVital();
+      } else if (flag === 2) {
+        handleDrawerMedicalHistory();
+      }
     },
-    [collapsedFlag, collapsed, vitalDrawer]
+    [collapsedFlag, collapsed, vitalDrawer, medicalHistoryDrawer]
   );
+
+  useEffect(() => {
+    const patientLastHistory = async () => {
+      const V_action = await dispatch(
+        getVitals({
+          patient_unique_id:
+            patient_data !== undefined ? patient_data.patient_unique_id : 0,
+          pam_id:
+            patient_data !== undefined && patient_data.pam_id !== undefined
+              ? patient_data.pam_id
+              : 0,
+          mode: caseManagerData !== undefined ? EDIT : ADD,
+        })
+      );
+
+      if (caseManagerData === undefined) {
+        const MH_action = await dispatch(
+          getPatientLastHistory({
+            patient_unique_id:
+              patient_data !== undefined ? patient_data.patient_unique_id : 0,
+          })
+        );
+        if (MH_action.meta.requestStatus === "fulfilled") {
+          setMedicalHistoryData(JSON.parse(JSON.stringify(MH_action.payload)));
+        }
+      }
+    };
+    patientLastHistory();
+  }, []);
+
+  useEffect(() => {
+    if (caseManagerData === undefined) {
+      const updatedData = selectedVitalsList.map((e, i) => {
+        return {
+          ...e,
+          systolic: e.blood_press ? e.blood_press.split("/")[0] : "",
+          diastolic: e.blood_press ? e.blood_press.split("/")[1] : "",
+        };
+      });
+      setVitalsData(updatedData);
+    }
+  }, [selectedVitalsList]);
 
   const vaccinationHandler = () => {
     navigate("/vaccination");
@@ -230,68 +317,99 @@ function TabPrescription() {
           <Layout>
             <div className="prescription-sidebar">
               {customizedPadLeftList?.map((e, i) => {
-                return (
-                  e.tmdpm_id === 1 &&
-                  e.tmdpm_status === 0 && (
-                    <>
-                      <button
-                        key={i}
-                        type="button"
-                        className="mb-3 text-center btn btn-action"
-                        onClick={() =>
-                          !collapsed &&
-                          vitalsData.length === 0 &&
-                          vitalsPastList.length === 0
-                            ? handleDrawerVital()
-                            : setCollapsed(!collapsed)
-                        }
+                return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
+                  <>
+                    <button
+                      key={i}
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={() =>
+                        vitalsData.length === 0 && vitalsPastList.length === 0
+                          ? handleDrawerVital()
+                          : openCollapsed(1)
+                      }
+                    >
+                      <div
+                        className={`prescription-tab-button rounded-10px ${
+                          collapsedFlag == 1 && "active"
+                        }`}
                       >
-                        <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                          <img src={vitalsWhite} alt="Vitals" />
-                        </div>
-                        <label className="text-white mt-1">Vitals</label>
-                      </button>
-                      <button
-                        key={i}
-                        type="button"
-                        className="mb-3 text-center btn btn-action"
-                        onClick={vaccinationHandler}
+                        <img
+                          src={collapsedFlag == 1 ? vitalsDark : vitalsWhite}
+                          alt="Vitals"
+                        />
+                      </div>
+                      <label className="text-white mt-1">Vitals</label>
+                    </button>
+                    <button
+                      key={i}
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={vaccinationHandler}
+                    >
+                      <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                        <img src={vaccinationWhite} alt="Vitals" />
+                      </div>
+                      <label className="text-white mt-1">Vaccine</label>
+                    </button>
+                  </>
+                ) : (
+                  e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
+                    <button
+                      key={i}
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={() =>
+                        medicalHistoryData.length === 0
+                          ? handleDrawerMedicalHistory()
+                          : openCollapsed(2)
+                      }
+                    >
+                      <div
+                        className={`prescription-tab-button rounded-10px ${
+                          collapsedFlag == 2 && "active"
+                        }`}
                       >
-                        <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                          <img src={vaccinationWhite} alt="Vitals" />
-                        </div>
-                        <label className="text-white mt-1">Vaccine</label>
-                      </button>
-                    </>
+                        <img
+                          src={
+                            collapsedFlag == 2
+                              ? medicalHistoryDark
+                              : medicalHistoryWhite
+                          }
+                          alt="Medical History"
+                        />
+                      </div>
+                      <label className="text-white mt-1">History</label>
+                    </button>
                   )
                 );
               })}
               {/* <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={medicalHistoryWhite} alt="History" />
                                 </div>
                                 <label className="text-white mt-1">History</label>
                             </button>
                             <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={labParametersWhite} alt="Lab" />
                                 </div>
                                 <label className="text-white mt-1">Lab</label>
                             </button>
                             <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={vaccinationWhite} alt="Vaccine" />
                                 </div>
                                 <label className="text-white mt-1">Vaccine</label>
                             </button>
                             <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={notesWhite} alt="Notes" />
                                 </div>
                                 <label className="text-white mt-1">Notes</label>
                             </button>
                             <button type='button' className="mb-3 text-center btn btn-action">
-                                <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                                <div className="prescription-tab-button rounded-10px">
                                     <img src={docsWhite} alt="Docs" />
                                 </div>
                                 <label className="text-white mt-1">Docs</label>
@@ -303,11 +421,20 @@ function TabPrescription() {
               collapsed={collapsed}
               className={collapsed ? "tabsider" : "tabsider1"}
             >
-              {collapsedFlag === 1 && (
+              {collapsedFlag === 1 ? (
                 <TabVitalsList
+                  mode={caseManagerData !== undefined ? EDIT : ADD}
                   handleDrawerVital={handleDrawerVital}
                   handleCollapsed={() => setCollapsed(!collapsed)}
                 />
+              ) : (
+                collapsedFlag === 2 && (
+                  <TabMedicalHistoryList
+                    mode={caseManagerData !== undefined ? EDIT : ADD}
+                    handleDrawerMedicalHistory={handleDrawerMedicalHistory}
+                    handleCollapsed={() => setCollapsed(!collapsed)}
+                  />
+                )
               )}
             </Sider>
             <div
@@ -364,6 +491,18 @@ function TabPrescription() {
         >
           <VitalsBox
             handleDrawerVital={handleDrawerVital}
+            handleCollapsed={(flag) => handleCollapsed(flag)}
+          />
+        </Drawer>
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerMedicalHistory}
+          open={medicalHistoryDrawer}
+          width="100%"
+        >
+          <MedicalHistoryBox
+            handleDrawerMedicalHistory={handleDrawerMedicalHistory}
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
         </Drawer>

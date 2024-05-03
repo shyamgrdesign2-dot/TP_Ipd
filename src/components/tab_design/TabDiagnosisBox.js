@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { Input, Button, Drawer, Tabs, message, Select, Card, Spin, Segmented, Tooltip } from 'antd';
+import { Input, Button, Drawer, Tabs, Select, Card, Spin, Segmented, Tooltip } from 'antd';
 
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import { onlyNumberFormat } from "../../utils/utils";
+import { errorMessage, onlyNumberFormat } from "../../utils/utils";
 
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
-import { MESSAGE_KEY } from "../../utils/constants";
 import { removeBeforeWhiteSpace, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
 import Diagnosisicon from "../../assets/images/Diagnosis.svg";
 import {
@@ -24,8 +23,6 @@ import {
 import TabDiagnosisSearch from "../../components/tab_design/TabDiagnosisSearch";
 
 function TabDiagnosisBox() {
-
-    const [messageApi, contextHolder] = message.useMessage();
     const {
         selectedDiagnosisList,
         parentOptionsList,
@@ -166,12 +163,7 @@ function TabDiagnosisBox() {
     const onDeleteTemplateClicked = async (tdt_id) => {
         const action = await dispatch(deleteTemplate(tdt_id));
         if (action.meta.requestStatus === "rejected") {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
@@ -185,19 +177,9 @@ function TabDiagnosisBox() {
 
     const onAddTemplateClicked = async () => {
         if (diagnosisData.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 diagnosis added',
-                duration: 2
-            });
+            errorMessage('At least 1 diagnosis added')
         } else if (diagnosisData.filter(e => e.tds_name == "").length > 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup diagnosis name',
-                duration: 2
-            });
+            errorMessage('Please fillup diagnosis name')
         } else {
             var sendData = {
                 tdt_template_name: inputTemplateName,
@@ -224,19 +206,9 @@ function TabDiagnosisBox() {
 
     const onUpdateTemplateClicked = async () => {
         if (diagnosisData.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 diagnosis added',
-                duration: 2
-            });
+            errorMessage('At least 1 diagnosis added')
         } else if (diagnosisData.filter(e => e.tds_name == "").length > 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup diagnosis name',
-                duration: 2
-            });
+            errorMessage('Please fillup diagnosis name')
         } else {
             var data = JSON.parse(inputTemplateName);
             var sendData = {
@@ -667,7 +639,6 @@ function TabDiagnosisBox() {
 
     return (
         <>
-            {contextHolder}
             <div>
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">

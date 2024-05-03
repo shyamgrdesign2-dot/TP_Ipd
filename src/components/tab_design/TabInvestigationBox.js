@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { Input, Button, Drawer, Tabs, message, Select, Card, Spin, Segmented, Tooltip } from 'antd';
+import { Input, Button, Drawer, Tabs, Select, Card, Spin, Segmented, Tooltip } from 'antd';
 
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -8,8 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
-import { MESSAGE_KEY } from "../../utils/constants";
-import { removeBeforeWhiteSpace } from "../../utils/utils";
+import { errorMessage, removeBeforeWhiteSpace } from "../../utils/utils";
 import Investigationicon from "../../assets/images/Lab.svg";
 import {
     addTemplate,
@@ -23,7 +22,6 @@ import TabInvestigationSearch from "../../components/tab_design/TabInvestigation
 
 function TabInvestigationBox() {
 
-    const [messageApi, contextHolder] = message.useMessage();
     const {
         selectedInvestigationList,
         parentOptionsList,
@@ -153,12 +151,7 @@ function TabInvestigationBox() {
     const onDeleteTemplateClicked = async (tit_id) => {
         const action = await dispatch(deleteTemplate(tit_id));
         if (action.meta.requestStatus === "rejected") {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
@@ -172,19 +165,9 @@ function TabInvestigationBox() {
 
     const onAddTemplateClicked = async () => {
         if (investigationData.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 investigation added',
-                duration: 2
-            });
+            errorMessage('At least 1 investigation added')
         } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup investigation name',
-                duration: 2
-            });
+            errorMessage('Please fillup investigation name')
         } else {
             var sendData = {
                 tit_template_name: inputTemplateName,
@@ -211,19 +194,9 @@ function TabInvestigationBox() {
 
     const onUpdateTemplateClicked = async () => {
         if (investigationData.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 investigation added',
-                duration: 2
-            });
+            errorMessage('At least 1 investigation added')
         } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup investigation name',
-                duration: 2
-            });
+            errorMessage('Please fillup investigation name')
         } else {
             var data = JSON.parse(inputTemplateName);
             var sendData = {
@@ -477,7 +450,6 @@ function TabInvestigationBox() {
 
     return (
         <>
-            {contextHolder}
             <div>
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">

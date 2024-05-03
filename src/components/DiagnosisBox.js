@@ -15,7 +15,6 @@ import {
   Popover,
   Tabs,
   Spin,
-  message,
   Tooltip,
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -25,8 +24,7 @@ import { v4 as uuidv4 } from "uuid";
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from "../context/CashManagerContext";
-import { MESSAGE_KEY } from "../utils/constants";
-import { isNumeric, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
+import { errorMessage, isNumeric, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Diagnosisicon from "../assets/images/Diagnosis.svg";
 import {
   addTemplate,
@@ -38,7 +36,6 @@ import {
 } from "../redux/diagnosisSlice";
 
 function DiagnosisBox() {
-  const [messageApi, contextHolder] = message.useMessage();
   const {
     selectedDiagnosisList,
     parentOptionsList,
@@ -352,12 +349,7 @@ function DiagnosisBox() {
   const onDeleteTemplateClicked = async (tdt_id) => {
     const action = await dispatch(deleteTemplate(tdt_id));
     if (action.meta.requestStatus === "rejected") {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   };
 
@@ -385,19 +377,9 @@ function DiagnosisBox() {
 
   const onAddTemplateClicked = async () => {
     if (diagnosisData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: "At least 1 diagnosis added",
-        duration: 2,
-      });
+      errorMessage('At least 1 diagnosis added')
     } else if (diagnosisData.filter((e) => e.tds_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: "Please fillup diagnosis name",
-        duration: 2,
-      });
+      errorMessage('Please fillup diagnosis name')
     } else {
       var sendData = {
         tdt_template_name: inputTemplateName,
@@ -424,19 +406,9 @@ function DiagnosisBox() {
 
   const onUpdateTemplateClicked = async () => {
     if (diagnosisData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: "At least 1 diagnosis added",
-        duration: 2,
-      });
+      errorMessage('At least 1 diagnosis added')
     } else if (diagnosisData.filter((e) => e.tds_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: "Please fillup diagnosis name",
-        duration: 2,
-      });
+      errorMessage('Please fillup diagnosis name')
     } else {
       var data = JSON.parse(inputTemplateName);
       var sendData = {
@@ -741,7 +713,6 @@ function DiagnosisBox() {
 
   return (
     <>
-      {contextHolder}
       <div className="">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">

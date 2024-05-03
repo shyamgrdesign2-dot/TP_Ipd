@@ -378,6 +378,58 @@
             padding: 0px;
         }
     }
+    &.history-sider-box {
+        &.ant-collapse {
+            background-color: transparent;
+            .ant-collapse-item {
+                border-bottom: 1px dashed $bordercolor !important;
+                padding: 10px 0;
+                &.ant-collapse-item-active {
+                    border: 0 !important;
+                    padding-bottom: 0;
+                }
+                .ant-collapse-header {
+                    background-color: $bgbody;
+                    padding: 0;
+                    .ant-collapse-expand-icon:after {
+                        width: 22px;
+                        height: 22px;
+                        border-radius: 5px;
+                        padding: 0px 3px;
+                    }
+                }
+                .ant-collapse-content {
+                    background-color: $bgbody;
+                    border-top: 0;
+                    border-bottom: 1px dashed $bordercolor;
+                    border-radius: 0 !important;
+                    padding-bottom: 5px;
+                }
+            }
+        }
+        &.history-sider-box-white {
+            .ant-collapse-item {
+                border-bottom: 0 !important;
+            }
+            .ant-collapse-header {
+                background-color: $white !important;
+                .ant-collapse-expand-icon:after {
+                    width: 24px !important;
+                    height: 24px !important;
+                    border-radius: 7px !important;
+                }
+                .ant-collapse-header-text {
+                    div {
+                        color: $welcomecolor !important;
+                    }
+                }
+            }
+            .ant-collapse-content {
+                background-color: $white !important;
+                border-bottom: 0 !important;
+            }
+        }
+    }
 }
 
 // Tablet design
@@ -778,14 +830,35 @@ body {
     }
 }
 
-.ant-message-notice-wrapper .message-appointment {
-    .ant-message-notice-content {
-        background: rgba(23, 23, 37, 0.90);
-        border-radius: 10px;
-        padding: 15px;
-
-        div {
-            color: $white !important;
+.ant-message-notice-wrapper {
+    .message-appointment {
+        .ant-message-notice-content {
+            background: rgba(23, 23, 37, 0.90);
+            border-radius: 10px;
+            padding: 15px;
+    
+            div {
+                color: $white !important;
+            }
+        }
+    }
+    .error-red{
+        .ant-message-notice-content {
+            background-color: #ffe5e4;
+            .ant-message-custom-content {
+                display: flex;
+                div, span {
+                    color: #dc6069 !important;
+                }
+            }
+        }
+        .ant-message-error .anticon {
+            color: #dc6069 !important;
+            margin-right: 10px;
+            svg {
+                width: 21px;
+                height: 21px;
+            }
         }
     }
 }
