@@ -699,7 +699,9 @@ function MedicalHistoryBox(props) {
                                                                     arrow={false}
                                                                     overlayClassName="pp-0 poover-13"
                                                                     placement="bottom">
-                                                                    <Input className="popinput input-tuncate" readOnly value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Select relationship" suffix={<i className='icon-right iconrotate270 ms-2'></i>} />
+                                                                    <div>
+                                                                        <Input className="popinput input-tuncate" readOnly value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Select relationship" suffix={<i className='icon-right iconrotate270'></i>} />
+                                                                    </div>
                                                                 </Popover>
                                                             </Col>
                                                         )}
