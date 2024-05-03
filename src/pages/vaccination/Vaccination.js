@@ -8,7 +8,11 @@ import SelectionPopup from "./components/selectionPopup/SelectionPopup";
 import closeFill from "../../assets/images/closeFill.svg";
 import { Row, Col } from "react-bootstrap";
 import { getPaientDetails, getVaccineTemplates } from "./service";
-import { getDistinctAges, mergeDataPatientDetails } from "./VaccinationHelper";
+import {
+  getDates,
+  getDistinctAges,
+  mergeDataPatientDetails,
+} from "./VaccinationHelper";
 
 function Vaccination() {
   const [isFixed, setIsFixed] = useState(false);
@@ -18,7 +22,7 @@ function Vaccination() {
   const [activeDate, setActiveDate] = useState(0);
   const [vaccinesData, setVaccinesData] = useState([]);
   const [completeData, setCompleteData] = useState({});
-
+  const [dateOptions, setDateOptions] = useState([]);
   const [ageFilters, setAgeFilters] = useState([]);
 
   const getVaccineDetails = async () => {
@@ -33,6 +37,12 @@ function Vaccination() {
 
     setCompleteData(result.idMap);
     setVaccinesData(result.idMap.get("Birth"));
+
+    const birthDate = new Date();
+    // const priorDate = new Date(new Date().setDate(birthDate.getDate() - 60));
+    console.log("priorDate", birthDate);
+
+    if (!dateOptions.length) setDateOptions(getDates(result.idMap, birthDate));
   };
 
   useEffect(() => {
@@ -132,7 +142,7 @@ function Vaccination() {
         </div>
         <div className={isFixed ? "fixFilter" : ""}>
           <VaccineFilter
-            dateOptions={ageFilters}
+            dateOptions={dateOptions}
             activeDate={activeDate}
             setActiveDate={setActiveDate}
           />

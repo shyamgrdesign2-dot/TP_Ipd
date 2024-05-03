@@ -59,3 +59,45 @@ export const getDueDate = (
 
   return dateFormatter(birthDate);
 };
+
+export const getDates = (sampleMap, birthDate) => {
+  const newArray = [];
+
+  sampleMap.forEach((value, key) => {
+    // Check if all SampleObject instances in the array have a date attribute
+    const allDatesPresent = value.every(
+      (sampleObject) => sampleObject.tvp_given_date
+    );
+
+    const { tvt_due_day, tvt_due_month, tvt_due_year } = value[0] || {};
+
+    const dueDate = getDueDate(
+      tvt_due_day,
+      tvt_due_month,
+      tvt_due_year,
+      birthDate
+    );
+
+    const today = new Date();
+    const updateDate = new Date(dueDate);
+
+    const anyFutureDate = today < updateDate;
+
+    // Set the alert field based on the presence of dates
+    const alert = allDatesPresent
+      ? "success"
+      : anyFutureDate
+      ? null
+      : "failure";
+
+    // Create an object containing the key, its associated array of SampleObjects, and the alert field
+    const newObj = {
+      label: key,
+      alert: alert,
+    };
+
+    // Push the new object into the newArray
+    newArray.push(newObj);
+  });
+  return newArray;
+};
