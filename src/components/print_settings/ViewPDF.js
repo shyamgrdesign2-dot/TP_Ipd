@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     table: {
-        // marginTop: PX_TO_PT * 4,
+        marginTop: PX_TO_PT * 4,
         borderTop: '1px solid #171725',
         borderLeft: '1px solid #171725'
     },
@@ -407,7 +407,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         ) : (
                             <View style={{ marginTop: PX_TO_PT * 15 }}>
                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
-                                <View style={[styles.table, { marginTop: PX_TO_PT * 4 }]}>
+                                <View style={styles.table}>
                                     <View style={styles.row}>
                                         <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
                                         <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
@@ -462,7 +462,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         ) : (
                             <View style={{ marginTop: PX_TO_PT * 15 }}>
                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
-                                <View style={[styles.table, { marginTop: PX_TO_PT * 4 }]}>
+                                <View style={styles.table}>
                                     <View style={styles.row}>
                                         <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
                                         <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
@@ -513,7 +513,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         ) : (
                             <View style={{ marginTop: PX_TO_PT * 15 }}>
                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
-                                <View style={[styles.table, { marginTop: PX_TO_PT * 4 }]}>
+                                <View style={styles.table}>
                                     <View style={styles.row}>
                                         <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
                                         <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
@@ -622,7 +622,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         ) : (
                             <View style={{ marginTop: PX_TO_PT * 15 }}>
                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
-                                <View style={[styles.table, { marginTop: PX_TO_PT * 4 }]}>
+                                <View style={styles.table}>
                                     <View style={styles.row}>
                                         <Text style={[styles.cell, { flex: 0.09, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>RX</Text>
                                         <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
@@ -685,7 +685,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         ) : (
                             <View style={{ marginTop: PX_TO_PT * 15 }}>
                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
-                                <View style={[styles.table, { marginTop: PX_TO_PT * 4 }]}>
+                                <View style={styles.table}>
                                     <View style={styles.row}>
                                         <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
                                     </View>
@@ -734,7 +734,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         ) : (
                             <View style={{ marginTop: PX_TO_PT * 15 }}>
                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
-                                <View style={[styles.table, { marginTop: PX_TO_PT * 4 }]}>
+                                <View style={styles.table}>
                                     <View style={styles.row}>
                                         <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
                                         <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
@@ -837,7 +837,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         ) : (
                             <View style={{ marginTop: PX_TO_PT * 15 }}>
                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
-                                <View style={[styles.table, { marginTop: PX_TO_PT * 4 }]}>
+                                <View style={styles.table}>
                                     <View style={styles.row}>
                                         {columns.map((item, i) => {
                                             return (
@@ -1014,7 +1014,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             <>
                                                 <Text style={{ color: '#000', marginTop: i === 0 ? PX_TO_PT * 4 : PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`${item.title} : `}</Text>
                                                 {!item?.no_know_history ? (
-                                                    <View key={i} style={styles.table}>
+                                                    <View key={i} style={[styles.table, { marginTop: 0 }]}>
                                                         <View style={styles.row}>
                                                             <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
                                                             <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
