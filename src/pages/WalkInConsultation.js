@@ -40,6 +40,24 @@ function WalkInConsultation() {
         return formattedName;
     };
 
+    const genderAge = (patient_data) => {
+        var value = `${patient_data?.pm_gender}, `
+        if (profile?.dp_id === 9) {
+            if (patient_data.ageYears != 0) {
+                value += `${patient_data?.ageYears}y`
+            }
+            if (patient_data.ageMonths != 0) {
+                value += ` ${patient_data?.ageMonths}m`
+            }
+            if (patient_data.ageDays != 0) {
+                value += ` ${patient_data?.ageDays}d`
+            }
+        } else {
+            value += `${patient_data?.ageYears}y`
+        }
+        return value
+    }
+
     const PatientPlank = (patient) => {
         return (
             <>
@@ -190,7 +208,8 @@ function WalkInConsultation() {
                                 <span className="title-common fontroboto">
                                     {clickedPatient?.pm_fullname}{" "}
                                     <span className="fw-normal ms-2">
-                                        ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y)
+                                        {/* ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y) */}
+                                        ({genderAge(clickedPatient)})
                                     </span>
                                 </span>
                             </div>
