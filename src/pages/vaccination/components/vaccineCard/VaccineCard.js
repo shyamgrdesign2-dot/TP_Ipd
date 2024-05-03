@@ -2,21 +2,42 @@ import React from "react";
 import { Card, Checkbox, Row, Col } from "antd";
 import cardWave from "../../../../assets/images/cardWave.svg";
 import "./VaccineCard.scss";
+import { getDueDate } from "../../VaccinationHelper";
 
 const VaccineCard = ({
   vaccineData,
   selectedCards,
   handleCardCheckboxChange,
 }) => {
+  const birthDate = new Date(); //birthday
+
+  const { tvt_due_day, tvt_due_month, tvt_due_year } = vaccineData;
+  const dueDate = getDueDate(
+    tvt_due_day,
+    tvt_due_month,
+    tvt_due_year,
+    birthDate
+  );
+
   const vaccineDetails = (details) => {
-    return details?.map((item) => {
-      return (
-        <div key={item[0]} className="d-flex direction-column">
-          <div className="vaccineDetailsKey">{item[0]}</div>
-          <div className="vaccineDetailsValue">{item[1]}</div>
+    return (
+      <>
+        <div className="d-flex direction-column">
+          <div className="vaccineDetailsKey">Brand : </div>
+          <div className="vaccineDetailsValue">brand</div>
         </div>
-      );
-    });
+        <div className="d-flex direction-column">
+          <div className="vaccineDetailsKey">Given Date : </div>
+          <div className="vaccineDetailsValue">
+            {vaccineData.tvp_given_date}
+          </div>
+        </div>
+        <div className="d-flex direction-column">
+          <div className="vaccineDetailsKey">Note : </div>
+          <div className="vaccineDetailsValue">note</div>
+        </div>
+      </>
+    );
   };
 
   const checkboxHandler = () => {
@@ -26,18 +47,18 @@ const VaccineCard = ({
   return (
     <Card className="vaccineCardContainer" bodyStyle={{ height: "100%" }}>
       {/* Vaccine status Indicator */}
-      {vaccineData?.isVaccineGiven || vaccineData?.dueDate ? (
+      {vaccineData?.tvp_given_date || vaccineData?.dueDate ? (
         <div
           className={`vaccineStatus ${
-            vaccineData?.isVaccineGiven ? "vaccineGiven" : ""
+            vaccineData?.tvp_given_date ? "vaccineGiven" : ""
           }`}
         >
           <span
             className={`statusMessage ${
-              vaccineData?.isVaccineGiven ? "vaccineGiven" : ""
+              vaccineData?.tvp_given_date ? "vaccineGiven" : ""
             }`}
           >
-            {vaccineData?.isVaccineGiven ? "Given" : "Due"}
+            {vaccineData?.tvp_given_date ? "Given" : "Due"}
           </span>
         </div>
       ) : null}
@@ -46,7 +67,7 @@ const VaccineCard = ({
         <Row gutter={16}>
           <Col span={16}>
             <div>
-              <div className="vaccineName">{vaccineData.name}</div>
+              <div className="vaccineName">{vaccineData.tvac_name}</div>
               {!vaccineData.brand ? <div>{vaccineData.fullName}</div> : null}
               {vaccineDetails(vaccineData.moreDetails)}
             </div>
@@ -55,7 +76,7 @@ const VaccineCard = ({
             <div className="d-flex justify-content-end">
               <Checkbox
                 onChange={checkboxHandler}
-                checked={selectedCards.includes(vaccineData?.vaccineId)}
+                checked={selectedCards.includes(vaccineData?.tvac_id)}
               />
             </div>
           </Col>
@@ -66,14 +87,14 @@ const VaccineCard = ({
           className={`dueDetails ${
             vaccineData?.isDelayed
               ? "isDelayed"
-              : vaccineData?.isVaccineGiven
+              : vaccineData?.tvp_given_date
               ? "isGiven"
               : ""
           }`}
         >
           <Col>
             <div className="d-flex flex-column dueMessage">
-              <div>Due date : {vaccineData.dueDate}</div>
+              <div>Due date : {dueDate}</div>
               <div>Based on DOB</div>
             </div>
           </Col>

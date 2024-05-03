@@ -17,17 +17,18 @@ export const getVaccineTemplates = async () => {
 };
 
 export const getPaientDetails = async (
-  hospitalId = "798251708943588",
-  patientUid = "1311432893"
+  patientUid = "1311432893",
+  patientPid = "PAT0020",
+  hospitalBid = "798251708943588"
 ) => {
   let result = {};
   try {
     result = await api.get(
-      `/vaccination/patientDetails?hospital_bid=${hospitalId}&patient_uid=${patientUid}`,
+      `/vaccination/patientTemplateForBid?patient_uid=${patientUid}&patient_pid=${patientPid}&hospital_bid=${hospitalBid}`,
       baseUrl
     );
-    if (result?.detail) {
-      return result.detail;
+    if (result?.template) {
+      return result.template;
     }
   } catch (error) {
     console.error("Error while fetching vaccine template", error);
