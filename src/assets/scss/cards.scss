@@ -35,26 +35,6 @@ body {
             .card-body {
                 border-bottom-left-radius: 20px;
                 border-bottom-right-radius: 20px;
-                &.cardbody-data {
-                    label {
-                        font-family: "Roboto";
-                        font-size: 14px;
-                        font-style: normal;
-                        font-weight: 400;
-                        line-height: normal;
-                        letter-spacing: 0.2px;
-                        color: $maincolor;
-                    }
-                    span {
-                        color: $welcomecolor !important;
-                        font-family: "Roboto" !important;
-                        font-size: 14px;
-                        font-style: normal;
-                        font-weight: 500;
-                        line-height: normal;
-                        letter-spacing: 0.2px;
-                    }
-                }
                 .ant-table {
                     background-color: transparent;
                 }
@@ -114,6 +94,26 @@ body {
                     color: $white !important;
                 }
             }
+        }
+    }
+    .cardbody-data {
+        label {
+            font-family: "Roboto";
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+            letter-spacing: 0.2px;
+            color: $maincolor;
+        }
+        span {
+            color: $welcomecolor !important;
+            font-family: "Roboto" !important;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: normal;
+            letter-spacing: 0.2px;
         }
     }
 }

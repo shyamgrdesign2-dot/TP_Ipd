@@ -1,10 +1,11 @@
 import React, { useContext, useState, useCallback } from 'react';
 import { Navbar } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { Button, message } from 'antd';
+import { Button } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 
-import { MESSAGE_KEY } from "../utils/constants";
+import { errorMessage } from "../utils/utils";
+
 import {
     getDefaultPrintsettings,
     savePrintsettings,
@@ -33,19 +34,9 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
 
     const onSavePrintSettingsClick = async () => {
         if (printSettings?.letterhead_format == 0 && printSettings?.header_footer?.header?.doctor_info?.enable == 'N' && printSettings?.header_footer?.header?.clinic_info?.enable == 'N' && printSettings?.logo_enable == 'N') {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: `Enable at least one option (Doctor’s information, Clinic's information, Logo on Header)`,
-                duration: 2
-            });
+            errorMessage(`Enable at least one option (Doctor’s information, Clinic's information, Logo on Header)`)
         } else if (printSettings?.letterhead_format == 1 && !fileHeader) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: `Upload header`,
-                duration: 2
-            });
+            errorMessage(`Upload header`)
         } else {
             var sendData = {
                 letterhead_format: printSettings?.letterhead_format,
@@ -88,12 +79,7 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
             if (action.meta.requestStatus === "fulfilled") {
                 navigate(-1)
             } else {
-                message.open({
-                    key: MESSAGE_KEY,
-                    type: 'warning',
-                    content: action.error.message,
-                    duration: 2
-                });
+                errorMessage(action.error)
             }
         }
     };

@@ -1,13 +1,10 @@
-import React, { useEffect, useContext, useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import { Button, Collapse } from 'antd';
 
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 import CashManagerContext from '../../context/CashManagerContext';
 
-import {
-    getVitals,
-} from "../../redux/vitalsSlice";
 import moment from "moment";
 
 const showDateFormat = 'DD MMM, YY'
@@ -16,29 +13,9 @@ function TabVitalsList(props) {
 
     const { handleDrawerVital, handleCollapsed } = props
 
-    const {
-        selectedVitalsList,
-        vitalsPastList,
-        loading,
-    } = useSelector((state) => state.vitals);
-    const dispatch = useDispatch();
+    const { vitalsPastList } = useSelector((state) => state.vitals);
 
-    const { patient_data, vitalsData, setVitalsData } = useContext(CashManagerContext);
-
-    useEffect(() => {
-        var sendData = {
-            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
-            pam_id: patient_data !== undefined && patient_data.pam_id !== undefined ? patient_data.pam_id : 0,
-        }
-        dispatch(getVitals(sendData));
-    }, []);
-
-    // useEffect(() => {
-    //     const updatedData = selectedVitalsList.map((e, i) => {
-    //         return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
-    //     });
-    //     setVitalsData(updatedData);
-    // }, [selectedVitalsList]);
+    const { vitalsData } = useContext(CashManagerContext);
 
     const PAST_VITALS = useMemo(() => {
         return (

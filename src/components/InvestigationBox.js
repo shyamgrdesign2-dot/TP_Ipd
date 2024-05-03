@@ -9,7 +9,6 @@ import {
   Popover,
   Tabs,
   Spin,
-  message,
   Tooltip
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -19,8 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
+import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
 import Investigationicon from "../assets/images/Lab.svg";
 import {
   addTemplate,
@@ -34,7 +32,6 @@ import {
 const { TextArea } = Input;
 
 function InvestigationBox() {
-  const [messageApi, contextHolder] = message.useMessage();
   const {
     selectedInvestigationList,
     parentOptionsList,
@@ -283,12 +280,7 @@ function InvestigationBox() {
   const onDeleteTemplateClicked = async (tit_id) => {
     const action = await dispatch(deleteTemplate(tit_id));
     if (action.meta.requestStatus === "rejected") {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   };
 
@@ -316,19 +308,9 @@ function InvestigationBox() {
 
   const onAddTemplateClicked = async () => {
     if (investigationData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 investigation added',
-        duration: 2
-      });
+      errorMessage('At least 1 investigation added')
     } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup investigation name',
-        duration: 2
-      });
+      errorMessage('Please fillup investigation name')
     } else {
       var sendData = {
         tit_template_name: inputTemplateName,
@@ -355,19 +337,9 @@ function InvestigationBox() {
 
   const onUpdateTemplateClicked = async () => {
     if (investigationData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 investigation added',
-        duration: 2
-      });
+      errorMessage('At least 1 investigation added')
     } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup investigation name',
-        duration: 2
-      });
+      errorMessage('Please fillup investigation name')
     } else {
       var data = JSON.parse(inputTemplateName);
       var sendData = {
@@ -649,7 +621,6 @@ function InvestigationBox() {
 
   return (
     <>
-      {contextHolder}
       <div className="">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">

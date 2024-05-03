@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useContext } from "react";
-import { Col, Radio, Row, Form, Switch, Button, Input, Checkbox, message, Table, Drawer } from "antd";
+import { Col, Radio, Row, Form, Switch, Button, Input, Checkbox, Table, Drawer } from "antd";
 import Cropper from "react-cropper";
 import SignatureCanvas from 'react-signature-canvas'
 import { MenuOutlined } from '@ant-design/icons';
@@ -13,8 +13,7 @@ import { isMobile } from 'react-device-detect';
 import PrintSettingsContext from '../../context/PrintSettingsContext';
 
 import CommonModal from '../../common/CommonModal';
-import { MESSAGE_KEY } from "../../utils/constants";
-import { dataUrlToFile, dataUrlToFileUsingFetch } from "../../utils/utils";
+import { errorMessage, dataUrlToFile, dataUrlToFileUsingFetch } from "../../utils/utils";
 
 import defaultprofile from "../../assets/images/default-profile.svg";
 import rxDisplayArea from '../../assets/images/rx-display-area.svg';
@@ -272,12 +271,7 @@ function HeaderFooterLayout() {
             if (fileUrl.size <= 2000000 && (fileUrl.type == 'image/png' || fileUrl.type == 'image/jpeg' || fileUrl.type == 'image/jpg')) {
                 setFileLogo({ imageShow: true, showFile: URL.createObjectURL(fileUrl), uploadFile: fileUrl })
             } else {
-                message.open({
-                    key: MESSAGE_KEY,
-                    type: 'warning',
-                    content: 'Please upload only jpg, jpeg or png files with the max size 2mb.',
-                    duration: 2
-                });
+                errorMessage('Please upload only jpg, jpeg or png files with the max size 2mb.')
             }
         }
     }
@@ -299,12 +293,7 @@ function HeaderFooterLayout() {
                 };
                 reader.readAsDataURL(fileUrl);
             } else {
-                message.open({
-                    key: MESSAGE_KEY,
-                    type: 'warning',
-                    content: 'Please upload only jpg, jpeg or png files with the max size 2mb.',
-                    duration: 2
-                });
+                errorMessage('Please upload only jpg, jpeg or png files with the max size 2mb.')
             }
         }
     }
@@ -348,12 +337,7 @@ function HeaderFooterLayout() {
                 };
                 reader.readAsDataURL(fileUrl);
             } else {
-                message.open({
-                    key: MESSAGE_KEY,
-                    type: 'warning',
-                    content: 'Please upload only jpg, jpeg or png files with the max size 2mb.',
-                    duration: 2
-                });
+                errorMessage('Please upload only jpg, jpeg or png files with the max size 2mb.')
             }
         }
     }
@@ -517,12 +501,7 @@ function HeaderFooterLayout() {
             if (fileUrl.size <= 2000000 && (fileUrl.type == 'image/png' || fileUrl.type == 'image/jpeg' || fileUrl.type == 'image/jpg')) {
                 setFileWatermark({ imageShow: true, showFile: URL.createObjectURL(fileUrl), uploadFile: fileUrl })
             } else {
-                message.open({
-                    key: MESSAGE_KEY,
-                    type: 'warning',
-                    content: 'Please upload only jpg, jpeg or png files with the max size 2mb.',
-                    duration: 2
-                });
+                errorMessage('Please upload only jpg, jpeg or png files with the max size 2mb.')
             }
         }
     }
@@ -562,12 +541,7 @@ function HeaderFooterLayout() {
                 };
                 reader.readAsDataURL(fileUrl);
             } else {
-                message.open({
-                    key: MESSAGE_KEY,
-                    type: 'warning',
-                    content: 'Please upload only jpg, jpeg or png files with the max size 2mb.',
-                    duration: 2
-                });
+                errorMessage('Please upload only jpg, jpeg or png files with the max size 2mb.')
             }
         }
     }

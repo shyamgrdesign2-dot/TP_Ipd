@@ -11,7 +11,6 @@ import {
   Button,
   Drawer,
   Tabs,
-  message,
   Select,
   Card,
   Spin,
@@ -33,8 +32,9 @@ import { v4 as uuidv4 } from "uuid";
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from "../../context/CashManagerContext";
-import { MESSAGE_KEY } from "../../utils/constants";
+
 import {
+  errorMessage,
   onlyNumberFormat,
   onlyDecimalFormat,
   removeBeforeWhiteSpace,
@@ -58,7 +58,7 @@ import TabMedicationSearch from "./TabMedicationSearch";
 import TabMedicationMoreModal from "./TabMedicationMoreModal";
 
 function TabMedicationBox() {
-  const [messageApi, contextHolder] = message.useMessage();
+
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const {
     selectedMedicationList,
@@ -214,12 +214,7 @@ function TabMedicationBox() {
       setSelectedIndex(medicationData.length - 1);
       handleDrawerParent();
     } else {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: action.error.message,
-        duration: 2,
-      });
+      errorMessage(action.error)
     }
   };
 
@@ -319,12 +314,7 @@ function TabMedicationBox() {
       });
       setMedicationData([...medicationData, ...updatedData]);
     } else {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: action.error.message,
-        duration: 2,
-      });
+      errorMessage(action.error)
     }
   };
 
@@ -365,24 +355,14 @@ function TabMedicationBox() {
       setMedicationData([...medicationData, ...updatedData]);
       handleDrawerTemplate();
     } else {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: action.error.message,
-        duration: 2,
-      });
+      errorMessage(action.error)
     }
   };
 
   const onDeleteTemplateClicked = async (tmtd_id) => {
     const action = await dispatch(deleteTemplate(tmtd_id));
     if (action.meta.requestStatus === "rejected") {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   };
 
@@ -396,21 +376,11 @@ function TabMedicationBox() {
 
   const onAddTemplateClicked = async () => {
     if (medicationData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: "At least 1 medication added",
-        duration: 2,
-      });
+      errorMessage("At least 1 medication added")
     } else if (
       medicationData.filter((e) => e.tmm_medicine_name == "").length > 0
     ) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: "Please fillup medication name",
-        duration: 2,
-      });
+      errorMessage("Please fillup medication name")
     } else {
       var sendData = {
         tmtd_template_name: inputTemplateName,
@@ -437,21 +407,11 @@ function TabMedicationBox() {
 
   const onUpdateTemplateClicked = async () => {
     if (medicationData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: "At least 1 medication added",
-        duration: 2,
-      });
+      errorMessage("At least 1 medication added")
     } else if (
       medicationData.filter((e) => e.tmm_medicine_name == "").length > 0
     ) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: "Please fillup medication name",
-        duration: 2,
-      });
+      errorMessage("Please fillup medication name")
     } else {
       var data = JSON.parse(inputTemplateName);
       var sendData = {
@@ -1776,7 +1736,6 @@ function TabMedicationBox() {
 
   return (
     <>
-      {contextHolder}
       <div>
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
