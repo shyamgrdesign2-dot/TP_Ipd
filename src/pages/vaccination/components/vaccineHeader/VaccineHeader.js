@@ -10,9 +10,10 @@ import alertIcon from "../../../../assets/images/alertIcon.svg";
 import Preview from "./../preview/Preview";
 import "./VaccineHeader.scss";
 
-function VaccineHeader({ handlePrint }) {
+function VaccineHeader({ handlePrint, patientDetails }) {
   const navigate = useNavigate();
-  const { patient_data } = useContext(CashManagerContext);
+  let { patient_data } = useContext(CashManagerContext);
+  patient_data = { ...patient_data, ...patientDetails };
 
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [shouldShowPreview, setShowPreview] = useState(false);
@@ -113,7 +114,10 @@ function VaccineHeader({ handlePrint }) {
                   }
                 />
               </div>
-              <ProfilePopover patient_data={patient_data} />
+              <ProfilePopover
+                patient_data={patient_data}
+                locationPath={"/vaccine"}
+              />
             </div>
           </Col>
           <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">

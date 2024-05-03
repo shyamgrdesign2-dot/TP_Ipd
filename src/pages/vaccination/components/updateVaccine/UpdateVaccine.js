@@ -16,7 +16,12 @@ import "./updateVaccine.scss";
 import moment from "moment";
 import SuccessPopup from "../SuccessPopup.js";
 
-const UpdateVaccine = ({ show, setShow }) => {
+const UpdateVaccine = ({
+  show,
+  setShow,
+  brands,
+  selectedVaccines = [{ tvac_name: "BCG" }, { tvac_name: "XYZ" }],
+}) => {
   const { TextArea } = Input;
   const [changeDate, setChangeDate] = useState(true);
   const [givenDate, setGivenDate] = useState("");
@@ -25,7 +30,6 @@ const UpdateVaccine = ({ show, setShow }) => {
   const [dayFromToday, setDayFromToday] = useState();
   const [dueDateNote, setDueDateNote] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
-  const selectedVaccines = [{ name: "BCG" }, { name: "XYZ" }, { name: "hdj" }];
   const dayFromTodayList = [
     { label: "Tomorrow", value: 1 },
     { label: "1 week", value: 2 },
@@ -33,43 +37,44 @@ const UpdateVaccine = ({ show, setShow }) => {
     { label: "1 month", value: 4 },
     { label: "2 months", value: 5 },
   ];
-  const brands = [
-    {
-      value: "1",
-      label: "Zydus",
-    },
-    {
-      value: "2",
-      label: "Aristo",
-    },
-    {
-      value: "3",
-      label: "Aristo",
-    },
-    {
-      value: "4",
-      label: "Aristo",
-    },
-    {
-      value: "5",
-      label: "Aristo",
-    },
-    {
-      value: "6",
-      label: "Aristo",
-    },
-    {
-      value: "7",
-      label: "Aristo",
-    },
-    {
-      value: "8",
-      label: "Aristo",
-    },
-  ];
+  // const brands = [
+  //   {
+  //     value: "1",
+  //     label: "Zydus",
+  //   },
+  //   {
+  //     value: "2",
+  //     label: "Aristo",
+  //   },
+  //   {
+  //     value: "3",
+  //     label: "Aristo",
+  //   },
+  //   {
+  //     value: "4",
+  //     label: "Aristo",
+  //   },
+  //   {
+  //     value: "5",
+  //     label: "Aristo",
+  //   },
+  //   {
+  //     value: "6",
+  //     label: "Aristo",
+  //   },
+  //   {
+  //     value: "7",
+  //     label: "Aristo",
+  //   },
+  //   {
+  //     value: "8",
+  //     label: "Aristo",
+  //   },
+  // ];
 
   useEffect(() => {
     getVaccineBrands();
+    setGivenDate(selectedVaccines?.[0]?.tvp_given_date ?? "");
   }, []);
 
   const getVaccineBrands = async () => {};
@@ -79,6 +84,11 @@ const UpdateVaccine = ({ show, setShow }) => {
     setTimeout(() => {
       setShow(false);
     }, 1000);
+  };
+
+  const closeHandler = () => {
+    setChangeDate(false);
+    setShow(false);
   };
 
   return (
@@ -93,7 +103,7 @@ const UpdateVaccine = ({ show, setShow }) => {
       open={show}
       width={936}
       footer={null}
-      onCancel={() => setShow(false)}
+      onCancel={closeHandler}
     >
       <Row gutter={[16, 16]} style={{ height: "655px", marginTop: "20px" }}>
         <Col
@@ -165,6 +175,7 @@ const UpdateVaccine = ({ show, setShow }) => {
           {changeDate && (
             <div className="d-flex">
               <DatePicker
+                picker="date"
                 open={changeDate}
                 placeholder="Select Date"
                 placement="bottom"
@@ -178,6 +189,8 @@ const UpdateVaccine = ({ show, setShow }) => {
                 format="YYYY-MM-DD"
                 value={""}
                 style={{ border: "none" }}
+                dropdownClassName="custom-picker-dropdown"
+                popupStyle={{ zIndex: 1000 }}
               />
             </div>
           )}
@@ -197,7 +210,7 @@ const UpdateVaccine = ({ show, setShow }) => {
                 {selectedVaccines?.map((vaccine, i) => (
                   <>
                     <label>
-                      {vaccine?.name}
+                      {vaccine?.tvac_name}
                       <div style={{ opacity: 0.5 }}>{`(Selected vaccine ${
                         i + 1
                       })`}</div>
@@ -213,7 +226,10 @@ const UpdateVaccine = ({ show, setShow }) => {
                           .toLowerCase()
                           .localeCompare((optionB?.label ?? "").toLowerCase())
                       }
-                      options={brands}
+                      options={brands?.map((brand) => ({
+                        label: brand?.tvc_name,
+                        value: brand?.tvc_id,
+                      }))}
                       dropdownStyle={{ maxHeight: "176px", overflow: "auto" }}
                     />
                     <label>Note</label>
@@ -280,7 +296,7 @@ const UpdateVaccine = ({ show, setShow }) => {
           </div>
         </Col>
       </Row>
-      <SuccessPopup show={showSuccess} />
+      <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
     </Modal>
   );
 };

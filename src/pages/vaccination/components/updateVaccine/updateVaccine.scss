@@ -45,3 +45,23 @@
 .ant-picker-footer {
   display: none;
 }
+
+// .custom-picker-dropdown .custom-picker-date-panel {
+//   width: 430px !important;
+//   height: 382px !important;
+
+//   .custom-picker-content {
+//     width: 400px !important;
+//     height: 320px !important;
+//   }
+// }
+
+.custom-picker-dropdown .custom-picker-date-panel {
+  width: 430px;
+  height: 382px;
+}
+
+.custom-picker-dropdown .custom-picker-date-panel .custom-picker-content {
+  width: 400px;
+  height: 320px;
+}

@@ -184,6 +184,7 @@ const Preview = ({ onCancel, shouldShowPreview }) => {
   return (
     <div>
       <Modal
+        className="custom-modal"
         title={
           <div className="d-flex justify-content-between titleContainer">
             <span>Preview</span>

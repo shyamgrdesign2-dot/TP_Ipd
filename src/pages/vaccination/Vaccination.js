@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./Vaccination.scss";
 import { Checkbox, Drawer } from "antd";
 import VaccineHeader from "./components/vaccineHeader/VaccineHeader";
@@ -10,6 +10,9 @@ import { Row, Col } from "react-bootstrap";
 import UpdateVaccine from "./components/updateVaccine/UpdateVaccine";
 import VaccinationChart from "./components/vaccinationChart/vaccinationChart";
 import { useReactToPrint } from "react-to-print";
+import ApiVaccination from "./service";
+import AddDOB from "./components/addDOB/AddDOB";
+import moment from "moment";
 
 const vaccinesData = [
   {
@@ -136,6 +139,29 @@ function Vaccination() {
   const [warningMsg, setWarningMsg] = useState("");
   const [showUpdate, setShowUpdate] = useState(false);
   const printableRef = useRef(null);
+  const [showDob, setShowDob] = useState(false);
+  const [patientDetails, setPatientDetails] = useState({});
+  const [brands, setBrands] = useState([]);
+
+  useEffect(() => {
+    getPatientDetails();
+    getVaccineBrands();
+  }, []);
+
+  const getPatientDetails = async () => {
+    const [details] = await ApiVaccination.getPatientDetails();
+    if (!details?.vac_dob) {
+      setShowDob(true);
+    } else {
+      details.vac_dob = moment(details.vac_dob).format("DD-MMM-YYYY");
+    }
+    setPatientDetails(details);
+  };
+
+  const getVaccineBrands = async () => {
+    const details = await ApiVaccination.getVaccineBrands();
+    setBrands(details);
+  };
 
   const handleSelectAll = (event) => {
     const checked = event?.target?.checked;
@@ -207,7 +233,10 @@ function Vaccination() {
 
   return (
     <div className="vaccinationWrapper">
-      <VaccineHeader handlePrint={handlePrint} />
+      <VaccineHeader
+        handlePrint={handlePrint}
+        patientDetails={patientDetails}
+      />
       <div
         id="wrap"
         onScroll={handleScroll}
@@ -285,12 +314,21 @@ function Vaccination() {
           setShowUpdate={setShowUpdate}
         />
       ) : null}
-      <UpdateVaccine show={showUpdate} setShow={setShowUpdate} />
+      {showUpdate && (
+        <UpdateVaccine
+          show={showUpdate}
+          setShow={setShowUpdate}
+          brands={brands}
+          vaccines={selectedCards?.map((id) => vaccinesData[id])}
+        />
+      )}
+
       <div style={{ display: "none" }}>
         <div ref={printableRef}>
           <VaccinationChart vaccineData={[]} />
         </div>
       </div>
+      {showDob && <AddDOB show={showDob} setShowDob={setShowDob} />}
     </div>
   );
 }
