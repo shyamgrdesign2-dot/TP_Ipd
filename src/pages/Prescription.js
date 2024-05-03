@@ -58,7 +58,6 @@ function Prescription() {
 
   const contextApi = { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote };
 
-  const [collapsedFlag, setCollapsedFlag] = useState(1);
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
 
@@ -131,13 +130,12 @@ function Prescription() {
 
   //Handle Sider
   const handleCollapsed = useCallback((flag) => {
-    setCollapsedFlag(flag);
     if (flag === 1) {
       handleDrawerVital();
     } else if (flag === 2) {
       handleDrawerMedicalHistory();
     }
-  }, [collapsedFlag, vitalDrawer, medicalHistoryDrawer]);
+  }, [vitalDrawer, medicalHistoryDrawer]);
 
   useEffect(() => {
     const patientLastHistory = async () => {
@@ -190,7 +188,7 @@ function Prescription() {
                           <i className={`${vitalsData.length > 0 ? 'icon-Edit' : 'icon-Add'} me-1 fs-5`}></i> <span>{`${vitalsData.length > 0 ? 'Edit' : 'Add'}`}</span>
                         </button>
                       </div>
-                      {collapsedFlag === 1 && (
+                      {vitalsData.length > 0 && (
                         <VitalsList mode={caseManagerData !== undefined ? EDIT : ADD} />
                       )}
                     </div>
@@ -200,9 +198,9 @@ function Prescription() {
                         <div className="d-flex align-items-center">
                           <img src={MedicalHistory} alt="Medical History" className="me-3" />
                           <div className="title-common">Medical History</div>
-                          <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
+                          {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
                             <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
-                          </Button>
+                          </Button> */}
                         </div>
 
                         <button className="btn d-flex align-items-center btn-text" onClick={handleDrawerMedicalHistory}>
@@ -210,7 +208,7 @@ function Prescription() {
                           <i className={`${medicalHistoryData.length > 0 ? 'icon-Edit' : 'icon-Add'} me-1 fs-5`}></i> <span>{`${medicalHistoryData.length > 0 ? 'Edit' : 'Add'}`}</span>
                         </button>
                       </div>
-                      {collapsedFlag === 2 && (
+                      {medicalHistoryData.length > 0 && (
                         <MedicalHistoryList />
                       )}
                     </div>

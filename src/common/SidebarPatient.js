@@ -4,9 +4,14 @@ import { Button, Popover } from 'antd';
 import { isMobile } from 'react-device-detect';
 import { Link } from 'react-router-dom';
 
+import { useSelector } from "react-redux";
+
 import { makeDefaultLogo } from "../utils/utils";
 
 function SidebarPatient({ collapsed, patient_data }) {
+
+    const { profile } = useSelector((state) => state.doctors);
+
     const menu = [
         { icon_name: 'icon-Visit-Summary-Fill', short_title: 'Visit', long_title: 'Visit Summary' },
         // { icon_name: 'icon-Report', short_title: 'Reports', long_title: 'Medical Reports (3)' },
@@ -43,6 +48,24 @@ function SidebarPatient({ collapsed, patient_data }) {
         </>
     )
 
+    const genderAge = (patient_data) => {
+        var value = `${patient_data?.pm_gender[0].toUpperCase()}, `
+        if (profile?.dp_id === 9) {
+            if (patient_data.ageYears != 0) {
+                value += `${patient_data?.ageYears}y`
+            }
+            if (patient_data.ageMonths != 0) {
+                value += ` ${patient_data?.ageMonths}m`
+            }
+            if (patient_data.ageDays != 0) {
+                value += ` ${patient_data?.ageDays}d`
+            }
+        } else {
+            value += `${patient_data?.ageYears}y`
+        }
+        return value
+    }
+
     return (
         <div>
             <Popover
@@ -57,10 +80,11 @@ function SidebarPatient({ collapsed, patient_data }) {
                     </div>
                     {!collapsed && (
                         <div className='text-truncate'>
+                            {console.log(patient_data)}
                             <div className='patientName d-flex align-items-center'> <div className='text-truncate pt-2px'>{`${patient_data !== undefined ? patient_data.pm_fullname : "Hello Guest"}`}</div>
                                 <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right'></i></button>
                             </div>
-                            <p className='mb-0'>{`${patient_data !== undefined ? patient_data.pm_gender[0].toUpperCase() : "M"}, ${patient_data !== undefined ? patient_data.ageYears : 30}y,`}</p>
+                            <p className='mb-0'>{patient_data !== undefined ? genderAge(patient_data) : `M, 30y`}</p>
                         </div>
                     )}
                 </div>

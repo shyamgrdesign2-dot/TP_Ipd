@@ -11,6 +11,7 @@ import {
 
 function HeaderPrescriptionPrint({ patient_data, tcm_id }) {
     const navigate = useNavigate();
+    const { profile } = useSelector((state) => state.doctors);
     const {
         loadingEndVisit,
     } = useSelector((state) => state.caseManager);
@@ -31,6 +32,24 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id }) {
 
     };
 
+    const genderAge = (patient_data) => {
+        var value = `${patient_data?.pm_gender[0].toUpperCase()}, `
+        if (profile?.dp_id === 9) {
+            if (patient_data.ageYears != 0) {
+                value += `${patient_data?.ageYears}y`
+            }
+            if (patient_data.ageMonths != 0) {
+                value += ` ${patient_data?.ageMonths}m`
+            }
+            if (patient_data.ageDays != 0) {
+                value += ` ${patient_data?.ageDays}d`
+            }
+        } else {
+            value += `${patient_data?.ageYears}y`
+        }
+        return value
+    }
+
     return (
         <Navbar className="justify-content-between headerprescription p-0">
             <div className='align-items-center d-flex w-100 justify-content-between'>
@@ -38,7 +57,7 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id }) {
                     <div className={'align-items-center d-flex h-100 ps-3'}>
                         <div className='rounded-pill patientProfile border me-3'>{makeDefaultLogo(patient_data?.pm_fullname)}</div>
                         <div>
-                            <div className='patientName'>{`${patient_data !== undefined ? patient_data.pm_fullname : "Hello Guest"}`}<div className='text-2'>{`${patient_data !== undefined ? patient_data.pm_gender[0].toUpperCase() : "M"}, ${patient_data !== undefined ? patient_data.ageYears : 30}y`}</div></div>
+                            <div className='patientName'>{`${patient_data !== undefined ? patient_data.pm_fullname : "Hello Guest"}`}<div className='text-2'>{patient_data !== undefined ? genderAge(patient_data) : `M, 30y`}</div></div>
                         </div>
                     </div>
                 </div>

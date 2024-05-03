@@ -359,6 +359,24 @@ function AppointmentData({ locationPath }) {
         }
     }
 
+    const genderAge = (patient_data) => {
+        var value = `${patient_data?.pm_gender}, `
+        if (profile?.dp_id === 9) {
+            if (patient_data.ageYears != 0) {
+                value += `${patient_data?.ageYears}y`
+            }
+            if (patient_data.ageMonths != 0) {
+                value += ` ${patient_data?.ageMonths}m`
+            }
+            if (patient_data.ageDays != 0) {
+                value += ` ${patient_data?.ageDays}d`
+            }
+        } else {
+            value += `${patient_data?.ageYears}y`
+        }
+        return value
+    }
+
     const columns = [
         {
             title: "#",
@@ -383,7 +401,7 @@ function AppointmentData({ locationPath }) {
                     <span className="text-primary"><Link to="/patient_details" state={{ patient_data: record }}>{record.pm_fullname}</Link></span>
                     <br />
                     <small>
-                        {record.pm_gender}, {record.ageYears}y
+                        {genderAge(record)}
                     </small>
                 </div>
             ),
@@ -567,9 +585,7 @@ function AppointmentData({ locationPath }) {
                                 <span className="title-common fontroboto">
                                     {appointmentSelectedFromMenu?.pm_fullname}
                                     <span className="fw-normal ms-2">
-                                        (
-                                        {appointmentSelectedFromMenu?.pm_gender},{" "}
-                                        {appointmentSelectedFromMenu?.ageYears}y)
+                                        ({genderAge(appointmentSelectedFromMenu)})
                                     </span>
                                 </span>
                             </div>
@@ -643,9 +659,7 @@ function AppointmentData({ locationPath }) {
                             <span className="title-common fontroboto">
                                 {appointmentSelectedFromMenu?.pm_fullname}
                                 <span className="fw-normal ms-2">
-                                    (
-                                    {appointmentSelectedFromMenu?.pm_gender},{" "}
-                                    {appointmentSelectedFromMenu?.ageYears}y)
+                                    ({genderAge(appointmentSelectedFromMenu)})
                                 </span>
                             </span>
                         </div>
