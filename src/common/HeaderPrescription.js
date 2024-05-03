@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
-import { Button, Dropdown, message, Tooltip, Popover, Input, Spin, Tabs, Select, Drawer } from 'antd';
+import { Button, Dropdown, Tooltip, Popover, Input, Spin, Tabs, Select, Drawer } from 'antd';
 import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from 'react-router-dom';
 import { isMobile } from 'react-device-detect';
@@ -13,8 +13,7 @@ import ProfilePopover from './ProfilePopover';
 import CommonModal from './CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 
-import { removeBeforeWhiteSpace } from "../utils/utils";
-import { MESSAGE_KEY } from "../utils/constants";
+import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -39,7 +38,7 @@ function HeaderPrescription() {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
-    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
+    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
@@ -241,24 +240,14 @@ function HeaderPrescription() {
             }
             !isMobile ? showHideTemplatesListPopover() : handleDrawerTemplate()
         } else {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
     const onDeleteTemplateClicked = async (tmoc_id) => {
         const action = await dispatch(oneClickDeleteTemplate(tmoc_id));
         if (action.meta.requestStatus === "rejected") {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
@@ -779,47 +768,17 @@ function HeaderPrescription() {
 
     async function onEndVisitClick() {
         if (symptomsData.length > 0 && symptomsData.filter(e => e.symptom_name == "").length > 0) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup symptom name',
-                duration: 2
-            });
+            errorMessage('Please fillup symptom name')
         } else if (examinationData.length > 0 && examinationData.filter(e => e.examination_name == "").length > 0) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup examination name',
-                duration: 2
-            });
+            errorMessage('Please fillup examination name')
         } else if (diagnosisData.length > 0 && diagnosisData.filter((e) => e.tds_name == "").length > 0) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup diagnosis name',
-                duration: 2
-            });
+            errorMessage('Please fillup diagnosis name')
         } else if (medicationData.length > 0 && medicationData.filter((e) => e.tmm_medicine_name == "").length > 0) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup medication name',
-                duration: 2
-            });
+            errorMessage('Please fillup medication name')
         } else if (adviceData.length > 0 && adviceData.filter(e => e.advice_name == "").length > 0) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup advice name',
-                duration: 2
-            });
+            errorMessage('Please fillup advice name')
         } else if (investigationData.length > 0 && investigationData.filter(e => e.investigation_name == "").length > 0) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup investigation name',
-                duration: 2
-            });
+            errorMessage('Please fillup investigation name')
         } else {
             var sendData = {
                 action: tcmId == 0 ? 'add' : 'edit',
@@ -836,24 +795,20 @@ function HeaderPrescription() {
                 vitals: vitalsData,
                 follow_up_date: followUpDate,
                 visit_advice: additionalNote,
+                medical_history: medicalHistoryData
             }
 
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
             if (action.meta.requestStatus === "fulfilled") {
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
             } else {
-                message.open({
-                    key: MESSAGE_KEY,
-                    type: 'warning',
-                    content: action.error.message,
-                    duration: 2
-                });
+                errorMessage(action.error)
             }
         }
     }
 
     const checkDataFillOrNot = () => {
-        if (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || medicationData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || vitalsData.length > 0) {
+        if (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || medicationData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0) {
             showHideBackModal()
         } else {
             navigate('/', { replace: true });
@@ -988,8 +943,8 @@ function HeaderPrescription() {
                                 </div>
                             </Tooltip> */}
 
-                            <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || followUpDate || additionalNote) ? "" : "Please fill your prescription to end visit."}>
-                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || followUpDate || additionalNote) && onEndVisitClick()} loading={loading}>
+                            <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote) ? "" : "Please fill your prescription to end visit."}>
+                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote) && onEndVisitClick()} loading={loading}>
                                     <i className='icon-exit me-2'></i>
                                     End Visit
                                 </Button>

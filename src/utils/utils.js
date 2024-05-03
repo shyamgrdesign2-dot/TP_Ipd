@@ -1,6 +1,8 @@
 import moment from "moment";
 
 import config from "../config";
+import { message } from "antd";
+import { MESSAGE_KEY } from "../utils/constants";
 
 export const validateEmail = (email) => {
   return String(email)
@@ -128,6 +130,32 @@ export const dataUrlToFileUsingFetch = async (url, fileName, mimeType) => {
   const buffer = await response.arrayBuffer();
 
   return new File([buffer], fileName, { type: mimeType });
+};
+
+export const errorMessage = async (error) => {
+  if (typeof error === 'object' && error?.name == "TypeError") {
+    return message.open({
+      key: MESSAGE_KEY,
+      type: 'error',
+      className: 'error-red',
+      content: (
+        <div className='d-flex align-items-center'>
+          <div>
+            <div className='title-common text-start fontroboto'>Error</div>
+            <div className='fontroboto text-start fw-normal mt-1'>We're Sorry, Somthing went wronng. Please <span className="text-underline">try again</span></div>
+          </div>
+        </div>
+      ),
+      duration: 2,
+    });
+  } else {
+    return message.open({
+      key: MESSAGE_KEY,
+      type: "warning",
+      content: typeof error === 'object' ? error.message : error,
+      duration: 2,
+    });
+  }
 };
 
 export const trimEllip = (source, length) => {

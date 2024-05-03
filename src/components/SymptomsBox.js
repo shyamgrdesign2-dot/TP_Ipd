@@ -9,7 +9,6 @@ import {
   Popover,
   Tabs,
   Spin,
-  message,
   Tooltip
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -19,8 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { MESSAGE_KEY } from "../utils/constants";
-import { isNumeric, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
+import { errorMessage, isNumeric, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Symptomsicon from "../assets/images/Symptoms.svg";
 import {
   addTemplate,
@@ -32,7 +30,6 @@ import {
 } from "../redux/symptomsSlice";
 
 function SymptomsBox() {
-  const [messageApi, contextHolder] = message.useMessage();
   const {
     selectedSymptomsList,
     parentOptionsList,
@@ -345,12 +342,7 @@ function SymptomsBox() {
   const onDeleteTemplateClicked = async (tst_id) => {
     const action = await dispatch(deleteTemplate(tst_id));
     if (action.meta.requestStatus === "rejected") {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   };
 
@@ -378,19 +370,9 @@ function SymptomsBox() {
 
   const onAddTemplateClicked = async () => {
     if (symptomsData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 symptom added',
-        duration: 2
-      });
+      errorMessage('At least 1 symptom added')
     } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup symptom name',
-        duration: 2
-      });
+      errorMessage('Please fillup symptom name')
     } else {
       var sendData = {
         tst_template_name: inputTemplateName,
@@ -417,19 +399,9 @@ function SymptomsBox() {
 
   const onUpdateTemplateClicked = async () => {
     if (symptomsData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 symptom added',
-        duration: 2
-      });
+      errorMessage('At least 1 symptom added')
     } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup symptom name',
-        duration: 2
-      });
+      errorMessage('Please fillup symptom name')
     } else {
       var data = JSON.parse(inputTemplateName);
       var sendData = {
@@ -733,7 +705,6 @@ function SymptomsBox() {
 
   return (
     <>
-      {contextHolder}
       <div>
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">

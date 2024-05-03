@@ -22,18 +22,6 @@ function SidebarDoctor() {
             )}
           </div>
         </NavLink>
-        <NavLink
-          to="/vaccine"
-          replace={true}
-          className={({ isActive, isPending }) =>
-            isPending ? "pending" : isActive ? "active" : ""
-          }
-        >
-          <i className="icon-calendarfill"></i>
-          <div className="mt-1 px-2">
-            {isMobile ? "Appt" : <div className="text-truncate">Vaccine</div>}
-          </div>
-        </NavLink>
         {/* <NavLink to="/" className={({ isActive, isPending }) =>
                     isPending ? "pending" : isActive ? "active" : ""
                 }>

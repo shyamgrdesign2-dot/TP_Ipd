@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 
 import { Form, Input, Button, Select, DatePicker, Radio, Row, Col, InputNumber } from "antd";
-import { calculateAge } from "../utils/utils";
 import dayjs from "dayjs";
 import moment from "moment";
 import { isMobile } from "react-device-detect";
 
 import { ADD, EDIT } from "../utils/constants";
-import { removeBeforeWhiteSpace } from "../utils/utils"
+import { calculateAge, onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
 
 import { useDispatch, useSelector } from "react-redux";
 import { listSalutation } from "../redux/appointmentsSlice";
@@ -117,9 +116,49 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
     };
 
     const disabledDate = (current) => {
-        // Can not select days before today and today
-        // return current && current > dayjs().endOf("day");
-        return current && current >= moment().add(1, 'days').startOf('day');
+        const futureLimit = moment().endOf('day');
+        const pastLimit = moment().subtract(149, 'years').startOf('day');
+        return current && (current > futureLimit || current < pastLimit);
+
+    };
+
+    const handleSalutationChange = value => {
+        const getGender = form.getFieldsValue()?.pm_gender
+        if (!getGender && getGender === undefined) {
+            if (value === "Mr" || value === "S/O") {
+                form.setFieldsValue({
+                    pm_gender: 'Male'
+                });
+            } else if (value === "Miss" || value === "Mrs" || value === "Ms." || value === "D/O") {
+                form.setFieldsValue({
+                    pm_gender: 'Female'
+                });
+            } else {
+                form.setFieldsValue({
+                    pm_gender: ''
+                });
+            }
+        }
+    };
+
+    const handleGenderChange = e => {
+        const getSalutation = form.getFieldsValue()?.pm_salutation
+        if (!getSalutation && getSalutation === undefined) {
+            const value = e.target.value
+            if (value === "Male") {
+                form.setFieldsValue({
+                    pm_salutation: 'Mr'
+                });
+            } else if (value === "Female") {
+                form.setFieldsValue({
+                    pm_salutation: 'Ms.'
+                });
+            } else {
+                form.setFieldsValue({
+                    pm_salutation: null
+                });
+            }
+        }
     };
 
     useEffect(() => {
@@ -128,7 +167,7 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
             newDate.setFullYear(
                 newDate.getFullYear() - parseInt(
                     ageYearsMonths.hasOwnProperty("years")
-                        ? ageYearsMonths.years != ""
+                        ? ageYearsMonths.years != "" && !isNaN(ageYearsMonths.years)
                             ? ageYearsMonths.years
                             : 0
                         : 0
@@ -136,14 +175,14 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
             newDate.setMonth(
                 newDate.getMonth() - parseInt(
                     ageYearsMonths.hasOwnProperty("months")
-                        ? ageYearsMonths.months != ""
+                        ? ageYearsMonths.months != "" && !isNaN(ageYearsMonths.months)
                             ? ageYearsMonths.months
                             : 0
                         : 0
                 ));
             newDate.setDate(newDate.getDate() - parseInt(
                 ageYearsMonths.hasOwnProperty("days")
-                    ? ageYearsMonths.days != ""
+                    ? ageYearsMonths.days != "" && !isNaN(ageYearsMonths.days)
                         ? ageYearsMonths.days
                         : 0
                     : 0
@@ -174,7 +213,7 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
                     <Row gutter={{ xs: 8, sm: 18, md: 24, lg: 30 }}>
                         <Col xs={8} sm={8} md={6} lg={4}>
                             <Form.Item name="pm_salutation" label="Salutation">
-                                <Select placeholder="Select">
+                                <Select placeholder="Select" onChange={handleSalutationChange}>
                                     {
                                         salutationData.map(elm => (
                                             <Option key={elm.ts_id} value={elm.ts_name}>{elm.ts_name}</Option>
@@ -203,7 +242,7 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
                         </Col>
                         <Col xs={24} sm={24} md={12} lg={12}>
                             <Form.Item name="pm_gender" label="Gender" rules={rules.gender}>
-                                <Radio.Group className={`d-flex gender-radio ${isMobile ? 'segmented-radio-mobile' : ''}`}>
+                                <Radio.Group className={`d-flex gender-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={handleGenderChange}>
                                     <Radio.Button className="w-100 text-center" value="Male">Male</Radio.Button>
                                     <Radio.Button className="w-100 text-center" value="Female">Female</Radio.Button>
                                     <Radio.Button className="w-100 text-center" value="Other">Other</Radio.Button>
@@ -226,10 +265,11 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
                                         maxLength={3}
                                         value={ageYearsMonths?.years}
                                         onChange={(e) => {
-                                            if (Math.abs(e.target.value) <= 150) {
+                                            const intValue = onlyNumberFormat(e.target.value);
+                                            if (intValue >= 0 && intValue <= 149) {
                                                 setAgeYearsMonths({
                                                     ...ageYearsMonths,
-                                                    years: Math.abs(e.target.value),
+                                                    years: intValue,
                                                 });
                                                 form.setFieldsValue({
                                                     pm_dob: "",
@@ -244,13 +284,16 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
                                         maxLength={2}
                                         value={ageYearsMonths?.months}
                                         onChange={(e) => {
-                                            setAgeYearsMonths({
-                                                ...ageYearsMonths,
-                                                months: Math.abs(e.target.value),
-                                            });
-                                            form.setFieldsValue({
-                                                pm_dob: "",
-                                            });
+                                            const intValue = onlyNumberFormat(e.target.value);
+                                            if (intValue >= 0 && intValue <= 12) {
+                                                setAgeYearsMonths({
+                                                    ...ageYearsMonths,
+                                                    months: intValue,
+                                                });
+                                                form.setFieldsValue({
+                                                    pm_dob: "",
+                                                });
+                                            }
                                         }}
                                     />
                                 </div>
@@ -263,9 +306,11 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
                             <Form.Item name="pm_dob" label="Date of Birth">
                                 <DatePicker
                                     className="w-100"
-                                    inputReadOnly
                                     placeholder={showDateFormat.toLowerCase()}
-                                    format={showDateFormat}
+                                    format={{
+                                        format: showDateFormat,
+                                        type: 'mask',
+                                    }}
                                     onChange={onBirthDateChanged}
                                     disabledDate={disabledDate}
                                 />

@@ -21,6 +21,11 @@
         line-height: 24px;
       }
     }
+    .activeBtnText {
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 24px;
+    }
     .alertStyle {
       width: 10px;
       height: 10px;
@@ -37,6 +42,10 @@
       border: 1px solid #4b4ad5 !important;
       background-color: rgba(75, 74, 213, 0.1) !important;
     }
+  }
+  .activeBtn {
+    border: 1px solid #4b4ad5 !important;
+    background-color: rgba(75, 74, 213, 0.1) !important;
   }
 }
 

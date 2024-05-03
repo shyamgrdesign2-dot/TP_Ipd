@@ -9,6 +9,8 @@ import { useReactToPrint } from 'react-to-print';
 
 // import { PDFReader } from 'reactjs-pdf-reader';
 
+import { errorMessage } from "../utils/utils";
+
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
 import messageSent from '../assets/images/message-sent.svg';
@@ -190,12 +192,7 @@ function PrescriptionPrintView() {
         if (action.meta.requestStatus === "fulfilled") {
             navigate("/prescription", { replace: true, state: { patient_data: patient_data, caseManagerData: action.payload } })
         } else {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
@@ -219,12 +216,7 @@ function PrescriptionPrintView() {
         if (action.meta.requestStatus === "fulfilled") {
             navigate('/configure_print_setting', { state: { caseManagerData: action.payload } })
         } else {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     }
 
@@ -261,7 +253,7 @@ function PrescriptionPrintView() {
                                     icon={<i className="icon-Print"></i>}
                                 >
                                     <span className="fw-semibold">Print</span>
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                                 {/* <Button
 
@@ -270,7 +262,7 @@ function PrescriptionPrintView() {
                                     icon={<i className="icon-billings"></i>}
                                 >
                                     <span className="fw-semibold">Create Bill</span>
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button> */}
                                 <Button
                                     type="text"
@@ -279,7 +271,7 @@ function PrescriptionPrintView() {
                                     onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
                                 >
                                     <span className="fw-semibold">Download</span>
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                                 <Button
                                     type="text"
@@ -289,7 +281,7 @@ function PrescriptionPrintView() {
                                     loading={loading}
                                 >
                                     <span className="fw-semibold">Edit Prescription</span>
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                             </div>
                             {/* <div className="bg-body d-flex p-3 rounded-10px border">

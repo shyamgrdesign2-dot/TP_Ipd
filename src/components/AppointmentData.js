@@ -19,6 +19,8 @@ import {
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 
+import { errorMessage } from "../utils/utils";
+
 import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../utils/constants";
 import noData from "../assets/images/nodata-found.svg";
 import visitEnd from '../assets/images/end-visit.svg';
@@ -37,6 +39,10 @@ import {
     endVisit
 } from "../redux/appointmentsSlice";
 
+import {
+    changeSortOrder
+} from "../redux/doctorsSlice";
+
 import docimg from "../assets/images/docimg.png";
 import welcomdoc from "../assets/images/welcom-doc.svg";
 import suporticon from "../assets/images/suport-icon.svg";
@@ -51,7 +57,7 @@ function AppointmentData({ locationPath }) {
 
     const navigate = useNavigate();
 
-    const { profile } = useSelector((state) => state.doctors);
+    const { sort_order, profile } = useSelector((state) => state.doctors);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const from = searchParams.get("from");
@@ -223,12 +229,7 @@ function AppointmentData({ locationPath }) {
                         endDate: moment(date.endDate).add(1, 'day').format(dateFormat),
                     })
                 } else {
-                    message.open({
-                        key: MESSAGE_KEY,
-                        type: 'warning',
-                        content: `Can't select next date`,
-                        duration: 5,
-                    });
+                    errorMessage(`Can't select next date`)
                 }
             } else {
                 setPageNo(0)
@@ -406,8 +407,10 @@ function AppointmentData({ locationPath }) {
             dataIndex: "time",
             key: "time",
             ellipsis: true,
-            sorter: (a, b) => {
-
+            sortDirections: ['descend', 'ascend', 'descend'],
+            sortOrder: sort_order,
+            sorter: (a, b, sortOrder) => {
+                dispatch(changeSortOrder(sortOrder))
                 const lhsDateTime = `${a.apDate} ${a.apTime}`;
                 const lhsLongTime = moment(lhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
 
@@ -753,7 +756,7 @@ function AppointmentData({ locationPath }) {
                                         className="dateoutline"
                                         disabled={date.startDate !== date.endDate}
                                         onClick={nextDatePress}>
-                                        <i className="icon-right text-main d-block iconrotate90"></i>
+                                        <i className="icon-right text-main d-block iconrotate180"></i>
                                     </Button>
                                 </ButtonGroup>
                                 <Select
@@ -856,7 +859,7 @@ function AppointmentData({ locationPath }) {
                             <div className='d-flex'>
                                 <div style={{ flex: 1, marginRight: 35 }}>
                                     <div>
-                                        <h2 className="fw-medium mb-2" style={{fontSize: 16}}>Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')},</h2>
+                                        <h2 className="fw-medium mb-2" style={{ fontSize: 16 }}>Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')},</h2>
                                         <h3 className="fw-semibold mb-5" style={{ fontSize: 48 }}>Welcome to TatvaPractice</h3>
                                     </div>
                                     <div style={{ background: '#fef4f5', padding: 15, borderRadius: 10 }}>
@@ -873,7 +876,7 @@ function AppointmentData({ locationPath }) {
                                 </div>
                                 <figure>
                                     {/* <img src={docimg} style={{ width: '100%', height: window.innerHeight / 1.9, objectFit: 'contain' }} /> */}
-                                    <iframe width="498" height="392" className="rounded-4" src="https://www.youtube.com/embed/s0G0-8jY-ng?si=4xKY2tsFjGHv6qSg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                                    <iframe width="498" height="392" className="rounded-4" src="https://www.youtube.com/embed/ENARZJhE0iI?si=1TPlavqb5nvR0vx3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                                 </figure>
                             </div>
 
@@ -886,10 +889,10 @@ function AppointmentData({ locationPath }) {
                                 </span>
                                 Enjoy your 30 days trial period
                             </h3>
-                            <p className="fs-7 fw-normal">
+                            {/* <p className="fs-7 fw-normal">
                                 This version is free for only 30 days. If you want to use
                                 the version for further, Please take a subscription
-                            </p>
+                            </p> */}
                         </div>
 
 
