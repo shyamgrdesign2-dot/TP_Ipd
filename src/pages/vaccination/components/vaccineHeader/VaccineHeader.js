@@ -95,7 +95,9 @@ function VaccineHeader() {
                       <div className="mt-4">
                         <div className="d-flex align-items-center mt-2 justify-content-end">
                           <div
-                            onClick={() => navigate("/", { replace: true })}
+                            onClick={() =>
+                              navigate("/prescription", { replace: true })
+                            }
                             className="me-4 text-decoration-underline btn p-0 text-main"
                           >
                             Yes Leave

@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Vaccination.scss";
-
 import { Checkbox, Drawer } from "antd";
 import VaccineHeader from "./components/vaccineHeader/VaccineHeader";
 import VaccineCard from "./components/vaccineCard/VaccineCard";
@@ -8,130 +7,52 @@ import VaccineFilter from "./components/vaccineFilter/VaccineFilter";
 import SelectionPopup from "./components/selectionPopup/SelectionPopup";
 import closeFill from "../../assets/images/closeFill.svg";
 import { Row, Col } from "react-bootstrap";
-
-const vaccinesData = [
-  {
-    vaccineId: 1,
-    name: "Vaccine Name",
-    fullName: "Hepatiis B",
-    brand: "Vaccine Brand",
-    moreDetails: [
-      ["Brand : ", " Vaccine Brand"],
-      ["Given Date : ", " 20 April 2024"],
-      ["Note : ", " Temperature is high"],
-    ],
-    dueDate: "20 April 2024",
-    givenDate: "20 April 2024",
-    isDelayed: false,
-    isVaccineGiven: true,
-  },
-  {
-    vaccineId: 2,
-    name: "Vaccine Name",
-    fullName: "Hepatiis B",
-    brand: "Vaccine Brand",
-    moreDetails: [
-      ["Brand : ", "Vaccine Brand"],
-      ["Note : ", "Temperature is high"],
-    ],
-    dueDate: "20 April 2024",
-    isDelayed: false,
-    isVaccineGiven: false,
-  },
-  {
-    vaccineId: 3,
-    name: "Vaccine Name",
-    fullName: "Hepatiis B",
-    brand: "Vaccine Brand",
-    moreDetails: [
-      ["Brand: ", "Vaccine Brand"],
-      ["Given Date: ", "20 April 2024"],
-      ["Note: ", "Temperature is high"],
-    ],
-    dueDate: "22 April 2024",
-    givenDate: "20 April 2024",
-    isDelayed: true,
-    isVaccineGiven: true,
-  },
-  {
-    vaccineId: 4,
-    name: "Vaccine Name",
-    fullName: "Hepatiis B",
-    brand: "Vaccine Brand",
-    moreDetails: [
-      ["Brand: ", "Vaccine Brand"],
-      ["Updated Due Date: ", "28 April 2024"],
-      ["Note: ", "Temperature is high"],
-    ],
-    dueDate: "20 April 2024",
-    isDelayed: true,
-  },
-  {
-    vaccineId: 5,
-    name: "Vaccine Name",
-    fullName: "Hepatiis B",
-    brand: "Vaccine Brand",
-    moreDetails: [
-      ["Brand: ", "Vaccine Brand"],
-      ["Given Date: ", "22 April 2024"],
-      ["Note: ", "Temperature is high"],
-    ],
-    dueDate: "22 April 2024",
-    givenDate: "22 April 2024",
-    isDelayed: false,
-    isVaccineGiven: true,
-  },
-  {
-    vaccineId: 6,
-    name: "Vaccine Name",
-    fullName: "Hepatiis B",
-    moreDetails: [],
-    isDelayed: false,
-    isVaccineGiven: false,
-  },
-  {
-    vaccineId: 7,
-    name: "Vaccine Name",
-    fullName: "Hepatiis B",
-    moreDetails: [],
-    isDelayed: true,
-    isVaccineGiven: false,
-  },
-  {
-    vaccineId: 8,
-    name: "Vaccine Name",
-    fullName: "Hepatiis B",
-    brand: "Vaccine Brand",
-    moreDetails: [
-      ["Brand: ", "Vaccine Brand"],
-      ["Given Date: ", "20 April 2024"],
-      ["Note: ", "Temperature is high"],
-    ],
-    dueDate: "20 April 2024",
-    isDelayed: false,
-    isVaccineGiven: true,
-  },
-  {
-    vaccineId: 9,
-    name: "Vaccine Name",
-    fullName: "Hepatiis B",
-    brand: "Vaccine Brand",
-    moreDetails: [
-      ["Brand : ", " Vaccine Brand"],
-      ["Given Date : ", " 20 April 2024"],
-      ["Note : ", " Temperature is high"],
-    ],
-    dueDate: "20 April 2024",
-    isDelayed: false,
-    isVaccineGiven: true,
-  },
-];
+import { getPaientDetails, getVaccineTemplates } from "./service";
+import {
+  getDates,
+  getDistinctAges,
+  mergeDataPatientDetails,
+} from "./VaccinationHelper";
 
 function Vaccination() {
   const [isFixed, setIsFixed] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedCards, setSelectedCards] = useState([]);
   const [warningMsg, setWarningMsg] = useState("");
+  const [activeDate, setActiveDate] = useState(0);
+  const [vaccinesData, setVaccinesData] = useState([]);
+  const [completeData, setCompleteData] = useState({});
+  const [dateOptions, setDateOptions] = useState([]);
+  const [ageFilters, setAgeFilters] = useState([]);
+
+  const getVaccineDetails = async () => {
+    const vaccineTemplate = await getVaccineTemplates();
+    const patientDetails = await getPaientDetails();
+    const combinedData = mergeDataPatientDetails(
+      vaccineTemplate,
+      patientDetails
+    );
+    const result = getDistinctAges(combinedData);
+    setAgeFilters(result.distinctIds);
+
+    setCompleteData(result.idMap);
+    setVaccinesData(result.idMap.get("Birth"));
+
+    const birthDate = new Date();
+    // const priorDate = new Date(new Date().setDate(birthDate.getDate() - 60));
+    console.log("priorDate", birthDate);
+
+    if (!dateOptions.length) setDateOptions(getDates(result.idMap, birthDate));
+  };
+
+  useEffect(() => {
+    getVaccineDetails();
+  }, []);
+
+  useEffect(() => {
+    const activeValue = ageFilters?.[activeDate];
+    setVaccinesData(completeData?.get?.(activeValue));
+  }, [activeDate]);
 
   const handleSelectAll = (event) => {
     const checked = event?.target?.checked;
@@ -220,7 +141,11 @@ function Vaccination() {
           />
         </div>
         <div className={isFixed ? "fixFilter" : ""}>
-          <VaccineFilter />
+          <VaccineFilter
+            dateOptions={dateOptions}
+            activeDate={activeDate}
+            setActiveDate={setActiveDate}
+          />
         </div>
         <div className="selectAllContainer scrollable-content">
           <Checkbox

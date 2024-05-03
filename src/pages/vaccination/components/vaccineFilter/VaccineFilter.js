@@ -4,8 +4,9 @@ import chevron from "../../../../assets/images/arrow-box-right.svg";
 import closeFill from "../../../../assets/images/closeFill.svg";
 import "./VaccineFilter.scss";
 
-const VaccineFilter = () => {
+const VaccineFilter = ({ dateOptions, activeDate, setActiveDate }) => {
   const [scrollToStart, setScrollToStart] = useState(false);
+
   const datesContainerRef = useRef(null);
 
   useEffect(() => {
@@ -19,33 +20,8 @@ const VaccineFilter = () => {
   }, [scrollToStart]);
 
   const handleToggleScroll = () => {
-    // Toggle scrollToStart state
     setScrollToStart((prevState) => !prevState);
   };
-
-  const [dateOptions, setDateOptions] = useState([
-    { value: "Birth", alert: "success", unit: "day", label: "Birth" },
-    { value: "6 Weeks", alert: "success", unit: "week", label: "6 Weeks" },
-    { value: "10 Weeks", alert: "failure", unit: "week", label: "10 Weeks" },
-    { value: "14 Weeks", alert: null, unit: "month", label: "14 Weeks" },
-    { value: "6 Months", alert: null, unit: "month", label: "6 Months" },
-    { value: "7 Months", alert: null, unit: "month", label: "7 Months" },
-    { value: "6-9 Months", alert: null, unit: "month", label: "6-9 Months" },
-    { value: "9 Months", alert: null, unit: "month", label: "9 Months" },
-    { value: "9 Months", alert: null, unit: "month", label: "12 Months" },
-    { value: "9 Months", alert: null, unit: "month", label: "12-15 Months" },
-    { value: "Birth", alert: null, unit: "day", label: "15 Months" },
-    { value: "6 Weeks", alert: null, unit: "week", label: "16-18 Months" },
-    { value: "6 Weeks", alert: null, unit: "week", label: "18-19 Months" },
-    { value: "10 Weeks", alert: null, unit: "week", label: "4-6 years" },
-    { value: "14 Weeks", alert: null, unit: "month", label: "9-15 years" },
-    { value: "6 Months", alert: null, unit: "month", label: "10-12 years" },
-    {
-      value: "7 Months",
-      unit: "month",
-      label: "2nd, 3rd, 4th and 5th years",
-    },
-  ]);
 
   const [showTooltip, setShowTooltip] = useState(true);
 
@@ -60,8 +36,12 @@ const VaccineFilter = () => {
   }, []);
 
   const pendingVaccines = dateOptions.filter(
-    (item) => item.alert === "failure"
+    (item) => item?.alert === "failure"
   );
+
+  const dateOptionHandler = (i) => {
+    setActiveDate(i);
+  };
 
   const tooltipTitle = () => {
     return (
@@ -103,8 +83,9 @@ const VaccineFilter = () => {
         {dateOptions.length > 0 &&
           dateOptions.map((item, i) => (
             <Tooltip
+              key={i}
               title={tooltipTitle}
-              visible={
+              open={
                 showTooltip &&
                 pendingVaccines.length === 1 &&
                 item.alert === "failure"
@@ -114,9 +95,11 @@ const VaccineFilter = () => {
               <Button
                 key={i}
                 type="text"
-                className="btnStyle btn px-5-16 fs-14"
+                className={`btnStyle btn px-5-16 fs-14 ${
+                  i === activeDate ? "activeBtn" : ""
+                }`}
                 style={{ margin: "0" }}
-                onClick={() => window.alert(item.value + " clicked")}
+                onClick={() => dateOptionHandler(i)}
               >
                 {item.alert ? (
                   <span
@@ -125,8 +108,14 @@ const VaccineFilter = () => {
                     }`}
                   />
                 ) : null}
-                <span className="btnText">{item.label}</span>
-              </Button>
+                <span
+                  className={`btnText${
+                    i === activeDate ? "activeBtnText" : ""
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </Button>{" "}
             </Tooltip>
           ))}
       </div>
