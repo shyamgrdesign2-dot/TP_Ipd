@@ -19,20 +19,36 @@ const VaccineCard = ({
     birthDate
   );
 
-  const vaccineDetails = (details) => {
+  const vaccineDetails = () => {
     return (
       <>
-        <div className="vaccineDetailsValue">
-          <span className="vaccineDetailsKey">Brand :</span> brand
-        </div>
-        <div className="vaccineDetailsValue">
-          <span className="vaccineDetailsKey">Given Date : </span>
-          {dateFormatter(new Date(vaccineData.tvp_given_date))}
-        </div>
+        {vaccineData.brand ? (
+          <div className="vaccineDetailsValue">
+            <span className="vaccineDetailsKey">Brand :</span>{" "}
+            {vaccineData.brand}
+          </div>
+        ) : null}
 
-        <div className="vaccineDetailsValue">
-          <span className="vaccineDetailsKey">Note : </span> note
-        </div>
+        {vaccineData.tvp_given_date ? (
+          <div className="vaccineDetailsValue">
+            <span className="vaccineDetailsKey">Given Date : </span>
+            {dateFormatter(new Date(vaccineData.tvp_given_date))}
+          </div>
+        ) : null}
+
+        {vaccineData.tvac_modify_date ? (
+          <div className="vaccineDetailsValue">
+            <span className="vaccineDetailsKey">Updated due date : </span>
+            {dateFormatter(new Date(vaccineData.tvac_modify_date))}
+          </div>
+        ) : null}
+
+        {vaccineData.tvp_remarks ? (
+          <div className="vaccineDetailsValue">
+            <span className="vaccineDetailsKey">Note : </span>{" "}
+            {vaccineData.tvp_remarks}
+          </div>
+        ) : null}
       </>
     );
   };
@@ -66,7 +82,7 @@ const VaccineCard = ({
             <div>
               <div className="vaccineName">{vaccineData.tvac_name}</div>
               {!vaccineData.brand ? <div>{vaccineData.fullName}</div> : null}
-              {vaccineDetails(vaccineData.moreDetails)}
+              {vaccineDetails()}
             </div>
           </Col>
           <Col span={8}>

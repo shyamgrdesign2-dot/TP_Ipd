@@ -35,3 +35,21 @@ export const getPaientDetails = async (
   }
   return result;
 };
+
+export const checkToShowVaccination = async (
+  doctorUniqueId = "ZV7s4PYh8z3JguW" // true=ZV7s4PYh8z3JguW for false=ZV7s4PYh8z3Jgua => will remove later
+) => {
+  let result = false;
+  try {
+    result = await api.get(
+      `/vaccination/isAuthorized?doctor_unique_id=${doctorUniqueId}`,
+      baseUrl
+    );
+    if (result) {
+      return result.isAuthorized;
+    }
+  } catch (error) {
+    console.error("Error while fetching vaccine template", error);
+  }
+  return result;
+};

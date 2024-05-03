@@ -24,6 +24,7 @@ import TabFollowUpBox from "../components/tab_design/TabFollowUpBox";
 import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
 import { Content } from "antd/es/layout/layout";
+import { checkToShowVaccination } from "./vaccination/service";
 
 function Prescription() {
   const {
@@ -79,6 +80,11 @@ function Prescription() {
 
   const [collapsedFlag, setCollapsedFlag] = useState(1);
   const [vitalDrawer, setVitalDrawer] = useState(false);
+  const [shouldShowVaccination, setShouldShowVaccination] = useState(false);
+
+  const checkForVaccination = async () => {
+    setShouldShowVaccination(await checkToShowVaccination());
+  };
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -209,6 +215,7 @@ function Prescription() {
         setAdditionalNote(caseManagerData.visit_advice);
       }
     }
+    checkForVaccination();
   }, []);
 
   // Drawer Vitals
@@ -229,6 +236,7 @@ function Prescription() {
     navigate("/vaccination");
   };
 
+  console.log("shouldShowVaccination", shouldShowVaccination);
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -267,33 +275,37 @@ function Prescription() {
                         </div>
                         {collapsedFlag === 1 && <VitalsList />}
                       </div>
-                      <div className="prescription-box-sm p-14">
-                        <div className="d-flex align-items-center justify-content-between">
-                          <div className="d-flex align-items-center">
-                            <img
-                              src={vaccinationImg}
-                              alt="vitals"
-                              className="me-3"
-                            />
-                            <div className="title-common">Vaccination</div>
+                      {shouldShowVaccination === "true" ? (
+                        <div className="prescription-box-sm p-14">
+                          <div className="d-flex align-items-center justify-content-between">
+                            <div className="d-flex align-items-center">
+                              <img
+                                src={vaccinationImg}
+                                alt="vitals"
+                                className="me-3"
+                              />
+                              <div className="title-common">Vaccination</div>
+                            </div>
+                            <button
+                              className="btn d-flex align-items-center btn-text"
+                              onClick={vaccinationHandler}
+                            >
+                              {" "}
+                              <i
+                                className={`${
+                                  vitalsData.length > 0
+                                    ? "icon-Edit"
+                                    : "icon-Add"
+                                } me-1 fs-5`}
+                              ></i>{" "}
+                              <span>{`${
+                                vitalsData.length > 0 ? "Edit" : "Add"
+                              }`}</span>
+                            </button>
                           </div>
-                          <button
-                            className="btn d-flex align-items-center btn-text"
-                            onClick={vaccinationHandler}
-                          >
-                            {" "}
-                            <i
-                              className={`${
-                                vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                              } me-1 fs-5`}
-                            ></i>{" "}
-                            <span>{`${
-                              vitalsData.length > 0 ? "Edit" : "Add"
-                            }`}</span>
-                          </button>
+                          {collapsedFlag === 1 && <VitalsList />}
                         </div>
-                        {collapsedFlag === 1 && <VitalsList />}
-                      </div>
+                      ) : null}
                     </div>
                   )
                 );
