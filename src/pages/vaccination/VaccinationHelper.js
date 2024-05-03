@@ -13,17 +13,16 @@ export const getDistinctAges = (vaccineDetails) => {
   return { distinctIds, idMap };
 };
 
-export const getDueDate = (
-  tvt_due_day,
-  tvt_due_month,
-  tvt_due_year,
-  birthDate
-) => {
-  const dateCount = tvt_due_day + tvt_due_month * 30 + tvt_due_year * 365;
-  if (dateCount) {
-    birthDate.setDate(birthDate.getDate() + dateCount);
-  }
+export const mergeDataPatientDetails = (vaccineDetails, patientDetails) => {
+  return vaccineDetails?.map((item) => {
+    const matchingItem = patientDetails?.find(
+      (obj) => obj.tvac_name === item.tvac_name
+    );
+    return { ...item, ...matchingItem };
+  });
+};
 
+export const dateFormatter = (date) => {
   var monthNames = [
     "Jan",
     "Feb",
@@ -39,10 +38,24 @@ export const getDueDate = (
     "Dec",
   ];
   return (
-    birthDate.getDate() +
+    date.getDate() +
     " " +
-    monthNames[birthDate.getMonth()] +
+    monthNames[date.getMonth()] +
     " " +
-    birthDate.getFullYear()
+    date.getFullYear()
   );
+};
+
+export const getDueDate = (
+  tvt_due_day,
+  tvt_due_month,
+  tvt_due_year,
+  birthDate
+) => {
+  const dateCount = tvt_due_day + tvt_due_month * 30 + tvt_due_year * 365;
+  if (dateCount) {
+    birthDate.setDate(birthDate.getDate() + dateCount);
+  }
+
+  return dateFormatter(birthDate);
 };

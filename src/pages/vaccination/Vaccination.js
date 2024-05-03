@@ -8,7 +8,7 @@ import SelectionPopup from "./components/selectionPopup/SelectionPopup";
 import closeFill from "../../assets/images/closeFill.svg";
 import { Row, Col } from "react-bootstrap";
 import { getPaientDetails, getVaccineTemplates } from "./service";
-import { getDistinctAges } from "./VaccinationHelper";
+import { getDistinctAges, mergeDataPatientDetails } from "./VaccinationHelper";
 
 function Vaccination() {
   const [isFixed, setIsFixed] = useState(false);
@@ -23,12 +23,16 @@ function Vaccination() {
 
   const getVaccineDetails = async () => {
     const vaccineTemplate = await getVaccineTemplates();
-    const result = getDistinctAges(vaccineTemplate);
-
+    const patientDetails = await getPaientDetails();
+    const combinedData = mergeDataPatientDetails(
+      vaccineTemplate,
+      patientDetails
+    );
+    const result = getDistinctAges(combinedData);
     setAgeFilters(result.distinctIds);
+
     setCompleteData(result.idMap);
     setVaccinesData(result.idMap.get("Birth"));
-    const data2 = await getPaientDetails();
   };
 
   useEffect(() => {

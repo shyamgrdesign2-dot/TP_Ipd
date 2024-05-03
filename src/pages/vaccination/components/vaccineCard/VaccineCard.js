@@ -2,7 +2,7 @@ import React from "react";
 import { Card, Checkbox, Row, Col } from "antd";
 import cardWave from "../../../../assets/images/cardWave.svg";
 import "./VaccineCard.scss";
-import { getDueDate } from "../../VaccinationHelper";
+import { dateFormatter, getDueDate } from "../../VaccinationHelper";
 
 const VaccineCard = ({
   vaccineData,
@@ -22,19 +22,16 @@ const VaccineCard = ({
   const vaccineDetails = (details) => {
     return (
       <>
-        <div className="d-flex direction-column">
-          <div className="vaccineDetailsKey">Brand : </div>
-          <div className="vaccineDetailsValue">brand</div>
+        <div className="vaccineDetailsValue">
+          <span className="vaccineDetailsKey">Brand :</span> brand
         </div>
-        <div className="d-flex direction-column">
-          <div className="vaccineDetailsKey">Given Date : </div>
-          <div className="vaccineDetailsValue">
-            {vaccineData.tvp_given_date}
-          </div>
+        <div className="vaccineDetailsValue">
+          <span className="vaccineDetailsKey">Given Date : </span>
+          {dateFormatter(new Date(vaccineData.tvp_given_date))}
         </div>
-        <div className="d-flex direction-column">
-          <div className="vaccineDetailsKey">Note : </div>
-          <div className="vaccineDetailsValue">note</div>
+
+        <div className="vaccineDetailsValue">
+          <span className="vaccineDetailsKey">Note : </span> note
         </div>
       </>
     );
