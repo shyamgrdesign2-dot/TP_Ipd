@@ -7,10 +7,10 @@ const VaccineTable = ({ dataSource, columns, isPreview }) => {
     const idSet = new Set();
 
     data.forEach((item) => {
-      if (!idSet.has(item.age)) {
-        const group = data.filter((d) => d.age === item.age);
+      if (!idSet.has(item.tvt_age)) {
+        const group = data.filter((d) => d.tvt_age === item.tvt_age);
         groupedData.push(group);
-        idSet.add(item.age);
+        idSet.add(item.tvt_age);
       }
     });
 
@@ -44,15 +44,15 @@ const VaccineTable = ({ dataSource, columns, isPreview }) => {
           <tr key={itemIndex}>
             {itemIndex === 0 && (
               <td className="cell" rowSpan={group.length}>
-                {item.age}
+                {item.tvt_age}
               </td>
             )}
-            <td className="cell">{item.name}</td>
+            <td className="cell">{item.tvac_name}</td>
             <td className="cell">{item.brand}</td>
             <td className="cell">
               <div className="dateCell">
                 {item.dueDate}
-                {item.isOverDue && isPreview ? (
+                {item?.dueDate < item.tvp_given_date && isPreview ? (
                   <span className="overDue">Over Due</span>
                 ) : null}
               </div>
@@ -60,8 +60,8 @@ const VaccineTable = ({ dataSource, columns, isPreview }) => {
 
             <td className="cell">
               <div className="dateCell">
-                {item.givenDate}
-                {item.givenDate && isPreview ? (
+                {item.tvp_given_date}
+                {item.tvp_given_date && isPreview ? (
                   <span className="given">Given</span>
                 ) : null}
               </div>

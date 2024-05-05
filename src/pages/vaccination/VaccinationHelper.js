@@ -13,12 +13,24 @@ export const getDistinctAges = (vaccineDetails) => {
   return { distinctIds, idMap };
 };
 
-export const mergeDataPatientDetails = (vaccineDetails, patientDetails) => {
+export const mergeDataPatientDetails = (
+  vaccineDetails,
+  patientDetails,
+  birthDate
+) => {
   return vaccineDetails?.map((item) => {
     const matchingItem = patientDetails?.find(
       (obj) => obj.tvac_name === item.tvac_name
     );
-    return { ...item, ...matchingItem };
+
+    const { tvt_due_day, tvt_due_month, tvt_due_year } = item;
+    const dueDate = getDueDate(
+      tvt_due_day,
+      tvt_due_month,
+      tvt_due_year,
+      birthDate
+    );
+    return { ...item, ...matchingItem, dueDate: dueDate };
   });
 };
 
@@ -53,11 +65,12 @@ export const getDueDate = (
   birthDate
 ) => {
   const dateCount = tvt_due_day + tvt_due_month * 30 + tvt_due_year * 365;
+  const dueDate = new Date();
   if (dateCount) {
-    birthDate.setDate(birthDate.getDate() + dateCount);
+    dueDate.setDate(birthDate.getDate() + dateCount);
   }
 
-  return dateFormatter(birthDate);
+  return dateFormatter(dueDate);
 };
 
 export const getDates = (sampleMap, birthDate) => {
