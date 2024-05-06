@@ -10,7 +10,7 @@ import alertIcon from "../../../../assets/images/alertIcon.svg";
 import Preview from "./../preview/Preview";
 import "./VaccineHeader.scss";
 
-function VaccineHeader({ handlePrint, patientDetails }) {
+function VaccineHeader({ vaccinesData, handlePrint, patientDetails }) {
   const navigate = useNavigate();
   let { patient_data } = useContext(CashManagerContext);
   patient_data = { ...patient_data, ...patientDetails };
@@ -155,6 +155,7 @@ function VaccineHeader({ handlePrint, patientDetails }) {
         </Row>
         {shouldShowPreview ? (
           <Preview
+            vaccinesData={vaccinesData}
             onCancel={previewBtnHandler}
             shouldShowPreview={shouldShowPreview}
           />

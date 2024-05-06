@@ -59,25 +59,29 @@ function Vaccination() {
   const [completeData, setCompleteData] = useState({});
   const [dateOptions, setDateOptions] = useState([]);
   const [ageFilters, setAgeFilters] = useState([]);
+  const [previewData, setPreviewData] = useState([]);
 
   const getVaccineDetails = async () => {
     const vaccineTemplate = await getVaccineTemplates();
     const patientDetails = await getPaientDetails();
+
+    // considering birthday as last month => will remove later
+    const birthDate = new Date();
+    const priorDate = new Date(new Date().setDate(birthDate.getDate() - 60));
+
     const combinedData = mergeDataPatientDetails(
       vaccineTemplate,
-      patientDetails
+      patientDetails,
+      birthDate
     );
+    setPreviewData(combinedData);
     const result = getDistinctAges(combinedData);
     setAgeFilters(result.distinctIds);
 
     setCompleteData(result.idMap);
     setVaccinesData(result.idMap.get("Birth"));
 
-    const birthDate = new Date();
-    // const priorDate = new Date(new Date().setDate(birthDate.getDate() - 60));
-    console.log("priorDate", birthDate);
-
-    if (!dateOptions.length) setDateOptions(getDates(result.idMap, birthDate));
+    if (!dateOptions.length) setDateOptions(getDates(result.idMap, priorDate));
   };
 
   useEffect(() => {
@@ -156,6 +160,7 @@ function Vaccination() {
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader
+        vaccinesData={previewData}
         handlePrint={handlePrint}
         patientDetails={patientDetails}
       />

@@ -180,7 +180,7 @@ const columns = [
   },
 ];
 
-const Preview = ({ onCancel, shouldShowPreview }) => {
+const Preview = ({ vaccinesData, onCancel, shouldShowPreview }) => {
   return (
     <div>
       <Modal
@@ -211,7 +211,7 @@ const Preview = ({ onCancel, shouldShowPreview }) => {
       >
         <div className="tableContainer">
           <VaccineTable
-            dataSource={dataSource}
+            dataSource={vaccinesData}
             columns={columns}
             isPreview={true}
           />
