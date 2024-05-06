@@ -7,6 +7,7 @@ const SelectionPopup = ({
   onClose,
   selectedValue,
   setSelectedCards,
+  setShowUpdate,
 }) => {
   const handleClear = () => {
     setSelectedCards([]);
@@ -14,7 +15,7 @@ const SelectionPopup = ({
   };
 
   const handleUpdate = () => {
-    onClose();
+    setShowUpdate(true);
   };
 
   return (
@@ -46,7 +47,7 @@ const SelectionPopup = ({
           type="primary"
           onClick={handleUpdate}
         >
-          <span>Update Vaccine</span>
+          <span>Update Vaccine{selectedValue > 1 && "s"}</span>
         </Button>
       </div>
     </Drawer>

@@ -8,6 +8,7 @@ const VaccineCard = ({
   vaccineData,
   selectedCards,
   handleCardCheckboxChange,
+  index,
 }) => {
   const birthDate = new Date(); //birthday
 
@@ -54,13 +55,13 @@ const VaccineCard = ({
   };
 
   const checkboxHandler = () => {
-    handleCardCheckboxChange(vaccineData?.vaccineId);
+    handleCardCheckboxChange(index);
   };
 
   return (
     <Card className="vaccineCardContainer" bodyStyle={{ height: "100%" }}>
       {/* Vaccine status Indicator */}
-      {vaccineData?.tvp_given_date || vaccineData?.dueDate ? (
+      {vaccineData?.tvp_given_date || vaccineData?.tvp_modify_date ? (
         <div
           className={`vaccineStatus ${
             vaccineData?.tvp_given_date ? "vaccineGiven" : ""
@@ -89,7 +90,7 @@ const VaccineCard = ({
             <div className="d-flex justify-content-end">
               <Checkbox
                 onChange={checkboxHandler}
-                checked={selectedCards.includes(vaccineData?.tvac_id)}
+                checked={selectedCards.includes(index)}
               />
             </div>
           </Col>
@@ -98,7 +99,7 @@ const VaccineCard = ({
         {/* Due Date Info */}
         <Row
           className={`dueDetails ${
-            vaccineData?.isDelayed
+            vaccineData?.dueDate < vaccineData.tvp_given_date
               ? "isDelayed"
               : vaccineData?.tvp_given_date
               ? "isGiven"

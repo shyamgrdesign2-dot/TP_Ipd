@@ -14,7 +14,7 @@ const dev = {
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
-  vaccination_url: `https://pm-vaccination-uat.mytatva.in/`,
+  vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
 };
 
 const qa = {
@@ -33,7 +33,7 @@ const qa = {
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
-  vaccination_url: `https://pm-vaccination-uat.mytatva.in/`,
+  vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
 };
 
 const uat = {
@@ -52,7 +52,7 @@ const uat = {
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pm-uat-dhspl-2.tatvacare.in/doctor_website/`,
-  vaccination_url: `https://pm-vaccination-uat.mytatva.in/`,
+  vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
 };
 
 const prod = {
@@ -71,7 +71,7 @@ const prod = {
   sso_to_pm_username: `PM_45dy48vh8sc4i1dum`,
   sso_to_pm_password: `481541at-j4xc-4817-q5xz-a4rt48c69bt1`,
   doctor_website_url: `https://practice.tatvacare.in/doctor_website/`,
-  vaccination_url: `https://pm-vaccination-uat.mytatva.in/`,
+  vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
 };
 
 const getEnv = () => {
