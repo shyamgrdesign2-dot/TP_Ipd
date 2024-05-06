@@ -521,7 +521,10 @@ function MedicalHistoryBox(props) {
                     <div className='modalCard-header h-60 align-items-center justify-content-between d-flex'>
                         <div className='align-items-center d-flex h-100'>
                             <div className='border-end h-100 text-center me-3'>
-                                <div onClick={handleDrawerMedicalHistory} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                                <div
+                                    onClick={onSaveClicked}
+                                    // onClick={handleDrawerMedicalHistory} 
+                                    className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
                                     <i className='icon-right'></i>
                                 </div>
                             </div>
