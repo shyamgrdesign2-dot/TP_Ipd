@@ -86,7 +86,20 @@ function ProfilePopover(props) {
                         <i className='icon-right iconrotate270 ms-1'></i>
                     </div>
                 </div>
-            ) : (
+            ) : 
+            locationPath === '/vaccine' ? 
+            <div className={'align-items-center d-flex h-100 ps-3'}>
+                    <div className='rounded-pill patientProfile border me-3'>{makeDefaultLogo(patient_data?.pm_fullname)}</div>
+                    <div>
+                        <div className='patientName'>{`${patient_data ? patient_data.vac_first_name : "Hello Guest"}`}
+                        <div className='text-2'>DOB : {`${patient_data?.vac_dob ?? ''}`}</div></div>
+                    </div>
+                    <div className='iconrotate270 align-self-start ms-2 mt-1'>
+                        <i className='icon-right'></i>
+                    </div>
+                </div>
+            :
+            (
                 <div className={'align-items-center d-flex h-100 ps-3'}>
                     <div className='rounded-pill patientProfile border me-3'>{makeDefaultLogo(patient_data?.pm_fullname)}</div>
                     <div>

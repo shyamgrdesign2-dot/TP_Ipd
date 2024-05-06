@@ -1,0 +1,98 @@
+.datesContainer {
+  display: flex;
+  column-gap: 24px;
+  margin: 20px 0;
+  overflow-x: scroll;
+  .btnStyle {
+    border: 1px solid rgba(75, 74, 213, 0.2) !important;
+    padding: 6px 16px 6px 16px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    column-gap: 6px;
+    .btnText {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 21px;
+
+      &:hover {
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 24px;
+      }
+    }
+    .activeBtnText {
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 24px;
+    }
+    .alertStyle {
+      width: 10px;
+      height: 10px;
+      border-radius: 6px;
+    }
+    .success {
+      background-color: rgba(25, 187, 122, 1);
+    }
+    .failure {
+      background-color: rgba(240, 69, 69, 1);
+    }
+
+    &:hover {
+      border: 1px solid #4b4ad5 !important;
+      background-color: rgba(75, 74, 213, 0.1) !important;
+    }
+  }
+  .activeBtn {
+    border: 1px solid #4b4ad5 !important;
+    background-color: rgba(75, 74, 213, 0.1) !important;
+  }
+}
+
+.vaccineFilterStyle {
+  position: relative;
+  display: none;
+  @media only screen and (min-width: 1200px) {
+    display: block;
+  }
+}
+
+.blurOverlay {
+  position: absolute;
+  top: -4px;
+  left: -20px;
+  width: 20px;
+  height: 38px;
+  backdrop-filter: blur(1px); /* Adjust blur amount as needed */
+  z-index: 1;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+.ant-tooltip .ant-tooltip-inner {
+  background-color: #ffffff;
+  width: 320px;
+  height: 93px;
+  border-radius: 10px;
+  padding: 12px;
+
+  .warning {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 6px;
+    background-color: rgba(240, 69, 69, 1);
+  }
+  .imageStyle {
+    cursor: pointer;
+    margin: 0px;
+  }
+}
+
+.ant-tooltip-placement-bottomLeft .ant-tooltip-arrow,
+.ant-tooltip-placement-topLeft .ant-tooltip-arrow {
+  --antd-arrow-background-color: #ffffff;
+  left: 30px;
+}
