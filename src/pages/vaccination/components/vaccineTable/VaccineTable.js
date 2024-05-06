@@ -6,7 +6,7 @@ const VaccineTable = ({ dataSource, columns, isPreview }) => {
     const groupedData = [];
     const idSet = new Set();
 
-    data.forEach((item) => {
+    data?.forEach((item) => {
       if (!idSet.has(item.tvt_age)) {
         const group = data.filter((d) => d.tvt_age === item.tvt_age);
         groupedData.push(group);
@@ -20,7 +20,7 @@ const VaccineTable = ({ dataSource, columns, isPreview }) => {
   const renderTableHeader = () => {
     return (
       <tr>
-        {columns.map((header, index) => (
+        {columns?.map((header, index) => (
           <th
             key={index}
             className="cell headerCellStyle"

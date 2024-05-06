@@ -37,7 +37,6 @@ function VaccineHeader({ vaccinesData, handlePrint, patientDetails }) {
   };
 
   function handleMenuClick(e) {
-    // window.alert("selected print!");
     handlePrint();
   }
 

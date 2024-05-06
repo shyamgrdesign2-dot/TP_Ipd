@@ -255,12 +255,13 @@ function Vaccination() {
           patientDetails={patientDetails}
         />
       )}
-
-      <div style={{ display: "none" }}>
-        <div ref={printableRef}>
-          <VaccinationChart vaccineData={[]} />
+      {vaccinesData?.length && (
+        <div style={{ display: "none" }}>
+          <div ref={printableRef}>
+            <VaccinationChart vaccinesData={previewData} />
+          </div>
         </div>
-      </div>
+      )}
       {showDob && (
         <AddDOB
           show={showDob}
