@@ -225,15 +225,12 @@ const UpdateVaccine = ({
                 suffixIcon={<div></div>}
                 bordered={false}
                 onChange={(_, d) => {
-                  if (selectedDate === "given") setGivenDate(d);
-                  else setDueDate(d);
+                  if (selectedDate === "given") {
+                    setGivenDate(d);
+                  } else setDueDate(d);
                   setChangeDate(false);
                 }}
                 format="YYYY-MM-DD"
-                value={() => {
-                  if (selectedDate === "given") return givenDate;
-                  else return dueDate;
-                }}
                 style={{ border: "none" }}
                 dropdownClassName="custom-picker-dropdown"
                 popupStyle={{ zIndex: 1000 }}
