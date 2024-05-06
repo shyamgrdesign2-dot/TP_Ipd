@@ -362,13 +362,13 @@ function AppointmentData({ locationPath }) {
     const genderAge = (patient_data) => {
         var value = `${patient_data?.pm_gender}, `
         if (profile?.dp_id === 9) {
-            if (patient_data.ageYears != 0) {
+            if (patient_data?.ageYears != 0) {
                 value += `${patient_data?.ageYears}y`
             }
-            if (patient_data.ageMonths != 0) {
+            if (patient_data?.ageMonths != 0) {
                 value += ` ${patient_data?.ageMonths}m`
             }
-            if (patient_data.ageDays != 0) {
+            if (patient_data?.ageDays != 0) {
                 value += ` ${patient_data?.ageDays}d`
             }
         } else {
