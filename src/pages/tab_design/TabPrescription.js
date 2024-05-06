@@ -306,7 +306,7 @@ function TabPrescription() {
   }, [selectedVitalsList]);
 
   const vaccinationHandler = () => {
-    navigate("/vaccination");
+    navigate("/vaccination", { state: { patient_data: patient_data } });
   };
 
   return (

@@ -97,7 +97,9 @@ function VaccineHeader({ vaccinesData, handlePrint, patientDetails }) {
                         <div className="d-flex align-items-center mt-2 justify-content-end">
                           <div
                             onClick={() =>
-                              navigate("/prescription", { replace: true })
+                              navigate("/prescription", {
+                                state: { patient_data: patient_data },
+                              })
                             }
                             className="me-4 text-decoration-underline btn p-0 text-main"
                           >

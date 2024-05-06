@@ -3,13 +3,14 @@ import config from "../../config";
 
 const baseUrl = { customBaseUrl: config.vaccination_api_url };
 
-export const getPatientDetails = async function (
-  hospital_bid = 798251708943588,
-  patient_uid = 1311432893
-) {
+export const getPatientDetails = async function ({
+  hospital_bid,
+  patient_uid,
+  hospital_id,
+}) {
   try {
     const res = await api.get(
-      `/vaccination/patientDetails?hospital_bid=234659817&patient_uid=6302066347&hospital_id=242`,
+      `/vaccination/patientDetails?hospital_bid=${hospital_bid}&patient_uid=${patient_uid}&hospital_id=${hospital_id}`,
       baseUrl
     );
     console.log({ res });

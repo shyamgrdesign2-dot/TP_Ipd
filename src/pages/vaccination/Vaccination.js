@@ -24,6 +24,8 @@ import {
   getDistinctAges,
   mergeDataPatientDetails,
 } from "./VaccinationHelper";
+import CashManagerContext from "../../context/CashManagerContext";
+import { useLocation } from "react-router-dom";
 
 function Vaccination() {
   const [isFixed, setIsFixed] = useState(false);
@@ -42,7 +44,12 @@ function Vaccination() {
   }, []);
 
   const getPatientDetail = async () => {
-    const [details] = (await getPatientDetails()) ?? [];
+    const [details] =
+      (await getPatientDetails({
+        hospital_bid: patient_data?.hm_business_id,
+        patient_uid: patient_data?.patient_unique_id,
+        hospital_id: patient_data?.hm_id,
+      })) ?? [];
     if (!details?.vac_dob) {
       setShowDob(true);
     } else {
@@ -50,6 +57,13 @@ function Vaccination() {
     }
     setPatientDetails(details);
     return details;
+  };
+
+  const { state } = useLocation();
+  const { patient_data } = state;
+
+  const contextApi = {
+    patient_data,
   };
 
   const getVaccineBrand = async () => {
@@ -160,121 +174,123 @@ function Vaccination() {
   });
 
   return (
-    <div className="vaccinationWrapper">
-      <VaccineHeader
-        vaccinesData={previewData}
-        handlePrint={handlePrint}
-        patientDetails={patientDetails}
-      />
-      <div
-        id="wrap"
-        onScroll={handleScroll}
-        style={{ overflowY: "auto", position: "relative" }}
-        className="vaccinationContainer position-relative"
-      >
-        <div className="vaccinationTitle bg-welcome d-flex justify-content-between align-items-center">
-          <div>
-            <h2>Vaccination</h2>
-            <p>
-              Immunisation schedule recommended by <b>IAP</b>
-            </p>
-          </div>
-          <img
-            src={require("../../assets/images/vaccine.png")}
-            className="vaccineImg d-inline-block align-top ms-4"
-            alt="Vaccine"
-          />
-        </div>
-        <div className={isFixed ? "fixFilter" : ""}>
-          <VaccineFilter
-            dateOptions={dateOptions}
-            activeDate={activeDate}
-            setActiveDate={setActiveDate}
-          />
-        </div>
-        <div className="selectAllContainer scrollable-content">
-          <Checkbox
-            className="checkboxStyle"
-            checked={selectAll}
-            onChange={handleSelectAll}
-          />
-          <span className="selectAll">Select All</span>
-        </div>
-
-        <Row xs={1} sm={2} md={2} lg={3} className="gy-4">
-          {vaccinesData?.map((vaccineData, index) => (
-            <Col key={index} className="gx-4">
-              <VaccineCard
-                vaccineData={vaccineData}
-                selectedCards={selectedCards}
-                handleCardCheckboxChange={handleCardCheckboxChange}
-                setSelectedCards={setSelectedCards}
-                index={index}
-              />
-            </Col>
-          ))}
-        </Row>
-      </div>
-      {warningMsg ? (
-        <Drawer
-          placement="bottom"
-          closable={false}
-          open={!!warningMsg}
-          height={44}
-          mask={false} // Prevents blurring of background
-          style={{
-            width: "513px",
-            bottom: "110px",
-            position: "absolute",
-          }}
+    <CashManagerContext.Provider value={contextApi}>
+      <div className="vaccinationWrapper">
+        <VaccineHeader
+          vaccinesData={previewData}
+          handlePrint={handlePrint}
+          patientDetails={patientDetails}
+        />
+        <div
+          id="wrap"
+          onScroll={handleScroll}
+          style={{ overflowY: "auto", position: "relative" }}
+          className="vaccinationContainer position-relative"
         >
-          <div className="warningStyle">
-            {warningMsg}
+          <div className="vaccinationTitle bg-welcome d-flex justify-content-between align-items-center">
+            <div>
+              <h2>Vaccination</h2>
+              <p>
+                Immunisation schedule recommended by <b>IAP</b>
+              </p>
+            </div>
             <img
-              src={closeFill}
-              alt="close"
-              className="closeImg"
-              onClick={warningMsgHandler}
+              src={require("../../assets/images/vaccine.png")}
+              className="vaccineImg d-inline-block align-top ms-4"
+              alt="Vaccine"
             />
           </div>
-        </Drawer>
-      ) : null}
-      {selectedCards.length ? (
-        <SelectionPopup
-          visible={!!selectedCards.length}
-          onClose={handleSelectAll}
-          selectedValue={selectedCards.length}
-          setSelectedCards={setSelectedCards}
-          setShowUpdate={setShowUpdate}
-        />
-      ) : null}
-      {showUpdate && (
-        <UpdateVaccine
-          show={showUpdate}
-          setShow={setShowUpdate}
-          brands={brands}
-          selectedVaccines={selectedCards?.map((id) => vaccinesData[id])}
-          patientDetails={patientDetails}
-          getVaccineDetails={getVaccineDetails}
-          setSelectedCards={setSelectedCards}
-        />
-      )}
-      {vaccinesData?.length && (
-        <div style={{ display: "none" }}>
-          <div ref={printableRef}>
-            <VaccinationChart vaccinesData={previewData} />
+          <div className={isFixed ? "fixFilter" : ""}>
+            <VaccineFilter
+              dateOptions={dateOptions}
+              activeDate={activeDate}
+              setActiveDate={setActiveDate}
+            />
           </div>
+          <div className="selectAllContainer scrollable-content">
+            <Checkbox
+              className="checkboxStyle"
+              checked={selectAll}
+              onChange={handleSelectAll}
+            />
+            <span className="selectAll">Select All</span>
+          </div>
+
+          <Row xs={1} sm={2} md={2} lg={3} className="gy-4">
+            {vaccinesData?.map((vaccineData, index) => (
+              <Col key={index} className="gx-4">
+                <VaccineCard
+                  vaccineData={vaccineData}
+                  selectedCards={selectedCards}
+                  handleCardCheckboxChange={handleCardCheckboxChange}
+                  setSelectedCards={setSelectedCards}
+                  index={index}
+                />
+              </Col>
+            ))}
+          </Row>
         </div>
-      )}
-      {showDob && (
-        <AddDOB
-          show={showDob}
-          setShowDob={setShowDob}
-          patientDetails={patientDetails}
-          getPatientDetail={getPatientDetail}
-        />
-      )}
-    </div>
+        {warningMsg ? (
+          <Drawer
+            placement="bottom"
+            closable={false}
+            open={!!warningMsg}
+            height={44}
+            mask={false} // Prevents blurring of background
+            style={{
+              width: "513px",
+              bottom: "110px",
+              position: "absolute",
+            }}
+          >
+            <div className="warningStyle">
+              {warningMsg}
+              <img
+                src={closeFill}
+                alt="close"
+                className="closeImg"
+                onClick={warningMsgHandler}
+              />
+            </div>
+          </Drawer>
+        ) : null}
+        {selectedCards.length ? (
+          <SelectionPopup
+            visible={!!selectedCards.length}
+            onClose={handleSelectAll}
+            selectedValue={selectedCards.length}
+            setSelectedCards={setSelectedCards}
+            setShowUpdate={setShowUpdate}
+          />
+        ) : null}
+        {showUpdate && (
+          <UpdateVaccine
+            show={showUpdate}
+            setShow={setShowUpdate}
+            brands={brands}
+            selectedVaccines={selectedCards?.map((id) => vaccinesData[id])}
+            patientDetails={patientDetails}
+            getVaccineDetails={getVaccineDetails}
+            setSelectedCards={setSelectedCards}
+          />
+        )}
+        {vaccinesData?.length && (
+          <div style={{ display: "none" }}>
+            <div ref={printableRef}>
+              <VaccinationChart vaccinesData={previewData} />
+            </div>
+          </div>
+        )}
+        {showDob && (
+          <AddDOB
+            show={showDob}
+            setShowDob={setShowDob}
+            patientDetails={patient_data}
+            getPatientDetail={getPatientDetail}
+          />
+        )}
+      </div>
+    </CashManagerContext.Provider>
   );
 }
 export default React.memo(Vaccination);

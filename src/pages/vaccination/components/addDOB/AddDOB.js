@@ -1,16 +1,18 @@
 import { Modal, DatePicker, Button } from "antd";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { updateDob } from "../../service";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
+import CashManagerContext from "../../../../context/CashManagerContext";
 
 const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
   const [dob, setDob] = useState("");
   const navigate = useNavigate();
+  const { patient_data } = useContext(CashManagerContext);
 
   const updatePatientDob = async () => {
     const payload = {
-      patient_pid: patientDetails?.vac_pid,
+      patient_pid: patientDetails?.pm_pid,
       patient_uid: patientDetails?.patient_unique_id,
       hospital_bid: patientDetails?.hm_business_id,
       hospital_id: patientDetails?.hm_id,
@@ -56,7 +58,9 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
         </Button>
         <Button
           className="border-0 opacity-50 shadow-none text-secondary"
-          onClick={() => navigate("/prescription")}
+          onClick={() =>
+            navigate("/prescription", { state: { patient_data: patient_data } })
+          }
         >
           Close vaccination chart
         </Button>
