@@ -10,7 +10,7 @@ import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
 import { isNumeric, isAlphabet } from "../utils/utils";
 
 function WalkInConsultation() {
-    
+
     const navigate = useNavigate();
 
     const { profile } = useSelector((state) => state.doctors);
@@ -43,13 +43,13 @@ function WalkInConsultation() {
     const genderAge = (patient_data) => {
         var value = `${patient_data?.pm_gender}, `
         if (profile?.dp_id === 9) {
-            if (patient_data.ageYears != 0) {
+            if (patient_data?.ageYears != 0) {
                 value += `${patient_data?.ageYears}y`
             }
-            if (patient_data.ageMonths != 0) {
+            if (patient_data?.ageMonths != 0) {
                 value += ` ${patient_data?.ageMonths}m`
             }
-            if (patient_data.ageDays != 0) {
+            if (patient_data?.ageDays != 0) {
                 value += ` ${patient_data?.ageDays}d`
             }
         } else {
