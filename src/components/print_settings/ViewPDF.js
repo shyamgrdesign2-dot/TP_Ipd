@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     table: {
-        // marginTop: PX_TO_PT * 4,
+        marginTop: PX_TO_PT * 4,
         borderTop: '1px solid #171725',
         borderLeft: '1px solid #171725'
     },
@@ -867,7 +867,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
                                 {caseManagerData.medical_history.map((item, i) => {
                                     return (
-                                        <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+                                        <Text key={i} style={{ marginTop: (item?.no_know_history || item?.tags?.length > 0) ? PX_TO_PT * 6 : 0, lineHeight: 1.4 }}>
                                             {!item?.no_know_history ? (
                                                 item?.tags?.length > 0 && (
                                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;
@@ -957,7 +957,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 {caseManagerData.medical_history.map((item, i) => {
                                     let abcd = 97
                                     return (
-                                        <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+                                        <Text key={i} style={{ marginTop: (item?.no_know_history || item?.tags?.length > 0) ? PX_TO_PT * 6 : 0, lineHeight: 1.4 }}>
                                             {!item?.no_know_history ? (
                                                 item?.tags?.length > 0 && (
                                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
@@ -1012,9 +1012,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     return (
                                         (item?.no_know_history || item?.tags?.length > 0) && (
                                             <>
-                                                <Text style={{ color: '#000', marginTop: PX_TO_PT * 20, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`${item.title} : `}</Text>
+                                                <Text style={{ color: '#000', marginTop: i === 0 ? PX_TO_PT * 4 : PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`${item.title} : `}</Text>
                                                 {!item?.no_know_history ? (
-                                                    <View key={i} style={styles.table}>
+                                                    <View key={i} style={[styles.table, { marginTop: 0 }]}>
                                                         <View style={styles.row}>
                                                             <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
                                                             <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>

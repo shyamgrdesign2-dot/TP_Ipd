@@ -12,7 +12,6 @@ import { getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory } from "../redux/medicalhistorySlice";
 
 import CashManagerContext from "../context/CashManagerContext";
-import vaccinationImg from "../assets/images/Vaccination.svg";
 import HeaderPrescription from "../common/HeaderPrescription";
 import SymptomsBox from "../components/SymptomsBox";
 import ExaminationBox from "../components/ExaminationBox";
@@ -32,6 +31,7 @@ import vitals from "../assets/images/Vitals.svg";
 import MedicalHistory from "../assets/images/Medical-History.svg";
 
 import hey from "../assets/images/bg-hey.png";
+import vaccinationImg from "../assets/images/Vaccination.svg";
 
 import { Content } from "antd/es/layout/layout";
 import { checkToShowVaccination } from "./vaccination/service";
@@ -43,15 +43,14 @@ function Prescription() {
     frequencyList,
     timingList,
   } = useSelector((state) => state.doctors);
-
-  const navigate = useNavigate();
   const { selectedVitalsList, vitalsPastList } = useSelector(
     (state) => state.vitals
   );
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { state } = useLocation();
-  const { patient_data, caseManagerData } = state || {};
+  const { patient_data, caseManagerData } = state;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -95,7 +94,6 @@ function Prescription() {
     setAdditionalNote,
   };
 
-  const [collapsedFlag, setCollapsedFlag] = useState(1);
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
   const [shouldShowVaccination, setShouldShowVaccination] = useState(false);
@@ -259,14 +257,13 @@ function Prescription() {
   //Handle Sider
   const handleCollapsed = useCallback(
     (flag) => {
-      setCollapsedFlag(flag);
       if (flag === 1) {
         handleDrawerVital();
       } else if (flag === 2) {
         handleDrawerMedicalHistory();
       }
     },
-    [collapsedFlag, vitalDrawer, medicalHistoryDrawer]
+    [vitalDrawer, medicalHistoryDrawer]
   );
 
   useEffect(() => {
@@ -334,9 +331,22 @@ function Prescription() {
                             Vitals & Body Composition
                           </div>
                         </div>
-                        {collapsedFlag === 1 && <VitalsList />}
+                        <button
+                          className="btn d-flex align-items-center btn-text"
+                          onClick={handleDrawerVital}
+                        >
+                          {" "}
+                          <i
+                            className={`${
+                              vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                            } me-1 fs-5`}
+                          ></i>{" "}
+                          <span>{`${
+                            vitalsData.length > 0 ? "Edit" : "Add"
+                          }`}</span>
+                        </button>
                       </div>
-                      {collapsedFlag === 1 && (
+                      {vitalsData.length > 0 && (
                         <VitalsList
                           mode={caseManagerData !== undefined ? EDIT : ADD}
                         />
@@ -368,7 +378,6 @@ function Prescription() {
                             }`}</span>
                           </button>
                         </div>
-                        {collapsedFlag === 1 && <VitalsList />}
                       </div>
                     ) : null}
                   </>
@@ -383,23 +392,9 @@ function Prescription() {
                             className="me-3"
                           />
                           <div className="title-common">Medical History</div>
-                          <Button
-                            className="btn border rounded-3 px-1 ms-3 collapseButton"
-                            onClick={() =>
-                              collapsedFlag != 2
-                                ? setCollapsedFlag(2)
-                                : setCollapsedFlag(null)
-                            }
-                          >
-                            <i
-                              style={{ transitionDuration: "0.5s" }}
-                              className={`icon-right d-block fs-18 ${
-                                collapsedFlag != 2
-                                  ? "iconrotate270"
-                                  : "iconrotatehistory90"
-                              }`}
-                            ></i>
-                          </Button>
+                          {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
+                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                          </Button> */}
                         </div>
 
                         <button
@@ -419,7 +414,7 @@ function Prescription() {
                           }`}</span>
                         </button>
                       </div>
-                      {collapsedFlag === 2 && <MedicalHistoryList />}
+                      {medicalHistoryData.length > 0 && <MedicalHistoryList />}
                     </div>
                   )
                 );
