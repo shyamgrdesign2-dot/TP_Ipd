@@ -13,10 +13,10 @@ import { useReactToPrint } from "react-to-print";
 import AddDOB from "./components/addDOB/AddDOB";
 import moment from "moment";
 import {
-  getPaientDetails,
   getVaccineTemplates,
   getPatientDetails,
   getVaccineBrands,
+  getPatientVaccineDetails,
 } from "./service";
 import {
   getDates,
@@ -44,19 +44,21 @@ function Vaccination() {
   }, []);
 
   const getPatientDetail = async () => {
-    const [details] =
+    const patientDetails =
       (await getPatientDetails({
         hospital_bid: patient_data?.hm_business_id,
         patient_uid: patient_data?.patient_unique_id,
         hospital_id: patient_data?.hm_id,
       })) ?? [];
-    if (!details?.vac_dob) {
+    if (!patientDetails?.vac_dob) {
       setShowDob(true);
     } else {
-      details.vac_dob = moment(details.vac_dob).format("DD-MMM-YYYY");
+      patientDetails.vac_dob = moment(patientDetails.vac_dob).format(
+        "DD-MMM-YYYY"
+      );
     }
-    setPatientDetails(details);
-    return details;
+    setPatientDetails(patientDetails);
+    return patientDetails;
   };
 
   const { state } = useLocation();
@@ -80,7 +82,7 @@ function Vaccination() {
   const getVaccineDetails = async () => {
     const vaccineTemplate = await getVaccineTemplates();
     const patientDetail = await getPatientDetail();
-    const patientDetailsRes = await getPaientDetails(
+    const patientDetailsRes = await getPatientVaccineDetails(
       patientDetail?.patient_unique_id,
       patientDetail?.vac_pid,
       patientDetail?.hm_business_id

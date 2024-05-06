@@ -10,11 +10,13 @@ export const getPatientDetails = async function ({
 }) {
   let res = [];
   try {
-    res =
-      (await api.get(
-        `/vaccination/patientDetails?hospital_bid=${hospital_bid}&patient_uid=${patient_uid}&hospital_id=${hospital_id}`,
-        baseUrl
-      )?.detail) ?? [];
+    res = await api.get(
+      `/vaccination/patientDetails?hospital_bid=${hospital_bid}&patient_uid=${patient_uid}&hospital_id=${hospital_id}`,
+      baseUrl
+    );
+    if (res?.detail) {
+      res = res.detail;
+    }
   } catch (e) {
     console.error("Error while fetching patient details: ", e);
   }
@@ -24,8 +26,10 @@ export const getPatientDetails = async function ({
 export const getVaccineBrands = async function () {
   let vaccineBrands = [];
   try {
-    vaccineBrands =
-      (await api.get(`/vaccination/companyList`, baseUrl)?.detail) ?? [];
+    vaccineBrands = await api.get(`/vaccination/companyList`, baseUrl);
+    if (vaccineBrands?.detail) {
+      vaccineBrands = vaccineBrands.detail;
+    }
   } catch (e) {
     console.error("Error while fetching vaccine brands", e);
   }
@@ -69,15 +73,17 @@ export const updateDueDate = async function (payload) {
 export const getVaccineTemplates = async () => {
   let result = [];
   try {
-    result =
-      (await api.get(`/vaccination/standardTemplate`, baseUrl)?.template) ?? [];
+    result = await api.get(`/vaccination/standardTemplate`, baseUrl);
+    if (result?.template) {
+      result = result.template;
+    }
   } catch (error) {
     console.error("Error while fetching vaccine template: ", error);
   }
   return result;
 };
 
-export const getPaientDetails = async (
+export const getPatientVaccineDetails = async (
   patientUid = 6302066347,
   patientPid = 36207
   // hospitalBid = 234659817
@@ -86,11 +92,13 @@ export const getPaientDetails = async (
   try {
     // &hospital_bid=${hospitalBid} patientTemplateForBid - prod
     // https://pm-vaccination-uat.mytatva.in/vaccination/patientTemplateForBid?patient_uid=6302066347&patient_pid=36207 - prod
-    result =
-      (await api.get(
-        `/vaccination/patientTemplate?patient_uid=${patientUid}&patient_pid=${patientPid}`,
-        baseUrl
-      )?.template) ?? [];
+    result = await api.get(
+      `/vaccination/patientTemplate?patient_uid=${patientUid}&patient_pid=${patientPid}`,
+      baseUrl
+    );
+    if (result?.template) {
+      result = result.template;
+    }
   } catch (error) {
     console.error("Error while fetching patient details: ", error);
   }
@@ -105,12 +113,14 @@ export const checkToShowVaccination = async (
     result = await api.get(
       `/vaccination/isAuthorized?doctor_unique_id=${doctorUniqueId}`,
       baseUrl
-    )?.isAuthorized;
+    );
+    if (result?.isAuthorized) {
+      result = result.isAuthorized;
+    }
   } catch (error) {
     console.error(
       "Error while fetching to show vaccination on prescription: ",
       error
     );
   }
-  return result;
 };
