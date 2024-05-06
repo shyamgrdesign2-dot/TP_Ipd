@@ -35,7 +35,7 @@ export const getVaccineBrands = async function () {
 export const updateDob = async function (payload) {
   try {
     const res = await api.post(`/vaccination/updatedob`, payload, baseUrl);
-    console.log({ res });
+    return res;
   } catch (e) {
     console.log({ e });
   }

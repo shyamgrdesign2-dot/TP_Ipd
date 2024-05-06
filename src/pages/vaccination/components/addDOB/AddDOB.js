@@ -2,8 +2,9 @@ import { Modal, DatePicker, Button } from "antd";
 import { useState } from "react";
 import { updateDob } from "../../service";
 import { useNavigate } from "react-router-dom";
+import moment from "moment";
 
-const AddDOB = ({ show, setShowDob, patientDetails }) => {
+const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
   const [dob, setDob] = useState("");
   const navigate = useNavigate();
 
@@ -12,11 +13,14 @@ const AddDOB = ({ show, setShowDob, patientDetails }) => {
       patient_pid: patientDetails?.vac_pid,
       patient_uid: patientDetails?.patient_unique_id,
       hospital_bid: patientDetails?.hm_business_id,
-      hoapital_id: patientDetails?.hm_id,
-      updated_dob: dob,
+      hospital_id: patientDetails?.hm_id,
+      updated_dob: moment(dob).format("YYYY-MM-DD"),
     };
     const res = await updateDob(payload);
-    console.log({ res });
+    if (res?.status === 200) {
+      setShowDob(false);
+      getPatientDetail();
+    }
   };
 
   return (

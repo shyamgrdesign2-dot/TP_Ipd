@@ -16,6 +16,7 @@ import "./updateVaccine.scss";
 import moment from "moment";
 import SuccessPopup from "../SuccessPopup.js";
 import { updateDueDate, updateVaccine } from "../../service.js";
+import dayjs from "dayjs";
 
 const UpdateVaccine = ({
   show,
@@ -34,18 +35,21 @@ const UpdateVaccine = ({
   const [showSuccess, setShowSuccess] = useState(false);
   const dayFromTodayList = [
     { label: "Tomorrow", value: 1 },
-    { label: "1 week", value: 2 },
-    { label: "2 weeks", value: 3 },
-    { label: "1 month", value: 4 },
-    { label: "2 months", value: 5 },
+    { label: "1 week", value: 7 },
+    { label: "2 weeks", value: 14 },
+    { label: "1 month", value: 30 },
+    { label: "2 months", value: 60 },
   ];
   const [vaccineDetails, setVaccineDetails] = useState({});
   const [updateLoader, setUpdateLoader] = useState(false);
-  console.log({ patientDetails });
 
   useEffect(() => {
     getVaccineBrands();
-    setGivenDate(selectedVaccines?.[0]?.tvp_given_date ?? "");
+    setGivenDate(
+      selectedVaccines?.[0]?.tvp_given_date
+        ? dayjs(selectedVaccines?.[0]?.tvp_given_date)
+        : ""
+    );
   }, []);
 
   const getVaccineBrands = async () => {};
@@ -108,6 +112,7 @@ const UpdateVaccine = ({
         patient_uid: patientDetails?.patient_unique_id,
         vaccine_template_id: vaccine?.tvt_id,
         overriden_due_date: dueDate,
+        remarks: dueDateNote,
       };
 
       return updateDueDate(payload);
@@ -225,7 +230,10 @@ const UpdateVaccine = ({
                   setChangeDate(false);
                 }}
                 format="YYYY-MM-DD"
-                value={""}
+                value={() => {
+                  if (selectedDate === "given") return givenDate;
+                  else return dueDate;
+                }}
                 style={{ border: "none" }}
                 dropdownClassName="custom-picker-dropdown"
                 popupStyle={{ zIndex: 1000 }}
@@ -306,6 +314,11 @@ const UpdateVaccine = ({
                   <Radio.Group
                     onChange={({ target: { value } }) => {
                       setDayFromToday(value);
+                      // setDueDate(
+                      //   new Date(
+                      //     dueDate.getTime() + value * 24 * 60 * 60 * 1000
+                      //   )
+                      // );
                     }}
                     value={dayFromToday}
                   >

@@ -71,9 +71,7 @@ function Vaccination() {
       patientDetail?.hm_business_id
     );
 
-    // considering birthday as last month => will remove later
-    const birthDate = new Date();
-    const priorDate = new Date(new Date().setDate(birthDate.getDate() - 60));
+    const birthDate = new Date(patientDetail?.vac_dob);
 
     const combinedData = mergeDataPatientDetails(
       vaccineTemplate,
@@ -87,7 +85,7 @@ function Vaccination() {
     setCompleteData(result.idMap);
     setVaccinesData(result.idMap.get("Birth"));
 
-    if (!dateOptions.length) setDateOptions(getDates(result.idMap, priorDate));
+    if (!dateOptions.length) setDateOptions(getDates(result.idMap, birthDate));
   };
 
   useEffect(() => {
@@ -269,6 +267,7 @@ function Vaccination() {
           show={showDob}
           setShowDob={setShowDob}
           patientDetails={patientDetails}
+          getPatientDetail={getPatientDetail}
         />
       )}
     </div>
