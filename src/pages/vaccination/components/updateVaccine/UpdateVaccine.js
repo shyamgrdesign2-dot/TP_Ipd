@@ -15,12 +15,14 @@ import { useEffect, useState, memo } from "react";
 import "./updateVaccine.scss";
 import moment from "moment";
 import SuccessPopup from "../SuccessPopup.js";
+import { updateDueDate, updateVaccine } from "../../service.js";
 
 const UpdateVaccine = ({
   show,
   setShow,
   brands,
-  selectedVaccines = [{ tvac_name: "BCG" }, { tvac_name: "XYZ" }],
+  selectedVaccines,
+  patientDetails,
 }) => {
   const { TextArea } = Input;
   const [changeDate, setChangeDate] = useState(true);
@@ -37,40 +39,8 @@ const UpdateVaccine = ({
     { label: "1 month", value: 4 },
     { label: "2 months", value: 5 },
   ];
-  // const brands = [
-  //   {
-  //     value: "1",
-  //     label: "Zydus",
-  //   },
-  //   {
-  //     value: "2",
-  //     label: "Aristo",
-  //   },
-  //   {
-  //     value: "3",
-  //     label: "Aristo",
-  //   },
-  //   {
-  //     value: "4",
-  //     label: "Aristo",
-  //   },
-  //   {
-  //     value: "5",
-  //     label: "Aristo",
-  //   },
-  //   {
-  //     value: "6",
-  //     label: "Aristo",
-  //   },
-  //   {
-  //     value: "7",
-  //     label: "Aristo",
-  //   },
-  //   {
-  //     value: "8",
-  //     label: "Aristo",
-  //   },
-  // ];
+  const [vaccineDetails, setVaccineDetails] = useState({});
+  const [updateLoader, setUpdateLoader] = useState(false);
 
   useEffect(() => {
     getVaccineBrands();
@@ -79,7 +49,24 @@ const UpdateVaccine = ({
 
   const getVaccineBrands = async () => {};
 
-  const updateVaccine = async () => {
+  const updateVaccineDetails = async () => {
+    setUpdateLoader(true);
+    const payload = {
+      patient_pid: patientDetails?.patient_pid,
+      patient_uid: patientDetails?.patient_uid,
+      hospital_bid: patientDetails?.hospital_bid,
+      hospital_id: patientDetails?.hospital_id,
+      vaccine_template_id: "166",
+      vaccine_name: "BCG",
+      vaccine_company_id: "182",
+      vaccine_given_date: givenDate,
+      remarks: vaccineDetails,
+    };
+
+    const updateVaccineRes = await updateVaccine(payload);
+    setUpdateLoader(false);
+
+    console.log({ updateVaccineRes });
     setShowSuccess(true);
     setTimeout(() => {
       setShow(false);
@@ -89,6 +76,26 @@ const UpdateVaccine = ({
   const closeHandler = () => {
     setChangeDate(false);
     setShow(false);
+  };
+
+  const handleDetails = (vaccineName, detail, value) => {
+    setVaccineDetails((prev) => {
+      if (prev[vaccineName]) prev[vaccineName][detail] = value;
+      else prev[vaccineName] = { detail: value };
+      return prev;
+    });
+  };
+
+  const updateVaccineDueDate = async () => {
+    setUpdateLoader(true);
+    const payload = {
+      patient_pid: "PAT0020",
+      patient_uid: "1311432893",
+      vaccine_template_id: "166",
+      vaccine_given_date: dueDate,
+    };
+    const updateDuedateRes = await updateDueDate(payload);
+    setUpdateLoader(false);
   };
 
   return (
@@ -231,10 +238,23 @@ const UpdateVaccine = ({
                         value: brand?.tvc_id,
                       }))}
                       dropdownStyle={{ maxHeight: "176px", overflow: "auto" }}
+                      onChange={(value) => {
+                        handleDetails(
+                          vaccine?.tvac_name,
+                          "vaccine_company_id",
+                          value
+                        );
+                      }}
                     />
                     <label>Note</label>
                     <TextArea
-                      onChange={(e) => {}}
+                      onChange={(e) =>
+                        handleDetails(
+                          vaccine?.tvac_name,
+                          "remarks",
+                          e.target.value
+                        )
+                      }
                       placeholder="Add additional details"
                       autoSize={{ minRows: 3, maxRows: 5 }}
                       width={200}
@@ -288,7 +308,8 @@ const UpdateVaccine = ({
                 }}
                 disabled={false}
                 type="primary"
-                onClick={updateVaccine}
+                onClick={updateVaccineDetails}
+                loading={updateLoader}
               >
                 Update Vaccine
               </Button>

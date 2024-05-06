@@ -41,7 +41,7 @@ function Vaccination() {
   }, []);
 
   const getPatientDetail = async () => {
-    const [details] = await getPatientDetails();
+    const [details] = (await getPatientDetails()) ?? [];
     if (!details?.vac_dob) {
       setShowDob(true);
     } else {
@@ -93,9 +93,8 @@ function Vaccination() {
     const checked = event?.target?.checked;
     setSelectAll(checked);
     if (checked) {
-      setSelectedCards(
-        vaccinesData.map((vaccineData) => vaccineData.vaccineId)
-      );
+      let indices = [...Array(vaccinesData.length).keys()];
+      setSelectedCards(indices);
     } else {
       setSelectedCards([]);
       setWarningMsg("");
@@ -108,16 +107,13 @@ function Vaccination() {
       newSelectedCards = newSelectedCards.filter((cardId) => cardId !== id);
     } else {
       if (newSelectedCards.length) {
-        const currentIdData = vaccinesData.find(
-          (vaccineData) => vaccineData.vaccineId === id
-        );
         if (
-          vaccinesData[selectedCards[0] - 1].isVaccineGiven ===
-          currentIdData.isVaccineGiven
+          vaccinesData[selectedCards[0]]?.tvp_given_date ===
+          vaccinesData[id]?.tvp_given_date
         ) {
           if (
-            vaccinesData[selectedCards[0] - 1].givenDate ===
-            currentIdData.givenDate
+            vaccinesData[selectedCards[0]].tvp_given_date ===
+            vaccinesData[id]?.tvp_given_date
           ) {
             newSelectedCards.push(id);
           } else {
@@ -199,13 +195,14 @@ function Vaccination() {
         </div>
 
         <Row xs={1} sm={2} md={2} lg={3} className="gy-4">
-          {vaccinesData?.map((vaccineData) => (
-            <Col key={vaccineData.vaccineId} className="gx-4">
+          {vaccinesData?.map((vaccineData, index) => (
+            <Col key={index} className="gx-4">
               <VaccineCard
                 vaccineData={vaccineData}
                 selectedCards={selectedCards}
                 handleCardCheckboxChange={handleCardCheckboxChange}
                 setSelectedCards={setSelectedCards}
+                index={index}
               />
             </Col>
           ))}
@@ -249,7 +246,8 @@ function Vaccination() {
           show={showUpdate}
           setShow={setShowUpdate}
           brands={brands}
-          vaccines={selectedCards?.map((id) => vaccinesData[id])}
+          selectedVaccines={selectedCards?.map((id) => vaccinesData[id])}
+          patientDetails={patientDetails}
         />
       )}
 
@@ -258,7 +256,13 @@ function Vaccination() {
           <VaccinationChart vaccineData={[]} />
         </div>
       </div>
-      {showDob && <AddDOB show={showDob} setShowDob={setShowDob} />}
+      {showDob && (
+        <AddDOB
+          show={showDob}
+          setShowDob={setShowDob}
+          patientDetails={patientDetails}
+        />
+      )}
     </div>
   );
 }

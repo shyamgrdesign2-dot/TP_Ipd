@@ -1,15 +1,22 @@
 import { Modal, DatePicker, Button } from "antd";
 import { useState } from "react";
-import ApiVaccination from "../../service";
+import { updateDob } from "../../service";
 import { useNavigate } from "react-router-dom";
 
-const AddDOB = ({ show, setShowDob }) => {
+const AddDOB = ({ show, setShowDob, patientDetails }) => {
   const [dob, setDob] = useState("");
   const navigate = useNavigate();
 
-  const updateDob = async () => {
-    const payload = { dob };
-    // const res = await ApiVaccination.updateDob(payload);
+  const updatePatientDob = async () => {
+    const payload = {
+      patient_pid: patientDetails?.vac_pid,
+      patient_uid: patientDetails?.patient_unique_id,
+      hospital_bid: patientDetails?.hm_business_id,
+      hoapital_id: patientDetails?.hm_id,
+      updated_dob: dob,
+    };
+    const res = await updateDob(payload);
+    console.log({ res });
   };
 
   return (
@@ -39,7 +46,7 @@ const AddDOB = ({ show, setShowDob }) => {
           className={`${!dob ? "opacity-50" : ""}`}
           style={{ backgroundColor: "#4B4AD5" }}
           type="primary"
-          onClick={updateDob}
+          onClick={updatePatientDob}
         >
           Add
         </Button>

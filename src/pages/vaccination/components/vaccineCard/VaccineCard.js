@@ -8,6 +8,7 @@ const VaccineCard = ({
   vaccineData,
   selectedCards,
   handleCardCheckboxChange,
+  index,
 }) => {
   const birthDate = new Date(); //birthday
 
@@ -54,7 +55,7 @@ const VaccineCard = ({
   };
 
   const checkboxHandler = () => {
-    handleCardCheckboxChange(vaccineData?.vaccineId);
+    handleCardCheckboxChange(index);
   };
 
   return (
@@ -89,7 +90,7 @@ const VaccineCard = ({
             <div className="d-flex justify-content-end">
               <Checkbox
                 onChange={checkboxHandler}
-                checked={selectedCards.includes(vaccineData?.tvac_id)}
+                checked={selectedCards.includes(index)}
               />
             </div>
           </Col>

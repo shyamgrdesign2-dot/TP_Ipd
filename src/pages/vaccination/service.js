@@ -9,7 +9,7 @@ export const getPatientDetails = async function (
 ) {
   try {
     const res = await api.get(
-      `/patientDetails?hospital_bid=${hospital_bid}&patient_uid=${patient_uid}`,
+      `/vaccination/patientDetails?hospital_bid=234659817&patient_uid=6302066347&hospital_id=242`,
       baseUrl
     );
     console.log({ res });
@@ -23,7 +23,7 @@ export const getPatientDetails = async function (
 
 export const getVaccineBrands = async function () {
   try {
-    const vaccineBrands = await api.get(`/companyList`, baseUrl);
+    const vaccineBrands = await api.get(`/vaccination/companyList`, baseUrl);
     console.log({ vaccineBrands });
     const { detail = [] } = vaccineBrands;
     return detail;
@@ -34,8 +34,36 @@ export const getVaccineBrands = async function () {
 
 export const updateDob = async function (payload) {
   try {
-    const res = await api.post(`/patientDetails`, payload, baseUrl);
+    const res = await api.post(`/vaccination/updatedob`, payload, baseUrl);
     console.log({ res });
+  } catch (e) {
+    console.log({ e });
+  }
+};
+
+export const updateVaccine = async function (payload) {
+  try {
+    const res = await api.post(
+      `/vaccination/updatePatientTemplate`,
+      payload,
+      baseUrl
+    );
+    console.log({ res });
+    return res;
+  } catch (e) {
+    console.log({ e });
+  }
+};
+
+export const updateDueDate = async function (payload) {
+  try {
+    const res = await api.post(
+      `/vaccination/overrideduedate`,
+      payload,
+      baseUrl
+    );
+    console.log({ res });
+    return res;
   } catch (e) {
     console.log({ e });
   }
