@@ -116,9 +116,7 @@ function calculateAge(dob) {
 }
 
 export const getDefaultOption = (dob) => {
-  // Example DOB
   const age = calculateAge(dob);
-  console.log({ age });
   // Determine default option based on age
   let defaultOption;
   if (age.years === 0 && age.months === 0 && age.weeks <= 6) {

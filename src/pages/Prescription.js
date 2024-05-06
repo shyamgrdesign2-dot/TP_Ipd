@@ -43,7 +43,7 @@ function Prescription() {
     frequencyList,
     timingList,
   } = useSelector((state) => state.doctors);
-  const { selectedVitalsList, vitalsPastList } = useSelector(
+  const { selectedVitalsList, vitalsPastList, profile } = useSelector(
     (state) => state.vitals
   );
   const dispatch = useDispatch();
@@ -99,7 +99,9 @@ function Prescription() {
   const [shouldShowVaccination, setShouldShowVaccination] = useState(false);
 
   const checkForVaccination = async () => {
-    setShouldShowVaccination(await checkToShowVaccination());
+    setShouldShowVaccination(
+      await checkToShowVaccination(profile?.doctor_unique_id)
+    );
   };
 
   useEffect(() => {
