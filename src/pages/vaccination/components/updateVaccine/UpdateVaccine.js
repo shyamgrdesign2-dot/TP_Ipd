@@ -41,6 +41,7 @@ const UpdateVaccine = ({
   ];
   const [vaccineDetails, setVaccineDetails] = useState({});
   const [updateLoader, setUpdateLoader] = useState(false);
+  console.log({ patientDetails });
 
   useEffect(() => {
     getVaccineBrands();
@@ -51,26 +52,38 @@ const UpdateVaccine = ({
 
   const updateVaccineDetails = async () => {
     setUpdateLoader(true);
-    const payload = {
-      patient_pid: patientDetails?.patient_pid,
-      patient_uid: patientDetails?.patient_uid,
-      hospital_bid: patientDetails?.hospital_bid,
-      hospital_id: patientDetails?.hospital_id,
-      vaccine_template_id: "166",
-      vaccine_name: "BCG",
-      vaccine_company_id: "182",
-      vaccine_given_date: givenDate,
-      remarks: vaccineDetails,
-    };
+    // Create an array of promises for each API call
+    const updatePromises = selectedVaccines.map(async (vaccine) => {
+      const payload = {
+        patient_pid: patientDetails?.vac_pid,
+        patient_uid: patientDetails?.patient_unique_id,
+        hospital_bid: patientDetails?.hm_business_id,
+        hospital_id: patientDetails?.hm_id,
+        vaccine_template_id: vaccine?.tvt_id,
+        vaccine_name: vaccine?.tvac_name,
+        vaccine_company_id:
+          vaccineDetails[vaccine?.tvac_name]?.vaccine_company_id,
+        vaccine_given_date: givenDate,
+        remarks: vaccineDetails[vaccine?.tvac_name]?.remarks,
+      };
 
-    const updateVaccineRes = await updateVaccine(payload);
-    setUpdateLoader(false);
+      return updateVaccine(payload);
+    });
 
-    console.log({ updateVaccineRes });
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShow(false);
-    }, 1000);
+    // Wait for all API calls to finish
+    try {
+      const updateVaccineRes = await Promise.all(updatePromises);
+      setUpdateLoader(false);
+      console.log({ updateVaccineRes });
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShow(false);
+      }, 1000);
+    } catch (error) {
+      // Handle errors here
+      console.error("Error updating vaccines:", error);
+      setUpdateLoader(false); // Set loader state accordingly
+    }
   };
 
   const closeHandler = () => {
@@ -81,21 +94,39 @@ const UpdateVaccine = ({
   const handleDetails = (vaccineName, detail, value) => {
     setVaccineDetails((prev) => {
       if (prev[vaccineName]) prev[vaccineName][detail] = value;
-      else prev[vaccineName] = { detail: value };
+      else prev[vaccineName] = { [detail]: value };
       return prev;
     });
   };
 
   const updateVaccineDueDate = async () => {
     setUpdateLoader(true);
-    const payload = {
-      patient_pid: "PAT0020",
-      patient_uid: "1311432893",
-      vaccine_template_id: "166",
-      vaccine_given_date: dueDate,
-    };
-    const updateDuedateRes = await updateDueDate(payload);
-    setUpdateLoader(false);
+
+    const updatePromises = selectedVaccines.map(async (vaccine) => {
+      const payload = {
+        patient_pid: patientDetails?.vac_pid,
+        patient_uid: patientDetails?.patient_unique_id,
+        vaccine_template_id: vaccine?.tvt_id,
+        overriden_due_date: dueDate,
+      };
+
+      return updateDueDate(payload);
+    });
+
+    // Wait for all API calls to finish
+    try {
+      const updateDueDateRes = await Promise.all(updatePromises);
+      setUpdateLoader(false);
+      console.log({ updateDueDateRes });
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShow(false);
+      }, 1000);
+    } catch (error) {
+      // Handle errors here
+      console.error("Error updating vaccines:", error);
+      setUpdateLoader(false); // Set loader state accordingly
+    }
   };
 
   return (
@@ -308,7 +339,10 @@ const UpdateVaccine = ({
                 }}
                 disabled={false}
                 type="primary"
-                onClick={updateVaccineDetails}
+                onClick={() => {
+                  if (selectedDate === "given") updateVaccineDetails();
+                  else updateVaccineDueDate();
+                }}
                 loading={updateLoader}
               >
                 Update Vaccine

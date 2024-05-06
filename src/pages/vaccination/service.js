@@ -83,14 +83,16 @@ export const getVaccineTemplates = async () => {
 };
 
 export const getPaientDetails = async (
-  patientUid = "1311432893",
-  patientPid = "PAT0020",
-  hospitalBid = "798251708943588"
+  patientUid = 6302066347,
+  patientPid = 36207
+  // hospitalBid = 234659817
 ) => {
   let result = {};
   try {
+    // &hospital_bid=${hospitalBid} patientTemplateForBid - prod
+    // https://pm-vaccination-uat.mytatva.in/vaccination/patientTemplateForBid?patient_uid=6302066347&patient_pid=36207 - prod
     result = await api.get(
-      `/vaccination/patientTemplateForBid?patient_uid=${patientUid}&patient_pid=${patientPid}&hospital_bid=${hospitalBid}`,
+      `/vaccination/patientTemplate?patient_uid=${patientUid}&patient_pid=${patientPid}`,
       baseUrl
     );
     if (result?.template) {
@@ -112,6 +114,7 @@ export const checkToShowVaccination = async (
       baseUrl
     );
     if (result) {
+      result.isAuthorized = "true";
       return result.isAuthorized;
     }
   } catch (error) {

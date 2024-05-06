@@ -36,7 +36,7 @@ function Vaccination() {
   const [brands, setBrands] = useState([]);
 
   useEffect(() => {
-    getPatientDetail();
+    getVaccineDetails();
     getVaccineBrand();
   }, []);
 
@@ -48,6 +48,7 @@ function Vaccination() {
       details.vac_dob = moment(details.vac_dob).format("DD-MMM-YYYY");
     }
     setPatientDetails(details);
+    return details;
   };
 
   const getVaccineBrand = async () => {
@@ -63,7 +64,12 @@ function Vaccination() {
 
   const getVaccineDetails = async () => {
     const vaccineTemplate = await getVaccineTemplates();
-    const patientDetails = await getPaientDetails();
+    const patientDetail = await getPatientDetail();
+    const patientDetailsRes = await getPaientDetails(
+      patientDetail?.patient_unique_id,
+      patientDetail?.vac_pid,
+      patientDetail?.hm_business_id
+    );
 
     // considering birthday as last month => will remove later
     const birthDate = new Date();
@@ -71,7 +77,7 @@ function Vaccination() {
 
     const combinedData = mergeDataPatientDetails(
       vaccineTemplate,
-      patientDetails,
+      patientDetailsRes,
       birthDate
     );
     setPreviewData(combinedData);
@@ -83,10 +89,6 @@ function Vaccination() {
 
     if (!dateOptions.length) setDateOptions(getDates(result.idMap, priorDate));
   };
-
-  useEffect(() => {
-    getVaccineDetails();
-  }, []);
 
   useEffect(() => {
     const activeValue = ageFilters?.[activeDate];

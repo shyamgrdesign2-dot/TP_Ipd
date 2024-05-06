@@ -19,9 +19,9 @@ export const mergeDataPatientDetails = (
   birthDate
 ) => {
   return vaccineDetails?.map((item) => {
-    const matchingItem = patientDetails?.find(
-      (obj) => obj.tvac_name === item.tvac_name
-    );
+    const matchingItem = patientDetails
+      ?.toReversed()
+      ?.find((obj) => obj.tvac_name === item.tvac_name);
 
     const { tvt_due_day, tvt_due_month, tvt_due_year } = item;
     const dueDate = getDueDate(
