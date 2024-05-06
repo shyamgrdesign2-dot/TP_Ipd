@@ -879,18 +879,18 @@ function AppointmentData({ locationPath }) {
 
                         </div>
 
-                        <div class="doc-enjoy-secton d-flex align-items-center flex-column">
+                        {/* <div class="doc-enjoy-secton d-flex align-items-center flex-column">
                             <h3 className="fs-5 fw-semibold">
                                 <span>
                                     <img src={windoc} />
                                 </span>
                                 Enjoy your 30 days trial period
                             </h3>
-                            {/* <p className="fs-7 fw-normal">
+                            <p className="fs-7 fw-normal">
                                 This version is free for only 30 days. If you want to use
                                 the version for further, Please take a subscription
-                            </p> */}
-                        </div>
+                            </p>
+                        </div> */}
 
 
 
