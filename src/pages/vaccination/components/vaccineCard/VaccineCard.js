@@ -2,7 +2,7 @@ import React from "react";
 import { Card, Checkbox, Row, Col } from "antd";
 import cardWave from "../../../../assets/images/cardWave.svg";
 import "./VaccineCard.scss";
-import { dateFormatter, getDueDate } from "../../VaccinationHelper";
+import { dateFormatter } from "../../VaccinationHelper";
 
 const VaccineCard = ({
   vaccineData,
@@ -10,16 +10,6 @@ const VaccineCard = ({
   handleCardCheckboxChange,
   index,
 }) => {
-  const birthDate = new Date(); //birthday
-
-  const { tvt_due_day, tvt_due_month, tvt_due_year } = vaccineData;
-  const dueDate = getDueDate(
-    tvt_due_day,
-    tvt_due_month,
-    tvt_due_year,
-    birthDate
-  );
-
   const vaccineDetails = () => {
     return (
       <>
@@ -99,6 +89,8 @@ const VaccineCard = ({
         {/* Due Date Info */}
         <Row
           className={`dueDetails ${
+            (!vaccineData.tvp_given_date &&
+              new Date(vaccineData?.dueDate) < new Date()) ||
             vaccineData?.dueDate < vaccineData.tvp_given_date
               ? "isDelayed"
               : vaccineData?.tvp_given_date
@@ -108,7 +100,7 @@ const VaccineCard = ({
         >
           <Col>
             <div className="d-flex flex-column dueMessage">
-              <div>Due date : {dueDate}</div>
+              <div>Due date : {vaccineData.dueDate}</div>
               <div>Based on DOB</div>
             </div>
           </Col>

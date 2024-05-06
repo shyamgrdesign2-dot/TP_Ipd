@@ -24,6 +24,8 @@ const UpdateVaccine = ({
   brands,
   selectedVaccines,
   patientDetails,
+  getVaccineDetails,
+  setSelectedCards,
 }) => {
   const { TextArea } = Input;
   const [changeDate, setChangeDate] = useState(true);
@@ -80,6 +82,7 @@ const UpdateVaccine = ({
       setUpdateLoader(false);
       console.log({ updateVaccineRes });
       setShowSuccess(true);
+      getVaccineDetails();
       setTimeout(() => {
         setShow(false);
       }, 1000);
@@ -352,6 +355,7 @@ const UpdateVaccine = ({
                 onClick={() => {
                   if (selectedDate === "given") updateVaccineDetails();
                   else updateVaccineDueDate();
+                  setSelectedCards([]);
                 }}
                 loading={updateLoader}
               >

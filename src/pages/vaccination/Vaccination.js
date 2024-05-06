@@ -20,6 +20,7 @@ import {
 } from "./service";
 import {
   getDates,
+  getDefaultOption,
   getDistinctAges,
   mergeDataPatientDetails,
 } from "./VaccinationHelper";
@@ -73,6 +74,7 @@ function Vaccination() {
 
     const birthDate = new Date(patientDetail?.vac_dob);
 
+    const defaultOption = getDefaultOption(birthDate);
     const combinedData = mergeDataPatientDetails(
       vaccineTemplate,
       patientDetailsRes,
@@ -81,11 +83,11 @@ function Vaccination() {
     setPreviewData(combinedData);
     const result = getDistinctAges(combinedData);
     setAgeFilters(result.distinctIds);
+    setActiveDate(result.distinctIds?.indexOf(defaultOption));
 
     setCompleteData(result.idMap);
     setVaccinesData(result.idMap.get("Birth"));
-
-    if (!dateOptions.length) setDateOptions(getDates(result.idMap, birthDate));
+    if (!dateOptions.length) setDateOptions(() => getDates(result.idMap));
   };
 
   useEffect(() => {
@@ -253,6 +255,8 @@ function Vaccination() {
           brands={brands}
           selectedVaccines={selectedCards?.map((id) => vaccinesData[id])}
           patientDetails={patientDetails}
+          getVaccineDetails={getVaccineDetails}
+          setSelectedCards={setSelectedCards}
         />
       )}
       {vaccinesData?.length && (
