@@ -3,91 +3,92 @@ import config from "../../config";
 
 const baseUrl = { customBaseUrl: config.vaccination_api_url };
 
-export const getPatientDetails = async function (
-  hospital_bid = 798251708943588,
-  patient_uid = 1311432893
-) {
+export const getPatientDetails = async function ({
+  hospital_bid,
+  patient_uid,
+  hospital_id,
+}) {
+  let res = {};
   try {
-    const res = await api.get(
-      `/vaccination/patientDetails?hospital_bid=234659817&patient_uid=6302066347&hospital_id=242`,
+    res = await api.get(
+      `/vaccination/patientDetails?hospital_bid=${"234659817"}&patient_uid=${"6302066347"}&hospital_id=${"242"}`,
       baseUrl
     );
-    console.log({ res });
-    const { detail = [] } = res;
-    // detail[0].vac_dob = null;
-    return detail;
+    if (res?.detail?.length) {
+      res = res.detail[0];
+    }
   } catch (e) {
-    console.log({ e });
+    console.error("Error while fetching patient details: ", e);
   }
+  return res;
 };
 
 export const getVaccineBrands = async function () {
+  let vaccineBrands = [];
   try {
-    const vaccineBrands = await api.get(`/vaccination/companyList`, baseUrl);
-    console.log({ vaccineBrands });
-    const { detail = [] } = vaccineBrands;
-    return detail;
+    vaccineBrands = await api.get(`/vaccination/companyList`, baseUrl);
+    if (vaccineBrands?.detail) {
+      vaccineBrands = vaccineBrands.detail;
+    }
   } catch (e) {
-    console.log({ e });
+    console.error("Error while fetching vaccine brands", e);
   }
+  return vaccineBrands;
 };
 
 export const updateDob = async function (payload) {
+  let res = {};
   try {
-    const res = await api.post(`/vaccination/updatedob`, payload, baseUrl);
-    return res;
+    res = await api.post(`/vaccination/updatedob`, payload, baseUrl);
   } catch (e) {
-    console.log({ e });
+    console.error("Error while fetching update DOB: ", e);
   }
+  return res;
 };
 
 export const updateVaccine = async function (payload) {
+  let res = {};
   try {
-    const res = await api.post(
+    res = await api.post(
       `/vaccination/updatePatientTemplate`,
       payload,
       baseUrl
     );
-    console.log({ res });
-    return res;
   } catch (e) {
-    console.log({ e });
+    console.error("Error while fetching update vaccine: ", e);
   }
+  return res;
 };
 
 export const updateDueDate = async function (payload) {
+  let res = {};
   try {
-    const res = await api.post(
-      `/vaccination/overrideduedate`,
-      payload,
-      baseUrl
-    );
-    console.log({ res });
-    return res;
+    res = await api.post(`/vaccination/overrideduedate`, payload, baseUrl);
   } catch (e) {
-    console.log({ e });
+    console.error("Error while fetching update due date: ", e);
   }
+  return res;
 };
 
 export const getVaccineTemplates = async () => {
-  let result = {};
+  let result = [];
   try {
     result = await api.get(`/vaccination/standardTemplate`, baseUrl);
     if (result?.template) {
-      return result.template;
+      result = result.template;
     }
   } catch (error) {
-    console.error("Error while fetching vaccine template", error);
+    console.error("Error while fetching vaccine template: ", error);
   }
   return result;
 };
 
-export const getPaientDetails = async (
+export const getPatientVaccineDetails = async (
   patientUid = 6302066347,
   patientPid = 36207
   // hospitalBid = 234659817
 ) => {
-  let result = {};
+  let result = [];
   try {
     // &hospital_bid=${hospitalBid} patientTemplateForBid - prod
     // https://pm-vaccination-uat.mytatva.in/vaccination/patientTemplateForBid?patient_uid=6302066347&patient_pid=36207 - prod
@@ -96,29 +97,31 @@ export const getPaientDetails = async (
       baseUrl
     );
     if (result?.template) {
-      return result.template;
+      result = result.template;
     }
   } catch (error) {
-    console.error("Error while fetching vaccine template", error);
+    console.error("Error while fetching patient details: ", error);
   }
   return result;
 };
 
 export const checkToShowVaccination = async (
-  doctorUniqueId = "ZV7s4PYh8z3JguW" // true=ZV7s4PYh8z3JguW for false=ZV7s4PYh8z3Jgua => will remove later
+  doctorUniqueId = "ZV7s4PYh8z3JguW"
 ) => {
-  let result = false;
+  let result = "false";
   try {
     result = await api.get(
       `/vaccination/isAuthorized?doctor_unique_id=${doctorUniqueId}`,
       baseUrl
     );
-    if (result) {
-      result.isAuthorized = "true";
-      return result.isAuthorized;
+    if (result?.isAuthorized) {
+      result = result.isAuthorized;
     }
   } catch (error) {
-    console.error("Error while fetching vaccine template", error);
+    console.error(
+      "Error while fetching to show vaccination on prescription: ",
+      error
+    );
   }
   return result;
 };

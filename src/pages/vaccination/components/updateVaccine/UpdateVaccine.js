@@ -17,6 +17,7 @@ import moment from "moment";
 import SuccessPopup from "../SuccessPopup.js";
 import { updateDueDate, updateVaccine } from "../../service.js";
 import dayjs from "dayjs";
+import { useLocation } from "react-router-dom";
 
 const UpdateVaccine = ({
   show,
@@ -24,6 +25,8 @@ const UpdateVaccine = ({
   brands,
   selectedVaccines,
   patientDetails,
+  getVaccineDetails,
+  setSelectedCards,
 }) => {
   const { TextArea } = Input;
   const [changeDate, setChangeDate] = useState(true);
@@ -43,6 +46,9 @@ const UpdateVaccine = ({
   const [vaccineDetails, setVaccineDetails] = useState({});
   const [updateLoader, setUpdateLoader] = useState(false);
 
+  const { state } = useLocation();
+  const { patient_data } = state;
+
   useEffect(() => {
     getVaccineBrands();
     setGivenDate(
@@ -58,11 +64,25 @@ const UpdateVaccine = ({
     setUpdateLoader(true);
     // Create an array of promises for each API call
     const updatePromises = selectedVaccines.map(async (vaccine) => {
+      // const payload = {
+      //   patient_pid: patientDetails?.vac_pid || patient_data?.pm_pid,
+      //   patient_uid: patientDetails?.patient_unique_id || patient_data?.pm_id,
+      //   hospital_bid:
+      //     patientDetails?.hm_business_id || patient_data?.hm_business_id,
+      //   hospital_id: patientDetails?.hm_id || patient_data?.hm_id,
+      //   vaccine_template_id: vaccine?.tvt_id,
+      //   vaccine_name: vaccine?.tvac_name,
+      //   vaccine_company_id:
+      //     vaccineDetails[vaccine?.tvac_name]?.vaccine_company_id,
+      //   vaccine_given_date: givenDate,
+      //   remarks: vaccineDetails[vaccine?.tvac_name]?.remarks,
+      // };
+
       const payload = {
-        patient_pid: patientDetails?.vac_pid,
-        patient_uid: patientDetails?.patient_unique_id,
-        hospital_bid: patientDetails?.hm_business_id,
-        hospital_id: patientDetails?.hm_id,
+        patient_pid: "36207",
+        patient_uid: "6302066347",
+        hospital_bid: "234659817",
+        hospital_id: "242",
         vaccine_template_id: vaccine?.tvt_id,
         vaccine_name: vaccine?.tvac_name,
         vaccine_company_id:
@@ -80,6 +100,7 @@ const UpdateVaccine = ({
       setUpdateLoader(false);
       console.log({ updateVaccineRes });
       setShowSuccess(true);
+      getVaccineDetails();
       setTimeout(() => {
         setShow(false);
       }, 1000);
@@ -352,6 +373,7 @@ const UpdateVaccine = ({
                 onClick={() => {
                   if (selectedDate === "given") updateVaccineDetails();
                   else updateVaccineDueDate();
+                  setSelectedCards([]);
                 }}
                 loading={updateLoader}
               >

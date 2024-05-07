@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useContext } from "react";
 import { Container, Navbar, Row, Col } from "react-bootstrap";
 import { Button, Dropdown, Menu } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import CashManagerContext from "../../../../context/CashManagerContext";
 import ProfilePopover from "../../../../common/ProfilePopover";
@@ -12,6 +12,7 @@ import "./VaccineHeader.scss";
 
 function VaccineHeader({ vaccinesData, handlePrint, patientDetails }) {
   const navigate = useNavigate();
+  const { state } = useLocation();
   let { patient_data } = useContext(CashManagerContext);
   patient_data = { ...patient_data, ...patientDetails };
 
@@ -33,7 +34,7 @@ function VaccineHeader({ vaccinesData, handlePrint, patientDetails }) {
   };
 
   const saveBtnHandler = () => {
-    console.log("saveBtnHandler");
+    navigate("/prescription_print_view", { replace: true, state: state });
   };
 
   function handleMenuClick(e) {
@@ -97,7 +98,9 @@ function VaccineHeader({ vaccinesData, handlePrint, patientDetails }) {
                         <div className="d-flex align-items-center mt-2 justify-content-end">
                           <div
                             onClick={() =>
-                              navigate("/prescription", { replace: true })
+                              navigate("/prescription", {
+                                state: { patient_data: patient_data },
+                              })
                             }
                             className="me-4 text-decoration-underline btn p-0 text-main"
                           >
