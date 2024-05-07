@@ -109,7 +109,7 @@ const VaccineFilter = ({ dateOptions, activeDate, setActiveDate }) => {
                   />
                 ) : null}
                 <span
-                  className={`btnText${
+                  className={`btnText ${
                     i === activeDate ? "activeBtnText" : ""
                   }`}
                 >

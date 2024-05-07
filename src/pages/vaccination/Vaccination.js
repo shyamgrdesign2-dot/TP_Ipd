@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./Vaccination.scss";
-import { Checkbox, Drawer } from "antd";
+import { Checkbox, Drawer, Spin } from "antd";
 import VaccineHeader from "./components/vaccineHeader/VaccineHeader";
 import VaccineCard from "./components/vaccineCard/VaccineCard";
 import VaccineFilter from "./components/vaccineFilter/VaccineFilter";
@@ -201,35 +201,50 @@ function Vaccination() {
               alt="Vaccine"
             />
           </div>
-          <div className={isFixed ? "fixFilter" : ""}>
-            <VaccineFilter
-              dateOptions={dateOptions}
-              activeDate={activeDate}
-              setActiveDate={setActiveDate}
-            />
-          </div>
-          <div className="selectAllContainer scrollable-content">
-            <Checkbox
-              className="checkboxStyle"
-              checked={selectAll}
-              onChange={handleSelectAll}
-            />
-            <span className="selectAll">Select All</span>
-          </div>
-
-          <Row xs={1} sm={2} md={2} lg={3} className="gy-4">
-            {vaccinesData?.map((vaccineData, index) => (
-              <Col key={index} className="gx-4">
-                <VaccineCard
-                  vaccineData={vaccineData}
-                  selectedCards={selectedCards}
-                  handleCardCheckboxChange={handleCardCheckboxChange}
-                  setSelectedCards={setSelectedCards}
-                  index={index}
+          {vaccinesData ? (
+            <>
+              <div className={isFixed ? "fixFilter" : ""}>
+                <VaccineFilter
+                  dateOptions={dateOptions}
+                  activeDate={activeDate}
+                  setActiveDate={setActiveDate}
                 />
-              </Col>
-            ))}
-          </Row>
+              </div>
+              <div className="selectAllContainer scrollable-content">
+                <Checkbox
+                  className="checkboxStyle"
+                  checked={selectAll}
+                  onChange={handleSelectAll}
+                />
+                <span className="selectAll">Select All</span>
+              </div>
+
+              <Row xs={1} sm={2} md={2} lg={3} className="gy-4">
+                {vaccinesData?.map((vaccineData, index) => (
+                  <Col key={index} className="gx-4">
+                    <VaccineCard
+                      vaccineData={vaccineData}
+                      selectedCards={selectedCards}
+                      handleCardCheckboxChange={handleCardCheckboxChange}
+                      setSelectedCards={setSelectedCards}
+                      index={index}
+                    />
+                  </Col>
+                ))}
+              </Row>
+            </>
+          ) : (
+            <div>
+              <Spin
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: "50%",
+                }}
+                size="large"
+              />
+            </div>
+          )}
         </div>
         {warningMsg ? (
           <Drawer
