@@ -93,5 +93,9 @@ export const getDates = (sampleMap) => {
 export const getDefaultOption = (dateOptions) => {
   const today = new Date();
   const dateOption = dateOptions.find((item) => item.dueDate > today);
-  return dateOptions.indexOf(dateOption);
+  const activeValue = dateOptions.indexOf(dateOption);
+  if (activeValue === -1) {
+    return 0;
+  }
+  return activeValue;
 };

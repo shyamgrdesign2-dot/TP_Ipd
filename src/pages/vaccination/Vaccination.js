@@ -77,6 +77,7 @@ function Vaccination() {
   const [dateOptions, setDateOptions] = useState([]);
   const [ageFilters, setAgeFilters] = useState([]);
   const [previewData, setPreviewData] = useState([]);
+  const [shouldShowSelectAll, setShouldShowSelectAll] = useState(false);
 
   const getVaccineDetails = async () => {
     const vaccineTemplate = await getVaccineTemplates();
@@ -120,6 +121,43 @@ function Vaccination() {
     } else {
       setSelectedCards([]);
       setWarningMsg("");
+    }
+  };
+
+  useEffect(() => {
+    selectAllCheck();
+  }, [vaccinesData]);
+
+  const selectAllCheck = () => {
+    // Needs to check for updated due date
+
+    // checking for two different due dates vaccines
+    const vaccineDue = vaccinesData?.[0]?.dueDate;
+    const difference = vaccinesData?.filter(
+      (vaccineData) => vaccineData.dueDate !== vaccineDue
+    );
+    const vaccineGiven = vaccinesData?.[0]?.tvp_given_date;
+
+    // checking for two different given dates
+    const givenDifference = vaccinesData?.filter(
+      (vaccineData) => vaccineData.tvp_given_date !== vaccineGiven
+    );
+    if (!givenDifference?.length && !difference?.length) {
+      setShouldShowSelectAll(true);
+    }
+
+    /**
+     * checking for both vaccine given and not given were present or not
+     * If both are present then we dont show the select all
+     */
+    const checkForGiven = vaccinesData?.find(
+      (vaccineData) => vaccineData?.tvp_given_date
+    );
+    const checkForNotGiven = vaccinesData?.find(
+      (vaccineData) => !vaccineData?.tvp_given_date
+    );
+    if (checkForGiven && checkForNotGiven) {
+      setShouldShowSelectAll(false);
     }
   };
 
@@ -202,7 +240,7 @@ function Vaccination() {
               alt="Vaccine"
             />
           </div>
-          {vaccinesData ? (
+          {vaccinesData?.length ? (
             <>
               <div className={isFixed ? "fixFilter" : ""}>
                 <VaccineFilter
@@ -211,14 +249,16 @@ function Vaccination() {
                   setActiveDate={setActiveDate}
                 />
               </div>
-              <div className="selectAllContainer scrollable-content">
-                <Checkbox
-                  className="checkboxStyle"
-                  checked={selectAll}
-                  onChange={handleSelectAll}
-                />
-                <span className="selectAll">Select All</span>
-              </div>
+              {shouldShowSelectAll ? (
+                <div className="selectAllContainer scrollable-content">
+                  <Checkbox
+                    className="checkboxStyle"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                  />
+                  <span className="selectAll">Select All</span>
+                </div>
+              ) : null}
 
               <Row xs={1} sm={2} md={2} lg={3} className="gy-4">
                 {vaccinesData?.map((vaccineData, index) => (
