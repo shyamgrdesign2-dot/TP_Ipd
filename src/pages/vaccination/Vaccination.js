@@ -89,7 +89,6 @@ function Vaccination() {
 
     const birthDate = new Date(patientDetail?.vac_dob);
 
-    const defaultOption = getDefaultOption(birthDate);
     const combinedData = mergeDataPatientDetails(
       vaccineTemplate,
       patientDetailsRes,
@@ -98,11 +97,13 @@ function Vaccination() {
     setPreviewData(combinedData);
     const result = getDistinctAges(combinedData);
     setAgeFilters(result.distinctIds);
-    setActiveDate(result.distinctIds?.indexOf(defaultOption));
 
     setCompleteData(result.idMap);
-    setVaccinesData(result.idMap.get("Birth"));
-    if (!dateOptions.length) setDateOptions(() => getDates(result.idMap));
+    if (!dateOptions.length) {
+      const options = getDates(result.idMap);
+      setDateOptions(options);
+      setActiveDate(getDefaultOption(options));
+    }
   };
 
   useEffect(() => {
