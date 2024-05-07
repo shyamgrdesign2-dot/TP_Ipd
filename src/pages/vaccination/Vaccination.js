@@ -44,12 +44,11 @@ function Vaccination() {
   }, []);
 
   const getPatientDetail = async () => {
-    const patientDetails =
-      (await getPatientDetails({
-        hospital_bid: patient_data?.hm_business_id,
-        patient_uid: patient_data?.patient_unique_id,
-        hospital_id: patient_data?.hm_id,
-      })) ?? [];
+    const patientDetails = await getPatientDetails({
+      hospital_bid: patient_data?.hm_business_id,
+      patient_uid: patient_data?.patient_unique_id,
+      hospital_id: patient_data?.hm_id,
+    });
     if (!patientDetails?.vac_dob) {
       setShowDob(true);
     } else {

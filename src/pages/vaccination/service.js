@@ -8,14 +8,14 @@ export const getPatientDetails = async function ({
   patient_uid,
   hospital_id,
 }) {
-  let res = [];
+  let res = {};
   try {
     res = await api.get(
-      `/vaccination/patientDetails?hospital_bid=${hospital_bid}&patient_uid=${patient_uid}&hospital_id=${hospital_id}`,
+      `/vaccination/patientDetails?hospital_bid=${"234659817"}&patient_uid=${"6302066347"}&hospital_id=${"242"}`,
       baseUrl
     );
-    if (res?.detail) {
-      res = res.detail;
+    if (res?.detail?.length) {
+      res = res.detail[0];
     }
   } catch (e) {
     console.error("Error while fetching patient details: ", e);
@@ -123,4 +123,5 @@ export const checkToShowVaccination = async (
       error
     );
   }
+  return result;
 };

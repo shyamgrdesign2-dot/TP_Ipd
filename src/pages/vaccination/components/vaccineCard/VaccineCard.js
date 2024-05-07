@@ -91,7 +91,7 @@ const VaccineCard = ({
           className={`dueDetails ${
             (!vaccineData.tvp_given_date &&
               new Date(vaccineData?.dueDate) < new Date()) ||
-            vaccineData?.dueDate < vaccineData.tvp_given_date
+            vaccineData?.dueDate > vaccineData.tvp_given_date
               ? "isDelayed"
               : vaccineData?.tvp_given_date
               ? "isGiven"
