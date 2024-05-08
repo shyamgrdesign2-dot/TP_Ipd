@@ -49,7 +49,9 @@ const VaccineTable = ({ dataSource, columns, isPreview }) => {
               </td>
             )}
             <td className="cell">{item.tvac_name}</td>
-            <td className="cell">{item.brand}</td>
+            <td className="cell">
+              {item.tvp_given_date ? item.brandName : ""}
+            </td>
             <td className="cell">
               <div className="dateCell">
                 {item.dueDate}
@@ -70,7 +72,7 @@ const VaccineTable = ({ dataSource, columns, isPreview }) => {
                 ) : null}
               </div>
             </td>
-            <td className="cell">{item.remarks}</td>
+            <td className="cell">{item.tvp_remarks || item.tvd_remarks}</td>
           </tr>
         ))}
       </React.Fragment>

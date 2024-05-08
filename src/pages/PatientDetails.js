@@ -18,6 +18,8 @@ import {
     viewCaseManager,
 } from "../redux/caseManagerSlice";
 import VisitVaccination from "./vaccination/components/visitVaccination/VisitVaccination";
+import { getNotGivenVaccines } from "./vaccination/service";
+import { getOverDueVaccines } from "./vaccination/VaccinationHelper";
 
 const { Sider, Content } = Layout;
 
@@ -61,6 +63,15 @@ function PatientDetails() {
         //     clearTimeout(timeOutId);
         // };
     }, [tcmData]);
+
+    const overDueVaccines = async () => {
+      const notGivenVaccines = await getNotGivenVaccines();
+      const data = getOverDueVaccines(notGivenVaccines, patient_data?.DOB);
+    };
+
+    useEffect(() => {
+      overDueVaccines();
+    }, []);
 
     const nextPress = () => {
         window.Moengage.track_event("patient_detail_prev", {

@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const getDistinctAges = (vaccineDetails) => {
   const idMap = new Map(); // Map to store objects grouped by ages
   const distinctIds = []; // Array to store distinct IDs
@@ -115,4 +117,22 @@ export const getDefaultOption = (dateOptions) => {
     return 0;
   }
   return activeValue;
+};
+
+export const getOverDueVaccines = (notGivenVaccines, birthDate) => {
+  return notGivenVaccines?.map((item) => {
+    const { tvt_due_day, tvt_due_month, tvt_due_year } = item;
+    const dateCount = tvt_due_day + tvt_due_month * 30 + tvt_due_year * 365;
+    const birthDayObject = moment(birthDate, "Do MMM YYYY");
+
+    const formattedDate = birthDayObject.format("DD-MMM-YYYY").toUpperCase();
+    const dueDate1 = new Date(formattedDate);
+    if (dateCount) {
+      dueDate1.setDate(dueDate1.getDate() + dateCount);
+    }
+    const today = new Date();
+    if (today > dueDate1) {
+      return { ...item, dueDate: dueDate1 };
+    }
+  });
 };
