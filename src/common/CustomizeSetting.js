@@ -271,6 +271,9 @@ function CustomizeSetting({ handleDrawerCustomize }) {
       if (left.findIndex(e => e.tmdpm_id === 1 && e.tmdpm_status === 0) === -1) {
         setVitalsData([])
       }
+      if (left.findIndex(e => e.tmdpm_id === 3 && e.tmdpm_status === 0) === -1) {
+        setMedicalHistoryData([])
+      }
       errorMessage('Action successfully')
       handleDrawerCustomize()
     } else {
