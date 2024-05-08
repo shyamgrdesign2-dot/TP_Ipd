@@ -3,6 +3,7 @@ import { Card, Checkbox, Row, Col } from "antd";
 import cardWave from "../../../../assets/images/cardWave.svg";
 import "./VaccineCard.scss";
 import { dateFormatter } from "../../VaccinationHelper";
+import moment from "moment";
 
 const VaccineCard = ({
   vaccineData,
@@ -10,6 +11,9 @@ const VaccineCard = ({
   handleCardCheckboxChange,
   index,
 }) => {
+  const dueDate = moment(vaccineData.dueDate);
+  const givenDate = moment(vaccineData.tvp_given_date);
+  const isDateExceeded = givenDate.isAfter(dueDate, "day");
   const vaccineDetails = () => {
     return (
       <>
@@ -85,13 +89,11 @@ const VaccineCard = ({
             </div>
           </Col>
         </Row>
-
         {/* Due Date Info */}
         <Row
           className={`dueDetails ${
-            (!vaccineData.tvp_given_date &&
-              new Date(vaccineData?.dueDate) < new Date()) ||
-            vaccineData?.dueDate > vaccineData.tvp_given_date
+            (!vaccineData.tvp_given_date && dueDate < new Date()) ||
+            isDateExceeded
               ? "isDelayed"
               : vaccineData?.tvp_given_date
               ? "isGiven"
