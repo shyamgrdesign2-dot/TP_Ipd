@@ -1,5 +1,6 @@
 import React from "react";
 import "./VaccineTable.scss";
+import { dateFormatter } from "../../VaccinationHelper";
 
 const VaccineTable = ({ dataSource, columns, isPreview }) => {
   const groupDataByCommonIDs = (data) => {
@@ -52,7 +53,10 @@ const VaccineTable = ({ dataSource, columns, isPreview }) => {
             <td className="cell">
               <div className="dateCell">
                 {item.dueDate}
-                {item?.dueDate < item.tvp_given_date && isPreview ? (
+                {((!item.tvp_given_date &&
+                  new Date(item?.dueDate) < new Date()) ||
+                  item?.dueDate < item.tvp_given_date) &&
+                isPreview ? (
                   <span className="overDue">Over Due</span>
                 ) : null}
               </div>
@@ -60,7 +64,7 @@ const VaccineTable = ({ dataSource, columns, isPreview }) => {
 
             <td className="cell">
               <div className="dateCell">
-                {item.tvp_given_date}
+                {dateFormatter(new Date(item.tvp_given_date))}
                 {item.tvp_given_date && isPreview ? (
                   <span className="given">Given</span>
                 ) : null}

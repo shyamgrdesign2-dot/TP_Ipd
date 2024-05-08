@@ -64,13 +64,16 @@ export const dateFormatter = (date) => {
     "Nov",
     "Dec",
   ];
-  return (
-    date.getDate() +
-    " " +
-    monthNames[date.getMonth()] +
-    " " +
-    date.getFullYear()
-  );
+  if (Date.parse(date)) {
+    return (
+      date.getDate() +
+      " " +
+      monthNames[date.getMonth()] +
+      " " +
+      date.getFullYear()
+    );
+  }
+  return null;
 };
 
 export const getDates = (sampleMap) => {
