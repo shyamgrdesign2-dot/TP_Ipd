@@ -3,6 +3,7 @@ import { Card, Checkbox, Row, Col } from "antd";
 import cardWave from "../../../../assets/images/cardWave.svg";
 import "./VaccineCard.scss";
 import { dateFormatter } from "../../VaccinationHelper";
+import moment from "moment";
 
 const VaccineCard = ({
   vaccineData,
@@ -10,6 +11,9 @@ const VaccineCard = ({
   handleCardCheckboxChange,
   index,
 }) => {
+  const dueDate = moment(vaccineData.dueDate);
+  const givenDate = moment(vaccineData.tvp_given_date);
+  const isDateExceeded = givenDate.isAfter(dueDate, "day");
   const vaccineDetails = () => {
     return (
       <>
@@ -37,7 +41,7 @@ const VaccineCard = ({
         {vaccineData.tvp_remarks ? (
           <div className="vaccineDetailsValue">
             <span className="vaccineDetailsKey">Note : </span>{" "}
-            {vaccineData.tvp_remarks}
+            {vaccineData.tvp_remarks || vaccineData.tvd_remarks}
           </div>
         ) : null}
       </>
@@ -51,7 +55,7 @@ const VaccineCard = ({
   return (
     <Card className="vaccineCardContainer" bodyStyle={{ height: "100%" }}>
       {/* Vaccine status Indicator */}
-      {vaccineData?.tvp_given_date || vaccineData?.tvp_modify_date ? (
+      {vaccineData?.tvp_given_date || vaccineData.tvd_due_date ? (
         <div
           className={`vaccineStatus ${
             vaccineData?.tvp_given_date ? "vaccineGiven" : ""
@@ -85,13 +89,11 @@ const VaccineCard = ({
             </div>
           </Col>
         </Row>
-
         {/* Due Date Info */}
         <Row
           className={`dueDetails ${
-            (!vaccineData.tvp_given_date &&
-              new Date(vaccineData?.dueDate) < new Date()) ||
-            vaccineData?.dueDate > vaccineData.tvp_given_date
+            (!vaccineData.tvp_given_date && dueDate < new Date()) ||
+            isDateExceeded
               ? "isDelayed"
               : vaccineData?.tvp_given_date
               ? "isGiven"

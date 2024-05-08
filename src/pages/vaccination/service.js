@@ -69,10 +69,7 @@ export const updateDueDate = async function (payload) {
   return res;
 };
 
-export const getOverridenDueDate = async (
-  patientUid = "6302066347",
-  patientPid = "36207"
-) => {
+export const getOverridenDueDate = async (patientUid, patientPid) => {
   let res = [];
   try {
     res = await api.get(
@@ -155,4 +152,26 @@ export const createPatient = async (payload) => {
     console.error("Error while creating patient: ", error);
   }
   return res;
+};
+
+export const getNotGivenVaccines = async (
+  patientUid = 6302066347,
+  patientPid = 36207
+) => {
+  let result = [];
+  try {
+    result = await api.get(
+      `vaccination/patientPendingTemplate?patient_uid=${patientUid}&patient_pid=${patientPid}`,
+      baseUrl
+    );
+    if (result?.template) {
+      result = result.template;
+    }
+  } catch (error) {
+    console.error(
+      "Error while fetching Not given vaccine on patient details page: ",
+      error
+    );
+  }
+  return result;
 };

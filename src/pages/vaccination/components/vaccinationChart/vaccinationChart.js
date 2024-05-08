@@ -1,3 +1,4 @@
+import moment from "moment";
 import VaccineTable from "../vaccineTable/VaccineTable";
 import "./vaccinationChart.scss";
 
@@ -40,10 +41,19 @@ const columns = [
   },
 ];
 
-const VaccinationChart = ({ vaccinesData }) => {
+const VaccinationChart = ({ vaccinesData, patientDetails }) => {
+  function divideArray(array) {
+    const subarrays = [];
+    for (let i = 0; i < array.length; i += 15) {
+      const subarray = array.slice(i, i + 15);
+      subarrays.push(subarray);
+    }
+    return subarrays;
+  }
+
   return (
     <>
-      {[vaccinesData?.slice(0, 14), vaccinesData?.slice(14)]?.map((ds) => (
+      {divideArray(vaccinesData)?.map((ds) => (
         <div className="d-flex flex-column align-items-center print-template">
           <div className="header">Vaccination Chart</div>
           <div className="details">
@@ -54,8 +64,14 @@ const VaccinationChart = ({ vaccinesData }) => {
               height={32}
             />
             <div style={{ height: "36px" }}>
-              <div style={{ fontWeight: 600 }}>Baby Janvi</div>
-              <div>Age : 12 Years, Female</div>
+              <div style={{ fontWeight: 600 }}>
+                {patientDetails?.vac_first_name} {patientDetails?.vac_last_name}
+              </div>
+              <div>
+                Age :{" "}
+                {moment().diff(moment("23-Mar-2020", "DD-MMM-YYYY"), "years")}{" "}
+                Years, {patientDetails?.vac_gender}
+              </div>
             </div>
           </div>
           <div className="vaccine-table-wrapper">

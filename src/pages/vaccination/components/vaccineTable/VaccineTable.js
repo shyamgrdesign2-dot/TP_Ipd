@@ -1,5 +1,6 @@
 import React from "react";
 import "./VaccineTable.scss";
+import { dateFormatter } from "../../VaccinationHelper";
 
 const VaccineTable = ({ dataSource, columns, isPreview }) => {
   const groupDataByCommonIDs = (data) => {
@@ -48,11 +49,16 @@ const VaccineTable = ({ dataSource, columns, isPreview }) => {
               </td>
             )}
             <td className="cell">{item.tvac_name}</td>
-            <td className="cell">{item.brand}</td>
+            <td className="cell">
+              {item.tvp_given_date ? item.brandName : ""}
+            </td>
             <td className="cell">
               <div className="dateCell">
                 {item.dueDate}
-                {item?.dueDate < item.tvp_given_date && isPreview ? (
+                {((!item.tvp_given_date &&
+                  new Date(item?.dueDate) < new Date()) ||
+                  item?.dueDate < item.tvp_given_date) &&
+                isPreview ? (
                   <span className="overDue">Over Due</span>
                 ) : null}
               </div>
@@ -60,13 +66,13 @@ const VaccineTable = ({ dataSource, columns, isPreview }) => {
 
             <td className="cell">
               <div className="dateCell">
-                {item.tvp_given_date}
+                {dateFormatter(new Date(item.tvp_given_date))}
                 {item.tvp_given_date && isPreview ? (
                   <span className="given">Given</span>
                 ) : null}
               </div>
             </td>
-            <td className="cell">{item.remarks}</td>
+            <td className="cell">{item.tvp_remarks || item.tvd_remarks}</td>
           </tr>
         ))}
       </React.Fragment>

@@ -50,9 +50,9 @@ function VisitVaccination({ loading }) {
   const vaccinesDetails = (vaccinesData) => {
     return (
       <>
-        {vaccinesData.map((vaccine) => {
+        {vaccinesData.map((vaccine, index) => {
           return (
-            <div className="detailContainer">
+            <div key={index} className="detailContainer">
               <div className="d-flex justify-content-between">
                 <div>BCG</div>
                 <div className={vaccine.isOverDue ? "overDue" : "due"}>
