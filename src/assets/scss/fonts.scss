@@ -236,10 +236,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.iconrotate90 {
+.iconrotate180 {
   transform: rotate(180deg);
 }
-
+.iconrotatehistory90 {
+  transform: rotate(90deg);
+  margin-left: -1px;
+  margin-top: -4px;
+}
 .iconrotate270 {
   transform: rotate(270deg);
 }

@@ -10,7 +10,7 @@ function AddressDetails({ form }) {
     const dispatch = useDispatch();
     let { pincodeInfo, error } = useSelector((state) => state.records);
 
-    const [showDetails, setShowDetails] = useState(true);
+    const [showDetails, setShowDetails] = useState(false);
     const [pincode, setPincode] = useState("");
 
     // Form Rules
@@ -75,7 +75,7 @@ function AddressDetails({ form }) {
                     </Button>
                 </div>
             )}
-            {showDetails && (
+            {(showDetails || isMobile) && (
                 <>
                     <Row className={!isMobile && "mt-3"} gutter={{ xs: 8, sm: 18, md: 40, lg: 94 }}>
                         <Col xs={24} sm={24} md={12} lg={12}>
@@ -96,14 +96,14 @@ function AddressDetails({ form }) {
                             </Form.Item>
                         </Col>
                     </Row>
-                    <Row className="mt-3" gutter={{ xs: 8, sm: 18, md: 40, lg: 94 }}>
+                    <Row gutter={{ xs: 8, sm: 18, md: 40, lg: 94 }}>
                         <Col xs={24} sm={24} md={12} lg={12}>
-                            <Form.Item name="pm_state" label="State">
+                            <Form.Item className="mb-0" name="pm_state" label="State">
                                 <Input placeholder={"State"} />
                             </Form.Item>
                         </Col>
                         <Col xs={24} sm={24} md={12} lg={12}>
-                            <Form.Item name="pm_address" label="Street Address">
+                            <Form.Item name="pm_address" className="mb-0" label="Street Address">
                                 <Input placeholder="Street Address" />
                             </Form.Item>
                         </Col>

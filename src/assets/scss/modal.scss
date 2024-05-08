@@ -118,6 +118,18 @@ body {
         }
     }
 
+    .selectedchip-header1 {
+        height: 60px;
+        background-color: $drawerHeaderColor;
+        span {
+            font-size: 24px;
+            line-height: 36px;
+            font-weight: 600;
+            letter-spacing: 0.1px;
+            color: $maincolor !important;
+        }
+    }
+
     .modalCard-header {
         height: 60px;
         border-bottom: 1px solid $bordercolor;

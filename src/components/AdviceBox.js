@@ -8,7 +8,6 @@ import {
   Popover,
   Tabs,
   Spin,
-  message,
   Checkbox,
   Drawer,
   Card,
@@ -21,8 +20,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { MESSAGE_KEY } from "../utils/constants";
-import { removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
+import { errorMessage, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Adviceicon from "../assets/images/advice.svg";
 import {
   addTemplate,
@@ -35,7 +33,6 @@ import {
 
 function AdviceBox() {
   const inputRef = useRef();
-  const [messageApi, contextHolder] = message.useMessage();
   const {
     selectedAdviceList,
     parentOptionsList,
@@ -241,12 +238,7 @@ function AdviceBox() {
   const onDeleteTemplateClicked = async (tat_id) => {
     const action = await dispatch(deleteTemplate(tat_id));
     if (action.meta.requestStatus === "rejected") {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   };
 
@@ -274,19 +266,9 @@ function AdviceBox() {
 
   const onAddTemplateClicked = async () => {
     if (adviceData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 advice added',
-        duration: 2
-      });
+      errorMessage('At least 1 advice added')
     } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup advice name',
-        duration: 2
-      });
+      errorMessage('Please fillup advice name')
     } else {
       var sendData = {
         tat_template_name: inputTemplateName,
@@ -313,19 +295,9 @@ function AdviceBox() {
 
   const onUpdateTemplateClicked = async () => {
     if (adviceData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 advice added',
-        duration: 2
-      });
+      errorMessage('At least 1 advice added')
     } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup advice name',
-        duration: 2
-      });
+      errorMessage('Please fillup advice name')
     } else {
       var data = JSON.parse(inputTemplateName);
       var sendData = {
@@ -620,7 +592,6 @@ function AdviceBox() {
 
   return (
     <>
-      {contextHolder}
       <div className="">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">

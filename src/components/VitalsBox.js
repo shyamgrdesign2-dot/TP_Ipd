@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo, useRef } from "react";
-import { Button, message, Card, DatePicker, Input, Tooltip } from 'antd';
+import { Button, Card, DatePicker, Input, Tooltip } from 'antd';
 import dayjs from "dayjs";
 
 import { useSelector, useDispatch } from "react-redux";
 // import { v4 as uuidv4 } from 'uuid';
-import { MESSAGE_KEY } from "../utils/constants";
-import { onlyDecimalFormat } from "../utils/utils";
+import { errorMessage, onlyDecimalFormat } from "../utils/utils";
 
 import CashManagerContext from '../context/CashManagerContext';
 
@@ -25,7 +24,6 @@ function VitalsBox(props) {
 
     const { handleDrawerVital, handleCollapsed } = props
 
-    const [messageApi, contextHolder] = message.useMessage();
     const {
         selectedVitalsList,
         loading,
@@ -193,12 +191,7 @@ function VitalsBox(props) {
         if (action.meta.requestStatus === "fulfilled") {
             handleCollapsed(1)
         } else {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     }
 
@@ -256,7 +249,6 @@ function VitalsBox(props) {
 
     return (
         <>
-            {contextHolder}
             <Card bordered={false} className="search-modalCard ">
                 <div className='modalCard-header h-60 align-items-center justify-content-between d-flex'>
                     <div className='align-items-center d-flex'>

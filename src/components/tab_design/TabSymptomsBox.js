@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { Input, Button, Drawer, Tabs, message, Select, Card, Spin, Segmented, Tooltip } from 'antd';
+import { Input, Button, Drawer, Tabs, Select, Card, Spin, Segmented, Tooltip } from 'antd';
 
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -8,8 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
-import { MESSAGE_KEY } from "../../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
+import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
 import Symptomsicon from "../../assets/images/Symptoms.svg";
 import {
     addTemplate,
@@ -22,8 +21,6 @@ import {
 import TabSymptomsSearch from "../../components/tab_design/TabSymptomsSearch";
 
 function TabSymptomsBox() {
-
-    const [messageApi, contextHolder] = message.useMessage();
     const {
         selectedSymptomsList,
         parentOptionsList,
@@ -167,12 +164,7 @@ function TabSymptomsBox() {
     const onDeleteTemplateClicked = async (tst_id) => {
         const action = await dispatch(deleteTemplate(tst_id));
         if (action.meta.requestStatus === "rejected") {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
@@ -186,19 +178,9 @@ function TabSymptomsBox() {
 
     const onAddTemplateClicked = async () => {
         if (symptomsData.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 symptom added',
-                duration: 2
-            });
+            errorMessage('At least 1 symptom added')
         } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup symptom name',
-                duration: 2
-            });
+            errorMessage('Please fillup symptom name')
         } else {
             var sendData = {
                 tst_template_name: inputTemplateName,
@@ -225,19 +207,9 @@ function TabSymptomsBox() {
 
     const onUpdateTemplateClicked = async () => {
         if (symptomsData.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 symptom added',
-                duration: 2
-            });
+            errorMessage('At least 1 symptom added')
         } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup symptom name',
-                duration: 2
-            });
+            errorMessage('Please fillup symptom name')
         } else {
             var data = JSON.parse(inputTemplateName);
             var sendData = {
@@ -668,7 +640,6 @@ function TabSymptomsBox() {
 
     return (
         <>
-            {contextHolder}
             <div>
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">
