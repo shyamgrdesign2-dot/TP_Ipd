@@ -69,10 +69,7 @@ export const updateDueDate = async function (payload) {
   return res;
 };
 
-export const getOverridenDueDate = async (
-  patientUid = "6302066347",
-  patientPid = "36207"
-) => {
+export const getOverridenDueDate = async (patientUid, patientPid) => {
   let res = [];
   try {
     res = await api.get(

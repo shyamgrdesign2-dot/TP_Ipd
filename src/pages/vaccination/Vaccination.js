@@ -62,7 +62,7 @@ function Vaccination() {
   useEffect(() => {
     const activeValue = ageFilters?.[activeDate];
     setVaccinesData(completeData?.get?.(activeValue));
-  }, [activeDate]);
+  }, [activeDate, completeData]);
 
   useEffect(() => {
     if (printType) {
@@ -109,7 +109,10 @@ function Vaccination() {
   const getVaccineDetails = async () => {
     const vaccineTemplate = await getVaccineTemplates();
     const patientDetail = await getPatientDetail();
-    const overridenVaccines = await getOverridenDueDate();
+    const overridenVaccines = await getOverridenDueDate(
+      patient_data?.patient_unique_id,
+      patient_data?.pm_pid
+    );
     const patientDetailsRes = await getPatientVaccineDetails(
       patientDetail?.patient_unique_id,
       patientDetail?.vac_pid,
@@ -367,6 +370,7 @@ function Vaccination() {
                     ? previewData?.filter((data) => !!data?.tvp_given_date)
                     : previewData
                 }
+                patientDetails={patientDetails}
               />
             </div>
           </div>

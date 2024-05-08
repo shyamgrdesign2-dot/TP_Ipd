@@ -29,7 +29,7 @@ const UpdateVaccine = ({
   setSelectedCards,
 }) => {
   const { TextArea } = Input;
-  const [changeDate, setChangeDate] = useState(true);
+  const [changeDate, setChangeDate] = useState(false);
   const [givenDate, setGivenDate] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [selectedDate, setSelectedDate] = useState("given");
@@ -50,7 +50,7 @@ const UpdateVaccine = ({
   const { patient_data } = state;
 
   useEffect(() => {
-    getVaccineBrands();
+    if (!selectedVaccines?.[0]?.tvp_given_date) setChangeDate(true);
     setGivenDate(selectedVaccines?.[0]?.tvp_given_date ?? "");
     setDueDate(
       selectedVaccines?.[0]?.dueDate
@@ -60,8 +60,6 @@ const UpdateVaccine = ({
         : ""
     );
   }, []);
-
-  const getVaccineBrands = async () => {};
 
   const updateVaccineDetails = async () => {
     setUpdateLoader(true);
@@ -76,23 +74,12 @@ const UpdateVaccine = ({
         vaccine_template_id: vaccine?.tvt_id,
         vaccine_name: vaccine?.tvac_name,
         vaccine_company_id:
-          vaccineDetails[vaccine?.tvac_name]?.vaccine_company_id,
+          vaccineDetails[vaccine?.tvac_name]?.vaccine_company_id ||
+          vaccine?.brandId,
         vaccine_given_date: givenDate,
-        remarks: vaccineDetails[vaccine?.tvac_name]?.remarks,
+        remarks:
+          vaccineDetails[vaccine?.tvac_name]?.remarks || vaccine?.tvp_remarks,
       };
-
-      // const payload = {
-      //   patient_pid: "36207",
-      //   patient_uid: "6302066347",
-      //   hospital_bid: "234659817",
-      //   hospital_id: "242",
-      //   vaccine_template_id: vaccine?.tvt_id,
-      //   vaccine_name: vaccine?.tvac_name,
-      //   vaccine_company_id:
-      //     vaccineDetails[vaccine?.tvac_name]?.vaccine_company_id,
-      //   vaccine_given_date: givenDate,
-      //   remarks: vaccineDetails[vaccine?.tvac_name]?.remarks,
-      // };
 
       return updateVaccine(payload);
     });
@@ -135,7 +122,7 @@ const UpdateVaccine = ({
         patient_pid: patientDetails?.vac_pid,
         patient_uid: patientDetails?.patient_unique_id,
         vaccine_template_id: vaccine?.tvt_id,
-        overriden_due_date: moment(dueDate.$d).format("YYYY-MM-DD"),
+        overriden_due_date: dueDate,
         remarks: dueDateNote,
       };
 
@@ -156,6 +143,12 @@ const UpdateVaccine = ({
       console.error("Error updating vaccines:", error);
       setUpdateLoader(false); // Set loader state accordingly
     }
+  };
+
+  const disabledDate = (current) => {
+    return selectedDate === "given"
+      ? current && current > moment().endOf("day")
+      : current && current < moment().startOf("day");
   };
 
   return (
@@ -197,7 +190,7 @@ const UpdateVaccine = ({
               >
                 Given Date
                 <div style={{ opacity: 0.5 }}>
-                  {givenDate && !changeDate
+                  {selectedDate === "given" && givenDate
                     ? moment(givenDate).format("D MMMM YYYY")
                     : "Date the vaccination is given"}
                 </div>
@@ -223,7 +216,7 @@ const UpdateVaccine = ({
               >
                 Due Date
                 <div style={{ opacity: 0.5 }}>
-                  {dueDate && !changeDate
+                  {selectedDate === "due" && dueDate
                     ? moment(dueDate).format("D MMMM YYYY")
                     : "Date on which vaccination will be given"}
                 </div>
@@ -264,7 +257,7 @@ const UpdateVaccine = ({
                 format="YYYY-MM-DD"
                 style={{ border: "none" }}
                 dropdownClassName="custom-picker-dropdown"
-                popupStyle={{ zIndex: 1000 }}
+                disabledDate={disabledDate}
               />
             </div>
           )}
@@ -312,6 +305,7 @@ const UpdateVaccine = ({
                           value
                         );
                       }}
+                      defaultValue={vaccine?.brandId ?? ""}
                     />
                     <label>Note</label>
                     <TextArea
@@ -325,6 +319,7 @@ const UpdateVaccine = ({
                       placeholder="Add additional details"
                       autoSize={{ minRows: 3, maxRows: 5 }}
                       width={200}
+                      defaultValue={vaccine?.tvp_remarks ?? ""}
                     />
                     <Divider dashed style={{ width: "100%" }} />
                   </>
@@ -342,11 +337,9 @@ const UpdateVaccine = ({
                   <Radio.Group
                     onChange={({ target: { value } }) => {
                       setDayFromToday(value);
-                      const newDueDate = dayjs(
-                        new Date(
-                          new Date().getTime() + value * 24 * 60 * 60 * 1000
-                        )
-                      );
+                      const newDueDate = moment()
+                        .add(value, "days")
+                        .format("YYYY-MM-DD");
                       setDueDate(newDueDate);
                     }}
                     value={dayFromToday}

@@ -46,6 +46,7 @@ export const mergeDataPatientDetails = (
       ...vaccineGivenToPatient,
       ...matchingForOverDue,
       brandName: brandDetails?.tvc_name,
+      brandId: brandDetails?.tvc_id,
       dueDate: dueDate,
     };
   });
