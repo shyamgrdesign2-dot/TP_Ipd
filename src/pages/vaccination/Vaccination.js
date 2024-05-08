@@ -90,7 +90,7 @@ function Vaccination() {
         patient_middle_name: patient_data?.pm_middle_name || "",
         patient_last_name: patient_data?.pm_last_name || "",
         patient_gender: patient_data?.pm_gender,
-        patient_dob: patient_data?.DOB,
+        patient_dob: patient_data?.DOB || patient_data?.pm_dob,
         patient_contact_no: patient_data?.pm_contact_no,
       });
       if (createPatientRes?.patient_uid) getPatientDetail();

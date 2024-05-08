@@ -18,6 +18,7 @@ import SuccessPopup from "../SuccessPopup.js";
 import { updateDueDate, updateVaccine } from "../../service.js";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
+import { notification } from "antd";
 
 const UpdateVaccine = ({
   show,
@@ -88,12 +89,16 @@ const UpdateVaccine = ({
     try {
       const updateVaccineRes = await Promise.all(updatePromises);
       setUpdateLoader(false);
-      console.log({ updateVaccineRes });
-      setShowSuccess(true);
-      getVaccineDetails();
-      setTimeout(() => {
-        setShow(false);
-      }, 1000);
+      if (updateVaccineRes?.every((res) => res?.status === 201)) {
+        setShowSuccess(true);
+        getVaccineDetails();
+        setTimeout(() => {
+          setShow(false);
+          setSelectedCards([]);
+        }, 1000);
+      } else {
+        notification.error({ message: "Error while updating vaccine details" });
+      }
     } catch (error) {
       // Handle errors here
       console.error("Error updating vaccines:", error);
@@ -133,11 +138,16 @@ const UpdateVaccine = ({
     try {
       const updateDueDateRes = await Promise.all(updatePromises);
       setUpdateLoader(false);
-      setShowSuccess(true);
-      setTimeout(() => {
-        setShow(false);
-      }, 1000);
-      getVaccineDetails();
+      if (updateDueDateRes?.every((res) => res?.status === 200)) {
+        setShowSuccess(true);
+        getVaccineDetails();
+        setTimeout(() => {
+          setShow(false);
+          setSelectedCards([]);
+        }, 1000);
+      } else {
+        notification.error({ message: "Error while updating due date" });
+      }
     } catch (error) {
       // Handle errors here
       console.error("Error updating vaccines:", error);
@@ -377,7 +387,6 @@ const UpdateVaccine = ({
                 onClick={() => {
                   if (selectedDate === "given") updateVaccineDetails();
                   else updateVaccineDueDate();
-                  setSelectedCards([]);
                 }}
                 loading={updateLoader}
               >
