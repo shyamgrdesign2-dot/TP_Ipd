@@ -40,28 +40,6 @@ const columns = [
   },
 ];
 
-window.onbeforeprint = function () {
-  var tableContainer = document.querySelector(".table-container");
-  var headerHeight = document.querySelector(".header").offsetHeight;
-  var availableHeight = window.innerHeight - headerHeight;
-  var rows = tableContainer.querySelectorAll("tr");
-
-  var totalHeight = 0;
-  var pageIndex = 0;
-
-  rows.forEach(function (row) {
-    totalHeight += row.offsetHeight;
-
-    if (totalHeight > availableHeight) {
-      row.classList.add("page-break");
-      totalHeight = row.offsetHeight;
-      pageIndex++;
-    }
-
-    row.dataset.pageIndex = pageIndex;
-  });
-};
-
 const VaccinationChart = ({ vaccinesData }) => {
   return (
     <>
