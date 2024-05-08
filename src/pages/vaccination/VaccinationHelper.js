@@ -17,28 +17,33 @@ export const mergeDataPatientDetails = (
   vaccineDetails,
   patientDetails,
   overridenVaccines,
+  details,
   birthDate
 ) => {
   return vaccineDetails?.map((item) => {
-    const matchingItem = patientDetails?.find(
+    const vaccineGivenToPatient = patientDetails?.find(
       (obj) => obj.tvac_name === item.tvac_name
     );
 
     const { tvt_due_day, tvt_due_month, tvt_due_year } = item;
-
     const dateCount = tvt_due_day + tvt_due_month * 30 + tvt_due_year * 365;
     const dueDate1 = new Date(birthDate);
     if (dateCount) {
       dueDate1.setDate(dueDate1.getDate() + dateCount);
     }
     const dueDate = dateFormatter(dueDate1);
+
     const matchingForOverDue = overridenVaccines.find(
       (obj) => obj.tvd_temp_id === item.tvt_id
     );
+
+    const brandDetails = details.find((brand) => brand.tvc_id === item.tvc_id);
+
     return {
       ...item,
-      ...matchingItem,
+      ...vaccineGivenToPatient,
       ...matchingForOverDue,
+      brandName: brandDetails?.tvc_name,
       dueDate: dueDate,
     };
   });

@@ -41,7 +41,6 @@ function Vaccination() {
 
   useEffect(() => {
     getVaccineDetails();
-    getVaccineBrand();
   }, []);
 
   const getPatientDetail = async () => {
@@ -68,10 +67,6 @@ function Vaccination() {
     patient_data,
   };
 
-  const getVaccineBrand = async () => {
-    const details = await getVaccineBrands();
-    setBrands(details);
-  };
   const [activeDate, setActiveDate] = useState(0);
   const [vaccinesData, setVaccinesData] = useState([]);
   const [completeData, setCompleteData] = useState({});
@@ -89,6 +84,8 @@ function Vaccination() {
       patientDetail?.vac_pid,
       patientDetail?.hm_business_id
     );
+    const details = await getVaccineBrands();
+    setBrands(details);
 
     const birthDate = new Date(patientDetail?.vac_dob);
 
@@ -96,6 +93,7 @@ function Vaccination() {
       vaccineTemplate,
       patientDetailsRes,
       overridenVaccines,
+      details,
       birthDate
     );
     setPreviewData(combinedData);
