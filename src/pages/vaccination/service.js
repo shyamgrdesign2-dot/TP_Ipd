@@ -11,7 +11,7 @@ export const getPatientDetails = async function ({
   let res = {};
   try {
     res = await api.get(
-      `/vaccination/patientDetails?hospital_bid=${"234659817"}&patient_uid=${"6302066347"}&hospital_id=${"242"}`,
+      `/vaccination/patientDetails?hospital_bid=${hospital_bid}&patient_uid=${patient_uid}&hospital_id=${hospital_id}`,
       baseUrl
     );
     if (res?.detail?.length) {
@@ -66,6 +66,25 @@ export const updateDueDate = async function (payload) {
     res = await api.post(`/vaccination/overrideduedate`, payload, baseUrl);
   } catch (e) {
     console.error("Error while fetching update due date: ", e);
+  }
+  return res;
+};
+
+export const getOverridenDueDate = async (
+  patientUid = "6302066347",
+  patientPid = "36207"
+) => {
+  let res = [];
+  try {
+    res = await api.get(
+      `/vaccination/overridenduedates?patient_uid=${patientUid}&patient_pid=${patientPid}`,
+      baseUrl
+    );
+    if (res?.detail) {
+      res = res.detail;
+    }
+  } catch (e) {
+    console.error("Error while fetching overriden due date vaccines: ", e);
   }
   return res;
 };

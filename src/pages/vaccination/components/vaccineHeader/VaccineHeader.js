@@ -24,13 +24,7 @@ function VaccineHeader({ vaccinesData, handlePrint, patientDetails }) {
   }, [isBackModalOpen]);
 
   const checkDataFillOrNot = () => {
-    if (
-      true // need to add check whether user added data or not
-    ) {
-      showHideBackModal();
-    } else {
-      navigate("/", { replace: true });
-    }
+    navigate("/prescription", { state: { patient_data: patient_data } });
   };
 
   const saveBtnHandler = () => {

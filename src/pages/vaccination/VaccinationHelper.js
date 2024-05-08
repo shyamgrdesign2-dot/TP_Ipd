@@ -16,6 +16,7 @@ export const getDistinctAges = (vaccineDetails) => {
 export const mergeDataPatientDetails = (
   vaccineDetails,
   patientDetails,
+  overridenVaccines,
   birthDate
 ) => {
   return vaccineDetails?.map((item) => {
@@ -31,7 +32,15 @@ export const mergeDataPatientDetails = (
       dueDate1.setDate(dueDate1.getDate() + dateCount);
     }
     const dueDate = dateFormatter(dueDate1);
-    return { ...item, ...matchingItem, dueDate: dueDate };
+    const matchingForOverDue = overridenVaccines.find(
+      (obj) => obj.tvd_temp_id === item.tvt_id
+    );
+    return {
+      ...item,
+      ...matchingItem,
+      ...matchingForOverDue,
+      dueDate: dueDate,
+    };
   });
 };
 

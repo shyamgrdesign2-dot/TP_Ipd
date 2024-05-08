@@ -17,6 +17,7 @@ import {
   getPatientDetails,
   getVaccineBrands,
   getPatientVaccineDetails,
+  getOverridenDueDate,
 } from "./service";
 import {
   getDates,
@@ -82,6 +83,7 @@ function Vaccination() {
   const getVaccineDetails = async () => {
     const vaccineTemplate = await getVaccineTemplates();
     const patientDetail = await getPatientDetail();
+    const overridenVaccines = await getOverridenDueDate();
     const patientDetailsRes = await getPatientVaccineDetails(
       patientDetail?.patient_unique_id,
       patientDetail?.vac_pid,
@@ -93,6 +95,7 @@ function Vaccination() {
     const combinedData = mergeDataPatientDetails(
       vaccineTemplate,
       patientDetailsRes,
+      overridenVaccines,
       birthDate
     );
     setPreviewData(combinedData);

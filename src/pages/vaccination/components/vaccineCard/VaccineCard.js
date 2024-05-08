@@ -27,10 +27,10 @@ const VaccineCard = ({
           </div>
         ) : null}
 
-        {vaccineData.tvac_modify_date ? (
+        {vaccineData.tvd_due_date ? (
           <div className="vaccineDetailsValue">
             <span className="vaccineDetailsKey">Updated due date : </span>
-            {dateFormatter(new Date(vaccineData.tvac_modify_date))}
+            {dateFormatter(new Date(vaccineData.tvd_due_date))}
           </div>
         ) : null}
 
