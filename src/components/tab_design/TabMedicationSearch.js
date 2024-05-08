@@ -12,7 +12,6 @@ import {
   Col,
   Input,
   Select,
-  message,
   Segmented,
   Form,
   Radio,
@@ -26,10 +25,9 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
-import { onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../../utils/utils";
+import { errorMessage, onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../../utils/utils";
 
 import CashManagerContext from "../../context/CashManagerContext";
-import { MESSAGE_KEY } from "../../utils/constants";
 import {
   getMedicineDetails,
   searchMedication,
@@ -44,7 +42,6 @@ import noRecordFound from '../../assets/images/no-record-round.svg';
 
 function TabMedicationSearch({ passIndex, onClose }) {
 
-  const [messageApi, contextHolder] = message.useMessage();
   const { frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const { parentOptionsList, childOptionsList, genericList, loading } = useSelector((state) => state.medication);
   const dispatch = useDispatch();
@@ -188,12 +185,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         setSearchChildQuery("");
         setAddCustom(null);
       } else {
-        messageApi.open({
-          key: MESSAGE_KEY,
-          type: "warning",
-          content: action.error.message,
-          duration: 2,
-        });
+        errorMessage(action.error)
       }
     }
   }
@@ -1409,12 +1401,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
       setSearchChildQuery("");
       setAddCustom(null);
     } else {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: action.error.message,
-        duration: 2,
-      });
+      errorMessage(action.error)
     }
   }
 
@@ -1547,7 +1534,6 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   return (
     <>
-      {contextHolder}
       <Card bordered={false} className="search-modalCard h-100">
         <TabSearchHeader
           placeholder="Search Medicines by Name"

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { Input, Button, Drawer, Tabs, message, Select, Spin, Popover, Row, Col, DatePicker, Tooltip } from 'antd';
+import { Input, Button, Drawer, Tabs, Select, Spin, Popover, Row, Col, DatePicker, Tooltip } from 'antd';
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
@@ -7,8 +7,7 @@ import moment from "moment";
 import { isMobile } from 'react-device-detect';
 
 import CashManagerContext from '../../context/CashManagerContext';
-import { MESSAGE_KEY } from "../../utils/constants";
-import { getFormattedDate, onlyNumberFormat, capitalizeAfterSentence, removeBeforeWhiteSpace } from "../../utils/utils";
+import { errorMessage, getFormattedDate, onlyNumberFormat, capitalizeAfterSentence, removeBeforeWhiteSpace } from "../../utils/utils";
 import dayjs from "dayjs";
 import Notes from "../../assets/images/notes.svg";
 import followUp from "../../assets/images/followup.svg";
@@ -26,7 +25,7 @@ const dateFormat = 'YYYY-MM-DD'
 
 function TabFollowUpBox() {
 
-    const [messageApi, contextHolder] = message.useMessage();
+    // const [messageApi, ] = message.useMessage();
     const {
         // selectedAdviceList,
         templates,
@@ -200,12 +199,7 @@ function TabFollowUpBox() {
     const onDeleteTemplateClicked = async (tmftm_id) => {
         const action = await dispatch(deleteFollowupTemplate(tmftm_id));
         if (action.meta.requestStatus === "rejected") {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
@@ -233,12 +227,7 @@ function TabFollowUpBox() {
 
     const onAddTemplateClicked = async () => {
         if (additionalNote.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please enter some Additional Notes',
-                duration: 2
-            });
+            errorMessage('Please enter some Additional Notes')
         } else {
             var sendData = {
                 template_name: inputTemplateName,
@@ -265,12 +254,7 @@ function TabFollowUpBox() {
 
     const onUpdateTemplateClicked = async () => {
         if (additionalNote.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please enter some Additional Notes',
-                duration: 2
-            });
+            errorMessage('Please enter some Additional Notes')
         } else {
             var data = JSON.parse(inputTemplateName);
             var sendData = {
@@ -596,7 +580,6 @@ function TabFollowUpBox() {
 
     return (
         <>
-            {contextHolder}
             <div>
                 <div className="p-14-pb0">
                     <Row gutter={30}>

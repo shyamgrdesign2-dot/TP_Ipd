@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Table, Switch, Row, Col, Button, Card, message } from 'antd';
+import { Table, Switch, Row, Col, Button, Card } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import { DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy, } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { errorMessage } from "../utils/utils";
 
 import CashManagerContext from "../context/CashManagerContext";
 
-import { MESSAGE_KEY } from "../utils/constants";
 import { useSelector, useDispatch } from "react-redux";
 import { customizedPad } from "../redux/doctorsSlice";
 
@@ -65,7 +65,7 @@ const CustomRow = ({ children, ...props }) => {
 
 function CustomizeSetting({ handleDrawerCustomize }) {
 
-  const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
+  const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setMedicalHistoryData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
   const { loading, customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
@@ -179,33 +179,13 @@ function CustomizeSetting({ handleDrawerCustomize }) {
 
   async function onCustomizePadClick() {
     if (dataSourceLeft.length == 0) {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Something went wrong! please try again later',
-        duration: 2
-      });
+      errorMessage('Something went wrong! please try again later')
     } else if (dataSourceRight.length == 0) {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Something went wrong! please try again later',
-        duration: 2
-      });
+      errorMessage('Something went wrong! please try again later')
     } else if (dataSourceLeft.length > 0 && dataSourceLeft.filter((e) => !e.tmdpm_status).length <= 0) {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please enable at least one left side of elemetns',
-        duration: 2
-      });
+      errorMessage('Please enable at least one left side of elemetns')
     } else if (dataSourceRight.length > 0 && dataSourceRight.filter((e) => !e.tmdpm_status).length <= 0) {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please enable at least one right side of elemetns',
-        duration: 2
-      });
+      errorMessage('Please enable at least one right side of elemetns')
     } else {
       var sendData = {
         data: {
@@ -244,24 +224,18 @@ function CustomizeSetting({ handleDrawerCustomize }) {
         if (left.findIndex(e => e.tmdpm_id === 1 && e.tmdpm_status === 0) === -1) {
           setVitalsData([])
         }
+        if (left.findIndex(e => e.tmdpm_id === 3 && e.tmdpm_status === 0) === -1) {
+          setMedicalHistoryData([])
+        }
         handleDrawerCustomize()
       } else {
-        message.open({
-          key: MESSAGE_KEY,
-          type: 'warning',
-          content: action.error.message,
-          duration: 2
-        });
+        errorMessage(action.error)
       }
     }
   }
 
   async function onDefaultPadClick() {
-    message.open({
-      key: MESSAGE_KEY,
-      type: 'loading',
-      content: 'Action in progress..'
-    });
+    errorMessage('Action in progress..')
     var sendData = {
       data: {
         default: true,
@@ -297,20 +271,13 @@ function CustomizeSetting({ handleDrawerCustomize }) {
       if (left.findIndex(e => e.tmdpm_id === 1 && e.tmdpm_status === 0) === -1) {
         setVitalsData([])
       }
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'success',
-        content: 'Action successfully',
-        duration: 2
-      });
+      if (left.findIndex(e => e.tmdpm_id === 3 && e.tmdpm_status === 0) === -1) {
+        setMedicalHistoryData([])
+      }
+      errorMessage('Action successfully')
       handleDrawerCustomize()
     } else {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   }
 

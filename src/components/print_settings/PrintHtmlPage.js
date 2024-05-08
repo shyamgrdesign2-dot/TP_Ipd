@@ -1835,7 +1835,7 @@ function PrintHtmlPage() {
                                                   ? tcm_tmm_freq_night
                                                   : 0
                                                 }`
-                                                : `0-0-0-0 (${frequencyList.find(
+                                                : `- (${frequencyList.find(
                                                   (x) =>
                                                     x.tmf_id ===
                                                     tmm_freq_type
@@ -1951,7 +1951,7 @@ function PrintHtmlPage() {
                                                     ? tcm_tmm_freq_night
                                                     : 0
                                                   }`
-                                                  : `0-0-0-0 (${frequencyList.find(
+                                                  : `- (${frequencyList.find(
                                                     (x) =>
                                                       x.tmf_id ===
                                                       tmm_freq_type
@@ -2115,7 +2115,7 @@ function PrintHtmlPage() {
                                           ? item.tcm_tmm_freq_night
                                           : 0
                                         }`
-                                        : `0-0-0-0 (${frequencyList.find(
+                                        : `- (${frequencyList.find(
                                           (x) =>
                                             x.tmf_id === item.tmm_freq_type
                                         ) !== undefined

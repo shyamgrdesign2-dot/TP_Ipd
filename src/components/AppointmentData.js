@@ -19,6 +19,8 @@ import {
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 
+import { errorMessage } from "../utils/utils";
+
 import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../utils/constants";
 import noData from "../assets/images/nodata-found.svg";
 import visitEnd from '../assets/images/end-visit.svg';
@@ -37,6 +39,10 @@ import {
     endVisit
 } from "../redux/appointmentsSlice";
 
+import {
+    changeSortOrder
+} from "../redux/doctorsSlice";
+
 import docimg from "../assets/images/docimg.png";
 import welcomdoc from "../assets/images/welcom-doc.svg";
 import suporticon from "../assets/images/suport-icon.svg";
@@ -51,7 +57,7 @@ function AppointmentData({ locationPath }) {
 
     const navigate = useNavigate();
 
-    const { profile } = useSelector((state) => state.doctors);
+    const { sort_order, profile } = useSelector((state) => state.doctors);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const from = searchParams.get("from");
@@ -223,12 +229,7 @@ function AppointmentData({ locationPath }) {
                         endDate: moment(date.endDate).add(1, 'day').format(dateFormat),
                     })
                 } else {
-                    message.open({
-                        key: MESSAGE_KEY,
-                        type: 'warning',
-                        content: `Can't select next date`,
-                        duration: 5,
-                    });
+                    errorMessage(`Can't select next date`)
                 }
             } else {
                 setPageNo(0)
@@ -358,6 +359,24 @@ function AppointmentData({ locationPath }) {
         }
     }
 
+    const genderAge = (patient_data) => {
+        var value = `${patient_data?.pm_gender}, `
+        if (profile?.dp_id === 9) {
+            if (patient_data?.ageYears != 0) {
+                value += `${patient_data?.ageYears}y`
+            }
+            if (patient_data?.ageMonths != 0) {
+                value += ` ${patient_data?.ageMonths}m`
+            }
+            if (patient_data?.ageDays != 0) {
+                value += ` ${patient_data?.ageDays}d`
+            }
+        } else {
+            value += `${patient_data?.ageYears}y`
+        }
+        return value
+    }
+
     const columns = [
         {
             title: "#",
@@ -382,7 +401,7 @@ function AppointmentData({ locationPath }) {
                     <span className="text-primary"><Link to="/patient_details" state={{ patient_data: record }}>{record.pm_fullname}</Link></span>
                     <br />
                     <small>
-                        {record.pm_gender}, {record.ageYears}y
+                        {genderAge(record)}
                     </small>
                 </div>
             ),
@@ -406,8 +425,10 @@ function AppointmentData({ locationPath }) {
             dataIndex: "time",
             key: "time",
             ellipsis: true,
-            sorter: (a, b) => {
-
+            sortDirections: ['descend', 'ascend', 'descend'],
+            sortOrder: sort_order,
+            sorter: (a, b, sortOrder) => {
+                dispatch(changeSortOrder(sortOrder))
                 const lhsDateTime = `${a.apDate} ${a.apTime}`;
                 const lhsLongTime = moment(lhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
 
@@ -564,9 +585,7 @@ function AppointmentData({ locationPath }) {
                                 <span className="title-common fontroboto">
                                     {appointmentSelectedFromMenu?.pm_fullname}
                                     <span className="fw-normal ms-2">
-                                        (
-                                        {appointmentSelectedFromMenu?.pm_gender},{" "}
-                                        {appointmentSelectedFromMenu?.ageYears}y)
+                                        ({genderAge(appointmentSelectedFromMenu)})
                                     </span>
                                 </span>
                             </div>
@@ -640,9 +659,7 @@ function AppointmentData({ locationPath }) {
                             <span className="title-common fontroboto">
                                 {appointmentSelectedFromMenu?.pm_fullname}
                                 <span className="fw-normal ms-2">
-                                    (
-                                    {appointmentSelectedFromMenu?.pm_gender},{" "}
-                                    {appointmentSelectedFromMenu?.ageYears}y)
+                                    ({genderAge(appointmentSelectedFromMenu)})
                                 </span>
                             </span>
                         </div>
@@ -753,7 +770,7 @@ function AppointmentData({ locationPath }) {
                                         className="dateoutline"
                                         disabled={date.startDate !== date.endDate}
                                         onClick={nextDatePress}>
-                                        <i className="icon-right text-main d-block iconrotate90"></i>
+                                        <i className="icon-right text-main d-block iconrotate180"></i>
                                     </Button>
                                 </ButtonGroup>
                                 <Select
@@ -856,7 +873,7 @@ function AppointmentData({ locationPath }) {
                             <div className='d-flex'>
                                 <div style={{ flex: 1, marginRight: 35 }}>
                                     <div>
-                                        <h2 className="fw-medium mb-2" style={{fontSize: 16}}>Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')},</h2>
+                                        <h2 className="fw-medium mb-2" style={{ fontSize: 16 }}>Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')},</h2>
                                         <h3 className="fw-semibold mb-5" style={{ fontSize: 48 }}>Welcome to TatvaPractice</h3>
                                     </div>
                                     <div style={{ background: '#fef4f5', padding: 15, borderRadius: 10 }}>

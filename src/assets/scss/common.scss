@@ -73,9 +73,6 @@ body {
     .bg-secondary {
         background-color: $themesecondary !important;
     }
-    .bg-secondary-light {
-        background-color: $themesecondarylight;
-    }
     .fs-12 {
         span, label {
             font-size: 12px !important;
@@ -205,6 +202,10 @@ body {
     .p-10 {
         padding: 10px;
     }
+    .py-5px-3px {
+        padding-top: 5px;
+        padding-bottom: 3px;
+    }
     .p-14 {
         padding: 14px;
     }
@@ -258,6 +259,9 @@ body {
     .alert-warning {
         background-color: hsl(35, 100%, 46%, 0.1);
         color: $maincolor !important;
+    }
+    .read-or-hide {
+        color: $theme !important;
     }
     .cursor-pointer {
         cursor: pointer;
@@ -396,6 +400,12 @@ body {
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
+    .text-truncate-threelines {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
     .endreason-textarea {
         textarea {
             border-radius: 10px;
@@ -507,6 +517,64 @@ body {
             margin-top: 20px;
             z-index: 1;
             position: relative;
+        }
+    }
+    .title-hypertension {
+        font-size: 24px;
+        font-weight: 600;
+        letter-spacing: 0.1px;
+    }
+    .medical-history-section {
+        .ant-collapse-expand-icon {
+            margin-left: 25px;
+            margin-top: 4px;
+        }
+        .ant-collapse-header {
+            padding: 0 0 10px 0 !important;
+        }
+        .collapseButton {
+          width: 24px;
+          height: 24px;
+          &:hover {
+            color: $maincolor !important;
+          }
+        }
+        .history-badge {
+            border: 1px solid $bordercolor;
+            background-color: $white;
+            border-radius: 10px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            padding: 0 5px 0 10px;
+            margin-right: 10px;
+            margin-bottom: 14px;
+            font-family: 'roboto' !important;
+            span {
+                border-radius: 100px;
+                height: 26px;
+                width: 39px;
+                margin-left: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: $drawerHeaderColor;
+                font-size: 16px;
+                font-weight: 500;
+            }
+            &.history-active {
+                border-color: $theme;
+                span {
+                    background-color: #D1F1E4;
+                    color: #19BB7A !important;
+                }
+            }
+            &.history-inactive {
+                span {
+                    background-color: #FCDADA;
+                    color: #F04545 !important;
+                }
+            }
         }
     }
 }
