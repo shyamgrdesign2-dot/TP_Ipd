@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
 import "./Vaccination.scss";
 import { Checkbox, Drawer, Spin } from "antd";
@@ -18,6 +19,7 @@ import {
   getVaccineBrands,
   getPatientVaccineDetails,
   getOverridenDueDate,
+  createPatient,
 } from "./service";
 import {
   getDates,
@@ -38,18 +40,62 @@ function Vaccination() {
   const [showDob, setShowDob] = useState(false);
   const [patientDetails, setPatientDetails] = useState({});
   const [brands, setBrands] = useState([]);
+  const [activeDate, setActiveDate] = useState(0);
+  const [vaccinesData, setVaccinesData] = useState([]);
+  const [completeData, setCompleteData] = useState({});
+  const [dateOptions, setDateOptions] = useState([]);
+  const [ageFilters, setAgeFilters] = useState([]);
+  const [previewData, setPreviewData] = useState([]);
+  const { state } = useLocation();
+  const { patient_data } = state;
+  const [printType, setPrintType] = useState("");
+  const [shouldShowSelectAll, setShouldShowSelectAll] = useState(false);
+
+  const contextApi = {
+    patient_data,
+  };
 
   useEffect(() => {
     getVaccineDetails();
   }, []);
 
+  useEffect(() => {
+    const activeValue = ageFilters?.[activeDate];
+    setVaccinesData(completeData?.get?.(activeValue));
+  }, [activeDate]);
+
+  useEffect(() => {
+    if (printType) {
+      handlePrint();
+      setPrintType("");
+    }
+  }, [printType]);
+
   const getPatientDetail = async () => {
     const patientDetails = await getPatientDetails({
-      hospital_bid: patient_data?.hm_business_id,
+      hospital_bid:
+        patient_data?.hm_business_id || patient_data?.hospital_business_id,
       patient_uid: patient_data?.patient_unique_id,
-      hospital_id: patient_data?.hm_id,
+      hospital_id: patient_data?.hm_id || patient_data?.clinic_id,
     });
-    if (!patientDetails?.vac_dob) {
+
+    if (!patientDetails?.vac_id) {
+      const createPatientRes = await createPatient({
+        patient_uid: patient_data?.patient_unique_id,
+        patient_pid: patient_data?.pm_pid,
+        hospital_bid:
+          patient_data?.hm_business_id || patient_data?.hospital_business_id,
+        hospital_id: patient_data?.hm_id || patient_data?.clinic_id,
+        patient_first_name: patient_data?.pm_first_name || "",
+        patient_middle_name: patient_data?.pm_middle_name || "",
+        patient_last_name: patient_data?.pm_last_name || "",
+        patient_gender: patient_data?.pm_gender,
+        patient_dob: patient_data?.DOB,
+        patient_contact_no: patient_data?.pm_contact_no,
+      });
+      if (createPatientRes?.patient_uid) getPatientDetail();
+    }
+    if (patientDetails?.vac_id && !patientDetails?.vac_dob) {
       setShowDob(true);
     } else {
       patientDetails.vac_dob = moment(patientDetails.vac_dob).format(
@@ -59,21 +105,6 @@ function Vaccination() {
     setPatientDetails(patientDetails);
     return patientDetails;
   };
-
-  const { state } = useLocation();
-  const { patient_data } = state;
-
-  const contextApi = {
-    patient_data,
-  };
-
-  const [activeDate, setActiveDate] = useState(0);
-  const [vaccinesData, setVaccinesData] = useState([]);
-  const [completeData, setCompleteData] = useState({});
-  const [dateOptions, setDateOptions] = useState([]);
-  const [ageFilters, setAgeFilters] = useState([]);
-  const [previewData, setPreviewData] = useState([]);
-  const [shouldShowSelectAll, setShouldShowSelectAll] = useState(false);
 
   const getVaccineDetails = async () => {
     const vaccineTemplate = await getVaccineTemplates();
@@ -107,11 +138,6 @@ function Vaccination() {
       setActiveDate(getDefaultOption(options));
     }
   };
-
-  useEffect(() => {
-    const activeValue = ageFilters?.[activeDate];
-    setVaccinesData(completeData?.get?.(activeValue));
-  }, [activeDate]);
 
   const handleSelectAll = (event) => {
     const checked = event?.target?.checked;
@@ -219,8 +245,8 @@ function Vaccination() {
       <div className="vaccinationWrapper">
         <VaccineHeader
           vaccinesData={previewData}
-          handlePrint={handlePrint}
           patientDetails={patientDetails}
+          setPrintType={setPrintType}
         />
         <div
           id="wrap"
@@ -335,7 +361,13 @@ function Vaccination() {
         {vaccinesData?.length && (
           <div style={{ display: "none" }}>
             <div ref={printableRef}>
-              <VaccinationChart vaccinesData={previewData} />
+              <VaccinationChart
+                vaccinesData={
+                  printType === "2"
+                    ? previewData?.filter((data) => !!data?.tvp_given_date)
+                    : previewData
+                }
+              />
             </div>
           </div>
         )}

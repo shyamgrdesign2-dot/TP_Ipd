@@ -14,9 +14,8 @@ export const getPatientDetails = async function ({
       `/vaccination/patientDetails?hospital_bid=${hospital_bid}&patient_uid=${patient_uid}&hospital_id=${hospital_id}`,
       baseUrl
     );
-    if (res?.detail?.length) {
-      res = res.detail[0];
-    }
+
+    res = res?.detail?.length ? res.detail[0] : {};
   } catch (e) {
     console.error("Error while fetching patient details: ", e);
   }
@@ -134,7 +133,7 @@ export const checkToShowVaccination = async (
       baseUrl
     );
     if (result?.isAuthorized) {
-      result = result.isAuthorized;
+      result = "true";
     }
   } catch (error) {
     console.error(
@@ -143,4 +142,17 @@ export const checkToShowVaccination = async (
     );
   }
   return result;
+};
+
+export const createPatient = async (payload) => {
+  let res;
+  try {
+    res = await api.post("vaccination/patientrecord", payload, baseUrl);
+    if (res.status === 200) {
+      res = payload;
+    }
+  } catch (error) {
+    console.error("Error while creating patient: ", error);
+  }
+  return res;
 };

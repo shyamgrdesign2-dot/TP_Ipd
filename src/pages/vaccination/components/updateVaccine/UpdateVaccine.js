@@ -51,9 +51,12 @@ const UpdateVaccine = ({
 
   useEffect(() => {
     getVaccineBrands();
-    setGivenDate(
-      selectedVaccines?.[0]?.tvp_given_date
-        ? dayjs(selectedVaccines?.[0]?.tvp_given_date)
+    setGivenDate(selectedVaccines?.[0]?.tvp_given_date ?? "");
+    setDueDate(
+      selectedVaccines?.[0]?.dueDate
+        ? moment(selectedVaccines?.[0]?.dueDate, "D MMMM YYYY").format(
+            "YYYY-MM-DD"
+          )
         : ""
     );
   }, []);
@@ -64,25 +67,12 @@ const UpdateVaccine = ({
     setUpdateLoader(true);
     // Create an array of promises for each API call
     const updatePromises = selectedVaccines.map(async (vaccine) => {
-      // const payload = {
-      //   patient_pid: patientDetails?.vac_pid || patient_data?.pm_pid,
-      //   patient_uid: patientDetails?.patient_unique_id || patient_data?.pm_id,
-      //   hospital_bid:
-      //     patientDetails?.hm_business_id || patient_data?.hm_business_id,
-      //   hospital_id: patientDetails?.hm_id || patient_data?.hm_id,
-      //   vaccine_template_id: vaccine?.tvt_id,
-      //   vaccine_name: vaccine?.tvac_name,
-      //   vaccine_company_id:
-      //     vaccineDetails[vaccine?.tvac_name]?.vaccine_company_id,
-      //   vaccine_given_date: givenDate,
-      //   remarks: vaccineDetails[vaccine?.tvac_name]?.remarks,
-      // };
-
       const payload = {
-        patient_pid: "36207",
-        patient_uid: "6302066347",
-        hospital_bid: "234659817",
-        hospital_id: "242",
+        patient_pid: patientDetails?.vac_pid || patient_data?.pm_pid,
+        patient_uid: patientDetails?.patient_unique_id || patient_data?.pm_id,
+        hospital_bid:
+          patientDetails?.hm_business_id || patient_data?.hm_business_id,
+        hospital_id: patientDetails?.hm_id || patient_data?.hm_id,
         vaccine_template_id: vaccine?.tvt_id,
         vaccine_name: vaccine?.tvac_name,
         vaccine_company_id:
@@ -90,6 +80,19 @@ const UpdateVaccine = ({
         vaccine_given_date: givenDate,
         remarks: vaccineDetails[vaccine?.tvac_name]?.remarks,
       };
+
+      // const payload = {
+      //   patient_pid: "36207",
+      //   patient_uid: "6302066347",
+      //   hospital_bid: "234659817",
+      //   hospital_id: "242",
+      //   vaccine_template_id: vaccine?.tvt_id,
+      //   vaccine_name: vaccine?.tvac_name,
+      //   vaccine_company_id:
+      //     vaccineDetails[vaccine?.tvac_name]?.vaccine_company_id,
+      //   vaccine_given_date: givenDate,
+      //   remarks: vaccineDetails[vaccine?.tvac_name]?.remarks,
+      // };
 
       return updateVaccine(payload);
     });
@@ -132,7 +135,7 @@ const UpdateVaccine = ({
         patient_pid: patientDetails?.vac_pid,
         patient_uid: patientDetails?.patient_unique_id,
         vaccine_template_id: vaccine?.tvt_id,
-        overriden_due_date: dueDate,
+        overriden_due_date: moment(dueDate.$d).format("YYYY-MM-DD"),
         remarks: dueDateNote,
       };
 
@@ -143,11 +146,11 @@ const UpdateVaccine = ({
     try {
       const updateDueDateRes = await Promise.all(updatePromises);
       setUpdateLoader(false);
-      console.log({ updateDueDateRes });
       setShowSuccess(true);
       setTimeout(() => {
         setShow(false);
       }, 1000);
+      getVaccineDetails();
     } catch (error) {
       // Handle errors here
       console.error("Error updating vaccines:", error);
@@ -251,6 +254,13 @@ const UpdateVaccine = ({
                   } else setDueDate(d);
                   setChangeDate(false);
                 }}
+                value={
+                  selectedDate === "given" && givenDate
+                    ? dayjs(givenDate, "YYYY-MM-DD")
+                    : selectedDate === "due" && dueDate
+                    ? dayjs(dueDate, "YYYY-MM-DD")
+                    : ""
+                }
                 format="YYYY-MM-DD"
                 style={{ border: "none" }}
                 dropdownClassName="custom-picker-dropdown"
@@ -332,11 +342,12 @@ const UpdateVaccine = ({
                   <Radio.Group
                     onChange={({ target: { value } }) => {
                       setDayFromToday(value);
-                      // setDueDate(
-                      //   new Date(
-                      //     dueDate.getTime() + value * 24 * 60 * 60 * 1000
-                      //   )
-                      // );
+                      const newDueDate = dayjs(
+                        new Date(
+                          new Date().getTime() + value * 24 * 60 * 60 * 1000
+                        )
+                      );
+                      setDueDate(newDueDate);
                     }}
                     value={dayFromToday}
                   >
