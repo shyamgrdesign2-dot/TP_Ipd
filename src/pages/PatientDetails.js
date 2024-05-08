@@ -112,12 +112,10 @@ function PatientDetails() {
                                     <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
                                     {/*   <LabParameters />
                                             <Vaccination /> */}
+                                            <div><VisitVaccination /></div>
                                 </div>
                                 <div className='col-lg-7 col-md-12 col-12'>
                                     <Cardiology patient_data={patient_data} tcmData={tcmData} loading={loading} viewCaseManagerData={viewCaseManagerData} nextPress={nextPress} prevPress={prevPress} />
-                                </div>
-                                <div className='col-lg-5 col-md-12 col-12'>
-                                    <div><VisitVaccination /></div>
                                 </div>
                             </div>
                         </div>
