@@ -43,9 +43,11 @@ function Prescription() {
     frequencyList,
     timingList,
   } = useSelector((state) => state.doctors);
-  const { selectedVitalsList, vitalsPastList, profile } = useSelector(
+  const { selectedVitalsList, vitalsPastList } = useSelector(
     (state) => state.vitals
   );
+  const { profile } = useSelector((state) => state.doctors);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

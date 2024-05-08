@@ -11,12 +11,11 @@ export const getPatientDetails = async function ({
   let res = {};
   try {
     res = await api.get(
-      `/vaccination/patientDetails?hospital_bid=${"234659817"}&patient_uid=${"6302066347"}&hospital_id=${"242"}`,
+      `/vaccination/patientDetails?hospital_bid=${hospital_bid}&patient_uid=${patient_uid}&hospital_id=${hospital_id}`,
       baseUrl
     );
-    if (res?.detail?.length) {
-      res = res.detail[0];
-    }
+
+    res = res?.detail?.length ? res.detail[0] : {};
   } catch (e) {
     console.error("Error while fetching patient details: ", e);
   }
@@ -70,6 +69,25 @@ export const updateDueDate = async function (payload) {
   return res;
 };
 
+export const getOverridenDueDate = async (
+  patientUid = "6302066347",
+  patientPid = "36207"
+) => {
+  let res = [];
+  try {
+    res = await api.get(
+      `/vaccination/overridenduedates?patient_uid=${patientUid}&patient_pid=${patientPid}`,
+      baseUrl
+    );
+    if (res?.detail) {
+      res = res.detail;
+    }
+  } catch (e) {
+    console.error("Error while fetching overriden due date vaccines: ", e);
+  }
+  return res;
+};
+
 export const getVaccineTemplates = async () => {
   let result = [];
   try {
@@ -115,7 +133,7 @@ export const checkToShowVaccination = async (
       baseUrl
     );
     if (result?.isAuthorized) {
-      result = result.isAuthorized;
+      result = "true";
     }
   } catch (error) {
     console.error(
@@ -124,4 +142,17 @@ export const checkToShowVaccination = async (
     );
   }
   return result;
+};
+
+export const createPatient = async (payload) => {
+  let res;
+  try {
+    res = await api.post("vaccination/patientrecord", payload, baseUrl);
+    if (res.status === 200) {
+      res = payload;
+    }
+  } catch (error) {
+    console.error("Error while creating patient: ", error);
+  }
+  return res;
 };

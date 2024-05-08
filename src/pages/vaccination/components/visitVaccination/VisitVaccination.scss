@@ -1,0 +1,46 @@
+.visitVaccineContainer {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+
+  .title {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    .subTitle {
+      color: #a2a2a8 !important;
+    }
+  }
+  .detailContainer {
+    border-radius: var(--radius-xl, 12px);
+    border: 1px solid var(--Stroke-Grey, #eaecf0);
+    padding: 10px;
+    margin: 10px 0px;
+
+    .overDue {
+      color: #f04545 !important;
+    }
+    .warningDot {
+      position: relative;
+      padding-left: 14px;
+      margin-bottom: 8px;
+    }
+
+    .warningDot::before {
+      content: "•"; /* Bullet point character */
+      position: absolute;
+      color: #f04545;
+      left: 0;
+      font-size: 24px;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+    }
+    .due {
+      color: #ed8a00 !important;
+    }
+    .due::before {
+      color: #ed8a00 !important;
+    }
+  }
+}
