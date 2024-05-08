@@ -55,7 +55,7 @@ const VaccineCard = ({
   return (
     <Card className="vaccineCardContainer" bodyStyle={{ height: "100%" }}>
       {/* Vaccine status Indicator */}
-      {vaccineData?.tvp_given_date || vaccineData?.tvp_modify_date ? (
+      {vaccineData?.tvp_given_date || vaccineData.tvd_due_date ? (
         <div
           className={`vaccineStatus ${
             vaccineData?.tvp_given_date ? "vaccineGiven" : ""
