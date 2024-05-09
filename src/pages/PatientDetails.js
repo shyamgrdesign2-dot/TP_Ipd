@@ -70,7 +70,7 @@ function PatientDetails() {
     };
 
     useEffect(() => {
-      overDueVaccines();
+    //   overDueVaccines();
     }, []);
 
     const nextPress = () => {
