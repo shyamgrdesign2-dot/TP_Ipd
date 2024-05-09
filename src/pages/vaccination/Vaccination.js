@@ -287,6 +287,8 @@ function Vaccination() {
                   dateOptions={dateOptions}
                   activeDate={activeDate}
                   setActiveDate={setActiveDate}
+                  setSelectedCards={setSelectedCards}
+                  setSelectAll={setSelectAll}
                 />
               </div>
               {shouldShowSelectAll ? (
