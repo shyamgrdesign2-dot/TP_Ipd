@@ -13,7 +13,9 @@ const VaccineCard = ({
 }) => {
   const dueDate = moment(vaccineData.dueDate);
   const givenDate = moment(vaccineData.tvp_given_date);
-  const isDateExceeded = givenDate.isAfter(dueDate, "day");
+  const isDateGivenExceeded = givenDate.isAfter(dueDate, "day");
+  const isVaccineDueExceeded = dueDate.isBefore(new Date(), "day");
+
   const vaccineDetails = () => {
     return (
       <>
@@ -92,8 +94,8 @@ const VaccineCard = ({
         {/* Due Date Info */}
         <Row
           className={`dueDetails ${
-            (!vaccineData.tvp_given_date && dueDate < new Date()) ||
-            isDateExceeded
+            (!vaccineData.tvp_given_date && isVaccineDueExceeded) ||
+            isDateGivenExceeded
               ? "isDelayed"
               : vaccineData?.tvp_given_date
               ? "isGiven"

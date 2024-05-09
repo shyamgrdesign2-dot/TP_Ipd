@@ -87,8 +87,10 @@ export const getDates = (sampleMap) => {
       (sampleObject) => sampleObject.tvp_given_date
     );
 
-    const today = new Date();
-    const anyFutureDate = today < new Date(value[0].dueDate);
+    const anyFutureDate = moment(value[0].dueDate).isSameOrAfter(
+      new Date(),
+      "day"
+    );
 
     // Set the alert field based on the presence of dates
     const alert = allDatesPresent
@@ -113,13 +115,13 @@ export const getDates = (sampleMap) => {
 export const getDefaultOption = (dateOptions) => {
   const today = moment(new Date());
   const dateOption = dateOptions.find((item) =>
-    moment(item?.dueDate)?.isSameOrBefore(today, "day")
+    moment(item?.dueDate)?.isSameOrAfter(today, "day")
   );
   const activeValue = dateOptions.indexOf(dateOption);
-  if (activeValue === -1) {
+  if (activeValue === -1 || activeValue === 0) {
     return 0;
   }
-  return activeValue;
+  return activeValue - 1;
 };
 
 export const getOverDueVaccines = (notGivenVaccines, birthDate) => {
