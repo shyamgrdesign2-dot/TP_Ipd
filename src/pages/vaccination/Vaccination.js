@@ -60,6 +60,16 @@ function Vaccination() {
   }, []);
 
   useEffect(() => {
+    if (warningMsg) {
+      const timer = setTimeout(() => {
+        setWarningMsg("");
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [warningMsg]);
+
+  useEffect(() => {
     const activeValue = ageFilters?.[activeDate];
     setVaccinesData(completeData?.get?.(activeValue));
   }, [activeDate, completeData]);
@@ -261,7 +271,7 @@ function Vaccination() {
             <div>
               <h2>Vaccination</h2>
               <p>
-                Immunisation schedule recommended by <b>IAP</b>
+                Immunization schedule recommended by <b>IAP</b>
               </p>
             </div>
             <img
@@ -348,6 +358,7 @@ function Vaccination() {
             selectedValue={selectedCards.length}
             setSelectedCards={setSelectedCards}
             setShowUpdate={setShowUpdate}
+            setWarningMsg={setWarningMsg}
           />
         ) : null}
         {showUpdate && (

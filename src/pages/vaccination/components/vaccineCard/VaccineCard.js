@@ -38,7 +38,7 @@ const VaccineCard = ({
           </div>
         ) : null}
 
-        {vaccineData.tvp_remarks ? (
+        {vaccineData.tvp_remarks || vaccineData.tvd_remarks ? (
           <div className="vaccineDetailsValue">
             <span className="vaccineDetailsKey">Note : </span>{" "}
             {vaccineData.tvp_remarks || vaccineData.tvd_remarks}

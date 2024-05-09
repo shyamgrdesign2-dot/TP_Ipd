@@ -8,9 +8,11 @@ const SelectionPopup = ({
   selectedValue,
   setSelectedCards,
   setShowUpdate,
+  setWarningMsg,
 }) => {
   const handleClear = () => {
     setSelectedCards([]);
+    setWarningMsg("");
     onClose();
   };
 

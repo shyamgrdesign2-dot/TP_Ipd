@@ -113,7 +113,7 @@ export const getDates = (sampleMap) => {
 export const getDefaultOption = (dateOptions) => {
   const today = moment(new Date());
   const dateOption = dateOptions.find((item) =>
-    moment(item?.dueDate)?.isSameOrAfter(today, "day")
+    moment(item?.dueDate)?.isSameOrBefore(today, "day")
   );
   const activeValue = dateOptions.indexOf(dateOption);
   if (activeValue === -1) {
