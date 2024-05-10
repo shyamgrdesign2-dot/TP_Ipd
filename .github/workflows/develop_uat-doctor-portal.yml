@@ -12,8 +12,6 @@ on:
 jobs:
   build:
     runs-on: 'ubuntu-latest'
-    env:
-      REACT_APP_ENV: uat
 
     steps:
     - uses: actions/checkout@v2
@@ -25,14 +23,14 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://acinacr.azurecr.io/
-        username: ${{ secrets.AzureAppService_ContainerUsername_9617f373eaae4c8fbb69f73fc576873a }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_890f0a68fa404a828b8cf10cb5e067cb }}
+        username: ${{ secrets.AzureAppService_ContainerUsername_fd790417cd624da4a12bca0fc2719585 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_303748c9c7534324a42f80da9f34e21b }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: acinacr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_9617f373eaae4c8fbb69f73fc576873a }}/doctor-portal/uat:${{ github.sha }}
+        tags: acinacr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_fd790417cd624da4a12bca0fc2719585 }}/doctor-portal/uat:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -49,5 +47,5 @@ jobs:
       with:
         app-name: 'uat-doctor-portal'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_910efafba84642689a3fdf81dc362a0c }}
-        images: 'acinacr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_9617f373eaae4c8fbb69f73fc576873a }}/doctor-portal/uat:${{ github.sha }}'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_2e9d05670511426ab7076b4f4f5bf106 }}
+        images: 'acinacr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_fd790417cd624da4a12bca0fc2719585 }}/doctor-portal/uat:${{ github.sha }}'
