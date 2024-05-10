@@ -18,8 +18,6 @@ import {
     viewCaseManager,
 } from "../redux/caseManagerSlice";
 import VisitVaccination from "./vaccination/components/visitVaccination/VisitVaccination";
-import { getNotGivenVaccines } from "./vaccination/service";
-import { getOverDueVaccines } from "./vaccination/VaccinationHelper";
 
 const { Sider, Content } = Layout;
 
@@ -63,15 +61,6 @@ function PatientDetails() {
         //     clearTimeout(timeOutId);
         // };
     }, [tcmData]);
-
-    const overDueVaccines = async () => {
-      const notGivenVaccines = await getNotGivenVaccines();
-      const data = getOverDueVaccines(notGivenVaccines, patient_data?.DOB);
-    };
-
-    useEffect(() => {
-    //   overDueVaccines();
-    }, []);
 
     const nextPress = () => {
         window.Moengage.track_event("patient_detail_prev", {
@@ -123,7 +112,7 @@ function PatientDetails() {
                                     <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
                                     {/*   <LabParameters />
                                             <Vaccination /> */}
-                                            <div><VisitVaccination /></div>
+                                    <VisitVaccination />
                                 </div>
                                 <div className='col-lg-7 col-md-12 col-12'>
                                     <Cardiology patient_data={patient_data} tcmData={tcmData} loading={loading} viewCaseManagerData={viewCaseManagerData} nextPress={nextPress} prevPress={prevPress} />
