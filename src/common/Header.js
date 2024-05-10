@@ -40,7 +40,7 @@ function Header({ locationPath }) {
     arrows: false,
     centerMode: true,
     infinite: false,
-    centerPadding: "10px",
+    centerPadding: "5px",
     slidesToShow: 1,
   };
 

@@ -606,12 +606,13 @@ body {
     }
     .videodrawer-left {
         .drawer-slider {
-            width: 323px !important;
-            margin-right: 20px;
+            width: 340px !important;
+            margin-right: 10px;
             margin-left: 3px;
             img {
                 max-width: 100%;
                 outline: none;
+                border-radius: 10px;
             }
         }
         &.drawer-slider:focus-visible {
