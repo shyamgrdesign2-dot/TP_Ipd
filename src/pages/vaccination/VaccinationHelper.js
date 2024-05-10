@@ -27,7 +27,7 @@ export const mergeDataPatientDetails = (
       (obj) => obj.tvac_name === item.tvac_name
     );
 
-    const { tvt_due_day, tvt_due_month, tvt_due_year } = item;
+    const { tvt_due_day, tvt_due_month, tvt_due_year, tvp_given_date } = item;
     const dateCount = tvt_due_day + tvt_due_month * 30 + tvt_due_year * 365;
     const dueDate1 = new Date(birthDate);
     if (dateCount) {
@@ -45,8 +45,10 @@ export const mergeDataPatientDetails = (
       ...item,
       ...vaccineGivenToPatient,
       ...matchingForOverDue,
-      brandName: brandDetails?.tvc_name,
-      brandId: brandDetails?.tvc_id,
+      ...(tvp_given_date && {
+        brandName: brandDetails?.tvc_name,
+        brandId: brandDetails?.tvc_id,
+      }),
       dueDate: dueDate,
     };
   });

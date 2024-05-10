@@ -145,9 +145,6 @@ export const createPatient = async (payload) => {
   let res;
   try {
     res = await api.post("vaccination/patientrecord", payload, baseUrl);
-    if (res.status === 200) {
-      res = payload;
-    }
   } catch (error) {
     console.error("Error while creating patient: ", error);
   }

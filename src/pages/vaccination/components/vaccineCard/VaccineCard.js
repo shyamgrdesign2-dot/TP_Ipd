@@ -10,6 +10,7 @@ const VaccineCard = ({
   selectedCards,
   handleCardCheckboxChange,
   index,
+  handleCardClick,
 }) => {
   const dueDate = moment(vaccineData.dueDate);
   const givenDate = moment(vaccineData.tvp_given_date);
@@ -50,12 +51,22 @@ const VaccineCard = ({
     );
   };
 
-  const checkboxHandler = () => {
+  const checkboxHandler = (e) => {
+    e.stopPropagation();
     handleCardCheckboxChange(index);
   };
 
   return (
-    <Card className="vaccineCardContainer" bodyStyle={{ height: "100%" }}>
+    <Card
+      className="vaccineCardContainer"
+      bodyStyle={{ height: "100%" }}
+      onClick={(e) => {
+        if (!e.target.closest(".ant-checkbox-wrapper")) {
+          handleCardClick(index);
+        }
+      }}
+      style={{ cursor: "pointer" }}
+    >
       {/* Vaccine status Indicator */}
       {vaccineData?.tvp_given_date || vaccineData.tvd_due_date ? (
         <div
