@@ -71,7 +71,7 @@ const CustomRow = ({ children, ...props }) => {
 
 function CustomizeSetting({ handleDrawerCustomize }) {
 
-  const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
+  const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setMedicalHistoryData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
   const { loading, customizedPadLeftList, customizedPadRightList, videoList } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
@@ -233,6 +233,9 @@ function CustomizeSetting({ handleDrawerCustomize }) {
         if (left.findIndex(e => e.tmdpm_id === 1 && e.tmdpm_status === 0) === -1) {
           setVitalsData([])
         }
+        if (left.findIndex(e => e.tmdpm_id === 3 && e.tmdpm_status === 0) === -1) {
+          setMedicalHistoryData([])
+        }
         handleDrawerCustomize()
       } else {
         errorMessage(action.error)
@@ -276,6 +279,9 @@ function CustomizeSetting({ handleDrawerCustomize }) {
       }
       if (left.findIndex(e => e.tmdpm_id === 1 && e.tmdpm_status === 0) === -1) {
         setVitalsData([])
+      }
+      if (left.findIndex(e => e.tmdpm_id === 3 && e.tmdpm_status === 0) === -1) {
+        setMedicalHistoryData([])
       }
       errorMessage('Action successfully')
       handleDrawerCustomize()

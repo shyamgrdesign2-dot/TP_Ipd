@@ -372,718 +372,744 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 1, width: '100%' }} />
 
                 <View>
-                    {caseManagerData.symptoms.length > 0 && printSettings?.prescription?.case_option[0]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[0]?.format === 'inline' ? (
-                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
-                                {caseManagerData.symptoms.map((item, i) => {
-                                    return (
-                                        <Text key={i}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
-                                            {(item.since || item.severity || item.note) ?
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                :
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                            }
-                                        </Text>
-                                    )
-                                })}
-                            </Text>
-                        ) : printSettings?.prescription?.case_option[0]?.format === 'listview' ? (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
-                                {caseManagerData.symptoms.map((item, i) => {
-                                    return (
-                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
-                                            {(item.since || item.severity || item.note) &&
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                            }
-                                        </Text>
-                                    )
-                                })}
-                            </View>
-                        ) : (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
-                                <View style={styles.table}>
-                                    <View style={styles.row}>
-                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
-                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SEVERITY</Text>
-                                        <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
-                                    </View>
-                                    {caseManagerData.symptoms.map((item, i) => (
-                                        <View style={styles.row} key={i}>
-                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.symptom_name}</Text>
-                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
-                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.severity ? item.severity : '-'}</Text>
-                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-                        )
-                    )}
-
-                    {caseManagerData.examination.length > 0 && printSettings?.prescription?.case_option[1]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[1]?.format === 'inline' ? (
-                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
-                                {caseManagerData.examination.map((item, i) => {
-                                    return (
-                                        <Text key={i}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
-                                            {(item.note) ?
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                :
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                            }
-                                        </Text>
-                                    )
-                                })}
-                            </Text>
-                        ) : printSettings?.prescription?.case_option[1]?.format === 'listview' ? (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
-                                {caseManagerData.examination.map((item, i) => {
-                                    return (
-                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
-                                            {(item.since || item.severity || item.note) &&
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                            }
-                                        </Text>
-                                    )
-                                })}
-                            </View>
-                        ) : (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
-                                <View style={styles.table}>
-                                    <View style={styles.row}>
-                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
-                                    </View>
-                                    {caseManagerData.examination.map((item, i) => (
-                                        <View style={styles.row} key={i}>
-                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.examination_name}</Text>
-                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-                        )
-                    )}
-
-                    {caseManagerData.diagnosis.length > 0 && printSettings?.prescription?.case_option[2]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[2]?.format === 'inline' ? (
-                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
-                                {caseManagerData.diagnosis.map((item, i) => {
-                                    return (
-                                        <Text key={i}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
-                                            {(item.since || item.status || item.note) ?
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                :
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                            }
-                                        </Text>
-                                    )
-                                })}
-                            </Text>
-                        ) : printSettings?.prescription?.case_option[2]?.format === 'listview' ? (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
-                                {caseManagerData.diagnosis.map((item, i) => {
-                                    return (
-                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
-                                            {(item.since || item.severity || item.note) &&
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                            }
-                                        </Text>
-                                    )
-                                })}
-                            </View>
-                        ) : (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
-                                <View style={styles.table}>
-                                    <View style={styles.row}>
-                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
-                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
-                                        <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
-                                    </View>
-                                    {caseManagerData.diagnosis.map((item, i) => (
-                                        <View style={styles.row} key={i}>
-                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.tds_name}</Text>
-                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
-                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.status ? item.status : '-'}</Text>
-                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-                        )
-                    )}
-
-                    {caseManagerData.medicine.length > 0 && printSettings?.prescription?.case_option[3]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[3]?.format === 'inline' ? (
-                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
-                                {caseManagerData.medicine.map((item, i) => {
-                                    return (
-                                        <Text key={i}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tmm_medicine_name}&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                {`(${Object.values(Object.fromEntries(Object.entries(
-                                                    (
-                                                        ({
-                                                            tmm_generic,
-                                                            tmf_block,
-                                                            tcm_tmm_freq_morning,
-                                                            tcm_tmm_freq_afternoon,
-                                                            tcm_tmm_freq_evening,
-                                                            tcm_tmm_freq_night,
-                                                            tmm_freq_type,
-                                                            tmm_time,
-                                                            tmm_days,
-                                                            tmm_duration_type,
-                                                            // display_qty,
-                                                            tmm_remarks
-                                                        }) => ({
-                                                            tmm_generic,
-                                                            modiFrequency: tmf_block === 0 || tmf_block === "" ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}${tcm_tmm_freq_evening ? '-' + tcm_tmm_freq_evening : ''}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : `- (${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
-
-                                                            modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
-
-                                                            modiDuration: isNumeric(tmm_days) ? `${tmm_days} ${tmm_duration_type}` : '-',
-
-                                                            // modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
-
-                                                            tmm_remarks
-                                                        })
-                                                    )(caseManagerData.medicine[i])
-                                                ).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.medicine.length - 1 != i ? ',' : ''}&nbsp;
+                    {printSettings?.prescription?.case_option?.map((option, index) => {
+                        return (
+                            option?.id === 1 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                <>
+                                    {caseManagerData.symptoms.length > 0 && (
+                                        option?.format === 'inline' ? (
+                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                                {caseManagerData.symptoms.map((item, i) => {
+                                                    return (
+                                                        <Text key={i}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
+                                                            {(item.since || item.severity || item.note) ?
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                :
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                            }
+                                                        </Text>
+                                                    )
+                                                })}
                                             </Text>
-                                        </Text>
-                                    )
-                                })}
-                            </Text>
-                        ) : printSettings?.prescription?.case_option[3]?.format === 'listview' ? (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
-                                {caseManagerData.medicine.map((item, i) => {
-                                    return (
-                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tmm_medicine_name}&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                {`(${Object.values(Object.fromEntries(Object.entries(
-                                                    (
-                                                        ({
-                                                            tmm_generic,
-                                                            tmf_block,
-                                                            tcm_tmm_freq_morning,
-                                                            tcm_tmm_freq_afternoon,
-                                                            tcm_tmm_freq_evening,
-                                                            tcm_tmm_freq_night,
-                                                            tmm_freq_type,
-                                                            tmm_time,
-                                                            tmm_days,
-                                                            tmm_duration_type,
-                                                            // display_qty,
-                                                            tmm_remarks
-                                                        }) => ({
-                                                            tmm_generic,
-                                                            modiFrequency: tmf_block === 0 || tmf_block === "" ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}${tcm_tmm_freq_evening ? '-' + tcm_tmm_freq_evening : ''}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : `- (${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
-
-                                                            modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
-
-                                                            modiDuration: isNumeric(tmm_days) ? `${tmm_days} ${tmm_duration_type}` : '-',
-
-                                                            // modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
-
-                                                            tmm_remarks
-                                                        })
-                                                    )(caseManagerData.medicine[i])
-                                                ).filter(([_, v]) => v))).join(', ')})\n`}
-                                            </Text>
-                                        </Text>
-                                    )
-                                })}
-                            </View>
-                        ) : (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
-                                <View style={styles.table}>
-                                    <View style={styles.row}>
-                                        <Text style={[styles.cell, { flex: 0.09, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>RX</Text>
-                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                        <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>FREQUENCY</Text>
-                                        <Text style={[styles.cell, { flex: 0.28, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
-                                        {/* <Text style={[styles.cell, { flex: 0.15, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>QTY.</Text> */}
-                                        <Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
-                                    </View>
-                                    {caseManagerData.medicine.map((item, i) => (
-                                        <View style={styles.row} key={i}>
-                                            <Text style={[styles.cell, { flex: 0.09, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{i + 1}</Text>
-                                            <View style={styles.cell}>
-                                                <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.tmm_medicine_name}</Text>
-                                                <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.tmm_generic}</Text>
+                                        ) : option?.format === 'listview' ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                                {caseManagerData.symptoms.map((item, i) => {
+                                                    return (
+                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
+                                                            {(item.since || item.severity || item.note) &&
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                            }
+                                                        </Text>
+                                                    )
+                                                })}
                                             </View>
-                                            <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                {item.tmf_block === 0 || item.tmf_block === "" ? `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning : 0}-${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon : 0}${item.tcm_tmm_freq_evening ? '-' + item.tcm_tmm_freq_evening : ''}-${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night : 0}` : `- (${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}
-                                            </Text>
-                                            <Text style={[styles.cell, { flex: 0.28, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                {isNumeric(item.tmm_days) ? `${item.tmm_days} ${item.tmm_duration_type}` : '-'}
-                                            </Text>
-                                            {/* <Text style={[styles.cell, { flex: 0.15, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                {item.display_qty ? item.display_qty.toFixed(2).replace(/\.00$/, '') : '-'}
-                                            </Text> */}
-                                            <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                {item.tmm_remarks ? item.tmm_remarks : '-'}
-                                            </Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-                        )
-                    )}
-
-                    {caseManagerData.advice.length > 0 && printSettings?.prescription?.case_option[4]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[4]?.format === 'inline' ? (
-                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
-                                {caseManagerData.advice.map((item, i) => {
-                                    return (
-                                        <Text key={i}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.advice.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                        </Text>
-                                    )
-                                })}
-                            </Text>
-                        ) : printSettings?.prescription?.case_option[4]?.format === 'listview' ? (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
-                                {caseManagerData.advice.map((item, i) => {
-                                    return (
-                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
-                                        </Text>
-                                    )
-                                })}
-                            </View>
-                        ) : (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
-                                <View style={styles.table}>
-                                    <View style={styles.row}>
-                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                    </View>
-                                    {caseManagerData.advice.map((item, i) => (
-                                        <View style={styles.row} key={i}>
-                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.advice_name}</Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-                        )
-                    )}
-
-                    {caseManagerData.investigation.length > 0 && printSettings?.prescription?.case_option[5]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[5]?.format === 'inline' ? (
-                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
-                                {caseManagerData.investigation.map((item, i) => {
-                                    return (
-                                        <Text key={i}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
-                                            {(item.note) ?
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                :
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                            }
-                                        </Text>
-                                    )
-                                })}
-                            </Text>
-                        ) : printSettings?.prescription?.case_option[5]?.format === 'listview' ? (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
-                                {caseManagerData.investigation.map((item, i) => {
-                                    return (
-                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
-                                            {(item.since || item.severity || item.note) &&
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                            }
-                                        </Text>
-                                    )
-                                })}
-                            </View>
-                        ) : (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
-                                <View style={styles.table}>
-                                    <View style={styles.row}>
-                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
-                                    </View>
-                                    {caseManagerData.investigation.map((item, i) => (
-                                        <View style={styles.row} key={i}>
-                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.investigation_name}</Text>
-                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-                        )
-                    )}
-
-                    {caseManagerData.vitals.length > 0 && printSettings?.prescription?.case_option[6]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[6]?.format === 'inline' ? (
-                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
-                                {caseManagerData.vitals.map((item, i) => {
-                                    return (
-                                        <Text key={i}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.date}&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                {`- ${Object.values(Object.fromEntries(Object.entries(
-                                                    (
-                                                        ({
-                                                            temp,
-                                                            pres,
-                                                            resp_rate,
-                                                            blood_press,
-                                                            spo2,
-                                                            height,
-                                                            weight,
-                                                            bmi,
-                                                            bmr,
-                                                            bsa,
-                                                        }) => ({
-                                                            temp: temp ? `Temperature (${temp}Frh)` : '',
-                                                            pres: pres ? `Pulse (${pres}/min)` : '',
-                                                            resp_rate: resp_rate ? `Resp. Rate (${resp_rate}/min)` : '',
-                                                            systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
-                                                            diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
-                                                            spo2: spo2 ? `SPO2 (${spo2}%)` : '',
-                                                            height: height ? `Height (${height}cms)` : '',
-                                                            weight: weight ? `Weight (${weight}kgs)` : '',
-                                                            bmi: bmi ? `BMI (${parseFloat(bmi).toFixed(2)}kg/m²)` : '',
-                                                            bmr: bmr ? `BMR (${parseFloat(bmr).toFixed(2)}kcals)` : '',
-                                                            bsa: bsa ? `BSA (${parseFloat(bsa).toFixed(2)}m²)` : '',
-                                                        })
-                                                    )(caseManagerData.vitals[i])
-                                                ).filter(([_, v]) => v))).join(', ')}`}{caseManagerData.vitals.length - 1 != i ? ',' : ''}&nbsp;
-                                            </Text>
-                                        </Text>
-                                    )
-                                })}
-                            </Text>
-                        ) : printSettings?.prescription?.case_option[6]?.format === 'listview' ? (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
-                                {caseManagerData.vitals.map((item, i) => {
-                                    return (
-                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.date}&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                {`- ${Object.values(Object.fromEntries(Object.entries(
-                                                    (
-                                                        ({
-                                                            temp,
-                                                            pres,
-                                                            resp_rate,
-                                                            blood_press,
-                                                            spo2,
-                                                            height,
-                                                            weight,
-                                                            bmi,
-                                                            bmr,
-                                                            bsa,
-                                                        }) => ({
-                                                            temp: temp ? `Temperature (${temp}Frh)` : '',
-                                                            pres: pres ? `Pulse (${pres}/min)` : '',
-                                                            resp_rate: resp_rate ? `Resp. Rate (${resp_rate}/min)` : '',
-                                                            systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
-                                                            diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
-                                                            spo2: spo2 ? `SPO2 (${spo2}%)` : '',
-                                                            height: height ? `Height (${height}cms)` : '',
-                                                            weight: weight ? `Weight (${weight}kgs)` : '',
-                                                            bmi: bmi ? `BMI (${parseFloat(bmi).toFixed(2)}kg/m²)` : '',
-                                                            bmr: bmr ? `BMR (${parseFloat(bmr).toFixed(2)}kcals)` : '',
-                                                            bsa: bsa ? `BSA (${parseFloat(bsa).toFixed(2)}m²)` : '',
-                                                        })
-                                                    )(caseManagerData.vitals[i])
-                                                ).filter(([_, v]) => v))).join(', ')}\n`}
-                                            </Text>
-                                        </Text>
-                                    )
-                                })}
-                            </View>
-                        ) : (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
-                                <View style={styles.table}>
-                                    <View style={styles.row}>
-                                        {columns.map((item, i) => {
-                                            return (
-                                                <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>{item.title}</Text>
-                                            )
-                                        })}
-                                    </View>
-                                    {initialRows.map((item, i) => {
-                                        return (
-                                            <View style={styles.row} key={i}>
-                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.name}</Text>
-                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['0']}</Text>
-                                                {item.hasOwnProperty('1') && (
-                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['1']}</Text>
-                                                )}
+                                        ) : (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                                <View style={styles.table}>
+                                                    <View style={styles.row}>
+                                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
+                                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SEVERITY</Text>
+                                                        <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                    </View>
+                                                    {caseManagerData.symptoms.map((item, i) => (
+                                                        <View style={styles.row} key={i}>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.symptom_name}</Text>
+                                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
+                                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.severity ? item.severity : '-'}</Text>
+                                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
+                                                        </View>
+                                                    ))}
+                                                </View>
                                             </View>
                                         )
-                                    })}
-                                </View>
-                            </View>
-                        )
-                    )}
-
-                    {caseManagerData.medical_history.length > 0 && printSettings?.prescription?.case_option[7]?.enable === 'Y' && (
-                        printSettings?.prescription?.case_option[7]?.format === 'inline' ? (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
-                                {caseManagerData.medical_history.map((item, i) => {
-                                    return (
-                                        <Text key={i} style={{ marginTop: (item?.no_know_history || item?.tags?.length > 0) ? PX_TO_PT * 6 : 0, lineHeight: 1.4 }}>
-                                            {!item?.no_know_history ? (
-                                                item?.tags?.length > 0 && (
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;
-                                                        {item.tags.map((item1, i1) => {
-                                                            return (
-                                                                <>
-                                                                    {`(`}
-                                                                    {item1.enable == 'Y' ? (
-                                                                        <>
-                                                                            <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                {medical_history_title(item?.tmmhs_id)}
-                                                                                <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                    {item1?.title}
-                                                                                </Text>
-                                                                            </Text>
-
-                                                                            {item1?.since && (
-                                                                                <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                    {` | Since : `}
-                                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                        {item1?.since}
-                                                                                    </Text>
-                                                                                </Text>
-                                                                            )}
-
-                                                                            {item?.tmmhs_id != 3 && (
-                                                                                <>
-                                                                                    {item1?.status && (
-                                                                                        <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                            {` | Status : `}
-                                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                {item1?.status}
-                                                                                            </Text>
-                                                                                        </Text>
-                                                                                    )}
-                                                                                    {item1?.medication && (
-                                                                                        <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                            {` | Medication : `}
-                                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                {item1?.medication}
-                                                                                            </Text>
-                                                                                        </Text>
-                                                                                    )}
-                                                                                </>
-                                                                            )}
-                                                                            {item?.tmmhs_id == 3 && item1?.relationship && (
-                                                                                <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                    {` | Relative : `}
-                                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                        {item1?.relationship}
-                                                                                    </Text>
-                                                                                </Text>
-                                                                            )}
-
-                                                                            {item1?.note && (
-                                                                                <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                    {` | Note : `}
-                                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                        {item1?.note}
-                                                                                    </Text>
-                                                                                </Text>
-                                                                            )}
-                                                                        </>
-                                                                    ) : (
-                                                                        <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                            {`No ${item1.title}`}
-                                                                        </Text>
-                                                                    )}
-                                                                    {`)`}{item.tags.length - 1 != i1 ? ',' : ''}&nbsp;
-                                                                </>
-                                                            )
-                                                        })}
-                                                        {'\n'}</Text>
-                                                )
-                                            ) : (
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(No known history)`}</Text>
-                                                </Text>
-                                            )}
-                                        </Text>
-                                    )
-                                })}
-                            </View>
-                        ) : printSettings?.prescription?.case_option[7]?.format === 'listview' ? (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
-                                {caseManagerData.medical_history.map((item, i) => {
-                                    let abcd = 97
-                                    return (
-                                        <Text key={i} style={{ marginTop: (item?.no_know_history || item?.tags?.length > 0) ? PX_TO_PT * 6 : 0, lineHeight: 1.4 }}>
-                                            {!item?.no_know_history ? (
-                                                item?.tags?.length > 0 && (
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, lineHeight: 1.4 }}>&nbsp;{i + 1}. {item.title}&nbsp;:</Text>
-                                                        {item.tags.map((item1, i1) => {
-                                                            return (
-                                                                <>
-                                                                    {item1.enable == 'Y' ? (
-                                                                        <>
-                                                                            <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;{item1.title}&nbsp;</Text>
-                                                                            {(item1.since || item1.status || item1.medication || item1.relationship || item1.note) &&
-                                                                                <Text key={i1} style={{ lineHeight: 1.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                    {`(${Object.values(Object.fromEntries(Object.entries((
-                                                                                        ({
-                                                                                            since,
-                                                                                            status,
-                                                                                            medication,
-                                                                                            relationship,
-                                                                                            note
-                                                                                        }) => ({
-                                                                                            since: since && `Since : ${since}`,
-                                                                                            status: status && `Status : ${status}`,
-                                                                                            medication: medication && `Medication : ${medication}`,
-                                                                                            relationship: relationship && `Relative : ${relationship}`,
-                                                                                            note: note && `Note : ${note}`,
-                                                                                        })
-                                                                                    )(item1)).filter(([_, v]) => v))).join(' | ')})`}
-                                                                                </Text>
-                                                                            }
-                                                                        </>
-                                                                    ) : (
-                                                                        <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;{`No ${item1.title}`}&nbsp;</Text>
-                                                                    )}
-                                                                </>
-                                                            )
-                                                        })}
-                                                        {'\n'}</Text>
-                                                )
-                                            ) : (
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}. {item.title}&nbsp;:
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;No known history&nbsp;</Text>
-                                                </Text>
-                                            )}
-                                        </Text>
-                                    )
-                                })}
-                            </View>
-                        ) : (
-                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
-                                {caseManagerData.medical_history.map((item, i) => {
-                                    return (
-                                        (item?.no_know_history || item?.tags?.length > 0) && (
-                                            <>
-                                                <Text style={{ color: '#000', marginTop: i === 0 ? PX_TO_PT * 4 : PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`${item.title} : `}</Text>
-                                                {!item?.no_know_history ? (
-                                                    <View key={i} style={[styles.table, { marginTop: 0 }]}>
-                                                        <View style={styles.row}>
-                                                            <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                            <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
-                                                            {item?.tmmhs_id != 3 && (
-                                                                <>
-                                                                    <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
-                                                                    {item?.tmmhs_id == 2 && (
-                                                                        <Text style={[styles.cell, { flex: 0.25, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICATION</Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-                                                            {item?.tmmhs_id === 3 && (
-                                                                <Text style={[styles.cell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>RELATIVE</Text>
-                                                            )}
-                                                            <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                    )}
+                                </>
+                            ) : option?.id === 2 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                <>
+                                    {caseManagerData.examination.length > 0 && (
+                                        option?.format === 'inline' ? (
+                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
+                                                {caseManagerData.examination.map((item, i) => {
+                                                    return (
+                                                        <Text key={i}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
+                                                            {(item.note) ?
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                :
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                            }
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </Text>
+                                        ) : option?.format === 'listview' ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
+                                                {caseManagerData.examination.map((item, i) => {
+                                                    return (
+                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
+                                                            {(item.since || item.severity || item.note) &&
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                            }
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </View>
+                                        ) : (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
+                                                <View style={styles.table}>
+                                                    <View style={styles.row}>
+                                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                    </View>
+                                                    {caseManagerData.examination.map((item, i) => (
+                                                        <View style={styles.row} key={i}>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.examination_name}</Text>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
                                                         </View>
-                                                        {item?.tags?.filter(x => x.enable == 'Y')?.map((item1, i1) => {
+                                                    ))}
+                                                </View>
+                                            </View>
+                                        )
+                                    )}
+                                </>
+                            ) : option?.id === 3 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                <>
+                                    {caseManagerData.diagnosis.length > 0 && (
+                                        option?.format === 'inline' ? (
+                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
+                                                {caseManagerData.diagnosis.map((item, i) => {
+                                                    return (
+                                                        <Text key={i}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
+                                                            {(item.since || item.status || item.note) ?
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                :
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                            }
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </Text>
+                                        ) : option?.format === 'listview' ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
+                                                {caseManagerData.diagnosis.map((item, i) => {
+                                                    return (
+                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
+                                                            {(item.since || item.severity || item.note) &&
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                            }
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </View>
+                                        ) : (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
+                                                <View style={styles.table}>
+                                                    <View style={styles.row}>
+                                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
+                                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
+                                                        <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                    </View>
+                                                    {caseManagerData.diagnosis.map((item, i) => (
+                                                        <View style={styles.row} key={i}>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.tds_name}</Text>
+                                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
+                                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.status ? item.status : '-'}</Text>
+                                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
+                                                        </View>
+                                                    ))}
+                                                </View>
+                                            </View>
+                                        )
+                                    )}
+                                </>
+                            ) : option?.id === 4 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                <>
+                                    {caseManagerData.medicine.length > 0 && (
+                                        option?.format === 'inline' ? (
+                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
+                                                {caseManagerData.medicine.map((item, i) => {
+                                                    return (
+                                                        <Text key={i}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tmm_medicine_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                {`(${Object.values(Object.fromEntries(Object.entries(
+                                                                    (
+                                                                        ({
+                                                                            tmm_generic,
+                                                                            tmf_block,
+                                                                            tcm_tmm_freq_morning,
+                                                                            tcm_tmm_freq_afternoon,
+                                                                            tcm_tmm_freq_evening,
+                                                                            tcm_tmm_freq_night,
+                                                                            tmm_freq_type,
+                                                                            tmm_time,
+                                                                            tmm_days,
+                                                                            tmm_duration_type,
+                                                                            // display_qty,
+                                                                            tmm_remarks
+                                                                        }) => ({
+                                                                            tmm_generic,
+
+                                                                            modiFrequency: tmf_block === 0 || tmf_block === "" ? `${(tcm_tmm_freq_morning || tcm_tmm_freq_afternoon || tcm_tmm_freq_evening || tcm_tmm_freq_night) ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}${tcm_tmm_freq_evening ? '-' + tcm_tmm_freq_evening : ''}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : ``}` : `(${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
+
+                                                                            modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
+
+                                                                            modiDuration: isNumeric(tmm_days) ? `${tmm_days} ${tmm_duration_type}` : '-',
+
+                                                                            // modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
+
+                                                                            tmm_remarks
+                                                                        })
+                                                                    )(caseManagerData.medicine[i])
+                                                                ).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.medicine.length - 1 != i ? ',' : ''}&nbsp;
+                                                            </Text>
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </Text>
+                                        ) : option?.format === 'listview' ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
+                                                {caseManagerData.medicine.map((item, i) => {
+                                                    return (
+                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tmm_medicine_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                {`(${Object.values(Object.fromEntries(Object.entries(
+                                                                    (
+                                                                        ({
+                                                                            tmm_generic,
+                                                                            tmf_block,
+                                                                            tcm_tmm_freq_morning,
+                                                                            tcm_tmm_freq_afternoon,
+                                                                            tcm_tmm_freq_evening,
+                                                                            tcm_tmm_freq_night,
+                                                                            tmm_freq_type,
+                                                                            tmm_time,
+                                                                            tmm_days,
+                                                                            tmm_duration_type,
+                                                                            // display_qty,
+                                                                            tmm_remarks
+                                                                        }) => ({
+                                                                            tmm_generic,
+
+                                                                            modiFrequency: tmf_block === 0 || tmf_block === "" ? `${(tcm_tmm_freq_morning || tcm_tmm_freq_afternoon || tcm_tmm_freq_evening || tcm_tmm_freq_night) ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}${tcm_tmm_freq_evening ? '-' + tcm_tmm_freq_evening : ''}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : ``}` : `(${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
+
+                                                                            modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
+
+                                                                            modiDuration: isNumeric(tmm_days) ? `${tmm_days} ${tmm_duration_type}` : '-',
+
+                                                                            // modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
+
+                                                                            tmm_remarks
+                                                                        })
+                                                                    )(caseManagerData.medicine[i])
+                                                                ).filter(([_, v]) => v))).join(', ')})\n`}
+                                                            </Text>
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </View>
+                                        ) : (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
+                                                <View style={styles.table}>
+                                                    <View style={styles.row}>
+                                                        <Text style={[styles.cell, { flex: 0.09, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>RX</Text>
+                                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                        <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>FREQUENCY</Text>
+                                                        <Text style={[styles.cell, { flex: 0.28, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
+                                                        {/* <Text style={[styles.cell, { flex: 0.15, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>QTY.</Text> */}
+                                                        <Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                    </View>
+                                                    {caseManagerData.medicine.map((item, i) => (
+                                                        <View style={styles.row} key={i}>
+                                                            <Text style={[styles.cell, { flex: 0.09, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{i + 1}</Text>
+                                                            <View style={styles.cell}>
+                                                                <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.tmm_medicine_name}</Text>
+                                                                <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.tmm_generic}</Text>
+                                                            </View>
+                                                            <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning : 0}-${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon : 0}${item.tcm_tmm_freq_evening ? '-' + item.tcm_tmm_freq_evening : ''}-${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night : 0}` : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}
+                                                            </Text>
+                                                            <Text style={[styles.cell, { flex: 0.28, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                {isNumeric(item.tmm_days) ? `${item.tmm_days} ${item.tmm_duration_type}` : '-'}
+                                                            </Text>
+                                                            {/* <Text style={[styles.cell, { flex: 0.15, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                {item.display_qty ? item.display_qty.toFixed(2).replace(/\.00$/, '') : '-'}
+                                                            </Text> */}
+                                                            <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                {item.tmm_remarks ? item.tmm_remarks : '-'}
+                                                            </Text>
+                                                        </View>
+                                                    ))}
+                                                </View>
+                                            </View>
+                                        )
+                                    )}
+                                </>
+                            ) : option?.id === 5 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                <>
+                                    {caseManagerData.advice.length > 0 && (
+                                        option?.format === 'inline' ? (
+                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
+                                                {caseManagerData.advice.map((item, i) => {
+                                                    return (
+                                                        <Text key={i}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.advice.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </Text>
+                                        ) : option?.format === 'listview' ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
+                                                {caseManagerData.advice.map((item, i) => {
+                                                    return (
+                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </View>
+                                        ) : (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
+                                                <View style={styles.table}>
+                                                    <View style={styles.row}>
+                                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                    </View>
+                                                    {caseManagerData.advice.map((item, i) => (
+                                                        <View style={styles.row} key={i}>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.advice_name}</Text>
+                                                        </View>
+                                                    ))}
+                                                </View>
+                                            </View>
+                                        )
+                                    )}
+                                </>
+                            ) : option?.id === 6 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                <>
+                                    {caseManagerData.investigation.length > 0 && (
+                                        option?.format === 'inline' ? (
+                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
+                                                {caseManagerData.investigation.map((item, i) => {
+                                                    return (
+                                                        <Text key={i}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
+                                                            {(item.note) ?
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                :
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                            }
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </Text>
+                                        ) : option?.format === 'listview' ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
+                                                {caseManagerData.investigation.map((item, i) => {
+                                                    return (
+                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
+                                                            {(item.since || item.severity || item.note) &&
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                            }
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </View>
+                                        ) : (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
+                                                <View style={styles.table}>
+                                                    <View style={styles.row}>
+                                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                    </View>
+                                                    {caseManagerData.investigation.map((item, i) => (
+                                                        <View style={styles.row} key={i}>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.investigation_name}</Text>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
+                                                        </View>
+                                                    ))}
+                                                </View>
+                                            </View>
+                                        )
+                                    )}
+                                </>
+                            ) : option?.id === 7 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                <>
+                                    {caseManagerData.vitals.length > 0 && (
+                                        option?.format === 'inline' ? (
+                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
+                                                {caseManagerData.vitals.map((item, i) => {
+                                                    return (
+                                                        <Text key={i}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.date}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                {`- ${Object.values(Object.fromEntries(Object.entries(
+                                                                    (
+                                                                        ({
+                                                                            temp,
+                                                                            pres,
+                                                                            resp_rate,
+                                                                            blood_press,
+                                                                            spo2,
+                                                                            height,
+                                                                            weight,
+                                                                            bmi,
+                                                                            bmr,
+                                                                            bsa,
+                                                                        }) => ({
+                                                                            temp: temp ? `Temperature (${temp}Frh)` : '',
+                                                                            pres: pres ? `Pulse (${pres}/min)` : '',
+                                                                            resp_rate: resp_rate ? `Resp. Rate (${resp_rate}/min)` : '',
+                                                                            systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
+                                                                            diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
+                                                                            spo2: spo2 ? `SPO2 (${spo2}%)` : '',
+                                                                            height: height ? `Height (${height}cms)` : '',
+                                                                            weight: weight ? `Weight (${weight}kgs)` : '',
+                                                                            bmi: bmi ? `BMI (${parseFloat(bmi).toFixed(2)}kg/m²)` : '',
+                                                                            bmr: bmr ? `BMR (${parseFloat(bmr).toFixed(2)}kcals)` : '',
+                                                                            bsa: bsa ? `BSA (${parseFloat(bsa).toFixed(2)}m²)` : '',
+                                                                        })
+                                                                    )(caseManagerData.vitals[i])
+                                                                ).filter(([_, v]) => v))).join(', ')}`}{caseManagerData.vitals.length - 1 != i ? ',' : ''}&nbsp;
+                                                            </Text>
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </Text>
+                                        ) : option?.format === 'listview' ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
+                                                {caseManagerData.vitals.map((item, i) => {
+                                                    return (
+                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.date}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                {`- ${Object.values(Object.fromEntries(Object.entries(
+                                                                    (
+                                                                        ({
+                                                                            temp,
+                                                                            pres,
+                                                                            resp_rate,
+                                                                            blood_press,
+                                                                            spo2,
+                                                                            height,
+                                                                            weight,
+                                                                            bmi,
+                                                                            bmr,
+                                                                            bsa,
+                                                                        }) => ({
+                                                                            temp: temp ? `Temperature (${temp}Frh)` : '',
+                                                                            pres: pres ? `Pulse (${pres}/min)` : '',
+                                                                            resp_rate: resp_rate ? `Resp. Rate (${resp_rate}/min)` : '',
+                                                                            systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
+                                                                            diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
+                                                                            spo2: spo2 ? `SPO2 (${spo2}%)` : '',
+                                                                            height: height ? `Height (${height}cms)` : '',
+                                                                            weight: weight ? `Weight (${weight}kgs)` : '',
+                                                                            bmi: bmi ? `BMI (${parseFloat(bmi).toFixed(2)}kg/m²)` : '',
+                                                                            bmr: bmr ? `BMR (${parseFloat(bmr).toFixed(2)}kcals)` : '',
+                                                                            bsa: bsa ? `BSA (${parseFloat(bsa).toFixed(2)}m²)` : '',
+                                                                        })
+                                                                    )(caseManagerData.vitals[i])
+                                                                ).filter(([_, v]) => v))).join(', ')}\n`}
+                                                            </Text>
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </View>
+                                        ) : (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
+                                                <View style={styles.table}>
+                                                    <View style={styles.row}>
+                                                        {columns.map((item, i) => {
                                                             return (
-                                                                <View style={styles.row} key={i1}>
-                                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item1.title}</Text>
-                                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.since ? item1.since : '-'}</Text>
-                                                                    {item?.tmmhs_id != 3 && (
-                                                                        <>
-                                                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.status ? item1.status : '-'}</Text>
-                                                                            {item?.tmmhs_id == 2 && (
-                                                                                <Text style={[styles.cell, { flex: 0.25, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.medication ? item1.medication : '-'}</Text>
-                                                                            )}
-                                                                        </>
-                                                                    )}
-                                                                    {item?.tmmhs_id === 3 && (
-                                                                        <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.relationship ? item1.relationship : '-'}</Text>
-                                                                    )}
-                                                                    <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.note ? item1.note : '-'}</Text>
-                                                                </View>
-                                                            )
-                                                        })}
-                                                        {item?.tags?.filter(x => x.enable == 'N')?.map((item1, i1) => {
-                                                            return (
-                                                                <View style={styles.row} key={i1}>
-                                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`No ${item1.title}`}</Text>
-                                                                </View>
+                                                                <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>{item.title}</Text>
                                                             )
                                                         })}
                                                     </View>
-                                                ) : (
-                                                    <Text style={{ color: '#000', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, border: 1, borderStyle: 'solid', borderColor: '#171725' }}>{`No known history`}</Text>
-
-                                                )}
-                                            </>
+                                                    {initialRows.map((item, i) => {
+                                                        return (
+                                                            <View style={styles.row} key={i}>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.name}</Text>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['0']}</Text>
+                                                                {item.hasOwnProperty('1') && (
+                                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['1']}</Text>
+                                                                )}
+                                                            </View>
+                                                        )
+                                                    })}
+                                                </View>
+                                            </View>
                                         )
-                                    )
-                                })}
-                            </View>
+                                    )}
+                                </>
+                            ) : option?.id === 8 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                <>
+                                    {caseManagerData.medical_history.length > 0 && (
+                                        option?.format === 'inline' ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
+                                                {caseManagerData.medical_history.map((item, i) => {
+                                                    return (
+                                                        <Text key={i} style={{ marginTop: (item?.no_know_history || item?.tags?.length > 0) ? PX_TO_PT * 6 : 0, lineHeight: 1.4 }}>
+                                                            {!item?.no_know_history ? (
+                                                                item?.tags?.length > 0 && (
+                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;
+                                                                        {item.tags.map((item1, i1) => {
+                                                                            return (
+                                                                                <>
+                                                                                    {`(`}
+                                                                                    {item1.enable == 'Y' ? (
+                                                                                        <>
+                                                                                            <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                                                {medical_history_title(item?.tmmhs_id)}
+                                                                                                <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                                    {item1?.title}
+                                                                                                </Text>
+                                                                                            </Text>
+
+                                                                                            {item1?.since && (
+                                                                                                <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                                                    {` | Since : `}
+                                                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                                        {item1?.since}
+                                                                                                    </Text>
+                                                                                                </Text>
+                                                                                            )}
+
+                                                                                            {item?.tmmhs_id != 3 && (
+                                                                                                <>
+                                                                                                    {item1?.status && (
+                                                                                                        <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                                                            {` | Status : `}
+                                                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                                                {item1?.status}
+                                                                                                            </Text>
+                                                                                                        </Text>
+                                                                                                    )}
+                                                                                                    {item1?.medication && (
+                                                                                                        <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                                                            {` | Medication : `}
+                                                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                                                {item1?.medication}
+                                                                                                            </Text>
+                                                                                                        </Text>
+                                                                                                    )}
+                                                                                                </>
+                                                                                            )}
+                                                                                            {item?.tmmhs_id == 3 && item1?.relationship && (
+                                                                                                <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                                                    {` | Relative : `}
+                                                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                                        {item1?.relationship}
+                                                                                                    </Text>
+                                                                                                </Text>
+                                                                                            )}
+
+                                                                                            {item1?.note && (
+                                                                                                <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                                                    {` | Note : `}
+                                                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                                        {item1?.note}
+                                                                                                    </Text>
+                                                                                                </Text>
+                                                                                            )}
+                                                                                        </>
+                                                                                    ) : (
+                                                                                        <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                            {`No ${item1.title}`}
+                                                                                        </Text>
+                                                                                    )}
+                                                                                    {`)`}{item.tags.length - 1 != i1 ? ',' : ''}&nbsp;
+                                                                                </>
+                                                                            )
+                                                                        })}
+                                                                        {'\n'}</Text>
+                                                                )
+                                                            ) : (
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;
+                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(No known history)`}</Text>
+                                                                </Text>
+                                                            )}
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </View>
+                                        ) : option?.format === 'listview' ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
+                                                {caseManagerData.medical_history.map((item, i) => {
+                                                    let abcd = 97
+                                                    return (
+                                                        <Text key={i} style={{ marginTop: (item?.no_know_history || item?.tags?.length > 0) ? PX_TO_PT * 6 : 0, lineHeight: 1.4 }}>
+                                                            {!item?.no_know_history ? (
+                                                                item?.tags?.length > 0 && (
+                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, lineHeight: 1.4 }}>&nbsp;{i + 1}. {item.title}&nbsp;:</Text>
+                                                                        {item.tags.map((item1, i1) => {
+                                                                            return (
+                                                                                <>
+                                                                                    {item1.enable == 'Y' ? (
+                                                                                        <>
+                                                                                            <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;{item1.title}&nbsp;</Text>
+                                                                                            {(item1.since || item1.status || item1.medication || item1.relationship || item1.note) &&
+                                                                                                <Text key={i1} style={{ lineHeight: 1.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                                    {`(${Object.values(Object.fromEntries(Object.entries((
+                                                                                                        ({
+                                                                                                            since,
+                                                                                                            status,
+                                                                                                            medication,
+                                                                                                            relationship,
+                                                                                                            note
+                                                                                                        }) => ({
+                                                                                                            since: since && `Since : ${since}`,
+                                                                                                            status: status && `Status : ${status}`,
+                                                                                                            medication: medication && `Medication : ${medication}`,
+                                                                                                            relationship: relationship && `Relative : ${relationship}`,
+                                                                                                            note: note && `Note : ${note}`,
+                                                                                                        })
+                                                                                                    )(item1)).filter(([_, v]) => v))).join(' | ')})`}
+                                                                                                </Text>
+                                                                                            }
+                                                                                        </>
+                                                                                    ) : (
+                                                                                        <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;{`No ${item1.title}`}&nbsp;</Text>
+                                                                                    )}
+                                                                                </>
+                                                                            )
+                                                                        })}
+                                                                        {'\n'}</Text>
+                                                                )
+                                                            ) : (
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}. {item.title}&nbsp;:
+                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;No known history&nbsp;</Text>
+                                                                </Text>
+                                                            )}
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </View>
+                                        ) : (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
+                                                {caseManagerData.medical_history.map((item, i) => {
+                                                    return (
+                                                        (item?.no_know_history || item?.tags?.length > 0) && (
+                                                            <>
+                                                                <Text style={{ color: '#000', marginTop: i === 0 ? PX_TO_PT * 4 : PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`${item.title} : `}</Text>
+                                                                {!item?.no_know_history ? (
+                                                                    <View key={i} style={[styles.table, { marginTop: 0 }]}>
+                                                                        <View style={styles.row}>
+                                                                            <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                                            <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
+                                                                            {item?.tmmhs_id != 3 && (
+                                                                                <>
+                                                                                    <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
+                                                                                    {item?.tmmhs_id == 2 && (
+                                                                                        <Text style={[styles.cell, { flex: 0.25, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICATION</Text>
+                                                                                    )}
+                                                                                </>
+                                                                            )}
+                                                                            {item?.tmmhs_id === 3 && (
+                                                                                <Text style={[styles.cell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>RELATIVE</Text>
+                                                                            )}
+                                                                            <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                                        </View>
+                                                                        {item?.tags?.filter(x => x.enable == 'Y')?.map((item1, i1) => {
+                                                                            return (
+                                                                                <View style={styles.row} key={i1}>
+                                                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item1.title}</Text>
+                                                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.since ? item1.since : '-'}</Text>
+                                                                                    {item?.tmmhs_id != 3 && (
+                                                                                        <>
+                                                                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.status ? item1.status : '-'}</Text>
+                                                                                            {item?.tmmhs_id == 2 && (
+                                                                                                <Text style={[styles.cell, { flex: 0.25, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.medication ? item1.medication : '-'}</Text>
+                                                                                            )}
+                                                                                        </>
+                                                                                    )}
+                                                                                    {item?.tmmhs_id === 3 && (
+                                                                                        <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.relationship ? item1.relationship : '-'}</Text>
+                                                                                    )}
+                                                                                    <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.note ? item1.note : '-'}</Text>
+                                                                                </View>
+                                                                            )
+                                                                        })}
+                                                                        {item?.tags?.filter(x => x.enable == 'N')?.map((item1, i1) => {
+                                                                            return (
+                                                                                <View style={styles.row} key={i1}>
+                                                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`No ${item1.title}`}</Text>
+                                                                                </View>
+                                                                            )
+                                                                        })}
+                                                                    </View>
+                                                                ) : (
+                                                                    <Text style={{ color: '#000', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, border: 1, borderStyle: 'solid', borderColor: '#171725' }}>{`No known history`}</Text>
+
+                                                                )}
+                                                            </>
+                                                        )
+                                                    )
+                                                })}
+                                            </View>
+                                        )
+                                    )}
+                                </>
+                            ) : option?.id === 9 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
+                                <>
+                                    {caseManagerData.follow_up_date && (
+                                        <Text style={{ marginTop: PX_TO_PT * 15 }}>
+                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
+                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.follow_up_date}</Text>
+                                        </Text>
+                                    )}
+
+                                    {caseManagerData.visit_advice && (
+                                        <Text style={{ marginTop: PX_TO_PT * 15 }}>
+                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
+                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.visit_advice}</Text>
+                                        </Text>
+                                    )}
+                                </>
+                            )
                         )
-                    )}
-
-                    {caseManagerData.follow_up_date && (
-                        <Text style={{ marginTop: PX_TO_PT * 15 }}>
-                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
-                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.follow_up_date}</Text>
-                        </Text>
-                    )}
-
-                    {caseManagerData.visit_advice && (
-                        <Text style={{ marginTop: PX_TO_PT * 15 }}>
-                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
-                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.visit_advice}</Text>
-                        </Text>
-                    )}
+                    })}
 
                 </View>
 
