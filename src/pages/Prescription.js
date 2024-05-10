@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Drawer, Button } from "antd";
+import { Drawer } from "antd";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 
@@ -31,9 +31,9 @@ import vitals from "../assets/images/Vitals.svg";
 import MedicalHistory from "../assets/images/Medical-History.svg";
 
 import hey from "../assets/images/bg-hey.png";
-import vaccinationImg from "../assets/images/Vaccination.svg";
 
 import { Content } from "antd/es/layout/layout";
+import vaccinationImg from "../assets/images/Vaccination.svg";
 import { checkToShowVaccination } from "./vaccination/service";
 
 function Prescription() {
@@ -42,13 +42,10 @@ function Prescription() {
     customizedPadRightList,
     frequencyList,
     timingList,
+    profile,
   } = useSelector((state) => state.doctors);
-  const { selectedVitalsList, vitalsPastList } = useSelector(
-    (state) => state.vitals
-  );
-  const { profile } = useSelector((state) => state.doctors);
+  const { selectedVitalsList } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
@@ -68,6 +65,7 @@ function Prescription() {
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
+  const navigate = useNavigate();
 
   const contextApi = {
     patient_data,
@@ -98,12 +96,6 @@ function Prescription() {
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
   const [shouldShowVaccination, setShouldShowVaccination] = useState(false);
-
-  const checkForVaccination = async () => {
-    setShouldShowVaccination(
-      await checkToShowVaccination(profile?.doctor_unique_id)
-    );
-  };
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -246,6 +238,12 @@ function Prescription() {
     }
     checkForVaccination();
   }, []);
+
+  const checkForVaccination = async () => {
+    setShouldShowVaccination(
+      await checkToShowVaccination(profile?.doctor_unique_id)
+    );
+  };
 
   // Drawer Vitals
   const handleDrawerVital = useCallback(() => {
