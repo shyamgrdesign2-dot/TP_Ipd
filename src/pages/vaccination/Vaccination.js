@@ -47,9 +47,10 @@ function Vaccination() {
   const [ageFilters, setAgeFilters] = useState([]);
   const [previewData, setPreviewData] = useState([]);
   const { state } = useLocation();
-  const { patient_data } = state;
+  let { patient_data } = state;
   const [printType, setPrintType] = useState("");
   const [shouldShowSelectAll, setShouldShowSelectAll] = useState(false);
+  const [isCardClicked, setCardClicked] = useState(false);
 
   const contextApi = {
     patient_data,
@@ -58,6 +59,16 @@ function Vaccination() {
   useEffect(() => {
     getVaccineDetails();
   }, []);
+
+  useEffect(() => {
+    if (warningMsg) {
+      const timer = setTimeout(() => {
+        setWarningMsg("");
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [warningMsg]);
 
   useEffect(() => {
     const activeValue = ageFilters?.[activeDate];
@@ -71,6 +82,10 @@ function Vaccination() {
     }
   }, [printType]);
 
+  useEffect(() => {
+    selectAllCheck();
+  }, [vaccinesData]);
+
   const getPatientDetail = async () => {
     const patientDetails = await getPatientDetails({
       hospital_bid:
@@ -78,24 +93,11 @@ function Vaccination() {
       patient_uid: patient_data?.patient_unique_id,
       hospital_id: patient_data?.hm_id || patient_data?.clinic_id,
     });
-
-    if (!patientDetails?.vac_id) {
-      const createPatientRes = await createPatient({
-        patient_uid: patient_data?.patient_unique_id,
-        patient_pid: patient_data?.pm_pid,
-        hospital_bid:
-          patient_data?.hm_business_id || patient_data?.hospital_business_id,
-        hospital_id: patient_data?.hm_id || patient_data?.clinic_id,
-        patient_first_name: patient_data?.pm_first_name || "",
-        patient_middle_name: patient_data?.pm_middle_name || "",
-        patient_last_name: patient_data?.pm_last_name || "",
-        patient_gender: patient_data?.pm_gender,
-        patient_dob: patient_data?.DOB || patient_data?.pm_dob,
-        patient_contact_no: patient_data?.pm_contact_no,
-      });
-      if (createPatientRes?.patient_uid) getPatientDetail();
-    }
-    if (patientDetails?.vac_id && !patientDetails?.vac_dob) {
+    patient_data = { ...patient_data, ...patientDetails };
+    if (
+      !patientDetails?.vac_id ||
+      (patientDetails?.vac_id && !patientDetails?.vac_dob)
+    ) {
       setShowDob(true);
     } else {
       patientDetails.vac_dob = moment(patientDetails.vac_dob).format(
@@ -135,11 +137,10 @@ function Vaccination() {
     setAgeFilters(result.distinctIds);
 
     setCompleteData(result.idMap);
-    if (!dateOptions.length) {
-      const options = getDates(result.idMap);
-      setDateOptions(options);
-      setActiveDate(getDefaultOption(options));
-    }
+
+    const options = getDates(result.idMap);
+    setDateOptions(options);
+    setActiveDate(getDefaultOption(options));
   };
 
   const handleSelectAll = (event) => {
@@ -153,10 +154,6 @@ function Vaccination() {
       setWarningMsg("");
     }
   };
-
-  useEffect(() => {
-    selectAllCheck();
-  }, [vaccinesData]);
 
   const selectAllCheck = () => {
     // Needs to check for updated due date
@@ -192,6 +189,7 @@ function Vaccination() {
   };
 
   const handleCardCheckboxChange = (id) => {
+    setShowUpdate(false);
     let newSelectedCards = [...selectedCards];
     if (newSelectedCards.includes(id)) {
       newSelectedCards = newSelectedCards.filter((cardId) => cardId !== id);
@@ -243,6 +241,12 @@ function Vaccination() {
     content: () => printableRef.current,
   });
 
+  const handleCardClick = (i) => {
+    setCardClicked(true);
+    setSelectedCards([i]);
+    setShowUpdate(true);
+  };
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <div className="vaccinationWrapper">
@@ -261,7 +265,7 @@ function Vaccination() {
             <div>
               <h2>Vaccination</h2>
               <p>
-                Immunisation schedule recommended by <b>IAP</b>
+                Immunization schedule recommended by <b>IAP</b>
               </p>
             </div>
             <img
@@ -277,6 +281,8 @@ function Vaccination() {
                   dateOptions={dateOptions}
                   activeDate={activeDate}
                   setActiveDate={setActiveDate}
+                  setSelectedCards={setSelectedCards}
+                  setSelectAll={setSelectAll}
                 />
               </div>
               {shouldShowSelectAll ? (
@@ -299,6 +305,7 @@ function Vaccination() {
                       handleCardCheckboxChange={handleCardCheckboxChange}
                       setSelectedCards={setSelectedCards}
                       index={index}
+                      handleCardClick={handleCardClick}
                     />
                   </Col>
                 ))}
@@ -341,13 +348,14 @@ function Vaccination() {
             </div>
           </Drawer>
         ) : null}
-        {selectedCards.length ? (
+        {selectedCards.length && !isCardClicked ? (
           <SelectionPopup
             visible={!!selectedCards.length}
             onClose={handleSelectAll}
             selectedValue={selectedCards.length}
             setSelectedCards={setSelectedCards}
             setShowUpdate={setShowUpdate}
+            setWarningMsg={setWarningMsg}
           />
         ) : null}
         {showUpdate && (
@@ -359,6 +367,7 @@ function Vaccination() {
             patientDetails={patientDetails}
             getVaccineDetails={getVaccineDetails}
             setSelectedCards={setSelectedCards}
+            setCardClicked={setCardClicked}
           />
         )}
         {vaccinesData?.length && (

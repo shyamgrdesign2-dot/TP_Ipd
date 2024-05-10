@@ -1,6 +1,7 @@
 import React from "react";
 import "./VaccineTable.scss";
 import { dateFormatter } from "../../VaccinationHelper";
+import moment from "moment";
 
 const VaccineTable = ({ dataSource, columns, isPreview }) => {
   const groupDataByCommonIDs = (data) => {
@@ -41,40 +42,52 @@ const VaccineTable = ({ dataSource, columns, isPreview }) => {
 
     return groupedData.map((group, groupIndex) => (
       <React.Fragment key={groupIndex}>
-        {group.map((item, itemIndex) => (
-          <tr key={itemIndex}>
-            {itemIndex === 0 && (
-              <td className="cell" rowSpan={group.length}>
-                {item.tvt_age}
+        {group.map((item, itemIndex) => {
+          const updatedDueDate = item.tvd_due_date
+            ? moment(item.tvd_due_date)
+            : null;
+          const givenDate = item?.tvp_given_date
+            ? moment(item.tvp_given_date)
+            : null;
+          const overDueForGivenVaccine =
+            givenDate &&
+            updatedDueDate &&
+            givenDate.isAfter(updatedDueDate, "day");
+          const overDueForNotGivenVaccine =
+            updatedDueDate && updatedDueDate.isBefore(new Date(), "day");
+          return (
+            <tr key={itemIndex}>
+              {itemIndex === 0 && (
+                <td className="cell" rowSpan={group.length}>
+                  {item.tvt_age}
+                </td>
+              )}
+              <td className="cell">{item.tvac_name}</td>
+              <td className="cell">
+                {item.tvp_given_date ? item.brandName : ""}
               </td>
-            )}
-            <td className="cell">{item.tvac_name}</td>
-            <td className="cell">
-              {item.tvp_given_date ? item.brandName : ""}
-            </td>
-            <td className="cell">
-              <div className="dateCell">
-                {item.dueDate}
-                {((!item.tvp_given_date &&
-                  new Date(item?.dueDate) < new Date()) ||
-                  item?.dueDate < item.tvp_given_date) &&
-                isPreview ? (
-                  <span className="overDue">Over Due</span>
-                ) : null}
-              </div>
-            </td>
+              <td className="cell">
+                <div className="dateCell">
+                  {dateFormatter(new Date(item.tvd_due_date)) || item.dueDate}
+                  {(overDueForGivenVaccine || overDueForNotGivenVaccine) &&
+                  isPreview ? (
+                    <span className="overDue">Over Due</span>
+                  ) : null}
+                </div>
+              </td>
 
-            <td className="cell">
-              <div className="dateCell">
-                {dateFormatter(new Date(item.tvp_given_date))}
-                {item.tvp_given_date && isPreview ? (
-                  <span className="given">Given</span>
-                ) : null}
-              </div>
-            </td>
-            <td className="cell">{item.tvp_remarks || item.tvd_remarks}</td>
-          </tr>
-        ))}
+              <td className="cell">
+                <div className="dateCell">
+                  {dateFormatter(new Date(item.tvp_given_date))}
+                  {item.tvp_given_date && isPreview ? (
+                    <span className="given">Given</span>
+                  ) : null}
+                </div>
+              </td>
+              <td className="cell">{item.tvp_remarks || item.tvd_remarks}</td>
+            </tr>
+          );
+        })}
       </React.Fragment>
     ));
   };

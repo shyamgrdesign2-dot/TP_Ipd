@@ -4,7 +4,13 @@ import chevron from "../../../../assets/images/arrow-box-right.svg";
 import closeFill from "../../../../assets/images/closeFill.svg";
 import "./VaccineFilter.scss";
 
-const VaccineFilter = ({ dateOptions, activeDate, setActiveDate }) => {
+const VaccineFilter = ({
+  dateOptions,
+  activeDate,
+  setActiveDate,
+  setSelectedCards,
+  setSelectAll,
+}) => {
   const [scrollToStart, setScrollToStart] = useState(false);
 
   const datesContainerRef = useRef(null);
@@ -41,6 +47,8 @@ const VaccineFilter = ({ dateOptions, activeDate, setActiveDate }) => {
 
   const dateOptionHandler = (i) => {
     setActiveDate(i);
+    setSelectedCards([]);
+    setSelectAll(false);
   };
 
   const tooltipTitle = () => {

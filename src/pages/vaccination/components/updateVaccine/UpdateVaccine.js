@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Modal,
   Radio,
@@ -11,14 +12,14 @@ import {
   Divider,
   Space,
 } from "antd";
-import { useEffect, useState, memo } from "react";
+import { useEffect, useState, memo, useRef } from "react";
 import "./updateVaccine.scss";
 import moment from "moment";
 import SuccessPopup from "../SuccessPopup.js";
 import { updateDueDate, updateVaccine } from "../../service.js";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
-import { notification } from "antd";
+import { errorMessage } from "../../../../utils/utils.js";
 
 const UpdateVaccine = ({
   show,
@@ -28,6 +29,7 @@ const UpdateVaccine = ({
   patientDetails,
   getVaccineDetails,
   setSelectedCards,
+  setCardClicked,
 }) => {
   const { TextArea } = Input;
   const [changeDate, setChangeDate] = useState(false);
@@ -46,13 +48,16 @@ const UpdateVaccine = ({
   ];
   const [vaccineDetails, setVaccineDetails] = useState({});
   const [updateLoader, setUpdateLoader] = useState(false);
+  const [focusedIndexes, setFocusedIndexes] = useState([]);
+  const selectRefs = useRef([]);
 
   const { state } = useLocation();
   const { patient_data } = state;
 
   useEffect(() => {
-    if (!selectedVaccines?.[0]?.tvp_given_date) setChangeDate(true);
-    setGivenDate(selectedVaccines?.[0]?.tvp_given_date ?? "");
+    setGivenDate(
+      selectedVaccines?.[0]?.tvp_given_date ?? moment().format("YYYY-MM-DD")
+    );
     setDueDate(
       selectedVaccines?.[0]?.dueDate
         ? moment(selectedVaccines?.[0]?.dueDate, "D MMMM YYYY").format(
@@ -63,8 +68,23 @@ const UpdateVaccine = ({
   }, []);
 
   const updateVaccineDetails = async () => {
+    const newFocusedIndexes = [];
+    selectRefs.current.forEach((ref, index) => {
+      if (
+        !vaccineDetails?.[selectedVaccines?.[index]?.tvac_name]
+          ?.vaccine_company_id ||
+        !selectedVaccines?.[index]?.brandId
+      ) {
+        ref.focus();
+        newFocusedIndexes.push(index);
+      }
+    });
+
+    if (newFocusedIndexes?.length) {
+      setFocusedIndexes(newFocusedIndexes);
+      return;
+    }
     setUpdateLoader(true);
-    // Create an array of promises for each API call
     const updatePromises = selectedVaccines.map(async (vaccine) => {
       const payload = {
         patient_pid: patientDetails?.vac_pid || patient_data?.pm_pid,
@@ -79,7 +99,9 @@ const UpdateVaccine = ({
           vaccine?.brandId,
         vaccine_given_date: givenDate,
         remarks:
-          vaccineDetails[vaccine?.tvac_name]?.remarks || vaccine?.tvp_remarks,
+          (vaccineDetails[vaccine?.tvac_name]?.remarks ||
+            vaccine?.tvp_remarks) ??
+          "",
       };
 
       return updateVaccine(payload);
@@ -97,16 +119,19 @@ const UpdateVaccine = ({
           setSelectedCards([]);
         }, 1000);
       } else {
-        notification.error({ message: "Error while updating vaccine details" });
+        errorMessage({ name: "TypeError" });
       }
     } catch (error) {
       // Handle errors here
+      errorMessage({ name: "TypeError" });
       console.error("Error updating vaccines:", error);
       setUpdateLoader(false); // Set loader state accordingly
     }
   };
 
   const closeHandler = () => {
+    setCardClicked(false);
+    setSelectedCards([]);
     setChangeDate(false);
     setShow(false);
   };
@@ -146,10 +171,11 @@ const UpdateVaccine = ({
           setSelectedCards([]);
         }, 1000);
       } else {
-        notification.error({ message: "Error while updating due date" });
+        errorMessage({ name: "TypeError" });
       }
     } catch (error) {
       // Handle errors here
+      errorMessage({ name: "TypeError" });
       console.error("Error updating vaccines:", error);
       setUpdateLoader(false); // Set loader state accordingly
     }
@@ -293,10 +319,13 @@ const UpdateVaccine = ({
                       })`}</div>
                     </label>
                     <Select
+                      showSearch
                       placeholder="Select vaccine brand"
                       optionFilterProp="children"
                       filterOption={(input, option) =>
-                        (option?.label ?? "").includes(input)
+                        (option?.label ?? "")
+                          ?.toLowerCase()
+                          .includes(input?.toLowerCase())
                       }
                       filterSort={(optionA, optionB) =>
                         (optionA?.label ?? "")
@@ -315,7 +344,16 @@ const UpdateVaccine = ({
                           value
                         );
                       }}
-                      defaultValue={vaccine?.brandId ?? ""}
+                      defaultValue={vaccine?.brandId}
+                      ref={(el) => (selectRefs.current[0] = el)}
+                      style={{
+                        border: focusedIndexes.includes(0)
+                          ? "1px solid blue"
+                          : "none",
+                        borderRadius: focusedIndexes.includes(0)
+                          ? "10px"
+                          : "none",
+                      }}
                     />
                     <label>Note</label>
                     <TextArea
@@ -379,7 +417,6 @@ const UpdateVaccine = ({
             <div className="d-flex justify-content-end">
               <Button
                 style={{
-                  width: "145px",
                   height: "41px",
                 }}
                 disabled={false}

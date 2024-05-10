@@ -27,7 +27,7 @@ export const mergeDataPatientDetails = (
       (obj) => obj.tvac_name === item.tvac_name
     );
 
-    const { tvt_due_day, tvt_due_month, tvt_due_year } = item;
+    const { tvt_due_day, tvt_due_month, tvt_due_year, tvp_given_date } = item;
     const dateCount = tvt_due_day + tvt_due_month * 30 + tvt_due_year * 365;
     const dueDate1 = new Date(birthDate);
     if (dateCount) {
@@ -45,8 +45,10 @@ export const mergeDataPatientDetails = (
       ...item,
       ...vaccineGivenToPatient,
       ...matchingForOverDue,
-      brandName: brandDetails?.tvc_name,
-      brandId: brandDetails?.tvc_id,
+      ...(tvp_given_date && {
+        brandName: brandDetails?.tvc_name,
+        brandId: brandDetails?.tvc_id,
+      }),
       dueDate: dueDate,
     };
   });
@@ -87,8 +89,10 @@ export const getDates = (sampleMap) => {
       (sampleObject) => sampleObject.tvp_given_date
     );
 
-    const today = new Date();
-    const anyFutureDate = today < new Date(value[0].dueDate);
+    const anyFutureDate = moment(value[0].dueDate).isSameOrAfter(
+      new Date(),
+      "day"
+    );
 
     // Set the alert field based on the presence of dates
     const alert = allDatesPresent
@@ -116,10 +120,10 @@ export const getDefaultOption = (dateOptions) => {
     moment(item?.dueDate)?.isSameOrAfter(today, "day")
   );
   const activeValue = dateOptions.indexOf(dateOption);
-  if (activeValue === -1) {
+  if (activeValue === -1 || activeValue === 0) {
     return 0;
   }
-  return activeValue;
+  return activeValue - 1;
 };
 
 export const getOverDueVaccines = (notGivenVaccines, birthDate) => {

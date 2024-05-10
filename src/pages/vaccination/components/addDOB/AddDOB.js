@@ -1,27 +1,58 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Modal, DatePicker, Button } from "antd";
-import { useContext, useState } from "react";
-import { updateDob } from "../../service";
+import { useEffect, useState } from "react";
+import { createPatient } from "../../service";
 import { useNavigate } from "react-router-dom";
+import { errorMessage } from "../../../../utils/utils";
 import moment from "moment";
-import CashManagerContext from "../../../../context/CashManagerContext";
+import dayjs from "dayjs";
 
 const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
   const [dob, setDob] = useState("");
   const navigate = useNavigate();
-  const { patient_data } = useContext(CashManagerContext);
+
+  useEffect(() => {
+    if (patientDetails.DOB || patientDetails.pm_dob) {
+      setDob(patientDetails.DOB || patientDetails.pm_dob);
+    }
+  }, []);
+
+  const createPatientDetails = async () => {
+    const payload = {
+      patient_uid: patientDetails?.patient_unique_id,
+      patient_pid: patientDetails?.pm_pid,
+      hospital_bid:
+        patientDetails?.hm_business_id || patientDetails?.hospital_business_id,
+      hospital_id: patientDetails?.hm_id || patientDetails?.clinic_id,
+      patient_first_name: patientDetails?.pm_first_name || "",
+      patient_middle_name: patientDetails?.pm_middle_name || "",
+      patient_last_name: patientDetails?.pm_last_name || "",
+      patient_gender: patientDetails?.pm_gender,
+      patient_dob: moment(dob).format("YYYY-MM-DD"),
+      patient_contact_no: patientDetails?.pm_contact_no,
+    };
+    const createPatientRes = await createPatient(payload);
+    if (createPatientRes?.status === 200) {
+      getPatientDetail();
+      setShowDob(false);
+    } else {
+      errorMessage({ name: "TypeError" });
+    }
+  };
 
   const updatePatientDob = async () => {
     const payload = {
-      patient_pid: patientDetails?.pm_pid,
       patient_uid: patientDetails?.patient_unique_id,
       hospital_bid: patientDetails?.hm_business_id,
       hospital_id: patientDetails?.hm_id,
       updated_dob: moment(dob).format("YYYY-MM-DD"),
     };
-    const res = await updateDob(payload);
-    if (res?.status === 200) {
-      setShowDob(false);
+    const createPatientRes = await createPatient(payload);
+    if (createPatientRes?.status === 200) {
       getPatientDetail();
+      setShowDob(false);
+    } else {
+      errorMessage({ name: "TypeError" });
     }
   };
 
@@ -45,6 +76,7 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
             setDob(d);
           }}
           format="DD-MM-YYYY"
+          value={dob ? dayjs(dob) : ""}
         />
 
         <Button
@@ -52,14 +84,19 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
           className={`${!dob ? "opacity-50" : ""}`}
           style={{ backgroundColor: "#4B4AD5" }}
           type="primary"
-          onClick={updatePatientDob}
+          onClick={() => {
+            if (patientDetails?.vac_id) updatePatientDob();
+            else createPatientDetails();
+          }}
         >
           Add
         </Button>
         <Button
           className="border-0 opacity-50 shadow-none text-secondary"
           onClick={() =>
-            navigate("/prescription", { state: { patient_data: patient_data } })
+            navigate("/prescription", {
+              state: { patientDetails: patientDetails },
+            })
           }
         >
           Close vaccination chart

@@ -69,8 +69,12 @@ const VaccinationChart = ({ vaccinesData, patientDetails }) => {
               </div>
               <div>
                 Age :{" "}
-                {moment().diff(moment("23-Mar-2020", "DD-MMM-YYYY"), "years")}{" "}
-                Years, {patientDetails?.vac_gender}
+                {moment().diff(
+                  moment(patientDetails?.vac_dob, "DD-MMM-YYYY"),
+                  "years"
+                )}{" "}
+                Years, DOB : {patientDetails?.vac_dob},{" "}
+                {patientDetails?.vac_gender}
               </div>
             </div>
           </div>
