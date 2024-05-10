@@ -1,0 +1,39 @@
+  @media print {
+      
+    .print-template {
+        /* Add styles for the print version */
+        /* For example: */
+        page-break-after: always; /* Ensure each print page starts a new page */
+        font-size: 12px; /* Adjust font size for printing */
+        /* Add any other styles you want for printing */
+        // margin: 30px;
+      }
+  
+    .details {
+      width:  90%;
+    height: 56px;
+    padding: 10px 16px 10px 16px;
+    gap: 10px;
+    border-radius: 6px;
+    border: 2px solid #EAECF0;
+    display: flex;
+    font-size: 12px;
+    margin-top: 30;
+    }
+  
+    .vaccine-table-wrapper {
+        margin: 30px; /* Adjust margin-top to create space below the fixed section */
+      }
+
+    .header {
+        background-color: #ffffff; /* Add background color for visibility */
+        padding: 10px;
+        margin-bottom: 20px;
+        margin-top: 20px;
+        font-weight: 600;
+      }
+  
+  }
+  
+  
+
