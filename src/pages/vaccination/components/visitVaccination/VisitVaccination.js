@@ -154,16 +154,26 @@ function VisitVaccination() {
               </div>
             ) : (
               <div className="visitVaccineContainer">
-                <div className="title">
-                  <div>Pending Vaccines</div>
-                  <div className="subTitle">{"Birth's"}</div>
-                </div>
-                {vaccinesDetails(pendingVaccines)}
-                <div className="title">
-                  <div>Upcoming Vaccines</div>
-                  <div className="subTitle">{upcomingVaccines[0]?.tvt_age}</div>
-                </div>
-                {vaccinesDetails(upcomingVaccines)}
+                {pendingVaccines.length ? (
+                  <>
+                    <div className="title">
+                      <div>Pending Vaccines</div>
+                      <div className="subTitle">{"Birth's"}</div>
+                    </div>
+                    {vaccinesDetails(pendingVaccines)}
+                  </>
+                ) : null}
+                {upcomingVaccines.length ? (
+                  <>
+                    <div className="title">
+                      <div>Upcoming Vaccines</div>
+                      <div className="subTitle">
+                        {upcomingVaccines[0]?.tvt_age}
+                      </div>
+                    </div>
+                    {vaccinesDetails(upcomingVaccines)}
+                  </>
+                ) : null}
               </div>
             )}
           </div>
