@@ -17,6 +17,13 @@
     padding: 10px;
     margin: 10px 0px;
 
+    .vaccineName {
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 600;
+      color: #454551;
+    }
+
     .overDue {
       color: #f04545 !important;
     }
