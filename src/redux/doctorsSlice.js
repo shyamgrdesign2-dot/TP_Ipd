@@ -3,6 +3,7 @@ import { parseApiError } from "../utils/utils";
 import ApiAppointments from "../api/services/ApiAppointments";
 import ApiMedication from "../api/services/ApiMedication";
 import ApiPrintSettings from "../api/services/ApiPrintSettings";
+import ApiVideoLibrary from "../api/services/ApiVideoLibrary";
 
 const initialState = {
   sort_order: 'descend',
@@ -14,7 +15,8 @@ const initialState = {
   timingList: [],
   frequencyList: [],
   medicineTypeList: [],
-  defaultPrintSettings: null
+  defaultPrintSettings: null,
+  videoList: [],
 };
 
 export const getProfile = createAsyncThunk(
@@ -171,6 +173,20 @@ export const savePrintsettings = createAsyncThunk(
   }
 );
 
+// For Video Library
+export const listVideo = createAsyncThunk(
+  "videoLibrary/listVideo",
+  async () => {
+    let result = {};
+    result = await ApiVideoLibrary.listVideo();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
@@ -266,6 +282,12 @@ const doctorsSlice = createSlice({
       })
       .addCase(savePrintsettings.rejected, (state) => {
         state.loading = false;
+      })
+      .addCase(listVideo.fulfilled, (state, action) => {
+        state.videoList = action.payload;
+      })
+      .addCase(listVideo.rejected, (state) => {
+        state.videoList = [];
       });
   },
 });
