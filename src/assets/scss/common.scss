@@ -438,6 +438,14 @@ body {
             }
         }
     }
+
+    .ant-picker{
+        &:hover {
+            .ant-picker-suffix {
+                opacity: 1 !important;
+            }
+        }
+    }
     .ant-picker-clear {
         svg {
             display: none;
@@ -607,7 +615,7 @@ body {
     .videodrawer-left {
         .drawer-slider {
             width: 340px !important;
-            margin-right: 10px;
+            margin-right: 15px;
             margin-left: 3px;
             img {
                 max-width: 100%;
