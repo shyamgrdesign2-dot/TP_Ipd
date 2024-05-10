@@ -47,7 +47,6 @@ function Prescription() {
     (state) => state.vitals
   );
   const { profile } = useSelector((state) => state.doctors);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
