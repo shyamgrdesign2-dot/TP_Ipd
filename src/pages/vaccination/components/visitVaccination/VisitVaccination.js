@@ -7,17 +7,19 @@ import Vaccination from "../../../../assets/images/Vaccination.svg";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getNotGivenVaccines, getOverridenDueDate } from "../../service";
 import {
+  dateFormatter,
   getVaccinesDetails,
   mergeDataPatientDetails,
 } from "../../VaccinationHelper";
+import moment from "moment";
 
 function VisitVaccination() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { patient_data } = state;
 
-  const [upcomingVaccines, setUpcomingVaccines] = useState([]);
-  const [pendingVaccines, setPendingVaccines] = useState([]);
+  const [upcomingVaccines, setUpcomingVaccines] = useState(null);
+  const [pendingVaccines, setPendingVaccines] = useState(null);
 
   const overDueVaccines = async () => {
     const notGivenVaccines = await getNotGivenVaccines(
@@ -36,8 +38,9 @@ function VisitVaccination() {
       [],
       patient_data?.DOB || patient_data?.vac_dob
     );
+
     const vaccineDetails = getVaccinesDetails(
-      notGivenVaccines,
+      combinedData,
       patient_data?.DOB || patient_data?.vac_dob
     );
     setUpcomingVaccines(vaccineDetails.upcomingVaccines);
@@ -52,20 +55,64 @@ function VisitVaccination() {
     return (
       <>
         {vaccinesData.map((vaccine, index) => {
+          const currentDate = moment();
+          const vaccineDueDate = vaccine.tvd_due_date
+            ? moment(dateFormatter(new Date(vaccine.tvd_due_date)))
+            : moment(vaccine.dueDate, "Do MMM YYYY");
+          const isOverDue = currentDate.isSameOrAfter(vaccineDueDate, "day");
+
+          // Difference in days
+          const diffInDays = currentDate.diff(vaccineDueDate, "days");
+
+          // Difference in weeks
+          const diffInWeeks = currentDate.diff(vaccineDueDate, "weeks");
+
+          // Difference in months
+          const diffInMonths = currentDate.diff(vaccineDueDate, "months");
+
+          // Difference in months
+          const diffInYears = currentDate.diff(vaccineDueDate, "years");
+
+          let lateText = "";
+          if (diffInYears >= 1) {
+            lateText = "Last Year";
+          } else if (diffInMonths >= 1) {
+            lateText = "Last month";
+          } else if (diffInWeeks >= 1) {
+            lateText = "Last week";
+          } else if (diffInDays >= 1) {
+            lateText = "Last day";
+          } else if (diffInDays === 0) {
+            lateText = "Today";
+          } else if (diffInYears < 0) {
+            lateText = "Next year";
+          } else if (diffInMonths < 0) {
+            lateText = "Next month";
+          } else if (diffInWeeks < 0) {
+            lateText = "This month";
+          } else if (diffInDays < 0) {
+            lateText = "This week";
+          }
           return (
             <div key={index} className="detailContainer">
               <div className="d-flex justify-content-between">
-                <div>{vaccine?.tvac_name}</div>
-                <div className={vaccine.isOverDue ? "overDue" : "due"}>
-                  <span
-                    className={`warningDot ${vaccine.isOverDue ? "" : "due"} `}
-                  />{" "}
-                  Over due
+                <div className="vaccineName">{vaccine?.tvac_name}</div>
+                <div className={isOverDue ? "overDue" : "due"}>
+                  <span className={`warningDot ${isOverDue ? "" : "due"} `} />{" "}
+                  {isOverDue ? "Over due" : "Due"}
                 </div>
               </div>
               <div className="d-flex justify-content-between">
-                <div>Update due date : 25th Oct 2024</div>
-                <div>This Week</div>
+                <div>
+                  {vaccine.tvd_due_date
+                    ? `Update due date : ${moment(vaccine.tvd_due_date).format(
+                        "DD-MMM-YYYY"
+                      )}`
+                    : vaccine.dueDate
+                    ? `Due Date : ${vaccine.dueDate} (Based on DOB)`
+                    : ""}
+                </div>
+                <div>{lateText}</div>
               </div>
             </div>
           );
@@ -101,7 +148,7 @@ function VisitVaccination() {
         </Card.Header>
         <div className="p-3">
           <div className={"overflow-auto"} style={{ height: 458 }}>
-            {!pendingVaccines.length && !upcomingVaccines.length ? (
+            {pendingVaccines === null ? (
               <div className="align-items-center text-center">
                 <Spin />
               </div>
@@ -114,7 +161,7 @@ function VisitVaccination() {
                 {vaccinesDetails(pendingVaccines)}
                 <div className="title">
                   <div>Upcoming Vaccines</div>
-                  <div className="subTitle">{"6th Weeks's"}</div>
+                  <div className="subTitle">{upcomingVaccines[0]?.tvt_age}</div>
                 </div>
                 {vaccinesDetails(upcomingVaccines)}
               </div>

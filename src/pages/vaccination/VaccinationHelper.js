@@ -126,24 +126,10 @@ export const getDefaultOption = (dateOptions) => {
 };
 
 export const getVaccinesDetails = (notGivenVaccines, birthDate) => {
-  const vaccinesData = notGivenVaccines
-    ?.map((item) => {
-      const { tvt_due_day, tvt_due_month, tvt_due_year } = item;
-      const birthDateObject = moment(birthDate, "Do MMM YYYY");
-      const currentDate = moment();
-      const futureDate = birthDateObject.add({
-        days: tvt_due_day,
-        months: tvt_due_month,
-        years: tvt_due_year,
-      });
-      const isOverDue = currentDate.isSameOrAfter(futureDate, "day");
-      return {
-        ...item,
-        dueDate: futureDate.format("Do MMM YYYY"),
-        isOverDue: isOverDue,
-      };
-    })
-    .filter((item) => item.isOverDue);
+  const vaccinesData = notGivenVaccines?.filter((item) => {
+    const currentDate = moment();
+    return currentDate.isSameOrAfter(item.dueDate, "day");
+  });
 
   const upcomingDate = vaccinesData[vaccinesData?.length - 1].tvt_age;
 
