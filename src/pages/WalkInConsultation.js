@@ -10,7 +10,7 @@ import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
 import { isNumeric, isAlphabet } from "../utils/utils";
 
 function WalkInConsultation() {
-    
+
     const navigate = useNavigate();
 
     const { profile } = useSelector((state) => state.doctors);
