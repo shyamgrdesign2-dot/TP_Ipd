@@ -332,10 +332,14 @@ const UpdateVaccine = ({
                           .toLowerCase()
                           .localeCompare((optionB?.label ?? "").toLowerCase())
                       }
-                      options={brands?.map((brand) => ({
-                        label: brand?.tvc_name,
-                        value: brand?.tvc_id,
-                      }))}
+                      options={brands
+                        ?.filter(
+                          (brand) => brand.tvc_default_vac === vaccine.tvac_name
+                        )
+                        ?.map((brand) => ({
+                          label: brand?.tvc_name,
+                          value: brand?.tvc_id,
+                        }))}
                       dropdownStyle={{ maxHeight: "176px", overflow: "auto" }}
                       onChange={(value) => {
                         handleDetails(
