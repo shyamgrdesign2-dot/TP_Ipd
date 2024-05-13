@@ -26,12 +26,20 @@ jobs:
         username: ${{ secrets.AzureAppService_ContainerUsername_fd790417cd624da4a12bca0fc2719585 }}
         password: ${{ secrets.AzureAppService_ContainerPassword_303748c9c7534324a42f80da9f34e21b }}
 
+ #   - name: Build and push container image to registry
+ #     uses: docker/build-push-action@v3
+ #     with:
+ #       push: true
+ #       tags: acinacr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_fd790417cd624da4a12bca0fc2719585 }}/doctor-portal/uat:${{ github.sha }}
+ #       file: ./Dockerfile
+
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: acinacr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_fd790417cd624da4a12bca0fc2719585 }}/doctor-portal/uat:${{ github.sha }}
+        tags: acinacr.azurecr.io/doctor-portal/uat:${{ github.sha }}
         file: ./Dockerfile
+        build-args: REACT_APP_ENV=${{ env.REACT_APP_ENV }}  # Pass REACT_APP_ENV as a build argument
 
   deploy:
     runs-on: ubuntu-latest
