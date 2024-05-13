@@ -169,35 +169,29 @@ function Prescription() {
               unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
             tmm_freq_type_name:
               e.tmf_block == 0
-                ? `${
-                    e.tcm_tmm_freq_morning
-                      ? e.tcm_tmm_freq_morning + " - "
-                      : "0 -"
-                  }${
-                    e.tcm_tmm_freq_afternoon
-                      ? e.tcm_tmm_freq_afternoon + " - "
-                      : "0 -"
-                  }${
-                    e.tcm_tmm_freq_evening
-                      ? e.tcm_tmm_freq_evening + " - "
-                      : "0 -"
-                  }${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+                ? `${e.tcm_tmm_freq_morning
+                  ? e.tcm_tmm_freq_morning + " - "
+                  : "0 -"
+                }${e.tcm_tmm_freq_afternoon
+                  ? e.tcm_tmm_freq_afternoon + " - "
+                  : "0 -"
+                }${e.tcm_tmm_freq_evening
+                  ? e.tcm_tmm_freq_evening + " - "
+                  : "0 -"
+                }${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
                 : frequencyObj !== undefined
-                ? frequencyObj.tmf_title
-                : "",
+                  ? frequencyObj.tmf_title
+                  : "",
             tmf_block_val:
               frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-            tmm_dosage_unit_name: `${
-              e.tmm_dosage
-                ? `${e.tmm_dosage} ${
-                    unitObj && unitObj !== undefined ? unitObj.tmu_title : ""
-                  }`
-                : ""
-            }`,
-            tmm_days_duration_type: `${
-              e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
-            }`,
+            tmm_dosage_unit_name: `${e.tmm_dosage
+              ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""
+              }`
+              : ""
+              }`,
+            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
+              }`,
             unique_id: uuidv4(),
           };
         });
@@ -323,7 +317,6 @@ function Prescription() {
             <div className="col-lg-4 col-md-12 col-12">
               {customizedPadLeftList?.map((e, i) => {
                 return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
-                  <>
                     <div key={i} className="prescription-box-sm p-14">
                       <div className="d-flex align-items-center justify-content-between">
                         <div className="d-flex align-items-center">
@@ -338,13 +331,11 @@ function Prescription() {
                         >
                           {" "}
                           <i
-                            className={`${
-                              vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                            } me-1 fs-5`}
+                            className={`${vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                              } me-1 fs-5`}
                           ></i>{" "}
-                          <span>{`${
-                            vitalsData.length > 0 ? "Edit" : "Add"
-                          }`}</span>
+                          <span>{`${vitalsData.length > 0 ? "Edit" : "Add"
+                            }`}</span>
                         </button>
                       </div>
                       {vitalsData.length > 0 && (
@@ -353,71 +344,64 @@ function Prescription() {
                         />
                       )}
                     </div>
-                    {shouldShowVaccination === "true" ? (
-                      <div className="prescription-box-sm p-14">
-                        <div className="d-flex align-items-center justify-content-between">
-                          <div className="d-flex align-items-center">
-                            <img
-                              src={vaccinationImg}
-                              alt="vitals"
-                              className="me-3"
-                            />
-                            <div className="title-common">Vaccination</div>
-                          </div>
-                          <button
-                            className="btn d-flex align-items-center btn-text"
-                            onClick={vaccinationHandler}
-                          >
-                            {" "}
-                            <i
-                              className={`${
-                                vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                              } me-1 fs-5`}
-                            ></i>{" "}
-                            <span>{`${
-                              vitalsData.length > 0 ? "Edit" : "Add"
-                            }`}</span>
-                          </button>
-                        </div>
+                ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
+
+                  <div key={i} className="prescription-box-sm p-14">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <img
+                          src={MedicalHistory}
+                          alt="Medical History"
+                          className="me-3"
+                        />
+                        <div className="title-common">Medical History</div>
+                        {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
+                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                          </Button> */}
                       </div>
-                    ) : null}
-                  </>
-                ) : (
-                  e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
-                    <div key={i} className="prescription-box-sm p-14">
+
+                      <button
+                        className="btn d-flex align-items-center btn-text"
+                        onClick={handleDrawerMedicalHistory}
+                      >
+                        {" "}
+                        <i
+                          className={`${medicalHistoryData.length > 0
+                            ? "icon-Edit"
+                            : "icon-Add"
+                            } me-1 fs-5`}
+                        ></i>{" "}
+                        <span>{`${medicalHistoryData.length > 0 ? "Edit" : "Add"
+                          }`}</span>
+                      </button>
+                    </div>
+                    {medicalHistoryData.length > 0 && <MedicalHistoryList />}
+                  </div>
+                ) : e.tmdpm_id === 7 && e.tmdpm_status === 0 && shouldShowVaccination && (
+                    <div className="prescription-box-sm p-14">
                       <div className="d-flex align-items-center justify-content-between">
                         <div className="d-flex align-items-center">
                           <img
-                            src={MedicalHistory}
-                            alt="Medical History"
+                            src={vaccinationImg}
+                            alt="vitals"
                             className="me-3"
                           />
-                          <div className="title-common">Medical History</div>
-                          {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
-                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
-                          </Button> */}
+                          <div className="title-common">Vaccination</div>
                         </div>
-
                         <button
                           className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerMedicalHistory}
+                          onClick={vaccinationHandler}
                         >
                           {" "}
                           <i
-                            className={`${
-                              medicalHistoryData.length > 0
-                                ? "icon-Edit"
-                                : "icon-Add"
-                            } me-1 fs-5`}
+                            className={`${vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                              } me-1 fs-5`}
                           ></i>{" "}
-                          <span>{`${
-                            medicalHistoryData.length > 0 ? "Edit" : "Add"
-                          }`}</span>
+                          <span>{`${vitalsData.length > 0 ? "Edit" : "Add"
+                            }`}</span>
                         </button>
                       </div>
-                      {medicalHistoryData.length > 0 && <MedicalHistoryList />}
                     </div>
-                  )
                 );
               })}
               {/* <div>
