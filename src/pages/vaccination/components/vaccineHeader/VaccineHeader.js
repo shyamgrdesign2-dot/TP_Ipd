@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useContext } from "react";
 import { Container, Navbar, Row, Col } from "react-bootstrap";
 import { Button, Dropdown, Menu } from "antd";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import CashManagerContext from "../../../../context/CashManagerContext";
 import ProfilePopover from "../../../../common/ProfilePopover";
@@ -10,9 +10,13 @@ import alertIcon from "../../../../assets/images/alertIcon.svg";
 import Preview from "./../preview/Preview";
 import "./VaccineHeader.scss";
 
-function VaccineHeader({ vaccinesData, patientDetails, setPrintType }) {
+function VaccineHeader({
+  handleDrawerVaccination,
+  vaccinesData,
+  patientDetails,
+  setPrintType,
+}) {
   const navigate = useNavigate();
-  const { state } = useLocation();
   let { patient_data } = useContext(CashManagerContext);
   patient_data = { ...patient_data, ...patientDetails };
 
@@ -22,14 +26,6 @@ function VaccineHeader({ vaccinesData, patientDetails, setPrintType }) {
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
   }, [isBackModalOpen]);
-
-  const checkDataFillOrNot = () => {
-    navigate("/prescription", { state: { patient_data: patient_data } });
-  };
-
-  const saveBtnHandler = () => {
-    navigate("/prescription_print_view", { replace: true, state: state });
-  };
 
   function handleMenuClick(e) {
     setPrintType(e?.key);
@@ -67,7 +63,7 @@ function VaccineHeader({ vaccinesData, patientDetails, setPrintType }) {
             <div className="align-items-center d-flex h-100">
               <div className="border-end h-100 text-center">
                 <div
-                  onClick={checkDataFillOrNot}
+                  onClick={handleDrawerVaccination}
                   className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
                 >
                   <i className="icon-right"></i>
@@ -141,7 +137,7 @@ function VaccineHeader({ vaccinesData, patientDetails, setPrintType }) {
               <Button
                 type="button"
                 className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
-                onClick={saveBtnHandler}
+                onClick={handleDrawerVaccination}
                 icon={<i className="icon-save" />}
               >
                 Save
