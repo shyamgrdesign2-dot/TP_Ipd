@@ -16,4 +16,5 @@ export default {
   sso_to_pm_password: env.sso_to_pm_password,
   doctor_website_url: env.doctor_website_url,
   vaccination_api_url: env.vaccination_api_url,
+  GROWTHBOOK_CLIENTKEY: env.GROWTHBOOK_CLIENTKEY,
 };
