@@ -126,24 +126,3 @@ export const getDefaultOption = (dateOptions) => {
   }
   return activeValue - 1;
 };
-
-export const getVaccinesDetails = (notGivenVaccines, birthDate) => {
-  const vaccinesData = notGivenVaccines?.filter((item) => {
-    const currentDate = moment();
-    return currentDate.isSameOrAfter(item.dueDate, "day");
-  });
-
-  const upcomingDate = vaccinesData[vaccinesData?.length - 1].tvt_age;
-
-  let upcomingVaccines = [];
-  let pendingVaccines = [];
-  for (let i = 0; i < vaccinesData.length; i++) {
-    if (vaccinesData[i].tvt_age === upcomingDate) {
-      upcomingVaccines.push(vaccinesData[i]);
-    } else {
-      pendingVaccines.push(vaccinesData[i]);
-    }
-  }
-
-  return { upcomingVaccines, pendingVaccines };
-};

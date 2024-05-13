@@ -8,7 +8,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getNotGivenVaccines, getOverridenDueDate } from "../../service";
 import {
   dateFormatter,
-  getVaccinesDetails,
+  getDates,
+  getDefaultOption,
+  getDistinctAges,
   mergeDataPatientDetails,
 } from "../../VaccinationHelper";
 import moment from "moment";
@@ -38,13 +40,15 @@ function VisitVaccination() {
       [],
       patient_data?.DOB || patient_data?.vac_dob
     );
+    const vaccineDetailsWithAges = getDistinctAges(combinedData);
+    const completeData = vaccineDetailsWithAges.idMap;
+    const options = getDates(completeData);
+    const defaultOption = getDefaultOption(options);
 
-    const vaccineDetails = getVaccinesDetails(
-      combinedData,
-      patient_data?.DOB || patient_data?.vac_dob
+    setUpcomingVaccines(
+      [...completeData]?.slice(defaultOption + 1, defaultOption + 2)
     );
-    setUpcomingVaccines(vaccineDetails.upcomingVaccines);
-    setPendingVaccines(vaccineDetails.pendingVaccines);
+    setPendingVaccines([...completeData]?.slice(0, defaultOption + 1));
   };
 
   useEffect(() => {
@@ -121,6 +125,21 @@ function VisitVaccination() {
     );
   };
 
+  const resultData = (vaccines) => {
+    return (
+      <>
+        {vaccines.map((item) => {
+          return (
+            <>
+              <div className="subTitle">{item[0]}</div>
+              {vaccinesDetails(item[1])}
+            </>
+          );
+        })}
+      </>
+    );
+  };
+
   return (
     <div className="appointment-wrap PatientDetailswrap m-0">
       <Card>
@@ -146,7 +165,7 @@ function VisitVaccination() {
             </Button>
           </div>
         </Card.Header>
-        <div className="p-3">
+        <div className="visitBody">
           <div className={"overflow-auto"} style={{ height: 458 }}>
             {pendingVaccines === null ? (
               <div className="align-items-center text-center">
@@ -156,22 +175,14 @@ function VisitVaccination() {
               <div className="visitVaccineContainer">
                 {pendingVaccines.length ? (
                   <>
-                    <div className="title">
-                      <div>Pending Vaccines</div>
-                      <div className="subTitle">{"Birth's"}</div>
-                    </div>
-                    {vaccinesDetails(pendingVaccines)}
+                    <div className="title">Pending Vaccines</div>
+                    {resultData(pendingVaccines)}
                   </>
                 ) : null}
                 {upcomingVaccines.length ? (
                   <>
-                    <div className="title">
-                      <div>Upcoming Vaccines</div>
-                      <div className="subTitle">
-                        {upcomingVaccines[0]?.tvt_age}
-                      </div>
-                    </div>
-                    {vaccinesDetails(upcomingVaccines)}
+                    <div className="title">Upcoming Vaccines</div>
+                    {resultData(upcomingVaccines)}
                   </>
                 ) : null}
               </div>

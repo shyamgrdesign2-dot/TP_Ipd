@@ -19,11 +19,12 @@ import ErrorFallback from "./common/ErrorFallback";
 import Vaccination from "./pages/vaccination/Vaccination";
 import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { jwtDecode } from "jwt-decode";
+import config from "./config";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
-  clientKey: process.env.REACT_APP_GROWTHBOOK_CLIENTKEY,
-  enableDevMode: process.env.REACT_APP_ENV === "dev",
+  clientKey: config?.GROWTHBOOK_CLIENTKEY,
+  enableDevMode: process.env.REACT_APP_ENV !== "prod",
 });
 
 function App() {
