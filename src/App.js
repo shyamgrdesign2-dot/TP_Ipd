@@ -16,7 +16,6 @@ import TabPrescription from "./pages/tab_design/TabPrescription";
 import ConfigurePrintSetting from "./pages/ConfigurePrintSetting";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
-import Vaccination from "./pages/vaccination/Vaccination";
 import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { jwtDecode } from "jwt-decode";
 import config from "./config";
@@ -78,7 +77,6 @@ function App() {
             <PersistGate loading={null} persistor={persistor}>
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
-                <Route path="/vaccination" element={<Vaccination />} />
                 <Route path="patient_details" element={<PatientDetails />} />
                 <Route
                   path="prescription"

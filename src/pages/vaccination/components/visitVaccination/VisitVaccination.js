@@ -152,8 +152,8 @@ function VisitVaccination() {
             <Button
               className="btn btn-input d-flex align-items-center gap-1"
               onClick={() =>
-                navigate("/vaccination", {
-                  state: { patient_data: patient_data },
+                navigate("/prescription", {
+                  state: { patient_data: patient_data, isVaccination: true },
                 })
               }
             >
