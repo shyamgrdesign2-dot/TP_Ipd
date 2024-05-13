@@ -12,8 +12,8 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (patientDetails.DOB || patientDetails.pm_dob) {
-      setDob(patientDetails.DOB || patientDetails.pm_dob);
+    if (patientDetails.pm_dob) {
+      setDob(patientDetails.pm_dob);
     }
   }, []);
 
