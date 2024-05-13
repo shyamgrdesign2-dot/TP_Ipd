@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import { isMobile } from "react-device-detect";
 import { Col, Row } from "react-bootstrap";
-import { Form, Tabs, Button, message } from "antd";
+import { Form, Tabs, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { ADD, EDIT, MESSAGE_KEY } from "../utils/constants";
+import { ADD, EDIT } from "../utils/constants";
+import { errorMessage } from "../utils/utils";
 
 import TabHeader from "../components/tab_design/TabHeader";
 import PersonalDetails from "../components/PersonalDetails";
@@ -36,6 +37,7 @@ function PatientForm({ mode = ADD, patient_data }) {
         form.validateFields().then(async (values) => {
             const finalValues = {
                 ...values,
+                pm_reference_id: values.pm_reference_id ? values.pm_reference_id : '',
                 pm_salutation: values.pm_salutation !== undefined ? values.pm_salutation : '',
                 pm_pincode: values.pm_pincode !== undefined ? values.pm_pincode : '',
                 pm_dob: values['pm_dob'] ? values['pm_dob'].format('YYYY-MM-DD') : values['dob'],
@@ -53,12 +55,7 @@ function PatientForm({ mode = ADD, patient_data }) {
             if (action.meta.requestStatus === "fulfilled") {
                 mode === EDIT ? navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } }) : navigate("/prescription", { replace: true, state: { patient_data: action.payload } })
             } else {
-                message.open({
-                    key: MESSAGE_KEY,
-                    type: 'warning',
-                    content: action.error.message,
-                    duration: 2
-                });
+                errorMessage(action.error)
             }
         }).catch(info => {
             console.log('info', info)
@@ -80,7 +77,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                 layout="vertical"
                 className="form_addnewpatient">
                 <div className={isMobile ? "" : "border rounded-4 appointment-wrap"}>
-                    <div className={isMobile ? "p-30 pt-0" : "p-30"}>
+                    <div className={isMobile ? "p-30 pt-0" : "p-30 overflow-y-auto"} style={{height: 'calc(100vh - 242px)'}}>
                         <Row className="justify-content-between">
                             <Col lg={8} md={12}>
                                 {isMobile ? (

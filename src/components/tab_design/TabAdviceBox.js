@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { Input, Button, Drawer, Tabs, message, Select, Card, Spin, Checkbox, Tooltip } from 'antd';
+import { Input, Button, Drawer, Tabs, Select, Card, Spin, Checkbox, Tooltip } from 'antd';
 
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -8,8 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
-import { MESSAGE_KEY } from "../../utils/constants";
-import { removeBeforeWhiteSpace } from "../../utils/utils";
+import { errorMessage, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../../utils/utils";
 import Adviceicon from "../../assets/images/advice.svg";
 import {
     addTemplate,
@@ -23,7 +22,6 @@ import TabAdviceSearch from "../../components/tab_design/TabAdviceSearch";
 
 function TabAdviceBox() {
 
-    const [messageApi, contextHolder] = message.useMessage();
     const {
         selectedAdviceList,
         parentOptionsList,
@@ -86,7 +84,7 @@ function TabAdviceBox() {
 
     const onSelectParent = useCallback(
         (e) => {
-            adviceData.unshift({
+            adviceData.push({
                 ...e,
             });
             setAdviceData((prev) => [...prev]);
@@ -144,12 +142,7 @@ function TabAdviceBox() {
     const onDeleteTemplateClicked = async (tat_id) => {
         const action = await dispatch(deleteTemplate(tat_id));
         if (action.meta.requestStatus === "rejected") {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
@@ -163,19 +156,9 @@ function TabAdviceBox() {
 
     const onAddTemplateClicked = async () => {
         if (adviceData.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 advice added',
-                duration: 2
-            });
+            errorMessage('At least 1 advice added')
         } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup advice name',
-                duration: 2
-            });
+            errorMessage('Please fillup advice name')
         } else {
             var sendData = {
                 tat_template_name: inputTemplateName,
@@ -202,19 +185,9 @@ function TabAdviceBox() {
 
     const onUpdateTemplateClicked = async () => {
         if (adviceData.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 advice added',
-                duration: 2
-            });
+            errorMessage('At least 1 advice added')
         } else if (adviceData.filter(e => e.advice_name == "").length > 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup advice name',
-                duration: 2
-            });
+            errorMessage('Please fillup advice name')
         } else {
             var data = JSON.parse(inputTemplateName);
             var sendData = {
@@ -418,7 +391,7 @@ function TabAdviceBox() {
 
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            const updateQuery = removeBeforeWhiteSpace(e.target.value)
+            const updateQuery = capitalizeAfterSentence(removeBeforeWhiteSpace(e.target.value))
             setChildDrawerData({ ...childDrawerData, advice_name: updateQuery })
         },
         [childDrawerData]
@@ -463,7 +436,6 @@ function TabAdviceBox() {
 
     return (
         <>
-            {contextHolder}
             <div>
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">

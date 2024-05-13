@@ -10,8 +10,12 @@ import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
 import { isNumeric, isAlphabet } from "../utils/utils";
 
 function WalkInConsultation() {
+
     const navigate = useNavigate();
+
+    const { profile } = useSelector((state) => state.doctors);
     const { patients, error } = useSelector((state) => state.records);
+
     const dispatch = useDispatch();
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -35,6 +39,24 @@ function WalkInConsultation() {
 
         return formattedName;
     };
+
+    const genderAge = (patient_data) => {
+        var value = `${patient_data?.pm_gender}, `
+        if (profile?.dp_id === 9) {
+            if (patient_data?.ageYears != 0) {
+                value += `${patient_data?.ageYears}y`
+            }
+            if (patient_data?.ageMonths != 0) {
+                value += ` ${patient_data?.ageMonths}m`
+            }
+            if (patient_data?.ageDays != 0) {
+                value += ` ${patient_data?.ageDays}d`
+            }
+        } else {
+            value += `${patient_data?.ageYears}y`
+        }
+        return value
+    }
 
     const PatientPlank = (patient) => {
         return (
@@ -82,7 +104,14 @@ function WalkInConsultation() {
                             type="text"
                             className="btn btn-primary3 align-items-center d-flex"
                             icon={<i className="icon-Consult"></i>}
-                            onClick={() => navigate("/prescription", { state: { patient_data: patient } })}
+                            onClick={() => {
+                                window.Moengage.track_event("walkin_consult_start", {
+                                    "doctor_id": profile?.doctor_unique_id,
+                                    "patient_type": 'Existing',
+                                    "patient_id": patient?.patient_unique_id
+                                });
+                                navigate("/prescription", { state: { patient_data: patient } })
+                            }}
                         >
                             Start Consult
                         </Button>
@@ -179,7 +208,8 @@ function WalkInConsultation() {
                                 <span className="title-common fontroboto">
                                     {clickedPatient?.pm_fullname}{" "}
                                     <span className="fw-normal ms-2">
-                                        ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y)
+                                        {/* ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y) */}
+                                        ({genderAge(clickedPatient)})
                                     </span>
                                 </span>
                             </div>
@@ -205,7 +235,7 @@ function WalkInConsultation() {
                                         }
                                     >
                                         View Patient Details{" "}
-                                        <i className="icon-right iconrotate90 ms-auto" />
+                                        <i className="icon-right iconrotate180 ms-auto" />
                                     </Button>
                                     {/* </Link> */}
                                 </div>
@@ -213,12 +243,17 @@ function WalkInConsultation() {
                                     type="text"
                                     className="btn btn-primary3 align-items-center d-flex btn-41 w-50 ms-4"
                                     icon={<i className="icon-Consult"></i>}
-                                    onClick={() =>
+                                    onClick={() => {
+                                        window.Moengage.track_event("walkin_consult_start", {
+                                            "doctor_id": profile?.doctor_unique_id,
+                                            "patient_type": 'Existing',
+                                            "patient_id": clickedPatient?.patient_unique_id
+                                        });
                                         navigate("/prescription", { state: { patient_data: clickedPatient } })
-                                    }
+                                    }}
                                 >
                                     Start Consult{" "}
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                             </div>
                         </div>
@@ -229,6 +264,10 @@ function WalkInConsultation() {
     }, [clickedPatient]);
 
     function goToAddPatient() {
+        window.Moengage.track_event("walkin_consult_start", {
+            "doctor_id": profile?.doctor_unique_id,
+            "patient_type": 'New',
+        });
         if (searchQuery.length === 10 && isNumeric(searchQuery)) {
             navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery } } });
         } else if (searchQuery.length > 0 && isAlphabet(searchQuery)) {

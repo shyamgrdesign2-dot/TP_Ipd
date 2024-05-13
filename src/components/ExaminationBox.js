@@ -9,7 +9,6 @@ import {
   Popover,
   Tabs,
   Spin,
-  message,
   Tooltip
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -19,8 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
+import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Examinationicon from "../assets/images/Examination.svg";
 import {
   addTemplate,
@@ -32,7 +30,6 @@ import {
 } from "../redux/examinationSlice";
 
 function ExaminationBox() {
-  const [messageApi, contextHolder] = message.useMessage();
   const {
     selectedExaminationList,
     parentOptionsList,
@@ -236,7 +233,7 @@ function ExaminationBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      examinationData[i].note = e.target.value;
+      examinationData[i].note = capitalizeAfterSentence(e.target.value);
       setExaminationData((prev) => [...prev]);
     },
     [examinationData]
@@ -277,12 +274,7 @@ function ExaminationBox() {
   const onDeleteTemplateClicked = async (tet_id) => {
     const action = await dispatch(deleteTemplate(tet_id));
     if (action.meta.requestStatus === "rejected") {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   };
 
@@ -310,19 +302,9 @@ function ExaminationBox() {
 
   const onAddTemplateClicked = async () => {
     if (examinationData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 examination added',
-        duration: 2
-      });
+      errorMessage('At least 1 examination added')
     } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup examination name',
-        duration: 2
-      });
+      errorMessage('Please fillup examination name')
     } else {
       var sendData = {
         tet_template_name: inputTemplateName,
@@ -349,19 +331,9 @@ function ExaminationBox() {
 
   const onUpdateTemplateClicked = async () => {
     if (examinationData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 examination added',
-        duration: 2
-      });
+      errorMessage('At least 1 examination added')
     } else if (examinationData.filter(e => e.examination_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup examination name',
-        duration: 2
-      });
+      errorMessage('Please fillup examination name')
     } else {
       var data = JSON.parse(inputTemplateName);
       var sendData = {
@@ -638,7 +610,6 @@ function ExaminationBox() {
 
   return (
     <>
-      {contextHolder}
       <div className="">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">

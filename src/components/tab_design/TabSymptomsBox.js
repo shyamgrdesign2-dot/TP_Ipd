@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { Input, Button, Drawer, Tabs, message, Select, Card, Spin, Segmented, Tooltip } from 'antd';
+import { Input, Button, Drawer, Tabs, Select, Card, Spin, Segmented, Tooltip } from 'antd';
 
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -8,8 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
-import { MESSAGE_KEY } from "../../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace, hasNumber } from "../../utils/utils";
+import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
 import Symptomsicon from "../../assets/images/Symptoms.svg";
 import {
     addTemplate,
@@ -22,8 +21,6 @@ import {
 import TabSymptomsSearch from "../../components/tab_design/TabSymptomsSearch";
 
 function TabSymptomsBox() {
-
-    const [messageApi, contextHolder] = message.useMessage();
     const {
         selectedSymptomsList,
         parentOptionsList,
@@ -100,6 +97,9 @@ function TabSymptomsBox() {
 
     const onSelectParent = useCallback(
         (e) => {
+            window.Moengage.track_event("symptom_select", {
+                "value": e.symptom_name
+            });
             symptomsData.push({
                 ...e,
                 since: "",
@@ -164,12 +164,7 @@ function TabSymptomsBox() {
     const onDeleteTemplateClicked = async (tst_id) => {
         const action = await dispatch(deleteTemplate(tst_id));
         if (action.meta.requestStatus === "rejected") {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
@@ -183,19 +178,9 @@ function TabSymptomsBox() {
 
     const onAddTemplateClicked = async () => {
         if (symptomsData.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 symptom added',
-                duration: 2
-            });
+            errorMessage('At least 1 symptom added')
         } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup symptom name',
-                duration: 2
-            });
+            errorMessage('Please fillup symptom name')
         } else {
             var sendData = {
                 tst_template_name: inputTemplateName,
@@ -222,19 +207,9 @@ function TabSymptomsBox() {
 
     const onUpdateTemplateClicked = async () => {
         if (symptomsData.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 symptom added',
-                duration: 2
-            });
+            errorMessage('At least 1 symptom added')
         } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup symptom name',
-                duration: 2
-            });
+            errorMessage('Please fillup symptom name')
         } else {
             var data = JSON.parse(inputTemplateName);
             var sendData = {
@@ -452,7 +427,7 @@ function TabSymptomsBox() {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
-                    value: `${sinceValue} ${option.value}`,
+                    value: `${sinceValue} ${sinceValue <= 1 ? option.value : `${option.value}(s)`}`,
                     label: <>{`${sinceValue}${option.label}`}</>,
                 };
             });
@@ -461,7 +436,7 @@ function TabSymptomsBox() {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
-                    value: `${inputSince} ${option.value}`,
+                    value: `${inputSince} ${inputSince <= 1 ? option.value : `${option.value}(s)`}`,
                     label: <>{`${inputSince}${option.label}`}</>,
                 };
             });
@@ -487,7 +462,7 @@ function TabSymptomsBox() {
                 const options = SINCE_OPTIONS.map((option) => {
                     return {
                         key: Math.random(),
-                        value: `${updateQuery} ${option.value}`,
+                        value: `${updateQuery} ${updateQuery <= 1 ? option.value : `${option.value}(s)`}`,
                         label: <>{`${updateQuery}${option.label}`}</>,
                     };
                 });
@@ -516,9 +491,9 @@ function TabSymptomsBox() {
     ];
 
     const SEVERITY_LIST = [
-        { value: "severe", label: "Severe" },
-        { value: "moderate", label: "Moderate" },
-        { value: "mild", label: "Mild" },
+        { value: "Severe", label: "Severe" },
+        { value: "Moderate", label: "Moderate" },
+        { value: "Mild", label: "Mild" },
     ];
 
     const onChangeSegmentedSinceChild = useCallback(
@@ -554,7 +529,7 @@ function TabSymptomsBox() {
     );
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            setChildDrawerData({ ...childDrawerData, note: e.target.value })
+            setChildDrawerData({ ...childDrawerData, note: capitalizeAfterSentence(e.target.value) })
         },
         [childDrawerData]
     );
@@ -665,7 +640,6 @@ function TabSymptomsBox() {
 
     return (
         <>
-            {contextHolder}
             <div>
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">

@@ -12,7 +12,9 @@ import adviceSlice from './adviceSlice';
 import investigationSlice from './investigationSlice';
 import medicationSlice from './medicationSlice';
 import vitalsSlice from './vitalsSlice';
+import medicalhistorySlice from './medicalhistorySlice';
 import caseManagerSlice from './caseManagerSlice';
+import followUpSlice from './followUpSlice';
 
 const persistConfig = {
   key: 'root',
@@ -30,7 +32,9 @@ const rootReducer = combineReducers({
   investigation: investigationSlice,
   medication: medicationSlice,
   vitals: vitalsSlice,
+  medicalhistory: medicalhistorySlice,
   caseManager: caseManagerSlice,
+  followUp: followUpSlice,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

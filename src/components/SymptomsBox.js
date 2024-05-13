@@ -9,7 +9,6 @@ import {
   Popover,
   Tabs,
   Spin,
-  message,
   Tooltip
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -19,8 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
+import { errorMessage, isNumeric, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Symptomsicon from "../assets/images/Symptoms.svg";
 import {
   addTemplate,
@@ -32,7 +30,6 @@ import {
 } from "../redux/symptomsSlice";
 
 function SymptomsBox() {
-  const [messageApi, contextHolder] = message.useMessage();
   const {
     selectedSymptomsList,
     parentOptionsList,
@@ -46,9 +43,9 @@ function SymptomsBox() {
   // const [ symptomsData, setSymptomsData] = useState([]);
 
   const SEVERITY_LIST = [
-    { value: "severe", label: "Severe" },
-    { value: "moderate", label: "Moderate" },
-    { value: "mild", label: "Mild" },
+    { value: "Severe", label: "Severe" },
+    { value: "Moderate", label: "Moderate" },
+    { value: "Mild", label: "Mild" },
   ];
 
   //PopOver1
@@ -163,6 +160,9 @@ function SymptomsBox() {
 
   const onSelectParent = useCallback(
     (data, e) => {
+      window.Moengage.track_event("symptom_select", {
+        "value": data
+      });
       symptomsData.push({
         ...JSON.parse(e.key),
         since: "",
@@ -259,8 +259,8 @@ function SymptomsBox() {
         const options = SINCE_OPTIONS.map((option) => {
           return {
             key: Math.random(),
-            value: `${updateQuery} ${option.value}`,
-            label: <>{`${updateQuery} ${option.label}`}</>,
+            value: `${updateQuery} ${updateQuery <= 1 ? option.value : `${option.value}(s)`}`,
+            label: <>{`${updateQuery} ${updateQuery <= 1 ? option.label : `${option.label}(s)`}`}</>,
           };
         });
         setSinceOptions(options);
@@ -270,6 +270,17 @@ function SymptomsBox() {
     },
     [sinceOptions, symptomsData]
   );
+
+  const onBlurSinceChid = useCallback(
+    (i) => {
+      if (isNumeric(symptomsData[i].since)) {
+        symptomsData[i].since = `${symptomsData[i].since} ${parseInt(symptomsData[i].since) <= 1 ? 'Day' : 'Day(s)'}`;
+        setSymptomsData((prev) => [...prev]);
+      }
+    },
+    [symptomsData]
+  );
+
 
   const onSelectSinceChild = useCallback(
     (data, i) => {
@@ -290,7 +301,7 @@ function SymptomsBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      symptomsData[i].note = e.target.value;
+      symptomsData[i].note = capitalizeAfterSentence(e.target.value);
       setSymptomsData((prev) => [...prev]);
     },
     [symptomsData]
@@ -331,12 +342,7 @@ function SymptomsBox() {
   const onDeleteTemplateClicked = async (tst_id) => {
     const action = await dispatch(deleteTemplate(tst_id));
     if (action.meta.requestStatus === "rejected") {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   };
 
@@ -364,19 +370,9 @@ function SymptomsBox() {
 
   const onAddTemplateClicked = async () => {
     if (symptomsData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 symptom added',
-        duration: 2
-      });
+      errorMessage('At least 1 symptom added')
     } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup symptom name',
-        duration: 2
-      });
+      errorMessage('Please fillup symptom name')
     } else {
       var sendData = {
         tst_template_name: inputTemplateName,
@@ -403,19 +399,9 @@ function SymptomsBox() {
 
   const onUpdateTemplateClicked = async () => {
     if (symptomsData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'At least 1 symptom added',
-        duration: 2
-      });
+      errorMessage('At least 1 symptom added')
     } else if (symptomsData.filter(e => e.symptom_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please fillup symptom name',
-        duration: 2
-      });
+      errorMessage('Please fillup symptom name')
     } else {
       var data = JSON.parse(inputTemplateName);
       var sendData = {
@@ -510,6 +496,7 @@ function SymptomsBox() {
                 bordered={false}
                 defaultOpen={false}
                 onSearch={(query) => onSearchSinceChid(query, index)}
+                onBlur={() => onBlurSinceChid(index)}
                 options={sinceOptions}
                 className="autocomplete-custom w-100 inputborder"
                 defaultActiveFirstOption={true}
@@ -718,7 +705,6 @@ function SymptomsBox() {
 
   return (
     <>
-      {contextHolder}
       <div>
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">

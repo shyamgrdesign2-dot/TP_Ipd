@@ -9,6 +9,7 @@ const initialState = {
   templates: [],
   loading: false,
   error: null,
+  genericList: [],
 };
 
 export const addTemplate = createAsyncThunk(
@@ -126,6 +127,32 @@ export const getLoadPreviousRx = createAsyncThunk(
   }
 );
 
+export const searchGeneric = createAsyncThunk(
+  "medication/searchGeneric",
+  async (query) => {
+    let result = {};
+    result = await ApiMedication.searchGeneric(query);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const addMedicine = createAsyncThunk(
+  "medication/addMedicine",
+  async (data) => {
+    let result = {};
+    result = await ApiMedication.addMedicine(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 const medicationSlice = createSlice({
   name: "medication",
   initialState,
@@ -137,7 +164,15 @@ const medicationSlice = createSlice({
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedMedicationList = action.payload.medication;
-        state.templates.unshift(action.payload);
+        const medication = {
+          tmtd_id: action.payload.tmtd_id,
+          tmtd_tmm_id: action.payload.data.map(e => e.tmm_id).toString(),
+          tmtd_tmr_type: action.payload.data.map(e => e.tcm_tmr_type).toString(),
+          tmtd_template_name: action.payload.tmtd_template_name,
+          pms_default: 0,
+          medicine_name: action.payload.data.map(e => e.tmm_medicine_name).toString()
+        }
+        state.templates.unshift(medication);
       })
       .addCase(addTemplate.rejected, (state, action) => {
         state.loading = false;
@@ -148,11 +183,19 @@ const medicationSlice = createSlice({
       .addCase(updateTemplate.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedMedicationList = action.payload.medication;
+        const medication = {
+          tmtd_id: action.payload.tmtd_id,
+          tmtd_tmm_id: action.payload.data.map(e => e.tmm_id).toString(),
+          tmtd_tmr_type: action.payload.data.map(e => e.tcm_tmr_type).toString(),
+          tmtd_template_name: action.payload.tmtd_template_name,
+          pms_default: 0,
+          medicine_name: action.payload.data.map(e => e.tmm_medicine_name).toString()
+        }
         const index = state.templates.findIndex(
           (e) => e.tmtd_id == action.payload.tmtd_id
         );
         if (index !== -1) {
-          state.templates[index] = action.payload;
+          state.templates[index] = medication;
         }
       })
       .addCase(updateTemplate.rejected, (state, action) => {
@@ -202,6 +245,22 @@ const medicationSlice = createSlice({
         } else {
           state.childOptionsList = [];
         }
+      })
+      .addCase(searchGeneric.pending, (state) => { })
+      .addCase(searchGeneric.fulfilled, (state, action) => {
+        state.genericList = action.payload;
+      })
+      .addCase(searchGeneric.rejected, (state, action) => {
+        state.genericList = [];
+      })
+      .addCase(addMedicine.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(addMedicine.fulfilled, (state) => {
+        state.loading = false
+      })
+      .addCase(addMedicine.rejected, (state) => {
+        state.loading = false
       })
   },
 });

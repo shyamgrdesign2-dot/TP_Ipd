@@ -1,42 +1,19 @@
-import React, { useEffect, useContext, useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import { Input } from 'antd';
 
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 import CashManagerContext from '../context/CashManagerContext';
 
-import {
-    getVitals,
-} from "../redux/vitalsSlice";
 import moment from "moment";
 
 const showDateFormat = 'DD MMM, YY'
 
-function VitalsList() {
+function VitalsList(props) {
 
-    const {
-        selectedVitalsList,
-        vitalsPastList,
-        loading,
-    } = useSelector((state) => state.vitals);
-    const dispatch = useDispatch();
+    const { vitalsPastList } = useSelector((state) => state.vitals);
 
-    const { state, vitalsData, setVitalsData } = useContext(CashManagerContext);
-
-    useEffect(() => {
-        var sendData = {
-            patient_unique_id: state !== undefined ? state.patient_unique_id : 0,
-            pam_id: state !== undefined && state.pam_id !== undefined ? state.pam_id : 0,
-        }
-        dispatch(getVitals(sendData));
-    }, []);
-
-    // useEffect(() => {
-    //     const updatedData = selectedVitalsList.map((e, i) => {
-    //         return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
-    //     });
-    //     setVitalsData(updatedData);
-    // }, [selectedVitalsList]);
+    const { vitalsData } = useContext(CashManagerContext);
 
     const TODAY_VITALS = useMemo(() => {
         return (

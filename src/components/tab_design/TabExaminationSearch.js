@@ -4,6 +4,8 @@ import { Button, Card, Row, Col, Input } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
+import { capitalizeAfterSentence } from "../../utils/utils";
+
 import CashManagerContext from '../../context/CashManagerContext';
 import {
     searchExamination
@@ -117,7 +119,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
 
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            examinationData[selectedIndex].note = e.target.value;
+            examinationData[selectedIndex].note = capitalizeAfterSentence(e.target.value);
             setExaminationData((prev) => [...prev]);
         },
         [selectedIndex, examinationData]
@@ -126,7 +128,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
     //Child Componet
     const CHILD_DRAWER_DATA = useMemo(() => {
         return (
-            selectedIndex != null && (
+            selectedIndex != null && examinationData[selectedIndex] !== undefined && (
                 <>
                     <div className="h-100">
                         <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">

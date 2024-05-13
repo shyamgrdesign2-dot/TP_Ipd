@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
-import { Button, Dropdown, message, Tooltip, Popover, Input, Spin, Tabs, Select, Drawer } from 'antd';
+import { Button, Dropdown, Tooltip, Popover, Input, Spin, Tabs, Select, Drawer, Modal } from 'antd';
 import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from 'react-router-dom';
 import { isMobile } from 'react-device-detect';
@@ -12,9 +12,14 @@ import CashManagerContext from "../context/CashManagerContext";
 import ProfilePopover from './ProfilePopover';
 import CommonModal from './CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
+import tutorial2 from '../assets/images/tutorial2.png';
+// import videoimg1 from '../assets/images/tutorial-img1.png';
+// import videoimg2 from '../assets/images/tutorial-img2.png';
+import playIcons from '../assets/images/tube-icon.svg';
+import fullicon from '../assets/images/full-icon.svg';
+import VideoModal from './VideoModal';
 
-import { removeBeforeWhiteSpace } from "../utils/utils";
-import { MESSAGE_KEY } from "../utils/constants";
+import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -28,10 +33,11 @@ import {
     editCaseManager
 } from "../redux/caseManagerSlice";
 
+import { listVideo } from "../redux/doctorsSlice";
+
 function HeaderPrescription() {
 
-    const { frequencyList, timingList } = useSelector((state) => state.doctors);
-
+    const { frequencyList, timingList, videoList } = useSelector((state) => state.doctors);
     const {
         templates,
         loading,
@@ -39,7 +45,7 @@ function HeaderPrescription() {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
-    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
+    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
@@ -66,8 +72,13 @@ function HeaderPrescription() {
 
     const [customizeDrawer, setCustomizeDrawer] = useState(false);
 
+    //PopOverVideo function
+    const [popOverVideo, setPopOverVideo] = useState(false);
+    const [videoLink, setVideoLink] = useState(null);
+
     useEffect(() => {
         dispatch(oneClickTemplatesList());
+        dispatch(listVideo());
     }, []);
 
     useEffect(() => {
@@ -89,6 +100,7 @@ function HeaderPrescription() {
         setInvestigationData([])
         setMedicationData([])
         setVitalsData([])
+        setMedicalHistoryData([])
         setFollowUpDate(null)
         setAdditionalNote('')
     }
@@ -141,7 +153,10 @@ function HeaderPrescription() {
         }
     };
 
-    const onTemplateSelected = async (tmoc_id) => {
+    const onTemplateSelected = async (tmoc_id, tmoc_template_name) => {
+        window.Moengage.track_event("one_click_template_select", {
+            "template_name": tmoc_template_name
+        });
         const action = await dispatch(oneClickSingleTemplateDetails(tmoc_id));
         if (action.meta.requestStatus === "fulfilled") {
             const data = action.payload
@@ -238,24 +253,14 @@ function HeaderPrescription() {
             }
             !isMobile ? showHideTemplatesListPopover() : handleDrawerTemplate()
         } else {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
     const onDeleteTemplateClicked = async (tmoc_id) => {
         const action = await dispatch(oneClickDeleteTemplate(tmoc_id));
         if (action.meta.requestStatus === "rejected") {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
@@ -532,13 +537,13 @@ function HeaderPrescription() {
                                 >
                                     <div
                                         className="round-box"
-                                        onClick={() => onTemplateSelected(template.tmoc_id)}
+                                        onClick={() => onTemplateSelected(template.tmoc_id, template.tmoc_template_name)}
                                     >
                                         <i className="icon-template"></i>
                                     </div>
                                     <div
                                         className="text-truncate w-100"
-                                        onClick={() => onTemplateSelected(template.tmoc_id)}
+                                        onClick={() => onTemplateSelected(template.tmoc_id, template.tmoc_template_name)}
                                     >
                                         <div className="title text-main2">{template.tmoc_template_name}</div>
                                         <div className="text-truncate">{template.medicine_name}</div>
@@ -662,7 +667,7 @@ function HeaderPrescription() {
                             matchedTemplates.map((template, i) => {
                                 return (
                                     <div className="align-items-center d-flex justify-content-between medicine-templates" key={i}>
-                                        <div className="align-items-center d-flex text-truncate w-100" onClick={() => onTemplateSelected(template.tmoc_id)}>
+                                        <div className="align-items-center d-flex text-truncate w-100" onClick={() => onTemplateSelected(template.tmoc_id, template.tmoc_template_name)}>
                                             <div className="round-box"><i className="icon-template"></i></div>
                                             <div className="text-truncate w-100">
                                                 <div className="title text-main2">{template.tmoc_template_name}</div>
@@ -776,47 +781,17 @@ function HeaderPrescription() {
 
     async function onEndVisitClick() {
         if (symptomsData.length > 0 && symptomsData.filter(e => e.symptom_name == "").length > 0) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup symptom name',
-                duration: 2
-            });
+            errorMessage('Please fillup symptom name')
         } else if (examinationData.length > 0 && examinationData.filter(e => e.examination_name == "").length > 0) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup examination name',
-                duration: 2
-            });
+            errorMessage('Please fillup examination name')
         } else if (diagnosisData.length > 0 && diagnosisData.filter((e) => e.tds_name == "").length > 0) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup diagnosis name',
-                duration: 2
-            });
+            errorMessage('Please fillup diagnosis name')
         } else if (medicationData.length > 0 && medicationData.filter((e) => e.tmm_medicine_name == "").length > 0) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup medication name',
-                duration: 2
-            });
+            errorMessage('Please fillup medication name')
         } else if (adviceData.length > 0 && adviceData.filter(e => e.advice_name == "").length > 0) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup advice name',
-                duration: 2
-            });
+            errorMessage('Please fillup advice name')
         } else if (investigationData.length > 0 && investigationData.filter(e => e.investigation_name == "").length > 0) {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup investigation name',
-                duration: 2
-            });
+            errorMessage('Please fillup investigation name')
         } else {
             var sendData = {
                 action: tcmId == 0 ? 'add' : 'edit',
@@ -833,29 +808,61 @@ function HeaderPrescription() {
                 vitals: vitalsData,
                 follow_up_date: followUpDate,
                 visit_advice: additionalNote,
+                medical_history: medicalHistoryData
             }
 
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
             if (action.meta.requestStatus === "fulfilled") {
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
             } else {
-                message.open({
-                    key: MESSAGE_KEY,
-                    type: 'warning',
-                    content: action.error.message,
-                    duration: 2
-                });
+                errorMessage(action.error)
             }
         }
     }
 
     const checkDataFillOrNot = () => {
-        if (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || medicationData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || vitalsData.length > 0) {
+        if (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || medicationData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0) {
             showHideBackModal()
         } else {
             navigate('/', { replace: true });
         }
     }
+
+    //PopOverVideo function
+    const showHideVideoListPopover = useCallback(() => {
+        setPopOverVideo(!popOverVideo);
+    }, [popOverVideo]);
+
+    //Video Componet
+    const VIDEO_CONTENT = useCallback(() => {
+        return (
+            <>
+                <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
+                    <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+                        <div className="title-common lh-base">Video Tutorial</div>
+                        <Button className="btn btn-delete-prescription p-0"
+                            onClick={showHideVideoListPopover}>
+                            <i className="icon-Cross" />
+                        </Button>
+                    </div>
+                    {videoList[0]?.video?.map((item1, i1) => {
+                        return (
+                            <div key={i1} className={`d-flex ${i1 !== videoList[0]?.video.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
+                                <div className="tutorial-play me-14">
+                                    <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+                                    <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
+                                </div>
+                                <div>
+                                    <h3 className="title-common text-welcome">{item1?.tmv_title}</h3>
+                                    <div className="fs-12 fontroboto fw-normal text-main">{item1?.tmv_description}</div>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            </>
+        );
+    }, [popOverVideo]);
 
     return (
         <Navbar className="justify-content-between headerprescription p-0">
@@ -951,6 +958,24 @@ function HeaderPrescription() {
                                 <i className="icon-setting me-2"></i> <span>Customize</span>
                             </button>
 
+                            {/* <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerCustomize}>
+                               <span><img height={42} src={tutorial} /></span>
+                            </button> */}
+
+                            <Popover
+                                open={popOverVideo}
+                                onOpenChange={showHideVideoListPopover}
+                                content={VIDEO_CONTENT}
+                                trigger="click"
+                                overlayClassName="pop-430 pp-0 videoTutorial"
+                                placement="bottom"
+                            >
+                                <button className="btn d-flex align-items-center btn-text p-0 me-20">
+                                    {/* onClick={showHideVideoListPopover} */}
+                                    <span><img src={tutorial2} /></span>
+                                </button>
+                            </Popover>
+
                             <Drawer title="One Click Rx Templates" placement="right" onClose={handleDrawerTemplate} open={templateDrawer} className="modalWidth-563" width="auto">
                                 {TEMPLATE_CONTENT_TAB}
                             </Drawer>
@@ -960,6 +985,14 @@ function HeaderPrescription() {
                             <Drawer placement="right" closeIcon={false} onClose={handleDrawerCustomize} open={customizeDrawer} className="modalWidth-900" width="auto">
                                 {CUSTOMIZE_CONTENT_TAB}
                             </Drawer>
+
+                            {videoLink && (
+                                <VideoModal
+                                    videoLink={videoLink}
+                                    onCancel={() => setVideoLink(null)}
+                                />
+                            )}
+
                             {/* <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                 <i className='icon-setting me-2'></i> <span className='text-decoration-underline'>Customize</span>
                             </Link> */}
@@ -985,8 +1018,8 @@ function HeaderPrescription() {
                                 </div>
                             </Tooltip> */}
 
-                            <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || followUpDate || additionalNote) ? "" : "Please fill your prescription to end visit."}>
-                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || followUpDate || additionalNote) && onEndVisitClick()} loading={loading}>
+                            <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote) ? "" : "Please fill your prescription to end visit."}>
+                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote) && onEndVisitClick()} loading={loading}>
                                     <i className='icon-exit me-2'></i>
                                     End Visit
                                 </Button>

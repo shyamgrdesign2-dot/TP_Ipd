@@ -1,16 +1,22 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Table, Switch, Row, Col, Button, Card, message } from 'antd';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
+import { Table, Switch, Row, Col, Button, Card, Popover, Modal } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import { DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy, } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { errorMessage } from "../utils/utils";
 
 import CashManagerContext from "../context/CashManagerContext";
 
-import { MESSAGE_KEY } from "../utils/constants";
 import { useSelector, useDispatch } from "react-redux";
-import { customizedPad } from "../redux/doctorsSlice";
+import { customizedPad, listVideo } from "../redux/doctorsSlice";
+
+import tutorial from '../assets/images/tutorial-icon.svg';
+import playcover2 from '../assets/images/play-cover2.png';
+import playIcons from '../assets/images/tube-icon.svg';
+import fullicon from '../assets/images/full-icon.svg';
+import VideoModal from './VideoModal';
 
 const CustomRow = ({ children, ...props }) => {
   const {
@@ -65,13 +71,15 @@ const CustomRow = ({ children, ...props }) => {
 
 function CustomizeSetting({ handleDrawerCustomize }) {
 
-  const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
-  const { loading, customizedPadLeftList, customizedPadRightList } = useSelector((state) => state.doctors);
+  const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setMedicalHistoryData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
+  const { loading, customizedPadLeftList, customizedPadRightList, videoList } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
   const [dataSourceLeft, setDataSourceLeft] = useState([]);
   const [dataSourceRight, setDataSourceRight] = useState([]);
 
+  const [popOverVideo, setPopOverVideo] = useState(false);
+  const [videoLink, setVideoLink] = useState(null);
 
   useEffect(() => {
     if (customizedPadLeftList.length > 0) {
@@ -80,6 +88,7 @@ function CustomizeSetting({ handleDrawerCustomize }) {
       });
       setDataSourceLeft(updatedData);
     }
+    dispatch(listVideo());
   }, [handleDrawerCustomize]);
 
   useEffect(() => {
@@ -179,33 +188,13 @@ function CustomizeSetting({ handleDrawerCustomize }) {
 
   async function onCustomizePadClick() {
     if (dataSourceLeft.length == 0) {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Something went wrong! please try again later',
-        duration: 2
-      });
+      errorMessage('Something went wrong! please try again later')
     } else if (dataSourceRight.length == 0) {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Something went wrong! please try again later',
-        duration: 2
-      });
+      errorMessage('Something went wrong! please try again later')
     } else if (dataSourceLeft.length > 0 && dataSourceLeft.filter((e) => !e.tmdpm_status).length <= 0) {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please enable at least one left side of elemetns',
-        duration: 2
-      });
+      errorMessage('Please enable at least one left side of elemetns')
     } else if (dataSourceRight.length > 0 && dataSourceRight.filter((e) => !e.tmdpm_status).length <= 0) {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: 'Please enable at least one right side of elemetns',
-        duration: 2
-      });
+      errorMessage('Please enable at least one right side of elemetns')
     } else {
       var sendData = {
         data: {
@@ -244,24 +233,18 @@ function CustomizeSetting({ handleDrawerCustomize }) {
         if (left.findIndex(e => e.tmdpm_id === 1 && e.tmdpm_status === 0) === -1) {
           setVitalsData([])
         }
+        if (left.findIndex(e => e.tmdpm_id === 3 && e.tmdpm_status === 0) === -1) {
+          setMedicalHistoryData([])
+        }
         handleDrawerCustomize()
       } else {
-        message.open({
-          key: MESSAGE_KEY,
-          type: 'warning',
-          content: action.error.message,
-          duration: 2
-        });
+        errorMessage(action.error)
       }
     }
   }
 
   async function onDefaultPadClick() {
-    message.open({
-      key: MESSAGE_KEY,
-      type: 'loading',
-      content: 'Action in progress..'
-    });
+    errorMessage('Action in progress..')
     var sendData = {
       data: {
         default: true,
@@ -297,22 +280,75 @@ function CustomizeSetting({ handleDrawerCustomize }) {
       if (left.findIndex(e => e.tmdpm_id === 1 && e.tmdpm_status === 0) === -1) {
         setVitalsData([])
       }
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'success',
-        content: 'Action successfully',
-        duration: 2
-      });
+      if (left.findIndex(e => e.tmdpm_id === 3 && e.tmdpm_status === 0) === -1) {
+        setMedicalHistoryData([])
+      }
+      errorMessage('Action successfully')
       handleDrawerCustomize()
     } else {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   }
+
+  //PopOverVideo function
+  const showHideVideoListPopover = useCallback(() => {
+    setPopOverVideo(!popOverVideo);
+  }, [popOverVideo]);
+
+  //Video Componet
+  const VIDEO_CONTENT = useCallback(() => {
+    return (
+      <>
+        <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
+          <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+            <div className="title-common lh-base">Video Tutorial</div>
+            <Button className="btn btn-delete-prescription p-0"
+              onClick={showHideVideoListPopover}>
+              <i className="icon-Cross" />
+            </Button>
+          </div>
+          {videoList[0]?.video?.map((item1, i1) => {
+            return (
+              <div key={i1} className={`d-flex ${i1 !== videoList[0]?.video.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
+                <div className="tutorial-play me-14">
+                  <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+                  <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
+                </div>
+                <div>
+                  <h3 className="title-common text-welcome">{item1?.tmv_title}</h3>
+                  <div className="fs-12 fontroboto fw-normal text-main">{item1?.tmv_description}</div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </>
+      // <>
+      //   <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
+      //     <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+      //       <div className="title-common">Video Tutorial</div>
+      //       <Button className="btn btn-delete-prescription p-0"
+      //         onClick={showHideVideoListPopover}>
+      //         <i className="icon-Cross" />
+      //       </Button>
+      //     </div>
+      //     {videoList[0]?.video?.map((item1, i1) => {
+      //       return (
+      //         <div key={i1} className="d-flex flex-column mb-3">
+      //           <div className="tutorial-play">
+      //             <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+      //             <span><img className='w-100 rounded-3' src={item1.thumbnail} /></span>
+      //           </div>
+      //           <div className='mt-2'>
+      //             <div className="fs-12 fontpoppins fw-medium text-main">{item1?.tmv_description}</div>
+      //           </div>
+      //         </div>
+      //       )
+      //     })}
+      //   </div>
+      // </>
+    );
+  }, [popOverVideo]);
 
   return (
     <div>
@@ -325,6 +361,21 @@ function CustomizeSetting({ handleDrawerCustomize }) {
             <div className="modal-title text-truncate-twolines">{'Customize Your Pad'}</div>
           </div>
           <div className='d-flex align-items-center justify-content-end w-100'>
+
+            <Popover
+              open={popOverVideo}
+              onOpenChange={showHideVideoListPopover}
+              content={VIDEO_CONTENT}
+              trigger="click"
+              overlayClassName="pop-430 pp-0 videoTutorial"
+              placement="bottom"
+            >
+              <button className='btn d-flex align-items-center btn-text me-10 tutorial'>
+              {/* onClick={showHideVideoListPopover} */}
+                <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
+              </button>
+            </Popover>
+
             <button className='btn d-flex align-items-center btn-text me-14' onClick={onDefaultPadClick}>
               <span>Default Settings</span>
             </button>
@@ -381,6 +432,13 @@ function CustomizeSetting({ handleDrawerCustomize }) {
           </DndContext>
         </Col>
       </Row>
+
+      {videoLink && (
+        <VideoModal
+          videoLink={videoLink}
+          onCancel={() => setVideoLink(null)}
+        />
+      )}
     </div>
   );
 };

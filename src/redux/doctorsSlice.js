@@ -3,8 +3,10 @@ import { parseApiError } from "../utils/utils";
 import ApiAppointments from "../api/services/ApiAppointments";
 import ApiMedication from "../api/services/ApiMedication";
 import ApiPrintSettings from "../api/services/ApiPrintSettings";
+import ApiVideoLibrary from "../api/services/ApiVideoLibrary";
 
 const initialState = {
+  sort_order: 'descend',
   profile: null,
   loading: false,
   error: null,
@@ -12,7 +14,9 @@ const initialState = {
   customizedPadRightList: [],
   timingList: [],
   frequencyList: [],
-  defaultPrintSettings: null
+  medicineTypeList: [],
+  defaultPrintSettings: null,
+  videoList: [],
 };
 
 export const getProfile = createAsyncThunk(
@@ -122,11 +126,59 @@ export const showMedicineTime = createAsyncThunk(
   }
 );
 
-export const getDefaultPrintsettings = createAsyncThunk(
-  "printSettings/getDefaultPrintsettings",
+export const getMedicineType = createAsyncThunk(
+  "medication/getMedicineType",
   async () => {
     let result = {};
-    result = await ApiPrintSettings.getDefaultPrintsettings();
+    result = await ApiMedication.getMedicineType();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const getDefaultPrintsettings = createAsyncThunk(
+  "printSettings/getDefaultPrintsettings",
+  async (data) => {
+    let result = {};
+    result = await ApiPrintSettings.getDefaultPrintsettings(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const savePrintsettings = createAsyncThunk(
+  "printSettings/savePrintsettings",
+  async (printInfo) => {
+    const formData = new FormData();
+    Object.keys(printInfo).forEach((key) => {
+      formData.append(key, printInfo[key]);
+    });
+
+    try {
+      const result = await ApiPrintSettings.savePrintsettings(formData);
+      if (result.status) {
+        return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      throw Error(error);
+    }
+  }
+);
+
+// For Video Library
+export const listVideo = createAsyncThunk(
+  "videoLibrary/listVideo",
+  async () => {
+    let result = {};
+    result = await ApiVideoLibrary.listVideo();
     if (result.status) {
       return result.data;
     } else {
@@ -141,6 +193,9 @@ const doctorsSlice = createSlice({
   reducers: {
     changeLogoStatus: (state) => {
       state.profile = { ...state.profile, NavigatetoTatvaPedia: 1 }
+    },
+    changeSortOrder: (state, action) => {
+      state.sort_order = action.payload
     }
   },
   extraReducers: (builder) => {
@@ -206,14 +261,36 @@ const doctorsSlice = createSlice({
       .addCase(showMedicineTime.rejected, (state) => {
         state.timingList = [];
       })
+      .addCase(getMedicineType.fulfilled, (state, action) => {
+        state.medicineTypeList = action.payload;
+      })
+      .addCase(getMedicineType.rejected, (state) => {
+        state.medicineTypeList = [];
+      })
       .addCase(getDefaultPrintsettings.fulfilled, (state, action) => {
         state.defaultPrintSettings = action.payload;
       })
       .addCase(getDefaultPrintsettings.rejected, (state) => {
         state.defaultPrintSettings = null;
+      })
+      .addCase(savePrintsettings.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(savePrintsettings.fulfilled, (state, action) => {
+        state.loading = false;
+        state.defaultPrintSettings = action.payload;
+      })
+      .addCase(savePrintsettings.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(listVideo.fulfilled, (state, action) => {
+        state.videoList = action.payload;
+      })
+      .addCase(listVideo.rejected, (state) => {
+        state.videoList = [];
       });
   },
 });
 
-export const { changeLogoStatus } = doctorsSlice.actions
+export const { changeLogoStatus, changeSortOrder } = doctorsSlice.actions
 export default doctorsSlice.reducer;

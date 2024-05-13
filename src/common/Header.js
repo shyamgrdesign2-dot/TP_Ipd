@@ -1,26 +1,48 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
-import { Select, Button, Checkbox, message, Popover } from "antd";
+import { Link, useNavigate } from "react-router-dom";
+import { Select, Button, Checkbox, Popover, Drawer, Carousel, Modal } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 import { isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 
+import Slider from "react-slick";
+
+import playIcon from '../assets/images/h-play-icon.svg';
+import playIconutube from '../assets/images/play-icon.png';
+import fullicon from '../assets/images/full-icon.svg';
+import tutorial from '../assets/images/tutorial-icon.svg';
+import playIcons from '../assets/images/tube-icon.svg';
+import VideoModal from "./VideoModal";
+
 import config from "../config";
-import { getProfile, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getDefaultPrintsettings } from "../redux/doctorsSlice";
+import { getProfile, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
-import { makeDefaultLogo } from "../utils/utils";
-import { MESSAGE_KEY } from "../utils/constants";
+import { errorMessage, makeDefaultLogo } from "../utils/utils";
 import CommonModal from './CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
 function Header({ locationPath }) {
+
+  const [popOverVideo, setPopOverVideo] = useState(false);
+  const [videoLink, setVideoLink] = useState(null);
+  const [videoDrawer, setvideoDrawer] = useState(false);
+
+  const sliderSettings = {
+    className: "center",
+    dots: true,
+    arrows: false,
+    centerMode: true,
+    infinite: false,
+    centerPadding: "5px",
+    slidesToShow: 1,
+  };
 
   //PopOver
   const [popOver, setPopOver] = useState(false);
@@ -32,7 +54,7 @@ function Header({ locationPath }) {
 
   const navigate = useNavigate();
 
-  const { profile, loading } = useSelector((state) => state.doctors);
+  const { profile, loading, videoList } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
   const [clinicOptions, setClinicOptions] = useState([]);
@@ -42,10 +64,12 @@ function Header({ locationPath }) {
 
   useEffect(() => {
     dispatch(getProfile());
-    dispatch(customizedPad(CUSTOMIZED_PAD_SENDDATA))
+    dispatch(customizedPad(CUSTOMIZED_PAD_SENDDATA));
     dispatch(showMedicineTime());
     dispatch(showMedicineFrequency());
-    // dispatch(getDefaultPrintsettings())
+    dispatch(getMedicineType());
+    dispatch(getDefaultPrintsettings({ default: false }));
+    dispatch(listVideo());
   }, []);
 
   useEffect(() => {
@@ -194,12 +218,7 @@ function Header({ locationPath }) {
         });
       }
     } else {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   }
 
@@ -285,12 +304,7 @@ function Header({ locationPath }) {
       await dispatch(changeLogoStatus())
       showHideNavigateToTatvaPedia()
     } else {
-      message.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   }
 
@@ -322,13 +336,55 @@ function Header({ locationPath }) {
     }
   }
 
+  //DrawerVideo function
+  const handleDrawervideo = useCallback(() => {
+    setvideoDrawer(!videoDrawer);
+  }, [videoDrawer]);
+
+  //PopOverVideo function
+  const showHideVideoListPopover = useCallback(() => {
+    setPopOverVideo(!popOverVideo);
+  }, [popOverVideo]);
+
+  //Video Componet
+  const VIDEO_CONTENT = useCallback(() => {
+    return (
+      <>
+        <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
+          <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+            <div className="title-common lh-base">Video Tutorial</div>
+            <Button className="btn btn-delete-prescription p-0"
+              onClick={showHideVideoListPopover}>
+              <i className="icon-Cross" />
+            </Button>
+          </div>
+          {videoList[0]?.video?.map((item1, i1) => {
+            return (
+              <div key={i1} className={`d-flex ${i1 !== videoList[0]?.video.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
+                <div className="tutorial-play me-14">
+                  <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+                  <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
+                </div>
+                <div>
+                  <h3 className="title-common text-welcome">{item1?.tmv_title}</h3>
+                  <div className="fs-12 fontroboto fw-normal text-main">{item1?.tmv_description}</div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </>
+    );
+  }, [popOverVideo]);
+
   return (
     <Navbar className="justify-content-between portal-header">
       <Container fluid>
         <div>
           <img onClick={() => !isChrome && !isSafari && showHideLogoModal()}
             src={require("../assets/images/logo.png")}
-            className={`d-inline-block align-top ${!isChrome && !isSafari && 'cursor-pointer'}`} style={{ height: '30px' }}
+            className={`d-inline-block align-top ${!isChrome && !isSafari && 'cursor-pointer'}`}
+            style={{ width: '110px' }}
             alt="Logo"
           />
           <Popover open={popOver} onOpenChange={showHideNavigateToTatvaPedia} content={NAVIGATE_TO_TATVAPEDIA}
@@ -379,6 +435,56 @@ function Header({ locationPath }) {
               <span className="text-decoration-underline">Switch To Old View</span>
             </div>
           )}
+
+          {locationPath == "/" ? (
+            <div onClick={handleDrawervideo} className="border border-color2 cursor-pointer rounded-circle me-2"><img src={playIcon} /></div>) : (
+            <Popover
+              open={popOverVideo}
+              onOpenChange={showHideVideoListPopover}
+              content={VIDEO_CONTENT}
+              trigger="click"
+              overlayClassName="pop-430 pp-0 videoTutorial"
+              placement="bottom"
+            >
+              <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
+              {/* onClick={showHideVideoListPopover} */}
+                <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
+              </button>
+            </Popover>
+          )}
+
+          <Drawer title="Video Tutorial" placement="right" onClose={handleDrawervideo} open={videoDrawer} className="modalWidth-400 tab345 playdrawer" width="auto">
+            <div className="mt-20">
+              {videoList?.map((item, i) => {
+                return (
+                  <div key={i} className="overflow-hidden ms-4">
+                    <div className="title-common text-welcome">{item?.category}</div>
+                    <div className="fs-12 fontroboto fw-normal text-main">{item?.description}</div>
+                    <div className="videodrawer-left mt-3">
+                      <Slider {...sliderSettings}>
+                        {item?.video?.map((item1, i1) => {
+                          return (
+                            <div key={i1} className="drawer-slider">
+                              <button type="button" onClick={() => setVideoLink(item1)}><img src={playIconutube} /></button>
+                              <img src={item1?.thumbnail} />
+                            </div>
+                          )
+                        })}
+                      </Slider>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </Drawer>
+
+          {videoLink && (
+            <VideoModal
+              videoLink={videoLink}
+              onCancel={() => setVideoLink(null)}
+            />
+          )}
+
           {SWITCH_TO_OLD_MODAL}
           <Dropdown className="dropdown-profile nav-link-profile mx-1">
             <Dropdown.Toggle
@@ -400,7 +506,7 @@ function Header({ locationPath }) {
           </Dropdown>
         </Nav>
       </Container>
-    </Navbar>
+    </Navbar >
   );
 }
 

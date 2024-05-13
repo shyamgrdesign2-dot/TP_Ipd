@@ -18,8 +18,11 @@ import { isNumeric } from '../utils/utils'
 
 function Cardiology(props) {
 
-    const { frequencyList, timingList } = useSelector((state) => state.doctors);
     const navigate = useNavigate();
+
+    const { profile } = useSelector((state) => state.doctors);
+    const { frequencyList, timingList } = useSelector((state) => state.doctors);
+
     const { patient_data, tcmData, loading, viewCaseManagerData, nextPress, prevPress } = props
 
     const [filteredInfo, setFilteredInfo] = useState({});
@@ -80,7 +83,7 @@ function Cardiology(props) {
             key: 'TimeFrequency',
             render: (text, record) => (
                 <div className='lh-base'>
-                    {record.tmf_block == 0 || record.tmf_block == "" ? `${record.tcm_tmm_freq_morning ? record.tcm_tmm_freq_morning : 0}-${record.tcm_tmm_freq_afternoon ? record.tcm_tmm_freq_afternoon : 0}${record.tcm_tmm_freq_evening ? '-' + record.tcm_tmm_freq_evening : ''}-${record.tcm_tmm_freq_night ? record.tcm_tmm_freq_night : 0}` : `0-0-0-0 (${frequencyList.find((x) => x.tmf_id == record.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id == record.tmm_freq_type).tmf_title : ''})`}
+                    {record.tmf_block == 0 || record.tmf_block == "" ? `${(record.tcm_tmm_freq_morning || record.tcm_tmm_freq_afternoon || record.tcm_tmm_freq_evening || record.tcm_tmm_freq_night) ? `${record.tcm_tmm_freq_morning ? record.tcm_tmm_freq_morning : 0}-${record.tcm_tmm_freq_afternoon ? record.tcm_tmm_freq_afternoon : 0}${record.tcm_tmm_freq_evening ? '-' + record.tcm_tmm_freq_evening : ''}-${record.tcm_tmm_freq_night ? record.tcm_tmm_freq_night : 0}` : `-`}` : `(${frequencyList.find((x) => x.tmf_id == record.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id == record.tmm_freq_type).tmf_title : ''})`}
                     <div>{timingList.find((x) => x.tmt_id == record.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id == record.tmm_time).tmt_title : ''}</div>
                 </div>
             ),
@@ -94,15 +97,15 @@ function Cardiology(props) {
                 <div>{isNumeric(record.tmm_days) ? `${record.tmm_days} - ${record.tmm_duration_type}` : `-`}</div>
             ),
         },
-        // {
-        //     title: 'QTY.',
-        //     dataIndex: 'qty',
-        //     key: 'qty',
-        //     width: '50px',
-        //     render: (text, record) => (
-        //         <div>{`${record.display_qty ? record.display_qty.toFixed(2) : '-'}`}</div>
-        //     ),
-        // },
+        {
+            title: 'QTY.',
+            dataIndex: 'qty',
+            key: 'qty',
+            width: '50px',
+            render: (text, record) => (
+                <div>{`${record.display_qty ? record.display_qty.toFixed(2) : '-'}`}</div>
+            ),
+        },
         {
             title: 'Note',
             dataIndex: 'note',
@@ -146,10 +149,14 @@ function Cardiology(props) {
                                 </div>
                                 <div>
                                     <button className="btn p-0 ms-3" style={{ visibility: viewCaseManagerData?.doctor_data?.editCase ? 'visible' : 'hidden' }}
-                                        onClick={() =>
+                                        onClick={() => {
+                                            window.Moengage.track_event("edit_rx_click", {
+                                                "doctor_id": profile?.doctor_unique_id,
+                                                "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0,
+                                                "rx_date": viewCaseManagerData?.consultation_date
+                                            });
                                             navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: viewCaseManagerData } })
-                                        }
-                                    >
+                                        }}>
                                         <i className="icon-Edit"></i>
                                     </button>
                                     <button className="btn p-0 ms-3" onClick={() => !isChrome && !isSafari ? printInAppContent() : printContent()}>
@@ -288,9 +295,15 @@ function Cardiology(props) {
                             <div className='align-items-center text-center'>
                                 <img src={calenderBlank} width={57} height={62} alt="No vital & body composition saved for the patient!" />
                                 <p className='mt-4 fontroboto'>No any visit found for this patient yet</p>
-                                <Button onClick={() =>
-                                    navigate("/prescription", { state: { patient_data: patient_data } })
-                                } className="btn btn-primary3 btn-text-white px-5 btn-41">Start New Visit</Button>
+                                <Button
+                                    className="btn btn-primary3 btn-text-white px-5 btn-41"
+                                    onClick={() => {
+                                        window.Moengage.track_event("start_new_visit_click", {
+                                            "doctor_id": profile?.doctor_unique_id,
+                                            "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0
+                                        });
+                                        navigate("/prescription", { state: { patient_data: patient_data } })
+                                    }}>{'Start New Visit'}</Button>
                             </div>
                         )}
                     </div>

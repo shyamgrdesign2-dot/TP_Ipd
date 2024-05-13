@@ -15,7 +15,6 @@ import {
   Popover,
   Tabs,
   Spin,
-  message,
   Tooltip,
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -25,8 +24,7 @@ import { v4 as uuidv4 } from "uuid";
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from "../context/CashManagerContext";
-import { MESSAGE_KEY } from "../utils/constants";
-import { onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
+import { errorMessage, isNumeric, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Diagnosisicon from "../assets/images/Diagnosis.svg";
 import {
   addTemplate,
@@ -38,7 +36,6 @@ import {
 } from "../redux/diagnosisSlice";
 
 function DiagnosisBox() {
-  const [messageApi, contextHolder] = message.useMessage();
   const {
     selectedDiagnosisList,
     parentOptionsList,
@@ -52,9 +49,9 @@ function DiagnosisBox() {
   // const [diagnosisData, setDiagnosisData] = useState([]);
 
   const STATUS_LIST = [
-    { value: "ruled out", label: "Ruled Out" },
-    { value: "suspected", label: "Suspected" },
-    { value: "confirmed", label: "Confirmed" },
+    { value: "Ruled Out", label: "Ruled Out" },
+    { value: "Suspected", label: "Suspected" },
+    { value: "Confirmed", label: "Confirmed" },
   ];
 
   //PopOver1
@@ -270,8 +267,8 @@ function DiagnosisBox() {
         const options = SINCE_OPTIONS.map((option) => {
           return {
             key: Math.random(),
-            value: `${updateQuery} ${option.value}`,
-            label: <>{`${updateQuery} ${option.label}`}</>,
+            value: `${updateQuery} ${updateQuery <= 1 ? option.value : `${option.value}(s)`}`,
+            label: <>{`${updateQuery} ${updateQuery <= 1 ? option.label : `${option.label}(s)`}`}</>,
           };
         });
         setSinceOptions(options);
@@ -280,6 +277,16 @@ function DiagnosisBox() {
       }
     },
     [sinceOptions, diagnosisData]
+  );
+
+  const onBlurSinceChid = useCallback(
+    (i) => {
+      if (isNumeric(diagnosisData[i].since)) {
+        diagnosisData[i].since = `${diagnosisData[i].since} ${parseInt(diagnosisData[i].since) <= 1 ? 'Year' : 'Year(s)'}`;
+        setDiagnosisData((prev) => [...prev]);
+      }
+    },
+    [diagnosisData]
   );
 
   const onSelectSinceChild = useCallback(
@@ -301,7 +308,7 @@ function DiagnosisBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      diagnosisData[i].note = e.target.value;
+      diagnosisData[i].note = capitalizeAfterSentence(e.target.value);
       setDiagnosisData((prev) => [...prev]);
     },
     [diagnosisData]
@@ -342,12 +349,7 @@ function DiagnosisBox() {
   const onDeleteTemplateClicked = async (tdt_id) => {
     const action = await dispatch(deleteTemplate(tdt_id));
     if (action.meta.requestStatus === "rejected") {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: 'warning',
-        content: action.error.message,
-        duration: 2
-      });
+      errorMessage(action.error)
     }
   };
 
@@ -375,19 +377,9 @@ function DiagnosisBox() {
 
   const onAddTemplateClicked = async () => {
     if (diagnosisData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: "At least 1 diagnosis added",
-        duration: 2,
-      });
+      errorMessage('At least 1 diagnosis added')
     } else if (diagnosisData.filter((e) => e.tds_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: "Please fillup diagnosis name",
-        duration: 2,
-      });
+      errorMessage('Please fillup diagnosis name')
     } else {
       var sendData = {
         tdt_template_name: inputTemplateName,
@@ -414,19 +406,9 @@ function DiagnosisBox() {
 
   const onUpdateTemplateClicked = async () => {
     if (diagnosisData.length === 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: "At least 1 diagnosis added",
-        duration: 2,
-      });
+      errorMessage('At least 1 diagnosis added')
     } else if (diagnosisData.filter((e) => e.tds_name == "").length > 0) {
-      messageApi.open({
-        key: MESSAGE_KEY,
-        type: "warning",
-        content: "Please fillup diagnosis name",
-        duration: 2,
-      });
+      errorMessage('Please fillup diagnosis name')
     } else {
       var data = JSON.parse(inputTemplateName);
       var sendData = {
@@ -522,6 +504,7 @@ function DiagnosisBox() {
                 bordered={false}
                 defaultOpen={false}
                 onSearch={(query) => onSearchSinceChid(query, index)}
+                onBlur={() => onBlurSinceChid(index)}
                 options={sinceOptions}
                 className="autocomplete-custom w-100 inputborder"
                 defaultActiveFirstOption={true}
@@ -730,7 +713,6 @@ function DiagnosisBox() {
 
   return (
     <>
-      {contextHolder}
       <div className="">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">

@@ -1,0 +1,54 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy container app to Azure Web App - uat-doctor-portal
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+    env:
+      REACT_APP_ENV: uat
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to registry
+      uses: docker/login-action@v2
+      with:
+        registry: https://acinacr.azurecr.io/
+        username: ${{ secrets.AzureAppService_ContainerUsername_8716f70102284b929ee7e428b95ba50b }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_f4ac917ede2f4a3589f7362363fdc309 }}
+
+    - name: Build and push container image to registry
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: acinacr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_8716f70102284b929ee7e428b95ba50b }}/doctor-portal/uat:${{ github.sha }}
+        file: ./Dockerfile
+        build-args: REACT_APP_ENV=uat
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'uat-doctor-portal'
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_28d2d455ee9b4374827ea4234c9abf5c }}
+        images: 'acinacr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_8716f70102284b929ee7e428b95ba50b }}/doctor-portal/uat:${{ github.sha }}'

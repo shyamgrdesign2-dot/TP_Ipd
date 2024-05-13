@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { Input, Button, Drawer, Tabs, message, Select, Card, Spin, Segmented, Tooltip } from 'antd';
+import { Input, Button, Drawer, Tabs, Select, Card, Spin, Segmented, Tooltip } from 'antd';
 
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import { onlyNumberFormat } from "../../utils/utils";
+import { errorMessage, onlyNumberFormat } from "../../utils/utils";
 
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
-import { MESSAGE_KEY } from "../../utils/constants";
-import { removeBeforeWhiteSpace, hasNumber } from "../../utils/utils";
+import { removeBeforeWhiteSpace, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
 import Diagnosisicon from "../../assets/images/Diagnosis.svg";
 import {
     addTemplate,
@@ -24,8 +23,6 @@ import {
 import TabDiagnosisSearch from "../../components/tab_design/TabDiagnosisSearch";
 
 function TabDiagnosisBox() {
-
-    const [messageApi, contextHolder] = message.useMessage();
     const {
         selectedDiagnosisList,
         parentOptionsList,
@@ -166,12 +163,7 @@ function TabDiagnosisBox() {
     const onDeleteTemplateClicked = async (tdt_id) => {
         const action = await dispatch(deleteTemplate(tdt_id));
         if (action.meta.requestStatus === "rejected") {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
@@ -185,19 +177,9 @@ function TabDiagnosisBox() {
 
     const onAddTemplateClicked = async () => {
         if (diagnosisData.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 diagnosis added',
-                duration: 2
-            });
+            errorMessage('At least 1 diagnosis added')
         } else if (diagnosisData.filter(e => e.tds_name == "").length > 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup diagnosis name',
-                duration: 2
-            });
+            errorMessage('Please fillup diagnosis name')
         } else {
             var sendData = {
                 tdt_template_name: inputTemplateName,
@@ -224,19 +206,9 @@ function TabDiagnosisBox() {
 
     const onUpdateTemplateClicked = async () => {
         if (diagnosisData.length === 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'At least 1 diagnosis added',
-                duration: 2
-            });
+            errorMessage('At least 1 diagnosis added')
         } else if (diagnosisData.filter(e => e.tds_name == "").length > 0) {
-            messageApi.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: 'Please fillup diagnosis name',
-                duration: 2
-            });
+            errorMessage('Please fillup diagnosis name')
         } else {
             var data = JSON.parse(inputTemplateName);
             var sendData = {
@@ -454,7 +426,7 @@ function TabDiagnosisBox() {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
-                    value: `${sinceValue} ${option.value}`,
+                    value: `${sinceValue} ${sinceValue <= 1 ? option.value : `${option.value}(s)`}`,
                     label: <>{`${sinceValue}${option.label}`}</>,
                 };
             });
@@ -463,7 +435,7 @@ function TabDiagnosisBox() {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
-                    value: `${inputSince} ${option.value}`,
+                    value: `${inputSince} ${inputSince <= 1 ? option.value : `${option.value}(s)`}`,
                     label: <>{`${inputSince}${option.label}`}</>,
                 };
             });
@@ -489,7 +461,7 @@ function TabDiagnosisBox() {
                 const options = SINCE_OPTIONS.map((option) => {
                     return {
                         key: Math.random(),
-                        value: `${updateQuery} ${option.value}`,
+                        value: `${updateQuery} ${updateQuery <= 1 ? option.value : `${option.value}(s)`}`,
                         label: <>{`${updateQuery}${option.label}`}</>,
                     };
                 });
@@ -518,9 +490,9 @@ function TabDiagnosisBox() {
     ];
 
     const STATUS_LIST = [
-        { value: "ruled out", label: "Ruled Out" },
-        { value: "suspected", label: "Suspected" },
-        { value: "confirmed", label: "Confirmed" },
+        { value: "Ruled Out", label: "Ruled Out" },
+        { value: "Suspected", label: "Suspected" },
+        { value: "Confirmed", label: "Confirmed" },
     ];
 
     const onChangeSegmentedSinceChild = useCallback(
@@ -556,7 +528,7 @@ function TabDiagnosisBox() {
     );
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            setChildDrawerData({ ...childDrawerData, note: e.target.value })
+            setChildDrawerData({ ...childDrawerData, note: capitalizeAfterSentence(e.target.value) })
         },
         [childDrawerData]
     );
@@ -667,7 +639,6 @@ function TabDiagnosisBox() {
 
     return (
         <>
-            {contextHolder}
             <div>
                 <div className="d-flex align-items-center justify-content-between p-14-pb0">
                     <div className="d-flex align-items-center">

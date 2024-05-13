@@ -1,0 +1,22 @@
+.titleContainer {
+  background-color: #fcdada;
+  .imageStyle {
+    cursor: pointer;
+  }
+}
+
+.tableContainer {
+  position: relative;
+  height: 626px;
+  border-radius: 16px;
+  background-color: #fff;
+  overflow-y: scroll;
+}
+
+// .ant-modal .ant-modal-content {
+//   background-color: #fcdada;
+// }
+
+.custom-modal .ant-modal-content {
+  background-color: #fcdada;
+}

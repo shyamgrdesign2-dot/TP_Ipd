@@ -4,7 +4,7 @@ import { Button, Card, Row, Col, Segmented, Input } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import { onlyNumberFormat, hasNumber } from "../../utils/utils";
+import { onlyNumberFormat, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import {
@@ -139,7 +139,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
-                    value: `${sinceValue} ${option.value}`,
+                    value: `${sinceValue} ${sinceValue <= 1 ? option.value : `${option.value}(s)`}`,
                     label: <>{`${sinceValue}${option.label}`}</>,
                 };
             });
@@ -148,7 +148,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
-                    value: `${inputSince} ${option.value}`,
+                    value: `${inputSince} ${inputSince <= 1 ? option.value : `${option.value}(s)`}`,
                     label: <>{`${inputSince}${option.label}`}</>,
                 };
             });
@@ -175,7 +175,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                 const options = SINCE_OPTIONS.map((option) => {
                     return {
                         key: Math.random(),
-                        value: `${updateQuery} ${option.value}`,
+                        value: `${updateQuery} ${updateQuery <= 1 ? option.value : `${option.value}(s)`}`,
                         label: <>{`${updateQuery}${option.label}`}</>,
                     };
                 });
@@ -204,9 +204,9 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
     ];
 
     const STATUS_LIST = [
-        { value: "ruled out", label: "Ruled Out" },
-        { value: "suspected", label: "Suspected" },
-        { value: "confirmed", label: "Confirmed" },
+        { value: "Ruled Out", label: "Ruled Out" },
+        { value: "Suspected", label: "Suspected" },
+        { value: "Confirmed", label: "Confirmed" },
     ];
 
     const onChangeSegmentedSinceChild = useCallback(
@@ -245,7 +245,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
     );
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            diagnosisData[selectedIndex].note = e.target.value;
+            diagnosisData[selectedIndex].note = capitalizeAfterSentence(e.target.value);
             setDiagnosisData((prev) => [...prev]);
         },
         [selectedIndex, diagnosisData]
@@ -254,7 +254,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
     //Child Componet
     const CHILD_DRAWER_DATA = useMemo(() => {
         return (
-            selectedIndex != null && (
+            selectedIndex != null && diagnosisData[selectedIndex] !== undefined && (
                 <>
                     <div className="h-100">
                         <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">

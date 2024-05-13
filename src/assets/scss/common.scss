@@ -1,5 +1,9 @@
 * {
-    scrollbar-width: thin;
+    scrollbar-width: auto;
+    &::selection {
+        background-color: $theme;
+        color: $white;
+    }
 }
 *::-webkit-scrollbar {
     width: 5px;
@@ -9,15 +13,12 @@
     background: #eee;
 }
 *::-webkit-scrollbar-thumb {
-    background-color: #b0aef7;
+    background-color: $grayColor;
     border-radius: 20px;
 }
 body {
     font-family: 'Poppins' !important;
     color: $maincolor;
-    &::selection {
-        background-color: $themesecondary;
-    }
     a {
         text-decoration: none;
     }
@@ -72,9 +73,6 @@ body {
     .bg-secondary {
         background-color: $themesecondary !important;
     }
-    .bg-secondary-light {
-        background-color: $themesecondarylight;
-    }
     .fs-12 {
         span, label {
             font-size: 12px !important;
@@ -98,6 +96,9 @@ body {
     .small, small {
         font-size: .800em;
     }
+    .text-greycolor {
+        color: $grayColor !important;
+    }
     .backbar {
         color: $grayColor !important;
         font-weight: 500;
@@ -114,6 +115,9 @@ body {
         font-style: normal;
         font-weight: 600;
         line-height: normal;
+    }
+    .textcolor-29 {
+        color: #92929D;
     }
     table, p, div, span, tr, th, td{
         font-family: 'Poppins' !important;
@@ -186,11 +190,21 @@ body {
     .mb-12 {
         margin-bottom: 12px;
     }
+    .mb-15 {
+        margin-bottom:15px;
+    }
     .mb-20 {
         margin-bottom: 20px;
     }
+    .mb-28 {
+        margin-bottom: 28px;
+    }
     .p-10 {
         padding: 10px;
+    }
+    .py-5px-3px {
+        padding-top: 5px;
+        padding-bottom: 3px;
     }
     .p-14 {
         padding: 14px;
@@ -246,6 +260,9 @@ body {
         background-color: hsl(35, 100%, 46%, 0.1);
         color: $maincolor !important;
     }
+    .read-or-hide {
+        color: $theme !important;
+    }
     .cursor-pointer {
         cursor: pointer;
     }
@@ -278,7 +295,7 @@ body {
         border-radius: 10px;
     }
     .image-crop {
-        height: 230px;
+        height: 189px;
         overflow: hidden;
     }
     .ant-select {
@@ -383,6 +400,12 @@ body {
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
+    .text-truncate-threelines {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
     .endreason-textarea {
         textarea {
             border-radius: 10px;
@@ -412,6 +435,14 @@ body {
                 font-family: "icomoon" !important;
                 font-size: 16px;
                 font-weight: 400;
+            }
+        }
+    }
+
+    .ant-picker{
+        &:hover {
+            .ant-picker-suffix {
+                opacity: 1 !important;
             }
         }
     }
@@ -449,4 +480,211 @@ body {
             }
         } 
     }
+
+    .mobile__pdf__container {
+        #viewerContainer {
+            position: relative;
+            overflow: hidden;
+            width: 100% !important;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            .pdfViewer {
+                overflow: hidden;
+                .page {
+                    border-image: none;
+                    border: none;
+                    background-color: transparent;
+                    margin: 0;
+                }
+            }
+        }
+    }
+    #errorWrapper, #loadingBar {
+        display: none !important;
+    }
+    .pdfMobile-Class {
+        .mobile__pdf__container {
+            #viewerContainer {
+                .page {
+                    width: 100% !important;
+                    #page1 {
+                        width: 100% !important;
+                    }
+                }
+                .canvasWrapper {
+                    width: 100% !important;
+                }
+            }
+        }
+        .canvaspdf {
+            border: 1px solid $bordercolor; 
+            border-radius: 20px;   
+            background-color: $bgbody;
+            margin-top: 20px;
+            z-index: 1;
+            position: relative;
+        }
+    }
+    .title-hypertension {
+        font-size: 24px;
+        font-weight: 600;
+        letter-spacing: 0.1px;
+    }
+    .medical-history-section {
+        .ant-collapse-expand-icon {
+            margin-left: 25px;
+            margin-top: 4px;
+        }
+        .ant-collapse-header {
+            padding: 0 0 10px 0 !important;
+        }
+        .collapseButton {
+          width: 24px;
+          height: 24px;
+          &:hover {
+            color: $maincolor !important;
+          }
+        }
+        .history-badge {
+            border: 1px solid $bordercolor;
+            background-color: $white;
+            border-radius: 10px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            padding: 0 5px 0 10px;
+            margin-right: 10px;
+            margin-bottom: 14px;
+            font-family: 'roboto' !important;
+            span {
+                border-radius: 100px;
+                height: 26px;
+                width: 39px;
+                margin-left: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: $drawerHeaderColor;
+                font-size: 16px;
+                font-weight: 500;
+            }
+            &.history-active {
+                border-color: $theme;
+                span {
+                    background-color: #D1F1E4;
+                    color: #19BB7A !important;
+                }
+            }
+            &.history-inactive {
+                span {
+                    background-color: #FCDADA;
+                    color: #F04545 !important;
+                }
+            }
+        }
+    }
+    // rightside drawer css
+    .ant-drawer-open {
+        .ant-drawer-content-wrapper {
+            box-shadow: none !important;
+        }
+    }
+    .playdrawer {
+        background: transparent !important;
+        .ant-drawer-title {
+            font-size: 20px !important;
+            font-weight: 500 !important;
+            color: #000 !important;
+        }
+        .ant-drawer-header {
+            border-radius: 15px 0 0 0 !important;
+            background: #F1F1F5;
+            padding-left: 24px !important;
+            border: 0px;
+            padding: 15px 28px 14px 24px !important;
+            .ant-drawer-header-title {
+                flex-direction: row-reverse;
+                button.ant-drawer-close {
+                    margin: 0px;
+                }
+            }
+        }
+    }
+    .videodrawer-left {
+        .drawer-slider {
+            width: 340px !important;
+            margin-right: 25px;
+            margin-left: 3px;
+            img {
+                max-width: 100%;
+                outline: none;
+                border-radius: 10px;
+            }
+        }
+        &.drawer-slider:focus-visible {
+            outline: none;
+        }
+        ul.slick-dots {
+            display: flex !important;
+            justify-content: center;
+            margin: 0px;
+            padding: 0px;
+            li {
+                list-style: none;
+                margin: 5px;
+                button {
+                    border: 0px;
+                    padding: 0px;
+                    margin: 0px;
+                    font-size: 0px;
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 50%;
+                    background: #D9D9D9;
+                }
+            }
+            li.slick-active {
+                button {
+                    background: #A263D5;
+                }
+            }
+        }
+        .slick-list {
+            padding: 0px !important;
+        }
+        .slick-track {
+            display: flex;
+            width: 100% !important;
+        }
+        .slick-track {
+            .slick-slide {
+                position: relative;
+                button {
+                    border: 0px;
+                    background: transparent;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    position: absolute;
+                    outline: none;
+                    img {
+                        max-width: 100%;
+                        border-radius: 10px;
+                    }
+                }
+            }
+        }
+    }   
+}
+.prescription-pad {
+    .videodrawer {
+        margin: 0 0 -8px 0;
+    }
+}
+.shadow2 {
+    -webkit-box-shadow: 0px 0px 5px 4px rgba(202, 202, 202, 0.2);
+    -moz-box-shadow: 0px 0px 5px 4px rgba(202, 202, 202, 0.2);
+    box-shadow: 0px 0px 5px 4px rgba(202, 202, 202, 0.2);
 }

@@ -31,7 +31,7 @@ function AppointmentList() {
             />
           )}
           <Routes>
-            <Route path="/" element={<Appointment />} />
+            <Route path="/" element={<Appointment locationPath={locationPath} />} />
             <Route path="walk_in_consultation" element={<WalkInConsultation />} />
             <Route path="add_patient" element={<AddNewPatient />} />
             <Route path="edit_patient" element={<EditNewPatient />} />

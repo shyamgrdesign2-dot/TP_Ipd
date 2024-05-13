@@ -7,7 +7,9 @@ import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { useReactToPrint } from 'react-to-print';
 
-import { PDFReader } from 'reactjs-pdf-reader';
+// import { PDFReader } from 'reactjs-pdf-reader';
+
+import { errorMessage } from "../utils/utils";
 
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
@@ -18,11 +20,11 @@ import { MESSAGE_KEY } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import {
-    viewCaseManager,
-} from "../redux/caseManagerSlice";
+import { viewCaseManager } from "../redux/caseManagerSlice";
 
-// import { pdfjs, Document, Page } from "react-pdf";
+import { pdfjs, Document, Page } from "react-pdf";
+const worker = require('pdfjs-dist/build/pdf.worker.min.js')
+pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 //     "pdfjs-dist/build/pdf.worker.min.js",
 //     import.meta.url
@@ -91,6 +93,8 @@ function PrescriptionPrintView() {
     const [printRxUrl, setPrintRxUrl] = useState(state !== undefined ? `${state.print_rx_url}` : null);
 
     const [divWidth, setDivWidth] = useState(0);
+    const [numPages, setNumPages] = useState();
+    const [printBlob, setPrintBlob] = useState(null);
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
@@ -115,9 +119,23 @@ function PrescriptionPrintView() {
         });
     }, []);
 
-    const printContent = useReactToPrint({
-        content: () => printRef.current,
-    });
+    // const printContent = useReactToPrint({
+    //     content: () => printRef.current,
+    // });
+
+    const printContent = async () => {
+        var blobURL = URL.createObjectURL(printBlob);
+        var iframe = document.createElement('iframe'); //load content in an iframe to print later
+        document.body.appendChild(iframe);
+        iframe.style.display = 'none';
+        iframe.src = blobURL;
+        iframe.onload = function () {
+            setTimeout(function () {
+                iframe.focus();
+                iframe.contentWindow.print();
+            }, 1);
+        };
+    };
 
     const printInAppContent = async () => {
         navigate(`/prescription_print_view/?url=${printUrl}&key=print`, { replace: true, state: state })
@@ -174,29 +192,32 @@ function PrescriptionPrintView() {
         if (action.meta.requestStatus === "fulfilled") {
             navigate("/prescription", { replace: true, state: { patient_data: patient_data, caseManagerData: action.payload } })
         } else {
-            message.open({
-                key: MESSAGE_KEY,
-                type: 'warning',
-                content: action.error.message,
-                duration: 2
-            });
+            errorMessage(action.error)
         }
     };
 
-    const [numPages, setNumPages] = useState();
-    const [pageNumber, setPageNumber] = useState(1);
-
-    function onDocumentLoadSuccess({ numPages }) {
-        setNumPages(numPages);
+    // function onDocumentLoadSuccess({ numPages }) {
+    //     setNumPages(numPages);
+    // }
+    async function onDocumentLoadSuccess(successEvent) {
+        setNumPages(successEvent?.numPages);
+        const data = await successEvent.getData()
+        const blob = new Blob([data], { type: 'application/pdf' })
+        setPrintBlob(blob)
     }
-    function configurePrintUrl() {
-        message.open({
-            key: MESSAGE_KEY,
-            type: 'warning',
-            content: "Comming Soon",
-            duration: 2
-        });
-        // navigate("/configure_print_setting");
+
+    const configurePrintUrl = async () => {
+        var sendData = {
+            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            tcm_id: state.tcm_id,
+            configurePrintSetting: true
+        }
+        const action = await dispatch(viewCaseManager(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            navigate('/configure_print_setting', { state: { caseManagerData: action.payload } })
+        } else {
+            errorMessage(action.error)
+        }
     }
 
     return (
@@ -209,25 +230,30 @@ function PrescriptionPrintView() {
 
                         {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
                             <i className="icon-setting me-2"></i>
-                            <span className="text-decoration-underline fw-medium"> Configure Print Setting </span>
+                            <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                         </div>
                         }
                         <div className={`${!isMobile ? 'rounded-20px mt-20' : 'border-top-0 border-start-0 border-bottom-0'} border p-20 bg-white d-flex justify-content-between flex-column`}
                             style={{ height: !isMobile ? 'calc(100vh - 160px)' : 'calc(100vh - 60px)' }}>
                             <div>
-                                {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38">
+                                {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38" onClick={configurePrintUrl}>
                                     <i className="icon-setting me-2"></i>
-                                    <span className="text-decoration-underline fw-medium"> Configure Print Setting </span>
+                                    <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                                 </div>
                                 }
                                 <Button
                                     type="text"
-                                    onClick={() => !isChrome && !isSafari ? printInAppContent() : printContent()}
+                                    onClick={() => {
+                                        window.Moengage.track_event("print_select", {
+                                            "language": LANGUAGE_LIST.find(e => e.value === selectedLang).label
+                                        });
+                                        !isChrome && !isSafari ? printInAppContent() : printContent()
+                                    }}
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-Print"></i>}
                                 >
                                     <span className="fw-semibold">Print</span>
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                                 {/* <Button
 
@@ -236,7 +262,7 @@ function PrescriptionPrintView() {
                                     icon={<i className="icon-billings"></i>}
                                 >
                                     <span className="fw-semibold">Create Bill</span>
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button> */}
                                 <Button
                                     type="text"
@@ -245,7 +271,7 @@ function PrescriptionPrintView() {
                                     onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
                                 >
                                     <span className="fw-semibold">Download</span>
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                                 <Button
                                     type="text"
@@ -255,7 +281,7 @@ function PrescriptionPrintView() {
                                     loading={loading}
                                 >
                                     <span className="fw-semibold">Edit Prescription</span>
-                                    <i className="icon-right iconrotate90 ms-auto"></i>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                             </div>
                             {/* <div className="bg-body d-flex p-3 rounded-10px border">
@@ -280,9 +306,9 @@ function PrescriptionPrintView() {
                                     />
                                 </div>
                             </div>
-                            <div className="border rounded-20px bg-white mt-20 overflow-hidden">
+                            <div className="rounded-20px bg-white mt-20 overflow-hidden">
                                 <div ref={divRef} className="printheight">
-                                    {/* <div ref={printRef} className="position-relative h-100">
+                                    <div ref={printRef} className="position-relative h-100">
                                         <Document
                                             loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
                                             error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
@@ -294,6 +320,9 @@ function PrescriptionPrintView() {
                                                 .map((page) => {
                                                     return (
                                                         <Page
+                                                            key={Math.random()}
+                                                            className={printBlob ? 'react-pdf__Page_afterload' : null}
+                                                            loading={null}
                                                             width={divWidth}
                                                             pageNumber={page}
                                                             renderTextLayer={false}
@@ -302,9 +331,9 @@ function PrescriptionPrintView() {
                                                     );
                                                 })}
                                         </Document>
-                                    </div> */}
-                                    <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
-                                    <PDFReader key={selectedLang} ref={printRef} width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} />
+                                    </div>
+                                    {/* <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
+                                    <PDFReader key={selectedLang} ref={printRef} width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} /> */}
                                     {/* <embed className="printBox" ref={printRef} src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed> */}
                                     {/* <iframe
                                         src="https://pms-upgrade.azurewebsites.net/case_manager/pdf_casemanager_send.php?pdf_id=MTI3Njgx&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ=#toolbar=0&navpanes=0&scrollbar=0"

@@ -7,7 +7,7 @@ import SidebarPatient from '../common/SidebarPatient'
 import Welcome1 from '../common/Welcome1'
 import VitalsBodyComposition from '../components/VitalsBodyComposition';
 // import LabParameters from '../components/LabParameters';
-// import MedicalHistory from '../components/MedicalHistory';
+import MedicalHistory from '../components/MedicalHistory';
 // import Vaccination from '../components/Vaccination';
 import Cardiology from '../components/Cardiology';
 import variables from '../assets/scss/variables.scss'
@@ -17,11 +17,13 @@ import { useSelector, useDispatch } from "react-redux";
 import {
     viewCaseManager,
 } from "../redux/caseManagerSlice";
+import VisitVaccination from "./vaccination/components/visitVaccination/VisitVaccination";
 
 const { Sider, Content } = Layout;
 
 function PatientDetails() {
 
+    const { profile } = useSelector((state) => state.doctors);
     const {
         viewCaseManagerData,
         loading,
@@ -61,10 +63,18 @@ function PatientDetails() {
     }, [tcmData]);
 
     const nextPress = () => {
+        window.Moengage.track_event("patient_detail_prev", {
+            "doctor_id": profile?.doctor_unique_id,
+            "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0
+        });
         setTcmData({ tcm_id: viewCaseManagerData?.next_tcm_id, page: tcmData.page -= 1 })
     }
 
     const prevPress = () => {
+        window.Moengage.track_event("patient_detail_next", {
+            "doctor_id": profile?.doctor_unique_id,
+            "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0
+        });
         setTcmData({ tcm_id: viewCaseManagerData?.prev_tcm_id, page: (tcmData.page += 1) })
     }
 
@@ -96,10 +106,13 @@ function PatientDetails() {
                         <div className="appointment-wrap PatientDetailswrap">
                             <div className='row'>
                                 <div className='col-lg-5 col-md-12 col-12'>
-                                    <VitalsBodyComposition loading={loading} passVitals={viewCaseManagerData ? [...viewCaseManagerData.vitals].reverse().slice(0, 2) : viewCaseManagerData} />
-                                    {/* <MedicalHistory />
-                                            <LabParameters />
+                                    {viewCaseManagerData && viewCaseManagerData?.vitals?.length > 0 && (
+                                        <VitalsBodyComposition loading={loading} passVitals={viewCaseManagerData ? [...viewCaseManagerData.vitals].reverse().slice(0, 2) : viewCaseManagerData} />
+                                    )}
+                                    <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
+                                    {/*   <LabParameters />
                                             <Vaccination /> */}
+                                    <VisitVaccination />
                                 </div>
                                 <div className='col-lg-7 col-md-12 col-12'>
                                     <Cardiology patient_data={patient_data} tcmData={tcmData} loading={loading} viewCaseManagerData={viewCaseManagerData} nextPress={nextPress} prevPress={prevPress} />

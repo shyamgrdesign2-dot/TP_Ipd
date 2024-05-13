@@ -4,7 +4,7 @@ import { Button, Card, Row, Col, Segmented, Input } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import { onlyNumberFormat, hasNumber } from "../../utils/utils";
+import { onlyNumberFormat, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import {
@@ -84,6 +84,9 @@ function TabSymptomsSearch({ passIndex, onClose }) {
 
     const onSelectParent = useCallback(
         (e) => {
+            window.Moengage.track_event("symptom_select", {
+                "value": e.symptom_name
+            });
             symptomsData.push({
                 ...e,
                 since: "",
@@ -138,7 +141,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
-                    value: `${sinceValue} ${option.value}`,
+                    value: `${sinceValue} ${sinceValue <= 1 ? option.value : `${option.value}(s)`}`,
                     label: <>{`${sinceValue}${option.label}`}</>,
                 };
             });
@@ -147,7 +150,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
             const options = SINCE_OPTIONS.map((option) => {
                 return {
                     key: Math.random(),
-                    value: `${inputSince} ${option.value}`,
+                    value: `${inputSince} ${inputSince <= 1 ? option.value : `${option.value}(s)`}`,
                     label: <>{`${inputSince}${option.label}`}</>,
                 };
             });
@@ -174,7 +177,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                 const options = SINCE_OPTIONS.map((option) => {
                     return {
                         key: Math.random(),
-                        value: `${updateQuery} ${option.value}`,
+                        value: `${updateQuery} ${updateQuery <= 1 ? option.value : `${option.value}(s)`}`,
                         label: <>{`${updateQuery}${option.label}`}</>,
                     };
                 });
@@ -203,9 +206,9 @@ function TabSymptomsSearch({ passIndex, onClose }) {
     ];
 
     const SEVERITY_LIST = [
-        { value: "severe", label: "Severe" },
-        { value: "moderate", label: "Moderate" },
-        { value: "mild", label: "Mild" },
+        { value: "Severe", label: "Severe" },
+        { value: "Moderate", label: "Moderate" },
+        { value: "Mild", label: "Mild" },
     ];
 
     const onChangeSegmentedSinceChild = useCallback(
@@ -244,7 +247,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
     );
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            symptomsData[selectedIndex].note = e.target.value;
+            symptomsData[selectedIndex].note = capitalizeAfterSentence(e.target.value);
             setSymptomsData((prev) => [...prev]);
         },
         [selectedIndex, symptomsData]
@@ -253,7 +256,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
     //Child Componet
     const CHILD_DRAWER_DATA = useMemo(() => {
         return (
-            selectedIndex != null && (
+            selectedIndex != null && symptomsData[selectedIndex] !== undefined && (
                 <>
                     <div className="h-100">
                         <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
@@ -393,7 +396,6 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                                 )
                                             })
                                         ) : (
-
                                             parentOptionsList.length > 0 &&
                                             parentOptionsList.filter(e => ![...symptomsData.map(e1 => e1.symptom_name)].includes(e.symptom_name)).map((item, i) => {
                                                 return (
