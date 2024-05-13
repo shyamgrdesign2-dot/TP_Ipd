@@ -34,7 +34,7 @@ import hey from "../assets/images/bg-hey.png";
 
 import { Content } from "antd/es/layout/layout";
 import vaccinationImg from "../assets/images/Vaccination.svg";
-import { checkToShowVaccination } from "./vaccination/service";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 function Prescription() {
   const {
@@ -42,7 +42,6 @@ function Prescription() {
     customizedPadRightList,
     frequencyList,
     timingList,
-    profile,
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
@@ -95,7 +94,7 @@ function Prescription() {
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
-  const [shouldShowVaccination, setShouldShowVaccination] = useState(false);
+  const isVaccinationAccessable = useFeatureIsOn("vaccination-new-design");
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -236,14 +235,7 @@ function Prescription() {
         setAdditionalNote(caseManagerData.visit_advice);
       }
     }
-    checkForVaccination();
   }, []);
-
-  const checkForVaccination = async () => {
-    setShouldShowVaccination(
-      await checkToShowVaccination(profile?.doctor_unique_id)
-    );
-  };
 
   // Drawer Vitals
   const handleDrawerVital = useCallback(() => {
@@ -353,7 +345,7 @@ function Prescription() {
                         />
                       )}
                     </div>
-                    {shouldShowVaccination === "true" ? (
+                    {!!isVaccinationAccessable ? (
                       <div className="prescription-box-sm p-14">
                         <div className="d-flex align-items-center justify-content-between">
                           <div className="d-flex align-items-center">
