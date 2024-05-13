@@ -34,7 +34,7 @@ jobs:
         push: true
         tags: acinacr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_8716f70102284b929ee7e428b95ba50b }}/doctor-portal/uat:${{ github.sha }}
         file: ./Dockerfile
-        build-args: REACT_APP_ENV=${{ env.REACT_APP_ENV }}
+        build-args: REACT_APP_ENV=uat
 
   deploy:
     runs-on: ubuntu-latest
