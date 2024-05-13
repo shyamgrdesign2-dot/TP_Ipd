@@ -30,7 +30,7 @@ import {
 import CashManagerContext from "../../context/CashManagerContext";
 import { useLocation } from "react-router-dom";
 
-function Vaccination() {
+function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedCards, setSelectedCards] = useState([]);
@@ -251,6 +251,7 @@ function Vaccination() {
     <CashManagerContext.Provider value={contextApi}>
       <div className="vaccinationWrapper">
         <VaccineHeader
+          handleDrawerVaccination={handleDrawerVaccination}
           vaccinesData={previewData}
           patientDetails={patientDetails}
           setPrintType={setPrintType}

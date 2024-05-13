@@ -39,9 +39,9 @@ import vaccinationWhite from "../../assets/images/vaccination-white.svg";
 // import notesWhite from '../../assets/images/notes-white.svg';
 // import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
+import Vaccination from "../vaccination/Vaccination";
 
 function TabPrescription() {
-
   const {
     customizedPadLeftList,
     customizedPadRightList,
@@ -103,6 +103,7 @@ function TabPrescription() {
   const [collapsedFlag, setCollapsedFlag] = useState(null);
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
+  const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -244,6 +245,12 @@ function TabPrescription() {
     setMedicalHistoryDrawer(!medicalHistoryDrawer);
   }, [collapsedFlag, medicalHistoryDrawer]);
 
+  // Drawer Vaccination
+  const handleDrawerVaccination = useCallback(() => {
+    setCollapsedFlag(3);
+    setVaccinationDrawer(!vaccinationDrawer);
+  }, [vaccinationDrawer]);
+
   //Handle Sider
   const openCollapsed = useCallback(
     (flag) => {
@@ -261,9 +268,17 @@ function TabPrescription() {
         handleDrawerVital();
       } else if (flag === 2) {
         handleDrawerMedicalHistory();
+      } else if (flag === 3) {
+        handleDrawerVaccination();
       }
     },
-    [collapsedFlag, collapsed, vitalDrawer, medicalHistoryDrawer]
+    [
+      collapsedFlag,
+      collapsed,
+      vitalDrawer,
+      medicalHistoryDrawer,
+      vaccinationDrawer,
+    ]
   );
 
   useEffect(() => {
@@ -308,10 +323,6 @@ function TabPrescription() {
     }
   }, [selectedVitalsList]);
 
-  const vaccinationHandler = () => {
-    navigate("/vaccination", { state: { patient_data: patient_data } });
-  };
-
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -333,8 +344,9 @@ function TabPrescription() {
                       }
                     >
                       <div
-                        className={`prescription-tab-button rounded-10px ${collapsedFlag == 1 && "active"
-                          }`}
+                        className={`prescription-tab-button rounded-10px ${
+                          collapsedFlag == 1 && "active"
+                        }`}
                       >
                         <img
                           src={collapsedFlag == 1 ? vitalsDark : vitalsWhite}
@@ -347,7 +359,7 @@ function TabPrescription() {
                       key={i}
                       type="button"
                       className="mb-3 text-center btn btn-action"
-                      onClick={vaccinationHandler}
+                      onClick={handleDrawerVaccination}
                     >
                       <div className="bg-secondary-light prescription-tab-button rounded-10px">
                         <img src={vaccinationWhite} alt="Vitals" />
@@ -368,8 +380,9 @@ function TabPrescription() {
                       }
                     >
                       <div
-                        className={`prescription-tab-button rounded-10px ${collapsedFlag == 2 && "active"
-                          }`}
+                        className={`prescription-tab-button rounded-10px ${
+                          collapsedFlag == 2 && "active"
+                        }`}
                       >
                         <img
                           src={
@@ -506,6 +519,15 @@ function TabPrescription() {
             handleDrawerMedicalHistory={handleDrawerMedicalHistory}
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
+        </Drawer>
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerVaccination}
+          open={vaccinationDrawer}
+          width="100%"
+        >
+          <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
         </Drawer>
       </>
     </CashManagerContext.Provider>

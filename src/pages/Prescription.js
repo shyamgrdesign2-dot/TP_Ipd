@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Drawer } from "antd";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -35,6 +35,7 @@ import hey from "../assets/images/bg-hey.png";
 import { Content } from "antd/es/layout/layout";
 import vaccinationImg from "../assets/images/Vaccination.svg";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import Vaccination from "./vaccination/Vaccination";
 
 function Prescription() {
   const {
@@ -48,6 +49,7 @@ function Prescription() {
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
+  const isVaccination = state?.isVaccination;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -64,7 +66,6 @@ function Prescription() {
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
-  const navigate = useNavigate();
 
   const contextApi = {
     patient_data,
@@ -94,6 +95,7 @@ function Prescription() {
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
+  const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const isVaccinationAccessable = useFeatureIsOn("vaccination-new-design");
 
   useEffect(() => {
@@ -247,6 +249,17 @@ function Prescription() {
     setMedicalHistoryDrawer(!medicalHistoryDrawer);
   }, [medicalHistoryDrawer]);
 
+  // Drawer Vaccination
+  const handleDrawerVaccination = () => {
+    setVaccinationDrawer(!vaccinationDrawer);
+  };
+
+  useEffect(() => {
+    if (isVaccination) {
+      handleDrawerVaccination();
+    }
+  }, [isVaccination]);
+
   //Handle Sider
   const handleCollapsed = useCallback(
     (flag) => {
@@ -254,9 +267,11 @@ function Prescription() {
         handleDrawerVital();
       } else if (flag === 2) {
         handleDrawerMedicalHistory();
+      } else if (flag === 3) {
+        handleDrawerVaccination();
       }
     },
-    [vitalDrawer, medicalHistoryDrawer]
+    [vitalDrawer, medicalHistoryDrawer, vaccinationDrawer]
   );
 
   useEffect(() => {
@@ -300,10 +315,6 @@ function Prescription() {
       setVitalsData(updatedData);
     }
   }, [selectedVitalsList]);
-
-  const vaccinationHandler = () => {
-    navigate("/vaccination", { state: { patient_data: patient_data } });
-  };
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -358,7 +369,7 @@ function Prescription() {
                           </div>
                           <button
                             className="btn d-flex align-items-center btn-text"
-                            onClick={vaccinationHandler}
+                            onClick={handleDrawerVaccination}
                           >
                             {" "}
                             <i
@@ -485,6 +496,15 @@ function Prescription() {
             handleDrawerMedicalHistory={handleDrawerMedicalHistory}
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
+        </Drawer>
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerVaccination}
+          open={vaccinationDrawer}
+          width="100%"
+        >
+          <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
         </Drawer>
       </>
     </CashManagerContext.Provider>
