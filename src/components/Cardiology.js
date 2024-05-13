@@ -97,15 +97,15 @@ function Cardiology(props) {
                 <div>{isNumeric(record.tmm_days) ? `${record.tmm_days} - ${record.tmm_duration_type}` : `-`}</div>
             ),
         },
-        // {
-        //     title: 'QTY.',
-        //     dataIndex: 'qty',
-        //     key: 'qty',
-        //     width: '50px',
-        //     render: (text, record) => (
-        //         <div>{`${record.display_qty ? record.display_qty.toFixed(2) : '-'}`}</div>
-        //     ),
-        // },
+        {
+            title: 'QTY.',
+            dataIndex: 'qty',
+            key: 'qty',
+            width: '50px',
+            render: (text, record) => (
+                <div>{`${record.display_qty ? record.display_qty.toFixed(2) : '-'}`}</div>
+            ),
+        },
         {
             title: 'Note',
             dataIndex: 'note',
