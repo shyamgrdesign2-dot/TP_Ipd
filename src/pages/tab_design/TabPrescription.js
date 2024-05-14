@@ -332,43 +332,30 @@ function TabPrescription() {
             <div className="prescription-sidebar">
               {customizedPadLeftList?.map((e, i) => {
                 return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
+                  <button
+                    key={i}
+                    type="button"
+                    className="mb-3 text-center btn btn-action"
+                    onClick={() =>
+                      vitalsData.length === 0 && vitalsPastList.length === 0
+                        ? handleDrawerVital()
+                        : openCollapsed(1)
+                    }
+                  >
+                    <div
+                      className={`prescription-tab-button rounded-10px ${
+                        collapsedFlag == 1 && "active"
+                      }`}
+                    >
+                      <img
+                        src={collapsedFlag == 1 ? vitalsDark : vitalsWhite}
+                        alt="Vitals"
+                      />
+                    </div>
+                    <label className="text-white mt-1">Vitals</label>
+                  </button>
+                ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
                   <>
-                    <button
-                      key={i}
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={() =>
-                        vitalsData.length === 0 && vitalsPastList.length === 0
-                          ? handleDrawerVital()
-                          : openCollapsed(1)
-                      }
-                    >
-                      <div
-                        className={`prescription-tab-button rounded-10px ${
-                          collapsedFlag == 1 && "active"
-                        }`}
-                      >
-                        <img
-                          src={collapsedFlag == 1 ? vitalsDark : vitalsWhite}
-                          alt="Vitals"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Vitals</label>
-                    </button>
-                    <button
-                      key={i}
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={handleDrawerVaccination}
-                    >
-                      <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                        <img src={vaccinationWhite} alt="Vitals" />
-                      </div>
-                      <label className="text-white mt-1">Vaccine</label>
-                    </button>
-                  </>
-                ) : (
-                  e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
                     <button
                       key={i}
                       type="button"
@@ -394,6 +381,32 @@ function TabPrescription() {
                         />
                       </div>
                       <label className="text-white mt-1">History</label>
+                    </button>
+                    <button
+                      key={i}
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={handleDrawerVaccination}
+                    >
+                      <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                        <img src={vaccinationWhite} alt="Vitals" />
+                      </div>
+                      <label className="text-white mt-1">Vaccine</label>
+                    </button>
+                  </>
+                ) : (
+                  e.tmdpm_id === 7 &&
+                  e.tmdpm_status === 0 && (
+                    <button
+                      key={i}
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={handleDrawerVaccination}
+                    >
+                      <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                        <img src={vaccinationWhite} alt="Vitals" />
+                      </div>
+                      <label className="text-white mt-1">Vaccine</label>
                     </button>
                   )
                 );

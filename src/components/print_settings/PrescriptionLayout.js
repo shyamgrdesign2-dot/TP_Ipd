@@ -65,6 +65,7 @@ function PrescriptionLayout() {
                     </Form.Item>
                 </Col>
             </Row>
+            {console.log(printSettings)}
             {printSettings?.prescription?.case_option?.map((e, i) => {
                 return (
                     e?.custom_status === 'Y' && (
