@@ -39,6 +39,8 @@ import { listVideo } from "../redux/doctorsSlice";
 function HeaderPrescription() {
 
     const { frequencyList, timingList, videoList } = useSelector((state) => state.doctors);
+    const vaccines = useSelector((state) => state.vaccines);
+    console.log("vaccines44", vaccines);
     const {
         templates,
         loading,

@@ -20,6 +20,8 @@ import { updateDueDate, updateVaccine } from "../../service.js";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 import { errorMessage } from "../../../../utils/utils.js";
+import { useDispatch, useSelector } from "react-redux";
+import { addGivenVaccines } from "../../../../redux/vaccineSlice.js";
 
 const UpdateVaccine = ({
   show,
@@ -51,6 +53,8 @@ const UpdateVaccine = ({
   const [focusedIndexes, setFocusedIndexes] = useState([]);
   const selectRefs = useRef([]);
 
+  const dispatch = useDispatch();
+  const vaccines = useSelector((state) => state.vaccines);
   const { state } = useLocation();
   const { patient_data } = state;
 
@@ -66,6 +70,22 @@ const UpdateVaccine = ({
         : ""
     );
   }, []);
+
+  // useEffect(() => {
+  //   debugger;
+  //   if (vaccines?.status === "success") {
+  //     setUpdateLoader(false);
+  //     setShowSuccess(true);
+  //     getVaccineDetails();
+  //     setTimeout(() => {
+  //       setShow(false);
+  //       setSelectedCards([]);
+  //     }, 1000);
+  //   } else if (vaccines?.status === "failure") {
+  //     errorMessage({ name: "TypeError" });
+  //     setUpdateLoader(false);
+  //   }
+  // }, [vaccines?.status]);
 
   const updateVaccineDetails = async () => {
     const newFocusedIndexes = [];
@@ -102,15 +122,15 @@ const UpdateVaccine = ({
             vaccine?.tvp_remarks) ??
           "",
       };
-
-      return updateVaccine(payload);
+      console.log("vaccine", vaccine);
+      return await dispatch(addGivenVaccines({ payload, vaccine }));
+      // return updateVaccine(payload);
     });
 
     // Wait for all API calls to finish
     try {
-      const updateVaccineRes = await Promise.all(updatePromises);
       setUpdateLoader(false);
-      if (updateVaccineRes?.every((res) => res?.status === 201)) {
+      if (updatePromises?.every((res) => res?.status === 201)) {
         setShowSuccess(true);
         getVaccineDetails();
         setTimeout(() => {
