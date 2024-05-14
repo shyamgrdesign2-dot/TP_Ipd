@@ -5,7 +5,7 @@ import "./VisitVaccination.scss";
 
 import Vaccination from "../../../../assets/images/Vaccination.svg";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getNotGivenVaccines, getOverridenDueDate } from "../../service";
+import { getOverridenDueDate } from "../../service";
 import {
   dateFormatter,
   getDates,
@@ -24,22 +24,18 @@ function VisitVaccination() {
   const [pendingVaccines, setPendingVaccines] = useState([]);
 
   const overDueVaccines = async () => {
-    const notGivenVaccines = await getNotGivenVaccines(
-      patient_data?.patient_unique_id,
-      patient_data?.pm_pid
-    );
     const overridenVaccines = await getOverridenDueDate(
       patient_data?.patient_unique_id,
       patient_data?.pm_pid
     );
 
     const combinedData = mergeDataPatientDetails(
-      notGivenVaccines,
-      [],
       overridenVaccines,
       [],
+      [],
+      [],
       patient_data?.DOB || patient_data?.vac_dob
-    )?.filter((item) => item?.tvd_due_date);
+    );
     const vaccineDetailsWithAges = getDistinctAges(combinedData);
     const completeData = vaccineDetailsWithAges.idMap;
     const options = getDates(completeData);
