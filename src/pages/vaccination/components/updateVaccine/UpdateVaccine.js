@@ -72,14 +72,13 @@ const UpdateVaccine = ({
     selectRefs.current.forEach((ref, index) => {
       if (
         !vaccineDetails?.[selectedVaccines?.[index]?.tvac_name]
-          ?.vaccine_company_id ||
+          ?.vaccine_company_id &&
         !selectedVaccines?.[index]?.brandId
       ) {
         ref.focus();
         newFocusedIndexes.push(index);
       }
     });
-
     if (newFocusedIndexes?.length) {
       setFocusedIndexes(newFocusedIndexes);
       return;
