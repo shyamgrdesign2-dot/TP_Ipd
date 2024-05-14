@@ -32,15 +32,12 @@ import {
     addCaseManager,
     editCaseManager
 } from "../redux/caseManagerSlice";
-import { getGivenVaccineDetails } from '../pages/vaccination/service';
-
 import { listVideo } from "../redux/doctorsSlice";
 
 function HeaderPrescription() {
 
     const { frequencyList, timingList, videoList } = useSelector((state) => state.doctors);
     const vaccines = useSelector((state) => state.vaccines);
-    console.log("vaccines44", vaccines);
     const {
         templates,
         loading,
@@ -78,28 +75,16 @@ function HeaderPrescription() {
     //PopOverVideo function
     const [popOverVideo, setPopOverVideo] = useState(false);
     const [videoLink, setVideoLink] = useState(null);
-    const [vaccineData, setVaccineData] = useState([]);
 
     useEffect(() => {
         dispatch(oneClickTemplatesList());
         dispatch(listVideo());
-        getVaccineData();
     }, []);
 
     useEffect(() => {
         setMatchedTemplates(templates);
         setAllTemplates(templates);
     }, [templates]);
-
-    const getVaccineData = async () => {
-        const vaccineResult = await getGivenVaccineDetails(
-        patient_data?.patient_unique_id,
-        patient_data?.pm_pid
-        );
-        if (vaccineResult.length) {
-            setVaccineData(vaccineResult);
-        }
-    }
 
     const items = [
         {
@@ -825,8 +810,8 @@ function HeaderPrescription() {
               visit_advice: additionalNote,
               medical_history: medicalHistoryData,
               vaccines: {
-                given: [...vaccineData],
-                due: []
+                given: vaccines?.givenVaccines,
+                due: vaccines?.updatedDueVaccines
               },
             };
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))

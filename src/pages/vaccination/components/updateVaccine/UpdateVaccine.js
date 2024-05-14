@@ -20,8 +20,8 @@ import { updateDueDate, updateVaccine } from "../../service.js";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 import { errorMessage } from "../../../../utils/utils.js";
-import { useDispatch, useSelector } from "react-redux";
-import { addGivenVaccines } from "../../../../redux/vaccineSlice.js";
+import { useDispatch } from "react-redux";
+import { addDueVaccines, addGivenVaccines } from "../../../../redux/vaccineSlice.js";
 
 const UpdateVaccine = ({
   show,
@@ -54,7 +54,6 @@ const UpdateVaccine = ({
   const selectRefs = useRef([]);
 
   const dispatch = useDispatch();
-  const vaccines = useSelector((state) => state.vaccines);
   const { state } = useLocation();
   const { patient_data } = state;
 
@@ -70,22 +69,6 @@ const UpdateVaccine = ({
         : ""
     );
   }, []);
-
-  // useEffect(() => {
-  //   debugger;
-  //   if (vaccines?.status === "success") {
-  //     setUpdateLoader(false);
-  //     setShowSuccess(true);
-  //     getVaccineDetails();
-  //     setTimeout(() => {
-  //       setShow(false);
-  //       setSelectedCards([]);
-  //     }, 1000);
-  //   } else if (vaccines?.status === "failure") {
-  //     errorMessage({ name: "TypeError" });
-  //     setUpdateLoader(false);
-  //   }
-  // }, [vaccines?.status]);
 
   const updateVaccineDetails = async () => {
     const newFocusedIndexes = [];
@@ -104,7 +87,8 @@ const UpdateVaccine = ({
       return;
     }
     setUpdateLoader(true);
-    const updatePromises = selectedVaccines.map(async (vaccine) => {
+    let givenVaccineStatus = [];
+    selectedVaccines.forEach(async (vaccine) => {
       const payload = {
         patient_pid: patientDetails?.vac_pid || patient_data?.pm_pid,
         patient_uid: patientDetails?.patient_unique_id || patient_data?.pm_id,
@@ -122,15 +106,17 @@ const UpdateVaccine = ({
             vaccine?.tvp_remarks) ??
           "",
       };
-      console.log("vaccine", vaccine);
-      return await dispatch(addGivenVaccines({ payload, vaccine }));
-      // return updateVaccine(payload);
+      const givenVaccine = await updateVaccine(payload);
+      if (givenVaccine?.status === 201) {
+        dispatch(addGivenVaccines({ ...payload, ...vaccine }));
+      }
+      givenVaccineStatus.push(givenVaccine);
     });
 
     // Wait for all API calls to finish
     try {
       setUpdateLoader(false);
-      if (updatePromises?.every((res) => res?.status === 201)) {
+      if (givenVaccineStatus?.every((res) => res?.status === 201)) {
         setShowSuccess(true);
         getVaccineDetails();
         setTimeout(() => {
@@ -165,8 +151,8 @@ const UpdateVaccine = ({
 
   const updateVaccineDueDate = async () => {
     setUpdateLoader(true);
-
-    const updatePromises = selectedVaccines.map(async (vaccine) => {
+    let updatedVaccineStatus = [];
+    selectedVaccines.forEach(async (vaccine) => {
       const payload = {
         patient_pid: patientDetails?.vac_pid,
         patient_uid: patientDetails?.patient_unique_id,
@@ -174,15 +160,19 @@ const UpdateVaccine = ({
         overriden_due_date: dueDate,
         remarks: dueDateNote,
       };
+      const updatedVaccine = await updateDueDate(payload);
+      if (updatedVaccine?.status === 200) {
+        dispatch(addDueVaccines({ ...payload, ...vaccine }));
+      }
+      updatedVaccineStatus.push(updatedVaccine);
 
-      return updateDueDate(payload);
+      return updatedVaccineStatus;
     });
 
     // Wait for all API calls to finish
     try {
-      const updateDueDateRes = await Promise.all(updatePromises);
       setUpdateLoader(false);
-      if (updateDueDateRes?.every((res) => res?.status === 200)) {
+      if (updatedVaccineStatus?.every((res) => res?.status === 200)) {
         setShowSuccess(true);
         getVaccineDetails();
         setTimeout(() => {
@@ -353,7 +343,7 @@ const UpdateVaccine = ({
                       }
                       options={brands
                         ?.filter(
-                          (brand) => brand.tvc_default_vac === vaccine.tvac_name
+                          (brand) => brand?.tvc_default_vac === vaccine?.tvac_name
                         )
                         ?.map((brand) => ({
                           label: brand?.tvc_name,
