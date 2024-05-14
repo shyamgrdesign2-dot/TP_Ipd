@@ -5,7 +5,7 @@ import "./VisitVaccination.scss";
 
 import Vaccination from "../../../../assets/images/Vaccination.svg";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getNotGivenVaccines, getOverridenDueDate } from "../../service";
+import { getOverridenDueDate } from "../../service";
 import {
   dateFormatter,
   getDates,
@@ -20,23 +20,19 @@ function VisitVaccination() {
   const { state } = useLocation();
   const { patient_data } = state;
 
-  const [upcomingVaccines, setUpcomingVaccines] = useState(null);
-  const [pendingVaccines, setPendingVaccines] = useState(null);
+  const [upcomingVaccines, setUpcomingVaccines] = useState([]);
+  const [pendingVaccines, setPendingVaccines] = useState([]);
 
   const overDueVaccines = async () => {
-    const notGivenVaccines = await getNotGivenVaccines(
-      patient_data?.patient_unique_id,
-      patient_data?.pm_pid
-    );
     const overridenVaccines = await getOverridenDueDate(
       patient_data?.patient_unique_id,
       patient_data?.pm_pid
     );
 
     const combinedData = mergeDataPatientDetails(
-      notGivenVaccines,
-      [],
       overridenVaccines,
+      [],
+      [],
       [],
       patient_data?.DOB || patient_data?.vac_dob
     );
@@ -141,56 +137,67 @@ function VisitVaccination() {
   };
 
   return (
-    <div className="appointment-wrap PatientDetailswrap m-0">
-      <Card>
-        <Card.Header className="bg-white py-3">
-          <div className="d-flex align-items-center justify-content-between">
-            <div>
-              <img src={Vaccination} alt="Medical History" className="me-3" />
-              Vaccination
+    <>
+      {!pendingVaccines.length && !upcomingVaccines.length ? null : (
+        <div className="appointment-wrap PatientDetailswrap m-0">
+          <Card>
+            <Card.Header className="bg-white py-3">
+              <div className="d-flex align-items-center justify-content-between">
+                <div>
+                  <img
+                    src={Vaccination}
+                    alt="Medical History"
+                    className="me-3"
+                  />
+                  Vaccination
+                </div>
+                <Button
+                  className="btn btn-input d-flex align-items-center gap-1"
+                  onClick={() =>
+                    navigate("/prescription", {
+                      state: {
+                        patient_data: patient_data,
+                        isVaccination: true,
+                      },
+                    })
+                  }
+                >
+                  <span>See Chart</span>
+                  <i
+                    className="icon-right iconrotatehistory90"
+                    style={{ display: "block", transform: `rotate(180deg)` }}
+                  />
+                </Button>
+              </div>
+            </Card.Header>
+            <div className="visitBody">
+              <div className={"overflow-auto"} style={{ height: 458 }}>
+                {pendingVaccines === null ? (
+                  <div className="align-items-center text-center">
+                    <Spin />
+                  </div>
+                ) : (
+                  <div className="visitVaccineContainer">
+                    {pendingVaccines.length ? (
+                      <>
+                        <div className="title">Pending Vaccines</div>
+                        {resultData(pendingVaccines)}
+                      </>
+                    ) : null}
+                    {upcomingVaccines.length ? (
+                      <>
+                        <div className="title">Upcoming Vaccines</div>
+                        {resultData(upcomingVaccines)}
+                      </>
+                    ) : null}
+                  </div>
+                )}
+              </div>
             </div>
-            <Button
-              className="btn btn-input d-flex align-items-center gap-1"
-              onClick={() =>
-                navigate("/prescription", {
-                  state: { patient_data: patient_data, isVaccination: true },
-                })
-              }
-            >
-              <span>See Chart</span>
-              <i
-                className="icon-right iconrotatehistory90"
-                style={{ display: "block", transform: `rotate(180deg)` }}
-              />
-            </Button>
-          </div>
-        </Card.Header>
-        <div className="visitBody">
-          <div className={"overflow-auto"} style={{ height: 458 }}>
-            {pendingVaccines === null ? (
-              <div className="align-items-center text-center">
-                <Spin />
-              </div>
-            ) : (
-              <div className="visitVaccineContainer">
-                {pendingVaccines.length ? (
-                  <>
-                    <div className="title">Pending Vaccines</div>
-                    {resultData(pendingVaccines)}
-                  </>
-                ) : null}
-                {upcomingVaccines.length ? (
-                  <>
-                    <div className="title">Upcoming Vaccines</div>
-                    {resultData(upcomingVaccines)}
-                  </>
-                ) : null}
-              </div>
-            )}
-          </div>
+          </Card>
         </div>
-      </Card>
-    </div>
+      )}
+    </>
   );
 }
 
