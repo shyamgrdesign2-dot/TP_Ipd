@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
 import "./Vaccination.scss";
-import { Checkbox, Drawer, Spin } from "antd";
+import { Checkbox, Spin } from "antd";
 import VaccineHeader from "./components/vaccineHeader/VaccineHeader";
 import VaccineCard from "./components/vaccineCard/VaccineCard";
 import VaccineFilter from "./components/vaccineFilter/VaccineFilter";
@@ -19,7 +19,6 @@ import {
   getVaccineBrands,
   getPatientVaccineDetails,
   getOverridenDueDate,
-  createPatient,
 } from "./service";
 import {
   getDates,
@@ -326,17 +325,10 @@ function Vaccination({ handleDrawerVaccination }) {
           )}
         </div>
         {warningMsg ? (
-          <Drawer
-            placement="bottom"
-            closable={false}
-            open={!!warningMsg}
-            height={44}
-            mask={false} // Prevents blurring of background
-            style={{
-              width: "513px",
-              bottom: "110px",
-              position: "absolute",
-            }}
+          <div
+            className={`customWarningDrawer ${
+              !!warningMsg ? "open" : "closed"
+            }`}
           >
             <div className="warningStyle">
               {warningMsg}
@@ -347,7 +339,7 @@ function Vaccination({ handleDrawerVaccination }) {
                 onClick={warningMsgHandler}
               />
             </div>
-          </Drawer>
+          </div>
         ) : null}
         {selectedCards.length && !isCardClicked ? (
           <SelectionPopup

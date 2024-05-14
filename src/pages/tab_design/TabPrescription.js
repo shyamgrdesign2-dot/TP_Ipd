@@ -12,7 +12,7 @@ import { ADD, EDIT } from "../../utils/constants";
 import { getVitals } from "../../redux/vitalsSlice";
 import { getPatientLastHistory } from "../../redux/medicalhistorySlice";
 
-import CashManagerContext from '../../context/CashManagerContext';
+import CashManagerContext from "../../context/CashManagerContext";
 
 import HeaderPrescription from "../../common/HeaderPrescription";
 import TabSymptomsBox from "../../components/tab_design/TabSymptomsBox";
@@ -28,11 +28,10 @@ import TabVitalsList from "../../components/tab_design/TabVitalsList";
 import MedicalHistoryBox from "../../components/MedicalHistoryBox";
 import TabMedicalHistoryList from "../../components/tab_design/TabMedicalHistoryList";
 
-
-import vitalsWhite from '../../assets/images/vitals-white.svg';
-import vitalsDark from '../../assets/images/vitals-dark.svg';
-import medicalHistoryWhite from '../../assets/images/medical-history-white.svg';
-import medicalHistoryDark from '../../assets/images/medical-history-dark.svg';
+import vitalsWhite from "../../assets/images/vitals-white.svg";
+import vitalsDark from "../../assets/images/vitals-dark.svg";
+import medicalHistoryWhite from "../../assets/images/medical-history-white.svg";
+import medicalHistoryDark from "../../assets/images/medical-history-dark.svg";
 import vaccinationWhite from "../../assets/images/vaccination-white.svg";
 
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
@@ -40,6 +39,7 @@ import vaccinationWhite from "../../assets/images/vaccination-white.svg";
 // import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
 import Vaccination from "../vaccination/Vaccination";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 function TabPrescription() {
   const {
@@ -72,6 +72,7 @@ function TabPrescription() {
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
+  const isVaccinationAccessable = useFeatureIsOn("vaccination-new-design");
 
   const contextApi = {
     patient_data,
@@ -191,8 +192,9 @@ function TabPrescription() {
               frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
             medicineUnit: medicineUnit,
-            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
-              }`,
+            tmm_days_duration_type: `${
+              e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
+            }`,
             unique_id: uuidv4(),
           };
         });
@@ -354,8 +356,8 @@ function TabPrescription() {
                     </div>
                     <label className="text-white mt-1">Vitals</label>
                   </button>
-                ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
-                  <>
+                ) : (
+                  e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
                     <button
                       key={i}
                       type="button"
@@ -382,35 +384,21 @@ function TabPrescription() {
                       </div>
                       <label className="text-white mt-1">History</label>
                     </button>
-                    <button
-                      key={i}
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={handleDrawerVaccination}
-                    >
-                      <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                        <img src={vaccinationWhite} alt="Vitals" />
-                      </div>
-                      <label className="text-white mt-1">Vaccine</label>
-                    </button>
-                  </>
-                ) : (
-                  e.tmdpm_id === 7 &&
-                  e.tmdpm_status === 0 && (
-                    <button
-                      key={i}
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={handleDrawerVaccination}
-                    >
-                      <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                        <img src={vaccinationWhite} alt="Vitals" />
-                      </div>
-                      <label className="text-white mt-1">Vaccine</label>
-                    </button>
                   )
                 );
               })}
+              {!!isVaccinationAccessable && (
+                <button
+                  type="button"
+                  className="mb-3 text-center btn btn-action"
+                  onClick={handleDrawerVaccination}
+                >
+                  <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                    <img src={vaccinationWhite} alt="Vitals" />
+                  </div>
+                  <label className="text-white mt-1">Vaccine</label>
+                </button>
+              )}
               {/* <button type='button' className="mb-3 text-center btn btn-action">
                                 <div className="prescription-tab-button rounded-10px">
                                     <img src={medicalHistoryWhite} alt="History" />
