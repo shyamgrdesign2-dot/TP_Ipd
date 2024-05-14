@@ -13,7 +13,7 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
 
   useEffect(() => {
     if (patientDetails.pm_dob) {
-      setDob(patientDetails.pm_dob);
+      setDob(moment(patientDetails.pm_dob).format("DD-MM-YYYY"));
     }
   }, []);
 
@@ -76,7 +76,7 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
             setDob(d);
           }}
           format="DD-MM-YYYY"
-          value={dob ? dayjs(dob) : ""}
+          value={dob ? dayjs(dob, "DD-MM-YYYY") : ""}
         />
 
         <Button
