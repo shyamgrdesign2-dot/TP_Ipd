@@ -17,7 +17,7 @@
     background-color: transparent;
 
     .clearStyle {
-      color: #fff !important;
+      color: #fff;
     }
   }
 
@@ -37,4 +37,24 @@
 
 .ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover {
   border: 2px solid #3030c2;
+}
+
+.customDrawer {
+  position: fixed;
+  bottom: -80px; /* Start the drawer off-screen */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  width: 436px;
+  border-radius: 35px;
+  transition: bottom 0.3s ease; /* Use 'bottom' property for the transition */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.customDrawer.open {
+  bottom: 18px; /* Bring the drawer up to the desired position */
+}
+
+.drawerContainer {
+  height: 80px;
 }

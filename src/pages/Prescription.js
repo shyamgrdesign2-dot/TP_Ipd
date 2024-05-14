@@ -326,65 +326,35 @@ function Prescription() {
             <div className="col-lg-4 col-md-12 col-12">
               {customizedPadLeftList?.map((e, i) => {
                 return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
-                  <>
-                    <div key={i} className="prescription-box-sm p-14">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                          <img src={vitals} alt="vitals" className="me-3" />
-                          <div className="title-common">
-                            Vitals & Body Composition
-                          </div>
+                  <div key={i} className="prescription-box-sm p-14">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <img src={vitals} alt="vitals" className="me-3" />
+                        <div className="title-common">
+                          Vitals & Body Composition
                         </div>
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerVital}
-                        >
-                          {" "}
-                          <i
-                            className={`${
-                              vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                            } me-1 fs-5`}
-                          ></i>{" "}
-                          <span>{`${
-                            vitalsData.length > 0 ? "Edit" : "Add"
-                          }`}</span>
-                        </button>
                       </div>
-                      {vitalsData.length > 0 && (
-                        <VitalsList
-                          mode={caseManagerData !== undefined ? EDIT : ADD}
-                        />
-                      )}
+                      <button
+                        className="btn d-flex align-items-center btn-text"
+                        onClick={handleDrawerVital}
+                      >
+                        {" "}
+                        <i
+                          className={`${
+                            vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                          } me-1 fs-5`}
+                        ></i>{" "}
+                        <span>{`${
+                          vitalsData.length > 0 ? "Edit" : "Add"
+                        }`}</span>
+                      </button>
                     </div>
-                    {!!isVaccinationAccessable ? (
-                      <div className="prescription-box-sm p-14">
-                        <div className="d-flex align-items-center justify-content-between">
-                          <div className="d-flex align-items-center">
-                            <img
-                              src={vaccinationImg}
-                              alt="vitals"
-                              className="me-3"
-                            />
-                            <div className="title-common">Vaccination</div>
-                          </div>
-                          <button
-                            className="btn d-flex align-items-center btn-text"
-                            onClick={handleDrawerVaccination}
-                          >
-                            {" "}
-                            <i
-                              className={`${
-                                vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                              } me-1 fs-5`}
-                            ></i>{" "}
-                            <span>{`${
-                              vitalsData.length > 0 ? "Edit" : "Add"
-                            }`}</span>
-                          </button>
-                        </div>
-                      </div>
-                    ) : null}
-                  </>
+                    {vitalsData.length > 0 && (
+                      <VitalsList
+                        mode={caseManagerData !== undefined ? EDIT : ADD}
+                      />
+                    )}
+                  </div>
                 ) : (
                   e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
                     <div key={i} className="prescription-box-sm p-14">
@@ -423,6 +393,28 @@ function Prescription() {
                   )
                 );
               })}
+              {!!isVaccinationAccessable && (
+                <div className="prescription-box-sm p-14">
+                  <div className="d-flex align-items-center justify-content-between">
+                    <div className="d-flex align-items-center">
+                      <img src={vaccinationImg} alt="vitals" className="me-3" />
+                      <div className="title-common">Vaccination</div>
+                    </div>
+                    <button
+                      className="btn d-flex align-items-center btn-text"
+                      onClick={handleDrawerVaccination}
+                    >
+                      {" "}
+                      <i
+                        className={`${
+                          vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                        } me-1 fs-5`}
+                      ></i>{" "}
+                      <span>{`${vitalsData.length > 0 ? "Edit" : "Add"}`}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
               {/* <div>
                 <button className="btn btn-parameters mx-auto w-100">
                   <div className="align-items-center d-flex justify-content-center">
