@@ -557,6 +557,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         ({
                                                                             tmm_generic,
                                                                             tmf_block,
+                                                                            tmm_dosage,
+                                                                            medicineUnit,
+                                                                            tmm_unit,
                                                                             tcm_tmm_freq_morning,
                                                                             tcm_tmm_freq_afternoon,
                                                                             tcm_tmm_freq_evening,
@@ -565,10 +568,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             tmm_time,
                                                                             tmm_days,
                                                                             tmm_duration_type,
-                                                                            // display_qty,
+                                                                            display_qty,
                                                                             tmm_remarks
                                                                         }) => ({
                                                                             tmm_generic,
+
+                                                                            modiUnitPerDose: tmm_dosage ? `${tmm_dosage} ${medicineUnit && medicineUnit.find((x) => x.tmu_id == tmm_unit) !== undefined ? medicineUnit.find((x) => x.tmu_id == tmm_unit).tmu_title : ""}` : "",
 
                                                                             modiFrequency: tmf_block === 0 || tmf_block === "" ? `${(tcm_tmm_freq_morning || tcm_tmm_freq_afternoon || tcm_tmm_freq_evening || tcm_tmm_freq_night) ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}${tcm_tmm_freq_evening ? '-' + tcm_tmm_freq_evening : ''}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : ``}` : `(${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
 
@@ -577,6 +582,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             modiDuration: isNumeric(tmm_days) ? `${tmm_days} ${tmm_duration_type}` : '-',
 
                                                                             // modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
+                                                                            modiDisplayQty: display_qty ? display_qty : '',
 
                                                                             tmm_remarks
                                                                         })
@@ -601,6 +607,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         ({
                                                                             tmm_generic,
                                                                             tmf_block,
+                                                                            tmm_dosage,
+                                                                            medicineUnit,
+                                                                            tmm_unit,
                                                                             tcm_tmm_freq_morning,
                                                                             tcm_tmm_freq_afternoon,
                                                                             tcm_tmm_freq_evening,
@@ -609,10 +618,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             tmm_time,
                                                                             tmm_days,
                                                                             tmm_duration_type,
-                                                                            // display_qty,
+                                                                            display_qty,
                                                                             tmm_remarks
                                                                         }) => ({
                                                                             tmm_generic,
+
+                                                                            modiUnitPerDose: tmm_dosage ? `${tmm_dosage} ${medicineUnit && medicineUnit.find((x) => x.tmu_id == tmm_unit) !== undefined ? medicineUnit.find((x) => x.tmu_id == tmm_unit).tmu_title : ""}` : "",
 
                                                                             modiFrequency: tmf_block === 0 || tmf_block === "" ? `${(tcm_tmm_freq_morning || tcm_tmm_freq_afternoon || tcm_tmm_freq_evening || tcm_tmm_freq_night) ? `${tcm_tmm_freq_morning ? tcm_tmm_freq_morning : 0}-${tcm_tmm_freq_afternoon ? tcm_tmm_freq_afternoon : 0}${tcm_tmm_freq_evening ? '-' + tcm_tmm_freq_evening : ''}-${tcm_tmm_freq_night ? tcm_tmm_freq_night : 0}` : ``}` : `(${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
 
@@ -620,7 +631,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                                                                             modiDuration: isNumeric(tmm_days) ? `${tmm_days} ${tmm_duration_type}` : '-',
 
-                                                                            // modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
+                                                                            modiDisplayQty: display_qty ? display_qty : '',
 
                                                                             tmm_remarks
                                                                         })
@@ -638,9 +649,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     <View style={styles.row}>
                                                         <Text style={[styles.cell, { flex: 0.09, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>RX</Text>
                                                         <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                        <Text style={[styles.cell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>UNIT PER DOSE</Text>
                                                         <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>FREQUENCY</Text>
                                                         <Text style={[styles.cell, { flex: 0.28, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
-                                                        {/* <Text style={[styles.cell, { flex: 0.15, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>QTY.</Text> */}
+                                                        <Text style={[styles.cell, { flex: 0.15, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>QTY.</Text>
                                                         <Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
                                                     </View>
                                                     {caseManagerData.medicine.map((item, i) => (
@@ -650,15 +662,16 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.tmm_medicine_name}</Text>
                                                                 <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.tmm_generic}</Text>
                                                             </View>
+                                                            <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item.tmm_dosage ? `${item.tmm_dosage} ${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit).tmu_title : ""}` : ""}`}</Text>
                                                             <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                 {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning : 0}-${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon : 0}${item.tcm_tmm_freq_evening ? '-' + item.tcm_tmm_freq_evening : ''}-${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night : 0}` : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}
                                                             </Text>
                                                             <Text style={[styles.cell, { flex: 0.28, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                 {isNumeric(item.tmm_days) ? `${item.tmm_days} ${item.tmm_duration_type}` : '-'}
                                                             </Text>
-                                                            {/* <Text style={[styles.cell, { flex: 0.15, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                {item.display_qty ? item.display_qty.toFixed(2).replace(/\.00$/, '') : '-'}
-                                                            </Text> */}
+                                                            <Text style={[styles.cell, { flex: 0.15, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                {item.display_qty ? item.display_qty : '-'}
+                                                            </Text>
                                                             <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                 {item.tmm_remarks ? item.tmm_remarks : '-'}
                                                             </Text>
