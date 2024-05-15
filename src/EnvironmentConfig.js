@@ -52,7 +52,7 @@ const uat = {
   casemanager_api_url: `https://casemanager-uat.azurewebsites.net`,
   printsettings_api_url: `https://printsetting-uat.azurewebsites.net`,
   medicalhistory_api_url: `https://medicalhistory-uat.azurewebsites.net`,
-  videolibrary_api_url: `https://videolibrary-webservices.azurewebsites.net`,
+  videolibrary_api_url: `https://videolibrary-uat.azurewebsites.net`,
   sso_to_pm_url: `https://pm-uat-dhspl-2.tatvacare.in/api/get_doctor_sso_token.php`,
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
