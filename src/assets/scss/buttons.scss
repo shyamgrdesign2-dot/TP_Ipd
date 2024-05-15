@@ -474,4 +474,18 @@ body {
             }
         }
     }
+    .btn{
+        &.btn-videoClose {
+            background-color: transparent !important;
+            i {
+                color: $grayColor;
+            }
+            &:hover, &:focus{
+                background-color: transparent !important;
+                i {
+                    color: $grayColor;
+                }
+            }
+        }
+    }
 }

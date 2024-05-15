@@ -59,6 +59,10 @@ body {
         }
 
         .ant-drawer-content {
+            &.modalWidth-400 {
+                width: 400px !important;
+            }
+            
             &.modalWidth-563 {
                 width: 563px !important;
             }
@@ -251,5 +255,42 @@ body {
         padding:5px 0 0 0;
         margin: 0px;
         text-align: center;
+    }
+}
+
+.prescription-pad {
+    .ant-modal-footer {
+        display: none;
+    }
+    .ant-modal-content {
+        border-radius: 25px !important;
+        padding: 0px;
+        overflow: hidden;
+        .ant-modal-close {
+            padding: 0px;
+            top: 19px;
+            position: absolute;
+            right: 20px;
+            &:hover {
+                background: transparent;
+            }
+            .ant-modal-close-icon {
+                color: $maincolor !important;
+                font-size: 18px;
+            }
+        }
+        .ant-modal-header {
+            background-color: $descpadcolor;
+            margin: 0px;
+            .ant-modal-title {
+                font-size: 20px;
+                line-height: 36px;
+                font-weight: 500;
+                color: #454551;
+                letter-spacing: 0.1px;
+                font-family: 'Poppins';
+                padding: 20px 0 20px 25px;
+            }
+        }
     }
 }
