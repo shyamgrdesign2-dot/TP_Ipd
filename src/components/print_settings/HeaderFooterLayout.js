@@ -61,7 +61,7 @@ const CustomRow = ({ children, ...props }) => {
                             />
                         ),
                     });
-                } else if (child.key === 'tmdpm_status') {
+                } else if (child.key === 'enable') {
                     return React.cloneElement(child, {
                         style: {
                             display: 'flex',
