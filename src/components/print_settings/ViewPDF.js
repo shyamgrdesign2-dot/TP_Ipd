@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    const { caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = props
+    let { caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, vaccines } = props
 
     const patientDataShow = (id) => {
         var value = ''
@@ -1109,61 +1109,153 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </>
                             ) : option?.id === 10 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
                                 <>
-                                    {caseManagerData.symptoms.length > 0 && (
-                                        option?.format === 'inline' ? (
+                                {(vaccines?.givenVaccines?.length > 0 || vaccines?.updatedDueVaccines?.length > 0) && (
+                                    option?.format === 'inline' ? (
+                                        <>
                                             <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
-                                                {caseManagerData.symptoms.map((item, i) => {
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;</Text>{"\n"}
+
+                                                {vaccines?.givenVaccines?.map((item, i) => {
                                                     return (
-                                                        <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
-                                                            {(item.since || item.severity || item.note) ?
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                                :
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                            }
-                                                        </Text>
+                                                            <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tvac_name}&nbsp;</Text>            
+                                                                    <Text key={i} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                    {`(Given Date : `}
+                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            {item?.vaccine_given_date}
+                                                                        </Text>
+                                                                    </Text>
+                                                                    <Text key={i} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                        {` | Brand : `}
+                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            {item?.brand}
+                                                                        </Text>
+                                                                    </Text>
+                                                                    <Text key={i} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                        {` | Note : `}
+                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            {`${item?.remarks})`}
+                                                                        </Text>
+                                                                    </Text> 
+                                                                    {"\n"}
+                                                            </Text>
+                                                    )
+                                                })}
+
+                                            </Text>
+                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Due Vaccines :&nbsp;</Text>{"\n"}
+                                                {vaccines?.updatedDueVaccines?.map((item, i) => {
+                                                    return (
+                                                        <>
+                                                            <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tvac_name}&nbsp;</Text>            
+                                                                    <Text key={i} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                    {`(Updated Due Date : `}
+                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            {item?.overriden_due_date}
+                                                                        </Text>
+                                                                    </Text>
+                                                                    <Text key={i} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                        {` | Note : `}
+                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            {`${item?.remarks})`}
+                                                                        </Text>
+                                                                    </Text> 
+                                                                    {"\n"}
+                                                            </Text>
+                                                        </>
                                                     )
                                                 })}
                                             </Text>
-                                        ) : option?.format === 'listview' ? (
+                                        </>
+                                    ) : option?.format === 'listview' ? (
+                                        <>
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
-                                                {caseManagerData.symptoms.map((item, i) => {
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;</Text>
+                                                {vaccines?.givenVaccines?.map((item, i) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
-                                                            {(item.since || item.severity || item.note) &&
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                                            }
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tvac_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                {`(Given Date : ${item.vaccine_given_date} | Brand : ${item.brand} | Note : ${item.remarks})`}&nbsp;
+                                                            </Text>
                                                         </Text>
                                                     )
                                                 })}
                                             </View>
-                                        ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Due Vaccines :&nbsp;</Text>
+                                                {vaccines?.updatedDueVaccines?.map((item, i) => {
+                                                    return (
+                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tvac_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                {`(Updated Due Date : ${item.overriden_due_date} | Note : ${item.remarks})`}&nbsp;
+                                                            </Text>
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </View>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <View style={styles.row}>
-                                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
-                                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SEVERITY</Text>
-                                                        <Text style={[styles.cell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                        <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                        <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Given Date</Text>
+                                                        <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Brand</Text>
+                                                        <Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
                                                     </View>
-                                                    {caseManagerData.symptoms.map((item, i) => (
+                                                    {vaccines?.givenVaccines?.map((item, i) => (
                                                         <View style={styles.row} key={i}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.symptom_name}</Text>
-                                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
-                                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.severity ? item.severity : '-'}</Text>
-                                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
+                                                            <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                {item.tvac_name}
+                                                            </Text>
+                                                            <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                {item.vaccine_given_date}
+                                                            </Text>
+                                                            <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                {item.brand}
+                                                            </Text>
+                                                            <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                {item.remarks ? item.remarks : '-'}
+                                                            </Text>
                                                         </View>
                                                     ))}
                                                 </View>
                                             </View>
-                                        )
-                                    )}
-                                </>
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Due Vaccines :&nbsp;</Text>
+                                                <View style={styles.table}>
+                                                    <View style={styles.row}>
+                                                        <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                        <Text style={[styles.cell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Updated Due Date</Text>
+                                                        <Text style={[styles.cell, { flex: 1, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                    </View>
+                                                    {vaccines?.updatedDueVaccines?.map((item, i) => (
+                                                        <View style={styles.row} key={i}>
+                                                            <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                {item.tvac_name}
+                                                            </Text>
+                                                            <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                {item.overriden_due_date}
+                                                            </Text>
+                                                            <Text style={[styles.cell, { flex: 1, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                {item.remarks ? item.remarks : '-'}
+                                                            </Text>
+                                                        </View>
+                                                    ))}
+                                                </View>
+                                            </View>
+                                        </>
+                                    )
+                                )}
+                            </>
                             )
                         )
                     })}

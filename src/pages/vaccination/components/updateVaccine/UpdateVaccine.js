@@ -174,8 +174,8 @@ const UpdateVaccine = ({
       if (updatedVaccine?.status === 200) {
         dispatch(
           addDueVaccines({
-            ...payload.remarks,
-            tvac_name: vaccine.tvac_name
+            ...payload,
+            tvac_name: vaccine.tvac_name,
           })
         );
       }
