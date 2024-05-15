@@ -21,7 +21,10 @@ import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 import { errorMessage } from "../../../../utils/utils.js";
 import { useDispatch } from "react-redux";
-import { addDueVaccines, addGivenVaccines } from "../../../../redux/vaccineSlice.js";
+import {
+  addDueVaccines,
+  addGivenVaccines,
+} from "../../../../redux/vaccineSlice.js";
 
 const UpdateVaccine = ({
   show,
@@ -108,7 +111,14 @@ const UpdateVaccine = ({
       };
       const givenVaccine = await updateVaccine(payload);
       if (givenVaccine?.status === 201) {
-        dispatch(addGivenVaccines({ ...payload, ...vaccine }));
+        dispatch(
+          addGivenVaccines({
+            ...payload,
+            tvac_name: vaccine?.tvac_name,
+            brand: brands?.find((b) => b?.tvc_id === payload.vaccine_company_id)
+              ?.tvc_name,
+          })
+        );
       }
       givenVaccineStatus.push(givenVaccine);
     });
@@ -162,7 +172,12 @@ const UpdateVaccine = ({
       };
       const updatedVaccine = await updateDueDate(payload);
       if (updatedVaccine?.status === 200) {
-        dispatch(addDueVaccines({ ...payload, ...vaccine }));
+        dispatch(
+          addDueVaccines({
+            ...payload.remarks,
+            tvac_name: vaccine.tvac_name
+          })
+        );
       }
       updatedVaccineStatus.push(updatedVaccine);
 
@@ -343,7 +358,8 @@ const UpdateVaccine = ({
                       }
                       options={brands
                         ?.filter(
-                          (brand) => brand?.tvc_default_vac === vaccine?.tvac_name
+                          (brand) =>
+                            brand?.tvc_default_vac === vaccine?.tvac_name
                         )
                         ?.map((brand) => ({
                           label: brand?.tvc_name,
