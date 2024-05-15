@@ -38,6 +38,7 @@ function HeaderPrescription() {
 
     const { frequencyList, timingList, videoList } = useSelector((state) => state.doctors);
     const vaccines = useSelector((state) => state.vaccines);
+    const { givenVaccines, updatedDueVaccines } = vaccines;
     const {
         templates,
         loading,
@@ -810,8 +811,8 @@ function HeaderPrescription() {
               visit_advice: additionalNote,
               medical_history: medicalHistoryData,
               vaccines: {
-                given: vaccines?.givenVaccines,
-                due: vaccines?.updatedDueVaccines
+                given: givenVaccines,
+                due: updatedDueVaccines
               },
             };
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
@@ -1020,9 +1021,8 @@ function HeaderPrescription() {
                                     </Button>
                                 </div>
                             </Tooltip> */}
-
-                            <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote) ? "" : "Please fill your prescription to end visit."}>
-                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote) && onEndVisitClick()} loading={loading}>
+                            <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote || givenVaccines.length > 0 || updatedDueVaccines?.length > 0) ? "" : "Please fill your prescription to end visit."}>
+                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote || givenVaccines.length > 0 || updatedDueVaccines?.length > 0) && onEndVisitClick()} loading={loading}>
                                     <i className='icon-exit me-2'></i>
                                     End Visit
                                 </Button>

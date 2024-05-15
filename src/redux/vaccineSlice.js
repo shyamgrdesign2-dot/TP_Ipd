@@ -3,13 +3,13 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   givenVaccines: [],
   updatedDueVaccines: [],
-  status: null,
 };
 
 const vaccineSlice = createSlice({
   name: "vaccines",
   initialState,
   reducers: {
+    resetVaccineState: () => initialState,
     addGivenVaccines: (state, action) => {
       state.givenVaccines.push(action.payload);
     },
@@ -19,5 +19,6 @@ const vaccineSlice = createSlice({
   },
 });
 
-export const { addGivenVaccines, addDueVaccines } = vaccineSlice.actions;
+export const { resetVaccineState, addGivenVaccines, addDueVaccines } =
+  vaccineSlice.actions;
 export default vaccineSlice.reducer;
