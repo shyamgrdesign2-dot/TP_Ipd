@@ -143,7 +143,7 @@ function Vaccination({ handleDrawerVaccination }) {
     const options = getDates(result.idMap);
     setDateOptions(options);
     if (!dateOptions.length) {
-      setActiveDate(getDefaultOption(options));
+    setActiveDate(getDefaultOption(options));
     }
   };
 
@@ -387,8 +387,8 @@ function Vaccination({ handleDrawerVaccination }) {
             show={showDob}
             setShowDob={setShowDob}
             patientDetails={patient_data}
-            getPatientDetail={getPatientDetail}
             handleDrawerVaccination={handleDrawerVaccination}
+            getVaccineDetails={getVaccineDetails}
           />
         )}
       </div>
