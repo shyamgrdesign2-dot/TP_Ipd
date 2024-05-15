@@ -28,6 +28,7 @@ import {
 } from "./VaccinationHelper";
 import CashManagerContext from "../../context/CashManagerContext";
 import { useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
@@ -85,12 +86,14 @@ function Vaccination({ handleDrawerVaccination }) {
     selectAllCheck();
   }, [vaccinesData]);
 
+  const { profile } = useSelector((state) => state.doctors);
+
   const getPatientDetail = async () => {
     const patientDetails = await getPatientDetails({
       hospital_bid:
         patient_data?.hm_business_id || patient_data?.hospital_business_id,
       patient_uid: patient_data?.patient_unique_id,
-      hospital_id: patient_data?.hm_id || patient_data?.clinic_id,
+      hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
     });
     patient_data = { ...patient_data, ...patientDetails };
     if (
@@ -139,7 +142,9 @@ function Vaccination({ handleDrawerVaccination }) {
 
     const options = getDates(result.idMap);
     setDateOptions(options);
-    setActiveDate(getDefaultOption(options));
+    if (!dateOptions.length) {
+      setActiveDate(getDefaultOption(options));
+    }
   };
 
   const handleSelectAll = (event) => {

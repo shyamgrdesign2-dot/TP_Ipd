@@ -5,6 +5,7 @@ import { createPatient } from "../../service";
 import { errorMessage } from "../../../../utils/utils";
 import moment from "moment";
 import dayjs from "dayjs";
+import { useSelector } from "react-redux";
 
 const AddDOB = ({
   show,
@@ -14,6 +15,7 @@ const AddDOB = ({
   handleDrawerVaccination,
 }) => {
   const [dob, setDob] = useState("");
+  const { profile } = useSelector((state) => state.doctors);
 
   useEffect(() => {
     if (patientDetails.DOB) {
@@ -29,7 +31,7 @@ const AddDOB = ({
       patient_pid: patientDetails?.pm_pid,
       hospital_bid:
         patientDetails?.hm_business_id || patientDetails?.hospital_business_id,
-      hospital_id: patientDetails?.hm_id || patientDetails?.clinic_id,
+      hospital_id: patientDetails?.hm_id || profile?.hospital_data?.[0]?.hm_id,
       patient_first_name: patientDetails?.pm_first_name || "",
       patient_middle_name: patientDetails?.pm_middle_name || "",
       patient_last_name: patientDetails?.pm_last_name || "",
