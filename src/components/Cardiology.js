@@ -78,6 +78,15 @@ function Cardiology(props) {
             ),
         },
         {
+            title: 'Unit Per Dose',
+            dataIndex: 'upd',
+            key: 'upd',
+            width: '110px',
+            render: (text, record) => (
+                <div>{`${record.tmm_dosage ? `${record.tmm_dosage} ${record?.medicineUnit && record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit) !== undefined ? record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit).tmu_title : ""}` : ""}`}</div>
+            ),
+        },
+        {
             title: 'Time & Frequency',
             dataIndex: 'TimeFrequency',
             key: 'TimeFrequency',
@@ -103,7 +112,7 @@ function Cardiology(props) {
             key: 'qty',
             width: '50px',
             render: (text, record) => (
-                <div>{`${record.display_qty ? record.display_qty.toFixed(2) : '-'}`}</div>
+                <div>{`${record.display_qty ? record.display_qty : '-'}`}</div>
             ),
         },
         {

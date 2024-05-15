@@ -88,7 +88,7 @@ function Header({ locationPath }) {
 
   useEffect(() => {
     if (clinicOptions.length > 0) {
-      const getClinicId = async () => {
+      const getStorageData = async () => {
         const token = await getToken()
         if (token !== undefined) {
           try {
@@ -101,7 +101,7 @@ function Header({ locationPath }) {
           }
         }
       }
-      getClinicId()
+      getStorageData()
     }
   }, [clinicOptions]);
 
