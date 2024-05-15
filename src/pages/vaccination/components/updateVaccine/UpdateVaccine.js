@@ -35,6 +35,7 @@ const UpdateVaccine = ({
   getVaccineDetails,
   setSelectedCards,
   setCardClicked,
+  setLoading,
 }) => {
   const { TextArea } = Input;
   const [changeDate, setChangeDate] = useState(false);
@@ -74,6 +75,7 @@ const UpdateVaccine = ({
   }, []);
 
   const updateVaccineDetails = async () => {
+    setLoading(true);
     const newFocusedIndexes = [];
     selectRefs.current.forEach((ref, index) => {
       if (
@@ -161,6 +163,7 @@ const UpdateVaccine = ({
 
   const updateVaccineDueDate = async () => {
     setUpdateLoader(true);
+    setLoading(true);
     let updatedVaccineStatus = [];
     selectedVaccines.forEach(async (vaccine) => {
       const payload = {
