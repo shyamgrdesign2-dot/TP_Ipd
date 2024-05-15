@@ -22,6 +22,7 @@ function Quixote({ mode = NORMAL, ...props }) {
     const { divWidth, caseManagerData, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
+    const vaccines = useSelector((state) => state.vaccines);
 
     const initialRows = [
         {
@@ -137,6 +138,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 fileLogo={mode == NORMAL ? fileLogo : props.fileLogoCopy}
                 fileWatermark={fileWatermark}
                 fileSignature={fileSignature}
+                vaccines={vaccines}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
         }

@@ -2,14 +2,18 @@
 import { Modal, DatePicker, Button } from "antd";
 import { useEffect, useState } from "react";
 import { createPatient } from "../../service";
-import { useNavigate } from "react-router-dom";
 import { errorMessage } from "../../../../utils/utils";
 import moment from "moment";
 import dayjs from "dayjs";
 
-const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
+const AddDOB = ({
+  show,
+  setShowDob,
+  patientDetails,
+  getPatientDetail,
+  handleDrawerVaccination,
+}) => {
   const [dob, setDob] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (patientDetails.DOB) {
@@ -95,11 +99,10 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
         </Button>
         <Button
           className="border-0 opacity-50 shadow-none text-secondary"
-          onClick={() =>
-            navigate("/prescription", {
-              state: { patientDetails: patientDetails },
-            })
-          }
+          onClick={() => {
+            handleDrawerVaccination();
+            setShowDob(false);
+          }}
         >
           Close vaccination chart
         </Button>

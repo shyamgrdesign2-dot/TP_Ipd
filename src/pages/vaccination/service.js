@@ -1,3 +1,4 @@
+import moment from "moment";
 import api from "../../api/services/axiosService";
 import config from "../../config";
 
@@ -149,4 +150,25 @@ export const createPatient = async (payload) => {
     console.error("Error while creating patient: ", error);
   }
   return res;
+};
+
+export const getGivenVaccineDetails = async (
+  patientUid = "869144557494",
+  patientPid = "PAT0014"
+) => {
+  const today = moment().format("YYYY-MM-DD");
+  
+  let result = [];
+  try {
+    result = await api.get(
+      `vaccination/patientTemplateForPrint?patient_uid=${patientUid}&patient_pid=${patientPid}&vaccine_given_date=${today}`,
+      baseUrl
+    );
+    if (result?.template) {
+      result = result.template;
+    }
+  } catch (error) {
+    console.error("Error while fetching vaccine template: ", error);
+  }
+  return result;
 };
