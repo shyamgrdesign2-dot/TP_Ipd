@@ -142,7 +142,9 @@ function Vaccination({ handleDrawerVaccination }) {
 
     const options = getDates(result.idMap);
     setDateOptions(options);
-    setActiveDate(getDefaultOption(options));
+    if (!dateOptions.length) {
+      setActiveDate(getDefaultOption(options));
+    }
   };
 
   const handleSelectAll = (event) => {
