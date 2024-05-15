@@ -51,6 +51,7 @@ function Vaccination({ handleDrawerVaccination }) {
   const [printType, setPrintType] = useState("");
   const [shouldShowSelectAll, setShouldShowSelectAll] = useState(false);
   const [isCardClicked, setCardClicked] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const contextApi = {
     patient_data,
@@ -145,6 +146,7 @@ function Vaccination({ handleDrawerVaccination }) {
     if (!dateOptions.length) {
       setActiveDate(getDefaultOption(options));
     }
+    setLoading(false);
   };
 
   const handleSelectAll = (event) => {
@@ -279,7 +281,7 @@ function Vaccination({ handleDrawerVaccination }) {
               alt="Vaccine"
             />
           </div>
-          {vaccinesData?.length ? (
+          {vaccinesData?.length && !loading ? (
             <>
               <div className={isFixed ? "fixFilter" : ""}>
                 <VaccineFilter
@@ -366,6 +368,7 @@ function Vaccination({ handleDrawerVaccination }) {
             getVaccineDetails={getVaccineDetails}
             setSelectedCards={setSelectedCards}
             setCardClicked={setCardClicked}
+            setLoading={setLoading}
           />
         )}
         {vaccinesData?.length && (
@@ -387,8 +390,8 @@ function Vaccination({ handleDrawerVaccination }) {
             show={showDob}
             setShowDob={setShowDob}
             patientDetails={patient_data}
-            getPatientDetail={getPatientDetail}
             handleDrawerVaccination={handleDrawerVaccination}
+            getVaccineDetails={getVaccineDetails}
           />
         )}
       </div>

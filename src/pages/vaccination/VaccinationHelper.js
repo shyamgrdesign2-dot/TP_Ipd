@@ -25,9 +25,10 @@ export const mergeDataPatientDetails = (
   return vaccineDetails?.map((item) => {
     const vaccineGivenToPatient = patientDetails?.find(
       (obj) => obj.tvac_name === item.tvac_name
-    );
+    ) || {};
 
-    const { tvt_due_day, tvt_due_month, tvt_due_year, tvp_given_date } = item;
+    const { tvt_due_day, tvt_due_month, tvt_due_year } = item;
+    const { tvp_given_date } = vaccineGivenToPatient;
     const futureDate = moment(birthDate, "Do MMM YYYY")
       .add({
         days: tvt_due_day,
@@ -40,7 +41,9 @@ export const mergeDataPatientDetails = (
       (obj) => obj.tvd_temp_id === item.tvt_id
     );
 
-    const brandDetails = details.find((brand) => brand.tvc_id === item.tvc_id);
+    const brandDetails = tvp_given_date ? details.find(
+      (brand) => brand.tvc_id === vaccineGivenToPatient?.tvc_id
+    ) : {};
 
     return {
       ...item,
