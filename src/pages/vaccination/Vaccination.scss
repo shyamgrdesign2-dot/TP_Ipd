@@ -41,6 +41,25 @@
     }
   }
 }
+
+
+.customWarningDrawer {
+  position: fixed;
+  bottom: -44px; /* Start the drawer off-screen */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 513px;
+  background-color: white;
+  border-radius: 10px;
+  transition: bottom 0.3s ease; /* Use 'bottom' property for the transition */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.customWarningDrawer.open {
+  bottom: 110px; /* Bring the drawer up to the desired position */
+}
+
 .warningStyle {
   width: 513px;
   height: 44px;
@@ -55,3 +74,8 @@
     cursor: pointer;
   }
 }
+
+.closeImg {
+  cursor: pointer;
+}
+

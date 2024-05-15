@@ -12,8 +12,10 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (patientDetails.DOB || patientDetails.pm_dob) {
-      setDob(patientDetails.DOB || patientDetails.pm_dob);
+    if (patientDetails.DOB) {
+      setDob(moment(patientDetails.DOB, "Do MMMM YYYY").format("DD-MM-YYYY"));
+    } else if (patientDetails.pm_dob) {
+      setDob(moment(patientDetails.pm_dob).format("DD-MM-YYYY"));
     }
   }, []);
 
@@ -28,7 +30,7 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
       patient_middle_name: patientDetails?.pm_middle_name || "",
       patient_last_name: patientDetails?.pm_last_name || "",
       patient_gender: patientDetails?.pm_gender,
-      patient_dob: moment(dob).format("YYYY-MM-DD"),
+      patient_dob: moment(dob, "DD-MM-YYYY").format("YYYY-MM-DD"),
       patient_contact_no: patientDetails?.pm_contact_no,
     };
     const createPatientRes = await createPatient(payload);
@@ -76,7 +78,7 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
             setDob(d);
           }}
           format="DD-MM-YYYY"
-          value={dob ? dayjs(dob) : ""}
+          value={dob ? dayjs(dob, "DD-MM-YYYY") : ""}
         />
 
         <Button

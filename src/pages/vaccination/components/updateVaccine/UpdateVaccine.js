@@ -72,14 +72,13 @@ const UpdateVaccine = ({
     selectRefs.current.forEach((ref, index) => {
       if (
         !vaccineDetails?.[selectedVaccines?.[index]?.tvac_name]
-          ?.vaccine_company_id ||
+          ?.vaccine_company_id &&
         !selectedVaccines?.[index]?.brandId
       ) {
         ref.focus();
         newFocusedIndexes.push(index);
       }
     });
-
     if (newFocusedIndexes?.length) {
       setFocusedIndexes(newFocusedIndexes);
       return;
@@ -332,10 +331,14 @@ const UpdateVaccine = ({
                           .toLowerCase()
                           .localeCompare((optionB?.label ?? "").toLowerCase())
                       }
-                      options={brands?.map((brand) => ({
-                        label: brand?.tvc_name,
-                        value: brand?.tvc_id,
-                      }))}
+                      options={brands
+                        ?.filter(
+                          (brand) => brand.tvc_default_vac === vaccine.tvac_name
+                        )
+                        ?.map((brand) => ({
+                          label: brand?.tvc_name,
+                          value: brand?.tvc_id,
+                        }))}
                       dropdownStyle={{ maxHeight: "176px", overflow: "auto" }}
                       onChange={(value) => {
                         handleDetails(
