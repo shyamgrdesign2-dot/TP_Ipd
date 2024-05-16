@@ -68,6 +68,7 @@ const UpdateVaccine = ({
   }, []);
 
   const updateVaccineDetails = async () => {
+    setCardClicked(false);
     const newFocusedIndexes = [];
     selectRefs.current.forEach((ref, index) => {
       if (
@@ -145,6 +146,7 @@ const UpdateVaccine = ({
 
   const updateVaccineDueDate = async () => {
     setUpdateLoader(true);
+    setCardClicked(false);
     const updatePromises = selectedVaccines.map(async (vaccine) => {
       const payload = {
         patient_pid: patientDetails?.vac_pid,

@@ -11,7 +11,7 @@ import ViewPDF from '../components/print_settings/ViewPDF';
 import { renderPDF } from '../components/print_settings/renderPDF';
 import { PDF } from '../components/print_settings/PDF';
 import { pdfjs, Document, Page } from "react-pdf";
-import { getGivenVaccineDetails } from './vaccination/service';
+import { getGivenVaccineDetails, getOverridenDueDate } from './vaccination/service';
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
@@ -104,15 +104,16 @@ function Quixote({ mode = NORMAL, ...props }) {
     const [numPages, setNumPages] = useState();
     const [loadSuccess, setLoadSuccesss] = useState(false);
 
-    const [givenVaccines, setGivenVaccines] = useState();
+    const [todayVaccines, setTodayVaccines] = useState();
 
     useEffect(() => {
-        getGivenVaccines();
+        getGivenAndDueVaccines();
     }, []);
 
-    const getGivenVaccines = async() => {
-        const vaccines = await getGivenVaccineDetails(caseManagerData?.patient_data?.patient_unique_id, caseManagerData?.patient_data?.patient_id)
-        setGivenVaccines(vaccines);
+    const getGivenAndDueVaccines = async() => {
+        const given = await getGivenVaccineDetails(caseManagerData?.patient_data?.patient_unique_id, caseManagerData?.patient_data?.patient_id)
+        const due = await getOverridenDueDate(caseManagerData?.patient_data?.patient_unique_id, caseManagerData?.patient_data?.patient_id, moment().format("YYYY-MM-DD"))
+        setTodayVaccines({given, due});
     }
 
     useEffect(() => {
@@ -148,7 +149,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 fileLogo={mode == NORMAL ? fileLogo : props.fileLogoCopy}
                 fileWatermark={fileWatermark}
                 fileSignature={fileSignature}
-                givenVaccines={givenVaccines}
+                todayVaccines={todayVaccines}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
         }
@@ -168,7 +169,7 @@ function Quixote({ mode = NORMAL, ...props }) {
         fileSignature,
         fileWatermark,
         fileLogo,
-        givenVaccines
+        todayVaccines
     ]);
 
     const onDocumentLoadSuccess = ({ numPages }) => {
