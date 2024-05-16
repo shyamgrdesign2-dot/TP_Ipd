@@ -480,11 +480,11 @@ function WhatsappConfigure(props) {
                                                     isModalOpen={isHeaderModalOpen}
                                                     onCancel={showHideHeaderModal}
                                                     modalWidth={744}
-                                                    // title={"Crope Image"}
+                                                    // title={"Crop Image"}
                                                     title={
                                                         <div className='d-flex'>
                                                             <div className='align-items-center d-flex w-100'>
-                                                                <div className="text-truncate-twolines">{'Crope Image'}</div>
+                                                                <div className="text-truncate-twolines">{'Crop Image'}</div>
                                                             </div>
                                                             <Button type='button' disabled={fileHeaderCopy && !fileHeaderCopy?.crop ? false : true} className="btn-41 btn px-4 btn-primary3 me-4" onClick={onHeaderImageSubmit}>
                                                                 Submit
@@ -554,11 +554,11 @@ function WhatsappConfigure(props) {
                                                     isModalOpen={isFooterModalOpen}
                                                     onCancel={showHideFooterModal}
                                                     modalWidth={744}
-                                                    // title={"Crope Image"}
+                                                    // title={"Crop Image"}
                                                     title={
                                                         <div className='d-flex'>
                                                             <div className='align-items-center d-flex w-100'>
-                                                                <div className="text-truncate-twolines">{'Crope Image'}</div>
+                                                                <div className="text-truncate-twolines">{'Crop Image'}</div>
                                                             </div>
                                                             <Button type='button' disabled={fileFooterCopy && !fileFooterCopy?.crop ? false : true} className="btn-41 btn px-4 btn-primary3 me-4" onClick={onFooterImageSubmit}>
                                                                 Submit

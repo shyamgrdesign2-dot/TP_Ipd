@@ -27,34 +27,38 @@ function VitalsBodyComposition({ loading, passVitals }) {
         },
         {
             key: '4',
-            name: `Systolic (mmHg)`,
+            name: `Blood Pressure (mmHg)`,
         },
+        // {
+        //     key: '4',
+        //     name: `Systolic (mmHg)`,
+        // },
+        // {
+        //     key: '5',
+        //     name: `Diastolic (mmHg)`,
+        // },
         {
             key: '5',
-            name: `Diastolic (mmHg)`,
-        },
-        {
-            key: '6',
             name: `SPO2 (%)`,
         },
         {
-            key: '7',
+            key: '6',
             name: `Height (cms)`,
         },
         {
-            key: '8',
+            key: '7',
             name: `Weight (kgs)`,
         },
         {
-            key: '9',
+            key: '8',
             name: `BMI (kg/m²)`,
         },
         {
-            key: '10',
+            key: '9',
             name: `BMR (kcals)`,
         },
         {
-            key: '11',
+            key: '10',
             name: `BSA (m²)`,
         }
     ];
@@ -84,14 +88,15 @@ function VitalsBodyComposition({ loading, passVitals }) {
         initialRows[0][index] = item.temp ? item.temp : '-'
         initialRows[1][index] = item.pres ? item.pres : '-'
         initialRows[2][index] = item.resp_rate ? item.resp_rate : '-'
-        initialRows[3][index] = item.blood_press ? item.blood_press.split('/')[0] ? item.blood_press.split('/')[0] : '-' : '-'
-        initialRows[4][index] = item.blood_press ? item.blood_press.split('/')[1] ? item.blood_press.split('/')[1] : '-' : '-'
-        initialRows[5][index] = item.spo2 ? item.spo2 : '-'
-        initialRows[6][index] = item.height ? item.height : '-'
-        initialRows[7][index] = item.weight ? item.weight : '-'
-        initialRows[8][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'
-        initialRows[9][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
-        initialRows[10][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
+        initialRows[3][index] = item.blood_press ? item.blood_press.endsWith("/") ? item.blood_press.substring(0, item.blood_press.length - 1) : item.blood_press : '-'
+        // initialRows[3][index] = item.blood_press ? item.blood_press.split('/')[0] ? item.blood_press.split('/')[0] : '-' : '-'
+        // initialRows[4][index] = item.blood_press ? item.blood_press.split('/')[1] ? item.blood_press.split('/')[1] : '-' : '-'
+        initialRows[4][index] = item.spo2 ? item.spo2 : '-'
+        initialRows[5][index] = item.height ? item.height : '-'
+        initialRows[6][index] = item.weight ? item.weight : '-'
+        initialRows[7][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'
+        initialRows[8][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
+        initialRows[9][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
     });
 
     return (
