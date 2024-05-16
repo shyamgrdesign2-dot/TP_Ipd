@@ -78,7 +78,7 @@ function Cardiology(props) {
             ),
         },
         {
-            title: 'Unit Per Dose',
+            title: 'UPD',
             dataIndex: 'upd',
             key: 'upd',
             width: '110px',
