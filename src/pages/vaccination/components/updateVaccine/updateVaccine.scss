@@ -10,17 +10,17 @@
   border-color: #4b4ad5 !important;
 }
 
-.ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
-  color: #a2a2a8 !important;
-  font-weight: normal;
-}
-
-.ant-select-single {
-  height: 44px;
-}
-
-.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-  box-shadow: none !important;
+.custom-select-style {
+  &.ant-select-single {
+    height: 44px;
+    &.ant-select-show-arrow .ant-select-selection-placeholder {
+      color: #a2a2a8 !important;
+      font-weight: normal;
+    }
+  }
+  &.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    box-shadow: none !important;
+  }
 }
 
 .border-purple {
