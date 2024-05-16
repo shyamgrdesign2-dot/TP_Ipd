@@ -6,6 +6,7 @@ import { errorMessage } from "../../../../utils/utils";
 import moment from "moment";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
+import "./AddDOB.scss";
 
 const AddDOB = ({
   show,
@@ -80,6 +81,7 @@ const AddDOB = ({
         <div>Date of birth</div>
         <DatePicker
           placeholder="Select Date"
+          dropdownClassName="addDOB-picker-dropdown"
           onChange={(_, d) => {
             setDob(d);
           }}

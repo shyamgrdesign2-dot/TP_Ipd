@@ -93,6 +93,7 @@ const VaccineFilter = ({
             <Tooltip
               key={i}
               title={tooltipTitle}
+              overlayClassName="customTooltip"
               open={
                 showTooltip &&
                 pendingVaccines.length === 1 &&
