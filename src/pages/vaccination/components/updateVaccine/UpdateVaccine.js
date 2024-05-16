@@ -29,6 +29,7 @@ const UpdateVaccine = ({
   patientDetails,
   getVaccineDetails,
   setSelectedCards,
+  setSelectAll,
   setCardClicked,
   setLoading,
 }) => {
@@ -116,6 +117,7 @@ const UpdateVaccine = ({
         setTimeout(() => {
           setShow(false);
           setSelectedCards([]);
+          setSelectAll(false);
         }, 1000);
       } else {
         errorMessage({ name: "TypeError" });
@@ -131,6 +133,7 @@ const UpdateVaccine = ({
   const closeHandler = () => {
     setCardClicked(false);
     setSelectedCards([]);
+    setSelectAll(false);
     setChangeDate(false);
     setShow(false);
   };
@@ -167,6 +170,7 @@ const UpdateVaccine = ({
         setTimeout(() => {
           setShow(false);
           setSelectedCards([]);
+          setSelectAll(false);
         }, 1000);
       } else {
         errorMessage({ name: "TypeError" });

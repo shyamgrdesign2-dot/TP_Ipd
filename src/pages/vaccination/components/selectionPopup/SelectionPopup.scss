@@ -17,7 +17,11 @@
     background-color: transparent;
 
     .clearStyle {
-      color: #fff;
+      color: #fff !important;
+    }
+    &:hover {
+      background-color: transparent !important;
+      border-color: #3030c2 !important;
     }
   }
 

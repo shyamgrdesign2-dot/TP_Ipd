@@ -369,6 +369,7 @@ function Vaccination({ handleDrawerVaccination }) {
             patientDetails={patientDetails}
             getVaccineDetails={getVaccineDetails}
             setSelectedCards={setSelectedCards}
+            setSelectAll={setSelectAll}
             setCardClicked={setCardClicked}
             setLoading={setLoading}
           />
