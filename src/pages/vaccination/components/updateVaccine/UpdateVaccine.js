@@ -349,12 +349,12 @@ const UpdateVaccine = ({
                         );
                       }}
                       defaultValue={vaccine?.brandId}
-                      ref={(el) => (selectRefs.current[0] = el)}
+                      ref={(el) => (selectRefs.current[i] = el)}
                       style={{
-                        border: focusedIndexes.includes(0)
+                        border: focusedIndexes.includes(i)
                           ? "1px solid blue"
                           : "none",
-                        borderRadius: focusedIndexes.includes(0)
+                        borderRadius: focusedIndexes.includes(i)
                           ? "10px"
                           : "none",
                       }}
