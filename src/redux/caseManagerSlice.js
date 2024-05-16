@@ -105,6 +105,7 @@ export const viewCaseManager = createAsyncThunk(
         let result = {};
         result = await ApiCaseManager.viewCaseManager(data);
         if (result.status) {
+            result.data.patient_data["patient_unique_id"] = data.patient_unique_id;
             return result.data;
         } else {
             throw Error(result.error);
