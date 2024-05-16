@@ -20,11 +20,6 @@ import { updateDueDate, updateVaccine } from "../../service.js";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 import { errorMessage } from "../../../../utils/utils.js";
-import { useDispatch } from "react-redux";
-import {
-  addDueVaccines,
-  addGivenVaccines,
-} from "../../../../redux/vaccineSlice.js";
 
 const UpdateVaccine = ({
   show,
@@ -56,8 +51,6 @@ const UpdateVaccine = ({
   const [updateLoader, setUpdateLoader] = useState(false);
   const [focusedIndexes, setFocusedIndexes] = useState([]);
   const selectRefs = useRef([]);
-
-  const dispatch = useDispatch();
   const { state } = useLocation();
   const { patient_data } = state;
 
@@ -75,7 +68,6 @@ const UpdateVaccine = ({
   }, []);
 
   const updateVaccineDetails = async () => {
-    setLoading(true);
     const newFocusedIndexes = [];
     selectRefs.current.forEach((ref, index) => {
       if (
@@ -92,8 +84,7 @@ const UpdateVaccine = ({
       return;
     }
     setUpdateLoader(true);
-    let givenVaccineStatus = [];
-    selectedVaccines.forEach(async (vaccine) => {
+    const updatePromises = selectedVaccines.map(async (vaccine) => {
       const payload = {
         patient_pid: patientDetails?.vac_pid || patient_data?.pm_pid,
         patient_uid: patientDetails?.patient_unique_id || patient_data?.pm_id,
@@ -111,24 +102,15 @@ const UpdateVaccine = ({
             vaccine?.tvp_remarks) ??
           "",
       };
-      const givenVaccine = await updateVaccine(payload);
-      if (givenVaccine?.status === 201) {
-        dispatch(
-          addGivenVaccines({
-            ...payload,
-            tvac_name: vaccine?.tvac_name,
-            brand: brands?.find((b) => b?.tvc_id === payload.vaccine_company_id)
-              ?.tvc_name,
-          })
-        );
-      }
-      givenVaccineStatus.push(givenVaccine);
+
+      return updateVaccine(payload);
     });
 
-    // Wait for all API calls to finish
     try {
+      const updateVaccineRes = await Promise.all(updatePromises);
+      setLoading(true);
       setUpdateLoader(false);
-      if (givenVaccineStatus?.every((res) => res?.status === 201)) {
+      if (updateVaccineRes?.every((res) => res?.status === 201)) {
         setShowSuccess(true);
         getVaccineDetails();
         setTimeout(() => {
@@ -163,9 +145,7 @@ const UpdateVaccine = ({
 
   const updateVaccineDueDate = async () => {
     setUpdateLoader(true);
-    setLoading(true);
-    let updatedVaccineStatus = [];
-    selectedVaccines.forEach(async (vaccine) => {
+    const updatePromises = selectedVaccines.map(async (vaccine) => {
       const payload = {
         patient_pid: patientDetails?.vac_pid,
         patient_uid: patientDetails?.patient_unique_id,
@@ -173,24 +153,15 @@ const UpdateVaccine = ({
         overriden_due_date: dueDate,
         remarks: dueDateNote,
       };
-      const updatedVaccine = await updateDueDate(payload);
-      if (updatedVaccine?.status === 200) {
-        dispatch(
-          addDueVaccines({
-            ...payload,
-            tvac_name: vaccine.tvac_name,
-          })
-        );
-      }
-      updatedVaccineStatus.push(updatedVaccine);
-
-      return updatedVaccineStatus;
+      return updateDueDate(payload);
     });
 
     // Wait for all API calls to finish
     try {
+      const updateDueDateRes = await Promise.all(updatePromises);
       setUpdateLoader(false);
-      if (updatedVaccineStatus?.every((res) => res?.status === 200)) {
+      setLoading(true);
+      if (updateDueDateRes?.every((res) => res?.status === 200)) {
         setShowSuccess(true);
         getVaccineDetails();
         setTimeout(() => {
@@ -348,6 +319,7 @@ const UpdateVaccine = ({
                     <Select
                       showSearch
                       placeholder="Select vaccine brand"
+                      className="custom-select-style"
                       optionFilterProp="children"
                       filterOption={(input, option) =>
                         (option?.label ?? "")
@@ -377,12 +349,12 @@ const UpdateVaccine = ({
                         );
                       }}
                       defaultValue={vaccine?.brandId}
-                      ref={(el) => (selectRefs.current[0] = el)}
+                      ref={(el) => (selectRefs.current[i] = el)}
                       style={{
-                        border: focusedIndexes.includes(0)
+                        border: focusedIndexes.includes(i)
                           ? "1px solid blue"
                           : "none",
-                        borderRadius: focusedIndexes.includes(0)
+                        borderRadius: focusedIndexes.includes(i)
                           ? "10px"
                           : "none",
                       }}

@@ -126,7 +126,9 @@ function Vaccination({ handleDrawerVaccination }) {
     const details = await getVaccineBrands();
     setBrands(details);
 
-    const birthDate = new Date(patientDetail?.vac_dob);
+    const birthDate = patientDetail?.vac_dob
+      ? new Date(patientDetail?.vac_dob)
+      : "";
 
     const combinedData = mergeDataPatientDetails(
       vaccineTemplate,
@@ -295,7 +297,7 @@ function Vaccination({ handleDrawerVaccination }) {
               {shouldShowSelectAll ? (
                 <div className="selectAllContainer scrollable-content">
                   <Checkbox
-                    className="checkboxStyle"
+                    className="vaccine-custom-checkbox"
                     checked={selectAll}
                     onChange={handleSelectAll}
                   />

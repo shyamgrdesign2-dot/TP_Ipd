@@ -96,6 +96,7 @@ const VaccineCard = ({
           <Col span={8}>
             <div className="d-flex justify-content-end">
               <Checkbox
+                className="vaccine-custom-checkbox"
                 onChange={checkboxHandler}
                 checked={selectedCards.includes(index)}
               />

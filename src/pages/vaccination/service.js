@@ -153,8 +153,8 @@ export const createPatient = async (payload) => {
 };
 
 export const getGivenVaccineDetails = async (
-  patientUid = "869144557494",
-  patientPid = "PAT0014"
+  patientUid,
+  patientPid
 ) => {
   const today = moment().format("YYYY-MM-DD");
   
