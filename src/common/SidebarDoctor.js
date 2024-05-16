@@ -23,6 +23,7 @@ function SidebarDoctor() {
                         var decoded = jwtDecode(token);
                         window.beamer_config = {
                             ...window.beamer_config,
+                            product_id: "JBgEuAKX59541",
                             filter: profile?.dp_name,
                             user_firstname: profile?.um_name,
                             user_lastname: '',
