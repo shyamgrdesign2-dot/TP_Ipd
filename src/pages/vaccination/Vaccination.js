@@ -297,7 +297,7 @@ function Vaccination({ handleDrawerVaccination }) {
               {shouldShowSelectAll ? (
                 <div className="selectAllContainer scrollable-content">
                   <Checkbox
-                    className="checkboxStyle"
+                    className="vaccine-custom-checkbox"
                     checked={selectAll}
                     onChange={handleSelectAll}
                   />
