@@ -10,8 +10,8 @@ import { NORMAL } from "../utils/constants";
 import ViewPDF from '../components/print_settings/ViewPDF';
 import { renderPDF } from '../components/print_settings/renderPDF';
 import { PDF } from '../components/print_settings/PDF';
-
 import { pdfjs, Document, Page } from "react-pdf";
+import { getGivenVaccineDetails } from './vaccination/service';
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
@@ -109,6 +109,17 @@ function Quixote({ mode = NORMAL, ...props }) {
     const [numPages, setNumPages] = useState();
     const [loadSuccess, setLoadSuccesss] = useState(false);
 
+    const [givenVaccines, setGivenVaccines] = useState();
+
+    useEffect(() => {
+        getGivenVaccines();
+    }, []);
+
+    const getGivenVaccines = async() => {
+        const vaccines = await getGivenVaccineDetails(caseManagerData?.patient_data?.patient_unique_id, caseManagerData?.patient_data?.patient_id)
+        setGivenVaccines(vaccines);
+    }
+
     useEffect(() => {
         // const makePDFUrl = async () => {
         //     var make_data = {
@@ -142,6 +153,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 fileLogo={mode == NORMAL ? fileLogo : props.fileLogoCopy}
                 fileWatermark={fileWatermark}
                 fileSignature={fileSignature}
+                givenVaccines={givenVaccines}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
         }
@@ -160,7 +172,8 @@ function Quixote({ mode = NORMAL, ...props }) {
         fileFooter,
         fileSignature,
         fileWatermark,
-        fileLogo
+        fileLogo,
+        givenVaccines
     ]);
 
     const onDocumentLoadSuccess = ({ numPages }) => {

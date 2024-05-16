@@ -8,6 +8,7 @@ import TabHeader from "../components/tab_design/TabHeader";
 import CommonModal from "../common/CommonModal";
 import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
 import { isNumeric, isAlphabet } from "../utils/utils";
+import { resetVaccineState } from "../redux/vaccineSlice";
 
 function WalkInConsultation() {
 
@@ -132,6 +133,10 @@ function WalkInConsultation() {
             </Button>
         );
     };
+
+    useEffect(()=>{
+        dispatch(resetVaccineState());
+    },[])
 
     useEffect(() => {
         if (searchQuery) {

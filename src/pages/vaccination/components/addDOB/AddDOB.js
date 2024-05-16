@@ -2,14 +2,21 @@
 import { Modal, DatePicker, Button } from "antd";
 import { useEffect, useState } from "react";
 import { createPatient } from "../../service";
-import { useNavigate } from "react-router-dom";
 import { errorMessage } from "../../../../utils/utils";
 import moment from "moment";
 import dayjs from "dayjs";
+import { useSelector } from "react-redux";
+import "./AddDOB.scss";
 
-const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
+const AddDOB = ({
+  show,
+  setShowDob,
+  patientDetails,
+  handleDrawerVaccination,
+  getVaccineDetails,
+}) => {
   const [dob, setDob] = useState("");
-  const navigate = useNavigate();
+  const { profile } = useSelector((state) => state.doctors);
 
   useEffect(() => {
     if (patientDetails.DOB) {
@@ -25,7 +32,7 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
       patient_pid: patientDetails?.pm_pid,
       hospital_bid:
         patientDetails?.hm_business_id || patientDetails?.hospital_business_id,
-      hospital_id: patientDetails?.hm_id || patientDetails?.clinic_id,
+      hospital_id: patientDetails?.hm_id || profile?.hospital_data?.[0]?.hm_id,
       patient_first_name: patientDetails?.pm_first_name || "",
       patient_middle_name: patientDetails?.pm_middle_name || "",
       patient_last_name: patientDetails?.pm_last_name || "",
@@ -35,7 +42,7 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
     };
     const createPatientRes = await createPatient(payload);
     if (createPatientRes?.status === 200) {
-      getPatientDetail();
+      getVaccineDetails();
       setShowDob(false);
     } else {
       errorMessage({ name: "TypeError" });
@@ -51,7 +58,7 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
     };
     const createPatientRes = await createPatient(payload);
     if (createPatientRes?.status === 200) {
-      getPatientDetail();
+      getVaccineDetails();
       setShowDob(false);
     } else {
       errorMessage({ name: "TypeError" });
@@ -74,6 +81,7 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
         <div>Date of birth</div>
         <DatePicker
           placeholder="Select Date"
+          dropdownClassName="addDOB-picker-dropdown"
           onChange={(_, d) => {
             setDob(d);
           }}
@@ -95,11 +103,10 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
         </Button>
         <Button
           className="border-0 opacity-50 shadow-none text-secondary"
-          onClick={() =>
-            navigate("/prescription", {
-              state: { patientDetails: patientDetails },
-            })
-          }
+          onClick={() => {
+            handleDrawerVaccination();
+            setShowDob(false);
+          }}
         >
           Close vaccination chart
         </Button>

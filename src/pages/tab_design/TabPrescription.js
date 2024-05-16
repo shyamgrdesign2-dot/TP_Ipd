@@ -521,7 +521,7 @@ function TabPrescription() {
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
         </Drawer>
-        <Drawer
+        {vaccinationDrawer && <Drawer
           closeIcon={false}
           placement="right"
           onClose={handleDrawerVaccination}
@@ -529,7 +529,7 @@ function TabPrescription() {
           width="100%"
         >
           <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
-        </Drawer>
+        </Drawer>}
       </>
     </CashManagerContext.Provider>
   );

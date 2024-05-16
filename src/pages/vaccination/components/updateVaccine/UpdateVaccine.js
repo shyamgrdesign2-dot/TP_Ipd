@@ -30,6 +30,7 @@ const UpdateVaccine = ({
   getVaccineDetails,
   setSelectedCards,
   setCardClicked,
+  setLoading,
 }) => {
   const { TextArea } = Input;
   const [changeDate, setChangeDate] = useState(false);
@@ -50,7 +51,6 @@ const UpdateVaccine = ({
   const [updateLoader, setUpdateLoader] = useState(false);
   const [focusedIndexes, setFocusedIndexes] = useState([]);
   const selectRefs = useRef([]);
-
   const { state } = useLocation();
   const { patient_data } = state;
 
@@ -106,9 +106,9 @@ const UpdateVaccine = ({
       return updateVaccine(payload);
     });
 
-    // Wait for all API calls to finish
     try {
       const updateVaccineRes = await Promise.all(updatePromises);
+      setLoading(true);
       setUpdateLoader(false);
       if (updateVaccineRes?.every((res) => res?.status === 201)) {
         setShowSuccess(true);
@@ -145,7 +145,6 @@ const UpdateVaccine = ({
 
   const updateVaccineDueDate = async () => {
     setUpdateLoader(true);
-
     const updatePromises = selectedVaccines.map(async (vaccine) => {
       const payload = {
         patient_pid: patientDetails?.vac_pid,
@@ -154,7 +153,6 @@ const UpdateVaccine = ({
         overriden_due_date: dueDate,
         remarks: dueDateNote,
       };
-
       return updateDueDate(payload);
     });
 
@@ -162,6 +160,7 @@ const UpdateVaccine = ({
     try {
       const updateDueDateRes = await Promise.all(updatePromises);
       setUpdateLoader(false);
+      setLoading(true);
       if (updateDueDateRes?.every((res) => res?.status === 200)) {
         setShowSuccess(true);
         getVaccineDetails();
@@ -320,6 +319,7 @@ const UpdateVaccine = ({
                     <Select
                       showSearch
                       placeholder="Select vaccine brand"
+                      className="custom-select-style"
                       optionFilterProp="children"
                       filterOption={(input, option) =>
                         (option?.label ?? "")
@@ -333,7 +333,8 @@ const UpdateVaccine = ({
                       }
                       options={brands
                         ?.filter(
-                          (brand) => brand.tvc_default_vac === vaccine.tvac_name
+                          (brand) =>
+                            brand?.tvc_default_vac === vaccine?.tvac_name
                         )
                         ?.map((brand) => ({
                           label: brand?.tvc_name,
@@ -348,12 +349,12 @@ const UpdateVaccine = ({
                         );
                       }}
                       defaultValue={vaccine?.brandId}
-                      ref={(el) => (selectRefs.current[0] = el)}
+                      ref={(el) => (selectRefs.current[i] = el)}
                       style={{
-                        border: focusedIndexes.includes(0)
+                        border: focusedIndexes.includes(i)
                           ? "1px solid blue"
                           : "none",
-                        borderRadius: focusedIndexes.includes(0)
+                        borderRadius: focusedIndexes.includes(i)
                           ? "10px"
                           : "none",
                       }}
