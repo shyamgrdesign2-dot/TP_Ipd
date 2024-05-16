@@ -113,7 +113,7 @@ const UpdateVaccine = ({
       setUpdateLoader(false);
       if (updateVaccineRes?.every((res) => res?.status === 201)) {
         setShowSuccess(true);
-        getVaccineDetails();
+        getVaccineDetails(true);
         setTimeout(() => {
           setShow(false);
           setSelectedCards([]);
@@ -166,7 +166,7 @@ const UpdateVaccine = ({
       setLoading(true);
       if (updateDueDateRes?.every((res) => res?.status === 200)) {
         setShowSuccess(true);
-        getVaccineDetails();
+        getVaccineDetails(true);
         setTimeout(() => {
           setShow(false);
           setSelectedCards([]);
