@@ -52,6 +52,7 @@ function Vaccination({ handleDrawerVaccination }) {
   const [shouldShowSelectAll, setShouldShowSelectAll] = useState(false);
   const [isCardClicked, setCardClicked] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [vaccinePatientDetails, setVaccinePatientDetails] = useState();
 
   const contextApi = {
     patient_data,
@@ -96,7 +97,7 @@ function Vaccination({ handleDrawerVaccination }) {
       patient_uid: patient_data?.patient_unique_id,
       hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
     });
-    patient_data = { ...patient_data, ...patientDetails };
+    setVaccinePatientDetails({...patient_data, ...patientDetails});
     if (
       !patientDetails?.vac_id ||
       (patientDetails?.vac_id && !patientDetails?.vac_dob)
@@ -111,7 +112,7 @@ function Vaccination({ handleDrawerVaccination }) {
     return patientDetails;
   };
 
-  const getVaccineDetails = async () => {
+  const getVaccineDetails = async (updatedVaccine) => {
     const vaccineTemplate = await getVaccineTemplates();
     const patientDetail = await getPatientDetail();
     const overridenVaccines = await getOverridenDueDate(
@@ -145,7 +146,7 @@ function Vaccination({ handleDrawerVaccination }) {
 
     const options = getDates(result.idMap);
     setDateOptions(options);
-    if (!dateOptions.length) {
+    if (!updatedVaccine) {
       setActiveDate(getDefaultOption(options));
     }
     setLoading(false);
@@ -369,6 +370,7 @@ function Vaccination({ handleDrawerVaccination }) {
             patientDetails={patientDetails}
             getVaccineDetails={getVaccineDetails}
             setSelectedCards={setSelectedCards}
+            setSelectAll={setSelectAll}
             setCardClicked={setCardClicked}
             setLoading={setLoading}
           />
@@ -391,7 +393,7 @@ function Vaccination({ handleDrawerVaccination }) {
           <AddDOB
             show={showDob}
             setShowDob={setShowDob}
-            patientDetails={patient_data}
+            patientDetails={vaccinePatientDetails}
             handleDrawerVaccination={handleDrawerVaccination}
             getVaccineDetails={getVaccineDetails}
           />

@@ -25,6 +25,30 @@ const VaccineFilter = ({
     }
   }, [scrollToStart]);
 
+  useEffect(() => {
+    /**
+     * scrolling to the specific age option when we comes to vaccination
+     * page on the first time
+     */
+    if (
+      activeDate &&
+      activeDate > 0 &&
+      activeDate <= dateOptions.length &&
+      datesContainerRef.current
+    ) {
+      const monthElement = datesContainerRef.current.children[activeDate];
+      if (monthElement) {
+        const containerRect = datesContainerRef.current.getBoundingClientRect();
+        const monthRect = monthElement.getBoundingClientRect();
+        const scrollLeft = monthRect.left - containerRect.left;
+        datesContainerRef.current.scrollTo({
+          left: scrollLeft,
+          behavior: "smooth",
+        });
+      }
+    }
+  }, [dateOptions]);
+
   const handleToggleScroll = () => {
     setScrollToStart((prevState) => !prevState);
   };
@@ -32,8 +56,10 @@ const VaccineFilter = ({
   const [showTooltip, setShowTooltip] = useState(true);
 
   useEffect(() => {
-    // This effect will run when the component mounts (page is visited)
-    // Set a timeout to hide the tooltip after a certain delay (e.g., 5 seconds)
+    /**
+     * This effect will run when the component mounts (page is visited)
+     * Set a timeout to hide the tooltip after a certain delay (e.g., 5 seconds)
+     */
     const timer = setTimeout(() => {
       setShowTooltip(false);
     }, 5000);
