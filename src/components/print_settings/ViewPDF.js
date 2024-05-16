@@ -118,9 +118,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         if (id == 1) {
             value = `${caseManagerData?.patient_data?.patient_name} ${caseManagerData?.patient_data?.patient_id}`
         } else if (id == 2) {
-            value = `${caseManagerData?.patient_data?.patient_date_time ? caseManagerData?.patient_data?.patient_date_time : '-'}`
+            value = `${caseManagerData?.patient_data?.patient_date_time ? moment(caseManagerData?.patient_data?.patient_date_time).format('DD/MM/YYYY HH:mm:ss') : '-'}`
         } else if (id == 3) {
-            value = `${caseManagerData?.patient_data?.patient_age}Years, ${caseManagerData?.patient_data?.patient_gender}`
+            value = `${caseManagerData?.patient_data?.patient_age ? `${caseManagerData?.patient_data?.patient_age}Years` : '-'}, ${caseManagerData?.patient_data?.patient_gender}`
         } else if (id == 4) {
             value = `${caseManagerData?.patient_data?.patient_contact_no ? caseManagerData?.patient_data?.patient_contact_no : '-'}`
         } else if (id == 5) {
@@ -650,7 +650,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     <View style={styles.row}>
                                                         <Text style={[styles.cell, { flex: 0.09, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>RX</Text>
                                                         <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                        <Text style={[styles.cell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>UNIT PER DOSE</Text>
+                                                        <Text style={[styles.cell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>UPD</Text>
                                                         <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>FREQUENCY</Text>
                                                         <Text style={[styles.cell, { flex: 0.28, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
                                                         <Text style={[styles.cell, { flex: 0.15, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>QTY.</Text>
@@ -789,7 +789,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {caseManagerData.vitals.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.date}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{moment(item.date).format('DD/MM/YYYY')}&nbsp;</Text>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                                 {`- ${Object.values(Object.fromEntries(Object.entries(
                                                                     (
@@ -805,17 +805,18 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             bmr,
                                                                             bsa,
                                                                         }) => ({
-                                                                            temp: temp ? `Temperature (${temp}Frh)` : '',
-                                                                            pres: pres ? `Pulse (${pres}/min)` : '',
-                                                                            resp_rate: resp_rate ? `Resp. Rate (${resp_rate}/min)` : '',
-                                                                            systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
-                                                                            diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
-                                                                            spo2: spo2 ? `SPO2 (${spo2}%)` : '',
-                                                                            height: height ? `Height (${height}cms)` : '',
-                                                                            weight: weight ? `Weight (${weight}kgs)` : '',
-                                                                            bmi: bmi ? `BMI (${parseFloat(bmi).toFixed(2)}kg/m²)` : '',
-                                                                            bmr: bmr ? `BMR (${parseFloat(bmr).toFixed(2)}kcals)` : '',
-                                                                            bsa: bsa ? `BSA (${parseFloat(bsa).toFixed(2)}m²)` : '',
+                                                                            temp: temp ? `Temp: ${temp}F` : '',
+                                                                            pres: pres ? `Pulse: ${pres}/min` : '',
+                                                                            resp_rate: resp_rate ? `Resp. Rate: ${resp_rate}/min` : '',
+                                                                            blood_press: blood_press ? blood_press.endsWith("/") ? `BP: ${blood_press.substring(0, blood_press.length - 1)}mmHg` : `BP: ${blood_press}mmHg` : '',
+                                                                            // systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
+                                                                            // diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
+                                                                            spo2: spo2 ? `SPO2: ${spo2}%` : '',
+                                                                            height: height ? `Height: ${height}cms` : '',
+                                                                            weight: weight ? `Weight: ${weight}kgs` : '',
+                                                                            bmi: bmi ? `BMI: ${parseFloat(bmi).toFixed(2)}kg/m²` : '',
+                                                                            bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
+                                                                            bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
                                                                         })
                                                                     )(caseManagerData.vitals[i])
                                                                 ).filter(([_, v]) => v))).join(', ')}`}{caseManagerData.vitals.length - 1 != i ? ',' : ''}&nbsp;
@@ -831,7 +832,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.date}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{moment(item.date).format('DD/MM/YYYY')}&nbsp;</Text>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                                 {`- ${Object.values(Object.fromEntries(Object.entries(
                                                                     (
@@ -847,17 +848,18 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             bmr,
                                                                             bsa,
                                                                         }) => ({
-                                                                            temp: temp ? `Temperature (${temp}Frh)` : '',
-                                                                            pres: pres ? `Pulse (${pres}/min)` : '',
-                                                                            resp_rate: resp_rate ? `Resp. Rate (${resp_rate}/min)` : '',
-                                                                            systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
-                                                                            diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
-                                                                            spo2: spo2 ? `SPO2 (${spo2}%)` : '',
-                                                                            height: height ? `Height (${height}cms)` : '',
-                                                                            weight: weight ? `Weight (${weight}kgs)` : '',
-                                                                            bmi: bmi ? `BMI (${parseFloat(bmi).toFixed(2)}kg/m²)` : '',
-                                                                            bmr: bmr ? `BMR (${parseFloat(bmr).toFixed(2)}kcals)` : '',
-                                                                            bsa: bsa ? `BSA (${parseFloat(bsa).toFixed(2)}m²)` : '',
+                                                                            temp: temp ? `Temp: ${temp}F` : '',
+                                                                            pres: pres ? `Pulse: ${pres}/min` : '',
+                                                                            resp_rate: resp_rate ? `Resp. Rate: ${resp_rate}/min` : '',
+                                                                            blood_press: blood_press ? blood_press.endsWith("/") ? `BP: ${blood_press.substring(0, blood_press.length - 1)}mmHg` : `BP: ${blood_press}mmHg` : '',
+                                                                            // systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
+                                                                            // diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
+                                                                            spo2: spo2 ? `SPO2: ${spo2}%` : '',
+                                                                            height: height ? `Height: ${height}cms` : '',
+                                                                            weight: weight ? `Weight" ${weight}kgs` : '',
+                                                                            bmi: bmi ? `BMI: ${parseFloat(bmi).toFixed(2)}kg/m²` : '',
+                                                                            bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
+                                                                            bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
                                                                         })
                                                                     )(caseManagerData.vitals[i])
                                                                 ).filter(([_, v]) => v))).join(', ')}\n`}
@@ -879,13 +881,15 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     </View>
                                                     {initialRows.map((item, i) => {
                                                         return (
-                                                            <View style={styles.row} key={i}>
-                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.name}</Text>
-                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['0']}</Text>
-                                                                {item.hasOwnProperty('1') && (
-                                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['1']}</Text>
-                                                                )}
-                                                            </View>
+                                                            (item['0'] != '-' || (item.hasOwnProperty('1') && item['1'] != '-')) && (
+                                                                <View style={styles.row} key={i}>
+                                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.name}</Text>
+                                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['0']}</Text>
+                                                                    {item.hasOwnProperty('1') && (
+                                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['1']}</Text>
+                                                                    )}
+                                                                </View>
+                                                            )
                                                         )
                                                     })}
                                                 </View>
@@ -1110,7 +1114,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.follow_up_date && (
                                         <Text style={{ marginTop: PX_TO_PT * 15 }}>
                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.follow_up_date}</Text>
+                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{moment(caseManagerData.follow_up_date).format('DD/MM/YYYY')}</Text>
                                         </Text>
                                     )}
 
