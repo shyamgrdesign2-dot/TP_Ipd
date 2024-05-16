@@ -75,7 +75,6 @@ const UpdateVaccine = ({
   }, []);
 
   const updateVaccineDetails = async () => {
-    setLoading(true);
     const newFocusedIndexes = [];
     selectRefs.current.forEach((ref, index) => {
       if (
@@ -91,6 +90,7 @@ const UpdateVaccine = ({
       setFocusedIndexes(newFocusedIndexes);
       return;
     }
+    setLoading(true);
     setUpdateLoader(true);
     let givenVaccineStatus = [];
     selectedVaccines.forEach(async (vaccine) => {
@@ -163,7 +163,6 @@ const UpdateVaccine = ({
 
   const updateVaccineDueDate = async () => {
     setUpdateLoader(true);
-    setLoading(true);
     let updatedVaccineStatus = [];
     selectedVaccines.forEach(async (vaccine) => {
       const payload = {
@@ -190,6 +189,7 @@ const UpdateVaccine = ({
     // Wait for all API calls to finish
     try {
       setUpdateLoader(false);
+      setLoading(true);
       if (updatedVaccineStatus?.every((res) => res?.status === 200)) {
         setShowSuccess(true);
         getVaccineDetails();
