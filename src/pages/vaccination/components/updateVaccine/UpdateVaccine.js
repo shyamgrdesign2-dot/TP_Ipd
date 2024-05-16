@@ -319,6 +319,7 @@ const UpdateVaccine = ({
                     <Select
                       showSearch
                       placeholder="Select vaccine brand"
+                      className="custom-select-style"
                       optionFilterProp="children"
                       filterOption={(input, option) =>
                         (option?.label ?? "")

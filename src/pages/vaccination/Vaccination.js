@@ -126,7 +126,9 @@ function Vaccination({ handleDrawerVaccination }) {
     const details = await getVaccineBrands();
     setBrands(details);
 
-    const birthDate = new Date(patientDetail?.vac_dob);
+    const birthDate = patientDetail?.vac_dob
+      ? new Date(patientDetail?.vac_dob)
+      : "";
 
     const combinedData = mergeDataPatientDetails(
       vaccineTemplate,

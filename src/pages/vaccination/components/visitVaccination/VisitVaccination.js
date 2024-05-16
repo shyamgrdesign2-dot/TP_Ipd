@@ -34,7 +34,7 @@ function VisitVaccination() {
       [],
       [],
       [],
-      patient_data?.DOB || patient_data?.vac_dob
+      patient_data?.DOB || patient_data?.vac_dob || ''
     );
     const vaccineDetailsWithAges = getDistinctAges(combinedData);
     const completeData = vaccineDetailsWithAges.idMap;

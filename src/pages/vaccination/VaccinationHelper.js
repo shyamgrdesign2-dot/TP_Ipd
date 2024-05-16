@@ -29,13 +29,13 @@ export const mergeDataPatientDetails = (
 
     const { tvt_due_day, tvt_due_month, tvt_due_year } = item;
     const { tvp_given_date } = vaccineGivenToPatient;
-    const futureDate = moment(birthDate, "Do MMM YYYY")
+    const futureDate = birthDate ? moment(birthDate, "Do MMM YYYY")
       .add({
         days: tvt_due_day,
         months: tvt_due_month,
         years: tvt_due_year,
       })
-      .format("DD-MMM-YYYY");
+      .format("DD-MMM-YYYY") : "";
 
     const matchingForOverDue = overridenVaccines.find(
       (obj) => obj.tvd_temp_id === item.tvt_id
@@ -93,10 +93,10 @@ export const getDates = (sampleMap) => {
       (sampleObject) => sampleObject.tvp_given_date
     );
 
-    const anyFutureDate = moment(value[0].dueDate).isSameOrAfter(
+    const anyFutureDate = value?.[0]?.dueDate ? moment(value[0].dueDate).isSameOrAfter(
       new Date(),
       "day"
-    );
+    ) : true;
 
     // Set the alert field based on the presence of dates
     const alert = allDatesPresent
