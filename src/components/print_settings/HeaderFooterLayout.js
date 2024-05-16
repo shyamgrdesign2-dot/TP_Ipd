@@ -61,7 +61,7 @@ const CustomRow = ({ children, ...props }) => {
                             />
                         ),
                     });
-                } else if (child.key === 'tmdpm_status') {
+                } else if (child.key === 'enable') {
                     return React.cloneElement(child, {
                         style: {
                             display: 'flex',
@@ -848,11 +848,11 @@ function HeaderFooterLayout() {
                                         isModalOpen={isHeaderModalOpen}
                                         onCancel={showHideHeaderModal}
                                         modalWidth={744}
-                                        // title={"Crope Image"}
+                                        // title={"Crop Image"}
                                         title={
                                             <div className='d-flex'>
                                                 <div className='align-items-center d-flex w-100'>
-                                                    <div className="text-truncate-twolines">{'Crope Image'}</div>
+                                                    <div className="text-truncate-twolines">{'Crop Image'}</div>
                                                 </div>
                                                 <Button type='button' disabled={fileHeader && !fileHeader?.crop ? false : true} className="btn-41 btn px-4 btn-primary3 me-4" onClick={onHeaderImageSubmit}>
                                                     Submit
@@ -922,11 +922,11 @@ function HeaderFooterLayout() {
                                         isModalOpen={isFooterModalOpen}
                                         onCancel={showHideFooterModal}
                                         modalWidth={744}
-                                        // title={"Crope Image"}
+                                        // title={"Crop Image"}
                                         title={
                                             <div className='d-flex'>
                                                 <div className='align-items-center d-flex w-100'>
-                                                    <div className="text-truncate-twolines">{'Crope Image'}</div>
+                                                    <div className="text-truncate-twolines">{'Crop Image'}</div>
                                                 </div>
                                                 <Button type='button' disabled={fileFooter && !fileFooter?.crop ? false : true} className="btn-41 btn px-4 btn-primary3 me-4" onClick={onFooterImageSubmit}>
                                                     Submit
