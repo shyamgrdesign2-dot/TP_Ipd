@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Modal, DatePicker, Button } from "antd";
 import { useEffect, useState } from "react";
-import { createPatient } from "../../service";
+import { createPatient, updateDob } from "../../service";
 import { errorMessage } from "../../../../utils/utils";
 import moment from "moment";
 import dayjs from "dayjs";
@@ -52,11 +52,12 @@ const AddDOB = ({
   const updatePatientDob = async () => {
     const payload = {
       patient_uid: patientDetails?.patient_unique_id,
+      patient_pid: patientDetails?.vac_pid,
       hospital_bid: patientDetails?.hm_business_id,
       hospital_id: patientDetails?.hm_id,
-      updated_dob: moment(dob).format("YYYY-MM-DD"),
+      updated_dob: moment(dob, "DD-MM-YYYY").format("YYYY-MM-DD"),
     };
-    const createPatientRes = await createPatient(payload);
+    const createPatientRes = await updateDob(payload);
     if (createPatientRes?.status === 200) {
       getVaccineDetails();
       setShowDob(false);

@@ -70,11 +70,11 @@ export const updateDueDate = async function (payload) {
   return res;
 };
 
-export const getOverridenDueDate = async (patientUid, patientPid) => {
+export const getOverridenDueDate = async (patientUid, patientPid, date) => {
   let res = [];
   try {
     res = await api.get(
-      `/vaccination/overridenduedates?patient_uid=${patientUid}&patient_pid=${patientPid}`,
+      `/vaccination/overridenduedates?patient_uid=${patientUid}&patient_pid=${patientPid}${date ? `&date=${date}` : ''}`,
       baseUrl
     );
     if (res?.detail) {

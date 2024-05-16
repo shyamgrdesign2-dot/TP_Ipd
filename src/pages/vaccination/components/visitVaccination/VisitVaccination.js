@@ -171,7 +171,7 @@ function VisitVaccination() {
               </div>
             </Card.Header>
             <div className="visitBody">
-              <div className={"overflow-auto"} style={{ height: 458 }}>
+              <div className={"overflow-auto"} style={{ maxHeight: 458 }}>
                 {pendingVaccines === null ? (
                   <div className="align-items-center text-center">
                     <Spin />

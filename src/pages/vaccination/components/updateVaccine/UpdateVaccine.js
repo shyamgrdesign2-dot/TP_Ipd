@@ -29,6 +29,7 @@ const UpdateVaccine = ({
   patientDetails,
   getVaccineDetails,
   setSelectedCards,
+  setSelectAll,
   setCardClicked,
   setLoading,
 }) => {
@@ -68,6 +69,7 @@ const UpdateVaccine = ({
   }, []);
 
   const updateVaccineDetails = async () => {
+    setCardClicked(false);
     const newFocusedIndexes = [];
     selectRefs.current.forEach((ref, index) => {
       if (
@@ -112,10 +114,11 @@ const UpdateVaccine = ({
       setUpdateLoader(false);
       if (updateVaccineRes?.every((res) => res?.status === 201)) {
         setShowSuccess(true);
-        getVaccineDetails();
+        getVaccineDetails(true);
         setTimeout(() => {
           setShow(false);
           setSelectedCards([]);
+          setSelectAll(false);
         }, 1000);
       } else {
         errorMessage({ name: "TypeError" });
@@ -131,6 +134,7 @@ const UpdateVaccine = ({
   const closeHandler = () => {
     setCardClicked(false);
     setSelectedCards([]);
+    setSelectAll(false);
     setChangeDate(false);
     setShow(false);
   };
@@ -145,6 +149,7 @@ const UpdateVaccine = ({
 
   const updateVaccineDueDate = async () => {
     setUpdateLoader(true);
+    setCardClicked(false);
     const updatePromises = selectedVaccines.map(async (vaccine) => {
       const payload = {
         patient_pid: patientDetails?.vac_pid,
@@ -163,10 +168,11 @@ const UpdateVaccine = ({
       setLoading(true);
       if (updateDueDateRes?.every((res) => res?.status === 200)) {
         setShowSuccess(true);
-        getVaccineDetails();
+        getVaccineDetails(true);
         setTimeout(() => {
           setShow(false);
           setSelectedCards([]);
+          setSelectAll(false);
         }, 1000);
       } else {
         errorMessage({ name: "TypeError" });
