@@ -74,7 +74,9 @@ export const getOverridenDueDate = async (patientUid, patientPid, date) => {
   let res = [];
   try {
     res = await api.get(
-      `/vaccination/overridenduedates?patient_uid=${patientUid}&patient_pid=${patientPid}${date ? `&date=${date}` : ''}`,
+      `/vaccination/overridenduedates?patient_uid=${patientUid}&patient_pid=${patientPid}${
+        date ? `&date=${date}` : ""
+      }`,
       baseUrl
     );
     if (res?.detail) {
@@ -99,11 +101,7 @@ export const getVaccineTemplates = async () => {
   return result;
 };
 
-export const getPatientVaccineDetails = async (
-  patientUid = 6302066347,
-  patientPid = 36207
-  // hospitalBid = 234659817
-) => {
+export const getPatientVaccineDetails = async (patientUid, patientPid) => {
   let result = [];
   try {
     // &hospital_bid=${hospitalBid} patientTemplateForBid - prod
@@ -121,27 +119,6 @@ export const getPatientVaccineDetails = async (
   return result;
 };
 
-export const checkToShowVaccination = async (
-  doctorUniqueId = "ZV7s4PYh8z3JguW"
-) => {
-  let result = "false";
-  try {
-    result = await api.get(
-      `/vaccination/isAuthorized?doctor_unique_id=${doctorUniqueId}`,
-      baseUrl
-    );
-    if (result?.isAuthorized) {
-      result = "true";
-    }
-  } catch (error) {
-    console.error(
-      "Error while fetching to show vaccination on prescription: ",
-      error
-    );
-  }
-  return result;
-};
-
 export const createPatient = async (payload) => {
   let res;
   try {
@@ -152,12 +129,9 @@ export const createPatient = async (payload) => {
   return res;
 };
 
-export const getGivenVaccineDetails = async (
-  patientUid,
-  patientPid
-) => {
+export const getGivenVaccineDetails = async (patientUid, patientPid) => {
   const today = moment().format("YYYY-MM-DD");
-  
+
   let result = [];
   try {
     result = await api.get(
