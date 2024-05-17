@@ -87,7 +87,7 @@ function Cardiology(props) {
             ),
         },
         {
-            title: 'Time & Frequency',
+            title: 'Frequency',
             dataIndex: 'TimeFrequency',
             key: 'TimeFrequency',
             render: (text, record) => (
