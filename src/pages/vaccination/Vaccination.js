@@ -396,6 +396,7 @@ function Vaccination({ handleDrawerVaccination }) {
             patientDetails={vaccinePatientDetails}
             handleDrawerVaccination={handleDrawerVaccination}
             getVaccineDetails={getVaccineDetails}
+            setLoading={setLoading}
           />
         )}
       </div>
