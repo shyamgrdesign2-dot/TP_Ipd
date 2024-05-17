@@ -371,9 +371,10 @@ const UpdateVaccine = ({
                           .localeCompare((optionB?.label ?? "").toLowerCase())
                       }
                       options={brands
-                        ?.filter(
-                          (brand) =>
-                            brand?.tvc_default_vac === vaccine?.tvac_name
+                        ?.filter((brand) =>
+                          vaccine?.tvac_name === "Influenza"
+                            ? brand?.tvc_default_vac === "Influenza-1"
+                            : brand?.tvc_default_vac === vaccine?.tvac_name
                         )
                         ?.map((brand) => ({
                           label: brand?.tvc_name,
