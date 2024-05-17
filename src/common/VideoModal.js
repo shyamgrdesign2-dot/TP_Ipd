@@ -18,7 +18,7 @@ function VideoModal({ videoLink, onCancel }) {
                 <a href={videoLink?.link} target='_blank'><img src={fullicon} /></a>
             </div>
             <div className="videodrawer">
-                <iframe width="100%" height="520" src={videoLink?.link} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <iframe width="100%" height="460" src={videoLink?.link} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
         </Modal>
     );

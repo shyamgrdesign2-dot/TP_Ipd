@@ -14,6 +14,7 @@ import playIconutube from '../assets/images/play-icon.png';
 import fullicon from '../assets/images/full-icon.svg';
 import tutorial from '../assets/images/tutorial-icon.svg';
 import playIcons from '../assets/images/tube-icon.svg';
+import videorotate from '../assets/images/videorotate.gif';
 import VideoModal from "./VideoModal";
 
 import config from "../config";
@@ -437,7 +438,11 @@ function Header({ locationPath }) {
           )}
 
           {locationPath == "/" ? (
-            <div onClick={handleDrawervideo} className="border border-color2 cursor-pointer rounded-circle me-2"><img src={playIcon} /></div>) : (
+            <div onClick={handleDrawervideo} className="cursor-pointer me-2 video-animat">
+              <img src={playIcon} />
+              <img src={videorotate} />
+            </div>
+              ) : (
             <Popover
               open={popOverVideo}
               onOpenChange={showHideVideoListPopover}
