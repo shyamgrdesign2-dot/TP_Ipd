@@ -56,7 +56,7 @@ function Cardiology(props) {
 
     const columns = [
         {
-            title: 'Rx',
+            title: 'S.NO',
             dataIndex: 'rx',
             key: 'rx',
             width: '40px',
@@ -67,7 +67,7 @@ function Cardiology(props) {
             ),
         },
         {
-            title: 'Name',
+            title: 'MEDICINE',
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => (
@@ -78,7 +78,7 @@ function Cardiology(props) {
             ),
         },
         {
-            title: 'UPD',
+            title: 'DOSE',
             dataIndex: 'upd',
             key: 'upd',
             width: '110px',
@@ -107,7 +107,7 @@ function Cardiology(props) {
             ),
         },
         {
-            title: 'QTY.',
+            title: 'QTY',
             dataIndex: 'qty',
             key: 'qty',
             width: '50px',
@@ -116,7 +116,7 @@ function Cardiology(props) {
             ),
         },
         {
-            title: 'Note',
+            title: 'Notes',
             dataIndex: 'note',
             key: 'note',
             render: (text, record) => (
