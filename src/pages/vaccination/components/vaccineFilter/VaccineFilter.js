@@ -11,20 +11,8 @@ const VaccineFilter = ({
   setSelectedCards,
   setSelectAll,
 }) => {
-  const [scrollToStart, setScrollToStart] = useState(false);
-
   const datesContainerRef = useRef(null);
   const hasScrolledRef = useRef(false);
-
-  useEffect(() => {
-    if (datesContainerRef.current) {
-      // Scroll to the end if scrollToStart is true, otherwise scroll to the start
-      datesContainerRef.current.scrollTo({
-        left: scrollToStart ? datesContainerRef.current.scrollWidth : 0,
-        behavior: "smooth",
-      });
-    }
-  }, [scrollToStart]);
 
   useEffect(() => {
     /**
@@ -53,8 +41,29 @@ const VaccineFilter = ({
     }
   }, [dateOptions]);
 
-  const handleToggleScroll = () => {
-    setScrollToStart((prevState) => !prevState);
+  const [showLeft, setShowLeft] = useState(true);
+  const [showRight, setShowRight] = useState(true);
+
+  const handleLeftToggleScroll = () => {
+    if (datesContainerRef.current) {
+      datesContainerRef.current.scrollTo({
+        left: 0,
+        behavior: "smooth",
+      });
+    }
+    setShowLeft(false);
+    setShowRight(true);
+  };
+
+  const handleRightToggleScroll = () => {
+    if (datesContainerRef.current) {
+      datesContainerRef.current.scrollTo({
+        left: datesContainerRef.current.scrollWidth,
+        behavior: "smooth",
+      });
+    }
+    setShowRight(false);
+    setShowLeft(true);
   };
 
   const [showTooltip, setShowTooltip] = useState(true);
@@ -101,21 +110,21 @@ const VaccineFilter = ({
 
   return (
     <div className="d-flex align-items-center">
-      {scrollToStart ? (
+      {showLeft && (
         <img
           className="me-3 clickable imageStyle"
           src={chevron}
           alt="chevron"
-          onClick={handleToggleScroll}
+          onClick={handleLeftToggleScroll}
           style={{
             cursor: "pointer",
-            transform: scrollToStart ? "rotate(180deg)" : "rotate(0deg)",
+            transform: "rotate(180deg)",
             margin: "0 5px 0 5px",
           }}
         />
-      ) : null}
+      )}
       <div
-        className={`datesContainer ${scrollToStart ? "scrollToEnd" : ""}`}
+        className={`datesContainer`}
         ref={datesContainerRef} // Reference to the dates container for scrolling
       >
         {dateOptions.length > 0 &&
@@ -158,22 +167,21 @@ const VaccineFilter = ({
             </Tooltip>
           ))}
       </div>
-      {!scrollToStart ? (
+      {showRight && (
         <div className="vaccineFilterStyle">
-          <div className="blurOverlay" />
           <img
             className="clickable"
             src={chevron}
             alt="chevron"
-            onClick={handleToggleScroll}
+            onClick={handleRightToggleScroll}
             style={{
               cursor: "pointer",
-              transform: scrollToStart ? "rotate(180deg)" : "rotate(0deg)",
+              transform: "rotate(0deg)",
               margin: "0 0 5px 5px",
             }}
           />
         </div>
-      ) : null}
+      )}
     </div>
   );
 };
