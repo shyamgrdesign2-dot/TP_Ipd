@@ -489,15 +489,17 @@ function Prescription() {
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
         </Drawer>
-        {vaccinationDrawer && <Drawer
-          closeIcon={false}
-          placement="right"
-          onClose={handleDrawerVaccination}
-          open={vaccinationDrawer}
-          width="100%"
-        >
-          <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
-        </Drawer>}
+        {vaccinationDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerVaccination}
+            open={vaccinationDrawer}
+            width="100%"
+          >
+            <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
+          </Drawer>
+        )}
       </>
     </CashManagerContext.Provider>
   );

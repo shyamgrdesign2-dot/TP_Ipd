@@ -34,7 +34,7 @@ function VisitVaccination() {
       [],
       [],
       [],
-      patient_data?.DOB || patient_data?.vac_dob || ''
+      patient_data?.DOB || patient_data?.vac_dob || ""
     );
     const vaccineDetailsWithAges = getDistinctAges(combinedData);
     const completeData = vaccineDetailsWithAges.idMap;
@@ -102,8 +102,8 @@ function VisitVaccination() {
                   {isOverDue ? "Over due" : "Due"}
                 </div>
               </div>
-              <div className="d-flex justify-content-between">
-                <div>
+              <div className="d-flex justify-content-between align-items-end">
+                <div className="dueDateText">
                   {vaccine.tvd_due_date
                     ? `Update due date : ${moment(vaccine.tvd_due_date).format(
                         "DD-MMM-YYYY"

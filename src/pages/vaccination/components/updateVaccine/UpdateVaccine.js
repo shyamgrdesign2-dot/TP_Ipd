@@ -74,13 +74,17 @@ const UpdateVaccine = ({
     setGivenDate(
       selectedVaccines?.[0]?.tvp_given_date ?? moment().format("YYYY-MM-DD")
     );
-    setDueDate(
-      selectedVaccines?.[0]?.dueDate
-        ? moment(selectedVaccines?.[0]?.dueDate, "D MMMM YYYY").format(
-            "YYYY-MM-DD"
-          )
-        : ""
-    );
+    if (selectedVaccines?.[0]?.tvd_due_date) {
+      setDueDate(
+        moment(selectedVaccines?.[0]?.tvd_due_date).format("YYYY-MM-DD")
+      );
+    } else if (selectedVaccines?.[0]?.dueDate) {
+      setDueDate(
+        moment(selectedVaccines?.[0]?.dueDate, "D MMMM YYYY").format(
+          "YYYY-MM-DD"
+        )
+      );
+    }
   }, []);
 
   const updateVaccineDetails = async () => {
@@ -97,7 +101,6 @@ const UpdateVaccine = ({
         }
         newFocusedIndexes.push(index);
       }
-      
     });
 
     if (newFocusedIndexes?.length) {

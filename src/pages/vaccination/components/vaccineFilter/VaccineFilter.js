@@ -111,17 +111,19 @@ const VaccineFilter = ({
   return (
     <div className="d-flex align-items-center">
       {showLeft && (
-        <img
-          className="me-3 clickable imageStyle"
-          src={chevron}
-          alt="chevron"
-          onClick={handleLeftToggleScroll}
-          style={{
-            cursor: "pointer",
-            transform: "rotate(180deg)",
-            margin: "0 5px 0 5px",
-          }}
-        />
+        <div className="vaccineFilterStyle">
+          <img
+            className="me-3 clickable imageStyle"
+            src={chevron}
+            alt="chevron"
+            onClick={handleLeftToggleScroll}
+            style={{
+              cursor: "pointer",
+              transform: "rotate(180deg)",
+              margin: "0 5px 0 5px",
+            }}
+          />
+        </div>
       )}
       <div
         className={`datesContainer`}

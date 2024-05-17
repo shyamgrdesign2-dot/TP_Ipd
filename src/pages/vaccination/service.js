@@ -104,8 +104,6 @@ export const getVaccineTemplates = async () => {
 export const getPatientVaccineDetails = async (patientUid, patientPid) => {
   let result = [];
   try {
-    // &hospital_bid=${hospitalBid} patientTemplateForBid - prod
-    // https://pm-vaccination-uat.mytatva.in/vaccination/patientTemplateForBid?patient_uid=6302066347&patient_pid=36207 - prod
     result = await api.get(
       `/vaccination/patientTemplate?patient_uid=${patientUid}&patient_pid=${patientPid}`,
       baseUrl
