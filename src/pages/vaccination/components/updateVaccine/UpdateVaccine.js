@@ -20,6 +20,11 @@ import { updateDueDate, updateVaccine } from "../../service.js";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 import { errorMessage } from "../../../../utils/utils.js";
+import {
+  addDueVaccines,
+  addGivenVaccines,
+} from "../../../../redux/vaccineSlice.js";
+import { useDispatch } from "react-redux";
 
 const UpdateVaccine = ({
   show,
@@ -33,6 +38,7 @@ const UpdateVaccine = ({
   setCardClicked,
   setLoading,
 }) => {
+  const dispatch = useDispatch();
   const { TextArea } = Input;
   const [changeDate, setChangeDate] = useState(false);
   const [givenDate, setGivenDate] = useState("");
@@ -105,7 +111,12 @@ const UpdateVaccine = ({
           "",
       };
 
-      return updateVaccine(payload);
+      const result = updateVaccine(payload);
+      const resultStatus = await result;
+      if (resultStatus?.status === 201) {
+        dispatch(addGivenVaccines({ payload, vaccine }));
+      }
+      return result;
     });
 
     try {
@@ -158,7 +169,12 @@ const UpdateVaccine = ({
         overriden_due_date: dueDate,
         remarks: dueDateNote,
       };
-      return updateDueDate(payload);
+      const result = updateDueDate(payload);
+      const resultStatus = await result;
+      if (resultStatus?.status === 200) {
+        dispatch(addDueVaccines({ payload, vaccine }));
+      }
+      return result;
     });
 
     // Wait for all API calls to finish
