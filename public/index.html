@@ -10,7 +10,7 @@
 
         Moengage = moe({
             app_id: moeAppID,
-            debug_logs: 0// 0 - Production
+            debug_logs: 1// 0 - Production
         });
         // moe_webpush.initialize({app_id: 'DVIY0IUVG5KDW20CQ08VIWWM', cluster: 'dc_3'});
     </script>
@@ -53,5 +53,30 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
 </body>
+
+<script>
+  var beamer_config = {
+    // oMqlKykf61816
+    product_id: "",
+    selector: "beamerButton",
+    display: "left",
+    nps_delay: 3,
+
+    filter: "",
+    user_firstname: "",
+    user_lastname: "",
+    user_id: "",
+   
+    // onclose: function() {
+    //   let BeamerOn = false;
+    //   $("#beamerOverlay").remove();
+    //   if (!BeamerOn) {
+    //     Beamer.init();
+    //     BeamerOn = true;
+    //   }
+    // }
+  };
+</script>
+<script type="text/javascript" src="https://app.getbeamer.com/js/beamer-embed.js" defer="defer"></script>
 
 </html>

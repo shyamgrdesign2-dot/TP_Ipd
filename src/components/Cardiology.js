@@ -56,7 +56,7 @@ function Cardiology(props) {
 
     const columns = [
         {
-            title: 'Rx',
+            title: 'S.NO',
             dataIndex: 'rx',
             key: 'rx',
             width: '40px',
@@ -67,7 +67,7 @@ function Cardiology(props) {
             ),
         },
         {
-            title: 'Name',
+            title: 'MEDICINE',
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => (
@@ -78,7 +78,16 @@ function Cardiology(props) {
             ),
         },
         {
-            title: 'Time & Frequency',
+            title: 'DOSE',
+            dataIndex: 'upd',
+            key: 'upd',
+            width: '110px',
+            render: (text, record) => (
+                <div>{`${record.tmm_dosage ? `${record.tmm_dosage} ${record?.medicineUnit && record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit) !== undefined ? record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit).tmu_title : ""}` : ""}`}</div>
+            ),
+        },
+        {
+            title: 'Frequency',
             dataIndex: 'TimeFrequency',
             key: 'TimeFrequency',
             render: (text, record) => (
@@ -97,17 +106,17 @@ function Cardiology(props) {
                 <div>{isNumeric(record.tmm_days) ? `${record.tmm_days} - ${record.tmm_duration_type}` : `-`}</div>
             ),
         },
-        // {
-        //     title: 'QTY.',
-        //     dataIndex: 'qty',
-        //     key: 'qty',
-        //     width: '50px',
-        //     render: (text, record) => (
-        //         <div>{`${record.display_qty ? record.display_qty.toFixed(2) : '-'}`}</div>
-        //     ),
-        // },
         {
-            title: 'Note',
+            title: 'QTY',
+            dataIndex: 'qty',
+            key: 'qty',
+            width: '50px',
+            render: (text, record) => (
+                <div>{`${record.display_qty ? record.display_qty : '-'}`}</div>
+            ),
+        },
+        {
+            title: 'Notes',
             dataIndex: 'note',
             key: 'note',
             render: (text, record) => (

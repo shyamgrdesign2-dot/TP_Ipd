@@ -1,17 +1,23 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
+import { Popover } from "antd";
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { useSelector } from "react-redux";
 
+import playIcons from '../assets/images/tube-icon.svg';
+import tutorial from '../assets/images/tutorial-icon.svg';
+
 import ProfilePopover from './ProfilePopover';
+import VideoModal from './VideoModal';
 
 function Welcome1(props) {
 
+    const [popOverVideo, setPopOverVideo] = useState(false);
+    const [videoLink, setVideoLink] = useState(null);
+
     const navigate = useNavigate();
-
-    const { profile } = useSelector((state) => state.doctors);
-
+    const { profile, videoList } = useSelector((state) => state.doctors);
     const { locationPath, isMobile, patient_data, viewCaseManagerData } = props
 
     const modifyFormat = useMemo(() => {
@@ -26,6 +32,42 @@ function Welcome1(props) {
         }
     }, [viewCaseManagerData])
 
+    //PopOverVideo function
+    const showHideVideoListPopover = useCallback(() => {
+        setPopOverVideo(!popOverVideo);
+    }, [popOverVideo]);
+
+    //Video Componet
+    const VIDEO_CONTENT = useCallback(() => {
+        return (
+            <>
+                <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
+                    <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+                        <div className="title-common lh-base">Video Tutorial</div>
+                        <Button className="btn btn-videoClose p-0"
+                            onClick={showHideVideoListPopover}>
+                            <i className="icon-Cross" />
+                        </Button>
+                    </div>
+                    {videoList[0]?.video?.map((item1, i1) => {
+                        return (
+                            <div key={i1} className={`d-flex ${i1 !== videoList[0]?.video.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
+                                <div className="tutorial-play me-14">
+                                    <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+                                    <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
+                                </div>
+                                <div>
+                                    <h3 className="title-common text-welcome">{item1?.tmv_title}</h3>
+                                    <div className="fs-12 fontroboto fw-normal text-main">{item1?.tmv_description}</div>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            </>
+        );
+    }, [popOverVideo]);
+
     return (
         <>
             <div className="welcomesection position-relative">
@@ -36,11 +78,30 @@ function Welcome1(props) {
                             {isMobile && (<ProfilePopover locationPath={locationPath} isMobile={isMobile} patient_data={patient_data} />)}
                             {isMobile ? '' : <p className='mb-1'>&nbsp;</p>}
                         </div>
-                        <img src={require("../assets/images/bg-welcome.png")} className="welcomeig d-inline-block align-top ms-4" alt="Welcome" />
+                        <img src={require("../assets/images/bg-welcome.png")} className={`welcomeig d-inline-block align-top ${isMobile ? 'ms-2' : 'ms-4'}`} alt="Welcome" />
                     </div>
                     <div>
                         {viewCaseManagerData && (
                             <div className='d-lg-flex d-block'>
+                                <Popover
+                                    open={popOverVideo}
+                                    onOpenChange={showHideVideoListPopover}
+                                    content={VIDEO_CONTENT}
+                                    trigger="click"
+                                    overlayClassName="pop-430 pp-0 videoTutorial"
+                                    placement="bottom"
+                                >
+                                    <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'> 
+                                    {/* onClick={showHideVideoListPopover} */}
+                                        <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
+                                    </button>
+                                </Popover>
+                                {videoLink && (
+                                    <VideoModal
+                                        videoLink={videoLink}
+                                        onCancel={() => setVideoLink(null)}
+                                    />
+                                )}
                                 <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => {
                                     window.Moengage.track_event("repeat_rx_click", {
                                         "doctor_id": profile?.doctor_unique_id,

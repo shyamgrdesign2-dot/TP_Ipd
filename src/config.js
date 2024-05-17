@@ -1,4 +1,4 @@
-import { env } from './EnvironmentConfig'
+import { env } from "./EnvironmentConfig";
 export default {
   appointment_api_url: env.appointment_api_url,
   symptoms_api_url: env.symptoms_api_url,
@@ -11,8 +11,11 @@ export default {
   casemanager_api_url: env.casemanager_api_url,
   printsettings_api_url: env.printsettings_api_url,
   medicalhistory_api_url: env.medicalhistory_api_url,
+  videolibrary_api_url: env.videolibrary_api_url,
   sso_to_pm_url: env.sso_to_pm_url,
   sso_to_pm_username: env.sso_to_pm_username,
   sso_to_pm_password: env.sso_to_pm_password,
   doctor_website_url: env.doctor_website_url,
-}
+  vaccination_api_url: env.vaccination_api_url,
+  GROWTHBOOK_CLIENTKEY: env.GROWTHBOOK_CLIENTKEY,
+};

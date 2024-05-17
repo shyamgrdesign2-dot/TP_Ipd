@@ -10,8 +10,8 @@ import { NORMAL } from "../utils/constants";
 import ViewPDF from '../components/print_settings/ViewPDF';
 import { renderPDF } from '../components/print_settings/renderPDF';
 import { PDF } from '../components/print_settings/PDF';
-
 import { pdfjs, Document, Page } from "react-pdf";
+import { getGivenVaccineDetails, getOverridenDueDate } from './vaccination/service';
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
@@ -26,7 +26,7 @@ function Quixote({ mode = NORMAL, ...props }) {
     const initialRows = [
         {
             key: '1',
-            name: `Temperature (Frh)`,
+            name: `Temp (F)`,
         },
         {
             key: '2',
@@ -38,34 +38,38 @@ function Quixote({ mode = NORMAL, ...props }) {
         },
         {
             key: '4',
-            name: `Systolic (mmHg)`,
+            name: `Blood Pressure (mmHg)`,
         },
+        // {
+        //     key: '4',
+        //     name: `Systolic (mmHg)`,
+        // },
+        // {
+        //     key: '5',
+        //     name: `Diastolic (mmHg)`,
+        // },
         {
             key: '5',
-            name: `Diastolic (mmHg)`,
-        },
-        {
-            key: '6',
             name: `SPO2 (%)`,
         },
         {
-            key: '7',
+            key: '6',
             name: `Height (cms)`,
         },
         {
-            key: '8',
+            key: '7',
             name: `Weight (kgs)`,
         },
         {
-            key: '9',
+            key: '8',
             name: `BMI (kg/m²)`,
         },
         {
-            key: '10',
+            key: '9',
             name: `BMR (kcals)`,
         },
         {
-            key: '11',
+            key: '10',
             name: `BSA (m²)`,
         }
     ];
@@ -90,19 +94,32 @@ function Quixote({ mode = NORMAL, ...props }) {
         initialRows[0][index] = item.temp ? item.temp : '-'
         initialRows[1][index] = item.pres ? item.pres : '-'
         initialRows[2][index] = item.resp_rate ? item.resp_rate : '-'
-        initialRows[3][index] = item.blood_press ? item.blood_press.split('/')[0] ? item.blood_press.split('/')[0] : '-' : '-'
-        initialRows[4][index] = item.blood_press ? item.blood_press.split('/')[1] ? item.blood_press.split('/')[1] : '-' : '-'
-        initialRows[5][index] = item.spo2 ? item.spo2 : '-'
-        initialRows[6][index] = item.height ? item.height : '-'
-        initialRows[7][index] = item.weight ? item.weight : '-'
-        initialRows[8][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'
-        initialRows[9][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
-        initialRows[10][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
+        initialRows[3][index] = item.blood_press ? item.blood_press.endsWith("/") ? item.blood_press.substring(0, item.blood_press.length - 1) : item.blood_press : '-'
+        // initialRows[3][index] = item.blood_press ? item.blood_press.split('/')[0] ? item.blood_press.split('/')[0] : '-' : '-'
+        // initialRows[4][index] = item.blood_press ? item.blood_press.split('/')[1] ? item.blood_press.split('/')[1] : '-' : '-'
+        initialRows[4][index] = item.spo2 ? item.spo2 : '-'
+        initialRows[5][index] = item.height ? item.height : '-'
+        initialRows[6][index] = item.weight ? item.weight : '-'
+        initialRows[7][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'
+        initialRows[8][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
+        initialRows[9][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
     });
 
     const [pdfUrl, setPdfUrl] = useState(null)
     const [numPages, setNumPages] = useState();
     const [loadSuccess, setLoadSuccesss] = useState(false);
+
+    const [todayVaccines, setTodayVaccines] = useState();
+
+    useEffect(() => {
+        getGivenAndDueVaccines();
+    }, []);
+
+    const getGivenAndDueVaccines = async() => {
+        const given = await getGivenVaccineDetails(caseManagerData?.patient_data?.patient_unique_id, caseManagerData?.patient_data?.patient_id)
+        const due = await getOverridenDueDate(caseManagerData?.patient_data?.patient_unique_id, caseManagerData?.patient_data?.patient_id, moment().format("YYYY-MM-DD"))
+        setTodayVaccines({given, due});
+    }
 
     useEffect(() => {
         // const makePDFUrl = async () => {
@@ -137,6 +154,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 fileLogo={mode == NORMAL ? fileLogo : props.fileLogoCopy}
                 fileWatermark={fileWatermark}
                 fileSignature={fileSignature}
+                todayVaccines={todayVaccines}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
         }
@@ -155,7 +173,8 @@ function Quixote({ mode = NORMAL, ...props }) {
         fileFooter,
         fileSignature,
         fileWatermark,
-        fileLogo
+        fileLogo,
+        todayVaccines
     ]);
 
     const onDocumentLoadSuccess = ({ numPages }) => {

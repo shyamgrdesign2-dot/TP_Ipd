@@ -916,9 +916,9 @@ body {
             color: $white !important;
         }
         &:hover {
-            background-color: $theme;
-            color: $white;
-            border-color: $theme;
+            background-color: $theme !important;
+            color: $white !important;
+            border-color: $theme !important;
             span, i {
                 color: $white;
             }
@@ -966,5 +966,12 @@ body {
     span {
         font-family: 'roboto' !important;
         font-weight: 500;
+    }
+}
+.tutorial-thumb {
+    img {
+        width: 117px;
+        height: 80px;
+        border-radius: 8px;
     }
 }
