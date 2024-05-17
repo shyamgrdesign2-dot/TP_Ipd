@@ -56,6 +56,7 @@ function TabPrescription() {
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
+  const isVaccination = state?.isVaccination;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -248,10 +249,15 @@ function TabPrescription() {
   }, [collapsedFlag, medicalHistoryDrawer]);
 
   // Drawer Vaccination
-  const handleDrawerVaccination = useCallback(() => {
-    setCollapsedFlag(3);
+  const handleDrawerVaccination = () => {
     setVaccinationDrawer(!vaccinationDrawer);
-  }, [vaccinationDrawer]);
+  };
+
+  useEffect(() => {
+    if (isVaccination) {
+      handleDrawerVaccination();
+    }
+  }, [isVaccination]);
 
   //Handle Sider
   const openCollapsed = useCallback(
@@ -521,15 +527,17 @@ function TabPrescription() {
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
         </Drawer>
-        {vaccinationDrawer && <Drawer
-          closeIcon={false}
-          placement="right"
-          onClose={handleDrawerVaccination}
-          open={vaccinationDrawer}
-          width="100%"
-        >
-          <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
-        </Drawer>}
+        {vaccinationDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerVaccination}
+            open={vaccinationDrawer}
+            width="100%"
+          >
+            <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
+          </Drawer>
+        )}
       </>
     </CashManagerContext.Provider>
   );
