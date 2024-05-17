@@ -60,6 +60,15 @@ const UpdateVaccine = ({
   const selectRefs = useRef([]);
   const { state } = useLocation();
   const { patient_data } = state;
+  const formRef = useRef(null);
+
+  const scrollToIndex = (index) => {
+    const element = selectRefs.current[index];
+    if (element) {
+      element.scrollTo({ behavior: "smooth", block: "center" });
+      element.focus();
+    }
+  };
 
   useEffect(() => {
     setGivenDate(
@@ -83,11 +92,16 @@ const UpdateVaccine = ({
           ?.vaccine_company_id &&
         !selectedVaccines?.[index]?.brandId
       ) {
-        ref.focus();
+        if (ref) {
+          ref.focus();
+        }
         newFocusedIndexes.push(index);
       }
+      
     });
+
     if (newFocusedIndexes?.length) {
+      scrollToIndex(newFocusedIndexes[0]);
       setFocusedIndexes(newFocusedIndexes);
       return;
     }
@@ -322,9 +336,9 @@ const UpdateVaccine = ({
           type="vertical"
           style={{ height: "100%", marginLeft: "20px", marginRight: "15px" }}
         />
-
         <Col span={11} style={{ width: "414px" }}>
           <div
+            ref={formRef}
             className="d-flex flex-column gap-3"
             style={{ maxHeight: "650px", overflowY: "auto" }}
           >
@@ -371,7 +385,9 @@ const UpdateVaccine = ({
                         );
                       }}
                       defaultValue={vaccine?.brandId}
-                      ref={(el) => (selectRefs.current[i] = el)}
+                      ref={(ref) => {
+                        if (ref) selectRefs.current[i] = ref;
+                      }}
                       style={{
                         border: focusedIndexes.includes(i)
                           ? "1px solid blue"
