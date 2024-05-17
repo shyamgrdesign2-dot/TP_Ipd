@@ -15,6 +15,7 @@ import fullicon from '../assets/images/full-icon.svg';
 import tutorial from '../assets/images/tutorial-icon.svg';
 import playIcons from '../assets/images/tube-icon.svg';
 import VideoModal from "./VideoModal";
+import videorotate from '../assets/images/videorotate.gif';
 
 import config from "../config";
 import { getProfile, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo } from "../redux/doctorsSlice";
@@ -437,7 +438,10 @@ function Header({ locationPath }) {
           )}
 
           {locationPath == "/" ? (
-            <div onClick={handleDrawervideo} className="border border-color2 cursor-pointer rounded-circle me-2"><img src={playIcon} /></div>) : (
+            <div onClick={handleDrawervideo} className="cursor-pointer me-2 video-animat">
+              <img src={playIcon} />
+              <img src={videorotate} />
+            </div>) : (
             <Popover
               open={popOverVideo}
               onOpenChange={showHideVideoListPopover}
@@ -447,7 +451,7 @@ function Header({ locationPath }) {
               placement="bottom"
             >
               <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
-              {/* onClick={showHideVideoListPopover} */}
+                {/* onClick={showHideVideoListPopover} */}
                 <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
               </button>
             </Popover>
