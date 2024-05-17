@@ -702,3 +702,17 @@ body {
         }
     }
 }
+
+.video-animat {
+    position: relative;
+    img {
+        &:nth-child(2) {
+            position: absolute;
+            left: -7px;
+            top: -7px;
+            width: 48px;
+            height: 48px;
+            z-index: -1;
+        }
+    }
+}
