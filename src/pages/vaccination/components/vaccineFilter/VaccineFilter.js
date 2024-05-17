@@ -36,15 +36,15 @@ const VaccineFilter = ({
       activeDate <= dateOptions.length &&
       datesContainerRef.current
     ) {
-      const monthElement = datesContainerRef.current.children[activeDate];
-      if (monthElement) {
+        const monthElement = datesContainerRef.current.children[activeDate];
+        if (monthElement) {
         const containerRect = datesContainerRef.current.getBoundingClientRect();
-        const monthRect = monthElement.getBoundingClientRect();
-        const scrollLeft = monthRect.left - containerRect.left;
-        datesContainerRef.current.scrollTo({
-          left: scrollLeft,
-          behavior: "smooth",
-        });
+          const monthRect = monthElement.getBoundingClientRect();
+          const scrollLeft = monthRect.left - containerRect.left;
+          datesContainerRef.current.scrollTo({
+            left: scrollLeft,
+            behavior: "smooth",
+          });
       }
     }
   }, [dateOptions]);
@@ -79,20 +79,20 @@ const VaccineFilter = ({
 
   const tooltipTitle = () => {
     return (
-      <>
-        <div className="d-flex align-items-center justify-content-between">
-          <span className="warning" />
-          <div style={{ paddingLeft: "16px" }}>Vaccine Pending!</div>
-          <img
-            className="imageStyle"
-            src={closeFill}
-            alt="closeFill"
-            onClick={() => setShowTooltip(false)}
-          />
-        </div>
-        <div>Pending vaccine detected for this timeframe.</div>
-      </>
-    );
+    <>
+      <div className="d-flex align-items-center justify-content-between">
+        <span className="warning" />
+        <div style={{ paddingLeft: "16px" }}>Vaccine Pending!</div>
+        <img
+          className="imageStyle"
+          src={closeFill}
+          alt="closeFill"
+          onClick={() => setShowTooltip(false)}
+        />
+      </div>
+      <div>Pending vaccine detected for this timeframe.</div>
+    </>
+  );
   };
 
   return (
@@ -150,7 +150,7 @@ const VaccineFilter = ({
                 >
                   {item.label}
                 </span>
-              </Button>{" "}
+              </Button>
             </Tooltip>
           ))}
       </div>

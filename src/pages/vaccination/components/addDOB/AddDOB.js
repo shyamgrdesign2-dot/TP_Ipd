@@ -14,6 +14,7 @@ const AddDOB = ({
   patientDetails,
   handleDrawerVaccination,
   getVaccineDetails,
+  setLoading,
 }) => {
   const [dob, setDob] = useState("");
   const { profile } = useSelector((state) => state.doctors);
@@ -44,6 +45,7 @@ const AddDOB = ({
     if (createPatientRes?.status === 200) {
       getVaccineDetails();
       setShowDob(false);
+      setLoading(true);
     } else {
       errorMessage({ name: "TypeError" });
     }
@@ -61,6 +63,7 @@ const AddDOB = ({
     if (createPatientRes?.status === 200) {
       getVaccineDetails();
       setShowDob(false);
+      setLoading(true);
     } else {
       errorMessage({ name: "TypeError" });
     }
