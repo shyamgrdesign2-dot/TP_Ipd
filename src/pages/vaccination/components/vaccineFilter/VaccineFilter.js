@@ -14,6 +14,7 @@ const VaccineFilter = ({
   const [scrollToStart, setScrollToStart] = useState(false);
 
   const datesContainerRef = useRef(null);
+  const hasScrolledRef = useRef(false);
 
   useEffect(() => {
     if (datesContainerRef.current) {
@@ -30,21 +31,24 @@ const VaccineFilter = ({
      * scrolling to the specific age option when we comes to vaccination
      * page on the first time
      */
-    if (
-      activeDate &&
-      activeDate > 0 &&
-      activeDate <= dateOptions.length &&
-      datesContainerRef.current
-    ) {
+    if (!hasScrolledRef.current && datesContainerRef.current) {
+      if (activeDate && activeDate > 0 && activeDate <= dateOptions.length) {
         const monthElement = datesContainerRef.current.children[activeDate];
         if (monthElement) {
-        const containerRect = datesContainerRef.current.getBoundingClientRect();
+          const containerRect =
+            datesContainerRef.current.getBoundingClientRect();
           const monthRect = monthElement.getBoundingClientRect();
-          const scrollLeft = monthRect.left - containerRect.left;
+          const scrollLeft =
+            monthRect.left -
+            containerRect.left -
+            containerRect.width / 2 +
+            monthRect.width / 2;
           datesContainerRef.current.scrollTo({
             left: scrollLeft,
             behavior: "smooth",
           });
+          hasScrolledRef.current = true;
+        }
       }
     }
   }, [dateOptions]);
@@ -79,20 +83,20 @@ const VaccineFilter = ({
 
   const tooltipTitle = () => {
     return (
-    <>
-      <div className="d-flex align-items-center justify-content-between">
-        <span className="warning" />
-        <div style={{ paddingLeft: "16px" }}>Vaccine Pending!</div>
-        <img
-          className="imageStyle"
-          src={closeFill}
-          alt="closeFill"
-          onClick={() => setShowTooltip(false)}
-        />
-      </div>
-      <div>Pending vaccine detected for this timeframe.</div>
-    </>
-  );
+      <>
+        <div className="d-flex align-items-center justify-content-between">
+          <span className="warning" />
+          <div style={{ paddingLeft: "16px" }}>Vaccine Pending!</div>
+          <img
+            className="imageStyle"
+            src={closeFill}
+            alt="closeFill"
+            onClick={() => setShowTooltip(false)}
+          />
+        </div>
+        <div>Pending vaccine detected for this timeframe.</div>
+      </>
+    );
   };
 
   return (
