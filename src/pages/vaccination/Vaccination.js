@@ -75,6 +75,7 @@ function Vaccination({ handleDrawerVaccination }) {
   useEffect(() => {
     const activeValue = ageFilters?.[activeDate];
     setVaccinesData(completeData?.get?.(activeValue));
+    setShouldShowSelectAll(false);
   }, [activeDate, completeData]);
 
   useEffect(() => {
@@ -97,7 +98,7 @@ function Vaccination({ handleDrawerVaccination }) {
       patient_uid: patient_data?.patient_unique_id,
       hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
     });
-    setVaccinePatientDetails({...patient_data, ...patientDetails});
+    setVaccinePatientDetails({ ...patient_data, ...patientDetails });
     if (
       !patientDetails?.vac_id ||
       (patientDetails?.vac_id && !patientDetails?.vac_dob)
@@ -205,11 +206,11 @@ function Vaccination({ handleDrawerVaccination }) {
     } else {
       if (newSelectedCards.length) {
         if (
-          vaccinesData[selectedCards[0]]?.tvp_given_date ===
+          vaccinesData[selectedCards[0]]?.tvp_given_date &&
           vaccinesData[id]?.tvp_given_date
         ) {
           if (
-            vaccinesData[selectedCards[0]].tvp_given_date ===
+            vaccinesData[selectedCards[0]]?.tvp_given_date ===
             vaccinesData[id]?.tvp_given_date
           ) {
             newSelectedCards.push(id);
@@ -219,6 +220,11 @@ function Vaccination({ handleDrawerVaccination }) {
             );
             newSelectedCards = [id];
           }
+        } else if (
+          vaccinesData[selectedCards[0]].tvp_given_date ===
+          vaccinesData[id]?.tvp_given_date
+        ) {
+          newSelectedCards.push(id);
         } else {
           setWarningMsg(
             "Given vaccine and Due Vaccines cannot be selected togather!"
