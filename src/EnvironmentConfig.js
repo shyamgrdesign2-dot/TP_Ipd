@@ -73,7 +73,7 @@ const prod = {
   casemanager_api_url: `https://casemanager-prod.azurewebsites.net`,
   printsettings_api_url: `https://printsetting-prod.azurewebsites.net`,
   medicalhistory_api_url: `https://medicalhistory-prod.azurewebsites.net`,
-  videolibrary_api_url: `https://videolibrary-webservices.azurewebsites.net`,
+  videolibrary_api_url: `https://videolibrary-prod.azurewebsites.net`,
   sso_to_pm_url: `https://practice.tatvacare.in/api/get_doctor_sso_token.php`,
   sso_to_pm_username: `PM_45dy48vh8sc4i1dum`,
   sso_to_pm_password: `481541at-j4xc-4817-q5xz-a4rt48c69bt1`,

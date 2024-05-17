@@ -14,6 +14,7 @@ const VaccineFilter = ({
   const [scrollToStart, setScrollToStart] = useState(false);
 
   const datesContainerRef = useRef(null);
+  const hasScrolledRef = useRef(false);
 
   useEffect(() => {
     if (datesContainerRef.current) {
@@ -30,21 +31,24 @@ const VaccineFilter = ({
      * scrolling to the specific age option when we comes to vaccination
      * page on the first time
      */
-    if (
-      activeDate &&
-      activeDate > 0 &&
-      activeDate <= dateOptions.length &&
-      datesContainerRef.current
-    ) {
-      const monthElement = datesContainerRef.current.children[activeDate];
-      if (monthElement) {
-        const containerRect = datesContainerRef.current.getBoundingClientRect();
-        const monthRect = monthElement.getBoundingClientRect();
-        const scrollLeft = monthRect.left - containerRect.left;
-        datesContainerRef.current.scrollTo({
-          left: scrollLeft,
-          behavior: "smooth",
-        });
+    if (!hasScrolledRef.current && datesContainerRef.current) {
+      if (activeDate && activeDate > 0 && activeDate <= dateOptions.length) {
+        const monthElement = datesContainerRef.current.children[activeDate];
+        if (monthElement) {
+          const containerRect =
+            datesContainerRef.current.getBoundingClientRect();
+          const monthRect = monthElement.getBoundingClientRect();
+          const scrollLeft =
+            monthRect.left -
+            containerRect.left -
+            containerRect.width / 2 +
+            monthRect.width / 2;
+          datesContainerRef.current.scrollTo({
+            left: scrollLeft,
+            behavior: "smooth",
+          });
+          hasScrolledRef.current = true;
+        }
       }
     }
   }, [dateOptions]);
@@ -150,7 +154,7 @@ const VaccineFilter = ({
                 >
                   {item.label}
                 </span>
-              </Button>{" "}
+              </Button>
             </Tooltip>
           ))}
       </div>
