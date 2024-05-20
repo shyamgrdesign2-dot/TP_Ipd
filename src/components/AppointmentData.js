@@ -22,14 +22,19 @@ import dayjs from "dayjs";
 import { errorMessage } from "../utils/utils";
 
 import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../utils/constants";
+
 import noData from "../assets/images/nodata-found.svg";
 import visitEnd from '../assets/images/end-visit.svg';
 import ImgcancelEnd from '../assets/images/cancel-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
-import CommonModal from "../common/CommonModal";
 import alertIcon from '../assets/images/alertIcon.svg';
-import { MESSAGE_KEY } from "../utils/constants";
+import docimg from "../assets/images/docimg.png";
+import welcomdoc from "../assets/images/welcom-doc.svg";
+import suporticon from "../assets/images/suport-icon.svg";
+import windoc from "../assets/images/win-doc.png";
 
+import CommonModal from "../common/CommonModal";
+import { MESSAGE_KEY } from "../utils/constants";
 import { useSelector, useDispatch } from "react-redux";
 
 import {
@@ -42,11 +47,7 @@ import {
 import {
     changeSortOrder
 } from "../redux/doctorsSlice";
-
-import docimg from "../assets/images/docimg.png";
-import welcomdoc from "../assets/images/welcom-doc.svg";
-import suporticon from "../assets/images/suport-icon.svg";
-import windoc from "../assets/images/win-doc.png";
+import CreateCertificate from "./certificate/CreateCertificate";
 
 const { TextArea } = Input;
 
@@ -338,7 +339,7 @@ function AppointmentData({ locationPath }) {
         if (selectedTab === TAB_QUEUE) {
             return items.filter((item) => item.key !== "endvisitreason");
         } else if (selectedTab === TAB_FINISHED) {
-            return items.filter((item) => item.key !== "endvisit" && item.key !== "cancelappt"  && item.key !== "certificate");
+            return items.filter((item) => item.key !== "endvisit" && item.key !== "cancelappt" && item.key !== "certificate");
         } else if (selectedTab === TAB_CANCELLED) {
             return items.splice(0, 1);
         } else {
@@ -877,41 +878,7 @@ function AppointmentData({ locationPath }) {
                     onClose={handleCreateCertificateDrawer}
                     key="left"
                 >
-                    <div className="bg-white h-100 p-20">
-                        <div className="titleprint">Select certificate template</div>
-                        <div className="d-flex my-1 py-3 border-bottom">
-                            <div>
-                                <img src={suporticon} alt="" />
-                            </div>
-                            <div className="title-common">
-                                Medical Fitness
-                            </div>
-                        </div>
-                        <div className="d-flex my-1 py-3 border-bottom">
-                            <div>
-                                <img src={suporticon} alt="" />
-                            </div>
-                            <div className="title-common">
-                                Medical Leave
-                            </div>
-                        </div>
-                        <div className="d-flex my-1 py-3 border-bottom">
-                            <div>
-                                <img src={suporticon} alt="" />
-                            </div>
-                            <div className="title-common">
-                                Medical Visa
-                            </div>
-                        </div>
-                        <div className="d-flex my-1 py-3 border-bottom">
-                            <div>
-                                <img src={suporticon} alt="" />
-                            </div>
-                            <div className="title-common">
-                                Travel Certificate
-                            </div>
-                        </div> 
-                    </div>
+                   <CreateCertificate />
                 </Drawer>
             </div>
 
