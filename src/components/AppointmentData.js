@@ -123,6 +123,7 @@ function AppointmentData({ locationPath }) {
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [isEndVisitReasonModal, setEndVisitReasonModal] = useState(false);
     const [endVisitReasonDrawer, setEndVisitReasonDrawer] = useState(false);
+    const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
     const [endVisitReason, setEndVisitReason] = useState('');
     const [noDetailsModal, setNoDetailsModal] = useState(false);
 
@@ -312,6 +313,14 @@ function AppointmentData({ locationPath }) {
                 label: <span
                     onClick={() => {
                         setAppointmentSelectedFromMenu(record);
+                        handleCreateCertificateDrawer()
+                    }}>Create Certificate</span>,
+                key: "certificate",
+            },
+            {
+                label: <span
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
                         handleEndVisitReasonDrawer()
                     }}>End Visit</span>,
                 key: "endvisit",
@@ -329,7 +338,7 @@ function AppointmentData({ locationPath }) {
         if (selectedTab === TAB_QUEUE) {
             return items.filter((item) => item.key !== "endvisitreason");
         } else if (selectedTab === TAB_FINISHED) {
-            return items.filter((item) => item.key !== "endvisit" && item.key !== "cancelappt");
+            return items.filter((item) => item.key !== "endvisit" && item.key !== "cancelappt"  && item.key !== "certificate");
         } else if (selectedTab === TAB_CANCELLED) {
             return items.splice(0, 1);
         } else {
@@ -523,6 +532,13 @@ function AppointmentData({ locationPath }) {
             setEndVisitReasonDrawer(!endVisitReasonDrawer)
         },
         [endVisitReasonDrawer]
+    );
+
+    const handleCreateCertificateDrawer = useCallback(
+        () => {
+            setCreateCertificateDrawer(!createCertificateDrawer)
+        },
+        [createCertificateDrawer]
     );
 
     const handleNoDetailsModal = useCallback(
@@ -850,6 +866,51 @@ function AppointmentData({ locationPath }) {
                                 resize: "none",
                             }}
                         />
+                    </div>
+                </Drawer>
+                <Drawer
+                    className="modalWidth-700" width="auto"
+                    title="Create Certificate"
+                    placement="right"
+                    closable
+                    open={createCertificateDrawer}
+                    onClose={handleCreateCertificateDrawer}
+                    key="left"
+                >
+                    <div className="bg-white h-100 p-20">
+                        <div className="titleprint">Select certificate template</div>
+                        <div className="d-flex my-1 py-3 border-bottom">
+                            <div>
+                                <img src={suporticon} alt="" />
+                            </div>
+                            <div className="title-common">
+                                Medical Fitness
+                            </div>
+                        </div>
+                        <div className="d-flex my-1 py-3 border-bottom">
+                            <div>
+                                <img src={suporticon} alt="" />
+                            </div>
+                            <div className="title-common">
+                                Medical Leave
+                            </div>
+                        </div>
+                        <div className="d-flex my-1 py-3 border-bottom">
+                            <div>
+                                <img src={suporticon} alt="" />
+                            </div>
+                            <div className="title-common">
+                                Medical Visa
+                            </div>
+                        </div>
+                        <div className="d-flex my-1 py-3 border-bottom">
+                            <div>
+                                <img src={suporticon} alt="" />
+                            </div>
+                            <div className="title-common">
+                                Travel Certificate
+                            </div>
+                        </div> 
                     </div>
                 </Drawer>
             </div>
