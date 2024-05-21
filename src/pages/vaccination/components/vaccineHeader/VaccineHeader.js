@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext } from "react";
+import React, { useState, useCallback, useContext, useRef } from "react";
 import { Container, Navbar, Row, Col } from "react-bootstrap";
 import { Button, Dropdown, Menu } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,9 @@ function VaccineHeader({
   vaccinesData,
   patientDetails,
   setPrintType,
+  printDocument,
+  printType,
+  previewData,
 }) {
   const navigate = useNavigate();
   let { patient_data } = useContext(CashManagerContext);
@@ -40,7 +43,7 @@ function VaccineHeader({
       <Menu.Item
         key="1"
         className="btn btn-41 btn-input printMenu"
-        onClick={handleMenuClick}
+        onClick={printDocument}
       >
         All
       </Menu.Item>
@@ -48,7 +51,7 @@ function VaccineHeader({
         key="2"
         className="btn-41 btn btn-input"
         style={{ border: "0 !important" }}
-        onClick={handleMenuClick}
+        onClick={printDocument}
       >
         Given
       </Menu.Item>
@@ -56,104 +59,119 @@ function VaccineHeader({
   );
 
   return (
-    <Navbar className="justify-content-between headerprescription p-0">
-      <Container fluid className="h-100 gx-0 w-100">
-        <Row className="h-100 align-items-center w-100 justify-content-between">
-          <Col sm="auto" md="auto" lg="auto" className="h-100 w-auto">
-            <div className="align-items-center d-flex h-100">
-              <div className="border-end h-100 text-center">
-                <div
-                  onClick={handleDrawerVaccination}
-                  className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
-                >
-                  <i className="icon-right"></i>
-                </div>
-                <CommonModal
-                  isModalOpen={isBackModalOpen}
-                  onCancel={showHideBackModal}
-                  modalWidth={500}
-                  title={"You may lose your data"}
-                  modalBody={
-                    <>
-                      <div className="alert-warning rounded-10px p-2 patient-details">
-                        <div className="d-flex align-items-center">
+      <Navbar className="justify-content-between headerprescription p-0">
+        <Container fluid className="h-100 gx-0 w-100">
+          <Row className="h-100 align-items-center w-100 justify-content-between">
+            <Col sm="auto" md="auto" lg="auto" className="h-100 w-auto">
+              <div className="align-items-center d-flex h-100">
+                <div className="border-end h-100 text-center">
+                  <div
+                    onClick={handleDrawerVaccination}
+                    className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
+                  >
+                    <i className="icon-right"></i>
+                  </div>
+                  <CommonModal
+                    isModalOpen={isBackModalOpen}
+                    onCancel={showHideBackModal}
+                    modalWidth={500}
+                    title={"You may lose your data"}
+                    modalBody={
+                      <>
+                        <div className="alert-warning rounded-10px p-2 patient-details">
+                          <div className="d-flex align-items-center">
                           <img className="me-3" src={alertIcon} alt="Warning" />
-                          <span>
-                            Are you sure you want to leave? <br />
-                            You will permanently lose your data.
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mt-4">
-                        <div className="d-flex align-items-center mt-2 justify-content-end">
-                          <div
-                            onClick={() =>
-                              navigate("/prescription", {
-                                state: { patient_data: patient_data },
-                              })
-                            }
-                            className="me-4 text-decoration-underline btn p-0 text-main"
-                          >
-                            Yes Leave
+                            <span>
+                              Are you sure you want to leave? <br />
+                              You will permanently lose your data.
+                            </span>
                           </div>
-                          <Button
-                            onClick={showHideBackModal}
-                            className="lh-lg btn btn-primary3 btn-41 px-4"
-                          >
-                            <span>No, Stay</span>
-                          </Button>
                         </div>
-                      </div>
-                    </>
-                  }
-                />
-              </div>
-              <ProfilePopover
-                patient_data={patient_data}
-                locationPath={"/vaccine"}
-              />
-            </div>
-          </Col>
-          <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
-            <div className="align-items-center d-flex h-100">
-              <Button
-                type="button"
-                className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
-                onClick={previewBtnHandler}
-                icon={<i className="icon-Preview" />}
-              >
-                Preview
-              </Button>
-              <Dropdown overlay={menu}>
-                <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
-                  <i className="icon-Print" />
-                  <span className="btn-input">Print</span>
-                  <i
-                    className="icon-right"
-                    style={{ display: "block", transform: `rotate(270deg)` }}
+                        <div className="mt-4">
+                          <div className="d-flex align-items-center mt-2 justify-content-end">
+                            <div
+                              onClick={() =>
+                                navigate("/prescription", {
+                                  state: { patient_data: patient_data },
+                                })
+                              }
+                              className="me-4 text-decoration-underline btn p-0 text-main"
+                            >
+                              Yes Leave
+                            </div>
+                            <Button
+                              onClick={showHideBackModal}
+                              className="lh-lg btn btn-primary3 btn-41 px-4"
+                            >
+                              <span>No, Stay</span>
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    }
                   />
                 </div>
-              </Dropdown>
-              <Button
-                type="button"
-                className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
-                onClick={handleDrawerVaccination}
-                icon={<i className="icon-save" />}
-              >
-                Save
-              </Button>
-            </div>
-          </Col>
-        </Row>
-        {shouldShowPreview ? (
-          <Preview
-            vaccinesData={vaccinesData}
-            onCancel={previewBtnHandler}
-            shouldShowPreview={shouldShowPreview}
-          />
-        ) : null}
-      </Container>
-    </Navbar>
+                <ProfilePopover
+                  patient_data={patient_data}
+                  locationPath={"/vaccine"}
+                />
+              </div>
+            </Col>
+            <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
+              <div className="align-items-center d-flex h-100">
+                <Button
+                  type="button"
+                  className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
+                  onClick={previewBtnHandler}
+                  icon={<i className="icon-Preview" />}
+                >
+                  Preview
+                </Button>
+                <Dropdown overlay={menu}>
+                  <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
+                    <i className="icon-Print" />
+                    <span className="btn-input">Print</span>
+                    <i
+                      className="icon-right"
+                      style={{ display: "block", transform: `rotate(270deg)` }}
+                    />
+                  </div>
+                </Dropdown>
+                <Button
+                  type="button"
+                  className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
+                  onClick={handleDrawerVaccination}
+                  icon={<i className="icon-save" />}
+                >
+                  Save
+                </Button>
+                {previewData && (
+                  <button
+                    onClick={() =>
+                      navigate("/vaccinationPrint", {
+                        state: {
+                          printType: printType,
+                          previewData: previewData,
+                          patientData: patient_data,
+                        },
+                      })
+                    }
+                  >
+                    print2
+                  </button>
+                )}
+              </div>
+            </Col>
+          </Row>
+          {shouldShowPreview ? (
+            <Preview
+              vaccinesData={vaccinesData}
+              onCancel={previewBtnHandler}
+              shouldShowPreview={shouldShowPreview}
+            />
+          ) : null}
+        </Container>
+      </Navbar>
   );
 }
 
