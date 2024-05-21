@@ -29,6 +29,7 @@ import {
 import CashManagerContext from "../../context/CashManagerContext";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
+import printJS from "print-js";
 
 function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
@@ -252,9 +253,9 @@ function Vaccination({ handleDrawerVaccination }) {
     }
   };
 
-  const handlePrint = useReactToPrint({
-    content: () => printableRef.current,
-  });
+  // const handlePrint = useReactToPrint({
+  //   content: () => printableRef.current,
+  // });
 
   const handleCardClick = (i) => {
     setCardClicked(true);
@@ -262,15 +263,24 @@ function Vaccination({ handleDrawerVaccination }) {
     setShowUpdate(true);
   };
 
+  const handlePrint = () => {
+    printJS("printable-area", "html");
+  };
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <div className="vaccinationWrapper">
-        <VaccineHeader
-          handleDrawerVaccination={handleDrawerVaccination}
-          vaccinesData={previewData}
-          patientDetails={patientDetails}
-          setPrintType={setPrintType}
-        />
+        {vaccinesData?.length && previewData?.length && (
+          <VaccineHeader
+            handleDrawerVaccination={handleDrawerVaccination}
+            vaccinesData={previewData}
+            patientDetails={patientDetails}
+            setPrintType={setPrintType}
+            printDocument={handlePrint}
+            printType={printType}
+            previewData={previewData}
+          />
+        )}
         <div
           id="wrap"
           onScroll={handleScroll}
@@ -383,7 +393,7 @@ function Vaccination({ handleDrawerVaccination }) {
         )}
         {vaccinesData?.length && (
           <div style={{ display: "none" }}>
-            <div ref={printableRef}>
+            <div id="printable-area">
               <VaccinationChart
                 vaccinesData={
                   printType === "2"
@@ -391,6 +401,8 @@ function Vaccination({ handleDrawerVaccination }) {
                     : previewData
                 }
                 patientDetails={patientDetails}
+                printType={printType}
+                previewData={previewData}
               />
             </div>
           </div>
