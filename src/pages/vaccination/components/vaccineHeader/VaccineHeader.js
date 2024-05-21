@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext, useRef } from "react";
+import React, { useState, useCallback, useContext } from "react";
 import { Container, Navbar, Row, Col } from "react-bootstrap";
 import { Button, Dropdown, Menu } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -43,7 +43,7 @@ function VaccineHeader({
       <Menu.Item
         key="1"
         className="btn btn-41 btn-input printMenu"
-        onClick={printDocument}
+        onClick={handleMenuClick}
       >
         All
       </Menu.Item>
@@ -51,7 +51,7 @@ function VaccineHeader({
         key="2"
         className="btn-41 btn btn-input"
         style={{ border: "0 !important" }}
-        onClick={printDocument}
+        onClick={handleMenuClick}
       >
         Given
       </Menu.Item>

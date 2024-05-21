@@ -27,9 +27,9 @@ import {
   mergeDataPatientDetails,
 } from "./VaccinationHelper";
 import CashManagerContext from "../../context/CashManagerContext";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import printJS from "print-js";
+import { isChrome, isSafari } from "react-device-detect";
 
 function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
@@ -54,6 +54,7 @@ function Vaccination({ handleDrawerVaccination }) {
   const [isCardClicked, setCardClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [vaccinePatientDetails, setVaccinePatientDetails] = useState();
+  const navigate = useNavigate();
 
   const contextApi = {
     patient_data,
@@ -253,18 +254,31 @@ function Vaccination({ handleDrawerVaccination }) {
     }
   };
 
-  // const handlePrint = useReactToPrint({
-  //   content: () => printableRef.current,
-  // });
-
   const handleCardClick = (i) => {
     setCardClicked(true);
     setSelectedCards([i]);
     setShowUpdate(true);
   };
 
+  const handlePrintWeb = useReactToPrint({
+    content: () => printableRef.current,
+  });
+
   const handlePrint = () => {
-    printJS("printable-area", "html");
+    if (!isChrome && !isSafari) {
+      navigate("/vaccination-chart/?key=vaccinationPrint", {
+        state: {
+          printType,
+          vaccinesData:
+            printType === "2"
+              ? previewData?.filter((data) => !!data?.tvp_given_date)
+              : previewData,
+          patientDetails,
+        },
+      });
+    } else {
+      handlePrintWeb();
+    }
   };
 
   return (
@@ -393,7 +407,7 @@ function Vaccination({ handleDrawerVaccination }) {
         )}
         {vaccinesData?.length && (
           <div style={{ display: "none" }}>
-            <div id="printable-area">
+            <div ref={printableRef}>
               <VaccinationChart
                 vaccinesData={
                   printType === "2"
