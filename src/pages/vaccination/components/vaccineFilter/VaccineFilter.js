@@ -113,14 +113,14 @@ const VaccineFilter = ({
       {showLeft && (
         <div className="vaccineFilterStyle">
           <img
-            className="me-3 clickable imageStyle"
+            className="clickable imageStyle"
             src={chevron}
             alt="chevron"
             onClick={handleLeftToggleScroll}
             style={{
               cursor: "pointer",
               transform: "rotate(180deg)",
-              margin: "0 5px 0 5px",
+              marginRight: "5px",
             }}
           />
         </div>
@@ -179,7 +179,7 @@ const VaccineFilter = ({
             style={{
               cursor: "pointer",
               transform: "rotate(0deg)",
-              margin: "0 0 5px 5px",
+              marginLeft: "5px",
             }}
           />
         </div>

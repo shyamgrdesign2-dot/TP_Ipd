@@ -19,8 +19,6 @@ import ErrorFallback from "./common/ErrorFallback";
 import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { jwtDecode } from "jwt-decode";
 import config from "./config";
-import VaccinationPrint from "./pages/vaccination/VaccinationPrint";
-import VaccinationChartPage from "./pages/vaccination/components/VaccinationChartPage";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -84,7 +82,6 @@ function App() {
                   path="prescription"
                   element={isMobile ? <TabPrescription /> : <Prescription />}
                 />
-                <Route path="vaccination-chart" element={<VaccinationChartPage />} />
                 <Route
                   path="prescription_print_view"
                   element={<PrescriptionPrintView />}
@@ -93,7 +90,6 @@ function App() {
                   path="configure_print_setting"
                   element={<ConfigurePrintSetting />}
                 />
-                <Route path="vaccinationPrint" element={<VaccinationPrint />} />
               </Routes>
             </PersistGate>
           </Provider>
