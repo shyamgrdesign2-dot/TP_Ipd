@@ -870,7 +870,7 @@ function AppointmentData({ locationPath }) {
                     </div>
                 </Drawer>
                 <Drawer
-                    className="modalWidth-700" width="auto"
+                    className="modalWidth-563" width="auto"
                     title="Create Certificate"
                     placement="right"
                     closable
