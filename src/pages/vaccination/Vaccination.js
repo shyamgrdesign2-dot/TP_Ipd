@@ -266,7 +266,7 @@ function Vaccination({ handleDrawerVaccination }) {
 
   const handlePrint = () => {
     if (!isChrome && !isSafari) {
-      navigate("/vaccination-chart/?key=vaccinationPrint", {
+      navigate(`/vaccination-chart?key=vaccinationPrint`, {
         state: {
           printType,
           vaccinesData:
@@ -276,6 +276,7 @@ function Vaccination({ handleDrawerVaccination }) {
           patientDetails,
         },
       });
+      navigate(0, { replace: true });
     } else {
       handlePrintWeb();
     }
