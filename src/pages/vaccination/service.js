@@ -144,3 +144,19 @@ export const getGivenVaccineDetails = async (patientUid, patientPid) => {
   }
   return result;
 };
+
+export const checkToShowVaccination = async (doctorUniqueId) => {
+  let result = false;
+  try {
+    result = await api.get(
+      `/vaccination/isAuthorized?doctor_unique_id=${doctorUniqueId}`,
+      baseUrl
+    );
+    if (result?.isAuthorized === "true") {
+      return true;
+    }
+  } catch (error) {
+    console.error("Error while fetching vaccine template", error);
+  }
+  return result;
+};

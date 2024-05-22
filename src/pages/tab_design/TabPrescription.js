@@ -40,6 +40,7 @@ import vaccinationWhite from "../../assets/images/vaccination-white.svg";
 import Sider from "antd/es/layout/Sider";
 import Vaccination from "../vaccination/Vaccination";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import { checkToShowVaccination } from "../vaccination/service";
 
 function TabPrescription() {
   const {
@@ -47,12 +48,12 @@ function TabPrescription() {
     customizedPadRightList,
     frequencyList,
     timingList,
+    profile,
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList, vitalsPastList } = useSelector(
     (state) => state.vitals
   );
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
@@ -73,7 +74,10 @@ function TabPrescription() {
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
-  const isVaccinationAccessable = useFeatureIsOn("vaccination-new-design");
+  const [isPediatric, setIsPediatric] = useState(false);
+  const isVaccinationAccessableFromGB = useFeatureIsOn(
+    "vaccination-new-design"
+  );
 
   const contextApi = {
     patient_data,
@@ -234,7 +238,14 @@ function TabPrescription() {
         setAdditionalNote(caseManagerData.visit_advice);
       }
     }
+    checkForPediatric();
   }, []);
+
+  const checkForPediatric = async () => {
+    if (profile?.doctor_unique_id) {
+      setIsPediatric(await checkToShowVaccination(profile.doctor_unique_id));
+    }
+  };
 
   // Drawer Vitals
   const handleDrawerVital = useCallback(() => {
@@ -393,7 +404,7 @@ function TabPrescription() {
                   )
                 );
               })}
-              {!!isVaccinationAccessable && (
+              {(!!isVaccinationAccessableFromGB || isPediatric) && (
                 <button
                   type="button"
                   className="mb-3 text-center btn btn-action"
