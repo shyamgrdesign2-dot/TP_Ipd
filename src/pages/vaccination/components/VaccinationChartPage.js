@@ -1,6 +1,8 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import moment from "moment";
-import VaccineTable from "../vaccineTable/VaccineTable";
-import "./vaccinationChart.scss";
+import VaccineTable from "./vaccineTable/VaccineTable";
+import "../components/vaccinationChart/vaccinationChart.scss";
 
 const columns = [
   {
@@ -41,25 +43,31 @@ const columns = [
   },
 ];
 
-const VaccinationChart = ({ vaccinesData, patientDetails, profile }) => {
+const VaccinationChartPage = () => {
+  const { state } = useLocation();
+  const { vaccinesData, patientDetails } = state;
+
+  useEffect(() => {
+    window.print();
+  }, []);
+
   function divideArray(array) {
     const subarrays = [];
-    for (let i = 0; i < array.length; i += 12) {
-      const subarray = array.slice(i, i + 12);
+    for (let i = 0; i < array.length; i += 10) {
+      const subarray = array.slice(i, i + 10);
       subarrays.push(subarray);
     }
     return subarrays;
   }
 
-  const vaccinePrintData = divideArray(vaccinesData);
   return (
     <>
-      {vaccinePrintData?.map((ds, i) => (
+      {divideArray(vaccinesData)?.map((ds) => (
         <div className="d-flex flex-column align-items-center print-template">
           <div className="header">Vaccination Chart</div>
           <div className="details">
             <img
-              src={require("../../../../assets/images/babyImage.png")}
+              src={require("../../../assets/images/babyImage.png")}
               alt="Baby"
               width={32}
               height={32}
@@ -92,13 +100,10 @@ const VaccinationChart = ({ vaccinesData, patientDetails, profile }) => {
               for first dose
             </p>
           </div>
-          {i === vaccinePrintData?.length - 1 && (
-            <div className="nameStyle">{profile?.um_name}</div>
-          )}
         </div>
       ))}
     </>
   );
 };
 
-export default VaccinationChart;
+export default VaccinationChartPage;
