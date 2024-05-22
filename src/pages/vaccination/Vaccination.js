@@ -55,6 +55,7 @@ function Vaccination({ handleDrawerVaccination }) {
   const [isCardClicked, setCardClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [vaccinePatientDetails, setVaccinePatientDetails] = useState();
+  const navigate = useNavigate();
 
   const contextApi = {
     patient_data,
@@ -263,8 +264,6 @@ function Vaccination({ handleDrawerVaccination }) {
     setSelectedCards([i]);
     setShowUpdate(true);
   };
-
-  const navigate = useNavigate();
 
   const handlePrintClick = () => {
     if (!isChrome && !isSafari) {
