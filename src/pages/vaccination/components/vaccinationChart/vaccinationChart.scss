@@ -1,8 +1,15 @@
-  @media print {
+
       
     .print-template {
         page-break-after: always; /* Ensure each print page starts a new page */
         font-size: 12px; /* Adjust font size for printing */
+
+        .nameStyle {
+          margin-right: auto;
+          padding-left: 40px;
+          font-weight: 600;
+          font-size: 12px;
+        }
       }
   
     .details {
@@ -30,7 +37,7 @@
         font-weight: 600;
       }
   
-  }
+
   
   
 

@@ -41,7 +41,7 @@ const columns = [
   },
 ];
 
-const VaccinationChart = ({ vaccinesData, patientDetails }) => {
+const VaccinationChart = ({ vaccinesData, patientDetails, profile }) => {
   function divideArray(array) {
     const subarrays = [];
     for (let i = 0; i < array?.length; i += 15) {
@@ -51,9 +51,10 @@ const VaccinationChart = ({ vaccinesData, patientDetails }) => {
     return subarrays;
   }
 
+  const vaccinePrintData = divideArray(vaccinesData);
   return (
     <>
-      {divideArray(vaccinesData)?.map((ds) => (
+      {vaccinePrintData?.map((ds, i) => (
         <div className="d-flex flex-column align-items-center print-template">
           <div className="header">Vaccination Chart</div>
           <div className="details">
@@ -91,6 +92,9 @@ const VaccinationChart = ({ vaccinesData, patientDetails }) => {
               for first dose
             </p>
           </div>
+          {i === vaccinePrintData?.length - 1 && (
+            <div className="nameStyle">{profile?.um_name}</div>
+          )}
         </div>
       ))}
     </>
