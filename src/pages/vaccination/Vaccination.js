@@ -29,8 +29,7 @@ import {
 import CashManagerContext from "../../context/CashManagerContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { isSafari, isChrome } from "react-device-detect";
-import html2pdf from "html2pdf.js";
+import { isChrome, isSafari } from "react-device-detect";
 
 function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
@@ -83,7 +82,7 @@ function Vaccination({ handleDrawerVaccination }) {
 
   useEffect(() => {
     if (printType) {
-      handlePrintClick();
+      handlePrint();
       setPrintType("");
     }
   }, [printType]);
@@ -255,46 +254,28 @@ function Vaccination({ handleDrawerVaccination }) {
     }
   };
 
-  const handlePrintWeb = useReactToPrint({
-    content: () => printableRef.current,
-  });
-
   const handleCardClick = (i) => {
     setCardClicked(true);
     setSelectedCards([i]);
     setShowUpdate(true);
   };
 
-  const handlePrintClick = () => {
+  const handlePrintWeb = useReactToPrint({
+    content: () => printableRef.current,
+  });
+
+  const handlePrint = () => {
     if (!isChrome && !isSafari) {
-      const element = printableRef.current;
-
-      if (!element) {
-        console.error("Element not found");
-        return;
-      }
-
-      const options = {
-        filename: "my-document.pdf",
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-      };
-
-      html2pdf()
-        .from(element)
-        .set(options)
-        .output("datauristring")
-        .then((pdfDataUri) => {
-          const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
-          navigate(`/prescription?url=${b64}&key=vaccinationPrint`, {
-            state: { patient_data },
-          });
-          navigate(0, { replace: true });
-        })
-        .catch((err) => {
-          console.error("Error generating PDF", err);
-        });
+      navigate("/vaccination-chart/?key=vaccinationPrint", {
+        state: {
+          printType,
+          vaccinesData:
+            printType === "2"
+              ? previewData?.filter((data) => !!data?.tvp_given_date)
+              : previewData,
+          patientDetails,
+        },
+      });
     } else {
       handlePrintWeb();
     }
@@ -309,6 +290,9 @@ function Vaccination({ handleDrawerVaccination }) {
             vaccinesData={previewData}
             patientDetails={patientDetails}
             setPrintType={setPrintType}
+            printDocument={handlePrint}
+            printType={printType}
+            previewData={previewData}
           />
         )}
         <div
@@ -431,7 +415,8 @@ function Vaccination({ handleDrawerVaccination }) {
                     : previewData
                 }
                 patientDetails={patientDetails}
-                profile={profile}
+                printType={printType}
+                previewData={previewData}
               />
             </div>
           </div>

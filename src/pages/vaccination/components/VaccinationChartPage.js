@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import moment from "moment";
 import VaccineTable from "./vaccineTable/VaccineTable";
 import "../components/vaccinationChart/vaccinationChart.scss";
+import config from "../../../config";
 
 const columns = [
   {
@@ -47,14 +48,18 @@ const VaccinationChartPage = () => {
   const { state } = useLocation();
   const { vaccinesData, patientDetails } = state;
 
+  window.onafterprint = function () {
+    window.location = config.app_vaccination_deep_link;
+  };
+
   useEffect(() => {
     window.print();
   }, []);
 
   function divideArray(array) {
     const subarrays = [];
-    for (let i = 0; i < array.length; i += 10) {
-      const subarray = array.slice(i, i + 10);
+    for (let i = 0; i < array.length; i += 13) {
+      const subarray = array.slice(i, i + 13);
       subarrays.push(subarray);
     }
     return subarrays;
@@ -62,8 +67,11 @@ const VaccinationChartPage = () => {
 
   return (
     <>
-      {divideArray(vaccinesData)?.map((ds) => (
-        <div className="d-flex flex-column align-items-center print-template">
+      {divideArray(vaccinesData)?.map((ds, i) => (
+        <div
+          key={i}
+          className="d-flex flex-column align-items-center print-template"
+        >
           <div className="header">Vaccination Chart</div>
           <div className="details">
             <img
