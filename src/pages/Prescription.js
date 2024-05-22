@@ -36,6 +36,7 @@ import { Content } from "antd/es/layout/layout";
 import vaccinationImg from "../assets/images/Vaccination.svg";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import Vaccination from "./vaccination/Vaccination";
+import { checkToShowVaccination } from "./vaccination/service";
 
 function Prescription() {
   const {
@@ -43,6 +44,7 @@ function Prescription() {
     customizedPadRightList,
     frequencyList,
     timingList,
+    profile,
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
@@ -96,7 +98,16 @@ function Prescription() {
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
-  const isVaccinationAccessable = useFeatureIsOn("vaccination-new-design");
+  const [isPediatric, setIsPediatric] = useState(false);
+  const isVaccinationAccessableFromGB = useFeatureIsOn(
+    "vaccination-new-design"
+  );
+
+  const checkForPediatric = async () => {
+    if (profile?.doctor_unique_id) {
+      setIsPediatric(await checkToShowVaccination(profile.doctor_unique_id));
+    }
+  };
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -237,6 +248,7 @@ function Prescription() {
         setAdditionalNote(caseManagerData.visit_advice);
       }
     }
+    checkForPediatric();
   }, []);
 
   // Drawer Vitals
@@ -393,7 +405,7 @@ function Prescription() {
                   )
                 );
               })}
-              {!!isVaccinationAccessable && (
+              {(!!isVaccinationAccessableFromGB || isPediatric) && (
                 <div className="prescription-box-sm p-14">
                   <div className="d-flex align-items-center justify-content-between">
                     <div className="d-flex align-items-center">
