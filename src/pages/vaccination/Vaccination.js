@@ -29,7 +29,8 @@ import {
 import CashManagerContext from "../../context/CashManagerContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { isChrome, isSafari } from "react-device-detect";
+import { isSafari, isChrome } from "react-device-detect";
+import html2pdf from "html2pdf.js";
 
 function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
@@ -82,7 +83,7 @@ function Vaccination({ handleDrawerVaccination }) {
 
   useEffect(() => {
     if (printType) {
-      handlePrint();
+      handlePrintClick();
       setPrintType("");
     }
   }, [printType]);
@@ -254,29 +255,46 @@ function Vaccination({ handleDrawerVaccination }) {
     }
   };
 
+  const handlePrintWeb = useReactToPrint({
+    content: () => printableRef.current,
+  });
+
   const handleCardClick = (i) => {
     setCardClicked(true);
     setSelectedCards([i]);
     setShowUpdate(true);
   };
 
-  const handlePrintWeb = useReactToPrint({
-    content: () => printableRef.current,
-  });
-
-  const handlePrint = () => {
+  const handlePrintClick = () => {
     if (!isChrome && !isSafari) {
-      navigate(`/vaccination-chart?key=vaccinationPrint`, {
-        state: {
-          printType,
-          vaccinesData:
-            printType === "2"
-              ? previewData?.filter((data) => !!data?.tvp_given_date)
-              : previewData,
-          patientDetails,
-        },
-      });
-      navigate(0, { replace: true });
+      const element = printableRef.current;
+
+      if (!element) {
+        console.error("Element not found");
+        return;
+      }
+
+      const options = {
+        filename: "my-document.pdf",
+        image: { type: "jpeg", quality: 0.9 },
+        html2canvas: { scale: 1.5 },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      };
+
+      html2pdf()
+        .from(element)
+        .set(options)
+        .output("datauristring")
+        .then((pdfDataUri) => {
+          const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
+          navigate(`/prescription?url=${b64}&key=vaccinationPrint`, {
+            state: { patient_data },
+          });
+          navigate(0, { replace: true });
+        })
+        .catch((err) => {
+          console.error("Error generating PDF", err);
+        });
     } else {
       handlePrintWeb();
     }
@@ -291,9 +309,6 @@ function Vaccination({ handleDrawerVaccination }) {
             vaccinesData={previewData}
             patientDetails={patientDetails}
             setPrintType={setPrintType}
-            printDocument={handlePrint}
-            printType={printType}
-            previewData={previewData}
           />
         )}
         <div
@@ -416,8 +431,7 @@ function Vaccination({ handleDrawerVaccination }) {
                     : previewData
                 }
                 patientDetails={patientDetails}
-                printType={printType}
-                previewData={previewData}
+                profile={profile}
               />
             </div>
           </div>
@@ -436,4 +450,4 @@ function Vaccination({ handleDrawerVaccination }) {
     </CashManagerContext.Provider>
   );
 }
-export default React.memo(Vaccination);
+export default React.memo(Vaccination)
