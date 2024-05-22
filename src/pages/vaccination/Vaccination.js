@@ -275,7 +275,6 @@ function Vaccination({ handleDrawerVaccination }) {
       }
 
       const options = {
-        margin: 1,
         filename: "my-document.pdf",
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2 },
