@@ -288,9 +288,10 @@ function Vaccination({ handleDrawerVaccination }) {
         .then((pdfDataUri) => {
           const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
           navigate(`/prescription?url=${b64}&key=vaccinationPrint`, {
-            state: { patient_data },
+            replace: true,
+            state,
           });
-          navigate(0, { replace: true });
+          navigate(0, { replace: true, state });
         })
         .catch((err) => {
           console.error("Error generating PDF", err);
@@ -450,4 +451,4 @@ function Vaccination({ handleDrawerVaccination }) {
     </CashManagerContext.Provider>
   );
 }
-export default React.memo(Vaccination)
+export default React.memo(Vaccination);
