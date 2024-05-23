@@ -48,6 +48,7 @@ import {
     changeSortOrder
 } from "../redux/doctorsSlice";
 import CreateCertificate from "./certificate/CreateCertificate";
+import { resetVaccineState } from "../redux/vaccineSlice";
 
 const { TextArea } = Input;
 
@@ -136,6 +137,7 @@ function AppointmentData({ locationPath }) {
 
     useEffect(() => {
         dispatch(getCaseTypes());
+        dispatch(resetVaccineState());
     }, []);
 
     useEffect(() => {

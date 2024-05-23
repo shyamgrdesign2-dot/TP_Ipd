@@ -76,4 +76,4 @@ function SidebarDoctor() {
     )
 }
 
-export default React.memo(SidebarDoctor)
+export default React.memo(SidebarDoctor);

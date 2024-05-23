@@ -2,32 +2,32 @@
 <html lang="en">
 
 <head>
-  <script type="text/javascript">
-    var moeDataCenter = "dc_3"; // Replace "{DC}" with the actual Data center value from the above table 
-    var moeAppID = "DVIY0IUVG5KDW20CQ08VIWWM"; // Replace "{AppID}" available in the settings page of MoEngage Dashboard. 
+    <script type="text/javascript">
+        var moeDataCenter = "dc_3"; // Replace "{DC}" with the actual Data center value from the above table 
+        var moeAppID = "DVIY0IUVG5KDW20CQ08VIWWM"; // Replace "{AppID}" available in the settings page of MoEngage Dashboard. 
 
-    !function (e, n, i, t, a, r, o, d) { if (!moeDataCenter || "{DC}" === moeDataCenter) return console.error("Data center has not been passed correctly. Please follow the SDK installation instruction carefully."); var s = e[a] = e[a] || []; if (s.invoked = 0, s.initialised > 0 || s.invoked > 0) return console.error("MoEngage Web SDK initialised multiple times. Please integrate the Web SDK only once!"), !1; e.moengage_object = a; var l = {}, g = function n(i) { return function () { for (var n = arguments.length, t = Array(n), a = 0; a < n; a++)t[a] = arguments[a]; (e.moengage_q = e.moengage_q || []).push({ f: i, a: t }) } }, u = ["track_event", "add_user_attribute", "add_first_name", "add_last_name", "add_email", "add_mobile", "add_user_name", "add_gender", "add_birthday", "destroy_session", "add_unique_user_id", "update_unique_user_id", "moe_events", "call_web_push", "track", "location_type_attribute"], m = { onsite: ["getData", "registerCallback"] }; for (var c in u) l[u[c]] = g(u[c]); for (var v in m) for (var f in m[v]) null == l[v] && (l[v] = {}), l[v][m[v][f]] = g(v + "." + m[v][f]); r = n.createElement(i), o = n.getElementsByTagName("head")[0], r.async = 1, r.src = t, o.appendChild(r), e.moe = e.moe || function () { return (s.invoked = s.invoked + 1, s.invoked > 1) ? (console.error("MoEngage Web SDK initialised multiple times. Please integrate the Web SDK only once!"), !1) : (d = arguments.length <= 0 ? void 0 : arguments[0], l) }, r.addEventListener("load", function () { if (d) return e[a] = e.moe(d), e[a].initialised = e[a].initialised + 1 || 1, !0 }), r.addEventListener("error", function () { return console.error("Moengage Web SDK loading failed."), !1 }) }(window, document, "script", "https://cdn.moengage.com/release/" + moeDataCenter + "/moe_webSdk.min.latest.js", "Moengage");
+        !function (e, n, i, t, a, r, o, d) { if (!moeDataCenter || "{DC}" === moeDataCenter) return console.error("Data center has not been passed correctly. Please follow the SDK installation instruction carefully."); var s = e[a] = e[a] || []; if (s.invoked = 0, s.initialised > 0 || s.invoked > 0) return console.error("MoEngage Web SDK initialised multiple times. Please integrate the Web SDK only once!"), !1; e.moengage_object = a; var l = {}, g = function n(i) { return function () { for (var n = arguments.length, t = Array(n), a = 0; a < n; a++)t[a] = arguments[a]; (e.moengage_q = e.moengage_q || []).push({ f: i, a: t }) } }, u = ["track_event", "add_user_attribute", "add_first_name", "add_last_name", "add_email", "add_mobile", "add_user_name", "add_gender", "add_birthday", "destroy_session", "add_unique_user_id", "update_unique_user_id", "moe_events", "call_web_push", "track", "location_type_attribute"], m = { onsite: ["getData", "registerCallback"] }; for (var c in u) l[u[c]] = g(u[c]); for (var v in m) for (var f in m[v]) null == l[v] && (l[v] = {}), l[v][m[v][f]] = g(v + "." + m[v][f]); r = n.createElement(i), o = n.getElementsByTagName("head")[0], r.async = 1, r.src = t, o.appendChild(r), e.moe = e.moe || function () { return (s.invoked = s.invoked + 1, s.invoked > 1) ? (console.error("MoEngage Web SDK initialised multiple times. Please integrate the Web SDK only once!"), !1) : (d = arguments.length <= 0 ? void 0 : arguments[0], l) }, r.addEventListener("load", function () { if (d) return e[a] = e.moe(d), e[a].initialised = e[a].initialised + 1 || 1, !0 }), r.addEventListener("error", function () { return console.error("Moengage Web SDK loading failed."), !1 }) }(window, document, "script", "https://cdn.moengage.com/release/" + moeDataCenter + "/moe_webSdk.min.latest.js", "Moengage");
 
-    Moengage = moe({
-      app_id: moeAppID,
-      debug_logs: 1
-    });
-    // moe_webpush.initialize({app_id: 'DVIY0IUVG5KDW20CQ08VIWWM', cluster: 'dc_3'});
-  </script>
-  <meta charset="utf-8" />
-  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-  <!-- <meta name="viewport" content="width=device-width, initial-scale=1" /> -->
-  <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale = 1.0, user-scalable = no">
-  <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Web site created using create-react-app" />
-  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-  <!--
+        Moengage = moe({
+            app_id: moeAppID,
+            debug_logs: 1// 0 - Production
+        });
+        // moe_webpush.initialize({app_id: 'DVIY0IUVG5KDW20CQ08VIWWM', cluster: 'dc_3'});
+    </script>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1" /> -->
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale = 1.0, user-scalable = no">
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Web site created using create-react-app" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-  <base href="/">
-  <!--
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <base href="/">
+    <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
       Only files inside the `public` folder can be referenced from the HTML.
@@ -36,13 +36,13 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-  <title>Tatva Practice</title>
+    <title>Tatva Practice</title> 
 </head>
 
 <body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
-  <div id="root"></div>
-  <!--
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
 
@@ -53,9 +53,10 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
 </body>
+
 <script>
   var beamer_config = {
-    // oMqlKykf61816  
+    // oMqlKykf61816
     product_id: "",
     selector: "beamerButton",
     display: "left",

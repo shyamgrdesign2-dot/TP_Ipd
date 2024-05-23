@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useContext } from "react";
-import { Col, Radio, Row, Form, Switch, Button, Input, Checkbox, Table, Drawer } from "antd";
+import React, { useState, useCallback, useContext, useMemo } from "react";
+import { Col, Radio, Row, Form, Switch, Button, Input, Checkbox, Table, Drawer, Select } from "antd";
 import Cropper from "react-cropper";
 import SignatureCanvas from 'react-signature-canvas'
 import { MenuOutlined } from '@ant-design/icons';
@@ -24,57 +24,134 @@ import WhatsappConfigureView from "./WhatsappConfigureView";
 
 const { TextArea } = Input;
 
-const CustomRow = ({ children, ...props }) => {
-    const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
+// const CustomRow = ({ children, ...props }) => {
+//     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
+//         id: props['data-row-key'],
+//     });
+//     const style = {
+//         ...props.style,
+//         transform: CSS.Transform.toString(
+//             transform && {
+//                 ...transform,
+//                 scaleY: 1,
+//             }
+//         ),
+//         transition,
+//         ...(isDragging ? {
+//             position: 'relative',
+//             zIndex: 9999,
+//         } : {}),
+//     };
+//     return (
+//         <tr {...props} ref={setNodeRef} style={style} {...attributes}>
+//             {React.Children.map(children, (child) => {
+//                 if (child.key === 'sort') {
+//                     return React.cloneElement(child, {
+//                         children: (
+//                             <MenuOutlined
+//                                 ref={setActivatorNodeRef}
+//                                 style={{
+//                                     touchAction: 'none',
+//                                     cursor: 'move',
+//                                     display: 'flex',
+//                                     justifyContent: 'center',
+//                                     alignItems: 'center',
+//                                 }}
+//                                 {...listeners}
+//                             />
+//                         ),
+//                     });
+//                 } else if (child.key === 'enable') {
+//                     return React.cloneElement(child, {
+//                         style: {
+//                             display: 'flex',
+//                             justifyContent: 'center',
+//                             alignItems: 'center',
+//                         },
+//                     });
+//                 }
+//                 return child;
+//             })}
+//         </tr>
+//     );
+// };
+
+const RowContext = React.createContext({});
+const DragHandle = () => {
+    const { setActivatorNodeRef, listeners } = useContext(RowContext);
+    return (
+        <MenuOutlined
+            ref={setActivatorNodeRef}
+            style={{
+                touchAction: 'none',
+                cursor: 'move',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}
+            {...listeners}
+        />
+    );
+};
+const CustomRow = (props) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        setActivatorNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({
         id: props['data-row-key'],
     });
     const style = {
         ...props.style,
-        transform: CSS.Transform.toString(
-            transform && {
-                ...transform,
-                scaleY: 1,
-            }
-        ),
+        transform: CSS.Translate.toString(transform),
         transition,
-        ...(isDragging ? {
-            position: 'relative',
-            zIndex: 9999,
-        } : {}),
+        ...(isDragging
+            ? {
+                position: 'relative',
+                zIndex: 9999,
+            }
+            : {}),
     };
+    const contextValue = useMemo(
+        () => ({
+            setActivatorNodeRef,
+            listeners,
+        }),
+        [setActivatorNodeRef, listeners],
+    );
     return (
-        <tr {...props} ref={setNodeRef} style={style} {...attributes}>
-            {React.Children.map(children, (child) => {
-                if (child.key === 'sort') {
-                    return React.cloneElement(child, {
-                        children: (
-                            <MenuOutlined
-                                ref={setActivatorNodeRef}
-                                style={{
-                                    touchAction: 'none',
-                                    cursor: 'move',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
-                                {...listeners}
-                            />
-                        ),
-                    });
-                } else if (child.key === 'enable') {
-                    return React.cloneElement(child, {
-                        style: {
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        },
-                    });
-                }
-                return child;
-            })}
-        </tr>
+        <RowContext.Provider value={contextValue}>
+            <tr {...props} ref={setNodeRef} style={style} {...attributes} />
+        </RowContext.Provider>
     );
 };
+
+const FONTS_SIZE_LIST = [
+    {
+        value: 8,
+        label: '8',
+    },
+    {
+        value: 10,
+        label: '10',
+    },
+    {
+        value: 12,
+        label: '12',
+    },
+    {
+        value: 14,
+        label: '14',
+    },
+    {
+        value: 16,
+        label: '16',
+    }
+]
 
 function HeaderFooterLayout() {
 
@@ -276,6 +353,31 @@ function HeaderFooterLayout() {
         }
     }
 
+    //Footer
+    const onFooterTextChange = useCallback(
+        (e) => {
+            printSettings.header_footer.footer.title = e.target.value
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
+    const onSelectFooterFontSize = useCallback(
+        (data) => {
+            printSettings.header_footer.footer.font_size = data
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
     //Upload Letterhead
     //Header Image
     const showHideHeaderModal = useCallback(() => {
@@ -430,6 +532,7 @@ function HeaderFooterLayout() {
             width: 50,
             align: 'center',
             dataIndex: 'sort',
+            render: () => <DragHandle />
         },
         {
             colSpan: 0,
@@ -471,6 +574,7 @@ function HeaderFooterLayout() {
                     ...prev,
                     header_footer: {
                         header: { ...prev.header_footer.header },
+                        footer: { ...prev.header_footer.footer },
                         patient_info: arrayMove(prev.header_footer.patient_info, activeIndex, overIndex),
                         margin: { ...prev.header_footer.margin },
                         other_settings: { ...prev.header_footer.other_settings }
@@ -795,6 +899,28 @@ function HeaderFooterLayout() {
                                         </div>
                                     </div>
                                 )}
+
+                                <div className="mt-3">
+                                    <Form.Item>
+                                        <label className="mb-1">Footer Text</label>
+                                        <Input className='inputheight41-group' placeholder="Enter Footer Text" onChange={onFooterTextChange} value={printSettings?.header_footer?.footer?.title} />
+                                    </Form.Item>
+                                </div>
+
+                                <div className="mt-3">
+                                    <Form.Item>
+                                        <label className="mb-1">Footer Font Size</label>
+                                        <Select
+                                            // showSearch
+                                            className="autocomplete-custom"
+                                            placeholder="Select footer font size"
+                                            options={FONTS_SIZE_LIST}
+                                            value={printSettings?.header_footer?.footer?.font_size}
+                                            onSelect={onSelectFooterFontSize}
+                                            allowClear
+                                        />
+                                    </Form.Item>
+                                </div>
 
                                 <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
                                     <Col lg="18">

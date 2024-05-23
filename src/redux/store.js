@@ -15,6 +15,7 @@ import vitalsSlice from './vitalsSlice';
 import medicalhistorySlice from './medicalhistorySlice';
 import caseManagerSlice from './caseManagerSlice';
 import followUpSlice from './followUpSlice';
+import vaccineSlice from './vaccineSlice';
 
 const persistConfig = {
   key: 'root',
@@ -26,7 +27,7 @@ const rootReducer = combineReducers({
   records: appointmentsSlice,
   doctors: doctorsSlice,
   symptoms: symptomsSlice,
-  examination:  examinationSlice,
+  examination: examinationSlice,
   diagnosis: diagnosisSlice,
   advice: adviceSlice,
   investigation: investigationSlice,
@@ -35,7 +36,8 @@ const rootReducer = combineReducers({
   medicalhistory: medicalhistorySlice,
   caseManager: caseManagerSlice,
   followUp: followUpSlice,
-})
+  vaccines: vaccineSlice,
+});
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
