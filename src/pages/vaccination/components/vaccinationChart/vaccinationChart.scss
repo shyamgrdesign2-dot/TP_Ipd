@@ -1,13 +1,23 @@
+@media print {
+  @page wide {
+    size: a4 landscape;
+  }
+
+  body {
+    font-size: 12pt;
+    color: #000;
+}
+
 .print-template {
   page-break-after: always; /* Ensure each print page starts a new page */
-  font-size: 12px; /* Adjust font size for printing */
+  // font-size: 12px; /* Adjust font size for printing */
 
   .nameStyle {
     margin-right: auto;
     padding-left: 40px;
     font-weight: 600;
-    font-size: 12px;
-    line-height: 16px;
+    // font-size: 12px;
+    // line-height: 16px;
   }
 }
 
@@ -47,8 +57,6 @@
   line-height: 20px;
 }
 
-@media print {
-  @page wide {
-    size: a4 landscape;
-  }
 }
+
+
