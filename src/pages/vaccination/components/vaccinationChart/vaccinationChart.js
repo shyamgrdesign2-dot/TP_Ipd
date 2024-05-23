@@ -1,6 +1,7 @@
 import moment from "moment";
 import VaccineTable from "../vaccineTable/VaccineTable";
 import "./vaccinationChart.scss";
+import { isTablet, isIPad13, isIOS } from "react-device-detect";
 
 const columns = [
   {
@@ -44,8 +45,9 @@ const columns = [
 const VaccinationChart = ({ vaccinesData, patientDetails, profile }) => {
   function divideArray(array) {
     const subarrays = [];
-    for (let i = 0; i < array.length; i += 13) {
-      const subarray = array.slice(i, i + 13);
+    const rows = isTablet || isIPad13 || isIOS ? 9 : 13;
+    for (let i = 0; i < array.length; i += rows) {
+      const subarray = array.slice(i, i + rows);
       subarrays.push(subarray);
     }
     return subarrays;
