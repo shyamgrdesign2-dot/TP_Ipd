@@ -287,7 +287,7 @@ function Vaccination({ handleDrawerVaccination }) {
         .output("datauristring")
         .then((pdfDataUri) => {
           const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
-          navigate(`/prescription?url=${b64}&key=vaccinationPrint`, {
+          navigate(`/prescription/?url=${b64}&key=vaccinationPrint`, {
             replace: true,
             state,
           });
