@@ -10,14 +10,11 @@
 
 .print-template {
   page-break-after: always; /* Ensure each print page starts a new page */
-  // font-size: 12px; /* Adjust font size for printing */
 
   .nameStyle {
     margin-right: auto;
     padding-left: 40px;
     font-weight: 600;
-    // font-size: 12px;
-    // line-height: 16px;
   }
 }
 
@@ -36,11 +33,6 @@
 .vaccine-table-wrapper {
   margin: 30px;
   width: 90%;
-  // page-break-inside: avoid;
-  @media screen and (max-width: 1200px) {
-    margin: 15px;
-    width: 100%;
-  }
 }
 
 .header {
@@ -58,35 +50,6 @@
   line-height: 20px;
 }
 
-}
-
-@media screen and (max-width: 768px) {
-  body {
-      font-size: 14pt;
-  }
-
-  .content {
-      padding: 10px;
-  }
-
-  table, th, td {
-      font-size: 14pt;
-  }
-}
-
-/* Additional styles for iPad */
-@media screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) {
-  body {
-      font-size: 12pt;
-  }
-
-  .content {
-      padding: 20px;
-  }
-
-  table, th, td {
-      font-size: 12pt;
-  }
 }
 
 
