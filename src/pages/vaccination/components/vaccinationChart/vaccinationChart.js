@@ -44,14 +44,34 @@ const columns = [
 const VaccinationChart = ({ vaccinesData, patientDetails, profile }) => {
   function divideArray(array) {
     const subarrays = [];
-    for (let i = 0; i < array.length; i += 14) {
-      const subarray = array.slice(i, i + 14);
+    for (let i = 0; i < array.length; i += 13) {
+      const subarray = array.slice(i, i + 13);
       subarrays.push(subarray);
     }
     return subarrays;
   }
 
   const vaccinePrintData = divideArray(vaccinesData);
+  const dob = moment(patientDetails?.vac_dob, "DD-MMM-YYYY");
+  const now = moment();
+
+  // Calculate the difference in years
+  const years = now.diff(dob, "years");
+  dob.add(years, "years"); // Adjust DOB to account for the difference in years
+
+  // Calculate the difference in months
+  const months = now.diff(dob, "months");
+
+  let ageString = "";
+
+  if (years > 0 && months > 0) {
+    ageString = `${years} Years ${months} Months`;
+  } else if (years > 0 && months === 0) {
+    ageString = `${years} Years`;
+  } else if (months > 0) {
+    ageString = `${months} Months`;
+  }
+
   return (
     <>
       {vaccinesData?.length ? (
@@ -71,13 +91,8 @@ const VaccinationChart = ({ vaccinesData, patientDetails, profile }) => {
                   {patientDetails?.vac_last_name}
                 </div>
                 <div>
-                  Age :{" "}
-                  {moment().diff(
-                    moment(patientDetails?.vac_dob, "DD-MMM-YYYY"),
-                    "years"
-                  )}{" "}
-                  Years, DOB : {patientDetails?.vac_dob},{" "}
-                  {patientDetails?.vac_gender}
+                  {ageString ? `Age : ${ageString},` : ""} DOB :{" "}
+                  {patientDetails?.vac_dob}, {patientDetails?.vac_gender}
                 </div>
               </div>
             </div>

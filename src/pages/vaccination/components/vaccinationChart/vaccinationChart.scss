@@ -1,6 +1,6 @@
 @media print {
-  @page wide {
-    size: a4 landscape;
+  @page {
+    size: A4;
   }
 
   body {
@@ -36,6 +36,7 @@
 .vaccine-table-wrapper {
   margin: 30px;
   width: 90%;
+  // page-break-inside: avoid;
   @media screen and (max-width: 1200px) {
     margin: 15px;
     width: 100%;
@@ -57,6 +58,35 @@
   line-height: 20px;
 }
 
+}
+
+@media screen and (max-width: 768px) {
+  body {
+      font-size: 14pt;
+  }
+
+  .content {
+      padding: 10px;
+  }
+
+  table, th, td {
+      font-size: 14pt;
+  }
+}
+
+/* Additional styles for iPad */
+@media screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) {
+  body {
+      font-size: 12pt;
+  }
+
+  .content {
+      padding: 20px;
+  }
+
+  table, th, td {
+      font-size: 12pt;
+  }
 }
 
 
