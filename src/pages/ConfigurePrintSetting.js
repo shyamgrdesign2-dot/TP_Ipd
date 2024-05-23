@@ -85,7 +85,6 @@ function ConfigurePrintSetting() {
     return (
         <PrintSettingsContext.Provider value={contextApi}>
             <>
-            {console.log(caseManagerData)}
                 <HeaderPrintSetting defaultPrintSettings={defaultPrintSettings} />
                 {/* <style scoped>{css}</style> */}
                 <div className={'w-100 bg-body wrapper2'}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import { Col, Radio, Row, Form, Switch, Button, Input, Spin } from "antd";
+import { Col, Radio, Row, Form, Switch, Button, Input, Spin, Select } from "antd";
 import Cropper from "react-cropper";
 import { Navbar } from 'react-bootstrap';
 import { isMobile } from "react-device-detect";
@@ -16,6 +16,29 @@ import wtsp from '../../assets/images/wtsp.svg';
 import defaultprofile from "../../assets/images/default-profile.svg";
 
 const { TextArea } = Input;
+
+const FONTS_SIZE_LIST = [
+    {
+        value: 8,
+        label: '8',
+    },
+    {
+        value: 10,
+        label: '10',
+    },
+    {
+        value: 12,
+        label: '12',
+    },
+    {
+        value: 14,
+        label: '14',
+    },
+    {
+        value: 16,
+        label: '16',
+    }
+]
 
 function WhatsappConfigure(props) {
 
@@ -182,6 +205,31 @@ function WhatsappConfigure(props) {
             }
         }
     }
+
+    //Footer
+    const onFooterTextChange = useCallback(
+        (e) => {
+            printSettingsCopy.header_footer.footer.title = e.target.value
+            setPrintSettingsCopy((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettingsCopy]
+    );
+
+    const onSelectFooterFontSize = useCallback(
+        (data) => {
+            printSettingsCopy.header_footer.footer.font_size = data
+            setPrintSettingsCopy((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettingsCopy]
+    );
 
     //Upload Letterhead
     //Header Image
@@ -444,6 +492,29 @@ function WhatsappConfigure(props) {
                                                     </div>
                                                 </div>
                                             )}
+
+                                            <div className="mt-3">
+                                                <Form.Item>
+                                                    <label className="mb-1">Footer Text</label>
+                                                    <Input className='inputheight41-group' placeholder="Enter Footer Text" onChange={onFooterTextChange} value={printSettingsCopy?.header_footer?.footer?.title} />
+                                                </Form.Item>
+                                            </div>
+
+                                            <div className="mt-3">
+                                                <Form.Item>
+                                                    <label className="mb-1">Footer Font Size</label>
+                                                    <Select
+                                                        // showSearch
+                                                        className="autocomplete-custom"
+                                                        placeholder="Select footer font size"
+                                                        options={FONTS_SIZE_LIST}
+                                                        value={printSettingsCopy?.header_footer?.footer?.font_size}
+                                                        onSelect={onSelectFooterFontSize}
+                                                        allowClear
+                                                    />
+                                                </Form.Item>
+                                            </div>
+
                                         </div>
                                     ) : printSettingsCopy?.whatsapp_letterhead_format === 1 && (
                                         //For Upload Letter head tab

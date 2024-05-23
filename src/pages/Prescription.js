@@ -25,7 +25,7 @@ import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
 
 import MedicalHistoryBox from "../components/MedicalHistoryBox";
-import MedicalHistoryList from "../components/tab_design/MedicalHistoryList";
+import MedicalHistoryList from "../components/MedicalHistoryList";
 
 import vitals from "../assets/images/Vitals.svg";
 import MedicalHistory from "../assets/images/Medical-History.svg";

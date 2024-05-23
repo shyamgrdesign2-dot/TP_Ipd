@@ -276,8 +276,8 @@ function Vaccination({ handleDrawerVaccination }) {
 
       const options = {
         filename: "my-document.pdf",
-        image: { type: "jpeg", quality: 0.9 },
-        html2canvas: { scale: 1.5 },
+        image: { type: "jpeg", quality: 0.8 },
+        html2canvas: { scale: 1 },
         jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
       };
 
@@ -288,8 +288,7 @@ function Vaccination({ handleDrawerVaccination }) {
         .then((pdfDataUri) => {
           const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
           navigate(`/prescription?url=${b64}&key=vaccinationPrint`, {
-            replace: true,
-            state,
+            state: { patient_data: patient_data },
           });
           navigate(0, { replace: true });
         })
