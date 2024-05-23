@@ -291,7 +291,7 @@ function Vaccination({ handleDrawerVaccination }) {
             replace: true,
             state,
           });
-          navigate(0, { replace: true, state });
+          navigate(0, { replace: true });
         })
         .catch((err) => {
           console.error("Error generating PDF", err);
