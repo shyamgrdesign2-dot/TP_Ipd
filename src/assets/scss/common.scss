@@ -702,6 +702,7 @@ body {
         }
     }
 }
+
 .video-animat {
     position: relative;
     img {
@@ -712,6 +713,52 @@ body {
             width: 48px;
             height: 48px;
             z-index: -1;
+        }
+    }
+}
+
+// medication customize setting
+.dragicon-position {
+    .subtitle-customize {
+        color: $grayColor !important;
+        font-size: 12px;
+        font-weight: 400;
+        span {
+            font-weight: 600;
+            color: $grayColor !important;
+        }
+    }
+    .anticon-menu {
+        z-index: 9999999;
+        position: absolute;
+        top: 23px;
+        left: 5px;
+    }
+    .ant-collapse-item {
+        border-bottom: 0 !important;
+        .ant-collapse-header {
+            padding: 0 !important;
+            .ant-collapse-expand-icon {
+                &:after {
+                    border: 0 !important;
+                    font-size: 18px;
+                    color: $theme;
+                }
+            }
+        }
+        .ant-collapse-content {
+            border-top: 0 !important;
+        }
+    }
+    .ant-radio-wrapper {
+        .ant-radio-checked .ant-radio-inner {
+            border-color: $theme;
+            background-color: $theme;
+        }
+        &:hover {
+            .ant-radio-inner {
+                border-color: $theme;
+            }
         }
     }
 }

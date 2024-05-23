@@ -17,6 +17,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
     viewCaseManager,
 } from "../redux/caseManagerSlice";
+import VisitVaccination from "./vaccination/components/visitVaccination/VisitVaccination";
 
 const { Sider, Content } = Layout;
 
@@ -111,6 +112,7 @@ function PatientDetails() {
                                     <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
                                     {/*   <LabParameters />
                                             <Vaccination /> */}
+                                    <VisitVaccination />
                                 </div>
                                 <div className='col-lg-7 col-md-12 col-12'>
                                     <Cardiology patient_data={patient_data} tcmData={tcmData} loading={loading} viewCaseManagerData={viewCaseManagerData} nextPress={nextPress} prevPress={prevPress} />
