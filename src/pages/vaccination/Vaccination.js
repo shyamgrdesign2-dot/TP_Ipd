@@ -27,8 +27,10 @@ import {
   mergeDataPatientDetails,
 } from "./VaccinationHelper";
 import CashManagerContext from "../../context/CashManagerContext";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { isSafari, isChrome, isIOS, isIPad13, isIOS13 } from "react-device-detect";
+import html2pdf from "html2pdf.js";
 
 function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
@@ -53,6 +55,7 @@ function Vaccination({ handleDrawerVaccination }) {
   const [isCardClicked, setCardClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [vaccinePatientDetails, setVaccinePatientDetails] = useState();
+  const navigate = useNavigate();
 
   const contextApi = {
     patient_data,
@@ -80,7 +83,7 @@ function Vaccination({ handleDrawerVaccination }) {
 
   useEffect(() => {
     if (printType) {
-      handlePrint();
+      handlePrintClick();
       setPrintType("");
     }
   }, [printType]);
@@ -252,7 +255,7 @@ function Vaccination({ handleDrawerVaccination }) {
     }
   };
 
-  const handlePrint = useReactToPrint({
+  const handlePrintWeb = useReactToPrint({
     content: () => printableRef.current,
   });
 
@@ -262,15 +265,52 @@ function Vaccination({ handleDrawerVaccination }) {
     setShowUpdate(true);
   };
 
+  const handlePrintClick = () => {
+    if (!isChrome && !isSafari && !isIOS && !isIPad13 && !isIOS13) {
+      const element = printableRef.current;
+
+      if (!element) {
+        console.error("Element not found");
+        return;
+      }
+
+      const options = {
+        filename: "my-document.pdf",
+        image: { type: "jpeg", quality: 0.8 },
+        html2canvas: { scale: 1 },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      };
+
+      html2pdf()
+        .from(element)
+        .set(options)
+        .output("datauristring")
+        .then((pdfDataUri) => {
+          const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
+          navigate(`/prescription?url=${b64}&key=vaccinationPrint`, {
+            state: { patient_data: patient_data },
+          });
+          navigate(0, { replace: true });
+        })
+        .catch((err) => {
+          console.error("Error generating PDF", err);
+        });
+    } else {
+      handlePrintWeb();
+    }
+  };
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <div className="vaccinationWrapper">
-        <VaccineHeader
-          handleDrawerVaccination={handleDrawerVaccination}
-          vaccinesData={previewData}
-          patientDetails={patientDetails}
-          setPrintType={setPrintType}
-        />
+        {vaccinesData?.length && previewData?.length && (
+          <VaccineHeader
+            handleDrawerVaccination={handleDrawerVaccination}
+            vaccinesData={previewData}
+            patientDetails={patientDetails}
+            setPrintType={setPrintType}
+          />
+        )}
         <div
           id="wrap"
           onScroll={handleScroll}
@@ -391,6 +431,7 @@ function Vaccination({ handleDrawerVaccination }) {
                     : previewData
                 }
                 patientDetails={patientDetails}
+                profile={profile}
               />
             </div>
           </div>
