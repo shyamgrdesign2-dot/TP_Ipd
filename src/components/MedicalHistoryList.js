@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Collapse } from 'antd';
 
-import CashManagerContext from '../../context/CashManagerContext';
+import CashManagerContext from '../context/CashManagerContext';
 
 function MedicalHistoryList(props) {
     const { medicalHistoryData } = useContext(CashManagerContext);
