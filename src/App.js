@@ -7,6 +7,8 @@ import { isMobile } from "react-device-detect";
 import AppointmentList from "./pages/AppointmentList";
 import PatientDetails from "./pages/PatientDetails";
 import Prescription from "./pages/Prescription";
+import SmartPrescription from "./pages/SmartPrescription";
+import SmartRxPreview from "./pages/SmartRxPreview";
 
 import { store, persistor } from "./redux/store";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
@@ -57,6 +59,14 @@ function App() {
               <Route
                 path="prescription"
                 element={isMobile ? <TabPrescription /> : <Prescription />}
+              />
+              <Route
+                path="smart-prescription"
+                element= {<SmartPrescription />}
+              />
+              <Route
+                path="/print-smart-rx"
+                element={<SmartRxPreview />}
               />
               <Route
                 path="prescription_print_view"
