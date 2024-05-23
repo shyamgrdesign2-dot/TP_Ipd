@@ -26,6 +26,10 @@
 .vaccine-table-wrapper {
   margin: 30px;
   width: 90%;
+  @media screen and (max-width: 1200px) {
+    margin: 15px;
+    width: 100%;
+  }
 }
 
 .header {
@@ -41,4 +45,10 @@
   font-size: 20px;
   font-weight: 600;
   line-height: 20px;
+}
+
+@media print {
+  @page wide {
+    size: a4 landscape;
+  }
 }
