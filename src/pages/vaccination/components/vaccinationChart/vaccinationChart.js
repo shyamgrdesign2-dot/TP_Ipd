@@ -56,7 +56,10 @@ const VaccinationChart = ({ vaccinesData, patientDetails, profile }) => {
     <>
       {vaccinesData?.length ? (
         vaccinePrintData?.map((ds, i) => (
-          <div className="d-flex flex-column align-items-center print-template">
+          <div
+            key={i}
+            className="d-flex flex-column align-items-center print-template"
+          >
             <div className="header">Vaccination Chart</div>
             <div className="details">
               <img
