@@ -287,10 +287,8 @@ function Vaccination({ handleDrawerVaccination }) {
         .output("datauristring")
         .then((pdfDataUri) => {
           const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
-          navigate(`/prescription?url=${b64}&key=vaccinationPrint`, {
-            state: { patient_data: patient_data },
-          });
-          navigate(0, { replace: true });
+          localStorage.setItem("vaccinationChart", b64);
+          window.parent.postMessage("vaccinationChart", "*");
         })
         .catch((err) => {
           console.error("Error generating PDF", err);
