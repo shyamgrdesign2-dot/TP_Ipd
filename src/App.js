@@ -19,6 +19,7 @@ import ErrorFallback from "./common/ErrorFallback";
 import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { jwtDecode } from "jwt-decode";
 import config from "./config";
+import CustomCertificate from "./components/certificate/CustomCertificate";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -78,6 +79,7 @@ function App() {
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
                 <Route path="patient_details" element={<PatientDetails />} />
+                <Route path="certificate" element={<CustomCertificate />} />
                 <Route
                   path="prescription"
                   element={isMobile ? <TabPrescription /> : <Prescription />}

@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from "react";
-import { Button, Drawer } from 'antd';
+import { Button, Drawer, Input } from 'antd';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import CommonModal from '../../common/CommonModal';
+import { useNavigate } from 'react-router-dom';
 
 import alertIcon from '../../assets/images/alertIcon.svg';
 import travelCetificate from "../../assets/images/travel-cetificate.svg";
@@ -10,7 +11,8 @@ import CreateCertificate from "./CreateCertificate";
 function CustomCertificate(props) {
 
     const { handleCertificateFullDrawer } = props
-
+    
+    const navigate = useNavigate();
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const showHideBackModal = useCallback(() => {
         setIsBackModalOpen(!isBackModalOpen);
@@ -41,22 +43,21 @@ function CustomCertificate(props) {
                                         isModalOpen={isBackModalOpen}
                                         onCancel={showHideBackModal}
                                         modalWidth={500}
-                                        title={"You may lose your data"}
+                                        title={"Discard Changes"}
                                         modalBody={
                                             <>
                                                 <div className="alert-warning rounded-10px p-2 patient-details">
                                                     <div className="d-flex align-items-center">
                                                         <img className='me-3' src={alertIcon} alt="Warning" />
                                                         <span>
-                                                            Are you sure you want to leave? <br />
-                                                            You will permanently lose your data.
+                                                            Are you sure you want to discard the changes you made?
                                                         </span>
                                                     </div>
                                                 </div>
                                                 <div className="mt-4">
                                                     <div className="d-flex align-items-center mt-2 justify-content-end">
                                                         <div onClick={handleCertificateFullDrawer} className="me-4 text-decoration-underline btn p-0 text-main">
-                                                            <span onClick={showHideBackModal}>Yes Leave</span>
+                                                            <span onClick={() => navigate('/', { replace: true })}>Yes, Discard</span>
                                                         </div>
                                                         <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">
                                                             <span>No, Stay</span>
@@ -82,18 +83,16 @@ function CustomCertificate(props) {
                         </Col>
                         <Col lg="auto">
                             <div className='align-items-center d-flex h-100'>
-                                <Button className="btn btn-41 btn-primary3" desabled>Continue</Button>
+                                <Button className="btn btn-41 btn-primary3" disabled >Continue</Button>
                             </div>
                         </Col>
                     </Row>
                 </Container>
             </Navbar>
-            <div className="m-3">
-                <div className="bg-white mb-3 p-2 border fontroboto rounded-10px">
-                    Medical Leave Certificate
-                </div>
+            <div className="bg-body p-3" style={{height: 'calc(100vh - 60px)'}}>
+                <Input allowClear className="popinput mb-3" onChange='' placeholder="Certificate Title" />
                 <div className="bg-white p-2 border rounded-10px">
-                    lorem ewieei oweroo oewuro eworuweoiroiw oiweuroiweuriuewoir uiouw eriou weiruweoi urwieoru weior uwieo roweir
+                    
                 </div>
             </div>
             <Drawer

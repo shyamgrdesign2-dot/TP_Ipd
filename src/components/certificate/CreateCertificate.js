@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from "react";
-import { Button, Drawer } from "antd";
+import React from "react";
+import { Button } from "antd";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import CustomCertificate from "./CustomCertificate";
 
@@ -10,18 +11,12 @@ import travelCetificate from "../../assets/images/travel-cetificate.svg";
 
 function CreateCertificate() {
 
-    const [certificateFullDrawer, setCertificateFullDrawer] = useState(false);
-    const handleCertificateFullDrawer = useCallback(
-        () => {
-            setCertificateFullDrawer(!certificateFullDrawer)
-        },
-        [certificateFullDrawer]
-    );
+    const navigate = useNavigate();
 
     return (
         <div className="bg-white h-100 p-20">
             <div className="titleprint mb-2">Select certificate template</div>
-            <div onClick={() => { handleCertificateFullDrawer()}} className="d-flex align-items-center py-3 border-bottom cursor-pointer">
+            <div onClick={() => {navigate('/certificate')}} className="d-flex align-items-center py-3 border-bottom cursor-pointer">
                 <div className="bg-fitness">
                     <img src={medicalFitness} alt="" />
                 </div>
@@ -29,7 +24,7 @@ function CreateCertificate() {
                     Medical Fitness
                 </div>
             </div>
-            <div onClick={() => { handleCertificateFullDrawer()}} className="d-flex align-items-center py-3 border-bottom cursor-pointer">
+            <div onClick={() => {navigate('/certificate')}} className="d-flex align-items-center py-3 border-bottom cursor-pointer">
                 <div className="bg-fitness">
                     <img src={medicalLeave} alt="" />
                 </div>
@@ -37,7 +32,7 @@ function CreateCertificate() {
                     Medical Leave
                 </div>
             </div>
-            <div onClick={() => { handleCertificateFullDrawer()}} className="d-flex align-items-center py-3 border-bottom cursor-pointer">
+            <div onClick={() => {navigate('/certificate')}} className="d-flex align-items-center py-3 border-bottom cursor-pointer">
                 <div className="bg-fitness">
                     <img src={medicalVisa} alt="" />
                 </div>
@@ -45,7 +40,7 @@ function CreateCertificate() {
                     Medical Visa
                 </div>
             </div>
-            <div onClick={() => { handleCertificateFullDrawer()}} className="d-flex align-items-center py-3 cursor-pointer">
+            <div onClick={() => {navigate('/certificate')}} className="d-flex align-items-center py-3 cursor-pointer">
                 <div className="bg-fitness">
                     <img src={travelCetificate} alt="" />
                 </div>
@@ -55,19 +50,10 @@ function CreateCertificate() {
             </div>
             <div className="d-flex align-items-center justify-content-between custom-certificate">
                 <div className="title-common">Want to create custom certificate ? </div>
-                <Button onClick={() => { handleCertificateFullDrawer()}}
-                     className='btn btn-input btn-41'>Custom Certificate</Button>
+                <Button onClick={() => {navigate('/certificate')}} className='btn btn-input btn-41'>
+                    Custom Certificate
+                </Button>
             </div>
-            <Drawer
-                width="100%"
-                placement="right"
-                closable={false}
-                open={certificateFullDrawer}
-                onClose={handleCertificateFullDrawer}
-                key="left"
-            >
-                <CustomCertificate handleCertificateFullDrawer={handleCertificateFullDrawer} />
-            </Drawer>
         </div>
     )
 }
