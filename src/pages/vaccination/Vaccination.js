@@ -29,7 +29,13 @@ import {
 import CashManagerContext from "../../context/CashManagerContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { isSafari, isChrome, isIOS, isIPad13, isIOS13 } from "react-device-detect";
+import {
+  isSafari,
+  isChrome,
+  isIOS,
+  isIPad13,
+  isIOS13,
+} from "react-device-detect";
 import html2pdf from "html2pdf.js";
 
 function Vaccination({ handleDrawerVaccination }) {
@@ -300,9 +306,10 @@ function Vaccination({ handleDrawerVaccination }) {
         .then((pdfDataUri) => {
           const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
           storeLargeBase64Data("vaccinationChart", b64);
-          navigate(`/prescription?&key=vaccinationPrint`, {
+          navigate(`/prescription?key=vaccinationPrint`, {
             state: { patient_data: patient_data },
           });
+          navigate(0, { replace: true });
         })
         .catch((err) => {
           console.error("Error generating PDF", err);

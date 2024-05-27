@@ -14,38 +14,38 @@ const columns = [
     title: "Vaccine",
     dataIndex: "vaccine",
     key: "vaccine",
-    width: "18%",
+    width: "16%",
   },
   {
     title: "Brand",
     dataIndex: "brand",
     key: "brand",
-    width: "18%",
+    width: "16%",
   },
   {
     title: "Due Date",
     dataIndex: "dueDate",
     key: "dueDate",
-    width: "18%",
+    width: "16%",
   },
   {
     title: "Given Date",
     dataIndex: "givenDate",
     key: "givenDate",
-    width: "18%",
+    width: "16%",
   },
   {
     title: "Remarks",
     dataIndex: "remarks",
     key: "remarks",
-    width: "20%",
+    width: "18%",
   },
 ];
 
 const VaccinationChart = ({ vaccinesData, patientDetails, profile }) => {
   function divideArray(array) {
     const subarrays = [];
-    const rows = isTablet || isIPad13 || isIOS ? 9 : 13;
+    const rows = isTablet || isIPad13 || isIOS ? 8 : 13;
     for (let i = 0; i < array.length; i += rows) {
       const subarray = array.slice(i, i + rows);
       subarrays.push(subarray);
