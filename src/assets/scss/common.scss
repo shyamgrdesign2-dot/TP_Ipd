@@ -733,6 +733,23 @@ body {
     padding: 12px;
     margin-top: 10px;
 }
+
+// Certificate details page
+.certificate-box {
+    width: 223px; 
+    background:#fafafb; 
+    text-align: center; 
+    border-radius:10px; 
+    overflow: hidden;
+    .pfd-box{
+        height:180px;
+    }
+    .leave-ui{
+        border-top: solid #E2E2EA 1px; 
+        padding:11px 14px 11px 14px;
+    }
+}
+
 // medication customize setting
 .dragicon-position {
     .subtitle-customize {
