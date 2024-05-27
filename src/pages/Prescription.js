@@ -34,6 +34,7 @@ import hey from "../assets/images/bg-hey.png";
 
 import { Content } from "antd/es/layout/layout";
 import vaccinationImg from "../assets/images/Vaccination.svg";
+import growthChartImg from "../assets/images/growth-chart-dark.svg";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import Vaccination from "./vaccination/Vaccination";
 import { checkToShowVaccination } from "./vaccination/service";
@@ -98,6 +99,7 @@ function Prescription() {
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
+  const [growthDrawer, setGrowthDrawer] = useState(false);
   const [isPediatric, setIsPediatric] = useState(false);
   const isVaccinationAccessableFromGB = useFeatureIsOn(
     "vaccination-new-design"
@@ -266,6 +268,11 @@ function Prescription() {
     setVaccinationDrawer(!vaccinationDrawer);
   };
 
+  // Drawer Growth Chart
+  const handleDrawerGrowth = () => {
+    setGrowthDrawer(!growthDrawer);
+  };
+
   useEffect(() => {
     if (isVaccination) {
       handleDrawerVaccination();
@@ -409,7 +416,11 @@ function Prescription() {
                 <div className="prescription-box-sm p-14">
                   <div className="d-flex align-items-center justify-content-between">
                     <div className="d-flex align-items-center">
-                      <img src={vaccinationImg} alt="vitals" className="me-3" />
+                      <img
+                        src={vaccinationImg}
+                        alt="vaccination"
+                        className="me-3"
+                      />
                       <div className="title-common">Vaccination</div>
                     </div>
                     <button
@@ -427,6 +438,27 @@ function Prescription() {
                   </div>
                 </div>
               )}
+              {
+                <div className="prescription-box-sm p-14">
+                  <div className="d-flex align-items-center justify-content-between">
+                    <div className="d-flex align-items-center">
+                      <img src={growthChartImg} alt="growth" className="me-3" />
+                      <div className="title-common">Growth</div>
+                    </div>
+                    <button
+                      className="btn d-flex align-items-center btn-text"
+                      onClick={handleDrawerGrowth}
+                    >
+                      <i
+                        className={`${
+                          vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                        } me-1 fs-5`}
+                      ></i>{" "}
+                      <span>{`${vitalsData.length > 0 ? "Edit" : "Add"}`}</span>
+                    </button>
+                  </div>
+                </div>
+              }
               {/* <div>
                 <button className="btn btn-parameters mx-auto w-100">
                   <div className="align-items-center d-flex justify-content-center">

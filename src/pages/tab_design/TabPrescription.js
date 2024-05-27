@@ -34,6 +34,8 @@ import medicalHistoryWhite from "../../assets/images/medical-history-white.svg";
 import medicalHistoryDark from "../../assets/images/medical-history-dark.svg";
 import vaccinationWhite from "../../assets/images/vaccination-white.svg";
 import vaccinationDark from "../../assets/images/Vaccination.svg";
+import growthChart from "../../assets/images/growth-chart.svg";
+import growthChartDark from "../../assets/images/growth-chart-dark.svg";
 
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
@@ -112,6 +114,7 @@ function TabPrescription() {
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
+  const [growthDrawer, setGrowthDrawer] = useState(false);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -265,6 +268,12 @@ function TabPrescription() {
   const handleDrawerVaccination = () => {
     setCollapsedFlag(3);
     setVaccinationDrawer(!vaccinationDrawer);
+  };
+
+  // Drawer Growth Chart
+  const handleDrawerGrowth = () => {
+    setCollapsedFlag(4);
+    setGrowthDrawer(!growthDrawer);
   };
 
   useEffect(() => {
@@ -451,6 +460,25 @@ function TabPrescription() {
                   <label className="text-white mt-1">Vaccine</label>
                 </button>
               )}
+              {
+                <button
+                  type="button"
+                  className="mb-3 text-center btn btn-action"
+                  onClick={handleDrawerGrowth}
+                >
+                  <div
+                    className={`prescription-tab-button rounded-10px ${
+                      collapsedFlag === 3 && "active"
+                    }`}
+                  >
+                    <img
+                      src={collapsedFlag === 4 ? growthChartDark : growthChart}
+                      alt="Growth"
+                    />
+                  </div>
+                  <label className="text-white mt-1">Growth</label>
+                </button>
+              }
               {/* <button type='button' className="mb-3 text-center btn btn-action">
                                 <div className="prescription-tab-button rounded-10px">
                                     <img src={medicalHistoryWhite} alt="History" />
