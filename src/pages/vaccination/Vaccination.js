@@ -303,6 +303,7 @@ function Vaccination({ handleDrawerVaccination }) {
           navigate(`/prescription?&key=vaccinationPrint`, {
             state: { patient_data: patient_data },
           });
+          navigate(0, { replace: true });
         })
         .catch((err) => {
           console.error("Error generating PDF", err);
