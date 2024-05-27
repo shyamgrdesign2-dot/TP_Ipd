@@ -300,7 +300,7 @@ function Vaccination({ handleDrawerVaccination }) {
         .then((pdfDataUri) => {
           const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
           storeLargeBase64Data("vaccinationChart", b64);
-          navigate(`/prescription?&key=vaccinationPrint`, {
+          navigate(`/prescription?key=vaccinationPrint`, {
             state: { patient_data: patient_data },
           });
           navigate(0, { replace: true });
