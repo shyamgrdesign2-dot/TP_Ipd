@@ -29,7 +29,13 @@ import {
 import CashManagerContext from "../../context/CashManagerContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { isSafari, isChrome } from "react-device-detect";
+import {
+  isSafari,
+  isChrome,
+  isIOS,
+  isIPad13,
+  isIOS13,
+} from "react-device-detect";
 import html2pdf from "html2pdf.js";
 
 function Vaccination({ handleDrawerVaccination }) {
@@ -278,7 +284,7 @@ function Vaccination({ handleDrawerVaccination }) {
   }
 
   const handlePrintClick = () => {
-    if (!isChrome && !isSafari) {
+    if (!isChrome && !isSafari && !isIOS && !isIPad13 && !isIOS13) {
       const element = printableRef.current;
 
       if (!element) {
