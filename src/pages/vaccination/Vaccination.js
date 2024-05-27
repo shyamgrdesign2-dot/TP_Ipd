@@ -284,7 +284,7 @@ function Vaccination({ handleDrawerVaccination }) {
   }
 
   const handlePrintClick = () => {
-    if (!isChrome && !isSafari && !isIOS && !isIPad13 && !isIOS13) {
+    if (!isChrome && !isSafari) {
       const element = printableRef.current;
 
       if (!element) {
