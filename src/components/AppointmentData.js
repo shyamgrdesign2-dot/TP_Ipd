@@ -341,9 +341,9 @@ function AppointmentData({ locationPath }) {
         if (selectedTab === TAB_QUEUE) {
             return items.filter((item) => item.key !== "endvisitreason");
         } else if (selectedTab === TAB_FINISHED) {
-            return items.filter((item) => item.key !== "endvisit" && item.key !== "cancelappt" && item.key !== "certificate");
+            return items.filter((item) => item.key !== "endvisit" && item.key !== "cancelappt");
         } else if (selectedTab === TAB_CANCELLED) {
-            return items.splice(0, 1);
+            return items.filter((item) => item.key !== "endvisitreason" && item.key !== "endvisit" && item.key !== "cancelappt");
         } else {
             return items;
         }
