@@ -18,5 +18,4 @@ export default {
   doctor_website_url: env.doctor_website_url,
   vaccination_api_url: env.vaccination_api_url,
   GROWTHBOOK_CLIENTKEY: env.GROWTHBOOK_CLIENTKEY,
-  app_vaccination_deep_link: env.app_vaccination_deep_link,
 };

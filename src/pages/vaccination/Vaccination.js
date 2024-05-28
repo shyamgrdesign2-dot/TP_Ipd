@@ -29,7 +29,13 @@ import {
 import CashManagerContext from "../../context/CashManagerContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { isSafari, isChrome } from "react-device-detect";
+import {
+  isSafari,
+  isChrome,
+  isIOS,
+  isIPad13,
+  isIOS13,
+} from "react-device-detect";
 import html2pdf from "html2pdf.js";
 
 function Vaccination({ handleDrawerVaccination }) {
@@ -265,6 +271,18 @@ function Vaccination({ handleDrawerVaccination }) {
     setShowUpdate(true);
   };
 
+  function storeLargeBase64Data(keyPrefix, base64Data, chunkSize = 64 * 64) {
+    const numChunks = Math.ceil(base64Data.length / chunkSize);
+
+    for (let i = 0; i < numChunks; i++) {
+      const chunk = base64Data.substring(i * chunkSize, (i + 1) * chunkSize);
+      localStorage.setItem(`${keyPrefix}_${i}`, chunk);
+    }
+
+    // Store the number of chunks
+    localStorage.setItem(`${keyPrefix}_numChunks`, numChunks);
+  }
+
   const handlePrintClick = () => {
     if (!isChrome && !isSafari) {
       const element = printableRef.current;
@@ -276,8 +294,8 @@ function Vaccination({ handleDrawerVaccination }) {
 
       const options = {
         filename: "my-document.pdf",
-        image: { type: "jpeg", quality: 0.9 },
-        html2canvas: { scale: 1.5 },
+        image: { type: "jpeg", quality: 0.8 },
+        html2canvas: { scale: 1 },
         jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
       };
 
@@ -287,9 +305,9 @@ function Vaccination({ handleDrawerVaccination }) {
         .output("datauristring")
         .then((pdfDataUri) => {
           const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
-          navigate(`/prescription?url=${b64}&key=vaccinationPrint`, {
-            replace: true,
-            state,
+          storeLargeBase64Data("vaccinationChart", b64);
+          navigate(`/prescription?key=vaccinationPrint`, {
+            state: { patient_data: patient_data },
           });
           navigate(0, { replace: true });
         })
