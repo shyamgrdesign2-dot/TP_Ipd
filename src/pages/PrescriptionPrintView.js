@@ -47,26 +47,26 @@ const LANGUAGE_LIST = [
         value: 4,
         label: 'Marathi',
     },
-    {
-        value: 5,
-        label: 'Telugu',
-    },
+    // {
+    //     value: 5,
+    //     label: 'Telugu',
+    // },
     {
         value: 6,
         label: 'Kannada',
     },
-    {
-        value: 7,
-        label: 'Urdu',
-    },
-    {
-        value: 8,
-        label: 'Punjabi',
-    },
-    {
-        value: 9,
-        label: 'Malayalam',
-    },
+    // {
+    //     value: 7,
+    //     label: 'Urdu',
+    // },
+    // {
+    //     value: 8,
+    //     label: 'Punjabi',
+    // },
+    // {
+    //     value: 9,
+    //     label: 'Malayalam',
+    // },
     {
         value: 10,
         label: 'Tamil',
