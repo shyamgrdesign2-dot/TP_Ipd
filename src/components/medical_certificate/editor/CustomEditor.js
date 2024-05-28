@@ -29,23 +29,23 @@ const CustomEditor = () => {
         const selectedOption = options.control.name;
         const content = options.originalEvent.target.textContent;
         if (selectedOption === 'option1') {
-          editor.s.insertHTML(`<label><dhspl>${content}</dhspl></label>`);
+          editor.s.insertHTML(`<label>${content}</label>`);
         } else if (selectedOption === 'option2') {
-          editor.s.insertHTML(`<label><dhspl>${content}</dhspl></label>`);
+          editor.s.insertHTML(`<label class="ptName">${content}</label>`);
         } else if (selectedOption === 'option3') {
-          editor.s.insertHTML(`<label><dhspl>${content}</dhspl></label>`);
+          editor.s.insertHTML(`<label>${content}</label>`);
         } else if (selectedOption === 'option4') {
-          editor.s.insertHTML(`<label><dhspl>${content}</dhspl></label>`);
+          editor.s.insertHTML(`<label class="ptNumber">${content}</label>`);
         } else if (selectedOption === 'option5') {
-          editor.s.insertHTML(`<label><dhspl>${content}</dhspl></label>`);
+          editor.s.insertHTML(`<label>${content}</label>`);
         } else if (selectedOption === 'option6') {
-          editor.s.insertHTML(`<label><dhspl>${content}</dhspl></label>`);
+          editor.s.insertHTML(`<label>${content}</label>`);
         } else if (selectedOption === 'option7') {
           editor.s.insertHTML(`<input type="date" />`);
         } else if (selectedOption === 'option8') {
           editor.s.insertHTML(`<input type="search" />`);
         } else if (selectedOption === 'option9') {
-          editor.s.insertHTML(`<label><dhspl>${content}</dhspl></label>`);
+          editor.s.insertHTML(`<label>${content}</label>`);
         }
       }
     }
@@ -63,7 +63,7 @@ const CustomEditor = () => {
   return (
     <JoditEditor
       ref={editor}
-      value={''}
+      value={content.replace(/{Patient Name}/g, '<label class="ptName">Kishan Patel</label>').replace(/{Contact Number}/g, '<label class="ptNumber">8155947450</label>')}
       config={config}
       tabIndex={1} // tabIndex of textarea
       onBlur={newContent => setContent(newContent)} // preferred to use only this option to update the content for performance reasons

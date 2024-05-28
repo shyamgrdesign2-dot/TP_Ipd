@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Button, Drawer, Input } from 'antd';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import CommonModal from '../common/CommonModal';
@@ -15,7 +15,7 @@ function MedicalCertificate(props) {
 
     const { handleCertificateFullDrawer } = props
 
-    const [content, setContent] = useState('');
+    const [content, setContent] = useState(`<p>s simply dummy text {Patient Name} of the printing&nbsp; {Contact Number} and typesetting industry.</p>`);
 
     const contextApi = { content, setContent };
 
@@ -32,6 +32,51 @@ function MedicalCertificate(props) {
         },
         [createCertificateDrawer]
     );
+
+    // useEffect(() => {
+    //     const parser = new DOMParser();
+    //     const doc = parser.parseFromString(content, 'text/html');
+    //     setMakeOriginalContent(doc)
+    // }, [content]);
+
+    // useEffect(() => {
+    //     const elements = document.querySelectorAll('.ptName');
+    //     elements.forEach(element => {
+    //         console.log(element.title)
+    //     });
+    // }, [content]);
+
+    const HTMLTransformer = (htmlString) => {
+        // Create a temporary container to parse the HTML string
+        let tempContainer = document.createElement('div');
+        tempContainer.innerHTML = htmlString;
+
+        // Select all label elements
+        let labels = tempContainer.querySelectorAll('label');
+
+        // Iterate over the labels and replace innerHTML content based on the class
+        labels.forEach(label => {
+            if (label.classList.contains('ptName')) {
+                replaceContent(label, '{Patient Name}');
+            } else if (label.classList.contains('ptNumber')) {
+                replaceContent(label, '{Contact Number}');
+            }
+        });
+
+        // Get the modified HTML string
+        return tempContainer.innerHTML;
+    }
+
+    function replaceContent(element, newText) {
+        // Traverse through the child nodes and replace the text nodes
+        element.childNodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                node.textContent = newText;
+            } else {
+                replaceContent(node, newText);
+            }
+        });
+    }
 
     return (
         <EditorContext.Provider value={contextApi}>
@@ -101,7 +146,8 @@ function MedicalCertificate(props) {
                     <CustomEditor className={'rounded-10px'} />
                     <div>
                         <h3>Editor Content:{content}</h3>
-                        {/* <div dangerouslySetInnerHTML={{ __html: content }} /> */}
+                        {HTMLTransformer(content)}
+                        {/* <div dangerouslySetInnerHTML={{ __html: HTMLTransformer(content) }} /> */}
                     </div>
                 </div>
                 <Drawer
