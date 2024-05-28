@@ -14,12 +14,13 @@ import { useLocalStorage } from "./utils/localStorage";
 import PrescriptionPrintView from "./pages/PrescriptionPrintView";
 import TabPrescription from "./pages/tab_design/TabPrescription";
 import ConfigurePrintSetting from "./pages/ConfigurePrintSetting";
+import MedicalCertificate from "./pages/MedicalCertificate";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
 import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { jwtDecode } from "jwt-decode";
 import config from "./config";
-import CustomCertificate from "./components/certificate/CustomCertificate";
+
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -79,7 +80,7 @@ function App() {
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
                 <Route path="patient_details" element={<PatientDetails />} />
-                <Route path="certificate" element={<CustomCertificate />} />
+                <Route path="certificate" element={<MedicalCertificate />} />
                 <Route
                   path="prescription"
                   element={isMobile ? <TabPrescription /> : <Prescription />}

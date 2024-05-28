@@ -2,8 +2,6 @@ import React from "react";
 import { Button } from "antd";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
-import CustomCertificate from "./CustomCertificate";
-
 import medicalFitness from "../../assets/images/medical-fitness.svg";
 import medicalLeave from "../../assets/images/medical-leave.svg";
 import medicalVisa from "../../assets/images/medical-visa.svg";

@@ -47,7 +47,7 @@ import {
 import {
     changeSortOrder
 } from "../redux/doctorsSlice";
-import CreateCertificate from "./certificate/CreateCertificate";
+import CreateCertificate from "./medical_certificate/CreateCertificate";
 import { resetVaccineState } from "../redux/vaccineSlice";
 
 const { TextArea } = Input;
