@@ -544,6 +544,17 @@ function Prescription() {
             <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
           </Drawer>
         )}
+        {growthDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerGrowth}
+            open={growthDrawer}
+            width="100%"
+          >
+            <Vaccination handleDrawerVaccination={handleDrawerGrowth} />
+          </Drawer>
+        )}
       </>
     </CashManagerContext.Provider>
   );
