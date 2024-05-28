@@ -43,7 +43,7 @@ const CustomEditor = () => {
         } else if (selectedOption === 'option7') {
           editor.s.insertHTML(`<input type="date" />`);
         } else if (selectedOption === 'option8') {
-          editor.s.insertHTML(`<input type="text" />`);
+          editor.s.insertHTML(`<input type="search" />`);
         } else if (selectedOption === 'option9') {
           editor.s.insertHTML(`<label><dhspl>${content}</dhspl></label>`);
         }
