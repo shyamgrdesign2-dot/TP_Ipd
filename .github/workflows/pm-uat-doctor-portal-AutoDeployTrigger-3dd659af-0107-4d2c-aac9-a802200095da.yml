@@ -43,8 +43,5 @@ jobs:
           containerAppName: pm-uat-doctor-portal
           resourceGroup: tatva-uat
           imageToBuild: acinacr.azurecr.io/pm-uat-doctor-portal:${{ github.sha }}
-          build-args: REACT_APP_ENV=${{ env.REACT_APP_ENV }}  # Pass REACT_APP_ENV as a build argument
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
-
-
+          buildArguments: |
+            "REACT_APP_ENV=uat"
