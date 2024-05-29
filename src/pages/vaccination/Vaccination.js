@@ -328,6 +328,7 @@ function Vaccination({ handleDrawerVaccination }) {
             vaccinesData={previewData}
             patientDetails={patientDetails}
             setPrintType={setPrintType}
+            isVaccination={true}
           />
         )}
         <div

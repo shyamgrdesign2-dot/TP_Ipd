@@ -38,6 +38,7 @@ import growthChartImg from "../assets/images/growth-chart-dark.svg";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import Vaccination from "./vaccination/Vaccination";
 import { checkToShowVaccination } from "./vaccination/service";
+import GrowthChart from "./growthChart/GrowthChart";
 
 function Prescription() {
   const {
@@ -552,7 +553,7 @@ function Prescription() {
             open={growthDrawer}
             width="100%"
           >
-            <Vaccination handleDrawerVaccination={handleDrawerGrowth} />
+            <GrowthChart handleDrawerVaccination={handleDrawerGrowth} />
           </Drawer>
         )}
       </>

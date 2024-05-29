@@ -15,6 +15,7 @@ function VaccineHeader({
   vaccinesData,
   patientDetails,
   setPrintType,
+  isVaccination,
 }) {
   const navigate = useNavigate();
   let { patient_data } = useContext(CashManagerContext);
@@ -35,7 +36,7 @@ function VaccineHeader({
     setShowPreview((prevState) => !prevState);
   }
 
-  const menu = (
+  const vaccinePrint = (
     <Menu>
       <Menu.Item
         key="1"
@@ -55,8 +56,32 @@ function VaccineHeader({
     </Menu>
   );
 
+  const handleGrowthPrint = () => {
+    window.alert("print");
+  };
+
+  const growthPrint = (
+    <Menu>
+      <Menu.Item
+        key="1"
+        className="btn btn-41 btn-input printMenu"
+        onClick={handleGrowthPrint}
+      >
+        Graph
+      </Menu.Item>
+      <Menu.Item
+        key="2"
+        className="btn-41 btn btn-input"
+        style={{ border: "0 !important" }}
+        onClick={handleGrowthPrint}
+      >
+        Table
+      </Menu.Item>
+    </Menu>
+  );
+
   return (
-    <Navbar className="justify-content-between headerprescription p-0">
+    <Navbar className="headerprescription p-0">
       <Container fluid className="h-100 gx-0 w-100">
         <Row className="h-100 align-items-center w-100 justify-content-between">
           <Col sm="auto" md="auto" lg="auto" className="h-100 w-auto">
@@ -116,15 +141,17 @@ function VaccineHeader({
           </Col>
           <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
             <div className="align-items-center d-flex h-100">
-              <Button
-                type="button"
-                className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
-                onClick={previewBtnHandler}
-                icon={<i className="icon-Preview" />}
-              >
-                Preview
-              </Button>
-              <Dropdown overlay={menu}>
+              {isVaccination && (
+                <Button
+                  type="button"
+                  className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
+                  onClick={previewBtnHandler}
+                  icon={<i className="icon-Preview" />}
+                >
+                  Preview
+                </Button>
+              )}
+              <Dropdown overlay={isVaccination ? vaccinePrint : growthPrint}>
                 <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
                   <i className="icon-Print" />
                   <span className="btn-input">Print</span>
