@@ -47,26 +47,26 @@ const LANGUAGE_LIST = [
         value: 4,
         label: 'Marathi',
     },
-    {
-        value: 5,
-        label: 'Telugu',
-    },
+    // {
+    //     value: 5,
+    //     label: 'Telugu',
+    // },
     {
         value: 6,
         label: 'Kannada',
     },
-    {
-        value: 7,
-        label: 'Urdu',
-    },
-    {
-        value: 8,
-        label: 'Punjabi',
-    },
-    {
-        value: 9,
-        label: 'Malayalam',
-    },
+    // {
+    //     value: 7,
+    //     label: 'Urdu',
+    // },
+    // {
+    //     value: 8,
+    //     label: 'Punjabi',
+    // },
+    // {
+    //     value: 9,
+    //     label: 'Malayalam',
+    // },
     {
         value: 10,
         label: 'Tamil',
@@ -125,6 +125,10 @@ function PrescriptionPrintView() {
 
     const printContent = async () => {
         var blobURL = URL.createObjectURL(printBlob);
+        // Remove all existing iframes
+        document.querySelectorAll('iframe').forEach(function (iframe) {
+            iframe.parentNode.removeChild(iframe);
+        });
         var iframe = document.createElement('iframe'); //load content in an iframe to print later
         document.body.appendChild(iframe);
         iframe.style.display = 'none';
@@ -133,6 +137,8 @@ function PrescriptionPrintView() {
             setTimeout(function () {
                 iframe.focus();
                 iframe.contentWindow.print();
+                // Revoke the Blob URL to avoid memory leaks
+                URL.revokeObjectURL(blobURL);
             }, 1);
         };
     };

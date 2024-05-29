@@ -81,7 +81,7 @@ function Quixote({ mode = NORMAL, ...props }) {
     ];
 
     // Extract unique dates from the JSON array
-    const uniqueDates = caseManagerData && caseManagerData.vitals.length > 0 ? [...caseManagerData.vitals.slice(0, 2).map((item) => item.date)] : [];
+    const uniqueDates = caseManagerData && caseManagerData.vitals.length > 0 ? [...caseManagerData.vitals.slice(0, 3).map((item) => item.date)] : [];
 
     // Initialize columns for each unique date
     const dateColumns = uniqueDates.map((date, index) => ({
@@ -90,7 +90,7 @@ function Quixote({ mode = NORMAL, ...props }) {
 
     const columns = [...initialColumns, ...dateColumns];
 
-    caseManagerData && caseManagerData.vitals.length > 0 && caseManagerData.vitals.slice(0, 2).map((item, index) => {
+    caseManagerData && caseManagerData.vitals.length > 0 && caseManagerData.vitals.slice(0, 3).map((item, index) => {
         initialRows[0][index] = item.temp ? item.temp : '-'
         initialRows[1][index] = item.pres ? item.pres : '-'
         initialRows[2][index] = item.resp_rate ? item.resp_rate : '-'
