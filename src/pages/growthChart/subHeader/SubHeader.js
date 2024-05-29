@@ -1,19 +1,64 @@
 import { Button } from "antd";
 import "./subHeader.scss";
+import { Switch } from "antd";
 
 const SubHeader = () => {
+  const growthDetails = (text1, text2, text3) => {
+    return (
+      <div className="detailsContainer">
+        <div className="details">
+          <div className="titleStyle">{text1}</div>
+          <div className="iconStyle">
+            <i className="icon-Edit" />
+          </div>
+        </div>
+        <div className="details">
+          <div>{text2}</div>
+          <span className="breakStyle" />
+          <div>{text3}</div>
+        </div>
+      </div>
+    );
+  };
+
+  const toggleGrowthDetails = () => {
+    return (
+      <div className="detailsContainer toggleContainer">
+        <div className="textStyle">
+          <span>Show</span>
+          <span>Table View</span>
+        </div>
+        <Switch
+        // onChange={(checked) => onChangeRight(checked)}
+        />
+      </div>
+    );
+  };
+
   return (
-    <div className="d-flex justify-content-between align-items-center growthSubHeader p-0">
-      <div>
-        <Button
-          type="button"
-          className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
-          //   onClick={previewBtnHandler}
-          style={{ width: "172px", height: "60px" }}
-          icon={<i className="icon-Add"></i>}
-        >
-          Add Measurements
-        </Button>
+    <div className="growthSubHeader">
+      <Button
+        type="button"
+        className="btn-41 btn ant-btn-text btn-input addMeasurementBtn"
+        // onClick={previewBtnHandler}
+      >
+        <div className="addIconStyle">
+          <i className="icon-Add" />
+        </div>
+        <div className="textStyle">
+          <span>Add</span>
+          <span>Measurements</span>
+        </div>
+      </Button>
+      <div className="rightSubHeader">
+        {growthDetails(
+          "Mid parental height: 169cm",
+          "Mother: 156cm",
+          "Father: 170cm"
+        )}
+        {growthDetails("Gestation period", "37 weeks", "4 days")}
+        {toggleGrowthDetails()}
+        {toggleGrowthDetails()}
       </div>
     </div>
   );
