@@ -29,15 +29,15 @@ const CustomEditor = () => {
         const selectedOption = options.control.name;
         const content = options.originalEvent.target.textContent;
         if (selectedOption === 'option1') {
-          editor.s.insertHTML(`<label>${content}</label>`);
+          editor.s.insertHTML(`<label class="consulting_doctor">${content}</label>`);
         } else if (selectedOption === 'option2') {
-          editor.s.insertHTML(`<label class="ptName">${content}</label>`);
+          editor.s.insertHTML(`<label class="patient_name">${content}</label>`);
         } else if (selectedOption === 'option3') {
-          editor.s.insertHTML(`<label>${content}</label>`);
+          editor.s.insertHTML(`<label class="age">${content}</label>`);
         } else if (selectedOption === 'option4') {
-          editor.s.insertHTML(`<label class="ptNumber">${content}</label>`);
+          editor.s.insertHTML(`<label class="contact_number">${content}</label>`);
         } else if (selectedOption === 'option5') {
-          editor.s.insertHTML(`<label>${content}</label>`);
+          editor.s.insertHTML(`<label class="gender">${content}</label>`);
         } else if (selectedOption === 'option6') {
           editor.s.insertHTML(`<label>${content}</label>`);
         } else if (selectedOption === 'option7') {
@@ -45,7 +45,7 @@ const CustomEditor = () => {
         } else if (selectedOption === 'option8') {
           editor.s.insertHTML(`<input type="search" />`);
         } else if (selectedOption === 'option9') {
-          editor.s.insertHTML(`<label>${content}</label>`);
+          editor.s.insertHTML(`<label class="email">${content}</label>`);
         }
       }
     }
@@ -63,7 +63,14 @@ const CustomEditor = () => {
   return (
     <JoditEditor
       ref={editor}
-      value={content.replace(/{Patient Name}/g, '<label class="ptName">Kishan Patel</label>').replace(/{Contact Number}/g, '<label class="ptNumber">8155947450</label>')}
+      value={content
+        .replace(/{Consulting Doctor}/g, '<label class="consulting_doctor">Janki Patel</label>')
+        .replace(/{Patient Name}/g, '<label class="patient_name">Kishan Patel</label>')
+        .replace(/{Age}/g, '<label class="age">30</label>')
+        .replace(/{Contact Number}/g, '<label class="contact_number">8155947450</label>')
+        .replace(/{Gender}/g, '<label class="gender">Male</label>')
+        .replace(/{Email}/g, '<label class="email">kishan@gmail.com</label>')
+      }
       config={config}
       tabIndex={1} // tabIndex of textarea
       onBlur={newContent => setContent(newContent)} // preferred to use only this option to update the content for performance reasons

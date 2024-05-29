@@ -158,6 +158,78 @@ export const errorMessage = async (error) => {
   }
 };
 
+export const HTMLTransformer = (htmlString) => {
+  // Create a temporary container to parse the HTML string
+  let tempContainer = document.createElement('div');
+  tempContainer.innerHTML = htmlString;
+
+  // Select all label elements
+  let labels = tempContainer.querySelectorAll('label');
+
+  // Iterate over the labels and replace innerHTML content based on the class
+  labels.forEach(label => {
+    if (label.classList.contains('consulting_doctor')) {
+      replaceContent(label, '{Consulting Doctor}');
+    } else if (label.classList.contains('patient_name')) {
+      replaceContent(label, '{Patient Name}');
+    } else if (label.classList.contains('age')) {
+      replaceContent(label, '{Age}');
+    } else if (label.classList.contains('contact_number')) {
+      replaceContent(label, '{Contact Number}');
+    } else if (label.classList.contains('gender')) {
+      replaceContent(label, '{Gender}');
+    } else if (label.classList.contains('email')) {
+      replaceContent(label, '{Email}');
+    }
+  });
+
+  // Get the modified HTML string
+  return tempContainer.innerHTML;
+}
+
+function replaceContent(element, newText) {
+  // Traverse through the child nodes and replace the text nodes
+  element.childNodes.forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      node.textContent = newText;
+    } else {
+      replaceContent(node, newText);
+    }
+  });
+}
+
+export const removeLabelTags = (htmlString) => {
+  // Create a temporary container to parse the HTML string
+  let tempContainer = document.createElement('div');
+  tempContainer.innerHTML = htmlString;
+
+  // Select all label elements
+  let labels = tempContainer.querySelectorAll('label');
+
+  labels.forEach(label => {
+    // Create a document fragment to hold the inner content
+    let fragment = document.createDocumentFragment();
+
+    // Move all child nodes of the label into the fragment
+    while (label.firstChild) {
+      fragment.appendChild(label.firstChild);
+    }
+
+    // If the label has a style attribute, apply it to the nearest child element
+    if (label.hasAttribute('style')) {
+      if (fragment.firstChild && fragment.firstChild.nodeType === Node.ELEMENT_NODE && !fragment.firstChild.hasAttribute('style')) {
+        fragment.firstChild.setAttribute('style', label.getAttribute('style'));
+      }
+    }
+
+    // Replace the label with its content
+    label.parentNode.replaceChild(fragment, label);
+  });
+
+  // Get the modified HTML string
+  return tempContainer.innerHTML;
+}
+
 export const trimEllip = (source, length) => {
   if (source == null) {
     return "";
