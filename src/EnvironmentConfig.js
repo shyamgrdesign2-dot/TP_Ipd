@@ -44,7 +44,7 @@ const uat = {
   appointment_api_url: `https://pm-master-uat-webservice.tatvacare.in`,
   symptoms_api_url: `https://pm-symptoms-uat.tatvacare.in`,
   examination_api_url: `https://pm-examination-uat.tatvacare.in`,
-  diagnosis_api_url: `https://pm-diagnosis-uat.tatvacare.in`,
+  diagnosis_api_url: `https://pm-diagnosis-uat.ambitiousstone-b2402989.centralindia.azurecontainerapps.io`,
   advice_api_url: `https://pm-advice-uat.tatvacare.in`,
   investigation_api_url: `https://pm-investigation-uat.tatvacare.in`,
   medication_api_url: `https://pm-medicine-uat.tatvacare.in/`,
