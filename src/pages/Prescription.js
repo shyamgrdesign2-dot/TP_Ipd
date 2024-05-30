@@ -509,19 +509,21 @@ function Prescription() {
             </div>
           </div>
         </div>
-        <Drawer
-          closeIcon={false}
-          placement="right"
-          onClose={handleDrawerVital}
-          open={vitalDrawer}
-          className="modalWidth-700"
-          width="auto"
-        >
-          <VitalsBox
-            handleDrawerVital={handleDrawerVital}
-            handleCollapsed={(flag) => handleCollapsed(flag)}
-          />
-        </Drawer>
+        {vitalDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerVital}
+            open={vitalDrawer}
+            className="modalWidth-700"
+            width="auto"
+          >
+            <VitalsBox
+              handleDrawerVital={handleDrawerVital}
+              handleCollapsed={(flag) => handleCollapsed(flag)}
+            />
+          </Drawer>
+        )}
         <Drawer
           closeIcon={false}
           placement="right"
@@ -553,7 +555,10 @@ function Prescription() {
             open={growthDrawer}
             width="100%"
           >
-            <GrowthChart handleDrawerVaccination={handleDrawerGrowth} />
+            <GrowthChart
+              handleDrawerVaccination={handleDrawerGrowth}
+              handleDrawerVital={handleDrawerVital}
+            />
           </Drawer>
         )}
       </>

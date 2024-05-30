@@ -2,7 +2,7 @@ import { Button } from "antd";
 import "./subHeader.scss";
 import { Switch } from "antd";
 
-const SubHeader = () => {
+const SubHeader = ({ handleDrawerVital }) => {
   const growthDetails = (text1, text2, text3) => {
     return (
       <div className="detailsContainer">
@@ -40,7 +40,7 @@ const SubHeader = () => {
       <Button
         type="button"
         className="btn-41 btn ant-btn-text btn-input addMeasurementBtn"
-        // onClick={previewBtnHandler}
+        onClick={handleDrawerVital}
       >
         <div className="addIconStyle">
           <i className="icon-Add" />

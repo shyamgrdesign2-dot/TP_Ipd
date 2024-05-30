@@ -1,11 +1,11 @@
 import VaccineHeader from "../vaccination/components/vaccineHeader/VaccineHeader";
 import SubHeader from "./subHeader/SubHeader";
 
-const GrowthChart = ({ handleDrawerVaccination }) => {
+const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader handleDrawerVaccination={handleDrawerVaccination} />
-      <SubHeader />
+      <SubHeader handleDrawerVital={handleDrawerVital} />
     </div>
   );
 };
