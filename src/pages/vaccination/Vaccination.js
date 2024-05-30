@@ -29,8 +29,16 @@ import {
 import CashManagerContext from "../../context/CashManagerContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { isSafari, isChrome, isIOS, isIPad13, isIOS13 } from "react-device-detect";
+import {
+  isSafari,
+  isChrome,
+  isIOS,
+  isIPad13,
+  isIOS13,
+} from "react-device-detect";
 import html2pdf from "html2pdf.js";
+import { db } from "../../firebase.js";
+import { doc, getDoc } from "firebase/firestore";
 
 function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
@@ -287,6 +295,22 @@ function Vaccination({ handleDrawerVaccination }) {
         .output("datauristring")
         .then((pdfDataUri) => {
           const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
+          const db = firebase.firestore();
+
+          // Fetch data from Firestore
+          db.collection("data")
+            .doc("largeStringDoc")
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                console.log(doc.data().content);
+              } else {
+                console.log("No such document!");
+              }
+            })
+            .catch((error) => {
+              console.error("Error getting document:", error);
+            });
           navigate(`/prescription?url=${b64}&key=vaccinationPrint`, {
             state: { patient_data: patient_data },
           });
