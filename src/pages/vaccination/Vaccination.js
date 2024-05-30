@@ -328,6 +328,7 @@ function Vaccination({ handleDrawerVaccination }) {
               src={require("../../assets/images/vaccine.png")}
               className="vaccineImg d-inline-block align-top ms-4"
               alt="Vaccine"
+              width={220}
             />
           </div>
           {vaccinesData?.length && !loading ? (
