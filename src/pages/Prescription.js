@@ -70,6 +70,7 @@ function Prescription() {
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
+  const [isGrowthChart, setIsGrowthChart] = useState(false);
 
   const contextApi = {
     patient_data,
@@ -272,6 +273,7 @@ function Prescription() {
   // Drawer Growth Chart
   const handleDrawerGrowth = () => {
     setGrowthDrawer(!growthDrawer);
+    setIsGrowthChart(!isGrowthChart);
   };
 
   useEffect(() => {
@@ -521,6 +523,7 @@ function Prescription() {
             <VitalsBox
               handleDrawerVital={handleDrawerVital}
               handleCollapsed={(flag) => handleCollapsed(flag)}
+              isGrowthChart={isGrowthChart}
             />
           </Drawer>
         )}
