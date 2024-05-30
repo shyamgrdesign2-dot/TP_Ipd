@@ -4,6 +4,7 @@ import ApiAppointments from "../api/services/ApiAppointments";
 import ApiMedication from "../api/services/ApiMedication";
 import ApiPrintSettings from "../api/services/ApiPrintSettings";
 import ApiVideoLibrary from "../api/services/ApiVideoLibrary";
+import ApiMedicalCertificate from "../api/services/ApiMedicalCertificate";
 
 const initialState = {
   sort_order: 'descend',
@@ -17,6 +18,8 @@ const initialState = {
   medicineTypeList: [],
   defaultPrintSettings: null,
   videoList: [],
+  certificateList: [],
+  single_appointment_data: null
 };
 
 export const getProfile = createAsyncThunk(
@@ -187,6 +190,20 @@ export const listVideo = createAsyncThunk(
   }
 );
 
+// For Medical Certificate
+export const listCertificate = createAsyncThunk(
+  "certificates/listCertificate",
+  async () => {
+    let result = {};
+    result = await ApiMedicalCertificate.listCertificate();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
@@ -196,6 +213,9 @@ const doctorsSlice = createSlice({
     },
     changeSortOrder: (state, action) => {
       state.sort_order = action.payload
+    },
+    selectAppointmentData: (state, action) => {
+      state.single_appointment_data = action.payload
     }
   },
   extraReducers: (builder) => {
@@ -288,9 +308,15 @@ const doctorsSlice = createSlice({
       })
       .addCase(listVideo.rejected, (state) => {
         state.videoList = [];
+      })
+      .addCase(listCertificate.fulfilled, (state, action) => {
+        state.certificateList = action.payload;
+      })
+      .addCase(listCertificate.rejected, (state) => {
+        state.certificateList = [];
       });
   },
 });
 
-export const { changeLogoStatus, changeSortOrder } = doctorsSlice.actions
+export const { changeLogoStatus, changeSortOrder, selectAppointmentData } = doctorsSlice.actions
 export default doctorsSlice.reducer;

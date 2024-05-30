@@ -180,6 +180,70 @@ export const HTMLTransformer = (htmlString) => {
       replaceContent(label, '{Gender}');
     } else if (label.classList.contains('email')) {
       replaceContent(label, '{Email}');
+    } else if (label.classList.contains('patient_id')) {
+      replaceContent(label, '{Patient ID}');
+    } else if (label.classList.contains('address')) {
+      replaceContent(label, '{Address}');
+    } else if (label.classList.contains('blood_group')) {
+      replaceContent(label, '{Blood Group}');
+    } else if (label.classList.contains('date_of_birth')) {
+      replaceContent(label, '{Date of Birth}');
+    } else if (label.classList.contains('department')) {
+      replaceContent(label, '{Department}');
+    } else if (label.classList.contains('referred_by')) {
+      replaceContent(label, '{Referred by}');
+    } else if (label.classList.contains('case_type')) {
+      replaceContent(label, '{Case Type}');
+    } else if (label.classList.contains('last_appointment')) {
+      replaceContent(label, '{Last appointment}');
+    } else if (label.classList.contains('inpatient_number')) {
+      replaceContent(label, '{Inpatient Number}');
+    } else if (label.classList.contains('ward')) {
+      replaceContent(label, '{Ward}');
+    } else if (label.classList.contains('room_bed')) {
+      replaceContent(label, '{Room/Bed}');
+    } else if (label.classList.contains('admitting_doctor')) {
+      replaceContent(label, '{Admitting Doctor}');
+    } else if (label.classList.contains('admitting_date')) {
+      replaceContent(label, '{Admitting Date}');
+    } else if (label.classList.contains('admitting_time')) {
+      replaceContent(label, '{Admitting Time}');
+    } else if (label.classList.contains('discharge_date')) {
+      replaceContent(label, '{Discharge Date}');
+    } else if (label.classList.contains('discharge_time')) {
+      replaceContent(label, '{Discharge Time}');
+    } else if (label.classList.contains('admitted_days')) {
+      replaceContent(label, '{Admitted Days}');
+    } else if (label.classList.contains('admission_diagnosis')) {
+      replaceContent(label, '{Admission Diagnosis}');
+    } else if (label.classList.contains('discharge_diagnosis')) {
+      replaceContent(label, '{Discharge Diagnosis}');
+    } else if (label.classList.contains('resident_of')) {
+      replaceContent(label, '{Resident of}');
+    } else if (label.classList.contains('start_date')) {
+      replaceContent(label, '{Start Date}');
+    } else if (label.classList.contains('end_date')) {
+      replaceContent(label, '{End Date}');
+    } else if (label.classList.contains('join_date')) {
+      replaceContent(label, '{Join Date}');
+    } else if (label.classList.contains('diagnosis')) {
+      replaceContent(label, '{Diagnosis}');
+    } else if (label.classList.contains('time')) {
+      replaceContent(label, '{Time}');
+    } else if (label.classList.contains('travel_from')) {
+      replaceContent(label, '{Travel From}');
+    } else if (label.classList.contains('travel_to')) {
+      replaceContent(label, '{Travel To}');
+    } else if (label.classList.contains('photo_id_card_no')) {
+      replaceContent(label, '{Photo ID card No}');
+    } else if (label.classList.contains('nationality')) {
+      replaceContent(label, '{Nationality}');
+    } else if (label.classList.contains('passport_number')) {
+      replaceContent(label, '{Passport Number}');
+    } else if (label.classList.contains('procedure')) {
+      replaceContent(label, '{Procedure}');
+    } else if (label.classList.contains('number_of_months')) {
+      replaceContent(label, '{Number of Months}');
     }
   });
 
