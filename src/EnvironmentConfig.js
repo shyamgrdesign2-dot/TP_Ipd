@@ -16,7 +16,7 @@ const dev = {
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
-  GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD"
+  GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
 };
 
 const qa = {
@@ -37,22 +37,22 @@ const qa = {
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
-  GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD"
+  GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
 };
 
 const uat = {
-  appointment_api_url: `https://master-uat-webservice.azurewebsites.net`,
-  symptoms_api_url: `https://symptoms-uat.azurewebsites.net`,
-  examination_api_url: `https://examination-uat.azurewebsites.net`,
-  diagnosis_api_url: `https://diagnosis-uat.azurewebsites.net`,
-  advice_api_url: `https://advice-uat.azurewebsites.net`,
-  investigation_api_url: `https://investigation-uat.azurewebsites.net`,
-  medication_api_url: `https://medicine-uat.azurewebsites.net/`,
-  vitals_api_url: `https://vital-uat.azurewebsites.net`,
-  casemanager_api_url: `https://casemanager-uat.azurewebsites.net`,
-  printsettings_api_url: `https://printsetting-uat.azurewebsites.net`,
-  medicalhistory_api_url: `https://medicalhistory-uat.azurewebsites.net`,
-  videolibrary_api_url: `https://videolibrary-uat.azurewebsites.net`,
+  appointment_api_url: `https://pm-master-uat-webservice.tatvacare.in`,
+  symptoms_api_url: `https://pm-symptoms-uat.tatvacare.in`,
+  examination_api_url: `https://pm-examination-uat.tatvacare.in`,
+  diagnosis_api_url: `https://pm-diagnosis-uat.tatvacare.in`,
+  advice_api_url: `https://pm-advice-uat.tatvacare.in`,
+  investigation_api_url: `https://pm-investigation-uat.tatvacare.in`,
+  medication_api_url: `https://pm-medicine-uat.tatvacare.in/`,
+  vitals_api_url: `https://pm-vital-uat.tatvacare.in`,
+  casemanager_api_url: `https://pm-casemanager-uat.tatvacare.in`,
+  printsettings_api_url: `https://pm-printsetting-uat.tatvacare.in`,
+  medicalhistory_api_url: `https://pm-medicalhistory-uat.tatvacare.in`,
+  videolibrary_api_url: `https://pm-videolibrary-uat.tatvacare.in`,
   sso_to_pm_url: `https://pm-uat-dhspl-2.tatvacare.in/api/get_doctor_sso_token.php`,
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
@@ -79,7 +79,7 @@ const prod = {
   sso_to_pm_password: `481541at-j4xc-4817-q5xz-a4rt48c69bt1`,
   doctor_website_url: `https://practice.tatvacare.in/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-prod.tatvacare.in/`,
-  GROWTHBOOK_CLIENTKEY: "sdk-qAxUqghZDXqcMH45"
+  GROWTHBOOK_CLIENTKEY: "sdk-qAxUqghZDXqcMH45",
 };
 
 const getEnv = () => {
