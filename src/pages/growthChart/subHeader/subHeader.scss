@@ -29,9 +29,6 @@
       justify-content: center;
       align-items: flex-start;
     }
-    .iconStyle {
-      color: #4b4ad5 !important;
-    }
   }
 
   .detailsContainer {
@@ -44,6 +41,10 @@
 
     .titleStyle {
       font-weight: 500;
+    }
+    .iconStyle {
+      color: #4b4ad5;
+      cursor: pointer;
     }
 
     .details {

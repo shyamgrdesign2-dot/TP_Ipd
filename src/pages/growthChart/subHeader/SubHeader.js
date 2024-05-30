@@ -3,19 +3,17 @@ import "./subHeader.scss";
 import { Switch } from "antd";
 
 const SubHeader = ({ handleDrawerVital }) => {
-  const growthDetails = (text1, text2, text3) => {
+  const growthDetails = (title, value1, value2) => {
     return (
       <div className="detailsContainer">
         <div className="details">
-          <div className="titleStyle">{text1}</div>
-          <div className="iconStyle">
-            <i className="icon-Edit" />
-          </div>
+          <div className="titleStyle">{title}</div>
+          <i className="icon-Edit iconStyle" />
         </div>
         <div className="details">
-          <div>{text2}</div>
+          <div>{value1}</div>
           <span className="breakStyle" />
-          <div>{text3}</div>
+          <div>{value2}</div>
         </div>
       </div>
     );
