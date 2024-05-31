@@ -260,6 +260,18 @@ body {
             }
 
         }
+        &.btn-send-to-wtsap{
+            margin-top: 6px;
+            display: flex;
+            width: 288px;
+            padding: 6px 15px;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            border-radius: 10px;    
+            background: linear-gradient(90deg, #58D264 0%, #24B43B 100%);
+            color:  #FAFAFB;
+        }
         
         &.btn-save {
             border-radius: 10px;

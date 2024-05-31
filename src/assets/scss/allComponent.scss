@@ -188,11 +188,19 @@
 }
 .date-button{
     margin-top: 0.5rem;
-    gap: 3rem;
+    gap: 3.5px;
 }
 .date-button > Button {
     padding: 5px 27px;
 }
+#pdf {
+    width: 790px;
+    border: 1px solid rgb(148, 147, 147);
+    border-radius: 10px;
+    /* height: calc(160vh - 2rem); */
+    height: 1000px;
+    background-color: white;
+  }
 
 //
 

@@ -4,6 +4,7 @@ import config from '../../config';
 const baseUrl = { customBaseUrl: config.casemanager_api_url }
 
 const ApiCaseManager = {};
+const smartrxUrl = "http://192.168.29.94:3012"
 
 ApiCaseManager.oneClickAddTemplate = function (template) {
     return api.post(`/api/v1/casemanager/oneclickAddTemplate`, template, baseUrl);
@@ -55,6 +56,22 @@ ApiCaseManager.viewCaseManager = function (data) {
 
 ApiCaseManager.sendCashsheetWhatsapp = function (data) {
     return api.post(`/api/v1/casemanager/sendCashsheetWhatsapp`, data, baseUrl);
+};
+
+ApiCaseManager.getSmartRxToken = function (data) {
+    return api.get(`/api/v1/casemanager/smartrx/token`, data, smartrxUrl);
+};
+
+ApiCaseManager.getSmartRx = function (data) {
+    return api.get(`/api/v1/casemanager/smartrx`, data, smartrxUrl);
+};
+
+ApiCaseManager.saveSmartRx = function (data) {
+    return api.post(`/api/v1/casemanager/smartrx`, data, smartrxUrl);
+};
+
+ApiCaseManager.sendSmartRxLinkOnWhatsapp = function (data) {
+    return api.post(`/api/v1/casemanager/smartrx/send`, data, smartrxUrl);
 };
 
 export default ApiCaseManager;

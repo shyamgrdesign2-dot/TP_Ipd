@@ -49,6 +49,7 @@ function HeaderPrescription({prescription, onClear, onSubmit}) {
     const [allTemplates, setAllTemplates] = useState([]);
     const [matchedTemplates, setMatchedTemplates] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isClearModalOpen, setIsClearModalOpen] = useState(false);
     const [removeTemplateId, setRemoveTemplateId] = useState(null);
 
     //PopOver2
@@ -98,6 +99,10 @@ function HeaderPrescription({prescription, onClear, onSubmit}) {
     const showHideBackModal = useCallback(() => {
         setIsBackModalOpen(!isBackModalOpen);
     }, [isBackModalOpen]);
+
+    const showHideClearModal = useCallback(() => {
+        setIsClearModalOpen(!isClearModalOpen);
+    }, [isClearModalOpen]);
 
     // Handle Save Drawer
     const handleDrawerSave = useCallback(() => {
@@ -525,6 +530,7 @@ function HeaderPrescription({prescription, onClear, onSubmit}) {
     }
 
     const handleClearClick = () => {
+        setIsClearModalOpen(!isClearModalOpen)
         onClear(); // Call the parent's clear handler
     };
 
@@ -631,11 +637,41 @@ function HeaderPrescription({prescription, onClear, onSubmit}) {
                             </div>
 
                             <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote) ? "" : "Please fill your prescription to end visit."}>
-                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-clear me-20' onClick={handleClearClick} loading={loading} disabled={!prescription}>
+                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-clear me-20' onClick={() => setIsClearModalOpen(!isClearModalOpen)} loading={loading} disabled={!prescription}>
                                     <img className='align-items-center d-flex' src={reload} alt="Warning" />
                                     <span>Clear</span>
                                 </Button>
                             </Tooltip>
+
+                            <CommonModal
+                                    isModalOpen={isClearModalOpen}
+                                    onCancel={showHideClearModal}
+                                    modalWidth={500}
+                                    title={"You may lose your data"}
+                                    modalBody={
+                                        <>
+                                            <div className="alert-warning rounded-10px p-2 patient-details">
+                                                <div className="d-flex align-items-center">
+                                                    <img className='me-3' src={alertIcon} alt="Warning" />
+                                                    <span>
+                                                        Are you sure you want to clear this <br />
+                                                        page data?
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="mt-4">
+                                                <div className="d-flex align-items-center mt-2 justify-content-end">
+                                                    <div onClick={() => handleClearClick()} className="me-4 text-decoration-underline btn p-0 text-main">
+                                                        Clear
+                                                    </div>
+                                                    <Button onClick={showHideClearModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                                        <span>No</span>
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </>
+                                    }
+                                />
 
                             <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote) ? "" : "Please fill your prescription to end visit."}>
                                 <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={handleSubmitClick} loading={loading} disabled={!prescription}>

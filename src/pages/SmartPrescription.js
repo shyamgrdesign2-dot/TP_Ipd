@@ -1,5 +1,23 @@
-import React, { useState, useEffect, useCallback, useContext, useRef } from "react";
-import { Input, Button, Drawer, Tabs, Select, Spin, Popover, Row, Col, DatePicker, Tooltip } from 'antd';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  useRef,
+} from "react";
+import {
+  Input,
+  Button,
+  Drawer,
+  Tabs,
+  Select,
+  Spin,
+  Popover,
+  Row,
+  Col,
+  DatePicker,
+  Tooltip,
+} from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -11,8 +29,14 @@ import { ADD, EDIT } from "../utils/constants";
 import { getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory } from "../redux/medicalhistorySlice";
 import CashManagerContext from "../context/CashManagerContext";
-import { errorMessage, getFormattedDate, onlyNumberFormat, capitalizeAfterSentence, removeBeforeWhiteSpace } from "../utils/utils";
-import HeaderSmartPrescription from "../common/HeaderSmartPrescription"
+import {
+  errorMessage,
+  getFormattedDate,
+  onlyNumberFormat,
+  capitalizeAfterSentence,
+  removeBeforeWhiteSpace,
+} from "../utils/utils";
+import HeaderSmartPrescription from "../common/HeaderSmartPrescription";
 import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
 import vitals from "../assets/images/Vitals.svg";
@@ -20,8 +44,10 @@ import RX_image from "../assets/images/RX_image.png";
 import Prescription from "./Prescription";
 
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import SmartRxFollowUpBox from "../components/SmartRxFollowUpBox";
+import { getSmartRx } from "../redux/caseManagerSlice";
 
-const dateFormat = 'YYYY-MM-DD'
+const dateFormat = "YYYY-MM-DD";
 
 function SmartPrescription() {
   const {
@@ -50,20 +76,13 @@ function SmartPrescription() {
   const [medicationData, setMedicationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
-  const { followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
-//   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-  const [followUpInput, setFollowUpInput] = useState('');
-
-  const [dateOptions, setDateOptions] = useState([
-    { value: '2', unit: 'day', label: "2 Days" },
-    { value: '2', unit: 'week', label: "2 Weeks" },
-    { value: '2', unit: 'month', label: "2 Months" },
-  ]);
-
-  const [prescription, setPrescription] = useState(false)
+  const { followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } =
+    useContext(CashManagerContext);
+  //   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  const [prescription, setPrescription] = useState(false);
   const canvasRef = useRef(null);
   const [refresh, setRefresh] = useState(false);
-  const [dataFromServer, setDataFromServer] = useState(null);
+  const [dataFromServer, setDataFromServer] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -72,40 +91,11 @@ function SmartPrescription() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [blobName, setBlobName] = useState(null);
   const [isDisable, setIsDisable] = useState(false);
+  const [connected, setConnected] = useState(false);
+  const [smartRxDetails, setSmartRxDetails] = useState(false);
+  const socketRef = useRef(null);
+  const retryTimeoutRef = useRef(null);
 
-  const disabledDate = (current) => {
-    // Can not select days before today and today
-    return current && current < moment().startOf('day');
-  };
-
-  const onDateChanged = (date, dateString) => {
-        if (dateString) {
-            const dateB = moment(dateString);
-            const dateC = moment().format(dateFormat);
-
-            console.log(`Difference is ${dateB.diff(dateC, 'days')} day(s)`);
-            console.log(`Difference is ${dateB.diff(dateC, 'weeks')} week(s)`);
-            console.log(`Difference is ${dateB.diff(dateC, 'months')} month(s)`);
-
-            const days = dateB.diff(dateC, 'days');
-            const weeks = dateB.diff(dateC, 'weeks');
-            const months = dateB.diff(dateC, 'months');
-
-            // const days = moment.duration(dateB.diff(dateC)).asDays();
-            // const weeks = moment.duration(dateB.diff(dateC)).asWeeks();
-            // const months = moment.duration(dateB.diff(dateC)).asMonths();
-
-            if (months > 0) {
-                setFollowUpInput(`${months} ${months <= 1 ? 'Month' : 'Months'}`)
-            } else if (weeks > 0) {
-                setFollowUpInput(`${weeks} ${weeks <= 1 ? 'Week' : 'Weeks'}`)
-            } else {
-                setFollowUpInput(`${days} ${days <= 1 ? 'Day' : 'Days'}`)
-            }
-            setFollowUpDate(getFormattedDate(moment(moment().format(dateFormat)).add(days, 'day').format(dateFormat)))
-            setDateOptions([]);
-        }
-  };
   const navigate = useNavigate();
 
   const contextApi = {
@@ -135,6 +125,10 @@ function SmartPrescription() {
   };
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
+
+  // useEffect (() => {
+  //   const action = dispatch(getSmartRx(smartRxDetails))
+  // },[smartRxDetails])
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -335,26 +329,26 @@ function SmartPrescription() {
   }, [selectedVitalsList]);
 
   useEffect(() => {
-        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN)
-        console.log(token,"token")
-        if (token !== undefined) {
-          try {
-            var decoded = jwtDecode(token);
-            console.log(decoded.result,"decoded-token")
-            // setTokenData(decoded.result)
-          } catch (e) {
-            console.log(e)
-          }
-        }
-  }, []); 
-  
+    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+    console.log(token,"token")
+    if (token !== undefined) {
+      try {
+        var decoded = jwtDecode(token);
+        console.log(decoded.result, "decoded-token");
+        // setTokenData(decoded.result)
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  },[]);
+
   useEffect(() => {
-    console.log("canvas useEffect is called")
-    if (refresh || prescription) {
-      // Remove the previous canvas
+    // Remove the previous canvas
+    if(prescription){
       const previousCanvas = canvasRef.current;
-      console.log(previousCanvas,"previouscanvas")
+      // console.log(previousCanvas,"previous")
       if (previousCanvas) {
+        // console.log("canvasRef.previous", canvasRef.current);
         previousCanvas.parentNode.removeChild(previousCanvas);
       }
       // Generate a new canvas with a new UUID and white background
@@ -365,36 +359,78 @@ function SmartPrescription() {
       newCanvas.id = uuidv4();
       newCanvas.width = parentWidth * 1;
       newCanvas.height = parentHeight * 1;
-      newCanvas.style.backgroundColor = "white";
+      // newCanvas.style.backgroundColor = "white";
       newCanvas.style.border = "1px solid white";
       newCanvas.style.borderRadius = "8px";
       // newCanvas.style.marginTop = "-18px";
       newCanvas.style.color = "black";
+      console.log(document.getElementById("pdf"));
       document.getElementById("pdf").appendChild(newCanvas);
       canvasRef.current = newCanvas;
+      // console.log("canvasRef.current", canvasRef.current);
     }
-  }, [refresh]);
+  }, [refresh,prescription]);
 
-  // useEffect(() => {
-  //   // if (dataFromServer) {
-  //     const ws = new WebSocket(`wss://iscribe.azurewebsites.net/`);
-  //     ws.onmessage = (event) => {
-  //       const o = event.data.split("|");
-  //       // if (dataFromServer && dataFromServer.doctor_unique_id === o[4]) {
-  //         draw(o[0], o[1], o[2], o[3], o[4]);
-  //       // }
-  //     };
-  //   // }
-  //   // }
+  const connectWebSocket = () => {
+    setLoading(true);
 
-  //   // return () => {
-  //   //   // Close WebSocket connection when the component unmounts
-  //   //   if (wsRef.current) {
-  //   //     wsRef.current.close();
-  //   //     console.log("WebSocket connection closed");
-  //   //   }
-  //   // };
-  // });
+    if (socketRef.current) {
+      socketRef.current.close();
+    }
+
+    socketRef.current = new WebSocket(`wss://iscribe.azurewebsites.net/`);
+
+    socketRef.current.onopen = () => {
+      console.log("WebSocket connection opened");
+      setConnected(true);
+      setLoading(false); // Hide loader once connected
+      clearTimeout(retryTimeoutRef.current);
+    };
+
+    socketRef.current.onclose = () => {
+      console.log("WebSocket connection closed");
+      setConnected(false);
+      setLoading(true);
+      retryConnection();
+    };
+
+    socketRef.current.onmessage = (event) => {
+      // console.log("event.data",event.data)
+      const o = event.data.split("|");
+      // if (dataFromServer && dataFromServer.doctor_unique_id === o[4]) {
+        draw(o[0], o[1], o[2], o[3], o[4]);
+      // }
+    };
+
+    socketRef.current.onerror = (error) => {
+      console.log("WebSocket error", error);
+      setConnected(false);
+      setLoading(true); // Show loader when there's an error and attempting to reconnect
+      retryConnection();
+    };
+  };
+
+  const retryConnection = () => {
+    if (!connected) {
+      retryTimeoutRef.current = setTimeout(() => {
+        console.log("Retrying WebSocket connection");
+        connectWebSocket();
+      }, 5000); // Retry every 5 seconds
+    }
+  };
+
+  useEffect(() => {
+    if (prescription) {
+      connectWebSocket();
+    }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+      clearTimeout(retryTimeoutRef.current);
+    };
+  }, [prescription]);
 
   function draw(t, n, a, c, e) {
     // const canvas = document.getElementById("myCanvas");
@@ -414,7 +450,7 @@ function SmartPrescription() {
 
   const handleSubmit = async () => {
     const canvas = canvasRef.current;
-    console.log("canvas",canvas)
+    console.log("canvas", canvas);
     // if (!canvas) {
     //   console.error("Canvas element with id 'myCanvas' not found.");
     //   return;
@@ -571,13 +607,12 @@ function SmartPrescription() {
   };
 
   const handleRefresh = () => {
-    console.log("refresh clicked")
-    setRefresh(true)
+    setRefresh(!refresh);
   };
 
   const handleWrite = () => {
     setPrescription(true);
-  }
+  };
 
   const openModal = (success, message) => {
     setShowModal(true);
@@ -625,119 +660,94 @@ function SmartPrescription() {
     }, interval);
   };
 
-  const onChangeFollowUp = useCallback(
-    (e) => {
-        const updateQuery = onlyNumberFormat(e.target.value);
-        setFollowUpInput(updateQuery)
-        setFollowUpDate(null)
-        if (updateQuery.length > 0) {
-            const options = [
-                { value: `${updateQuery}`, unit: 'day', label: `${updateQuery} ${updateQuery <= 1 ? 'Day' : 'Days'}` },
-                { value: `${updateQuery}`, unit: 'week', label: `${updateQuery} ${updateQuery <= 1 ? 'Week' : 'Weeks'}` },
-                { value: `${updateQuery}`, unit: 'month', label: `${updateQuery} ${updateQuery <= 1 ? 'Month' : 'Months'}` },
-            ];
-            setDateOptions(options);
-        } else {
-            const options = [
-                { value: '2', unit: 'day', label: "2 Days" },
-                { value: '2', unit: 'week', label: "2 Weeks" },
-                { value: '2', unit: 'month', label: "2 Months" },
-            ];
-            setDateOptions(options);
-        }
-    },
-    [followUpInput, dateOptions]
-  );
-
-  console.log(patient_data,"patient_data")
+  console.log(patient_data, "patient_data");
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderSmartPrescription prescription={prescription} onClear={handleRefresh} onSubmit={handleUpload}/>
+        <HeaderSmartPrescription
+          prescription={prescription}
+          onClear={handleRefresh}
+          onSubmit={handleUpload}
+        />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           {/* <img src={hey} alt="vitals" className="me-3 hey" /> */}
-            <div className="row">
-                <div 
-                    className="col-lg-4 col-md-12 col-12" 
-                    style={{marginLeft:"4rem",position: "fixed", height: "100%",overflow: "hidden"}}>
-                    <div className="prescription-box-sm p-14">
-                        <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                            <img src={vitals} alt="vitals" className="me-3" />
-                            <div className="title-common">
-                            Vitals & Body Composition
-                            </div>
-                        </div>
-                        <button
-                            className="btn d-flex align-items-center btn-text"
-                            onClick={handleDrawerVital}
-                        >
-                            {" "}
-                            <i
-                            className={`${
-                                vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                            } me-1 fs-5`}
-                            ></i>{" "}
-                            <span>{`${
-                            vitalsData.length > 0 ? "Edit" : "Add"
-                            }`}</span>
-                        </button>
-                        </div>
-                        {vitalsData.length > 0 && (
-                        <VitalsList
-                            mode={caseManagerData !== undefined ? EDIT : ADD}
-                        />
-                        )}
+          <div className="row">
+            <div
+              className="col-lg-4 col-md-12 col-12"
+              style={{
+                marginLeft: "4rem",
+                position: "fixed",
+                height: "100%",
+                overflow: "hidden",
+              }}
+            >
+              <div className="prescription-box-sm p-14">
+                <div className="d-flex align-items-center justify-content-between">
+                  <div className="d-flex align-items-center">
+                    <img src={vitals} alt="vitals" className="me-3" />
+                    <div className="title-common">
+                      Vitals & Body Composition
                     </div>
-                    <div className="prescription-box-sm p-14">
-                        <div className=" align-items-center justify-content-between">
-                            <div className="d-flex align-items-center">
-                                <img src={vitals} alt="vitals" className="me-3" />
-                                <div className="title-common">
-                                    Follow-up
-                                </div>
-                            </div>
-                            <div className="d-flex calender-merge-input mt-3">
-                                <Input className="w-100 calnder-input1" placeholder="e.g. 3 Days" value={followUpInput} inputMode="numeric" onChange={onChangeFollowUp} allowClear />
-                                <DatePicker inputReadOnly disabledDate={disabledDate} onChange={onDateChanged} />
-                            </div>
-                            <div className="d-flex pt-2 date-button">
-                                <Button>2 days</Button>
-                                <Button>5 days</Button>
-                                <Button>1 week</Button>
-                            </div>
-                        </div>
-                    </div>
+                  </div>
+                  <button
+                    className="btn d-flex align-items-center btn-text"
+                    onClick={handleDrawerVital}
+                  >
+                    {" "}
+                    <i
+                      className={`${
+                        vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                      } me-1 fs-5`}
+                    ></i>{" "}
+                    <span>{`${vitalsData.length > 0 ? "Edit" : "Add"}`}</span>
+                  </button>
                 </div>
-                <div 
-                    class="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3" 
-                    style={{width:"61%", height:"100%",overflowY:"auto",position: "relative", left: "39%"}}
-                >
-                   {!prescription ?
-                        (
-                            <div className="right-container">
-                                <div className="rx-image-container" onClick={handleWrite}>
-                                    <img src={RX_image} alt="prescription-icon" />
-                                </div>
-                                <div className="smartRx-info-container">
-                                    <p className="smartPen-intro">
-                                        Smart pen writings appear here
-                                    </p>
-                                    <p className="smartRx-into">
-                                        Are you having trouble seeing your writing on this page? <br/>
-                                        If so, don't worry! Click here to learn how to configure your settings.
-                                    </p>
-                                </div>
-                            </div>
-                        ) :
-                        (
-                            <div className="right-container">
-                                <div id="pdf"></div>
-                            </div>
-                        )
-                    } 
-                </div>
+                {vitalsData.length > 0 && (
+                  <VitalsList
+                    mode={caseManagerData !== undefined ? EDIT : ADD}
+                  />
+                )}
+              </div>
+              <div className="prescription-box-sm p-14">
+                {/* <div className="prescription-box-sm"> */}
+                <SmartRxFollowUpBox />
+                {/* </div> */}
+              </div>
             </div>
+            <div
+              class="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3"
+              style={{
+                width: "61%",
+                height: "100%",
+                overflowY: "auto",
+                position: "relative",
+                left: "39%",
+              }}
+            >
+              {!prescription ? (
+                <div className="right-container">
+                  <div className="rx-image-container" onClick={handleWrite}>
+                    <img src={RX_image} alt="prescription-icon" />
+                  </div>
+                  <div className="smartRx-info-container">
+                    <p className="smartPen-intro">
+                      Smart pen writings appear here
+                    </p>
+                    <p className="smartRx-into">
+                      Are you having trouble seeing your writing on this page?{" "}
+                      <br />
+                      If so, don't worry! Click here to learn how to configure
+                      your settings.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="right-container">
+                  <div id="pdf"></div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         <Drawer
           closeIcon={false}

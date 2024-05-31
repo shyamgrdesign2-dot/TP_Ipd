@@ -123,6 +123,18 @@ body {
         font-family: 'Poppins' !important;
         color: $maincolor !important;
     }
+    .update-number-icon{
+        font-size: 18px !important;
+        position: relative;
+        top: 5%;
+        left: 1%;
+    }
+    .edit-number-icon{
+        cursor: pointer;
+        position: relative;
+        top: 2px;
+        left: 5px;
+    }
     .form-control {
         border-radius: 10px;
         &:focus {

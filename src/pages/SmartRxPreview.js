@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 // import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
-import { Col, Row, Select, Button, message, Spin } from "antd";
+import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip, message, Checkbox} from "antd";
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
@@ -13,7 +13,7 @@ import { errorMessage } from "../utils/utils";
 
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
-import messageSent from '../assets/images/message-sent.svg';
+import wtsp from '../assets/images/wtsp.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
 import { MESSAGE_KEY } from "../utils/constants";
@@ -23,6 +23,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { viewCaseManager } from "../redux/caseManagerSlice";
 
 import { pdfjs, Document, Page } from "react-pdf";
+import CommonModal from "../common/CommonModal";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -53,6 +54,10 @@ function SmartRxPreview() {
     const [divWidth, setDivWidth] = useState(0);
     const [numPages, setNumPages] = useState();
     const [printBlob, setPrintBlob] = useState(null);
+    const [isUpdateMobileNoModalOpen, setIsUpdateMobileNoModalOpen] = useState(false);
+    const [mobileNumber, setMobileNumber] = useState('');
+    const [useRegisteredMobile, setUseRegisteredMobile] = useState(false);
+    const registeredMobileNumber = '1234567890'; // Replace this with the actual registered mobile number
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
@@ -169,20 +174,42 @@ function SmartRxPreview() {
         }
     }
 
+    const showHideUpdateMobileNoModal = () => {
+        setIsUpdateMobileNoModalOpen(!isUpdateMobileNoModalOpen);
+    };
+    
+    const onChangeMobileNumber = (e) => {
+        setMobileNumber(e.target.value);
+    };
+
+    const onChangeCheckbox = (e) => {
+        setUseRegisteredMobile(e.target.checked);
+        if (e.target.checked) {
+          setMobileNumber(registeredMobileNumber);
+        } else {
+          setMobileNumber('');
+        }
+      };
+
+    const handleUpdateMobileNoClick = () => {
+        setIsUpdateMobileNoModalOpen(!isUpdateMobileNoModalOpen)
+        console.log("")
+    };
+    
     return (
         <>
             <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} />
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
-                    <Col md={7} lg={7} xl={5}>
+                    <Col md={7} lg={7} xl={7}>
 
                         {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
                             <i className="icon-setting me-2"></i>
                             <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                         </div>
                         }
-                        <div className={`${!isMobile ? 'rounded-20px mt-20' : 'border-top-0 border-start-0 border-bottom-0'} border p-20 bg-white d-flex justify-content-between flex-column`}
+                        <div className={`${!isMobile ? 'rounded-20px mt-20' : 'border-top-0 border-start-0 border-bottom-0'} border p-20 bg-white d-flex flex-column`}
                             style={{ height: !isMobile ? 'calc(100vh - 160px)' : 'calc(100vh - 60px)' }}>
                             <div>
                                 {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38" onClick={configurePrintUrl}>
@@ -214,13 +241,57 @@ function SmartRxPreview() {
                                     <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                             </div>
-                            {/* <div className="bg-body d-flex p-3 rounded-10px border">
-                                <img src={messageSent} alt="whatsapp Message" className='align-self-baseline me-3' />
+                            <div className="bg-body d-flex p-3 rounded-10px border">
+                                <img src={wtsp} alt="Whatsapp Icon" className='align-self-baseline me-3' />
                                 <div className="fontroboto title-common">
-                                    <div className="fw-normal fontroboto mb-2">WhatsApp Sent to </div>
-                                    {patient_data !== undefined ? `+91 ${patient_data.pm_contact_no}` : '-'}
+                                    <div className="fw-normal fontroboto mb-2">Send this prescription to</div>
+                                    {patient_data !== undefined ? `WhatsApp +91 ${patient_data.pm_contact_no}` : '-'}
+                                    <i className='icon-Edit me-2 fs-21 edit-number-icon' onClick={() => setIsUpdateMobileNoModalOpen(!isUpdateMobileNoModalOpen)}></i>
                                 </div>
-                            </div> */}
+                            </div>
+                            <button
+                                className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
+                                onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
+                            >
+                                Send to WhatsApp
+                            </button>
+                            <CommonModal
+                                isModalOpen={isUpdateMobileNoModalOpen}
+                                onCancel={showHideUpdateMobileNoModal}
+                                modalWidth={500}
+                                title={"Update Mobile Number"}
+                                modalBody={
+                                <>
+                                    <div >
+                                        <div>Mobile Number<sup className="text-danger update-number-icon">*</sup> <br /></div>
+                                        <Form.Item
+                                            className="inputLabel-45">
+                                            <Input
+                                                placeholder="Mobile Number"
+                                                value={"7894561230"}
+                                                onChange={onChangeMobileNumber}
+                                                className="inputheight45 text-capitalize" />
+                                        </Form.Item>
+                                    </div>
+                                    <div className="mt-4">
+                                    <div>
+                                        <Checkbox onChange={onChangeCheckbox}>
+                                            Update with registered mobile number
+                                        </Checkbox>
+                                    </div>
+                                    <div className="d-flex align-items-center mt-2 justify-content-end">
+                                        <div onClick={showHideUpdateMobileNoModal}
+                                            className="me-4 btn p-0 text-main">
+                                            Cancel
+                                        </div>
+                                        <Button className="lh-lg btn btn-primary3 btn-41 px-4" onClick={handleUpdateMobileNoClick} loading={loading} disabled={patient_data ? false : false}>
+                                            <span>Update</span>
+                                        </Button>
+                                    </div>
+                                    </div>
+                                </>
+                                }
+                            />
                         </div>
                     </Col>
                     <Col md={17} lg={17} xl={12}>
