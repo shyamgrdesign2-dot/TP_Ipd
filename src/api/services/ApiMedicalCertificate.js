@@ -9,12 +9,24 @@ ApiMedicalCertificate.listCertificate = function () {
   return api.get(`/api/v1/appointment/listCertificate`, baseUrl);
 };
 
-ApiMedicalCertificate.addPatientCertificate = function (data) {
-  return api.post(`/api/v1/appointment/addPatientCertificate`, data, baseUrl);
+ApiMedicalCertificate.deleteCertificate = function (certificateId) {
+  return api.get(`/api/v1/appointment/deleteCertificate/${certificateId}`, baseUrl);
 };
 
 ApiMedicalCertificate.addCertificate = function (data) {
   return api.post(`/api/v1/appointment/addCertificate`, data, baseUrl);
+};
+
+ApiMedicalCertificate.addPatientCertificate = function (data) {
+  return api.post(`/api/v1/appointment/addPatientCertificate`, data, baseUrl);
+};
+
+ApiMedicalCertificate.listPatientCertificate = function (data) {
+  return api.post(`/api/v1/appointment/listPatientCertificate`, data, baseUrl);
+};
+
+ApiMedicalCertificate.deletePatientCertificate = function (data) {
+  return api.post(`/api/v1/appointment/deletePatientCertificate`, data, baseUrl);
 };
 
 export default ApiMedicalCertificate;

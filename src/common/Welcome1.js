@@ -18,7 +18,7 @@ function Welcome1(props) {
 
     const navigate = useNavigate();
     const { profile, videoList } = useSelector((state) => state.doctors);
-    const { locationPath, isMobile, patient_data, viewCaseManagerData } = props
+    const { locationPath, isMobile, patient_data, viewCaseManagerData, sidebarKey } = props
 
     const modifyFormat = useMemo(() => {
         if (viewCaseManagerData) {
@@ -91,8 +91,8 @@ function Welcome1(props) {
                                     overlayClassName="pop-430 pp-0 videoTutorial"
                                     placement="bottom"
                                 >
-                                    <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'> 
-                                    {/* onClick={showHideVideoListPopover} */}
+                                    <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
+                                        {/* onClick={showHideVideoListPopover} */}
                                         <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
                                     </button>
                                 </Popover>

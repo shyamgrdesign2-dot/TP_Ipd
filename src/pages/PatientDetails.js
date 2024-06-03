@@ -109,7 +109,8 @@ function PatientDetails() {
                             locationPath={locationPath}
                             isMobile={isMobile}
                             patient_data={patient_data}
-                            viewCaseManagerData={viewCaseManagerData} />
+                            viewCaseManagerData={viewCaseManagerData}
+                            sidebarKey={sidebarKey} />
                         {sidebarKey === 1 ? (
                             <div className="appointment-wrap PatientDetailswrap">
                                 <div className='row'>
@@ -129,7 +130,7 @@ function PatientDetails() {
                             </div>
                         ) : (
                             <div className="appointment-wrap PatientDetailswrap">
-                                <CertificateDetails />
+                                <CertificateDetails patient_data={patient_data} />
                             </div>
                         )}
                     </div>

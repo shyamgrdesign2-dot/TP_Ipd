@@ -19,7 +19,8 @@ const initialState = {
   defaultPrintSettings: null,
   videoList: [],
   certificateList: [],
-  single_appointment_data: null
+  single_appointment_data: null,
+  patientCertificateList: []
 };
 
 export const getProfile = createAsyncThunk(
@@ -204,11 +205,10 @@ export const listCertificate = createAsyncThunk(
   }
 );
 
-export const addPatientCertificate = createAsyncThunk(
-  "medicalCertificate/addPatientCertificate",
-  async (data) => {
-    let result = {};
-    result = await ApiMedicalCertificate.addPatientCertificate(data);
+export const deleteCertificate = createAsyncThunk(
+  "medicalCertificate/deleteCertificate",
+  async (certificateId) => {
+    const result = await ApiMedicalCertificate.deleteCertificate(certificateId);
     if (result.status) {
       return result.data;
     } else {
@@ -222,6 +222,44 @@ export const addCertificate = createAsyncThunk(
   async (data) => {
     let result = {};
     result = await ApiMedicalCertificate.addCertificate(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const addPatientCertificate = createAsyncThunk(
+  "medicalCertificate/addPatientCertificate",
+  async (data) => {
+    let result = {};
+    result = await ApiMedicalCertificate.addPatientCertificate(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const listPatientCertificate = createAsyncThunk(
+  "medicalCertificate/listPatientCertificate",
+  async (data) => {
+    let result = {};
+    result = await ApiMedicalCertificate.listPatientCertificate(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const deletePatientCertificate = createAsyncThunk(
+  "medicalCertificate/deletePatientCertificate",
+  async (data) => {
+    const result = await ApiMedicalCertificate.deletePatientCertificate(data);
     if (result.status) {
       return result.data;
     } else {
@@ -342,14 +380,23 @@ const doctorsSlice = createSlice({
       .addCase(listCertificate.rejected, (state) => {
         state.certificateList = [];
       })
-      .addCase(addPatientCertificate.pending, (state) => {
-        state.loading = true;
+      .addCase(deleteCertificate.pending, (state, action) => {
+        const updatedData = state.certificateList.map((e) =>
+          e.id == action.meta.arg ? { ...e, loading: true } : e
+        );
+        state.certificateList = [...updatedData];
       })
-      .addCase(addPatientCertificate.fulfilled, (state, action) => {
-        state.loading = false;
+      .addCase(deleteCertificate.fulfilled, (state, action) => {
+        const result = state.certificateList.filter(
+          (item) => item.id !== action.payload.id
+        );
+        state.certificateList = [...result];
       })
-      .addCase(addPatientCertificate.rejected, (state) => {
-        state.loading = false;
+      .addCase(deleteCertificate.rejected, (state, action) => {
+        const updatedData = state.certificateList.map((e) =>
+          e.id == action.meta.arg ? { ...e, loading: false } : e
+        );
+        state.certificateList = [...updatedData];
       })
       .addCase(addCertificate.pending, (state) => {
         state.loading = true;
@@ -359,6 +406,44 @@ const doctorsSlice = createSlice({
       })
       .addCase(addCertificate.rejected, (state) => {
         state.loading = false;
+      })
+      .addCase(addPatientCertificate.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addPatientCertificate.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(addPatientCertificate.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(listPatientCertificate.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(listPatientCertificate.fulfilled, (state, action) => {
+        state.patientCertificateList = action.payload;
+        state.loading = false;
+      })
+      .addCase(listPatientCertificate.rejected, (state) => {
+        state.patientCertificateList = [];
+        state.loading = false;
+      })
+      .addCase(deletePatientCertificate.pending, (state, action) => {
+        const updatedData = state.patientCertificateList.map((e) =>
+          e.tcu_id == action.meta.arg ? { ...e, loading: true } : e
+        );
+        state.patientCertificateList = [...updatedData];
+      })
+      .addCase(deletePatientCertificate.fulfilled, (state, action) => {
+        const result = state.patientCertificateList.filter(
+          (item) => item.tcu_id !== action.payload.tcu_id
+        );
+        state.patientCertificateList = [...result];
+      })
+      .addCase(deletePatientCertificate.rejected, (state, action) => {
+        const updatedData = state.patientCertificateList.map((e) =>
+          e.tcu_id == action.meta.arg ? { ...e, loading: false } : e
+        );
+        state.patientCertificateList = [...updatedData];
       });
   },
 });

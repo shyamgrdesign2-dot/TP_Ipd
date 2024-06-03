@@ -4,6 +4,7 @@ import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import CommonModal from '../common/CommonModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 import JoditEditor from 'jodit-react';
+import moment from "moment";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -12,7 +13,6 @@ import { addPatientCertificate } from "../redux/doctorsSlice";
 import alertIcon from '../assets/images/alertIcon.svg';
 import CreateCertificate from "../components/medical_certificate/CreateCertificate";
 import { HTMLTransformer, removeLabelTags, errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
-
 
 function MedicalCertificate() {
 
@@ -32,6 +32,11 @@ function MedicalCertificate() {
     const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
+    // Function to generate a random ID
+    const generateRandomId = () => {
+        return 'id-' + Math.random().toString(36).substring(2, 9);
+    };
+
     const TOOLBAR = [
         'undo', 'redo', '|', 'ul', 'ol', 'align', 'fontsize', '|', 'bold', 'italic', 'underline', '|', 'source', '|',
         {
@@ -50,6 +55,7 @@ function MedicalCertificate() {
             },
 
             exec: (editor, current, options, originalEvent, btn) => {
+                const randomId = generateRandomId();
                 const selectedOption = options.control.name;
                 const content = options.originalEvent.target.textContent;
                 if (selectedOption === 'option1') {
@@ -63,11 +69,27 @@ function MedicalCertificate() {
                 } else if (selectedOption === 'option5') {
                     editor.s.insertHTML(`<label class="gender">${single_appointment_data?.pm_gender}</label>`);
                 } else if (selectedOption === 'option6') {
-                    editor.s.insertHTML(`<label>${content}</label>`);
+                    editor.s.insertHTML(`<label>${moment().format('DD-MM-YYYY')}</label>`);
                 } else if (selectedOption === 'option7') {
-                    editor.s.insertHTML(`<input type="date" />`);
+                    editor.s.insertHTML(`<input type="date" id="${randomId}" value="">`);
+                    const inputElement = document.getElementById(randomId);
+                    inputElement.removeAttribute('value');
+                    if (inputElement) {
+                        inputElement.addEventListener('change', (event) => {
+                            const value = event.target.value;
+                            inputElement.setAttribute('value', value);
+                        });
+                    }
                 } else if (selectedOption === 'option8') {
-                    editor.s.insertHTML(`<input type="search" />`);
+                    editor.s.insertHTML(`<input type="search" id="${randomId}" value=""/>`);
+                    const inputElement = document.getElementById(randomId);
+                    inputElement.removeAttribute('value');
+                    if (inputElement) {
+                        inputElement.addEventListener('keyup', (event) => {
+                            const value = event.target.value;
+                            inputElement.setAttribute('value', value);
+                        });
+                    }
                 } else if (selectedOption === 'option9') {
                     editor.s.insertHTML(`<label class="email">${content}</label>`);
                 }

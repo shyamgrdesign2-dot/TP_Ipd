@@ -1,11 +1,15 @@
 import React, { useEffect, useCallback, useState, useMemo } from "react";
-import { Button } from "antd";
+import { Button, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
-import CommonModal from '../../common/CommonModal';
+import { LoadingOutlined } from "@ant-design/icons";
 
-import alertIcon from '../../assets/images/alertIcon.svg';
-import { listCertificate } from "../../redux/doctorsSlice";
 import { useSelector, useDispatch } from "react-redux";
+
+import CommonModal from '../../common/CommonModal';
+import alertIcon from '../../assets/images/alertIcon.svg';
+import { listCertificate, deleteCertificate } from "../../redux/doctorsSlice";
+
+import { errorMessage } from "../../utils/utils";
 
 function CreateCertificate({ handleCreateCertificateDrawer, replace, selectedTemplate }) {
 
@@ -29,7 +33,10 @@ function CreateCertificate({ handleCreateCertificateDrawer, replace, selectedTem
     }, [isModalOpen]);
 
     const onDeleteClicked = async (id) => {
-        alert(id)
+        const action = await dispatch(deleteCertificate(id));
+        if (action.meta.requestStatus === "rejected") {
+            errorMessage(action.error)
+        }
     };
 
     const DELETE_MODAL = useMemo(() => {
@@ -93,7 +100,17 @@ function CreateCertificate({ handleCreateCertificateDrawer, replace, selectedTem
                             </div>
                         </div>
                         {selectedTemplate != item?.id && !item?.pms_default && (
-                            <Button onClick={() => showHideModal(item?.id)} className="btn btn-delete-prescription px-1"><i className="icon-delete"></i></Button>
+                            <Button onClick={() => showHideModal(item?.id)} className="btn btn-delete-prescription px-1">
+                                {item.loading ? (
+                                    <Spin
+                                        indicator={
+                                            <LoadingOutlined style={{ fontSize: 22 }} spin />
+                                        }
+                                    />
+                                ) : (
+                                    <i className="icon-delete" />
+                                )}
+                            </Button>
                         )}
                     </div>
                 )
