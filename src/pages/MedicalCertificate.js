@@ -7,16 +7,19 @@ import JoditEditor from 'jodit-react';
 
 import { useSelector, useDispatch } from "react-redux";
 
+import { addPatientCertificate } from "../redux/doctorsSlice";
+
 import alertIcon from '../assets/images/alertIcon.svg';
 import CreateCertificate from "../components/medical_certificate/CreateCertificate";
-import { HTMLTransformer, removeLabelTags } from "../utils/utils";
+import { HTMLTransformer, removeLabelTags, errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
 
 function MedicalCertificate() {
 
     const navigate = useNavigate();
 
-    const { profile, single_appointment_data } = useSelector((state) => state.doctors);
+    const { profile, single_appointment_data, loading } = useSelector((state) => state.doctors);
+    const dispatch = useDispatch();
 
     const { state } = useLocation();
     const { certificate_data } = state != null && state;
@@ -100,8 +103,34 @@ function MedicalCertificate() {
     }, [isBackModalOpen]);
 
     const onTitleChange = useCallback((e) => {
-        setTitle(e.target.value);
+        setTitle(removeBeforeWhiteSpace(e.target.value));
     }, [title]);
+
+    const onPatientCertificateClick = async () => {
+        var sendData = {
+            patient_unique_id: single_appointment_data?.patient_unique_id !== undefined ? single_appointment_data?.patient_unique_id : 0,
+            pam_id: single_appointment_data?.pam_id,
+            tcu_content_id: certificate_data !== undefined ? certificate_data?.id : 0,
+            tcu_title: title,
+            tcu_content: editor.current?.value,
+        }
+
+        const action = await dispatch(addPatientCertificate(sendData))
+        if (action.meta.requestStatus === "fulfilled") {
+            navigate('/certificate_print_view', {
+                replace: true, state: {
+                    ...action.payload,
+                    patient_data: single_appointment_data,
+                    tcu_content_id: certificate_data !== undefined ? certificate_data?.id : 0,
+                    pms_default: certificate_data !== undefined ? certificate_data?.pms_default : 0,
+                    tcu_title: title,
+                    tcu_content: editor.current?.value
+                }
+            })
+        } else {
+            errorMessage(action.error)
+        }
+    }
 
     return (
         <div>
@@ -165,7 +194,7 @@ function MedicalCertificate() {
                         </Col>
                         <Col lg="auto">
                             <div className='align-items-center d-flex h-100'>
-                                <Button className="btn btn-41 btn-primary3" >{certificate_data !== undefined ? 'Continue' : 'Save & Continue'}</Button>
+                                <Button className="btn btn-41 btn-primary3" onClick={onPatientCertificateClick} loading={loading} disabled={title?.length > 0 ? false : true}>{certificate_data !== undefined ? 'Continue' : 'Save & Continue'}</Button>
                             </div>
                         </Col>
                     </Row>
@@ -175,16 +204,17 @@ function MedicalCertificate() {
                 <Input allowClear className="popinput mb-3" onChange={onTitleChange} value={title} placeholder="Certificate Title" />
                 <JoditEditor
                     ref={editor}
+                    config={config}
                     value={content
                         .replace(/{Consulting Doctor}/g, `<label class="consulting_doctor">${profile?.um_name}</label>`)
                         .replace(/{Patient Name}/g, `<label class="patient_name">${single_appointment_data?.pm_fullname}</label>`)
                         .replace(/{Age}/g, `<label class="age">${single_appointment_data?.ageYears}Y, ${single_appointment_data?.ageMonths}M</label>`)
                         .replace(/{Contact Number}/g, `<label class="contact_number">${single_appointment_data?.pm_contact_no}</label>`)
                         .replace(/{Gender}/g, `<label class="gender">${single_appointment_data?.pm_gender}</label>`)
-                        .replace(/{Email}/g, `<label class="email">${single_appointment_data?.pm_email?single_appointment_data?.pm_email:'Email'}</label>`)
+                        .replace(/{Email}/g, `<label class="email">${single_appointment_data?.pm_email ? single_appointment_data?.pm_email : 'Email'}</label>`)
                         .replace(/{Patient ID}/g, `<label class="patient_id">${single_appointment_data?.pm_pid}</label>`)
-                        .replace(/{Address}/g, `<label class="address">${single_appointment_data?.patient_address?single_appointment_data?.patient_address:'Address'}</label>`)
-                        .replace(/{Blood Group}/g, `<label class="blood_group">${single_appointment_data?.pm_blood_group?single_appointment_data?.pm_blood_group:'Blood Group'}</label>`)
+                        .replace(/{Address}/g, `<label class="address">${single_appointment_data?.patient_address ? single_appointment_data?.patient_address : 'Address'}</label>`)
+                        .replace(/{Blood Group}/g, `<label class="blood_group">${single_appointment_data?.pm_blood_group ? single_appointment_data?.pm_blood_group : 'Blood Group'}</label>`)
                         .replace(/{Date of Birth}/g, `<label class="date_of_birth">${single_appointment_data?.DOB}</label>`)
                         .replace(/{Department}/g, `<label class="department">${profile?.dp_name}</label>`)
                         .replace(/{Referred by}/g, `<label class="referred_by">Referred by</label>`)
@@ -215,17 +245,16 @@ function MedicalCertificate() {
                         .replace(/{Procedure}/g, `<label class="procedure">Procedure</label>`)
                         .replace(/{Number of Months}/g, `<label class="number_of_months">Number of Months</label>`)
                     }
-                    config={config}
                 // tabIndex={1} // tabIndex of textarea
                 // onBlur={newContent => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
                 // onChange={newContent => onChange(newContent)}
                 />
                 <div>
-                    <h3>Editor Content:{content}</h3>
+                    {/* <h3>Editor Content:{content}</h3>
 
                     <h4>Make Content:{HTMLTransformer(content)}</h4>
 
-                    <h4>Mayank Content: {removeLabelTags(HTMLTransformer(content))}</h4>
+                    <h4>Mayank Content: {removeLabelTags(HTMLTransformer(content))}</h4> */}
 
                     {/* <div dangerouslySetInnerHTML={{ __html: HTMLTransformer(content) }} /> */}
                 </div>

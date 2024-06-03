@@ -192,7 +192,7 @@ export const listVideo = createAsyncThunk(
 
 // For Medical Certificate
 export const listCertificate = createAsyncThunk(
-  "certificates/listCertificate",
+  "medicalCertificate/listCertificate",
   async () => {
     let result = {};
     result = await ApiMedicalCertificate.listCertificate();
@@ -203,6 +203,33 @@ export const listCertificate = createAsyncThunk(
     }
   }
 );
+
+export const addPatientCertificate = createAsyncThunk(
+  "medicalCertificate/addPatientCertificate",
+  async (data) => {
+    let result = {};
+    result = await ApiMedicalCertificate.addPatientCertificate(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const addCertificate = createAsyncThunk(
+  "medicalCertificate/addCertificate",
+  async (data) => {
+    let result = {};
+    result = await ApiMedicalCertificate.addCertificate(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 
 const doctorsSlice = createSlice({
   name: "doctors",
@@ -314,6 +341,24 @@ const doctorsSlice = createSlice({
       })
       .addCase(listCertificate.rejected, (state) => {
         state.certificateList = [];
+      })
+      .addCase(addPatientCertificate.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addPatientCertificate.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(addPatientCertificate.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(addCertificate.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addCertificate.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(addCertificate.rejected, (state) => {
+        state.loading = false;
       });
   },
 });

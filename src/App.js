@@ -3,24 +3,25 @@ import { Routes, Route, useSearchParams } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { isMobile } from "react-device-detect";
-
-import AppointmentList from "./pages/AppointmentList";
-import PatientDetails from "./pages/PatientDetails";
-import Prescription from "./pages/Prescription";
-
-import { store, persistor } from "./redux/store";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
-import { useLocalStorage } from "./utils/localStorage";
-import PrescriptionPrintView from "./pages/PrescriptionPrintView";
-import TabPrescription from "./pages/tab_design/TabPrescription";
-import ConfigurePrintSetting from "./pages/ConfigurePrintSetting";
-import MedicalCertificate from "./pages/MedicalCertificate";
-import { ErrorBoundary } from "react-error-boundary";
-import ErrorFallback from "./common/ErrorFallback";
 import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { jwtDecode } from "jwt-decode";
 import config from "./config";
 
+import AppointmentList from "./pages/AppointmentList";
+import PatientDetails from "./pages/PatientDetails";
+import Prescription from "./pages/Prescription";
+import TabPrescription from "./pages/tab_design/TabPrescription";
+import PrescriptionPrintView from "./pages/PrescriptionPrintView";
+import ConfigurePrintSetting from "./pages/ConfigurePrintSetting";
+import MedicalCertificate from "./pages/MedicalCertificate";
+import CertificatePrintView from "./pages/CertificatePrintView";
+
+import { store, persistor } from "./redux/store";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
+import { useLocalStorage } from "./utils/localStorage";
+
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorFallback from "./common/ErrorFallback";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -80,19 +81,11 @@ function App() {
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
                 <Route path="patient_details" element={<PatientDetails />} />
+                <Route path="prescription" element={isMobile ? <TabPrescription /> : <Prescription />} />
+                <Route path="prescription_print_view" element={<PrescriptionPrintView />} />
+                <Route path="configure_print_setting" element={<ConfigurePrintSetting />} />
                 <Route path="certificate" element={<MedicalCertificate />} />
-                <Route
-                  path="prescription"
-                  element={isMobile ? <TabPrescription /> : <Prescription />}
-                />
-                <Route
-                  path="prescription_print_view"
-                  element={<PrescriptionPrintView />}
-                />
-                <Route
-                  path="configure_print_setting"
-                  element={<ConfigurePrintSetting />}
-                />
+                <Route path="certificate_print_view" element={<CertificatePrintView />} />
               </Routes>
             </PersistGate>
           </Provider>

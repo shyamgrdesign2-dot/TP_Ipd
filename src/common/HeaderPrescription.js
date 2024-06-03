@@ -799,21 +799,21 @@ function HeaderPrescription() {
                 tcm_id: tcmId,
                 patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
                 pam_id: patient_data !== undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
-              consultation_date: consultationDate,
-              symptoms: symptomsData,
-              examination: examinationData,
-              diagnosis: diagnosisData,
-              medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
-              advice: adviceData,
-              investigation: investigationData,
-              vitals: vitalsData,
-              follow_up_date: followUpDate,
-              visit_advice: additionalNote,
-              medical_history: medicalHistoryData,
-              vaccines: {
-                given: givenVaccines,
-                due: updatedDueVaccines
-              },
+                consultation_date: consultationDate,
+                symptoms: symptomsData,
+                examination: examinationData,
+                diagnosis: diagnosisData,
+                medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
+                advice: adviceData,
+                investigation: investigationData,
+                vitals: vitalsData,
+                follow_up_date: followUpDate,
+                visit_advice: additionalNote,
+                medical_history: medicalHistoryData,
+                vaccines: {
+                    given: givenVaccines,
+                    due: updatedDueVaccines
+                },
             };
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
             if (action.meta.requestStatus === "fulfilled") {

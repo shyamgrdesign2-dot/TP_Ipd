@@ -701,6 +701,46 @@ body {
             font-size: 12px !important;
         }
     }
+    
+    // Save button of print Certificate 
+    .saveButton {
+        display: flex;
+        border-radius: 10px;
+        border: 1px solid $bordercolor;
+        .popinput {
+            border: 0 !important;
+            &:focus, &:focus-within {
+                box-shadow: none !important;
+            }
+        }
+        .ant-btn {
+            border: 0 !important;
+            border-radius: 10px;
+            font-weight: 500;
+            span {
+                color: $theme !important;
+            } 
+            div {
+                box-shadow: none !important;
+                outline: none !important;
+            }
+            &:disabled {
+                span {
+                    opacity: 0.3;
+                }
+            }
+        }
+        &:focus-within {
+            border-color: $theme;
+            outline: $theme !important;
+            .popinput {
+                border-color: $theme;
+            }
+            .ant-btn {
+                border-color: $theme;
+            }
+        }
+    }
 }
 
 .video-animat {
