@@ -2,13 +2,16 @@ import { Button } from "antd";
 import "./subHeader.scss";
 import { Switch } from "antd";
 
-const SubHeader = ({ handleDrawerVital }) => {
+const SubHeader = ({ handleDrawerVital, setShowUpdate }) => {
   const growthDetails = (title, value1, value2) => {
     return (
       <div className="detailsContainer">
         <div className="details">
           <div className="titleStyle">{title}</div>
-          <i className="icon-Edit iconStyle" />
+          <i
+            className="icon-Edit iconStyle"
+            onClick={() => setShowUpdate(true)}
+          />
         </div>
         <div className="details">
           <div>{value1}</div>
@@ -25,6 +28,20 @@ const SubHeader = ({ handleDrawerVital }) => {
         <div className="textStyle">
           <span>Show</span>
           <span>Table View</span>
+        </div>
+        <Switch
+        // onChange={(checked) => onChangeRight(checked)}
+        />
+      </div>
+    );
+  };
+
+  const toggleTimeline = () => {
+    return (
+      <div className="detailsContainer toggleContainer">
+        <div className="textStyle">
+          <span>Graph timeline</span>
+          <span>in years</span>
         </div>
         <Switch
         // onChange={(checked) => onChangeRight(checked)}
@@ -56,7 +73,7 @@ const SubHeader = ({ handleDrawerVital }) => {
         )}
         {growthDetails("Gestation period", "37 weeks", "4 days")}
         {toggleGrowthDetails()}
-        {toggleGrowthDetails()}
+        {toggleTimeline()}
       </div>
     </div>
   );
