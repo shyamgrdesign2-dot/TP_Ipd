@@ -20,18 +20,18 @@ const dev = {
 };
 
 const qa = {
-  appointment_api_url: `https://appointment-webservice.azurewebsites.net`,
-  symptoms_api_url: `https://symptoms-webservice.azurewebsites.net`,
-  examination_api_url: `https://examination-webservice.azurewebsites.net`,
-  diagnosis_api_url: `https://diagnosis-webservice.azurewebsites.net`,
-  advice_api_url: `https://advice-webservice.azurewebsites.net`,
-  investigation_api_url: `https://investigation-webservice.azurewebsites.net`,
-  medication_api_url: `https://medicine-webservice.azurewebsites.net`,
-  vitals_api_url: `https://vital-webservice.azurewebsites.net`,
-  casemanager_api_url: `https://casemanager-webservice.azurewebsites.net`,
-  printsettings_api_url: `https://printsettings-webservice.azurewebsites.net`,
-  medicalhistory_api_url: `https://medicalhistory-webservice.azurewebsites.net`,
-  videolibrary_api_url: `https://videolibrary-webservices.azurewebsites.net`,
+  appointment_api_url: `https://node-doctor.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
+  symptoms_api_url: `https://strauss-symptoms.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
+  examination_api_url: `https://strauss-examination.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
+  diagnosis_api_url: `https://strauss-diagnosis.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
+  advice_api_url: `https://strauss-advice.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
+  investigation_api_url: `https://strauss-investigation.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
+  medication_api_url: `https://strauss-medicine.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
+  vitals_api_url: `https://strauss-vital.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
+  casemanager_api_url: `https://strauss-casemanager.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
+  printsettings_api_url: `https://strauss-printsettings.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
+  medicalhistory_api_url: `https://strauss-medicalhistory.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
+  videolibrary_api_url: `https://strauss-videolibrary.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
   sso_to_pm_url: `https://pms-upgrade.azurewebsites.net/api/get_doctor_sso_token.php`,
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
@@ -41,18 +41,18 @@ const qa = {
 };
 
 const uat = {
-  appointment_api_url: `https://master-uat-webservice.azurewebsites.net`,
-  symptoms_api_url: `https://symptoms-uat.azurewebsites.net`,
-  examination_api_url: `https://examination-uat.azurewebsites.net`,
-  diagnosis_api_url: `https://diagnosis-uat.azurewebsites.net`,
-  advice_api_url: `https://advice-uat.azurewebsites.net`,
-  investigation_api_url: `https://investigation-uat.azurewebsites.net`,
-  medication_api_url: `https://medicine-uat.azurewebsites.net/`,
-  vitals_api_url: `https://vital-uat.azurewebsites.net`,
-  casemanager_api_url: `https://casemanager-uat.azurewebsites.net`,
-  printsettings_api_url: `https://printsetting-uat.azurewebsites.net`,
-  medicalhistory_api_url: `https://medicalhistory-uat.azurewebsites.net`,
-  videolibrary_api_url: `https://videolibrary-uat.azurewebsites.net`,
+  appointment_api_url: `https://pm-master-uat-webservice.tatvacare.in`,
+  symptoms_api_url: `https://pm-symptoms-uat.tatvacare.in`,
+  examination_api_url: `https://pm-examination-uat.tatvacare.in`,
+  diagnosis_api_url: `https://pm-diagnosis-uat.tatvacare.in`,
+  advice_api_url: `https://pm-advice-uat.tatvacare.in`,
+  investigation_api_url: `https://pm-investigation-uat.tatvacare.in`,
+  medication_api_url: `https://pm-medicine-uat.tatvacare.in/`,
+  vitals_api_url: `https://pm-vital-uat.tatvacare.in`,
+  casemanager_api_url: `https://pm-casemanager-uat.tatvacare.in`,
+  printsettings_api_url: `https://pm-printsetting-uat.tatvacare.in`,
+  medicalhistory_api_url: `https://pm-medicalhistory-uat.tatvacare.in`,
+  videolibrary_api_url: `https://pm-videolibrary-uat.tatvacare.in`,
   sso_to_pm_url: `https://pm-uat-dhspl-2.tatvacare.in/api/get_doctor_sso_token.php`,
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
@@ -83,8 +83,8 @@ const prod = {
 };
 
 const getEnv = () => {
-  // console.log("process.env",process.env);
-  // console.log("process.env.REACT_APP_ENV",process.env.REACT_APP_ENV);
+  console.log("process.env",process.env);
+  console.log("process.env.REACT_APP_ENV",process.env.REACT_APP_ENV);
   switch (process.env.REACT_APP_ENV) {
     case "dev":
       return dev;
