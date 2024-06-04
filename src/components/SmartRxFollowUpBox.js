@@ -99,30 +99,28 @@ function SmartRxFollowUpBox() {
 
     return (
         <>
-            <div>
-                <div className="p-14-pb0">
-                    <div className="d-flex align-items-center mb-14">
-                        <img className='me-2' src={followUp} alt="Symptoms" />
-                        <div className="title-common">Follow-up</div>
-                    </div>
-                    <div className="d-flex calender-merge-input mt-3">
-                        <Input className="w-100 calnder-input1" placeholder="e.g. 3 Days" value={followUpInput} inputMode="numeric" onChange={onChangeFollowUp} allowClear />
-                        <DatePicker inputReadOnly disabledDate={disabledDate} onChange={onDateChanged} />
-                    </div>
-                    {followUpDate && (
-                        <div className="title fontroboto mt-2">
-                            {moment(followUpDate).format('dddd, Do MMMM YYYY')}
-                        </div>
-                    )}
-                    <div className="d-flex pt-2 date-button">
-                        {dateOptions.length > 0 &&
-                            dateOptions.map((item, i) => {
-                                return (
-                                    <Button key={i} type="text" className="btn btn-primary2 btn-fw-bold fs-12 mb-12 me-4" onClick={() => onOptionPress(item)}>{item.label}</Button>
-                                )
-                            })}
-                    </div>  
+            <div style={{padding: "6px"}}>
+                <div className="d-flex align-items-center mb-14">
+                    <img className='me-3' src={followUp} alt="Symptoms" />
+                    <div className="title-common">Follow-up</div>
                 </div>
+                <div className="d-flex calender-merge-input mt-3">
+                    <Input className="w-100 calnder-input1" placeholder="e.g. 3 Days" value={followUpInput} inputMode="numeric" onChange={onChangeFollowUp} allowClear />
+                    <DatePicker inputReadOnly disabledDate={disabledDate} onChange={onDateChanged} />
+                </div>
+                {followUpDate && (
+                    <div className="title fontroboto mt-2">
+                        {moment(followUpDate).format('dddd, Do MMMM YYYY')}
+                    </div>
+                )}
+                <div className="d-flex pt-2 date-button">
+                    {dateOptions.length > 0 &&
+                        dateOptions.map((item, i) => {
+                            return (
+                                <Button key={i} type="text" className="btn btn-primary2 btn-fw-bold fs-12 mb-12 me-4" onClick={() => onOptionPress(item)}>{item.label}</Button>
+                            )
+                        })}
+                </div>  
             </div>
         </>
     );

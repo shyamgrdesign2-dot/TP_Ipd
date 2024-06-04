@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { AutoComplete, Input, Button } from "antd";
+import { AutoComplete, Input, Button, Dropdown } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { isMobile } from "react-device-detect";
@@ -14,6 +14,8 @@ import TabHeader from "../components/tab_design/TabHeader";
 import CommonModal from "../common/CommonModal";
 import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
 import { isNumeric, isAlphabet } from "../utils/utils";
+
+import smartPad from "../assets/images/smartPad.svg";
 
 function WalkInConsultation() {
   const navigate = useNavigate();
@@ -27,6 +29,9 @@ function WalkInConsultation() {
   const [searchOptions, setSearchOptions] = useState([]);
   const [clickedPatient, setClickedPatient] = useState(null);
   const [openRowIndex, setOpenRowIndex] = useState(null);
+  const [clickedDownArrow, setClickedDownArrow] = useState(false);
+  const [autoCompleteFlag, setAutoCompleteFlag] = useState(false);
+  const [onPatientClick, setOnPatientClick] = useState(false);
   const consultButtonRef = useRef(null);
 
   const handleClickOutside = (event) => {
@@ -81,28 +86,59 @@ function WalkInConsultation() {
     }
     return value;
   };
+
+  const onFocusParent = useCallback(() => {
+    setAutoCompleteFlag(true);
+  }, [autoCompleteFlag]);
+
+  const onBlurParent = useCallback(
+    () => {
+      setAutoCompleteFlag(false);
+    },
+    [autoCompleteFlag]
+  );
+
+  // const onDownArrowClick = (patient, e) => {
+  //   //   e.preventDefault();
+  //   e.stopPropagation();
+  //   // setOpenRowIndex(patient?.patient_unique_id);
+  // };
+
+  
+  const onConsultClick = async (record) => {
+    // window.Moengage.track_event("patient_search_consult", {
+    //   doctor_id: profile?.doctor_unique_id,
+    // //   patient_id: record?.patient_unique_id,
+    // });
+    navigate("/prescription", { state: { patient_data: record } });
+  };
+
+  const getMenuItems = (record) => {
+    return [
+      {
+        label: (
+          <span
+            onClick={() => {
+              setAutoCompleteFlag(false)
+              onConsultClick(record);
+            }}
+          >
+            Consult
+          </span>
+        ),
+        key: "cancelappt",
+      },
+    ];
+  };
+
   const PatientPlank = (patient) => {
-
-    const onDownArrowClick = (patient,e) => {
-      //   e.preventDefault();
-        e.stopPropagation();
-        console.log("Down-Arrow-Clicked for - ", patient?.patient_unique_id);
-        setOpenRowIndex(patient?.patient_unique_id);
-    }
-
-    const onConsultClick = async (patient) => {
-      // console.log("onConsultClick");
-      // window.Moengage.track_event("patient_search_consult", {
-      //   doctor_id: profile?.doctor_unique_id,
-      // //   patient_id: record?.patient_unique_id,
-      // });
-      navigate("/prescription", { state: { patient_data: patient } });
-    };
-    
     return (
       <>
         <div className="d-flex align-items-center justify-content-between">
-          <div className="d-flex align-items-center">
+          <div className="d-flex align-items-center" onClick={()=>{
+            setAutoCompleteFlag(false)
+            setClickedPatient(patient)
+          }}>
             <div className="list-patientName d-flex align-items-center me-4">
               <i className="icon-patients backbar me-2"></i>{" "}
               {/* <span className="fw-medium">
@@ -170,9 +206,24 @@ function WalkInConsultation() {
             >
               SmartRx
             </button>
-            <button
+            <Dropdown
+              className="btn btn-outline btn-more ms-3"
+              menu={{
+                items: getMenuItems(patient),
+              }}
+              trigger={["click"]}
+            >
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                }}
+              >
+                <i className="icon-More" />
+              </a>
+            </Dropdown>
+            {/* <button
               className="btn btn-outline-primary btn-down-arrow"
-              onClick={(e) => onDownArrowClick(patient,e)}
+              onClick={(e) => onDownArrowClick(patient, e)}
             >
               <span
                 role="img"
@@ -187,8 +238,8 @@ function WalkInConsultation() {
                   }}
                 />
               </span>
-            </button>
-            {openRowIndex === patient?.patient_unique_id && (
+            </button> */}
+            {/* {openRowIndex === patient?.patient_unique_id && (
               <button
                 ref={consultButtonRef}
                 className="btn-consult"
@@ -196,7 +247,7 @@ function WalkInConsultation() {
               >
                 Consult
               </button>
-            )}
+            )} */}
           </div>
         </div>
       </>
@@ -209,6 +260,7 @@ function WalkInConsultation() {
         type="text"
         className="btn btn-primary1 btn-41 align-items-center d-flex"
         icon={<i className="icon-Add"></i>}
+        onClick={goToAddPatient}
       >
         Add New Patient
       </Button>
@@ -270,6 +322,10 @@ function WalkInConsultation() {
     [clickedPatient, searchQuery]
   );
 
+  const handleClickDownArrow = () => {
+    setClickedDownArrow(!clickedDownArrow);
+  };
+
   const COMMON_MODAL = useMemo(() => {
     return (
       <CommonModal
@@ -278,6 +334,7 @@ function WalkInConsultation() {
         title={"Patient Selected"}
         onCancel={() => {
           setClickedPatient(null);
+          setClickedDownArrow(false)
         }}
         modalBody={
           <>
@@ -320,7 +377,7 @@ function WalkInConsultation() {
                   </Button>
                   {/* </Link> */}
                 </div>
-                <Button
+                {/* <Button
                   type="text"
                   className="btn btn-primary3 align-items-center d-flex btn-41 w-50 ms-4"
                   icon={<i className="icon-Consult"></i>}
@@ -337,50 +394,61 @@ function WalkInConsultation() {
                 >
                   Start Consult{" "}
                   <i className="icon-right iconrotate180 ms-auto"></i>
-                </Button>
-                {/* <button
-                  // className="btn btn-outline-primary btn-smart-rx"
-                  className="btn btn-outline-primary btn-smart-rx"
-                  onClick={() => onSmartRxClick()}
+                </Button> */}
+                <div
+                  style={{
+                    background: "#4B4AD5",
+                    borderRadius: "10px",
+                    color: "white",
+                    marginLeft: "1rem",
+                  }}
                 >
-                  SmartRx
-                </button>
-                <button
-                  className="btn btn-outline-primary btn-down-arrow"
-                  onClick={() =>
-                    setOpenRowIndex()
-                  }
-                >
-                  <span
-                    role="img"
-                    aria-label="down"
-                    class="anticon anticon-down ant-select-suffix"
+                  <button
+                    // className="btn btn-outline-primary btn-smart-rx"
+                    className="btn btn-outline-primary btn-smart-rx"
+                    onClick={() => onSmartRxClick(clickedPatient)}
+                    style={{ padding: "9px 8rem 9px 10px" }}
                   >
-                    <i
-                      className="icon-right"
-                      style={{
-                        display: "block",
-                        transform: `rotate(270deg)`,
-                      }}
-                    />
-                  </span>
-                </button>
-                {openRowIndex === index && (
+                    <img src={smartPad} alt="vitals" className="me-3" />
+                    <span className="btn-span-smartRx">SmartRx</span>
+                  </button>
+                  <button
+                    className="btn btn-outline-primary btn-down-arrow"
+                    onClick={handleClickDownArrow}
+                    style={{ padding: "9.5px 5px" }}
+                  >
+                    <span
+                      role="img"
+                      aria-label="down"
+                      class="anticon anticon-down ant-select-suffix"
+                    >
+                      <i
+                        className="icon-right"
+                        style={{
+                          display: "block",
+                          transform: `rotate(270deg)`,
+                          color: "white",
+                        }}
+                      />
+                    </span>
+                  </button>
+                </div>
+                {clickedDownArrow && (
                   <button
                     ref={consultButtonRef}
-                    className="btn-consult"
-                    onClick={() => onConsultClick()}
+                    className="btn-consult-walkIn"
+                    onClick={() => onConsultClick(clickedPatient)}
                   >
                     Consult
                   </button>
-                 )} */}
+                )}
               </div>
             </div>
           </>
         }
       />
     );
-  }, [clickedPatient]);
+  }, [clickedPatient, clickedDownArrow]);
 
   function goToAddPatient() {
     window.Moengage.track_event("walkin_consult_start", {
@@ -405,16 +473,13 @@ function WalkInConsultation() {
   }
 
   const onSmartRxClick = async (patient) => {
-    console.log("onSmartRxClick");
     // window.Moengage.track_event("patient_search_consult", {
     //   doctor_id: profile?.doctor_unique_id,
     //   //   patient_id: record?.patient_unique_id,
     // });
     navigate("/smart-prescription", { state: { patient_data: patient } });
   };
-
-  console.log(openRowIndex,"openrowindex")
-
+  
   return (
     <>
       {isMobile && (
@@ -440,7 +505,10 @@ function WalkInConsultation() {
             className={`${
               isMobile ? "autocomplete-ios" : "w-100"
             } autocomplete-custom`}
-            onSelect={onSelect}
+            // onSelect={onSelect}
+            onFocus={onFocusParent}
+            onBlur={onBlurParent}
+            open={autoCompleteFlag}
             // defaultActiveFirstOption={true}
             defaultOpen
             listHeight={isMobile ? window.innerHeight - 180 : 320}

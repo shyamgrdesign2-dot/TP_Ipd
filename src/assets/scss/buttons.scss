@@ -167,6 +167,35 @@ body {
             }
         }
 
+        &.btn-secondary2 {
+            border-radius: 10px;
+            border: 1px solid $bordercolor !important;
+            height: 33px;
+            background-color: $white;
+            font-weight: 500 !important;
+            i {
+                font-size: 19px;
+            }
+
+            .ant-btn-icon {
+                line-height: 1;
+            }
+
+            span {
+                font-family: 'Poppins';
+                font-style: normal;
+                line-height: normal;
+                letter-spacing: 0.1px;
+                color: $theme !important;
+                font-size: 14px;
+                font-weight: 500 !important;
+            }
+
+            i {
+                color: $theme !important;
+            }
+        }
+
         &.btn-primary3 {
             border-radius: 10px;
             background-color: $theme;
@@ -205,6 +234,49 @@ body {
                 background-color: $themehover !important;
             }
         }
+
+        &.btn-secondary3 {
+            border-radius: 10px;
+            border: 1px solid $theme !important;
+            background-color: $theme;
+            height: 33px;
+            font-weight: 500 !important;
+            i {
+                font-size: 19px;
+            }
+
+            .ant-btn-icon {
+                line-height: 1;
+            }
+
+            span {
+                font-family: 'Poppins';
+                font-style: normal;
+                line-height: normal;
+                letter-spacing: 0.1px;
+                color: $white !important;
+                font-size: 14px;
+                font-weight: 500 !important;
+            }
+
+            i {
+                color: $white !important;
+            }
+
+            &:hover {
+                background-color: $theme !important;
+                border-color: $theme !important;
+                color: $white !important;
+                span {
+                    color: $white !important;
+                }
+
+                i {
+                    color: $white !important;
+                }
+            }
+        }
+
         &.btn-clear {
             border-radius: 10px;
             border: 1px solid $theme !important;
@@ -239,6 +311,7 @@ body {
             }
 
         }
+
         &.btn-play {
             border-radius: 31px;
             border: 1px solid #eaeaf0 !important;
@@ -447,6 +520,23 @@ body {
         padding: 7px 40px 7px 9px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         z-index: 1;
+    }
+    .btn-consult-walkIn {
+        border: 1px solid rgb(255, 255, 255);
+        position: absolute;
+        top: 94%;
+        width: 43.5%;
+        right: 25px;
+        font-size: 15px;
+        background-color: white;
+        color: rgb(94, 93, 93);
+        border-radius: 9px;
+        padding: 7px 186px 7px 9px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        z-index: 1;
+    }
+    .btn-span-smartRx{
+        color: white !important;
     }
 
     .btn-group {

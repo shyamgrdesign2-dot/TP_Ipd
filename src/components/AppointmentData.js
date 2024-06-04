@@ -353,7 +353,6 @@ function AppointmentData({ locationPath }) {
     };
 
     const onConsultClick = async (record) => {
-        console.log("onConsultClick")
         window.Moengage.track_event("patient_search_consult", {
             "doctor_id": profile?.doctor_unique_id,
             "patient_id": record?.patient_unique_id
@@ -362,7 +361,6 @@ function AppointmentData({ locationPath }) {
     }
 
     const onSmartRxClick = async (record) => {
-        console.log("onSmartRxClick")
         window.Moengage.track_event("patient_search_consult", {
             "doctor_id": profile?.doctor_unique_id,
             "patient_id": record?.patient_unique_id

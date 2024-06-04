@@ -5,19 +5,8 @@ import React, {
   useContext,
   useRef,
 } from "react";
-import {
-  Input,
-  Button,
-  Drawer,
-  Tabs,
-  Select,
-  Spin,
-  Popover,
-  Row,
-  Col,
-  DatePicker,
-  Tooltip,
-} from "antd";
+import imageCompression from 'browser-image-compression';
+import { Drawer } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -29,23 +18,15 @@ import { ADD, EDIT } from "../utils/constants";
 import { getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory } from "../redux/medicalhistorySlice";
 import CashManagerContext from "../context/CashManagerContext";
-import {
-  errorMessage,
-  getFormattedDate,
-  onlyNumberFormat,
-  capitalizeAfterSentence,
-  removeBeforeWhiteSpace,
-} from "../utils/utils";
 import HeaderSmartPrescription from "../common/HeaderSmartPrescription";
 import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
 import vitals from "../assets/images/Vitals.svg";
+import SmartRxFollowUpBox from "../components/SmartRxFollowUpBox";
 import RX_image from "../assets/images/RX_image.png";
-import Prescription from "./Prescription";
 
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
-import SmartRxFollowUpBox from "../components/SmartRxFollowUpBox";
-import { getSmartRx } from "../redux/caseManagerSlice";
+import { env } from "../EnvironmentConfig";
 
 const dateFormat = "YYYY-MM-DD";
 
@@ -74,11 +55,12 @@ function SmartPrescription() {
   const [adviceData, setAdviceData] = useState([]);
   const [investigationData, setInvestigationData] = useState([]);
   const [medicationData, setMedicationData] = useState([]);
+  const [followUpDate, setFollowUpDate] = useState(null);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
-  const { followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } =
-    useContext(CashManagerContext);
-  //   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  const [additionalNote, setAdditionalNote] = useState("");
+  const [token, setToken] = useState(null);
+  const [tokenData, setTokenData] = useState(null);
   const [prescription, setPrescription] = useState(false);
   const canvasRef = useRef(null);
   const [refresh, setRefresh] = useState(false);
@@ -92,7 +74,7 @@ function SmartPrescription() {
   const [blobName, setBlobName] = useState(null);
   const [isDisable, setIsDisable] = useState(false);
   const [connected, setConnected] = useState(false);
-  const [smartRxDetails, setSmartRxDetails] = useState(false);
+  const [smartRxDetails, setSmartRxDetails] = useState(null);
   const socketRef = useRef(null);
   const retryTimeoutRef = useRef(null);
 
@@ -330,21 +312,20 @@ function SmartPrescription() {
 
   useEffect(() => {
     const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-    console.log(token,"token")
+    setToken(token)
     if (token !== undefined) {
       try {
         var decoded = jwtDecode(token);
-        console.log(decoded.result, "decoded-token");
-        // setTokenData(decoded.result)
+        setTokenData(decoded.result)
       } catch (e) {
         console.log(e);
       }
     }
-  },[]);
+  }, []);
 
   useEffect(() => {
     // Remove the previous canvas
-    if(prescription){
+    if (prescription) {
       const previousCanvas = canvasRef.current;
       // console.log(previousCanvas,"previous")
       if (previousCanvas) {
@@ -359,18 +340,19 @@ function SmartPrescription() {
       newCanvas.id = uuidv4();
       newCanvas.width = parentWidth * 1;
       newCanvas.height = parentHeight * 1;
-      // newCanvas.style.backgroundColor = "white";
-      newCanvas.style.border = "1px solid white";
-      newCanvas.style.borderRadius = "8px";
+      newCanvas.style.backgroundColor = "white";
+      newCanvas.style.border = "1px solid lightgrey";
+      newCanvas.style.borderRadius = "20px";
       // newCanvas.style.marginTop = "-18px";
       newCanvas.style.color = "black";
-      console.log(document.getElementById("pdf"));
+      // console.log(document.getElementById("pdf"));
       document.getElementById("pdf").appendChild(newCanvas);
       canvasRef.current = newCanvas;
       // console.log("canvasRef.current", canvasRef.current);
     }
-  }, [refresh,prescription]);
+  }, [refresh, prescription]);
 
+  // Handles Websoccket Connection
   const connectWebSocket = () => {
     setLoading(true);
 
@@ -378,12 +360,12 @@ function SmartPrescription() {
       socketRef.current.close();
     }
 
-    socketRef.current = new WebSocket(`wss://iscribe.azurewebsites.net/`);
+    socketRef.current = new WebSocket(`ws://localhost:5001/iScribeSocket`);
 
     socketRef.current.onopen = () => {
       console.log("WebSocket connection opened");
       setConnected(true);
-      setLoading(false); // Hide loader once connected
+      setLoading(false);
       clearTimeout(retryTimeoutRef.current);
     };
 
@@ -391,14 +373,14 @@ function SmartPrescription() {
       console.log("WebSocket connection closed");
       setConnected(false);
       setLoading(true);
-      retryConnection();
+      // retryConnection();
     };
 
     socketRef.current.onmessage = (event) => {
       // console.log("event.data",event.data)
       const o = event.data.split("|");
       // if (dataFromServer && dataFromServer.doctor_unique_id === o[4]) {
-        draw(o[0], o[1], o[2], o[3], o[4]);
+      draw(o[0], o[1], o[2], o[3], o[4]);
       // }
     };
 
@@ -406,18 +388,18 @@ function SmartPrescription() {
       console.log("WebSocket error", error);
       setConnected(false);
       setLoading(true); // Show loader when there's an error and attempting to reconnect
-      retryConnection();
+      // retryConnection();
     };
   };
 
-  const retryConnection = () => {
-    if (!connected) {
-      retryTimeoutRef.current = setTimeout(() => {
-        console.log("Retrying WebSocket connection");
-        connectWebSocket();
-      }, 5000); // Retry every 5 seconds
-    }
-  };
+  // const retryConnection = () => {
+  //   if (!connected) {
+  //     retryTimeoutRef.current = setTimeout(() => {
+  //       console.log("Retrying WebSocket connection");
+  //       connectWebSocket();
+  //     }, 5000); // Retry every 5 seconds
+  //   }
+  // };
 
   useEffect(() => {
     if (prescription) {
@@ -440,7 +422,7 @@ function SmartPrescription() {
     ctx.fillStyle = "#fff";
     /// set white fill style
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const scaleFactor = 1.7;
+    const scaleFactor = 1.5;
 
     ctx.moveTo(t * scaleFactor, n * scaleFactor);
     ctx.lineTo(a * scaleFactor, c * scaleFactor);
@@ -448,162 +430,45 @@ function SmartPrescription() {
     ctx.stroke();
   }
 
+  const convertCanvasToJPEG = (canvas) => {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error('Canvas to Blob conversion failed.'));
+        }
+      }, 'image/jpeg');
+    });
+  };
+
   const handleSubmit = async () => {
     const canvas = canvasRef.current;
-    console.log("canvas", canvas);
-    // if (!canvas) {
-    //   console.error("Canvas element with id 'myCanvas' not found.");
-    //   return;
-    // }
-
     const imgId = uuidv4();
     const name = `${imgId}.jpeg`;
     setBlobName(name);
 
-    const base64Data = canvasToBase64(canvas);
-    let uploadAttempts = 0;
-    let uploadSuccessful = true;
+    const blob = await convertCanvasToJPEG(canvas);
+    const file = new File([blob], name, { type: 'image/jpeg' });
 
-    // while (uploadAttempts <= MAX_RETRIES && !uploadSuccessful) {
-    //   try {
-    //     const uploadResponse = await sendToServer(base64Data, name);
-    //     if (
-    //       uploadResponse &&
-    //       uploadResponse.message === "Image uploaded successfully"
-    //     ) {
-    //       await postDataToExternalAPI(name);
-    //       openModal(true, "Prescription saved successfully!");
-    //       uploadSuccessful = true;
-    //     } else {
-    //       throw new Error("Upload failed");
-    //     }
-    //   } catch (error) {
-    //     console.error("Error uploading document:", error);
-    //     if (uploadAttempts === MAX_RETRIES) {
-    //       openModal(false, "Sorry, we are not able to upload the document. Please check your Internet connection");
-    //     } else {
-    //       openModal(
-    //         false,
-    //         "Unable to upload due to network issue. Retrying..."
-    //       );
-    //       await new Promise((resolve) => setTimeout(resolve, RETRY_INTERVAL));
-    //     }
-    //   }
-    //   uploadAttempts++;
-    // }
+    // Use FormData to handle file upload
+    const formData = new FormData();
+    formData.append('smart_prescription_filename', name);
+    formData.append('smart_prescription_file', file);
+    formData.append('doctor_unique_id', tokenData?.doctor_unique_id);
+    formData.append('patient_unique_id', patient_data?.patient_unique_id);
 
-    if (!uploadSuccessful) {
-      // Store base64Data to local storage
-      storeLocally(base64Data, name);
+    const formattedToken = token.replace(/^"(.*)"$/, '$1');
+    const payloadToken = `Bearer ${formattedToken}`
+    const respose = await fetch(`${env.casemanager_api_url}/api/v1/casemanager/smart-rx/upload`, {
+      method: 'POST',
+      headers: {Authorization: payloadToken},
+      body: formData,
+    })
+    const data = respose.json();
+    if (data){
+      setSmartRxDetails(name);
     }
-  };
-
-  const MAX_RETRIES = 2;
-  const RETRY_INTERVAL = 5000; // 5 seconds
-
-  const handleUpload = async () => {
-    try {
-      // setIsDisable(true);
-      // setLoading(true);
-
-      setUploadMessage(`Saving prescription...`);
-
-      // await handleSubmit();
-
-      setTimeout(() => {
-        window.postMessage("prescription saved", "*");
-        closePopup();
-      }, 2500);
-    } catch (error) {
-      setLoading(false);
-      setUploadMessage("Error uploading document. Please try again.");
-      console.error("Upload Error:", error);
-    }
-    // navigate("/print-smart-rx", { state: { patient_data: patient_data } })
-    // console.log("upload is clicked.")
-  };
-
-  const closePopup = async () => {
-    try {
-      const hostname = window.location.hostname;
-      let externalApiUrl;
-      if (hostname === "pms-upgrade.azurewebsites.net") {
-        externalApiUrl = "http://pms-upgrade.azurewebsites.net";
-      } else if (hostname === "pm-uat-dhspl-2.tatvacare.in") {
-        externalApiUrl = "http://pm-uat-dhspl-2.tatvacare.in";
-      } else {
-        externalApiUrl = "http://practice.tatvacare.in";
-      }
-      window.postMessage({ status: true }, externalApiUrl);
-    } catch (error) {
-      console.error("Error uploading document. Please try again.", error);
-    }
-    // window.close();
-  };
-
-  // Function to convert canvas to base64
-  const canvasToBase64 = (canvas) => {
-    return canvas.toDataURL("image/jpeg");
-  };
-
-  // Function to send base64 data to the server
-  const sendToServer = async (base64Data, name) => {
-    try {
-      const response = await fetch("http://localhost:3000/upload", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          base64Data: base64Data,
-          name: name,
-        }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Upload response:", data);
-        return data;
-      } else {
-        throw new Error("Upload failed");
-      }
-    } catch (error) {
-      console.log("not uploaded");
-      openModal(false, "Error uploading document. Please try again.");
-      throw error;
-    }
-  };
-
-  // Post data to external API
-  const postDataToExternalAPI = async (name) => {
-    try {
-      const postData = {
-        ...dataFromServer,
-        prescription_link: name,
-      };
-      console.log(JSON.stringify(postData), "postdata-stringify");
-      const response = await fetch(
-        "http://localhost:3000/post-to-external-api",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(postData),
-        }
-      );
-      console.log(response, "response");
-      // const data = await response.json();
-      // console.log("Response from external API:", data);
-    } catch (error) {
-      openModal(false, "Error uploading document. Please try again.");
-      console.error("Error posting data to external API:", error);
-    }
-  };
-
-  const storeLocally = (base64Data, name) => {
-    // Store the data in local storage or indexedDB
-    const dataToStore = { base64Data, name };
-    localStorage.setItem("uploadQueue", JSON.stringify(dataToStore));
   };
 
   const handleRefresh = () => {
@@ -660,14 +525,14 @@ function SmartPrescription() {
     }, interval);
   };
 
-  console.log(patient_data, "patient_data");
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
         <HeaderSmartPrescription
           prescription={prescription}
           onClear={handleRefresh}
-          onSubmit={handleUpload}
+          onSubmit={handleSubmit}
+          smartRxData={smartRxDetails}
         />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           {/* <img src={hey} alt="vitals" className="me-3 hey" /> */}
@@ -725,7 +590,12 @@ function SmartPrescription() {
               }}
             >
               {!prescription ? (
-                <div className="right-container">
+                <div
+                  className="right-container"
+                  style={{
+                    border: prescription ? "none" : "1px solid #d9d9d9",
+                  }}
+                >
                   <div className="rx-image-container" onClick={handleWrite}>
                     <img src={RX_image} alt="prescription-icon" />
                   </div>
@@ -743,7 +613,10 @@ function SmartPrescription() {
                 </div>
               ) : (
                 <div className="right-container">
-                  <div id="pdf"></div>
+                  <div
+                    id="pdf"
+                    style={{ border: prescription ? "none" : "lightgrey" }}
+                  ></div>
                 </div>
               )}
             </div>

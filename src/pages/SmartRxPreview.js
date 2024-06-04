@@ -5,6 +5,7 @@ import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spi
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
+import { jwtDecode } from "jwt-decode";
 import { useReactToPrint } from 'react-to-print';
 
 // import { PDFReader } from 'reactjs-pdf-reader';
@@ -17,6 +18,7 @@ import wtsp from '../assets/images/wtsp.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
 import { MESSAGE_KEY } from "../utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -24,6 +26,7 @@ import { viewCaseManager } from "../redux/caseManagerSlice";
 
 import { pdfjs, Document, Page } from "react-pdf";
 import CommonModal from "../common/CommonModal";
+import { env } from "../EnvironmentConfig";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -50,14 +53,15 @@ function SmartRxPreview() {
 
     const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}` : null);
     const [printRxUrl, setPrintRxUrl] = useState(state !== undefined ? `${state.print_rx_url}` : null);
-
+    const [token, setToken] = useState(null);
+    const [tokenData, setTokenData] = useState(null);
     const [divWidth, setDivWidth] = useState(0);
     const [numPages, setNumPages] = useState();
     const [printBlob, setPrintBlob] = useState(null);
     const [isUpdateMobileNoModalOpen, setIsUpdateMobileNoModalOpen] = useState(false);
     const [mobileNumber, setMobileNumber] = useState('');
     const [useRegisteredMobile, setUseRegisteredMobile] = useState(false);
-    const registeredMobileNumber = '1234567890'; // Replace this with the actual registered mobile number
+    const registeredMobileNumber = '';
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
@@ -82,38 +86,18 @@ function SmartRxPreview() {
         });
     }, []);
 
-    // const printContent = useReactToPrint({
-    //     content: () => printRef.current,
-    // });
-
-    // const printContent = async () => {
-    //     var blobURL = URL.createObjectURL(printBlob);
-    //     var iframe = document.createElement('iframe'); //load content in an iframe to print later
-    //     document.body.appendChild(iframe);
-    //     iframe.style.display = 'none';
-    //     iframe.src = blobURL;
-    //     iframe.onload = function () {
-    //         setTimeout(function () {
-    //             iframe.focus();
-    //             iframe.contentWindow.print();
-    //         }, 1);
-    //     };
-    // };
-
-    // const printInAppContent = async () => {
-    //     navigate(`/prescription_print_view/?url=${printUrl}&key=print`, { replace: true, state: state })
-    //     navigate(0, { replace: true });
-    // };
-
-    // const printContent = async () => {
-    //     {(/Android/i.test(navigator.userAgent)) ? (
-    //         window.open(printUrl, '_blank')
-    //     ) : (
-    //         <embed className="printBox" src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed>
-    //     )}
-    //     const printWindow = await window.open('https://www.aeee.in/wp-content/uploads/2020/08/Sample-pdf.pdf');
-    //     printWindow.print();
-    // };
+    useEffect(() => {
+        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+        setToken(token)
+        if (token !== undefined) {
+          try {
+            var decoded = jwtDecode(token);
+            setTokenData(decoded.result)
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      }, []);
 
     const handleDownload = async () => {
         try {
@@ -137,22 +121,6 @@ function SmartRxPreview() {
         navigate(0, { replace: true });
     };
 
-    // const onEditPrescriptionClick = async () => {
-    //     var sendData = {
-    //         patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
-    //         tcm_id: state.tcm_id
-    //     }
-    //     const action = await dispatch(viewCaseManager(sendData));
-    //     if (action.meta.requestStatus === "fulfilled") {
-    //         navigate("/prescription", { replace: true, state: { patient_data: patient_data, caseManagerData: action.payload } })
-    //     } else {
-    //         errorMessage(action.error)
-    //     }
-    // };
-
-    // function onDocumentLoadSuccess({ numPages }) {
-    //     setNumPages(numPages);
-    // }
     async function onDocumentLoadSuccess(successEvent) {
         setNumPages(successEvent?.numPages);
         const data = await successEvent.getData()
@@ -195,7 +163,33 @@ function SmartRxPreview() {
         setIsUpdateMobileNoModalOpen(!isUpdateMobileNoModalOpen)
         console.log("")
     };
+
+    const handleSendToWhatsapp = async () => {
+        const url = `${env.casemanager_api_url}/api/v1/casemanager/smart-rx/send`;
+        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN)
+        const formattedToken = token.replace(/^"(.*)"$/, '$1');
+        const payloadToken = `Bearer ${formattedToken}`
+        const headers = {
+          'Content-Type': 'application/json',
+          'Authorization': payloadToken,
+        };
+        const body = {
+          tcm_id: state.tcm_id,
+          pm_contact_no: state.patient_data.pm_contact_no,
+          change_mobile_number: false,
+          patient_unique_id: state.patient_data.patient_unique_id,
+          hospital_business_id: state.patient_data.hm_business_id,
+          um_id: tokenData.user_id
+        };
     
+        try {
+          const response = await axios.post(url, body, { headers: headers });
+          console.log(response.data,"what-app response")
+        } catch (error) {
+          console.error('Error:', error);
+        //   setResponse(null);
+        }
+    };
     return (
         <>
             <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} />
@@ -246,16 +240,16 @@ function SmartRxPreview() {
                                 <div className="fontroboto title-common">
                                     <div className="fw-normal fontroboto mb-2">Send this prescription to</div>
                                     {patient_data !== undefined ? `WhatsApp +91 ${patient_data.pm_contact_no}` : '-'}
-                                    <i className='icon-Edit me-2 fs-21 edit-number-icon' onClick={() => setIsUpdateMobileNoModalOpen(!isUpdateMobileNoModalOpen)}></i>
+                                    {/* <i className='icon-Edit me-2 fs-21 edit-number-icon' onClick={() => setIsUpdateMobileNoModalOpen(!isUpdateMobileNoModalOpen)}></i> */}
                                 </div>
                             </div>
                             <button
                                 className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
-                                onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
+                                onClick={handleSendToWhatsapp}
                             >
                                 Send to WhatsApp
                             </button>
-                            <CommonModal
+                            {/* <CommonModal
                                 isModalOpen={isUpdateMobileNoModalOpen}
                                 onCancel={showHideUpdateMobileNoModal}
                                 modalWidth={500}
@@ -291,7 +285,7 @@ function SmartRxPreview() {
                                     </div>
                                 </>
                                 }
-                            />
+                            /> */}
                         </div>
                     </Col>
                     <Col md={17} lg={17} xl={12}>

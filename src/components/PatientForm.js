@@ -21,6 +21,8 @@ import UploadProfile from "../components/UploadProfile";
 import { viewPatient, addPatient, editPatient } from "../redux/appointmentsSlice";
 import CommonModal from "../common/CommonModal";
 import saveIcon from '../assets/images/save.svg';
+import smartPad from '../assets/images/smartPad.svg';
+import startConsultIcon from '../assets/images/startConsult.svg';
 
 const { TabPane } = Tabs;
 
@@ -31,7 +33,7 @@ function PatientForm({ mode = ADD, patient_data }) {
 
     const [form] = Form.useForm();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [patientData, setPatientData] = useState();
+    const [patientData, setPatientData] = useState(null);
 
     useEffect(() => {
         const getEditData = async () => {
@@ -77,7 +79,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                 setIsModalOpen(true)
                 console.log(mode,"mode")
                 setPatientData(action.payload)
-                mode === EDIT ? navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } }) : navigate("/prescription", { replace: true, state: { patient_data: action.payload } })
+                mode === EDIT && navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } })
             } else {
                 errorMessage(action.error)
             }
@@ -161,11 +163,13 @@ function PatientForm({ mode = ADD, patient_data }) {
                                         <div className="me-4 text-decoration-underline btn p-0 text-main">
                                         Choose Action
                                         </div>
-                                        <div className="d-flex align-items-center mt-2">
-                                            <Button onClick={handleConsult} className="lh-lg btn btn-primary3 btn-41 px-4 me-4">
+                                        <div className="d-flex align-items-center mt-2" style={{gap: "3.4rem"}}>
+                                            <Button onClick={handleConsult} className="lh-lg btn btn-secondary2 btn-41 px-4 me-4">
+                                                <img className='me-3' src={startConsultIcon} alt="Consult" />
                                                 <span>Start Consult</span>
                                             </Button>
-                                            <Button onClick={handleSmartRx} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                            <Button onClick={handleSmartRx} className="lh-lg btn btn-secondary3 btn-41 px-4 me-4">
+                                                <img className='me-3' src={smartPad} alt="SmartRx" />
                                                 <span>Start Smart Rx</span>
                                             </Button>
                                         </div>
