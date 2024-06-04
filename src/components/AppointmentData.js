@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import moment from "moment";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { isChrome, isSafari } from "react-device-detect";
@@ -74,6 +74,21 @@ function AppointmentData({ locationPath }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [pageNo, setPageNo] = useState(0);
     const [visitTypeFilters, setVisitTypeFilters] = useState('');
+    const [openRowIndex, setOpenRowIndex] = useState(null);
+    const consultButtonRef = useRef(null);
+
+    const handleClickOutside = (event) => {
+        if (!consultButtonRef?.current?.contains(event.target)) {
+            setOpenRowIndex(null);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const items = [
         {
@@ -347,6 +362,15 @@ function AppointmentData({ locationPath }) {
         navigate("/prescription", { state: { patient_data: record } })
     }
 
+    const onSmartRxClick = async (record) => {
+        window.Moengage.track_event("patient_search_consult", {
+            "doctor_id": profile?.doctor_unique_id,
+            "patient_id": record?.patient_unique_id
+        });
+        navigate("/smart-prescription", { state: { patient_data: record } })
+    }
+
+
     const onPrintRxUrlClick = async (record) => {
         if (record.print_rx_url) {
             if (!isChrome && !isSafari) {
@@ -450,13 +474,35 @@ function AppointmentData({ locationPath }) {
             title: "Action",
             key: "action",
             width: 170,
-            render: (_, record) => (
-                <div size="middle">
+            render: (_, record,index) => (
+                <div size="middle" style={{display : "flex"}}>
                     {selectedTab !== TAB_CANCELLED && (
-                        <button className="btn btn-outline-primary btn-consult" onClick={() => selectedTab === TAB_QUEUE ? onConsultClick(record) : onPrintRxUrlClick(record)}>
-                            {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
+                        <button 
+                            // className="btn btn-outline-primary btn-smart-rx" 
+                            className={`btn btn-outline-primary ${selectedTab === TAB_FINISHED ? 'btn-print-rx' : 'btn-smart-rx'}`}
+                            onClick={() => selectedTab === TAB_QUEUE ? onSmartRxClick(record) : onPrintRxUrlClick(record)}
+                        >
+                            {selectedTab === TAB_FINISHED ? "PrintRx" : "SmartRx"}
                         </button>
                     )}
+                    {selectedTab === TAB_QUEUE &&( 
+                        <button 
+                            className="btn btn-outline-primary btn-down-arrow" 
+                            onClick={() => setOpenRowIndex(openRowIndex === index ? null : index)}
+                        >
+                            <span role="img" aria-label="down" class="anticon anticon-down ant-select-suffix">
+                            <i
+                                className="icon-right"
+                                style={{ display: "block", transform: `rotate(270deg)` }}
+                            />
+                            </span>
+                        </button>
+                    )}
+                    {openRowIndex === index &&
+                        <button ref={consultButtonRef} className="btn-consult" onClick={() => onConsultClick(record)}>
+                            Consult
+                        </button>
+                    }
                     <Dropdown
                         className="btn btn-outline btn-more ms-3"
                         menu={{

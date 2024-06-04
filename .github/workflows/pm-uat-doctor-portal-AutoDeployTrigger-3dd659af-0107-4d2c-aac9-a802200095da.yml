@@ -45,3 +45,4 @@ jobs:
           imageToBuild: acinacr.azurecr.io/pm-uat-doctor-portal:${{ github.sha }}
           buildArguments: |
             "REACT_APP_ENV=uat"
+  

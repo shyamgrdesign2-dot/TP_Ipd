@@ -77,7 +77,6 @@ function PatientDetails() {
         });
         setTcmData({ tcm_id: viewCaseManagerData?.prev_tcm_id, page: (tcmData.page += 1) })
     }
-
     return (
         <>
             <Layout>
@@ -109,10 +108,14 @@ function PatientDetails() {
                                     {viewCaseManagerData && viewCaseManagerData?.vitals?.length > 0 && (
                                         <VitalsBodyComposition loading={loading} passVitals={viewCaseManagerData ? [...viewCaseManagerData.vitals].slice(0, 2) : viewCaseManagerData} />
                                     )}
-                                    <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
+                                    {viewCaseManager.smart_prescription_filename === null &&
+                                        <>
+                                            <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
+                                            <VisitVaccination />
+                                        </>
+                                    }
                                     {/*   <LabParameters />
                                             <Vaccination /> */}
-                                    <VisitVaccination />
                                 </div>
                                 <div className='col-lg-7 col-md-12 col-12'>
                                     <Cardiology patient_data={patient_data} tcmData={tcmData} loading={loading} viewCaseManagerData={viewCaseManagerData} nextPress={nextPress} prevPress={prevPress} />

@@ -7,6 +7,8 @@ import { isMobile } from "react-device-detect";
 import AppointmentList from "./pages/AppointmentList";
 import PatientDetails from "./pages/PatientDetails";
 import Prescription from "./pages/Prescription";
+import SmartPrescription from "./pages/SmartPrescription";
+import SmartRxPreview from "./pages/SmartRxPreview";
 
 import { store, persistor } from "./redux/store";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
@@ -19,6 +21,7 @@ import ErrorFallback from "./common/ErrorFallback";
 import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { jwtDecode } from "jwt-decode";
 import config from "./config";
+import Vaccination from "./pages/vaccination/Vaccination";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -77,10 +80,19 @@ function App() {
             <PersistGate loading={null} persistor={persistor}>
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
+                <Route path="/vaccination" element={<Vaccination />} />
                 <Route path="patient_details" element={<PatientDetails />} />
                 <Route
                   path="prescription"
                   element={isMobile ? <TabPrescription /> : <Prescription />}
+                />
+                <Route
+                  path="smart-prescription"
+                  element={<SmartPrescription />}
+                />
+                <Route 
+                  path="/print-smart-rx" 
+                  element={<SmartRxPreview />} 
                 />
                 <Route
                   path="prescription_print_view"

@@ -1,4 +1,10 @@
-import React, { useEffect } from "react";
+import React, {
+    useState,
+    useEffect,
+    useCallback,
+    useMemo,
+    useContext,
+  } from "react";
 import { isMobile } from "react-device-detect";
 import { Col, Row } from "react-bootstrap";
 import { Form, Tabs, Button } from "antd";
@@ -13,6 +19,10 @@ import PersonalDetails from "../components/PersonalDetails";
 import AddressDetails from "../components/AddressDetails";
 import UploadProfile from "../components/UploadProfile";
 import { viewPatient, addPatient, editPatient } from "../redux/appointmentsSlice";
+import CommonModal from "../common/CommonModal";
+import saveIcon from '../assets/images/save.svg';
+import smartPad from '../assets/images/smartPad.svg';
+import startConsultIcon from '../assets/images/startConsult.svg';
 
 const { TabPane } = Tabs;
 
@@ -22,6 +32,8 @@ function PatientForm({ mode = ADD, patient_data }) {
     const { loading, error } = useSelector((state) => state.records);
 
     const [form] = Form.useForm();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [patientData, setPatientData] = useState(null);
 
     useEffect(() => {
         const getEditData = async () => {
@@ -32,6 +44,17 @@ function PatientForm({ mode = ADD, patient_data }) {
         }
         mode === EDIT && getEditData()
     }, []);
+
+    const showHideModal = useCallback(() => {
+        setIsModalOpen(!isModalOpen);
+    }, [isModalOpen]);
+
+    const handleConsult = () => {
+        navigate("/prescription", { state: { patient_data: patientData } });
+    }
+    const handleSmartRx = () => {
+        navigate("/smart-prescription", { state: { patient_data: patientData } })
+    }
 
     const onFinish = () => {
         form.validateFields().then(async (values) => {
@@ -53,7 +76,9 @@ function PatientForm({ mode = ADD, patient_data }) {
 
             const action = mode === EDIT ? await dispatch(editPatient(finalValues)) : await dispatch(addPatient(finalValues));
             if (action.meta.requestStatus === "fulfilled") {
-                mode === EDIT ? navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } }) : navigate("/prescription", { replace: true, state: { patient_data: action.payload } })
+                setIsModalOpen(true)
+                setPatientData(action.payload)
+                mode === EDIT && navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } })
             } else {
                 errorMessage(action.error)
             }
@@ -118,6 +143,39 @@ function PatientForm({ mode = ADD, patient_data }) {
                                     {mode === EDIT ? 'Save' : 'Add Patient to Consult'}
                                 </Button>
                             </div>
+                            <CommonModal
+                                isModalOpen={isModalOpen}
+                                onCancel={showHideModal}
+                                modalWidth={500}
+                                title={"You may lose your data"}
+                                modalBody={
+                                <>
+                                    <div className="rounded-10px p-2 patient-details" style={{borderRadius: "10px",background: "rgba(25, 187, 122, 0.10)"}}>
+                                        <div className="d-flex align-items-center">
+                                            <img className='me-3' src={saveIcon} alt="Warning" />
+                                            <span>
+                                                Patient has been successfully added.
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4">
+                                        <div className="me-4 text-decoration-underline btn p-0 text-main">
+                                        Choose Action
+                                        </div>
+                                        <div className="d-flex align-items-center mt-2" style={{gap: "3.4rem"}}>
+                                            <Button onClick={handleConsult} className="lh-lg btn btn-secondary2 btn-41 px-4 me-4">
+                                                <img className='me-3' src={startConsultIcon} alt="Consult" />
+                                                <span>Start Consult</span>
+                                            </Button>
+                                            <Button onClick={handleSmartRx} className="lh-lg btn btn-secondary3 btn-41 px-4 me-4">
+                                                <img className='me-3' src={smartPad} alt="SmartRx" />
+                                                <span>Start Smart Rx</span>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </>
+                                }
+                            />
                         </>
                     )}
                 </div>
