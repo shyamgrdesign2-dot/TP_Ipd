@@ -77,7 +77,6 @@ function PatientForm({ mode = ADD, patient_data }) {
             const action = mode === EDIT ? await dispatch(editPatient(finalValues)) : await dispatch(addPatient(finalValues));
             if (action.meta.requestStatus === "fulfilled") {
                 setIsModalOpen(true)
-                console.log(mode,"mode")
                 setPatientData(action.payload)
                 mode === EDIT && navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } })
             } else {

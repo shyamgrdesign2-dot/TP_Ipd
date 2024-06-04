@@ -65,7 +65,6 @@ function Cardiology(props) {
           },
           data: payload,
         });
-        console.log("Response:", response.data);
         const fileToShow = response.data.data.smart_prescription_file;
         setSmartRxFile(fileToShow);
       } catch (error) {
