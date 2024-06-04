@@ -7,24 +7,24 @@ const SubHeader = ({ handleDrawerVital }) => {
     return (
       <div className="detailsContainer">
         <div className="details">
-          <div className="titleStyle">{title}</div>
+          <span className="titleStyle">{title}</span>
           <i className="icon-Edit iconStyle" />
         </div>
         <div className="details">
-          <div>{value1}</div>
+          <span>{value1}</span>
           <span className="breakStyle" />
-          <div>{value2}</div>
+          <span>{value2}</span>
         </div>
       </div>
     );
   };
 
-  const toggleGrowthDetails = () => {
+  const toggleGrowthDetails = (value1, value2) => {
     return (
       <div className="detailsContainer toggleContainer">
         <div className="textStyle">
-          <span>Show</span>
-          <span>Table View</span>
+          <span>{value1}</span>
+          <span>{value2}</span>
         </div>
         <Switch
         // onChange={(checked) => onChangeRight(checked)}
@@ -55,8 +55,8 @@ const SubHeader = ({ handleDrawerVital }) => {
           "Father: 170cm"
         )}
         {growthDetails("Gestation period", "37 weeks", "4 days")}
-        {toggleGrowthDetails()}
-        {toggleGrowthDetails()}
+        {toggleGrowthDetails("Show", "Table View")}
+        {toggleGrowthDetails("Show Timeine", "in years")}
       </div>
     </div>
   );

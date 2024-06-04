@@ -44,6 +44,7 @@ import Sider from "antd/es/layout/Sider";
 import Vaccination from "../vaccination/Vaccination";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { checkToShowVaccination } from "../vaccination/service";
+import GrowthChart from "../growthChart/GrowthChart";
 
 function TabPrescription() {
   const {
@@ -610,6 +611,20 @@ function TabPrescription() {
             width="100%"
           >
             <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
+          </Drawer>
+        )}
+        {growthDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerGrowth}
+            open={growthDrawer}
+            width="100%"
+          >
+            <GrowthChart
+              handleDrawerVaccination={handleDrawerGrowth}
+              handleDrawerVital={handleDrawerVital}
+            />
           </Drawer>
         )}
       </>
