@@ -29,6 +29,9 @@ body {
                     height: 26px;
                     line-height: 26px;
                 }
+                span {
+                    font-family: 'roboto' !important;
+                }
                 input {
                     &:focus-visible {
                         border-color: $theme;
@@ -43,11 +46,11 @@ body {
         .jodit_hidden {
             border: none !important;
         }
-        .jodit-add-new-line{
-            &:after, span {
-                display: none;
-            }
-        } 
+        // .jodit-add-new-line{
+        //     &:after, span {
+        //         display: none;
+        //     }
+        // } 
     }
     .jodit {
         .jodit-ui-tooltip__content {

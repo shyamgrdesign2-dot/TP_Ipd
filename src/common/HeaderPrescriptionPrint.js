@@ -71,7 +71,8 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, flag }) {
                     </Button>
                 ) : (
                     <Button
-                        className='btn align-items-center d-flex btn-41 btn-primary3 me-3 px-4'>
+                        className='btn align-items-center d-flex btn-41 btn-primary3 me-3 px-4'
+                        onClick={() => navigate(-1)}>
                         Done
                     </Button>
                 )}

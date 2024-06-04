@@ -12,7 +12,7 @@ import { addPatientCertificate } from "../redux/doctorsSlice";
 
 import alertIcon from '../assets/images/alertIcon.svg';
 import CreateCertificate from "../components/medical_certificate/CreateCertificate";
-import { HTMLTransformer, removeLabelTags, errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
+import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
 function MedicalCertificate() {
 
@@ -53,7 +53,6 @@ function MedicalCertificate() {
                 option8: `Add Text Input`,
                 option9: `Email`,
             },
-
             exec: (editor, current, options, originalEvent, btn) => {
                 const randomId = generateRandomId();
                 const selectedOption = options.control.name;
@@ -93,6 +92,7 @@ function MedicalCertificate() {
                 } else if (selectedOption === 'option9') {
                     editor.s.insertHTML(`<label class="email">${content}</label>`);
                 }
+                return false
             }
         }
     ]
@@ -104,6 +104,17 @@ function MedicalCertificate() {
         buttonsSM: TOOLBAR,
         buttonsMD: TOOLBAR,
         buttonsXS: TOOLBAR,
+        controls: {
+            fontsize: {
+                list: {
+                    '8px': '8',
+                    '10px': '10',
+                    '12px': '12',
+                    '14px': '14',
+                    '16px': '16',
+                }
+            }
+        }
     };
 
     useEffect(() => {
@@ -115,6 +126,33 @@ function MedicalCertificate() {
             }
         }
     }, [certificate_data]);
+
+    useEffect(() => {
+        const allInputs = document.querySelectorAll('input[type="date"], input[type="search"]');
+        allInputs.forEach(input => input.type == 'date' ? input.addEventListener('change', handleInputChange) : input.addEventListener('keyup', handleInputChange));
+    }, [content]);
+
+    function handleInputChange(event) {
+        const inputElement = event.target;
+        if (inputElement.type === "date" || inputElement.type === "search") {
+            const elementId = inputElement.id;
+            const valueToUpdate = document.getElementById(elementId);
+            if (valueToUpdate) {
+                valueToUpdate.removeAttribute('value');
+                if (inputElement.type === "date") {
+                    const newDateValue = inputElement.value;
+                    console.log(newDateValue)
+                    valueToUpdate.setAttribute('value', newDateValue);
+                } else if (inputElement.type === "search") {
+                    const newTextValue = inputElement.value;
+                    console.log(newTextValue)
+                    valueToUpdate.setAttribute('value', newTextValue);
+                }
+            } else {
+                console.error("Element with ID", elementId, "not found for value update.");
+            }
+        }
+    }
 
     const handleCreateCertificateDrawer = useCallback(() => {
         setCreateCertificateDrawer(!createCertificateDrawer)

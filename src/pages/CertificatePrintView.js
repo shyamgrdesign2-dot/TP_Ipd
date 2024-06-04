@@ -42,7 +42,7 @@ function CertificatePrintView() {
     const { state } = useLocation();
     const { patient_data, tcu_content_id, pms_default, tcu_title, tcu_content } = state
 
-    const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}` : null);
+    const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.certificate}` : null);
 
     const [title, setTitle] = useState('');
     const [divWidth, setDivWidth] = useState(0);
@@ -87,6 +87,52 @@ function CertificatePrintView() {
         }
     }
 
+    const printContent = async () => {
+        var blobURL = URL.createObjectURL(printBlob);
+        // Remove all existing iframes
+        document.querySelectorAll('iframe').forEach(function (iframe) {
+            iframe.parentNode.removeChild(iframe);
+        });
+        var iframe = document.createElement('iframe'); //load content in an iframe to print later
+        document.body.appendChild(iframe);
+        iframe.style.display = 'none';
+        iframe.src = blobURL;
+        iframe.onload = function () {
+            setTimeout(function () {
+                iframe.focus();
+                iframe.contentWindow.print();
+                // Revoke the Blob URL to avoid memory leaks
+                URL.revokeObjectURL(blobURL);
+            }, 1);
+        };
+    };
+
+    const printInAppContent = async () => {
+        navigate(`/certificate_print_view/?url=${printUrl}&key=print`, { replace: true, state: state })
+        navigate(0, { replace: true });
+    };
+
+    const handleDownload = async () => {
+        try {
+            const response = await axios({
+                url: printUrl,
+                method: 'GET',
+                responseType: 'blob', // Important for binary data
+            });
+
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+            saveAs(blob, `${Date.now()}.pdf`);
+        } catch (error) {
+            console.error('Error downloading file:', error);
+            // Handle errors gracefully, e.g., display an error message to the user
+        }
+    };
+
+    const handleInAppDownload = async () => {
+        navigate(`/certificate_print_view/?url=${printUrl}&key=download`, { replace: true, state: state })
+        navigate(0, { replace: true });
+    };
+
     return (
         <>
             <HeaderPrescriptionPrint patient_data={patient_data} flag={2} />
@@ -110,12 +156,9 @@ function CertificatePrintView() {
                                 }
                                 <Button
                                     type="text"
-                                    // onClick={() => {
-                                    //     window.Moengage.track_event("print_select", {
-                                    //         "language": LANGUAGE_LIST.find(e => e.value === selectedLang).label
-                                    //     });
-                                    //     !isChrome && !isSafari ? printInAppContent() : printContent()
-                                    // }}
+                                    onClick={() => {
+                                        !isChrome && !isSafari ? printInAppContent() : printContent()
+                                    }}
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-Print"></i>}
                                 >
@@ -126,7 +169,7 @@ function CertificatePrintView() {
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-download"></i>}
-                                // onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
+                                    onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
                                 >
                                     <span className="fw-semibold">Download</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
@@ -154,7 +197,7 @@ function CertificatePrintView() {
                                             loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
                                             error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
                                             noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
-                                            file={'https://morth.nic.in/sites/default/files/dd12-13_0.pdf'}
+                                            file={printUrl}
                                             onLoadSuccess={onDocumentLoadSuccess}>
                                             {Array.apply(null, Array(numPages))
                                                 .map((x, i) => i + 1)
