@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import TogglePercentileLine from "../togglePercentileLine/TogglePercentileLine";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -176,7 +177,7 @@ const WeightChart = ({ data = dummyData }) => {
         >
           <h2 style={{ margin: 0 }}>Weight</h2>
           <div>
-            <Button
+          <Button
               type="primary"
               onClick={() => setModalIsOpen(true)}
               style={{ marginRight: "10px" }}
@@ -189,23 +190,6 @@ const WeightChart = ({ data = dummyData }) => {
           </div>
         </div>
         <Line ref={chartRef} data={chartData} options={options} />
-        <Modal
-          title="Toggle Line Visibility"
-          visible={modalIsOpen}
-          onOk={() => setModalIsOpen(false)}
-          onCancel={() => setModalIsOpen(false)}
-        >
-          {data.datasets.map((dataset, index) => (
-            <div key={index}>
-              <Checkbox
-                checked={visibility[index]}
-                onChange={() => toggleVisibility(index)}
-              >
-                {dataset.label}
-              </Checkbox>
-            </div>
-          ))}
-        </Modal>
       </div>
     </div>
   );
