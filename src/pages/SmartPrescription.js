@@ -5,7 +5,6 @@ import React, {
   useContext,
   useRef,
 } from "react";
-import imageCompression from 'browser-image-compression';
 import { Drawer } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import moment from "moment";
