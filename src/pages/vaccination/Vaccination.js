@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
 import "./Vaccination.scss";
-import { Checkbox, Drawer, Spin } from "antd";
+import { Checkbox, Spin } from "antd";
 import VaccineHeader from "./components/vaccineHeader/VaccineHeader";
 import VaccineCard from "./components/vaccineCard/VaccineCard";
 import VaccineFilter from "./components/vaccineFilter/VaccineFilter";
@@ -19,7 +19,6 @@ import {
   getVaccineBrands,
   getPatientVaccineDetails,
   getOverridenDueDate,
-  createPatient,
 } from "./service";
 import {
   getDates,
@@ -28,9 +27,12 @@ import {
   mergeDataPatientDetails,
 } from "./VaccinationHelper";
 import CashManagerContext from "../../context/CashManagerContext";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { isSafari, isChrome, isIOS, isIPad13, isIOS13 } from "react-device-detect";
+import html2pdf from "html2pdf.js";
 
-function Vaccination() {
+function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedCards, setSelectedCards] = useState([]);
@@ -51,6 +53,9 @@ function Vaccination() {
   const [printType, setPrintType] = useState("");
   const [shouldShowSelectAll, setShouldShowSelectAll] = useState(false);
   const [isCardClicked, setCardClicked] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [vaccinePatientDetails, setVaccinePatientDetails] = useState();
+  const navigate = useNavigate();
 
   const contextApi = {
     patient_data,
@@ -73,11 +78,12 @@ function Vaccination() {
   useEffect(() => {
     const activeValue = ageFilters?.[activeDate];
     setVaccinesData(completeData?.get?.(activeValue));
+    setShouldShowSelectAll(false);
   }, [activeDate, completeData]);
 
   useEffect(() => {
     if (printType) {
-      handlePrint();
+      handlePrintClick();
       setPrintType("");
     }
   }, [printType]);
@@ -86,14 +92,16 @@ function Vaccination() {
     selectAllCheck();
   }, [vaccinesData]);
 
+  const { profile } = useSelector((state) => state.doctors);
+
   const getPatientDetail = async () => {
     const patientDetails = await getPatientDetails({
       hospital_bid:
         patient_data?.hm_business_id || patient_data?.hospital_business_id,
       patient_uid: patient_data?.patient_unique_id,
-      hospital_id: patient_data?.hm_id || patient_data?.clinic_id,
+      hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
     });
-    patient_data = { ...patient_data, ...patientDetails };
+    setVaccinePatientDetails({ ...patient_data, ...patientDetails });
     if (
       !patientDetails?.vac_id ||
       (patientDetails?.vac_id && !patientDetails?.vac_dob)
@@ -108,7 +116,7 @@ function Vaccination() {
     return patientDetails;
   };
 
-  const getVaccineDetails = async () => {
+  const getVaccineDetails = async (updatedVaccine) => {
     const vaccineTemplate = await getVaccineTemplates();
     const patientDetail = await getPatientDetail();
     const overridenVaccines = await getOverridenDueDate(
@@ -123,7 +131,9 @@ function Vaccination() {
     const details = await getVaccineBrands();
     setBrands(details);
 
-    const birthDate = new Date(patientDetail?.vac_dob);
+    const birthDate = patientDetail?.vac_dob
+      ? new Date(patientDetail?.vac_dob)
+      : "";
 
     const combinedData = mergeDataPatientDetails(
       vaccineTemplate,
@@ -140,7 +150,10 @@ function Vaccination() {
 
     const options = getDates(result.idMap);
     setDateOptions(options);
-    setActiveDate(getDefaultOption(options));
+    if (!updatedVaccine) {
+      setActiveDate(getDefaultOption(options));
+    }
+    setLoading(false);
   };
 
   const handleSelectAll = (event) => {
@@ -196,11 +209,11 @@ function Vaccination() {
     } else {
       if (newSelectedCards.length) {
         if (
-          vaccinesData[selectedCards[0]]?.tvp_given_date ===
+          vaccinesData[selectedCards[0]]?.tvp_given_date &&
           vaccinesData[id]?.tvp_given_date
         ) {
           if (
-            vaccinesData[selectedCards[0]].tvp_given_date ===
+            vaccinesData[selectedCards[0]]?.tvp_given_date ===
             vaccinesData[id]?.tvp_given_date
           ) {
             newSelectedCards.push(id);
@@ -210,6 +223,11 @@ function Vaccination() {
             );
             newSelectedCards = [id];
           }
+        } else if (
+          vaccinesData[selectedCards[0]].tvp_given_date ===
+          vaccinesData[id]?.tvp_given_date
+        ) {
+          newSelectedCards.push(id);
         } else {
           setWarningMsg(
             "Given vaccine and Due Vaccines cannot be selected togather!"
@@ -237,7 +255,7 @@ function Vaccination() {
     }
   };
 
-  const handlePrint = useReactToPrint({
+  const handlePrintWeb = useReactToPrint({
     content: () => printableRef.current,
   });
 
@@ -247,14 +265,52 @@ function Vaccination() {
     setShowUpdate(true);
   };
 
+  const handlePrintClick = () => {
+    if (!isChrome && !isSafari && !isIOS && !isIPad13 && !isIOS13) {
+      const element = printableRef.current;
+
+      if (!element) {
+        console.error("Element not found");
+        return;
+      }
+
+      const options = {
+        filename: "my-document.pdf",
+        image: { type: "jpeg", quality: 0.8 },
+        html2canvas: { scale: 1 },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      };
+
+      html2pdf()
+        .from(element)
+        .set(options)
+        .output("datauristring")
+        .then((pdfDataUri) => {
+          const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
+          navigate(`/prescription?url=${b64}&key=vaccinationPrint`, {
+            state: { patient_data: patient_data },
+          });
+          navigate(0, { replace: true });
+        })
+        .catch((err) => {
+          console.error("Error generating PDF", err);
+        });
+    } else {
+      handlePrintWeb();
+    }
+  };
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <div className="vaccinationWrapper">
-        <VaccineHeader
-          vaccinesData={previewData}
-          patientDetails={patientDetails}
-          setPrintType={setPrintType}
-        />
+        {vaccinesData?.length && previewData?.length && (
+          <VaccineHeader
+            handleDrawerVaccination={handleDrawerVaccination}
+            vaccinesData={previewData}
+            patientDetails={patientDetails}
+            setPrintType={setPrintType}
+          />
+        )}
         <div
           id="wrap"
           onScroll={handleScroll}
@@ -274,7 +330,7 @@ function Vaccination() {
               alt="Vaccine"
             />
           </div>
-          {vaccinesData?.length ? (
+          {vaccinesData?.length && !loading ? (
             <>
               <div className={isFixed ? "fixFilter" : ""}>
                 <VaccineFilter
@@ -288,7 +344,7 @@ function Vaccination() {
               {shouldShowSelectAll ? (
                 <div className="selectAllContainer scrollable-content">
                   <Checkbox
-                    className="checkboxStyle"
+                    className="vaccine-custom-checkbox"
                     checked={selectAll}
                     onChange={handleSelectAll}
                   />
@@ -325,17 +381,10 @@ function Vaccination() {
           )}
         </div>
         {warningMsg ? (
-          <Drawer
-            placement="bottom"
-            closable={false}
-            open={!!warningMsg}
-            height={44}
-            mask={false} // Prevents blurring of background
-            style={{
-              width: "513px",
-              bottom: "110px",
-              position: "absolute",
-            }}
+          <div
+            className={`customWarningDrawer ${
+              !!warningMsg ? "open" : "closed"
+            }`}
           >
             <div className="warningStyle">
               {warningMsg}
@@ -346,7 +395,7 @@ function Vaccination() {
                 onClick={warningMsgHandler}
               />
             </div>
-          </Drawer>
+          </div>
         ) : null}
         {selectedCards.length && !isCardClicked ? (
           <SelectionPopup
@@ -367,7 +416,9 @@ function Vaccination() {
             patientDetails={patientDetails}
             getVaccineDetails={getVaccineDetails}
             setSelectedCards={setSelectedCards}
+            setSelectAll={setSelectAll}
             setCardClicked={setCardClicked}
+            setLoading={setLoading}
           />
         )}
         {vaccinesData?.length && (
@@ -380,6 +431,7 @@ function Vaccination() {
                     : previewData
                 }
                 patientDetails={patientDetails}
+                profile={profile}
               />
             </div>
           </div>
@@ -388,8 +440,10 @@ function Vaccination() {
           <AddDOB
             show={showDob}
             setShowDob={setShowDob}
-            patientDetails={patient_data}
-            getPatientDetail={getPatientDetail}
+            patientDetails={vaccinePatientDetails}
+            handleDrawerVaccination={handleDrawerVaccination}
+            getVaccineDetails={getVaccineDetails}
+            setLoading={setLoading}
           />
         )}
       </div>

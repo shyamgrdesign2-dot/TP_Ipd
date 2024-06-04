@@ -11,29 +11,68 @@ const VaccineFilter = ({
   setSelectedCards,
   setSelectAll,
 }) => {
-  const [scrollToStart, setScrollToStart] = useState(false);
-
   const datesContainerRef = useRef(null);
+  const hasScrolledRef = useRef(false);
 
   useEffect(() => {
+    /**
+     * scrolling to the specific age option when we comes to vaccination
+     * page on the first time
+     */
+    if (!hasScrolledRef.current && datesContainerRef.current) {
+      if (activeDate && activeDate > 0 && activeDate <= dateOptions.length) {
+        const monthElement = datesContainerRef.current.children[activeDate];
+        if (monthElement) {
+          const containerRect =
+            datesContainerRef.current.getBoundingClientRect();
+          const monthRect = monthElement.getBoundingClientRect();
+          const scrollLeft =
+            monthRect.left -
+            containerRect.left -
+            containerRect.width / 2 +
+            monthRect.width / 2;
+          datesContainerRef.current.scrollTo({
+            left: scrollLeft,
+            behavior: "smooth",
+          });
+          hasScrolledRef.current = true;
+        }
+      }
+    }
+  }, [dateOptions]);
+
+  const [showLeft, setShowLeft] = useState(true);
+  const [showRight, setShowRight] = useState(true);
+
+  const handleLeftToggleScroll = () => {
     if (datesContainerRef.current) {
-      // Scroll to the end if scrollToStart is true, otherwise scroll to the start
       datesContainerRef.current.scrollTo({
-        left: scrollToStart ? datesContainerRef.current.scrollWidth : 0,
+        left: 0,
         behavior: "smooth",
       });
     }
-  }, [scrollToStart]);
+    setShowLeft(false);
+    setShowRight(true);
+  };
 
-  const handleToggleScroll = () => {
-    setScrollToStart((prevState) => !prevState);
+  const handleRightToggleScroll = () => {
+    if (datesContainerRef.current) {
+      datesContainerRef.current.scrollTo({
+        left: datesContainerRef.current.scrollWidth,
+        behavior: "smooth",
+      });
+    }
+    setShowRight(false);
+    setShowLeft(true);
   };
 
   const [showTooltip, setShowTooltip] = useState(true);
 
   useEffect(() => {
-    // This effect will run when the component mounts (page is visited)
-    // Set a timeout to hide the tooltip after a certain delay (e.g., 5 seconds)
+    /**
+     * This effect will run when the component mounts (page is visited)
+     * Set a timeout to hide the tooltip after a certain delay (e.g., 5 seconds)
+     */
     const timer = setTimeout(() => {
       setShowTooltip(false);
     }, 5000);
@@ -71,21 +110,23 @@ const VaccineFilter = ({
 
   return (
     <div className="d-flex align-items-center">
-      {scrollToStart ? (
-        <img
-          className="me-3 clickable imageStyle"
-          src={chevron}
-          alt="chevron"
-          onClick={handleToggleScroll}
-          style={{
-            cursor: "pointer",
-            transform: scrollToStart ? "rotate(180deg)" : "rotate(0deg)",
-            margin: "0 5px 0 5px",
-          }}
-        />
-      ) : null}
+      {showLeft && (
+        <div className="vaccineFilterStyle">
+          <img
+            className="clickable imageStyle"
+            src={chevron}
+            alt="chevron"
+            onClick={handleLeftToggleScroll}
+            style={{
+              cursor: "pointer",
+              transform: "rotate(180deg)",
+              marginRight: "5px",
+            }}
+          />
+        </div>
+      )}
       <div
-        className={`datesContainer ${scrollToStart ? "scrollToEnd" : ""}`}
+        className={`datesContainer`}
         ref={datesContainerRef} // Reference to the dates container for scrolling
       >
         {dateOptions.length > 0 &&
@@ -93,6 +134,7 @@ const VaccineFilter = ({
             <Tooltip
               key={i}
               title={tooltipTitle}
+              overlayClassName="customTooltip"
               open={
                 showTooltip &&
                 pendingVaccines.length === 1 &&
@@ -123,26 +165,25 @@ const VaccineFilter = ({
                 >
                   {item.label}
                 </span>
-              </Button>{" "}
+              </Button>
             </Tooltip>
           ))}
       </div>
-      {!scrollToStart ? (
+      {showRight && (
         <div className="vaccineFilterStyle">
-          <div className="blurOverlay" />
           <img
             className="clickable"
             src={chevron}
             alt="chevron"
-            onClick={handleToggleScroll}
+            onClick={handleRightToggleScroll}
             style={{
               cursor: "pointer",
-              transform: scrollToStart ? "rotate(180deg)" : "rotate(0deg)",
-              margin: "0 0 5px 5px",
+              transform: "rotate(0deg)",
+              marginLeft: "5px",
             }}
           />
         </div>
-      ) : null}
+      )}
     </div>
   );
 };

@@ -20,6 +20,11 @@ import { updateDueDate, updateVaccine } from "../../service.js";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 import { errorMessage } from "../../../../utils/utils.js";
+import {
+  addDueVaccines,
+  addGivenVaccines,
+} from "../../../../redux/vaccineSlice.js";
+import { useDispatch } from "react-redux";
 
 const UpdateVaccine = ({
   show,
@@ -29,8 +34,11 @@ const UpdateVaccine = ({
   patientDetails,
   getVaccineDetails,
   setSelectedCards,
+  setSelectAll,
   setCardClicked,
+  setLoading,
 }) => {
+  const dispatch = useDispatch();
   const { TextArea } = Input;
   const [changeDate, setChangeDate] = useState(false);
   const [givenDate, setGivenDate] = useState("");
@@ -50,37 +58,53 @@ const UpdateVaccine = ({
   const [updateLoader, setUpdateLoader] = useState(false);
   const [focusedIndexes, setFocusedIndexes] = useState([]);
   const selectRefs = useRef([]);
-
   const { state } = useLocation();
   const { patient_data } = state;
+  const formRef = useRef(null);
+
+  const scrollToIndex = (index) => {
+    const element = selectRefs.current[index];
+    if (element) {
+      element.scrollTo({ behavior: "smooth", block: "center" });
+      element.focus();
+    }
+  };
 
   useEffect(() => {
     setGivenDate(
       selectedVaccines?.[0]?.tvp_given_date ?? moment().format("YYYY-MM-DD")
     );
-    setDueDate(
-      selectedVaccines?.[0]?.dueDate
-        ? moment(selectedVaccines?.[0]?.dueDate, "D MMMM YYYY").format(
-            "YYYY-MM-DD"
-          )
-        : ""
-    );
+    if (selectedVaccines?.[0]?.tvd_due_date) {
+      setDueDate(
+        moment(selectedVaccines?.[0]?.tvd_due_date).format("YYYY-MM-DD")
+      );
+    } else if (selectedVaccines?.[0]?.dueDate) {
+      setDueDate(
+        moment(selectedVaccines?.[0]?.dueDate, "D MMMM YYYY").format(
+          "YYYY-MM-DD"
+        )
+      );
+    }
   }, []);
 
   const updateVaccineDetails = async () => {
+    setCardClicked(false);
     const newFocusedIndexes = [];
     selectRefs.current.forEach((ref, index) => {
       if (
         !vaccineDetails?.[selectedVaccines?.[index]?.tvac_name]
-          ?.vaccine_company_id ||
+          ?.vaccine_company_id &&
         !selectedVaccines?.[index]?.brandId
       ) {
-        ref.focus();
+        if (ref) {
+          ref.focus();
+        }
         newFocusedIndexes.push(index);
       }
     });
 
     if (newFocusedIndexes?.length) {
+      scrollToIndex(newFocusedIndexes[0]);
       setFocusedIndexes(newFocusedIndexes);
       return;
     }
@@ -104,19 +128,25 @@ const UpdateVaccine = ({
           "",
       };
 
-      return updateVaccine(payload);
+      const result = updateVaccine(payload);
+      const resultStatus = await result;
+      if (resultStatus?.status === 201) {
+        dispatch(addGivenVaccines({ payload, vaccine }));
+      }
+      return result;
     });
 
-    // Wait for all API calls to finish
     try {
       const updateVaccineRes = await Promise.all(updatePromises);
+      setLoading(true);
       setUpdateLoader(false);
       if (updateVaccineRes?.every((res) => res?.status === 201)) {
         setShowSuccess(true);
-        getVaccineDetails();
+        getVaccineDetails(true);
         setTimeout(() => {
           setShow(false);
           setSelectedCards([]);
+          setSelectAll(false);
         }, 1000);
       } else {
         errorMessage({ name: "TypeError" });
@@ -132,6 +162,7 @@ const UpdateVaccine = ({
   const closeHandler = () => {
     setCardClicked(false);
     setSelectedCards([]);
+    setSelectAll(false);
     setChangeDate(false);
     setShow(false);
   };
@@ -146,7 +177,7 @@ const UpdateVaccine = ({
 
   const updateVaccineDueDate = async () => {
     setUpdateLoader(true);
-
+    setCardClicked(false);
     const updatePromises = selectedVaccines.map(async (vaccine) => {
       const payload = {
         patient_pid: patientDetails?.vac_pid,
@@ -155,20 +186,26 @@ const UpdateVaccine = ({
         overriden_due_date: dueDate,
         remarks: dueDateNote,
       };
-
-      return updateDueDate(payload);
+      const result = updateDueDate(payload);
+      const resultStatus = await result;
+      if (resultStatus?.status === 200) {
+        dispatch(addDueVaccines({ payload, vaccine }));
+      }
+      return result;
     });
 
     // Wait for all API calls to finish
     try {
       const updateDueDateRes = await Promise.all(updatePromises);
       setUpdateLoader(false);
+      setLoading(true);
       if (updateDueDateRes?.every((res) => res?.status === 200)) {
         setShowSuccess(true);
-        getVaccineDetails();
+        getVaccineDetails(true);
         setTimeout(() => {
           setShow(false);
           setSelectedCards([]);
+          setSelectAll(false);
         }, 1000);
       } else {
         errorMessage({ name: "TypeError" });
@@ -302,9 +339,9 @@ const UpdateVaccine = ({
           type="vertical"
           style={{ height: "100%", marginLeft: "20px", marginRight: "15px" }}
         />
-
         <Col span={11} style={{ width: "414px" }}>
           <div
+            ref={formRef}
             className="d-flex flex-column gap-3"
             style={{ maxHeight: "650px", overflowY: "auto" }}
           >
@@ -321,6 +358,7 @@ const UpdateVaccine = ({
                     <Select
                       showSearch
                       placeholder="Select vaccine brand"
+                      className="custom-select-style"
                       optionFilterProp="children"
                       filterOption={(input, option) =>
                         (option?.label ?? "")
@@ -332,10 +370,16 @@ const UpdateVaccine = ({
                           .toLowerCase()
                           .localeCompare((optionB?.label ?? "").toLowerCase())
                       }
-                      options={brands?.map((brand) => ({
-                        label: brand?.tvc_name,
-                        value: brand?.tvc_id,
-                      }))}
+                      options={brands
+                        ?.filter((brand) =>
+                          vaccine?.tvac_name === "Influenza"
+                            ? brand?.tvc_default_vac === "Influenza-1"
+                            : brand?.tvc_default_vac === vaccine?.tvac_name
+                        )
+                        ?.map((brand) => ({
+                          label: brand?.tvc_name,
+                          value: brand?.tvc_id,
+                        }))}
                       dropdownStyle={{ maxHeight: "176px", overflow: "auto" }}
                       onChange={(value) => {
                         handleDetails(
@@ -345,12 +389,14 @@ const UpdateVaccine = ({
                         );
                       }}
                       defaultValue={vaccine?.brandId}
-                      ref={(el) => (selectRefs.current[0] = el)}
+                      ref={(ref) => {
+                        if (ref) selectRefs.current[i] = ref;
+                      }}
                       style={{
-                        border: focusedIndexes.includes(0)
+                        border: focusedIndexes.includes(i)
                           ? "1px solid blue"
                           : "none",
-                        borderRadius: focusedIndexes.includes(0)
+                        borderRadius: focusedIndexes.includes(i)
                           ? "10px"
                           : "none",
                       }}

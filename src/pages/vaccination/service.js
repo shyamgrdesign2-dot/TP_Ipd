@@ -1,3 +1,4 @@
+import moment from "moment";
 import api from "../../api/services/axiosService";
 import config from "../../config";
 
@@ -69,11 +70,13 @@ export const updateDueDate = async function (payload) {
   return res;
 };
 
-export const getOverridenDueDate = async (patientUid, patientPid) => {
+export const getOverridenDueDate = async (patientUid, patientPid, date) => {
   let res = [];
   try {
     res = await api.get(
-      `/vaccination/overridenduedates?patient_uid=${patientUid}&patient_pid=${patientPid}`,
+      `/vaccination/overridenduedates?patient_uid=${patientUid}&patient_pid=${patientPid}${
+        date ? `&date=${date}` : ""
+      }`,
       baseUrl
     );
     if (res?.detail) {
@@ -98,15 +101,9 @@ export const getVaccineTemplates = async () => {
   return result;
 };
 
-export const getPatientVaccineDetails = async (
-  patientUid = 6302066347,
-  patientPid = 36207
-  // hospitalBid = 234659817
-) => {
+export const getPatientVaccineDetails = async (patientUid, patientPid) => {
   let result = [];
   try {
-    // &hospital_bid=${hospitalBid} patientTemplateForBid - prod
-    // https://pm-vaccination-uat.mytatva.in/vaccination/patientTemplateForBid?patient_uid=6302066347&patient_pid=36207 - prod
     result = await api.get(
       `/vaccination/patientTemplate?patient_uid=${patientUid}&patient_pid=${patientPid}`,
       baseUrl
@@ -116,27 +113,6 @@ export const getPatientVaccineDetails = async (
     }
   } catch (error) {
     console.error("Error while fetching patient details: ", error);
-  }
-  return result;
-};
-
-export const checkToShowVaccination = async (
-  doctorUniqueId = "ZV7s4PYh8z3JguW"
-) => {
-  let result = "false";
-  try {
-    result = await api.get(
-      `/vaccination/isAuthorized?doctor_unique_id=${doctorUniqueId}`,
-      baseUrl
-    );
-    if (result?.isAuthorized) {
-      result = "true";
-    }
-  } catch (error) {
-    console.error(
-      "Error while fetching to show vaccination on prescription: ",
-      error
-    );
   }
   return result;
 };
@@ -151,24 +127,36 @@ export const createPatient = async (payload) => {
   return res;
 };
 
-export const getNotGivenVaccines = async (
-  patientUid = 6302066347,
-  patientPid = 36207
-) => {
+export const getGivenVaccineDetails = async (patientUid, patientPid) => {
+  const today = moment().format("YYYY-MM-DD");
+
   let result = [];
   try {
     result = await api.get(
-      `vaccination/patientPendingTemplate?patient_uid=${patientUid}&patient_pid=${patientPid}`,
+      `vaccination/patientTemplateForPrint?patient_uid=${patientUid}&patient_pid=${patientPid}&vaccine_given_date=${today}`,
       baseUrl
     );
     if (result?.template) {
       result = result.template;
     }
   } catch (error) {
-    console.error(
-      "Error while fetching Not given vaccine on patient details page: ",
-      error
+    console.error("Error while fetching vaccine template: ", error);
+  }
+  return result;
+};
+
+export const checkToShowVaccination = async (doctorUniqueId) => {
+  let result = false;
+  try {
+    result = await api.get(
+      `/vaccination/isAuthorized?doctor_unique_id=${doctorUniqueId}`,
+      baseUrl
     );
+    if (result?.isAuthorized === "true") {
+      return true;
+    }
+  } catch (error) {
+    console.error("Error while fetching vaccine template", error);
   }
   return result;
 };

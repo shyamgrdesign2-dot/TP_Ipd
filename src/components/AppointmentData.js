@@ -47,6 +47,7 @@ import docimg from "../assets/images/docimg.png";
 import welcomdoc from "../assets/images/welcom-doc.svg";
 import suporticon from "../assets/images/suport-icon.svg";
 import windoc from "../assets/images/win-doc.png";
+import { resetVaccineState } from "../redux/vaccineSlice";
 
 const { TextArea } = Input;
 
@@ -149,6 +150,7 @@ function AppointmentData({ locationPath }) {
 
     useEffect(() => {
         dispatch(getCaseTypes());
+        dispatch(resetVaccineState());
     }, []);
 
     useEffect(() => {

@@ -18,7 +18,15 @@ import TabPrescription from "./pages/tab_design/TabPrescription";
 import ConfigurePrintSetting from "./pages/ConfigurePrintSetting";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
-import Vaccination from "./pages/vaccination/Vaccination";
+import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
+import { jwtDecode } from "jwt-decode";
+import config from "./config";
+
+const growthbook = new GrowthBook({
+  apiHost: "https://cdn.growthbook.io",
+  clientKey: config?.GROWTHBOOK_CLIENTKEY,
+  enableDevMode: process.env.REACT_APP_ENV !== "prod",
+});
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,6 +38,22 @@ function App() {
   );
 
   useEffect(() => {
+    // Load features asynchronously when the app renders
+    growthbook?.init({ streaming: true });
+    const token = authToken || getToken();
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        growthbook?.setAttributes({
+          doctorId: decodedToken?.result?.doctor_unique_id,
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const pathname = window.location.pathname;
     if (pathname == "/" && authToken) {
       setToken(authToken);
@@ -38,48 +62,50 @@ function App() {
 
   return (
     <>
-      <ErrorBoundary
-        FallbackComponent={ErrorFallback}
-        onError={(error) => {
-          // You can also log the error to an error reporting service like AppSignal
-          // logErrorToMyService(error, errorInfo);
-          console.error(error);
-        }}
-        onReset={(details) => {
-          // Reset the state of your app so the error doesn't happen again
-          console.error(details);
-        }}
-      >
-        <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            <Routes>
-              <Route path="/*" element={<AppointmentList />} />
-              <Route path="/vaccination" element={<Vaccination />} />
-              <Route path="patient_details" element={<PatientDetails />} />
-              <Route
-                path="prescription"
-                element={isMobile ? <TabPrescription /> : <Prescription />}
-              />
-              <Route
-                path="smart-prescription"
-                element= {<SmartPrescription />}
-              />
-              <Route
-                path="/print-smart-rx"
-                element={<SmartRxPreview />}
-              />
-              <Route
-                path="prescription_print_view"
-                element={<PrescriptionPrintView />}
-              />
-              <Route
-                path="configure_print_setting"
-                element={<ConfigurePrintSetting />}
-              />
-            </Routes>
-          </PersistGate>
-        </Provider>
-      </ErrorBoundary>
+      <GrowthBookProvider growthbook={growthbook}>
+        <ErrorBoundary
+          FallbackComponent={ErrorFallback}
+          onError={(error) => {
+            // You can also log the error to an error reporting service like AppSignal
+            // logErrorToMyService(error, errorInfo);
+            console.error(error);
+          }}
+          onReset={(details) => {
+            // Reset the state of your app so the error doesn't happen again
+            console.error(details);
+          }}
+        >
+          <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+              <Routes>
+                <Route path="/*" element={<AppointmentList />} />
+                <Route path="/vaccination" element={<Vaccination />} />
+                <Route path="patient_details" element={<PatientDetails />} />
+                <Route
+                  path="prescription"
+                  element={isMobile ? <TabPrescription /> : <Prescription />}
+                />
+                <Route
+                  path="smart-prescription"
+                  element={<SmartPrescription />}
+                />
+                <Route 
+                  path="/print-smart-rx" 
+                  element={<SmartRxPreview />} 
+                />
+                <Route
+                  path="prescription_print_view"
+                  element={<PrescriptionPrintView />}
+                />
+                <Route
+                  path="configure_print_setting"
+                  element={<ConfigurePrintSetting />}
+                />
+              </Routes>
+            </PersistGate>
+          </Provider>
+        </ErrorBoundary>
+      </GrowthBookProvider>
     </>
   );
 }

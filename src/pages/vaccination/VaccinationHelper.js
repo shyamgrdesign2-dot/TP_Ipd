@@ -25,22 +25,25 @@ export const mergeDataPatientDetails = (
   return vaccineDetails?.map((item) => {
     const vaccineGivenToPatient = patientDetails?.find(
       (obj) => obj.tvac_name === item.tvac_name
-    );
+    ) || {};
 
-    const { tvt_due_day, tvt_due_month, tvt_due_year, tvp_given_date } = item;
-    const futureDate = moment(birthDate, "Do MMM YYYY")
+    const { tvt_due_day, tvt_due_month, tvt_due_year } = item;
+    const { tvp_given_date } = vaccineGivenToPatient;
+    const futureDate = birthDate ? moment(birthDate, "Do MMM YYYY")
       .add({
         days: tvt_due_day,
         months: tvt_due_month,
         years: tvt_due_year,
       })
-      .format("DD-MMM-YYYY");
+      .format("DD-MMM-YYYY") : "";
 
     const matchingForOverDue = overridenVaccines.find(
       (obj) => obj.tvd_temp_id === item.tvt_id
     );
 
-    const brandDetails = details.find((brand) => brand.tvc_id === item.tvc_id);
+    const brandDetails = tvp_given_date ? details.find(
+      (brand) => brand.tvc_id === vaccineGivenToPatient?.tvc_id
+    ) : {};
 
     return {
       ...item,
@@ -90,10 +93,10 @@ export const getDates = (sampleMap) => {
       (sampleObject) => sampleObject.tvp_given_date
     );
 
-    const anyFutureDate = moment(value[0].dueDate).isSameOrAfter(
+    const anyFutureDate = value?.[0]?.dueDate ? moment(value[0].dueDate).isSameOrAfter(
       new Date(),
       "day"
-    );
+    ) : true;
 
     // Set the alert field based on the presence of dates
     const alert = allDatesPresent
@@ -125,25 +128,4 @@ export const getDefaultOption = (dateOptions) => {
     return 0;
   }
   return activeValue - 1;
-};
-
-export const getVaccinesDetails = (notGivenVaccines, birthDate) => {
-  const vaccinesData = notGivenVaccines?.filter((item) => {
-    const currentDate = moment();
-    return currentDate.isSameOrAfter(item.dueDate, "day");
-  });
-
-  const upcomingDate = vaccinesData[vaccinesData?.length - 1].tvt_age;
-
-  let upcomingVaccines = [];
-  let pendingVaccines = [];
-  for (let i = 0; i < vaccinesData.length; i++) {
-    if (vaccinesData[i].tvt_age === upcomingDate) {
-      upcomingVaccines.push(vaccinesData[i]);
-    } else {
-      pendingVaccines.push(vaccinesData[i]);
-    }
-  }
-
-  return { upcomingVaccines, pendingVaccines };
 };

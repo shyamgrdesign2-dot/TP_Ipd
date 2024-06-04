@@ -1,19 +1,29 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Modal, DatePicker, Button } from "antd";
 import { useEffect, useState } from "react";
-import { createPatient } from "../../service";
-import { useNavigate } from "react-router-dom";
+import { createPatient, updateDob } from "../../service";
 import { errorMessage } from "../../../../utils/utils";
 import moment from "moment";
 import dayjs from "dayjs";
+import { useSelector } from "react-redux";
+import "./AddDOB.scss";
 
-const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
+const AddDOB = ({
+  show,
+  setShowDob,
+  patientDetails,
+  handleDrawerVaccination,
+  getVaccineDetails,
+  setLoading,
+}) => {
   const [dob, setDob] = useState("");
-  const navigate = useNavigate();
+  const { profile } = useSelector((state) => state.doctors);
 
   useEffect(() => {
-    if (patientDetails.DOB || patientDetails.pm_dob) {
-      setDob(patientDetails.DOB || patientDetails.pm_dob);
+    if (patientDetails.DOB) {
+      setDob(moment(patientDetails.DOB, "Do MMMM YYYY").format("DD-MM-YYYY"));
+    } else if (patientDetails.pm_dob) {
+      setDob(moment(patientDetails.pm_dob).format("DD-MM-YYYY"));
     }
   }, []);
 
@@ -23,18 +33,19 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
       patient_pid: patientDetails?.pm_pid,
       hospital_bid:
         patientDetails?.hm_business_id || patientDetails?.hospital_business_id,
-      hospital_id: patientDetails?.hm_id || patientDetails?.clinic_id,
+      hospital_id: patientDetails?.hm_id || profile?.hospital_data?.[0]?.hm_id,
       patient_first_name: patientDetails?.pm_first_name || "",
       patient_middle_name: patientDetails?.pm_middle_name || "",
       patient_last_name: patientDetails?.pm_last_name || "",
       patient_gender: patientDetails?.pm_gender,
-      patient_dob: moment(dob).format("YYYY-MM-DD"),
+      patient_dob: moment(dob, "DD-MM-YYYY").format("YYYY-MM-DD"),
       patient_contact_no: patientDetails?.pm_contact_no,
     };
     const createPatientRes = await createPatient(payload);
     if (createPatientRes?.status === 200) {
-      getPatientDetail();
+      getVaccineDetails();
       setShowDob(false);
+      setLoading(true);
     } else {
       errorMessage({ name: "TypeError" });
     }
@@ -43,14 +54,16 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
   const updatePatientDob = async () => {
     const payload = {
       patient_uid: patientDetails?.patient_unique_id,
+      patient_pid: patientDetails?.vac_pid,
       hospital_bid: patientDetails?.hm_business_id,
       hospital_id: patientDetails?.hm_id,
-      updated_dob: moment(dob).format("YYYY-MM-DD"),
+      updated_dob: moment(dob, "DD-MM-YYYY").format("YYYY-MM-DD"),
     };
-    const createPatientRes = await createPatient(payload);
+    const createPatientRes = await updateDob(payload);
     if (createPatientRes?.status === 200) {
-      getPatientDetail();
+      getVaccineDetails();
       setShowDob(false);
+      setLoading(true);
     } else {
       errorMessage({ name: "TypeError" });
     }
@@ -72,11 +85,12 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
         <div>Date of birth</div>
         <DatePicker
           placeholder="Select Date"
+          dropdownClassName="addDOB-picker-dropdown"
           onChange={(_, d) => {
             setDob(d);
           }}
           format="DD-MM-YYYY"
-          value={dob ? dayjs(dob) : ""}
+          value={dob ? dayjs(dob, "DD-MM-YYYY") : ""}
         />
 
         <Button
@@ -93,11 +107,10 @@ const AddDOB = ({ show, setShowDob, patientDetails, getPatientDetail }) => {
         </Button>
         <Button
           className="border-0 opacity-50 shadow-none text-secondary"
-          onClick={() =>
-            navigate("/prescription", {
-              state: { patientDetails: patientDetails },
-            })
-          }
+          onClick={() => {
+            handleDrawerVaccination();
+            setShowDob(false);
+          }}
         >
           Close vaccination chart
         </Button>

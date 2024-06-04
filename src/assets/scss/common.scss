@@ -450,6 +450,14 @@ body {
             }
         }
     }
+
+    .ant-picker{
+        &:hover {
+            .ant-picker-suffix {
+                opacity: 1 !important;
+            }
+        }
+    }
     .ant-picker-clear {
         svg {
             display: none;
@@ -586,6 +594,182 @@ body {
                     background-color: #FCDADA;
                     color: #F04545 !important;
                 }
+            }
+        }
+    }
+    // rightside drawer css
+    .ant-drawer-open {
+        .ant-drawer-content-wrapper {
+            box-shadow: none !important;
+        }
+    }
+    .playdrawer {
+        background: transparent !important;
+        .ant-drawer-title {
+            font-size: 20px !important;
+            font-weight: 500 !important;
+            color: #000 !important;
+        }
+        .ant-drawer-header {
+            border-radius: 15px 0 0 0 !important;
+            background: #F1F1F5;
+            padding-left: 24px !important;
+            border: 0px;
+            padding: 15px 28px 14px 24px !important;
+            .ant-drawer-header-title {
+                flex-direction: row-reverse;
+                button.ant-drawer-close {
+                    margin: 0px;
+                }
+            }
+        }
+    }
+    .videodrawer-left {
+        .drawer-slider {
+            width: 340px !important;
+            margin-right: 25px;
+            margin-left: 3px;
+            img {
+                max-width: 100%;
+                outline: none;
+                border-radius: 10px;
+            }
+        }
+        &.drawer-slider:focus-visible {
+            outline: none;
+        }
+        ul.slick-dots {
+            display: flex !important;
+            justify-content: center;
+            margin: 0px;
+            padding: 0px;
+            li {
+                list-style: none;
+                margin: 5px;
+                button {
+                    border: 0px;
+                    padding: 0px;
+                    margin: 0px;
+                    font-size: 0px;
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 50%;
+                    background: #D9D9D9;
+                }
+            }
+            li.slick-active {
+                button {
+                    background: #A263D5;
+                }
+            }
+        }
+        .slick-list {
+            padding: 0px !important;
+        }
+        .slick-track {
+            display: flex;
+            width: 100% !important;
+        }
+        .slick-track {
+            .slick-slide {
+                position: relative;
+                button {
+                    border: 0px;
+                    background: transparent;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    position: absolute;
+                    outline: none;
+                    img {
+                        max-width: 100%;
+                        border-radius: 10px;
+                    }
+                }
+            }
+        }
+    }   
+}
+.prescription-pad {
+    .videodrawer {
+        margin: 0 0 -8px 0;
+    }
+}
+.shadow2 {
+    -webkit-box-shadow: 0px 0px 5px 4px rgba(202, 202, 202, 0.2);
+    -moz-box-shadow: 0px 0px 5px 4px rgba(202, 202, 202, 0.2);
+    box-shadow: 0px 0px 5px 4px rgba(202, 202, 202, 0.2);
+}
+body {
+    .beamer_icon{
+        &.active {
+            right: -13px;
+            top: -13px;
+            color: $white !important;
+        }
+    }
+    #beamerLastPostTitle{
+        span {
+            font-size: 12px !important;
+        }
+    }
+}
+
+.video-animat {
+    position: relative;
+    img {
+        &:nth-child(2) {
+            position: absolute;
+            left: -7px;
+            top: -7px;
+            width: 48px;
+            height: 48px;
+            z-index: -1;
+        }
+    }
+}
+
+// medication customize setting
+.dragicon-position {
+    .subtitle-customize {
+        color: $grayColor !important;
+        font-size: 12px;
+        font-weight: 400;
+        span {
+            font-weight: 600;
+            color: $grayColor !important;
+        }
+    }
+    .anticon-menu {
+        z-index: 9999999;
+        position: absolute;
+        top: 23px;
+        left: 5px;
+    }
+    .ant-collapse-item {
+        border-bottom: 0 !important;
+        .ant-collapse-header {
+            padding: 0 !important;
+            .ant-collapse-expand-icon {
+                &:after {
+                    border: 0 !important;
+                    font-size: 18px;
+                    color: $theme;
+                }
+            }
+        }
+        .ant-collapse-content {
+            border-top: 0 !important;
+        }
+    }
+    .ant-radio-wrapper {
+        .ant-radio-checked .ant-radio-inner {
+            border-color: $theme;
+            background-color: $theme;
+        }
+        &:hover {
+            .ant-radio-inner {
+                border-color: $theme;
             }
         }
     }

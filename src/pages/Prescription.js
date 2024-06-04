@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Drawer } from "antd";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -25,7 +25,7 @@ import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
 
 import MedicalHistoryBox from "../components/MedicalHistoryBox";
-import MedicalHistoryList from "../components/tab_design/MedicalHistoryList";
+import MedicalHistoryList from "../components/MedicalHistoryList";
 
 import vitals from "../assets/images/Vitals.svg";
 import MedicalHistory from "../assets/images/Medical-History.svg";
@@ -34,6 +34,8 @@ import hey from "../assets/images/bg-hey.png";
 
 import { Content } from "antd/es/layout/layout";
 import vaccinationImg from "../assets/images/Vaccination.svg";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import Vaccination from "./vaccination/Vaccination";
 import { checkToShowVaccination } from "./vaccination/service";
 
 function Prescription() {
@@ -49,6 +51,7 @@ function Prescription() {
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
+  const isVaccination = state?.isVaccination;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -65,7 +68,6 @@ function Prescription() {
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
-  const navigate = useNavigate();
 
   const contextApi = {
     patient_data,
@@ -95,7 +97,17 @@ function Prescription() {
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
-  const [shouldShowVaccination, setShouldShowVaccination] = useState(false);
+  const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
+  const [isPediatric, setIsPediatric] = useState(false);
+  const isVaccinationAccessableFromGB = useFeatureIsOn(
+    "vaccination-new-design"
+  );
+
+  const checkForPediatric = async () => {
+    if (profile?.doctor_unique_id) {
+      setIsPediatric(await checkToShowVaccination(profile.doctor_unique_id));
+    }
+  };
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -236,14 +248,8 @@ function Prescription() {
         setAdditionalNote(caseManagerData.visit_advice);
       }
     }
-    checkForVaccination();
+    checkForPediatric();
   }, []);
-
-  const checkForVaccination = async () => {
-    setShouldShowVaccination(
-      await checkToShowVaccination(profile?.doctor_unique_id)
-    );
-  };
 
   // Drawer Vitals
   const handleDrawerVital = useCallback(() => {
@@ -255,6 +261,17 @@ function Prescription() {
     setMedicalHistoryDrawer(!medicalHistoryDrawer);
   }, [medicalHistoryDrawer]);
 
+  // Drawer Vaccination
+  const handleDrawerVaccination = () => {
+    setVaccinationDrawer(!vaccinationDrawer);
+  };
+
+  useEffect(() => {
+    if (isVaccination) {
+      handleDrawerVaccination();
+    }
+  }, [isVaccination]);
+
   //Handle Sider
   const handleCollapsed = useCallback(
     (flag) => {
@@ -262,9 +279,11 @@ function Prescription() {
         handleDrawerVital();
       } else if (flag === 2) {
         handleDrawerMedicalHistory();
+      } else if (flag === 3) {
+        handleDrawerVaccination();
       }
     },
-    [vitalDrawer, medicalHistoryDrawer]
+    [vitalDrawer, medicalHistoryDrawer, vaccinationDrawer]
   );
 
   useEffect(() => {
@@ -309,10 +328,6 @@ function Prescription() {
     }
   }, [selectedVitalsList]);
 
-  const vaccinationHandler = () => {
-    navigate("/vaccination", { state: { patient_data: patient_data } });
-  };
-
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -323,65 +338,35 @@ function Prescription() {
             <div className="col-lg-4 col-md-12 col-12">
               {customizedPadLeftList?.map((e, i) => {
                 return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
-                  <>
-                    <div key={i} className="prescription-box-sm p-14">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                          <img src={vitals} alt="vitals" className="me-3" />
-                          <div className="title-common">
-                            Vitals & Body Composition
-                          </div>
+                  <div key={i} className="prescription-box-sm p-14">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <img src={vitals} alt="vitals" className="me-3" />
+                        <div className="title-common">
+                          Vitals & Body Composition
                         </div>
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerVital}
-                        >
-                          {" "}
-                          <i
-                            className={`${
-                              vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                            } me-1 fs-5`}
-                          ></i>{" "}
-                          <span>{`${
-                            vitalsData.length > 0 ? "Edit" : "Add"
-                          }`}</span>
-                        </button>
                       </div>
-                      {vitalsData.length > 0 && (
-                        <VitalsList
-                          mode={caseManagerData !== undefined ? EDIT : ADD}
-                        />
-                      )}
+                      <button
+                        className="btn d-flex align-items-center btn-text"
+                        onClick={handleDrawerVital}
+                      >
+                        {" "}
+                        <i
+                          className={`${
+                            vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                          } me-1 fs-5`}
+                        ></i>{" "}
+                        <span>{`${
+                          vitalsData.length > 0 ? "Edit" : "Add"
+                        }`}</span>
+                      </button>
                     </div>
-                    {shouldShowVaccination === "true" ? (
-                      <div className="prescription-box-sm p-14">
-                        <div className="d-flex align-items-center justify-content-between">
-                          <div className="d-flex align-items-center">
-                            <img
-                              src={vaccinationImg}
-                              alt="vitals"
-                              className="me-3"
-                            />
-                            <div className="title-common">Vaccination</div>
-                          </div>
-                          <button
-                            className="btn d-flex align-items-center btn-text"
-                            onClick={vaccinationHandler}
-                          >
-                            {" "}
-                            <i
-                              className={`${
-                                vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                              } me-1 fs-5`}
-                            ></i>{" "}
-                            <span>{`${
-                              vitalsData.length > 0 ? "Edit" : "Add"
-                            }`}</span>
-                          </button>
-                        </div>
-                      </div>
-                    ) : null}
-                  </>
+                    {vitalsData.length > 0 && (
+                      <VitalsList
+                        mode={caseManagerData !== undefined ? EDIT : ADD}
+                      />
+                    )}
+                  </div>
                 ) : (
                   e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
                     <div key={i} className="prescription-box-sm p-14">
@@ -420,6 +405,28 @@ function Prescription() {
                   )
                 );
               })}
+              {(!!isVaccinationAccessableFromGB || isPediatric) && (
+                <div className="prescription-box-sm p-14">
+                  <div className="d-flex align-items-center justify-content-between">
+                    <div className="d-flex align-items-center">
+                      <img src={vaccinationImg} alt="vitals" className="me-3" />
+                      <div className="title-common">Vaccination</div>
+                    </div>
+                    <button
+                      className="btn d-flex align-items-center btn-text"
+                      onClick={handleDrawerVaccination}
+                    >
+                      {" "}
+                      <i
+                        className={`${
+                          vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                        } me-1 fs-5`}
+                      ></i>{" "}
+                      <span>{`${vitalsData.length > 0 ? "Edit" : "Add"}`}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
               {/* <div>
                 <button className="btn btn-parameters mx-auto w-100">
                   <div className="align-items-center d-flex justify-content-center">
@@ -494,6 +501,17 @@ function Prescription() {
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
         </Drawer>
+        {vaccinationDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerVaccination}
+            open={vaccinationDrawer}
+            width="100%"
+          >
+            <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
+          </Drawer>
+        )}
       </>
     </CashManagerContext.Provider>
   );
