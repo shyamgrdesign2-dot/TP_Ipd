@@ -34,6 +34,8 @@ import {
 } from "../redux/caseManagerSlice";
 import { listVideo } from "../redux/doctorsSlice";
 
+var oneClickCosultationTemplateId = 0
+
 function HeaderPrescription() {
 
     const { frequencyList, timingList, videoList } = useSelector((state) => state.doctors);
@@ -46,7 +48,8 @@ function HeaderPrescription() {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
-    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
+    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime } = useContext(CashManagerContext);
+    
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
@@ -155,6 +158,7 @@ function HeaderPrescription() {
     };
 
     const onTemplateSelected = async (tmoc_id, tmoc_template_name) => {
+        oneClickCosultationTemplateId = tmoc_id
         window.Moengage.track_event("one_click_template_select", {
             "template_name": tmoc_template_name
         });
@@ -810,11 +814,14 @@ function HeaderPrescription() {
                 follow_up_date: followUpDate,
                 visit_advice: additionalNote,
                 medical_history: medicalHistoryData,
+                consultation_start_datetime: startTime,
+                oneclick_cosultation_template_id:oneClickCosultationTemplateId,
                 vaccines: {
                     given: givenVaccines,
                     due: updatedDueVaccines
                 },
             };
+
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
             if (action.meta.requestStatus === "fulfilled") {
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })

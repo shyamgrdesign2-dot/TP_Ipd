@@ -74,6 +74,7 @@ function TabPrescription() {
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
+  const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
   const [isPediatric, setIsPediatric] = useState(false);
   const isVaccinationAccessableFromGB = useFeatureIsOn(
     "vaccination-new-design"
@@ -103,6 +104,7 @@ function TabPrescription() {
     setFollowUpDate,
     additionalNote,
     setAdditionalNote,
+    startTime
   };
 
   const [collapsed, setCollapsed] = useState(false);
