@@ -127,7 +127,7 @@ function WalkInConsultation() {
             Consult
           </span>
         ),
-        key: "cancelappt",
+        key: "consult",
       },
     ];
   };
@@ -184,71 +184,44 @@ function WalkInConsultation() {
             >
               Patient Details
             </Button>
-            {/* </Link> */}
-            {/* <Button
-              type="text"
-              className="btn btn-primary3 align-items-center d-flex"
-              icon={<i className="icon-Consult"></i>}
-              onClick={() => {
-                window.Moengage.track_event("walkin_consult_start", {
-                  doctor_id: profile?.doctor_unique_id,
-                  patient_type: "Existing",
-                  patient_id: patient?.patient_unique_id,
-                });
-                navigate("/prescription", { state: { patient_data: patient } });
-              }}
-            >
-              Start Consult
-            </Button> */}
-            <button
-              // className="btn btn-outline-primary btn-smart-rx"
-              className="btn btn-outline-primary btn-smart-rx"
-              onClick={() => onSmartRxClick(patient)}
-            >
-              SmartRx
-            </button>
-            <Dropdown
-              className="btn btn-outline btn-more ms-3"
-              menu={{
-                items: getMenuItems(patient),
-              }}
-              trigger={["click"]}
-            >
-              <a
-                onClick={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                <i className="icon-More" />
-              </a>
-            </Dropdown>
-            {/* <button
-              className="btn btn-outline-primary btn-down-arrow"
-              onClick={(e) => onDownArrowClick(patient, e)}
-            >
-              <span
-                role="img"
-                aria-label="down"
-                class="anticon anticon-down ant-select-suffix"
-              >
-                <i
-                  className="icon-right"
-                  style={{
-                    display: "block",
-                    transform: `rotate(270deg)`,
+            <div className="d-flex btn btn-smart-rx-walkin">
+              <div style={{paddingLeft: "6px"}}>
+                <img src={smartPad} alt="vitals" />
+                <button
+                  // className="btn btn-outline-primary btn-smart-rx"
+                  className="btn btn-smartRx-text"
+                  onClick={() => onSmartRxClick(patient)}
+                >
+                  SmartRx
+                </button>
+              </div>
+              <div>
+                <Dropdown
+                  className="btn"
+                  menu={{
+                    items: getMenuItems(patient),
                   }}
-                />
-              </span>
-            </button> */}
-            {/* {openRowIndex === patient?.patient_unique_id && (
-              <button
-                ref={consultButtonRef}
-                className="btn-consult"
-                onClick={() => onConsultClick(patient?.patient_unique_id)}
-              >
-                Consult
-              </button>
-            )} */}
+                  trigger={["click"]}
+                >
+                  <a
+                    onClick={(e) => {
+                      e.preventDefault();
+                    }}
+                    style={{padding:"5px"}}
+                  >
+                    <i
+                      className="icon-right"
+                      style={{
+                      display: "block",
+                      transform: `rotate(270deg)`,
+                      color: "white",
+                      // padding: "5px"
+                      }}
+                    />
+                  </a>
+                </Dropdown>
+              </div>
+            </div>
           </div>
         </div>
       </>
