@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
-import { Modal, Button, Checkbox } from "antd";
+import { Button, Modal, Checkbox } from "antd";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,7 +11,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import TogglePercentileLine from "../togglePercentileLine/TogglePercentileLine";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -125,11 +124,23 @@ const WeightChart = ({ data = dummyData }) => {
   };
 
   const options = {
+    responsive: true,
+    maintainAspectRatio: false,
     scales: {
       x: {
         type: "linear",
         ticks: {
-          stepSize: 1, // Controls the spacing between intervals on the x-axis
+          stepSize: 1,
+        },
+        scaleLabel: {
+          display: true,
+          labelString: "Age (months)", // X-axis label
+        },
+      },
+      y: {
+        scaleLabel: {
+          display: true,
+          labelString: "Weight (kg)", // Y-axis label
         },
       },
     },
@@ -141,7 +152,6 @@ const WeightChart = ({ data = dummyData }) => {
         enabled: false,
       },
     },
-    maintainAspectRatio: true, // Fixed aspect ratio
   };
 
   // Update the dataset visibility based on the state
@@ -158,12 +168,11 @@ const WeightChart = ({ data = dummyData }) => {
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", height: "250px" }}>
       <div
         style={{
           padding: "20px",
-          width: chartWidth,
-          height: "auto",
+          height: "100%",
           transition: "width 0.3s ease-in-out",
         }}
       >
@@ -177,7 +186,7 @@ const WeightChart = ({ data = dummyData }) => {
         >
           <h2 style={{ margin: 0 }}>Weight</h2>
           <div>
-          <Button
+            <Button
               type="primary"
               onClick={() => setModalIsOpen(true)}
               style={{ marginRight: "10px" }}
@@ -189,8 +198,30 @@ const WeightChart = ({ data = dummyData }) => {
             </Button>
           </div>
         </div>
-        <Line ref={chartRef} data={chartData} options={options} />
+        <div style={{ position: "relative", height: "100%", width: "100%" }}>
+          <Line ref={chartRef} data={chartData} options={options} />
+        </div>
       </div>
+      <Modal
+        title="Toggle Line Visibility"
+        visible={modalIsOpen}
+        onCancel={() => setModalIsOpen(false)}
+        footer={[
+          <Button key="close" onClick={() => setModalIsOpen(false)}>
+            Close
+          </Button>,
+        ]}
+      >
+        {data.datasets.map((dataset, index) => (
+          <Checkbox
+            key={index}
+            checked={visibility[index]}
+            onChange={() => toggleVisibility(index)}
+          >
+            {dataset.label}
+          </Checkbox>
+        ))}
+      </Modal>
     </div>
   );
 };

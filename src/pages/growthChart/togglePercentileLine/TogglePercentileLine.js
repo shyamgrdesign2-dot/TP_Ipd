@@ -14,7 +14,7 @@ const TogglePercentileLine = ({
     //   onOk={() => setModalIsOpen(false)}
     //   onCancel={() => setModalIsOpen(false)}
     // >
-    <div className="toggleContainer">
+    <div className="percentileContainer">
       {data.datasets.map((dataset, index) => (
         <div key={index}>
           <Checkbox
