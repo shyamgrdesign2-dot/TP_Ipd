@@ -11,7 +11,7 @@ import { listCertificate, deleteCertificate } from "../../redux/doctorsSlice";
 
 import { errorMessage } from "../../utils/utils";
 
-function CreateCertificate({ handleCreateCertificateDrawer, replace, selectedTemplate }) {
+function CreateCertificate({ handleCreateCertificateDrawer, patient_data, replace, selectedTemplate, tcu_id }) {
 
     const navigate = useNavigate();
 
@@ -85,7 +85,7 @@ function CreateCertificate({ handleCreateCertificateDrawer, replace, selectedTem
                     <div key={index} className={`${index !== certificateList?.length - 1 && 'border-bottom'} d-flex align-items-center py-3 cursor-pointer`}>
                         <div onClick={() => {
                             handleCreateCertificateDrawer()
-                            navigate(`/certificate`, { replace: replace, state: { certificate_data: item } })
+                            navigate(`/certificate`, { replace: replace, state: { patient_data: patient_data, certificate_data: { ...item, tcu_id: tcu_id } } })
                         }} className="d-flex w-100 align-items-center justify-content-between">
                             <div className="bg-fitness">
                                 {item?.title[0]}

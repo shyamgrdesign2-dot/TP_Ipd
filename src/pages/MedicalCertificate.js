@@ -8,7 +8,7 @@ import moment from "moment";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { addPatientCertificate } from "../redux/doctorsSlice";
+import { addPatientCertificate, editPatientCertificate } from "../redux/doctorsSlice";
 
 import alertIcon from '../assets/images/alertIcon.svg';
 import CreateCertificate from "../components/medical_certificate/CreateCertificate";
@@ -22,7 +22,7 @@ function MedicalCertificate() {
     const dispatch = useDispatch();
 
     const { state } = useLocation();
-    const { certificate_data } = state != null && state;
+    const { certificate_data, patient_data } = state != null && state;
 
     const editor = useRef(null);
 
@@ -60,13 +60,13 @@ function MedicalCertificate() {
                 if (selectedOption === 'option1') {
                     editor.s.insertHTML(`<label class="consulting_doctor">${profile?.um_name}</label>`);
                 } else if (selectedOption === 'option2') {
-                    editor.s.insertHTML(`<label class="patient_name">${single_appointment_data?.pm_fullname}</label>`);
+                    editor.s.insertHTML(`<label class="patient_name">${patient_data?.pm_fullname}</label>`);
                 } else if (selectedOption === 'option3') {
-                    editor.s.insertHTML(`<label class="age">${single_appointment_data?.ageYears} Y, ${single_appointment_data?.ageMonths} M</label>`);
+                    editor.s.insertHTML(`<label class="age">${patient_data?.ageYears} Y, ${patient_data?.ageMonths} M</label>`);
                 } else if (selectedOption === 'option4') {
-                    editor.s.insertHTML(`<label class="contact_number">${single_appointment_data?.pm_contact_no}</label>`);
+                    editor.s.insertHTML(`<label class="contact_number">${patient_data?.pm_contact_no}</label>`);
                 } else if (selectedOption === 'option5') {
-                    editor.s.insertHTML(`<label class="gender">${single_appointment_data?.pm_gender}</label>`);
+                    editor.s.insertHTML(`<label class="gender">${patient_data?.pm_gender}</label>`);
                 } else if (selectedOption === 'option6') {
                     editor.s.insertHTML(`<label>${moment().format('DD-MM-YYYY')}</label>`);
                 } else if (selectedOption === 'option7') {
@@ -168,19 +168,21 @@ function MedicalCertificate() {
 
     const onPatientCertificateClick = async () => {
         var sendData = {
-            patient_unique_id: single_appointment_data?.patient_unique_id !== undefined ? single_appointment_data?.patient_unique_id : 0,
-            pam_id: single_appointment_data?.pam_id,
+            patient_unique_id: patient_data?.patient_unique_id !== undefined ? patient_data?.patient_unique_id : 0,
+            pam_id: patient_data?.pam_id !== undefined ? patient_data?.pam_id : 0,
             tcu_content_id: certificate_data !== undefined ? certificate_data?.id : 0,
             tcu_title: title,
-            tcu_content: editor.current?.value,
+            tcu_content: editor.current?.value
         }
-
-        const action = await dispatch(addPatientCertificate(sendData))
+        if (certificate_data?.tcu_id !== undefined) {
+            sendData['tcu_id'] = certificate_data?.tcu_id
+        }
+        const action = certificate_data?.tcu_id !== undefined ? await dispatch(editPatientCertificate(sendData)) : await dispatch(addPatientCertificate(sendData))
         if (action.meta.requestStatus === "fulfilled") {
             navigate('/certificate_print_view', {
                 replace: true, state: {
                     ...action.payload,
-                    patient_data: single_appointment_data,
+                    patient_data: patient_data,
                     tcu_content_id: certificate_data !== undefined ? certificate_data?.id : 0,
                     pms_default: certificate_data !== undefined ? certificate_data?.pms_default : 0,
                     tcu_title: title,
@@ -267,15 +269,15 @@ function MedicalCertificate() {
                     config={config}
                     value={content
                         .replace(/{Consulting Doctor}/g, `<label class="consulting_doctor">${profile?.um_name}</label>`)
-                        .replace(/{Patient Name}/g, `<label class="patient_name">${single_appointment_data?.pm_fullname}</label>`)
-                        .replace(/{Age}/g, `<label class="age">${single_appointment_data?.ageYears}Y, ${single_appointment_data?.ageMonths}M</label>`)
-                        .replace(/{Contact Number}/g, `<label class="contact_number">${single_appointment_data?.pm_contact_no}</label>`)
-                        .replace(/{Gender}/g, `<label class="gender">${single_appointment_data?.pm_gender}</label>`)
-                        .replace(/{Email}/g, `<label class="email">${single_appointment_data?.pm_email ? single_appointment_data?.pm_email : 'Email'}</label>`)
-                        .replace(/{Patient ID}/g, `<label class="patient_id">${single_appointment_data?.pm_pid}</label>`)
-                        .replace(/{Address}/g, `<label class="address">${single_appointment_data?.patient_address ? single_appointment_data?.patient_address : 'Address'}</label>`)
-                        .replace(/{Blood Group}/g, `<label class="blood_group">${single_appointment_data?.pm_blood_group ? single_appointment_data?.pm_blood_group : 'Blood Group'}</label>`)
-                        .replace(/{Date of Birth}/g, `<label class="date_of_birth">${single_appointment_data?.DOB}</label>`)
+                        .replace(/{Patient Name}/g, `<label class="patient_name">${patient_data?.pm_fullname}</label>`)
+                        .replace(/{Age}/g, `<label class="age">${patient_data?.ageYears}Y, ${patient_data?.ageMonths}M</label>`)
+                        .replace(/{Contact Number}/g, `<label class="contact_number">${patient_data?.pm_contact_no}</label>`)
+                        .replace(/{Gender}/g, `<label class="gender">${patient_data?.pm_gender}</label>`)
+                        .replace(/{Email}/g, `<label class="email">${patient_data?.pm_email ? patient_data?.pm_email : 'Email'}</label>`)
+                        .replace(/{Patient ID}/g, `<label class="patient_id">${patient_data?.pm_pid}</label>`)
+                        .replace(/{Address}/g, `<label class="address">${patient_data?.patient_address ? patient_data?.patient_address : 'Address'}</label>`)
+                        .replace(/{Blood Group}/g, `<label class="blood_group">${patient_data?.pm_blood_group ? patient_data?.pm_blood_group : 'Blood Group'}</label>`)
+                        .replace(/{Date of Birth}/g, `<label class="date_of_birth">${patient_data?.DOB}</label>`)
                         .replace(/{Department}/g, `<label class="department">${profile?.dp_name}</label>`)
                         .replace(/{Referred by}/g, `<label class="referred_by">Referred by</label>`)
                         .replace(/{Case Type}/g, `<label class="case_type">Case Type</label>`)
@@ -328,7 +330,7 @@ function MedicalCertificate() {
                 onClose={handleCreateCertificateDrawer}
                 key="left"
             >
-                <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} replace={true} selectedTemplate={certificate_data !== undefined ? certificate_data?.id : 0} />
+                <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={patient_data} replace={true} selectedTemplate={certificate_data !== undefined ? certificate_data?.id : 0} tcu_id={certificate_data?.tcu_id} />
             </Drawer>
         </div>
     )

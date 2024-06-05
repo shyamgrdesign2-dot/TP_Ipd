@@ -243,6 +243,19 @@ export const addPatientCertificate = createAsyncThunk(
   }
 );
 
+export const editPatientCertificate = createAsyncThunk(
+  "medicalCertificate/editPatientCertificate",
+  async (data) => {
+    let result = {};
+    result = await ApiMedicalCertificate.editPatientCertificate(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 export const listPatientCertificate = createAsyncThunk(
   "medicalCertificate/listPatientCertificate",
   async (data) => {
@@ -268,6 +281,18 @@ export const deletePatientCertificate = createAsyncThunk(
   }
 );
 
+export const viewPatientCertificate = createAsyncThunk(
+  "medicalCertificate/viewPatientCertificate",
+  async (data) => {
+    let result = {};
+    result = await ApiMedicalCertificate.viewPatientCertificate(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
 
 const doctorsSlice = createSlice({
   name: "doctors",
@@ -278,9 +303,6 @@ const doctorsSlice = createSlice({
     },
     changeSortOrder: (state, action) => {
       state.sort_order = action.payload
-    },
-    selectAppointmentData: (state, action) => {
-      state.single_appointment_data = action.payload
     }
   },
   extraReducers: (builder) => {
@@ -416,6 +438,15 @@ const doctorsSlice = createSlice({
       .addCase(addPatientCertificate.rejected, (state) => {
         state.loading = false;
       })
+      .addCase(editPatientCertificate.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(editPatientCertificate.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(editPatientCertificate.rejected, (state) => {
+        state.loading = false;
+      })
       .addCase(listPatientCertificate.pending, (state, action) => {
         state.loading = true;
       })
@@ -444,9 +475,24 @@ const doctorsSlice = createSlice({
           e.tcu_id == action.meta.arg ? { ...e, loading: false } : e
         );
         state.patientCertificateList = [...updatedData];
+      })
+      .addCase(viewPatientCertificate.pending, (state, action) => {
+        if (action.meta.arg.configurePrintSetting === undefined) {
+          state.loading = true
+        }
+      })
+      .addCase(viewPatientCertificate.fulfilled, (state, action) => {
+        if (action.meta.arg.configurePrintSetting === undefined) {
+          state.loading = false;
+        }
+      })
+      .addCase(viewPatientCertificate.rejected, (state, action) => {
+        if (action.meta.arg.configurePrintSetting === undefined) {
+          state.loading = false;
+        }
       });
   },
 });
 
-export const { changeLogoStatus, changeSortOrder, selectAppointmentData } = doctorsSlice.actions
+export const { changeLogoStatus, changeSortOrder } = doctorsSlice.actions
 export default doctorsSlice.reducer;

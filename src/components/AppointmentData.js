@@ -45,8 +45,7 @@ import {
 } from "../redux/appointmentsSlice";
 
 import {
-    changeSortOrder,
-    selectAppointmentData
+    changeSortOrder
 } from "../redux/doctorsSlice";
 import CreateCertificate from "./medical_certificate/CreateCertificate";
 import { resetVaccineState } from "../redux/vaccineSlice";
@@ -316,7 +315,7 @@ function AppointmentData({ locationPath }) {
             {
                 label: <span
                     onClick={() => {
-                        dispatch(selectAppointmentData(record))
+                        setAppointmentSelectedFromMenu(record);
                         handleCreateCertificateDrawer()
                     }}>Create Certificate</span>,
                 key: "certificate",
@@ -881,7 +880,7 @@ function AppointmentData({ locationPath }) {
                     onClose={handleCreateCertificateDrawer}
                     key="left"
                 >
-                    <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} replace={false} />
+                    <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={appointmentSelectedFromMenu} replace={false} />
                 </Drawer>
             </div>
 

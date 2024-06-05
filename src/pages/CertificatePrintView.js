@@ -18,7 +18,7 @@ import { MESSAGE_KEY } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { addCertificate } from "../redux/doctorsSlice";
+import { addCertificate, viewPatientCertificate } from "../redux/doctorsSlice";
 
 import { pdfjs, Document, Page } from "react-pdf";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
@@ -133,6 +133,19 @@ function CertificatePrintView() {
         navigate(0, { replace: true });
     };
 
+    const onEditCertificateClick = async () => {
+        var sendData = {
+            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            tcu_id: state.tcu_id
+        }
+        const action = await dispatch(viewPatientCertificate(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            navigate("/certificate", { replace: true, state: { patient_data: patient_data, certificate_data: action.payload } })
+        } else {
+            errorMessage(action.error)
+        }
+    };
+
     return (
         <>
             <HeaderPrescriptionPrint patient_data={patient_data} flag={2} />
@@ -174,13 +187,23 @@ function CertificatePrintView() {
                                     <span className="fw-semibold">Download</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
+                                <Button
+                                    type="text"
+                                    className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
+                                    icon={<i className="icon-Edit"></i>}
+                                    onClick={onEditCertificateClick}
+                                    loading={loading}
+                                >
+                                    <span className="fw-semibold">Edit Certificate</span>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
+                                </Button>
                             </div>
                             <hr className="my-4" />
                             <div className="fw-medium my-2 pt-2">Save as Template</div>
                             <div className="saveButton overflow-hidden">
                                 <Input className="popinput inputheight41 rounded-end-0" placeholder="Template Name" onChange={onTitleChange} value={title} disabled={addEditFlag} />
                                 {title?.length > 0 && (
-                                    <Button className="h-auto ps-0 rounded-start-0" onClick={onAddEditCertificateClick} disabled={addEditFlag}>{`${tcu_content_id ? 'Update' : 'Save'}${addEditFlag ? 'd' : ''}`}</Button>
+                                    <Button className="h-auto ps-0 rounded-start-0" onClick={onAddEditCertificateClick} disabled={addEditFlag}>{`${tcu_content_id && !pms_default ? 'Update' : 'Save'}${addEditFlag && !pms_default ? 'd' : ''}`}</Button>
                                 )}
                             </div>
                         </div>

@@ -157,7 +157,7 @@ function Welcome1(props) {
                     onClose={handleCreateCertificateDrawer}
                     key="left"
                 >
-                    <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} replace={false} />
+                    <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={patient_data} replace={false} />
                 </Drawer>
                 <div className='pb-5'>
                     &nbsp;

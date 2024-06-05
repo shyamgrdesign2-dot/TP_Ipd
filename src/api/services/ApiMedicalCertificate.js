@@ -21,12 +21,20 @@ ApiMedicalCertificate.addPatientCertificate = function (data) {
   return api.post(`/api/v1/appointment/addPatientCertificate`, data, baseUrl);
 };
 
+ApiMedicalCertificate.editPatientCertificate = function (data) {
+  return api.post(`/api/v1/appointment/editPatientCertificate`, data, baseUrl);
+};
+
 ApiMedicalCertificate.listPatientCertificate = function (data) {
   return api.post(`/api/v1/appointment/listPatientCertificate`, data, baseUrl);
 };
 
 ApiMedicalCertificate.deletePatientCertificate = function (data) {
   return api.post(`/api/v1/appointment/deletePatientCertificate`, data, baseUrl);
+};
+
+ApiMedicalCertificate.viewPatientCertificate = function (data) {
+  return api.post(`/api/v1/appointment/viewPatientCertificate`, data, baseUrl);
 };
 
 export default ApiMedicalCertificate;

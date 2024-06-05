@@ -11,7 +11,7 @@ import notcertificate from '../../assets/images/not-certificate.svg';
 import certificatepdf from '../../assets/images/certificate-pdf.svg';
 import CreateCertificate from "./CreateCertificate";
 import PdfThumbnail from "../../common/PdfThumbnail";
-import { listPatientCertificate, deletePatientCertificate, selectAppointmentData } from "../../redux/doctorsSlice";
+import { listPatientCertificate, deletePatientCertificate } from "../../redux/doctorsSlice";
 import { errorMessage } from "../../utils/utils";
 
 function CertificateDetails({ patient_data }) {
@@ -27,7 +27,6 @@ function CertificateDetails({ patient_data }) {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0
         }
         dispatch(listPatientCertificate(sendData));
-        dispatch(selectAppointmentData(patient_data));
     }, []);
 
     const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
@@ -130,7 +129,7 @@ function CertificateDetails({ patient_data }) {
                         onClose={handleCreateCertificateDrawer}
                         key="left"
                     >
-                        <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} replace={false} />
+                        <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={patient_data} replace={false} />
                     </Drawer>
                 </div>
             </Card>
