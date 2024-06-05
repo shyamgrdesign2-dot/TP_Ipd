@@ -21,7 +21,6 @@ import ErrorFallback from "./common/ErrorFallback";
 import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { jwtDecode } from "jwt-decode";
 import config from "./config";
-import Vaccination from "./pages/vaccination/Vaccination";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -80,7 +79,6 @@ function App() {
             <PersistGate loading={null} persistor={persistor}>
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
-                <Route path="/vaccination" element={<Vaccination />} />
                 <Route path="patient_details" element={<PatientDetails />} />
                 <Route
                   path="prescription"

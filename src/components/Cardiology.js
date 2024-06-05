@@ -47,6 +47,7 @@ function Cardiology(props) {
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
   useEffect(() => {
+    setSmartRxFile(null)
     const fetchData = async () => {
       const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
       const formattedToken = token.replace(/^"(.*)"$/, "$1");
@@ -56,17 +57,19 @@ function Cardiology(props) {
         tcm_id: viewCaseManagerData.tcm_id,
       };
       try {
-        const response = await axios({
-          method: "POST",
-          url: url,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: payloadToken,
-          },
-          data: payload,
-        });
-        const fileToShow = response.data.data.smart_prescription_file;
-        setSmartRxFile(fileToShow);
+          if(viewCaseManagerData.smart_prescription_filename){
+            const response = await axios({
+              method: "POST",
+              url: url,
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: payloadToken,
+              },
+              data: payload,
+            });
+            const fileToShow = response.data.data.smart_prescription_file;
+            setSmartRxFile(fileToShow);
+          }
       } catch (error) {
         console.error("Error:", error);
       }

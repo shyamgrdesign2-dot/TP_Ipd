@@ -277,6 +277,23 @@ body {
             }
         }
 
+        &.btn-smart-rx-walkin{
+            border-radius: 10px;
+            border: 1px solid #4B4AD5 !important;
+            background-color: #4B4AD5;
+            height: 32px;
+            padding: 0px 3px;
+            font-weight: 500 !important;
+            display: flex;
+            align-items: center;
+        }
+
+        &.btn-smartRx-text{
+            padding: 6px 5px 5px 5px;
+            color: white;
+            font-weight: 400;
+        }
+
         &.btn-clear {
             border-radius: 10px;
             border: 1px solid $theme !important;

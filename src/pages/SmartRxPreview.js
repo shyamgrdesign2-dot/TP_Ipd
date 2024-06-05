@@ -178,7 +178,7 @@ function SmartRxPreview() {
           pm_contact_no: state.patient_data.pm_contact_no,
           change_mobile_number: false,
           patient_unique_id: state.patient_data.patient_unique_id,
-          hospital_business_id: state.patient_data.hm_business_id,
+          hospital_business_id: tokenData.hospital_business_id,
           um_id: tokenData.user_id
         };
     

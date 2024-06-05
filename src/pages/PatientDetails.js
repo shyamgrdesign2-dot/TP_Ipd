@@ -77,6 +77,7 @@ function PatientDetails() {
         });
         setTcmData({ tcm_id: viewCaseManagerData?.prev_tcm_id, page: (tcmData.page += 1) })
     }
+    
     return (
         <>
             <Layout>
@@ -108,7 +109,7 @@ function PatientDetails() {
                                     {viewCaseManagerData && viewCaseManagerData?.vitals?.length > 0 && (
                                         <VitalsBodyComposition loading={loading} passVitals={viewCaseManagerData ? [...viewCaseManagerData.vitals].slice(0, 2) : viewCaseManagerData} />
                                     )}
-                                    {viewCaseManager.smart_prescription_filename === null &&
+                                    {viewCaseManagerData?.smart_prescription_filename === null &&
                                         <>
                                             <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
                                             <VisitVaccination />
