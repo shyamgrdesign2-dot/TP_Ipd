@@ -146,6 +146,20 @@ function CertificatePrintView() {
         }
     };
 
+    const configurePrintUrl = async () => {
+        var sendData = {
+            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            tcu_id: state.tcu_id,
+            configurePrintSetting: true
+        }
+        const action = await dispatch(viewPatientCertificate(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            navigate('/configure_print_setting', { state: { certificateData: action.payload } })
+        } else {
+            errorMessage(action.error)
+        }
+    }
+
     return (
         <>
             <HeaderPrescriptionPrint patient_data={patient_data} flag={2} />
@@ -154,7 +168,7 @@ function CertificatePrintView() {
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={7} lg={7} xl={5}>
 
-                        {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38">
+                        {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
                             <i className="icon-setting me-2"></i>
                             <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                         </div>
@@ -162,7 +176,7 @@ function CertificatePrintView() {
                         <div className={`${!isMobile ? 'rounded-20px mt-20' : 'border-top-0 border-start-0 border-bottom-0'} border p-20 bg-white`}
                             style={{ height: !isMobile ? 'calc(100vh - 160px)' : 'calc(100vh - 60px)' }}>
                             <div>
-                                {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38">
+                                {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38" onClick={configurePrintUrl}>
                                     <i className="icon-setting me-2"></i>
                                     <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                                 </div>
