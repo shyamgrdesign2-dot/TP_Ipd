@@ -37,6 +37,7 @@ import vaccinationImg from "../assets/images/Vaccination.svg";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import Vaccination from "./vaccination/Vaccination";
 import { checkToShowVaccination } from "./vaccination/service";
+import { viewPatient } from "../redux/appointmentsSlice";
 
 function Prescription() {
   const {
@@ -108,6 +109,13 @@ function Prescription() {
       setIsPediatric(await checkToShowVaccination(profile.doctor_unique_id));
     }
   };
+
+  useEffect(() => {
+    const sendData = {
+      patient_unique_id: patient_data?.patient_unique_id,
+    };
+    dispatch(viewPatient(sendData));
+  }, []);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
