@@ -359,9 +359,9 @@ function Header({ locationPath }) {
               <i className="icon-Cross" />
             </Button>
           </div>
-          {videoList[0]?.video?.map((item1, i1) => {
+          {videoList?.filter(e => e.category_id === 3)[0]?.video?.map((item1, i1) => {
             return (
-              <div key={i1} className={`d-flex ${i1 !== videoList[0]?.video.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
+              <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 3)[0]?.video?.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
                 <div className="tutorial-play me-14">
                   <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
                   <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
@@ -461,22 +461,24 @@ function Header({ locationPath }) {
             <div className="mt-20">
               {videoList?.map((item, i) => {
                 return (
-                  <div key={i} className="overflow-hidden ms-4">
-                    <div className="title-common text-welcome">{item?.category}</div>
-                    <div className="fs-12 fontroboto fw-normal text-main">{item?.description}</div>
-                    <div className="videodrawer-left mt-3">
-                      <Slider {...sliderSettings}>
-                        {item?.video?.map((item1, i1) => {
-                          return (
-                            <div key={i1} className="drawer-slider">
-                              <button type="button" onClick={() => setVideoLink(item1)}><img src={playIconutube} /></button>
-                              <img src={item1?.thumbnail} />
-                            </div>
-                          )
-                        })}
-                      </Slider>
+                  item?.video?.length > 0 && (
+                    <div key={i} className="overflow-hidden ms-4">
+                      <div className="title-common text-welcome">{item?.category}</div>
+                      <div className="fs-12 fontroboto fw-normal text-main">{item?.description}</div>
+                      <div className="videodrawer-left mt-3">
+                        <Slider {...sliderSettings}>
+                          {item?.video?.map((item1, i1) => {
+                            return (
+                              <div key={i1} className="drawer-slider">
+                                <button type="button" onClick={() => setVideoLink(item1)}><img src={playIconutube} /></button>
+                                <img src={item1?.thumbnail} />
+                              </div>
+                            )
+                          })}
+                        </Slider>
+                      </div>
                     </div>
-                  </div>
+                  )
                 )
               })}
             </div>

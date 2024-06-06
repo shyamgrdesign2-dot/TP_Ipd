@@ -34,6 +34,8 @@ import {
 } from "../redux/caseManagerSlice";
 import { listVideo } from "../redux/doctorsSlice";
 
+var oneClickCosultationTemplateId = 0
+
 function HeaderPrescription() {
 
     const { frequencyList, timingList, videoList } = useSelector((state) => state.doctors);
@@ -46,7 +48,8 @@ function HeaderPrescription() {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
-    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
+    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime } = useContext(CashManagerContext);
+    
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
@@ -155,6 +158,7 @@ function HeaderPrescription() {
     };
 
     const onTemplateSelected = async (tmoc_id, tmoc_template_name) => {
+        oneClickCosultationTemplateId = tmoc_id
         window.Moengage.track_event("one_click_template_select", {
             "template_name": tmoc_template_name
         });
@@ -799,22 +803,25 @@ function HeaderPrescription() {
                 tcm_id: tcmId,
                 patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
                 pam_id: patient_data !== undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
-              consultation_date: consultationDate,
-              symptoms: symptomsData,
-              examination: examinationData,
-              diagnosis: diagnosisData,
-              medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
-              advice: adviceData,
-              investigation: investigationData,
-              vitals: vitalsData,
-              follow_up_date: followUpDate,
-              visit_advice: additionalNote,
-              medical_history: medicalHistoryData,
-              vaccines: {
-                given: givenVaccines,
-                due: updatedDueVaccines
-              },
+                consultation_date: consultationDate,
+                symptoms: symptomsData,
+                examination: examinationData,
+                diagnosis: diagnosisData,
+                medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
+                advice: adviceData,
+                investigation: investigationData,
+                vitals: vitalsData,
+                follow_up_date: followUpDate,
+                visit_advice: additionalNote,
+                medical_history: medicalHistoryData,
+                consultation_start_datetime: startTime,
+                oneclick_cosultation_template_id:oneClickCosultationTemplateId,
+                vaccines: {
+                    given: givenVaccines,
+                    due: updatedDueVaccines
+                },
             };
+
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
             if (action.meta.requestStatus === "fulfilled") {
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
@@ -849,9 +856,9 @@ function HeaderPrescription() {
                             <i className="icon-Cross" />
                         </Button>
                     </div>
-                    {videoList[0]?.video?.map((item1, i1) => {
+                    {videoList?.filter(e => e.category_id === 1)[0]?.video?.map((item1, i1) => {
                         return (
-                            <div key={i1} className={`d-flex ${i1 !== videoList[0]?.video.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
+                            <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 1)[0]?.video?.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
                                 <div className="tutorial-play me-14">
                                     <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
                                     <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>

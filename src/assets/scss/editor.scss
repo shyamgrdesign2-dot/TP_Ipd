@@ -1,0 +1,60 @@
+// .jodit Editor
+body {
+    .jodit-container {  
+        border-radius: 10px !important;
+        .jodit-toolbar__box {
+            border-radius: 10px 10px 0 0;
+        }
+        .jodit-workplace {
+            border-radius: 0 0 10px 10px;
+            font-size: 14px !important;
+            .jodit-placeholder {
+                color: $grayColor !important;
+            }
+            p {
+                font-family: 'roboto' !important;
+                font-size: 14px !important;
+                line-height: 2.1;
+                strong label {
+                    font-weight: 700 !important;
+                }
+                label, input {
+                    background-color: $bgbody;
+                    color: $welcomecolor !important;
+                    border: 1px solid $bordercolor;
+                    padding: 0 8px;
+                    border-radius: 6px;
+                    font-family: 'roboto' !important;
+                    font-weight: 500 !important;
+                    height: 26px;
+                    line-height: 26px;
+                }
+                span {
+                    font-family: 'roboto' !important;
+                }
+                input {
+                    &:focus-visible {
+                        border-color: $theme;
+                        outline: none;
+                    }
+                    &::placeholder {
+                        font-weight: 400 !important;
+                    }
+                }
+            }
+        }
+        .jodit_hidden {
+            border: none !important;
+        }
+        // .jodit-add-new-line{
+        //     &:after, span {
+        //         display: none;
+        //     }
+        // } 
+    }
+    .jodit {
+        .jodit-ui-tooltip__content {
+            color: $white !important;
+        }
+    }
+}
