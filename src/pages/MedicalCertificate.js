@@ -57,42 +57,92 @@ function MedicalCertificate() {
                 const randomId = generateRandomId();
                 const selectedOption = options.control.name;
                 const content = options.originalEvent.target.textContent;
-                if (selectedOption === 'option1') {
-                    editor.s.insertHTML(`<label class="consulting_doctor">${profile?.um_name}</label>`);
-                } else if (selectedOption === 'option2') {
-                    editor.s.insertHTML(`<label class="patient_name">${patient_data?.pm_fullname}</label>`);
-                } else if (selectedOption === 'option3') {
-                    editor.s.insertHTML(`<label class="age">${patient_data?.ageYears} Y, ${patient_data?.ageMonths} M</label>`);
-                } else if (selectedOption === 'option4') {
-                    editor.s.insertHTML(`<label class="contact_number">${patient_data?.pm_contact_no}</label>`);
-                } else if (selectedOption === 'option5') {
-                    editor.s.insertHTML(`<label class="gender">${patient_data?.pm_gender}</label>`);
-                } else if (selectedOption === 'option6') {
-                    editor.s.insertHTML(`<label>${moment().format('DD-MM-YYYY')}</label>`);
-                } else if (selectedOption === 'option7') {
-                    editor.s.insertHTML(`<input type="date" id="${randomId}" value="">`);
-                    const inputElement = document.getElementById(randomId);
+
+                const insertHTMLContent = (html) => {
+                    editor.s.insertHTML(html);
+                };
+
+                const handleInputChange = (inputElement, eventType) => {
                     inputElement.removeAttribute('value');
-                    if (inputElement) {
-                        inputElement.addEventListener('change', (event) => {
-                            const value = event.target.value;
-                            inputElement.setAttribute('value', value);
-                        });
-                    }
-                } else if (selectedOption === 'option8') {
-                    editor.s.insertHTML(`<input type="search" id="${randomId}" value=""/>`);
-                    const inputElement = document.getElementById(randomId);
-                    inputElement.removeAttribute('value');
-                    if (inputElement) {
-                        inputElement.addEventListener('keyup', (event) => {
-                            const value = event.target.value;
-                            inputElement.setAttribute('value', value);
-                        });
-                    }
-                } else if (selectedOption === 'option9') {
-                    editor.s.insertHTML(`<label class="email">${content}</label>`);
+                    inputElement.addEventListener(eventType, (event) => {
+                        const value = event.target.value;
+                        inputElement.setAttribute('value', value);
+                    });
+                };
+
+                switch (selectedOption) {
+                    case 'option1':
+                        insertHTMLContent(`<label class="consulting_doctor">${profile?.um_name}</label>`);
+                        break;
+                    case 'option2':
+                        insertHTMLContent(`<label class="patient_name">${patient_data?.pm_fullname}</label>`);
+                        break;
+                    case 'option3':
+                        insertHTMLContent(`<label class="age">${patient_data?.ageYears} Y, ${patient_data?.ageMonths} M</label>`);
+                        break;
+                    case 'option4':
+                        insertHTMLContent(`<label class="contact_number">${patient_data?.pm_contact_no}</label>`);
+                        break;
+                    case 'option5':
+                        insertHTMLContent(`<label class="gender">${patient_data?.pm_gender}</label>`);
+                        break;
+                    case 'option6':
+                        insertHTMLContent(`<label>${moment().format('DD-MM-YYYY')}</label>`);
+                        break;
+                    case 'option7':
+                        insertHTMLContent(`<input type="date" id="${randomId}" value="">`);
+                        handleInputChange(document.getElementById(randomId), 'change');
+                        break;
+                    case 'option8':
+                        insertHTMLContent(`<input type="search" id="${randomId}" value=""/>`);
+                        handleInputChange(document.getElementById(randomId), 'keyup');
+                        break;
+                    case 'option9':
+                        insertHTMLContent(`<label class="email">${content}</label>`);
+                        break;
+                    default:
+                        break;
                 }
+
+                removeLabelWithoutContent()
+
                 return false
+
+                // if (selectedOption === 'option1') {
+                //     editor.s.insertHTML(`<label class="consulting_doctor">${profile?.um_name}</label>`);
+                // } else if (selectedOption === 'option2') {
+                //     editor.s.insertHTML(`<label class="patient_name">${patient_data?.pm_fullname}</label>`);
+                // } else if (selectedOption === 'option3') {
+                //     editor.s.insertHTML(`<label class="age">${patient_data?.ageYears} Y, ${patient_data?.ageMonths} M</label>`);
+                // } else if (selectedOption === 'option4') {
+                //     editor.s.insertHTML(`<label class="contact_number">${patient_data?.pm_contact_no}</label>`);
+                // } else if (selectedOption === 'option5') {
+                //     editor.s.insertHTML(`<label class="gender">${patient_data?.pm_gender}</label>`);
+                // } else if (selectedOption === 'option6') {
+                //     editor.s.insertHTML(`<label>${moment().format('DD-MM-YYYY')}</label>`);
+                // } else if (selectedOption === 'option7') {
+                //     editor.s.insertHTML(`<input type="date" id="${randomId}" value="">`);
+                //     const inputElement = document.getElementById(randomId);
+                //     inputElement.removeAttribute('value');
+                //     if (inputElement) {
+                //         inputElement.addEventListener('change', (event) => {
+                //             const value = event.target.value;
+                //             inputElement.setAttribute('value', value);
+                //         });
+                //     }
+                // } else if (selectedOption === 'option8') {
+                //     editor.s.insertHTML(`<input type="search" id="${randomId}" value=""/>`);
+                //     const inputElement = document.getElementById(randomId);
+                //     inputElement.removeAttribute('value');
+                //     if (inputElement) {
+                //         inputElement.addEventListener('keyup', (event) => {
+                //             const value = event.target.value;
+                //             inputElement.setAttribute('value', value);
+                //         });
+                //     }
+                // } else if (selectedOption === 'option9') {
+                //     editor.s.insertHTML(`<label class="email">${content}</label>`);
+                // }
             }
         }
     ]
@@ -104,6 +154,9 @@ function MedicalCertificate() {
         buttonsSM: TOOLBAR,
         buttonsMD: TOOLBAR,
         buttonsXS: TOOLBAR,
+        askBeforePasteFromWord: false,
+        askBeforePasteHTML: false,
+        defaultActionOnPaste: "insert_as_html",
         controls: {
             fontsize: {
                 list: {
@@ -128,9 +181,42 @@ function MedicalCertificate() {
     }, [certificate_data]);
 
     useEffect(() => {
-        const allInputs = document.querySelectorAll('input[type="date"], input[type="search"]');
+        const allInputs = document.querySelectorAll('input[type="date"][id], input[type="search"][id]');
         allInputs.forEach(input => input.type == 'date' ? input.addEventListener('change', handleInputChange) : input.addEventListener('keyup', handleInputChange));
+
+        removeLabelWithoutContent();
+
     }, [content]);
+
+    function removeLabelWithoutContent() {
+        const allLabels = document.querySelectorAll('label');
+        // Function to handle label removal if empty
+        const handleLabelChange = (label) => {
+            if (label.textContent.trim().length === 0) {
+                label.remove();
+            }
+        };
+
+        // Setup MutationObserver to watch for changes in the label elements
+        const observer = new MutationObserver((mutationsList) => {
+            for (let mutation of mutationsList) {
+                if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                    handleLabelChange(mutation.target);
+                }
+            }
+        });
+
+        // Observe each label
+        allLabels.forEach(label => {
+            handleLabelChange(label); // Initial check
+            observer.observe(label, { childList: true, characterData: true, subtree: true });
+        });
+
+        // Clean up observer on component unmount
+        return () => {
+            observer.disconnect();
+        };
+    }
 
     function handleInputChange(event) {
         const inputElement = event.target;
@@ -222,7 +308,7 @@ function MedicalCertificate() {
                                                 </div>
                                                 <div className="mt-4">
                                                     <div className="d-flex align-items-center mt-2 justify-content-end">
-                                                        <div onClick={() => navigate('/', { replace: true })} className="me-4 text-decoration-underline btn p-0 text-main">
+                                                        <div onClick={() => navigate(-1)} className="me-4 text-decoration-underline btn p-0 text-main">
                                                             <span>Yes, Discard</span>
                                                         </div>
                                                         <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">

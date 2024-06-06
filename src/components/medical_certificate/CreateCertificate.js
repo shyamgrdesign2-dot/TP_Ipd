@@ -117,7 +117,7 @@ function CreateCertificate({ handleCreateCertificateDrawer, patient_data, replac
             })}
             <div className="d-flex align-items-center justify-content-between custom-certificate position-sticky" style={{ bottom: 0 }}>
                 <div className="title-common">Want to create custom certificate ? </div>
-                <Button onClick={() => { navigate('/certificate') }} className='btn btn-input btn-41'>
+                <Button onClick={() => { navigate('/certificate', { replace: replace, state: { patient_data: patient_data } }) }} className='btn btn-input btn-41'>
                     Custom Certificate
                 </Button>
             </div>
