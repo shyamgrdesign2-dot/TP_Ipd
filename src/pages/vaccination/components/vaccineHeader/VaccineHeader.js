@@ -19,6 +19,12 @@ function VaccineHeader({
   patientDetails,
   setPrintType,
 }) {
+  const vaccinationVideo = {
+    link: "https://www.youtube.com/embed/o6ALwX9hPMM",
+    thumbnail: "https://i.ytimg.com/vi/o6ALwX9hPMM/hqdefault.jpg",
+    tmv_description: "Vaccination",
+    tmv_title: "Vaccination",
+  };
   const navigate = useNavigate();
   let { patient_data } = useContext(CashManagerContext);
   patient_data = { ...patient_data, ...patientDetails };
@@ -26,6 +32,7 @@ function VaccineHeader({
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [shouldShowPreview, setShowPreview] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
+  const [popOverVideo, setPopOverVideo] = useState(false);
 
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
@@ -38,6 +45,10 @@ function VaccineHeader({
   function previewBtnHandler() {
     setShowPreview((prevState) => !prevState);
   }
+
+  const showHideVideoListPopover = useCallback(() => {
+    setPopOverVideo(!popOverVideo);
+  }, [popOverVideo]);
 
   const menu = (
     <Menu>
@@ -59,12 +70,6 @@ function VaccineHeader({
     </Menu>
   );
 
-  const [popOverVideo, setPopOverVideo] = useState(false);
-
-  const showHideVideoListPopover = useCallback(() => {
-    setPopOverVideo(!popOverVideo);
-  }, [popOverVideo]);
-
   const VIDEO_CONTENT = useCallback(() => {
     return (
       <>
@@ -83,20 +88,20 @@ function VaccineHeader({
             <div className="tutorial-play me-14">
               <button
                 type="button"
-                onClick={() =>
-                  setVideoLink("https://www.youtube.com/watch?v=o6ALwX9hPMM")
-                }
+                onClick={() => setVideoLink(vaccinationVideo)}
               >
                 <img src={playIcons} />
               </button>
               <span className="tutorial-thumb">
-                <img src={"https://www.youtube.com/watch?v=o6ALwX9hPMM"} />
+                <img src={vaccinationVideo.thumbnail} />
               </span>
             </div>
             <div>
-              <h3 className="title-common text-welcome">Vaccination</h3>
+              <h3 className="title-common text-welcome">
+                {vaccinationVideo.tmv_title}
+              </h3>
               <div className="fs-12 fontroboto fw-normal text-main">
-                Vaccination
+                {vaccinationVideo.tmv_description}
               </div>
             </div>
           </div>
