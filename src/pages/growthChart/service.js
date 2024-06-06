@@ -3,7 +3,7 @@ import config from "../../config";
 
 const baseUrl = { customBaseUrl: config.growth_chart_api_url };
 
-export const getAllGrowthChartParams = async function (pm_id, pm_pid) {
+export const getAllGrowthChartParams = async function ({ pm_id, pm_pid }) {
   let allGrowthChartParams = {};
   try {
     allGrowthChartParams = await api.get(
@@ -45,7 +45,7 @@ export const updateGrowthChartParam = async function (
   return res;
 };
 
-export const addGrowthCharParam = async function (payload) {
+export const addGrowthChartParam = async function (payload) {
   let res = {};
   try {
     res = await api.post(`/growthChart`, payload, baseUrl);

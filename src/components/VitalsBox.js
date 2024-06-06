@@ -13,6 +13,7 @@ import {
     getVitals,
 } from "../redux/vitalsSlice";
 import moment from "moment";
+import { addGrowthChartParam } from "../pages/growthChart/service";
 
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD MMM, YY'
@@ -199,6 +200,22 @@ function VitalsBox(props) {
         }
     }
 
+    const onAddGrowthData = () => {
+        for (let i=0; i<childVitalsData.length; i++) {
+            const payload = {
+              height: childVitalsData[i].height,
+              weight: childVitalsData[i].weight,
+              bmi: childVitalsData[i].bmi,
+              ofc: childVitalsData[i].ofc,
+              pm_id: patient_data?.pm_id || 0,
+              pm_pid: patient_data?.pm_pid || 0,
+              patient_unique_id: patient_data?.patient_unique_id || 0,
+              pam_id: patient_data?.pam_id || 0,
+            };
+            addGrowthChartParam(payload);
+        } 
+    }
+
     const TABLE_VITALS = useMemo(() => {
         return (
             childVitalsData.length > 0 &&
@@ -269,7 +286,7 @@ function VitalsBox(props) {
                         </Button>
                         <div className="modal-title">Vitals</div>
                     </div>
-                    <Button onClick={onAddUpdateClicked} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading} disabled={childVitalsData.length > 0 ? false : true}>
+                    <Button onClick={isGrowthChart ? onAddGrowthData : onAddUpdateClicked} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading} disabled={childVitalsData.length > 0 ? false : true}>
                         Done
                     </Button>
                 </div>
