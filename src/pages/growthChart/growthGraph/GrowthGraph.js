@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { dummyData } from "../subHeader/SubHeader";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -52,38 +53,6 @@ const customLabelPlugin = {
       ctx.restore();
     });
   },
-};
-
-const dummyData = {
-  labels: Array.from({ length: 24 }, (_, i) => i + 1), // Age in months from 1 to 24
-  datasets: [
-    {
-      label: "P 2",
-      data: [
-        9.5, 10.0, 10.7, 11.4, 12.3, 13.1, 13.9, 14.5, 15.0, 15.4, 15.7, 16.0,
-        16.3, 16.5, 16.7, 16.8, 17.0, 17.1, 17.2, 17.3, 17.4, 17.5, 17.6, 17.7,
-      ],
-      borderColor: "rgba(255, 99, 132, 1)",
-      backgroundColor: "rgba(255, 99, 132, 0.2)",
-      fill: true,
-      pointRadius: 0, // Remove points
-      pointHoverRadius: 0, // Remove points on hover
-      hidden: false,
-    },
-    {
-      label: "P 3",
-      data: [
-        9.0, 9.5, 10.2, 10.9, 11.8, 12.6, 13.4, 14.0, 14.5, 14.9, 15.2, 15.5,
-        15.8, 16.0, 16.2, 16.3, 16.5, 16.6, 16.7, 16.8, 16.9, 17.0, 17.1, 17.2,
-      ],
-      borderColor: "rgba(54, 162, 235, 1)",
-      backgroundColor: "rgba(54, 162, 235, 0.2)",
-      fill: true,
-      pointRadius: 0, // Remove points
-      pointHoverRadius: 0, // Remove points on hover
-      hidden: false,
-    },
-  ],
 };
 
 const WeightChart = ({ data = dummyData }) => {
@@ -132,15 +101,15 @@ const WeightChart = ({ data = dummyData }) => {
         ticks: {
           stepSize: 1,
         },
-        scaleLabel: {
+        title: {
           display: true,
-          labelString: "Age (months)", // X-axis label
+          text: "Age (months)", // X-axis label
         },
       },
       y: {
-        scaleLabel: {
+        title: {
           display: true,
-          labelString: "Weight (kg)", // Y-axis label
+          text: "Weight (kg)", // Y-axis label
         },
       },
     },
@@ -150,6 +119,11 @@ const WeightChart = ({ data = dummyData }) => {
       },
       tooltip: {
         enabled: false,
+      },
+    },
+    layout: {
+      padding: {
+        right: 25, // Add padding to the right side
       },
     },
   };
@@ -168,7 +142,15 @@ const WeightChart = ({ data = dummyData }) => {
   };
 
   return (
-    <div style={{ position: "relative", height: "250px" }}>
+    <div
+      style={{
+        position: "relative",
+        height: "250px",
+        border: "1px solid #ccc",
+        borderRadius: "10px",
+        padding: "10px 10px 35px 10px",
+      }}
+    >
       <div
         style={{
           padding: "20px",
@@ -184,7 +166,7 @@ const WeightChart = ({ data = dummyData }) => {
             marginBottom: "10px",
           }}
         >
-          <h2 style={{ margin: 0 }}>Weight</h2>
+          <h5 style={{ margin: 0 }}>Weight</h5>
           <div>
             <Button
               type="primary"

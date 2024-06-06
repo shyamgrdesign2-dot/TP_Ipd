@@ -16,9 +16,7 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
         <Row xs={1} sm={2} md={2} lg={2} className="gy-4">
           {growthData.map((item, index) => (
             <Col key={index} className="gx-4">
-              <div style={{ height: "100%" }}>
-                <WeightChart />
-              </div>
+              <WeightChart />
             </Col>
           ))}
         </Row>
