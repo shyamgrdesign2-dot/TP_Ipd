@@ -91,11 +91,11 @@ function MedicalCertificate() {
                         break;
                     case 'option7':
                         insertHTMLContent(`<input type="date" id="${randomId}" value="">`);
-                        handleInputChange(document.getElementById(randomId), 'change');
+                        // handleInputChange(document.getElementById(randomId), 'change');
                         break;
                     case 'option8':
                         insertHTMLContent(`<input type="search" id="${randomId}" value=""/>`);
-                        handleInputChange(document.getElementById(randomId), 'keyup');
+                        // handleInputChange(document.getElementById(randomId), 'keyup');
                         break;
                     case 'option9':
                         insertHTMLContent(`<label class="email">${content}</label>`);
@@ -104,7 +104,7 @@ function MedicalCertificate() {
                         break;
                 }
 
-                removeLabelWithoutContent()
+                // removeLabelWithoutContent()
 
                 return false
 
@@ -188,6 +188,14 @@ function MedicalCertificate() {
 
     }, [content]);
 
+    const onEditorChange=(newContent)=>{
+        const allInputs = document.querySelectorAll('input[type="date"][id], input[type="search"][id]');
+        allInputs.forEach(input => input.type == 'date' ? input.addEventListener('change', handleInputChange) : input.addEventListener('keyup', handleInputChange));
+
+        removeLabelWithoutContent();
+
+    }
+    
     function removeLabelWithoutContent() {
         const allLabels = document.querySelectorAll('label');
         // Function to handle label removal if empty
@@ -396,6 +404,7 @@ function MedicalCertificate() {
                 // tabIndex={1} // tabIndex of textarea
                 // onBlur={newContent => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
                 // onChange={newContent => onChange(newContent)}
+                onChange={onEditorChange}
                 />
                 <div>
                     {/* <h3>Editor Content:{content}</h3>
