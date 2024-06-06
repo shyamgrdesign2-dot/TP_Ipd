@@ -4,10 +4,8 @@ import SubHeader from "./subHeader/SubHeader";
 import "./GrowthChart.scss";
 import UpdateDetails from "./updateDetails/UpdateDetails";
 import { useState } from "react";
-import { Drawer } from "antd";
-import AddMeasurements from "./AddMeasurements";
 import AddDOB from "../vaccination/components/addDOB/AddDOB";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
@@ -54,21 +52,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           getVaccineDetails={() => null}
           setLoading={setLoading}
         />
-      )}
-      {measurementsDrawer && (
-        <Drawer
-          closeIcon={false}
-          placement="right"
-          onClose={handleMeasurementsDrawer}
-          open={measurementsDrawer}
-          className="modalWidth-700"
-          width="auto"
-        >
-          <AddMeasurements
-            handleMeasurementsDrawer={handleMeasurementsDrawer}
-            // handleCollapsed={(flag) => handleCollapsed(flag)}
-          />
-        </Drawer>
       )}
     </div>
   );
