@@ -1,0 +1,45 @@
+.addDOB-picker-dropdown {
+    &.ant-picker-dropdown .ant-picker-date-panel {
+      width: 374px;
+      height: 382px;
+      .ant-picker-content {
+        height: 320px;
+      }
+    }
+    .ant-picker-footer {
+      display: none;
+    }
+  }
+
+.gc-input {
+    width: 171px;
+    height: 38px;
+    gap: 0px;
+    border: 1px 0px 0px 0px;
+    opacity: 0px;
+}
+
+.gc-btn {
+    width: 179px;
+    height: 41px;
+    gap: 0px;
+    opacity: 0px;
+}
+
+.gc-label {
+    height: 21px;
+    gap: 0px;
+    opacity: 0px;
+
+font-family: Poppins;
+font-size: 14px;
+font-weight: 500;
+line-height: 21px;
+letter-spacing: 0.10000000149011612px;
+text-align: left;
+// background: #454551;
+}
+
+.gc-btn-txt {
+    color: #4B4AD5 !important;
+}

@@ -90,13 +90,16 @@ export const dummyData = {
   ],
 };
 
-const SubHeader = ({ handleDrawerVital }) => {
+const SubHeader = ({ handleDrawerVital, setShowUpdate }) => {
   const growthDetails = (title, value1, value2) => {
     return (
       <div className="detailsContainer">
         <div className="details">
           <span className="titleStyle">{title}</span>
-          <i className="icon-Edit iconStyle" />
+          <i
+            className="icon-Edit iconStyle"
+            onClick={() => setShowUpdate(true)}
+          />
         </div>
         <div className="details">
           <span>{value1}</span>
