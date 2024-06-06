@@ -38,7 +38,10 @@ import {
 } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { db } from "../../firebase.js";
-import { doc, getDoc } from "firebase/firestore";
+import { jwtDecode } from "jwt-decode";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants.js";
+import { useLocalStorage } from "../../utils/localStorage.js";
+import { deleteDoc, setDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 
 function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
@@ -63,7 +66,7 @@ function Vaccination({ handleDrawerVaccination }) {
   const [isCardClicked, setCardClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [vaccinePatientDetails, setVaccinePatientDetails] = useState();
-  const navigate = useNavigate();
+  const [getToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
 
   const contextApi = {
     patient_data,
@@ -293,28 +296,31 @@ function Vaccination({ handleDrawerVaccination }) {
         .from(element)
         .set(options)
         .output("datauristring")
-        .then((pdfDataUri) => {
+        .then(async (pdfDataUri) => {
           const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
-          const db = firebase.firestore();
-
-          // Fetch data from Firestore
-          db.collection("data")
-            .doc("largeStringDoc")
-            .get()
-            .then((doc) => {
-              if (doc.exists) {
-                console.log(doc.data().content);
-              } else {
-                console.log("No such document!");
-              }
-            })
-            .catch((error) => {
-              console.error("Error getting document:", error);
-            });
-          navigate(`/prescription?url=${b64}&key=vaccinationPrint`, {
-            state: { patient_data: patient_data },
-          });
-          navigate(0, { replace: true });
+          const token = getToken();
+          const decodedToken = jwtDecode(token);
+          const doctorId = decodedToken?.result?.doctor_unique_id;
+          const docRef = doc(db, "vaccinationChart", doctorId);
+          try {
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              await updateDoc(docRef, {
+                base64string: b64,
+              });
+              console.log("Document successfully updated!");
+            } else {
+              await setDoc(doc(db, "vaccinationChart", doctorId), {
+                base64string: b64,
+              });
+              console.log("Document written");
+            }
+            setTimeout(async () => {
+              await deleteDoc(docRef);
+            }, 600000);
+          } catch (error) {
+            console.error("Error updating document:", error);
+          }
         })
         .catch((err) => {
           console.error("Error generating PDF", err);
