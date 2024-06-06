@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
-import { Button, Modal, Checkbox } from "antd";
+import { Button, Checkbox } from "antd";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,6 +12,7 @@ import {
   Legend,
 } from "chart.js";
 import { dummyData } from "../subHeader/SubHeader";
+import "./GrowthGraph.scss";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -57,12 +58,11 @@ const customLabelPlugin = {
 
 const WeightChart = ({ data = dummyData }) => {
   const chartRef = useRef(null);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [toggleOpen, setToggleOpen] = useState(false);
   const [visibility, setVisibility] = useState(
     data.datasets.map((ds) => !ds.hidden)
   );
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [chartWidth, setChartWidth] = useState("auto");
 
   useEffect(() => {
     if (chartRef.current) {
@@ -75,10 +75,6 @@ const WeightChart = ({ data = dummyData }) => {
       ChartJS.unregister(customLabelPlugin);
     };
   }, []);
-
-  useEffect(() => {
-    setChartWidth(isFullscreen ? "100vw" : "auto");
-  }, [isFullscreen]);
 
   const toggleVisibility = (index) => {
     setVisibility((prev) => {
@@ -142,68 +138,62 @@ const WeightChart = ({ data = dummyData }) => {
   };
 
   return (
-    <div
-      style={{
-        position: "relative",
-        height: "250px",
-        border: "1px solid #ccc",
-        borderRadius: "10px",
-        padding: "10px 10px 35px 10px",
-      }}
-    >
-      <div
-        style={{
-          padding: "20px",
-          height: "100%",
-          transition: "width 0.3s ease-in-out",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "10px",
-          }}
-        >
-          <h5 style={{ margin: 0 }}>Weight</h5>
-          <div>
-            <Button
-              type="primary"
-              onClick={() => setModalIsOpen(true)}
-              style={{ marginRight: "10px" }}
+    <div className="graphContainer">
+      <div className="graphHeader">
+        <h5 style={{ margin: 0 }}>Weight</h5>
+        <div>
+          <div style={{ display: "flex" }}>
+            <button
+              type="link"
+              className="percentileBtn"
+              onClick={() => setToggleOpen(true)}
             >
-              Toggle Lines
-            </Button>
+              Percentile
+              <i className="icon-right iconStyle" />
+            </button>
             <Button type="default" onClick={toggleFullscreen}>
               {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
             </Button>
           </div>
-        </div>
-        <div style={{ position: "relative", height: "100%", width: "100%" }}>
-          <Line ref={chartRef} data={chartData} options={options} />
+          {toggleOpen && (
+            <div className="enablePercentile">
+              <div className="percentileText">
+                Enable/Disable percentile line
+              </div>
+              <div className="percentileContainer">
+                <div>
+                  {data.datasets.map((dataset, index) => (
+                    <>
+                      <Checkbox
+                        key={index}
+                        style={{ padding: "6px" }}
+                        checked={visibility[index]}
+                        onChange={() => toggleVisibility(index)}
+                      >
+                        {dataset.label}
+                      </Checkbox>
+
+                      {index !== data.datasets.length - 1 && index !== 2 && (
+                        <span className="breakStyle" />
+                      )}
+                    </>
+                  ))}
+                </div>
+                <Button
+                  type="button"
+                  className="btn ant-btn-text btn-input doneBtn"
+                  onClick={() => setToggleOpen(false)}
+                >
+                  <span className="doneText">Done</span>
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-      <Modal
-        title="Toggle Line Visibility"
-        visible={modalIsOpen}
-        onCancel={() => setModalIsOpen(false)}
-        footer={[
-          <Button key="close" onClick={() => setModalIsOpen(false)}>
-            Close
-          </Button>,
-        ]}
-      >
-        {data.datasets.map((dataset, index) => (
-          <Checkbox
-            key={index}
-            checked={visibility[index]}
-            onChange={() => toggleVisibility(index)}
-          >
-            {dataset.label}
-          </Checkbox>
-        ))}
-      </Modal>
+      <div style={{ position: "relative", height: "100%", width: "100%" }}>
+        <Line ref={chartRef} data={chartData} options={options} />
+      </div>
     </div>
   );
 };

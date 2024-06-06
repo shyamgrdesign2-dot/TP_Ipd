@@ -1,0 +1,79 @@
+.graphContainer {
+  position: relative;
+  height: 255px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 30px 30px 55px 30px;
+  transition: width 0.3s ease-in-out;
+
+  .graphHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+
+    .percentileBtn {
+      border: none;
+      box-shadow: none;
+      background-color: transparent;
+      display: flex;
+      align-items: center;
+
+      .iconStyle {
+        display: inline-block;
+        transform: rotate(270deg);
+      }
+    }
+
+    .percentileBtn:hover {
+      color: #4b4ad5 !important;
+    }
+
+    .percentileBtn:focus {
+      color: #4b4ad5;
+      outline: none;
+    }
+    .enablePercentile {
+      position: absolute;
+      background: #ffffff;
+      width: 270px;
+      min-height: 180px;
+      z-index: 1;
+      padding: 20px;
+      border-radius: 10px;
+      right: 135px;
+
+      .percentileText {
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 18px;
+        padding-bottom: 12px;
+      }
+
+      .percentileContainer {
+        border: 1px solid #eaecf0;
+        border-radius: 4px;
+        padding: 10px;
+
+        .breakStyle {
+          height: 11px;
+          border: 1px solid #eaecf0;
+          margin-right: 4px;
+        }
+      }
+
+      .doneBtn {
+        height: 34px !important;
+        width: 100%;
+        padding: 4px 8px 4px 8px;
+        border-radius: 6px;
+        margin-top: 12px;
+
+        .doneText {
+          font-size: 12px;
+          font-weight: 400;
+        }
+      }
+    }
+  }
+}
