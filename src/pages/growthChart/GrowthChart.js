@@ -1,9 +1,9 @@
 import React from "react";
 import { Col, Row } from "react-bootstrap";
 import VaccineHeader from "../vaccination/components/vaccineHeader/VaccineHeader";
-import WeightChart from "./growthGraph/GrowthGraph";
-import SubHeader from "./subHeader/SubHeader";
 import "./GrowthChart.scss";
+import WeightChart from "./components/growthGraph/GrowthGraph";
+import SubHeader from "./components/subHeader/SubHeader";
 
 const growthData = [1, 1, 1, 1, 1];
 
