@@ -38,7 +38,7 @@ function MedicalCertificate() {
     };
 
     const TOOLBAR = [
-        'undo', 'redo', '|', 'ul', 'ol', 'align', 'fontsize', '|', 'bold', 'italic', 'underline', '|', 'source', '|',
+        'undo', 'redo', '|', 'ul', 'ol', 'align', 'fontsize', '|', 'bold', 'italic', 'underline', '|', 
         {
             name: 'Insert',
             // iconURL: 'https://img.icons8.com/ios-glyphs/30/000000/menu.png',
