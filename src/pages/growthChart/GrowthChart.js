@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Col, Row } from "react-bootstrap";
 import VaccineHeader from "../vaccination/components/vaccineHeader/VaccineHeader";
 import "./GrowthChart.scss";
@@ -7,9 +7,10 @@ import SubHeader from "./components/subHeader/SubHeader";
 import UpdateDetails from "./updateDetails/UpdateDetails";
 import { useState } from "react";
 import AddDOB from "../vaccination/components/addDOB/AddDOB";
+import { getAllGrowthChartParams } from "./service";
 import { useLocation } from "react-router-dom";
 
-const GrowthChart = ({ handleDrawerVaccination, handleDrawerGrowth }) => {
+const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
   const growthData = [1, 1, 1, 1, 1];
   const [showDob, setShowDob] = useState(true);
   const { state } = useLocation();
@@ -17,10 +18,16 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerGrowth }) => {
   const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
 
+  useEffect(() => {
+    getAllGrowthChartParams({
+      pm_id: patient_data?.pm_id || 0,
+      pm_pid: patient_data?.pm_pid || 0,
+    });
+  }, []);
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader handleDrawerVaccination={handleDrawerVaccination} />
-      <SubHeader handleDrawerVital={handleDrawerGrowth} />
+      <SubHeader handleDrawerVital={handleDrawerVital} />
       <div className="scrollable-container">
         <Row xs={1} sm={2} md={2} lg={2} className="gy-4">
           {growthData.map((item, index) => (

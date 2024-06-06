@@ -58,11 +58,35 @@ const customLabelPlugin = {
 
 const WeightChart = ({ data = dummyData }) => {
   const chartRef = useRef(null);
-  const [toggleOpen, setToggleOpen] = useState(false);
+  const [shouldShowPercentilePopup, setPercentilePopup] = useState(false);
   const [visibility, setVisibility] = useState(
     data.datasets.map((ds) => !ds.hidden)
   );
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const popupRef = useRef(null);
+
+  const handleButtonClick = () => {
+    setPercentilePopup((prev) => !prev);
+  };
+
+  const handleClickOutside = (event) => {
+    if (popupRef.current && !popupRef.current.contains(event.target)) {
+      setPercentilePopup(false);
+    }
+  };
+
+  useEffect(() => {
+    if (shouldShowPercentilePopup) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [shouldShowPercentilePopup]);
 
   useEffect(() => {
     if (chartRef.current) {
@@ -146,7 +170,7 @@ const WeightChart = ({ data = dummyData }) => {
             <button
               type="link"
               className="percentileBtn"
-              onClick={() => setToggleOpen(true)}
+              onClick={() => setPercentilePopup(true)}
             >
               Percentile
               <i className="icon-right iconStyle" />
@@ -155,8 +179,8 @@ const WeightChart = ({ data = dummyData }) => {
               {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
             </Button>
           </div>
-          {toggleOpen && (
-            <div className="enablePercentile">
+          {shouldShowPercentilePopup && (
+            <div ref={popupRef} className="enablePercentile">
               <div className="percentileText">
                 Enable/Disable percentile line
               </div>
@@ -182,7 +206,7 @@ const WeightChart = ({ data = dummyData }) => {
                 <Button
                   type="button"
                   className="btn ant-btn-text btn-input doneBtn"
-                  onClick={() => setToggleOpen(false)}
+                  onClick={handleButtonClick}
                 >
                   <span className="doneText">Done</span>
                 </Button>

@@ -17,7 +17,7 @@ const dev = {
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
   GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
-  growth_chart_api_url: `https://pm-vaccination-uat.mytatva.in/`,
+  growth_chart_api_url: `https://pm-uat-growth-chart.tatvacare.in`,
 };
 
 const qa = {
@@ -39,7 +39,7 @@ const qa = {
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
   GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
-  growth_chart_api_url: `https://pm-vaccination-uat.mytatva.in/`,
+  growth_chart_api_url: `https://pm-uat-growth-chart.tatvacare.in`,
 };
 
 const uat = {
@@ -61,7 +61,7 @@ const uat = {
   doctor_website_url: `https://pm-uat-dhspl-2.tatvacare.in/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
   GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
-  growth_chart_api_url: `https://pm-vaccination-uat.mytatva.in/`,
+  growth_chart_api_url: `https://pm-uat-growth-chart.tatvacare.in`,
 };
 
 const prod = {
@@ -83,7 +83,7 @@ const prod = {
   doctor_website_url: `https://practice.tatvacare.in/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-prod.tatvacare.in/`,
   GROWTHBOOK_CLIENTKEY: "sdk-qAxUqghZDXqcMH45",
-  growth_chart_api_url: `https://pm-vaccination-uat.mytatva.in/`,
+  growth_chart_api_url: `https://pm-uat-growth-chart.tatvacare.in`,
 };
 
 const getEnv = () => {
