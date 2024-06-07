@@ -200,19 +200,24 @@ function VitalsBox(props) {
         }
     }
 
-    const onAddGrowthData = () => {
-        for (let i=0; i<childVitalsData.length; i++) {
+    const onAddGrowthData = async () => {
+        const result = childVitalsData.map(async (vitalItem) => {
             const payload = {
-              height: childVitalsData[i].height,
-              weight: childVitalsData[i].weight,
-              bmi: childVitalsData[i].bmi,
-              ofc: childVitalsData[i].ofc,
+              date: vitalItem.date,
+              height: vitalItem.height,
+              weight: vitalItem.weight,
+              bmi: vitalItem.bmi,
+              ofc: vitalItem.ofc,
               pm_id: patient_data?.pm_id || 0,
               pm_pid: patient_data?.pm_pid || 0,
               patient_unique_id: patient_data?.patient_unique_id || 0,
               pam_id: patient_data?.pam_id || 0,
             };
-            addGrowthChartParam(payload);
+            return await addGrowthChartParam(payload);
+        });
+        const updateGrowthRes = await Promise.all(result);
+        if (updateGrowthRes?.every((res) => res?.tcbc_id)) {
+          handleCollapsed(1);
         } 
     }
 
