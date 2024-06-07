@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useContext } from "react";
 import { Container, Navbar, Row, Col } from "react-bootstrap";
-import { Button, Dropdown, Menu, Popover } from "antd";
+import { Button, Dropdown, Menu, Popover, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 
 import CashManagerContext from "../../../../context/CashManagerContext";
@@ -12,12 +12,14 @@ import "./VaccineHeader.scss";
 import VideoModal from "../../../../common/VideoModal";
 import tutorial2 from "../../../../assets/images/tutorial2.png";
 import playIcons from "../../../../assets/images/tube-icon.svg";
+import { LoadingOutlined } from "@ant-design/icons";
 
 function VaccineHeader({
   handleDrawerVaccination,
   vaccinesData,
   patientDetails,
   setPrintType,
+  printLoader,
 }) {
   const vaccinationVideo = {
     link: "https://www.youtube.com/embed/o6ALwX9hPMM",
@@ -109,6 +111,7 @@ function VaccineHeader({
       </>
     );
   }, [popOverVideo]);
+  const antIcon = <LoadingOutlined style={{ fontSize: 20 }} spin />;
 
   return (
     <Navbar className="justify-content-between headerprescription p-0">
@@ -197,10 +200,14 @@ function VaccineHeader({
                 <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
                   <i className="icon-Print" />
                   <span className="btn-input">Print</span>
-                  <i
-                    className="icon-right"
-                    style={{ display: "block", transform: `rotate(270deg)` }}
-                  />
+                  {printLoader ? (
+                    <Spin spinning={printLoader} indicator={antIcon} />
+                  ) : (
+                    <i
+                      className="icon-right"
+                      style={{ display: "block", transform: `rotate(270deg)` }}
+                    />
+                  )}
                 </div>
               </Dropdown>
               <Button
