@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useContext } from "react";
 import { Container, Navbar, Row, Col } from "react-bootstrap";
-import { Button, Dropdown, Menu } from "antd";
+import { Button, Dropdown, Menu, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 
 import CashManagerContext from "../../../../context/CashManagerContext";
@@ -9,12 +9,14 @@ import CommonModal from "../../../../common/CommonModal";
 import alertIcon from "../../../../assets/images/alertIcon.svg";
 import Preview from "./../preview/Preview";
 import "./VaccineHeader.scss";
+import { LoadingOutlined } from "@ant-design/icons";
 
 function VaccineHeader({
   handleDrawerVaccination,
   vaccinesData,
   patientDetails,
   setPrintType,
+  printLoader,
 }) {
   const navigate = useNavigate();
   let { patient_data } = useContext(CashManagerContext);
@@ -54,6 +56,8 @@ function VaccineHeader({
       </Menu.Item>
     </Menu>
   );
+
+  const antIcon = <LoadingOutlined style={{ fontSize: 20 }} spin />;
 
   return (
     <Navbar className="justify-content-between headerprescription p-0">
@@ -128,10 +132,14 @@ function VaccineHeader({
                 <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
                   <i className="icon-Print" />
                   <span className="btn-input">Print</span>
-                  <i
-                    className="icon-right"
-                    style={{ display: "block", transform: `rotate(270deg)` }}
-                  />
+                  {printLoader ? (
+                    <Spin spinning={printLoader} indicator={antIcon} />
+                  ) : (
+                    <i
+                      className="icon-right"
+                      style={{ display: "block", transform: `rotate(270deg)` }}
+                    />
+                  )}
                 </div>
               </Dropdown>
               <Button

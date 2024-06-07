@@ -67,6 +67,7 @@ function Vaccination({ handleDrawerVaccination }) {
   const [loading, setLoading] = useState(false);
   const [vaccinePatientDetails, setVaccinePatientDetails] = useState();
   const [getToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  const [tabLoader, setTabLoader] = useState(false);
 
   const contextApi = {
     patient_data,
@@ -277,57 +278,55 @@ function Vaccination({ handleDrawerVaccination }) {
   };
 
   const handlePrintClick = () => {
-    if (!isChrome && !isSafari && !isIOS && !isIPad13 && !isIOS13) {
-      const element = printableRef.current;
+    // if (!isChrome && !isSafari && !isIOS && !isIPad13 && !isIOS13) {
+    const element = printableRef.current;
 
-      if (!element) {
-        console.error("Element not found");
-        return;
-      }
-
-      const options = {
-        filename: "my-document.pdf",
-        image: { type: "jpeg", quality: 0.8 },
-        html2canvas: { scale: 1 },
-        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-      };
-
-      html2pdf()
-        .from(element)
-        .set(options)
-        .output("datauristring")
-        .then(async (pdfDataUri) => {
-          const base64string = pdfDataUri.slice(
-            pdfDataUri.indexOf("base64,") + 7
-          );
-          const token = getToken();
-          const decodedToken = jwtDecode(token);
-          const doctorId = decodedToken?.result?.doctor_unique_id;
-          const docRef = doc(db, "vaccinationChart", doctorId);
-          try {
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-              await updateDoc(docRef, {
-                base64string,
-              });
-            } else {
-              await setDoc(doc(db, "vaccinationChart", doctorId), {
-                base64string,
-              });
-            }
-            // setTimeout(async () => {
-            //   await deleteDoc(docRef);
-            // }, 600000);
-          } catch (error) {
-            console.error("Error updating document:", error);
-          }
-        })
-        .catch((err) => {
-          console.error("Error generating PDF", err);
-        });
-    } else {
-      handlePrintWeb();
+    if (!element) {
+      console.error("Element not found");
+      return;
     }
+
+    const options = {
+      filename: "my-document.pdf",
+      image: { type: "jpeg", quality: 0.8 },
+      html2canvas: { scale: 1 },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    };
+    setTabLoader(true);
+    html2pdf()
+      .from(element)
+      .set(options)
+      .output("datauristring")
+      .then(async (pdfDataUri) => {
+        const base64string = pdfDataUri.slice(
+          pdfDataUri.indexOf("base64,") + 7
+        );
+        const token = getToken();
+        const decodedToken = jwtDecode(token);
+        const doctorId = decodedToken?.result?.doctor_unique_id;
+        const docRef = doc(db, "vaccinationChart", doctorId);
+        try {
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            await updateDoc(docRef, {
+              base64string,
+            });
+          } else {
+            await setDoc(doc(db, "vaccinationChart", doctorId), {
+              base64string,
+            });
+          }
+          setTabLoader(false);
+        } catch (error) {
+          console.error("Error updating document:", error);
+        }
+      })
+      .catch((err) => {
+        console.error("Error generating PDF", err);
+      });
+    // } else {
+    //   handlePrintWeb();
+    // }
   };
 
   return (
@@ -339,6 +338,7 @@ function Vaccination({ handleDrawerVaccination }) {
             vaccinesData={previewData}
             patientDetails={patientDetails}
             setPrintType={setPrintType}
+            printLoader={tabLoader}
           />
         )}
         <div
