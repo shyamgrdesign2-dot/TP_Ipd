@@ -4,6 +4,7 @@ import { makeDefaultLogo } from "../utils/utils";
 import { Link } from 'react-router-dom';
 
 import { useSelector } from "react-redux";
+import moment from 'moment';
 
 function ProfilePopover(props) {
     const [open, setOpen] = useState(false);
@@ -94,7 +95,7 @@ function ProfilePopover(props) {
                 <div className={'align-items-center d-flex h-100 ps-3'}>
                     <div className='rounded-pill patientProfile border me-3'>{makeDefaultLogo(patients_details?.pm_fullname)}</div>
                     <div>
-                        <div className='patientName'>{`${patients_details !== undefined ? patients_details?.pm_fullname : "Hello Guest"}`}<div className='text-2'>{patients_details !== undefined ? genderAge(patients_details) : `M, 30y`} {locationPath === '/vaccine' && patients_details?.pm_dob ? `(${patients_details?.DOB || patients_details?.pm_dob})` : ''}</div></div>
+                        <div className='patientName'>{`${patients_details !== undefined ? patients_details?.pm_fullname : "Hello Guest"}`}<div className='text-2'>{patients_details !== undefined ? genderAge(patients_details) : `M, 30y`} {locationPath === '/vaccine' && patients_details?.pm_dob ? `(${moment(patients_details?.DOB || patients_details?.pm_dob).format("DD-MM-YYYY")})` : ''}</div></div>
                     </div>
                     <div className='iconrotate270 align-self-start ms-2 mt-1'>
                         <i className='icon-right'></i>
