@@ -61,6 +61,7 @@ function Vaccination({ handleDrawerVaccination }) {
   const [loading, setLoading] = useState(false);
   const [vaccinePatientDetails, setVaccinePatientDetails] = useState();
   const [getToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  const [tabLoader, setTabLoader] = useState(false);
 
   const contextApi = {
     patient_data,
@@ -285,7 +286,7 @@ function Vaccination({ handleDrawerVaccination }) {
         html2canvas: { scale: 1 },
         jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
       };
-
+      setTabLoader(true);
       html2pdf()
         .from(element)
         .set(options)
@@ -309,9 +310,7 @@ function Vaccination({ handleDrawerVaccination }) {
                 base64string,
               });
             }
-            // setTimeout(async () => {
-            //   await deleteDoc(docRef);
-            // }, 600000);
+            setTabLoader(false);
           } catch (error) {
             console.error("Error updating document:", error);
           }
@@ -333,6 +332,7 @@ function Vaccination({ handleDrawerVaccination }) {
             vaccinesData={previewData}
             patientDetails={patientDetails}
             setPrintType={setPrintType}
+            printLoader={tabLoader}
           />
         )}
         <div
