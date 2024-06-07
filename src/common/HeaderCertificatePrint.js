@@ -34,17 +34,23 @@ function HeaderPrescriptionPrint({ state }) {
 
     return (
         <Navbar className="justify-content-between headerprescription p-0">
-            <div className='align-items-center d-flex w-100 justify-content-between'>
-                <div>
-                    <div className={'align-items-center d-flex h-100 ps-3'}>
-                        <div className='rounded-pill patientProfile border me-3'>{viewable !== undefined ? makeDefaultLogo(state?.tcu_title) : makeDefaultLogo(patient_data?.pm_fullname)}</div>
-                        <div>
-                            {viewable !== undefined ? (
-                                <div className='patientName'>{state?.tcu_title}<div className='text-2'>{moment(state?.tcu_created_date).format('DD MMM, YYYY LT')}</div></div>
-                            ) : (
-                                <div className='patientName'>{`${patient_data !== undefined ? patient_data.pm_fullname : "Hello Guest"}`}<div className='text-2'>{patient_data !== undefined ? genderAge(patient_data) : `M, 30y`}</div></div>
-                            )}
+            <div className='align-items-center d-flex w-100 h-100 justify-content-between'>
+                <div className={'align-items-center d-flex h-100'}>
+                    {viewable !== undefined ? (
+                        <div className='border-end h-100 me-3 text-center'>
+                            <div onClick={() => navigate(-1)} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                                <i className='icon-right'></i>
+                            </div>
                         </div>
+                    ) : (
+                        <div className='rounded-pill patientProfile border mx-3'>{viewable !== undefined ? makeDefaultLogo(state?.tcu_title) : makeDefaultLogo(patient_data?.pm_fullname)}</div>
+                    )}
+                    <div>
+                        {viewable !== undefined ? (
+                            <div className='patientName'>{state?.tcu_title}<div className='text-2'>{moment(state?.tcu_created_date).format('DD MMM, YYYY LT')}</div></div>
+                        ) : (
+                            <div className='patientName'>{`${patient_data !== undefined ? patient_data.pm_fullname : "Hello Guest"}`}<div className='text-2'>{patient_data !== undefined ? genderAge(patient_data) : `M, 30y`}</div></div>
+                        )}
                     </div>
                 </div>
                 <Button

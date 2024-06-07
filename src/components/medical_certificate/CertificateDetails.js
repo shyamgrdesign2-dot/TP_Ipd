@@ -96,7 +96,7 @@ function CertificateDetails({ patient_data }) {
     return (
         <div className="appointment-wrap PatientDetailswrap m-0">
             <Card>
-                <div className='p-20' style={{ height: "calc(100vh - 117px)" }}>
+                <div className='p-20 overflow-y-auto' style={{ height: "calc(100vh - 117px)" }}>
                     {loading ? (
                         <div className='align-items-center text-center'>
                             <Spin />
