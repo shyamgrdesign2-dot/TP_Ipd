@@ -278,55 +278,55 @@ function Vaccination({ handleDrawerVaccination }) {
   };
 
   const handlePrintClick = () => {
-    // if (!isChrome && !isSafari && !isIOS && !isIPad13 && !isIOS13) {
-    const element = printableRef.current;
+    if (!isChrome && !isSafari) {
+      const element = printableRef.current;
 
-    if (!element) {
-      console.error("Element not found");
-      return;
-    }
+      if (!element) {
+        console.error("Element not found");
+        return;
+      }
 
-    const options = {
-      filename: "my-document.pdf",
-      image: { type: "jpeg", quality: 0.8 },
-      html2canvas: { scale: 1 },
-      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-    };
-    setTabLoader(true);
-    html2pdf()
-      .from(element)
-      .set(options)
-      .output("datauristring")
-      .then(async (pdfDataUri) => {
-        const base64string = pdfDataUri.slice(
-          pdfDataUri.indexOf("base64,") + 7
-        );
-        const token = getToken();
-        const decodedToken = jwtDecode(token);
-        const doctorId = decodedToken?.result?.doctor_unique_id;
-        const docRef = doc(db, "vaccinationChart", doctorId);
-        try {
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            await updateDoc(docRef, {
-              base64string,
-            });
-          } else {
-            await setDoc(doc(db, "vaccinationChart", doctorId), {
-              base64string,
-            });
+      const options = {
+        filename: "my-document.pdf",
+        image: { type: "jpeg", quality: 0.8 },
+        html2canvas: { scale: 1 },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      };
+      setTabLoader(true);
+      html2pdf()
+        .from(element)
+        .set(options)
+        .output("datauristring")
+        .then(async (pdfDataUri) => {
+          const base64string = pdfDataUri.slice(
+            pdfDataUri.indexOf("base64,") + 7
+          );
+          const token = getToken();
+          const decodedToken = jwtDecode(token);
+          const doctorId = decodedToken?.result?.doctor_unique_id;
+          const docRef = doc(db, "vaccinationChart", doctorId);
+          try {
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              await updateDoc(docRef, {
+                base64string,
+              });
+            } else {
+              await setDoc(doc(db, "vaccinationChart", doctorId), {
+                base64string,
+              });
+            }
+            setTabLoader(false);
+          } catch (error) {
+            console.error("Error updating document:", error);
           }
-          setTabLoader(false);
-        } catch (error) {
-          console.error("Error updating document:", error);
-        }
-      })
-      .catch((err) => {
-        console.error("Error generating PDF", err);
-      });
-    // } else {
-    //   handlePrintWeb();
-    // }
+        })
+        .catch((err) => {
+          console.error("Error generating PDF", err);
+        });
+    } else {
+      handlePrintWeb();
+    }
   };
 
   return (
