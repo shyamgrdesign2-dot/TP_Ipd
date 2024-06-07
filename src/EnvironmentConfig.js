@@ -16,7 +16,14 @@ const dev = {
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
-  GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD"
+  GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
+  firebaseApiKey: "AIzaSyAfD-YLOjDLbhC7hwyiumSkNxP2lul_Kc0",
+  firebaseAuthDomain: "diginext-28149.firebaseapp.com",
+  firebaseDatabaseURL: "https://tc-care-default-rtdb.firebaseio.com",
+  firebaseProjectId: "diginext-28149",
+  firebaseStorageBucket: "diginext-28149.appspot.com",
+  firebaseMessagingSenderId: "482265957598",
+  firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
 };
 
 const qa = {
@@ -37,7 +44,14 @@ const qa = {
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
-  GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD"
+  GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
+  firebaseApiKey: "AIzaSyAfD-YLOjDLbhC7hwyiumSkNxP2lul_Kc0",
+  firebaseAuthDomain: "diginext-28149.firebaseapp.com",
+  firebaseDatabaseURL: "https://tc-care-default-rtdb.firebaseio.com",
+  firebaseProjectId: "diginext-28149",
+  firebaseStorageBucket: "diginext-28149.appspot.com",
+  firebaseMessagingSenderId: "482265957598",
+  firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
 };
 
 const uat = {
@@ -59,6 +73,13 @@ const uat = {
   doctor_website_url: `https://pm-uat-dhspl-2.tatvacare.in/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
   GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
+  firebaseApiKey: "AIzaSyAfD-YLOjDLbhC7hwyiumSkNxP2lul_Kc0",
+  firebaseAuthDomain: "diginext-28149.firebaseapp.com",
+  firebaseDatabaseURL: "https://tc-care-default-rtdb.firebaseio.com",
+  firebaseProjectId: "diginext-28149",
+  firebaseStorageBucket: "diginext-28149.appspot.com",
+  firebaseMessagingSenderId: "482265957598",
+  firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
 };
 
 const prod = {
@@ -79,7 +100,14 @@ const prod = {
   sso_to_pm_password: `481541at-j4xc-4817-q5xz-a4rt48c69bt1`,
   doctor_website_url: `https://practice.tatvacare.in/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-prod.tatvacare.in/`,
-  GROWTHBOOK_CLIENTKEY: "sdk-qAxUqghZDXqcMH45"
+  GROWTHBOOK_CLIENTKEY: "sdk-qAxUqghZDXqcMH45",
+  firebaseApiKey: "AIzaSyAWt6CUw2ofGPI1TZIKb61lgUotLD0wUX8",
+  firebaseAuthDomain: "tc-care.firebaseapp.com",
+  firebaseDatabaseURL: "https://tc-care-default-rtdb.firebaseio.com",
+  firebaseProjectId: "tc-care",
+  firebaseStorageBucket: "tc-care.appspot.com",
+  firebaseMessagingSenderId: "932293067016",
+  firebaseAppId: "1:932293067016:web:226f46a8310301995b6cbd",
 };
 
 const getEnv = () => {

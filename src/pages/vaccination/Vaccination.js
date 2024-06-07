@@ -27,7 +27,7 @@ import {
   mergeDataPatientDetails,
 } from "./VaccinationHelper";
 import CashManagerContext from "../../context/CashManagerContext";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
   isSafari,
@@ -297,7 +297,9 @@ function Vaccination({ handleDrawerVaccination }) {
         .set(options)
         .output("datauristring")
         .then(async (pdfDataUri) => {
-          const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
+          const base64string = pdfDataUri.slice(
+            pdfDataUri.indexOf("base64,") + 7
+          );
           const token = getToken();
           const decodedToken = jwtDecode(token);
           const doctorId = decodedToken?.result?.doctor_unique_id;
@@ -306,18 +308,16 @@ function Vaccination({ handleDrawerVaccination }) {
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
               await updateDoc(docRef, {
-                base64string: b64,
+                base64string,
               });
-              console.log("Document successfully updated!");
             } else {
               await setDoc(doc(db, "vaccinationChart", doctorId), {
-                base64string: b64,
+                base64string,
               });
-              console.log("Document written");
             }
-            setTimeout(async () => {
-              await deleteDoc(docRef);
-            }, 600000);
+            // setTimeout(async () => {
+            //   await deleteDoc(docRef);
+            // }, 600000);
           } catch (error) {
             console.error("Error updating document:", error);
           }
