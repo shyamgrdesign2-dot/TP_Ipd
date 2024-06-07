@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Dropdown, Button, Drawer, Spin } from "antd";
+import { Dropdown, Button, Drawer, Spin, message } from "antd";
 import Card from 'react-bootstrap/Card';
 import moment from "moment";
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,11 @@ import CreateCertificate from "./CreateCertificate";
 import PdfThumbnail from "../../common/PdfThumbnail";
 import { listPatientCertificate, deletePatientCertificate } from "../../redux/doctorsSlice";
 import { errorMessage } from "../../utils/utils";
+
+import { MESSAGE_KEY } from "../../utils/constants";
+
+import visitEnd from '../../assets/images/end-visit.svg';
+import imgCloseVisit from '../../assets/images/close-visit.svg';
 
 function CertificateDetails({ patient_data }) {
 
@@ -67,7 +72,23 @@ function CertificateDetails({ patient_data }) {
             tcu_id: tcu_id
         }
         const action = await dispatch(deletePatientCertificate(sendData));
-        if (action.meta.requestStatus === "rejected") {
+        if (action.meta.requestStatus === "fulfilled") {
+            message.open({
+                key: MESSAGE_KEY,
+                type: '',
+                className: 'message-appointment',
+                content: (
+                    <div className='d-flex align-items-center'>
+                        <img src={visitEnd} className='me-3' />
+                        <div>
+                            <div className='title-common text-start fontroboto'>{`Certificate has been successfully deleted`}</div>
+                        </div>
+                        <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                    </div>
+                ),
+                duration: 5,
+            });
+        } else {
             errorMessage(action.error)
         }
     };

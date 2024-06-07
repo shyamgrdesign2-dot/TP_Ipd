@@ -286,7 +286,7 @@ function MedicalCertificate() {
                     <div className='d-flex align-items-center'>
                         <img src={visitEnd} className='me-3' />
                         <div>
-                            <div className='title-common text-start fontroboto'>Certificate saved successfully.</div>
+                            <div className='title-common text-start fontroboto'>Certificate saved successfully</div>
                             <div className='fontroboto text-start fw-normal mt-1'>View certificates in Patient Details.</div>
                         </div>
                         <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
