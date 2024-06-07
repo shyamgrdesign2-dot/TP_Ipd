@@ -373,8 +373,8 @@ function TabPrescription() {
                     </div>
                     <label className="text-white mt-1">Vitals</label>
                   </button>
-                ) : (
-                  e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
+                ) : 
+                  e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
                     <button
                       key={i}
                       type="button"
@@ -401,21 +401,20 @@ function TabPrescription() {
                       </div>
                       <label className="text-white mt-1">History</label>
                     </button>
+                  ) :
+                  (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
+                    <button
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={handleDrawerVaccination}
+                    >
+                      <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                        <img src={vaccinationWhite} alt="Vitals" />
+                      </div>
+                      <label className="text-white mt-1">Vaccine</label>
+                    </button>
                   )
-                );
               })}
-              {(!!isVaccinationAccessableFromGB || isPediatric) && (
-                <button
-                  type="button"
-                  className="mb-3 text-center btn btn-action"
-                  onClick={handleDrawerVaccination}
-                >
-                  <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                    <img src={vaccinationWhite} alt="Vitals" />
-                  </div>
-                  <label className="text-white mt-1">Vaccine</label>
-                </button>
-              )}
               {/* <button type='button' className="mb-3 text-center btn btn-action">
                                 <div className="prescription-tab-button rounded-10px">
                                     <img src={medicalHistoryWhite} alt="History" />
