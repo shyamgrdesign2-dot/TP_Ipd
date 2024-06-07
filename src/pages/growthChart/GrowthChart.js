@@ -28,7 +28,10 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader handleDrawerVaccination={handleDrawerVaccination} />
-      <SubHeader handleDrawerVital={handleDrawerVital} />
+      <SubHeader
+        handleDrawerVital={handleDrawerVital}
+        setShowUpdate={setShowUpdate}
+      />
       <div className="scrollable-container">
         <Row
           xs={1}
@@ -47,6 +50,7 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
                 <WeightChart
                   isFullscreen={isFullscreen}
                   setIsFullscreen={setIsFullscreen}
+                  handleDrawerVital={handleDrawerVital}
                 />
               </div>
             </Col>

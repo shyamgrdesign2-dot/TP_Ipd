@@ -294,7 +294,7 @@ function VitalsBox(props) {
                         <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={handleDrawerVital}>
                             <i className='icon-Cross fs-3'></i>
                         </Button>
-                        <div className="modal-title">Vitals</div>
+                        <div className="modal-title">{isGrowthChart? "Measurements" : "Vitals"}</div>
                     </div>
                     <Button onClick={isGrowthChart ? onAddGrowthData : onAddUpdateClicked} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading} disabled={childVitalsData.length > 0 ? false : true}>
                         Done

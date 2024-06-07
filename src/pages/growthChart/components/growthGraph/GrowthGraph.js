@@ -14,6 +14,7 @@ import {
 import { dummyData } from "../subHeader/SubHeader";
 import minimise from "../../../../assets/images/minimise.svg";
 import maximise from "../../../../assets/images/maximise.svg";
+import closeFill from "../../../../assets/images/closeFill.svg";
 import "./GrowthGraph.scss";
 
 // Register Chart.js modules
@@ -58,13 +59,24 @@ const customLabelPlugin = {
   },
 };
 
-const WeightChart = ({ data = dummyData, isFullscreen, setIsFullscreen }) => {
+const WeightChart = ({
+  data = dummyData,
+  isFullscreen,
+  setIsFullscreen,
+  handleDrawerVital,
+}) => {
   const chartRef = useRef(null);
   const [shouldShowPercentilePopup, setPercentilePopup] = useState(false);
   const [visibility, setVisibility] = useState(
     data.datasets.map((ds) => !ds.hidden)
   );
 
+  const [popup, setPopup] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    coords: {},
+  });
   const popupRef = useRef(null);
 
   const handleButtonClick = () => {
@@ -72,13 +84,45 @@ const WeightChart = ({ data = dummyData, isFullscreen, setIsFullscreen }) => {
   };
 
   const handleClickOutside = (event) => {
-    if (popupRef.current && !popupRef.current.contains(event.target)) {
+    if (
+      popupRef.current &&
+      !popupRef.current.contains(event.target) &&
+      !chartRef.current?.canvas?.contains(event.target)
+    ) {
       setPercentilePopup(false);
+      setPopup({ visible: false, x: 0, y: 0, coords: {} });
+    }
+  };
+
+  const handleChartClick = (event) => {
+    const points = chartRef.current?.getElementsAtEventForMode(
+      event,
+      "nearest",
+      { intersect: true },
+      true
+    );
+
+    if (points.length) {
+      const firstPoint = points[0];
+      const { x, y } = firstPoint.element;
+      const datasetIndex = firstPoint.datasetIndex;
+      const index = firstPoint.index;
+      const dataX = data.datasets[datasetIndex].data[index].x;
+      const dataY = data.datasets[datasetIndex].data[index].y;
+
+      setPopup({
+        visible: true,
+        x: event.native.offsetX,
+        y: event.native.offsetY,
+        coords: { dataX, dataY },
+      });
+    } else {
+      setPopup({ visible: false, x: 0, y: 0, coords: {} });
     }
   };
 
   useEffect(() => {
-    if (shouldShowPercentilePopup) {
+    if (shouldShowPercentilePopup || popup.visible) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -87,7 +131,7 @@ const WeightChart = ({ data = dummyData, isFullscreen, setIsFullscreen }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [shouldShowPercentilePopup]);
+  }, [shouldShowPercentilePopup, popup.visible]);
 
   useEffect(() => {
     if (chartRef.current) {
@@ -116,6 +160,7 @@ const WeightChart = ({ data = dummyData, isFullscreen, setIsFullscreen }) => {
   const options = {
     responsive: true,
     maintainAspectRatio: false,
+    onClick: handleChartClick,
     scales: {
       x: {
         type: "linear",
@@ -222,6 +267,52 @@ const WeightChart = ({ data = dummyData, isFullscreen, setIsFullscreen }) => {
       </div>
       <div style={{ position: "relative", height: "100%", width: "100%" }}>
         <Line ref={chartRef} data={chartData} options={options} />
+        {popup.visible && (
+          <div
+            className="tooltipStyle"
+            style={{
+              left: popup.x,
+              top: popup.y,
+            }}
+          >
+            <div className="measurementContainer">
+              <div className="measurementText">
+                Measurements
+                <i
+                  className="icon-Edit iconStyle"
+                  onClick={handleDrawerVital}
+                />
+              </div>
+              <img
+                src={closeFill}
+                alt="close"
+                className="closeImg"
+                onClick={() =>
+                  setPopup({ visible: false, x: 0, y: 0, coords: {} })
+                }
+              />
+            </div>
+            <div className="measurementContainer">
+              <div>Age: 3 months</div>
+              <div>Updated: 06 Jun 2024</div>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <div>
+                Height : 40 cms <span className="breakStyle" /> Weight : 08 kg
+              </div>
+              <div>
+                BMI : 13 kg/m2 <span className="breakStyle" /> OFC : 13 kg/m2
+              </div>
+              {/* X: {popup.coords.dataX}, Y: {popup.coords.dataY} */}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
