@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Button, Drawer, Input } from 'antd';
+import { Button, Drawer, Input, message } from 'antd';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import CommonModal from '../common/CommonModal';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -7,6 +7,11 @@ import JoditEditor from 'jodit-react';
 import moment from "moment";
 
 import { useSelector, useDispatch } from "react-redux";
+
+import { MESSAGE_KEY } from "../utils/constants";
+
+import visitEnd from '../assets/images/end-visit.svg';
+import imgCloseVisit from '../assets/images/close-visit.svg';
 
 import { addPatientCertificate, editPatientCertificate } from "../redux/doctorsSlice";
 
@@ -18,7 +23,7 @@ function MedicalCertificate() {
 
     const navigate = useNavigate();
 
-    const { profile, single_appointment_data, loading } = useSelector((state) => state.doctors);
+    const { profile, loading } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const { state } = useLocation();
@@ -38,7 +43,7 @@ function MedicalCertificate() {
     };
 
     const TOOLBAR = [
-        'undo', 'redo', '|', 'ul', 'ol', 'align', 'fontsize', '|', 'bold', 'italic', 'underline', '|', 
+        'undo', 'redo', '|', 'ul', 'ol', 'align', 'fontsize', '|', 'bold', 'italic', 'underline', '|',
         {
             name: 'Insert',
             // iconURL: 'https://img.icons8.com/ios-glyphs/30/000000/menu.png',
@@ -188,14 +193,14 @@ function MedicalCertificate() {
 
     }, [content]);
 
-    const onEditorChange=(newContent)=>{
+    const onEditorChange = (newContent) => {
         const allInputs = document.querySelectorAll('input[type="date"][id], input[type="search"][id]');
         allInputs.forEach(input => input.type == 'date' ? input.addEventListener('change', handleInputChange) : input.addEventListener('keyup', handleInputChange));
 
         removeLabelWithoutContent();
 
     }
-    
+
     function removeLabelWithoutContent() {
         const allLabels = document.querySelectorAll('label');
         // Function to handle label removal if empty
@@ -273,6 +278,22 @@ function MedicalCertificate() {
         }
         const action = certificate_data?.tcu_id !== undefined ? await dispatch(editPatientCertificate(sendData)) : await dispatch(addPatientCertificate(sendData))
         if (action.meta.requestStatus === "fulfilled") {
+            message.open({
+                key: MESSAGE_KEY,
+                type: '',
+                className: 'message-appointment',
+                content: (
+                    <div className='d-flex align-items-center'>
+                        <img src={visitEnd} className='me-3' />
+                        <div>
+                            <div className='title-common text-start fontroboto'>Certificate saved successfully.</div>
+                            <div className='fontroboto text-start fw-normal mt-1'>View certificates in Patient Details.</div>
+                        </div>
+                        <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                    </div>
+                ),
+                duration: 5,
+            });
             navigate('/certificate_print_view', {
                 replace: true, state: {
                     ...action.payload,
@@ -331,7 +352,7 @@ function MedicalCertificate() {
                                 {certificate_data !== undefined ? (
                                     <div className="d-flex align-items-center py-3 cursor-pointer">
                                         <div className="bg-fitness me-3">
-                                            {title[0]}
+                                            {certificate_data?.icon_image ? <img src={certificate_data?.icon_image} alt="" /> : title[0]}
                                         </div>
                                         <div>
                                             <div className="title-common">
@@ -401,10 +422,10 @@ function MedicalCertificate() {
                         .replace(/{Procedure}/g, `<label class="procedure">Procedure</label>`)
                         .replace(/{Number of Months}/g, `<label class="number_of_months">Number of Months</label>`)
                     }
-                // tabIndex={1} // tabIndex of textarea
-                // onBlur={newContent => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
-                // onChange={newContent => onChange(newContent)}
-                onChange={onEditorChange}
+                    // tabIndex={1} // tabIndex of textarea
+                    // onBlur={newContent => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
+                    // onChange={newContent => onChange(newContent)}
+                    onChange={onEditorChange}
                 />
                 <div>
                     {/* <h3>Editor Content:{content}</h3>

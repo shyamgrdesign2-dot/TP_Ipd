@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
-import { Button, Dropdown, Tooltip, Popover, Input, Spin, Tabs, Select, Drawer, Modal } from 'antd';
+import { Button, Dropdown, Tooltip, Popover, Input, Spin, Tabs, Select, Drawer, message } from 'antd';
 import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from 'react-router-dom';
 import { isMobile } from 'react-device-detect';
@@ -20,6 +20,11 @@ import fullicon from '../assets/images/full-icon.svg';
 import VideoModal from './VideoModal';
 
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
+
+import { MESSAGE_KEY } from "../utils/constants";
+
+import visitEnd from '../assets/images/end-visit.svg';
+import imgCloseVisit from '../assets/images/close-visit.svg';
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -49,7 +54,7 @@ function HeaderPrescription() {
 
     const navigate = useNavigate();
     const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime } = useContext(CashManagerContext);
-    
+
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
@@ -815,7 +820,7 @@ function HeaderPrescription() {
                 visit_advice: additionalNote,
                 medical_history: medicalHistoryData,
                 consultation_start_datetime: startTime,
-                oneclick_cosultation_template_id:oneClickCosultationTemplateId,
+                oneclick_cosultation_template_id: oneClickCosultationTemplateId,
                 vaccines: {
                     given: givenVaccines,
                     due: updatedDueVaccines
@@ -824,6 +829,22 @@ function HeaderPrescription() {
 
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
             if (action.meta.requestStatus === "fulfilled") {
+                message.open({
+                    key: MESSAGE_KEY,
+                    type: '',
+                    className: 'message-appointment',
+                    content: (
+                        <div className='d-flex align-items-center'>
+                            <img src={visitEnd} className='me-3' />
+                            <div>
+                                <div className='title-common text-start fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
+                                <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
+                            </div>
+                            <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                        </div>
+                    ),
+                    duration: 5,
+                });
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
             } else {
                 errorMessage(action.error)
