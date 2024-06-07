@@ -14,6 +14,7 @@ import {
 } from "../redux/vitalsSlice";
 import moment from "moment";
 import { addGrowthChartParam } from "../pages/growthChart/service";
+import SuccessPopup from "../pages/vaccination/components/SuccessPopup";
 
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD MMM, YY'
@@ -34,6 +35,7 @@ function VitalsBox(props) {
     const { patient_data, vitalsData, setVitalsData } = useContext(CashManagerContext);
     const [childVitalsData, setChildVitalsData] = useState([]);
     const [dateString, setDateString] = useState(null);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     useEffect(() => {
         if (selectedVitalsList.length > 0) {
@@ -217,7 +219,10 @@ function VitalsBox(props) {
         });
         const updateGrowthRes = await Promise.all(result);
         if (updateGrowthRes?.every((res) => res?.tcbc_id)) {
-          handleCollapsed(1);
+            setShowSuccess(true);
+            setTimeout(() => {
+             handleCollapsed(1);
+            }, 1000);
         } 
     }
 
@@ -372,6 +377,7 @@ function VitalsBox(props) {
                     </div>
                 )}
             </Card>
+            <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
         </>
     );
 }

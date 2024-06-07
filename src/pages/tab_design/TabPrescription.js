@@ -80,6 +80,7 @@ function TabPrescription() {
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
   const [isPediatric, setIsPediatric] = useState(false);
+  const [isGrowthChart, setIsGrowthChart] = useState(false);
   const isVaccinationAccessableFromGB = useFeatureIsOn(
     "vaccination-new-design"
   );
@@ -275,6 +276,7 @@ function TabPrescription() {
   const handleDrawerGrowth = () => {
     setCollapsedFlag(4);
     setGrowthDrawer(!growthDrawer);
+    setIsGrowthChart(!isGrowthChart);
   };
 
   useEffect(() => {
@@ -577,7 +579,7 @@ function TabPrescription() {
             </div>
           </Layout>
         </div>
-        <Drawer
+        {vitalDrawer && (<Drawer
           closeIcon={false}
           placement="right"
           onClose={handleDrawerVital}
@@ -588,8 +590,9 @@ function TabPrescription() {
           <VitalsBox
             handleDrawerVital={handleDrawerVital}
             handleCollapsed={(flag) => handleCollapsed(flag)}
+            isGrowthChart={isGrowthChart}
           />
-        </Drawer>
+        </Drawer>)}
         <Drawer
           closeIcon={false}
           placement="right"
