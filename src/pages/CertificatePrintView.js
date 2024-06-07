@@ -54,27 +54,6 @@ function CertificatePrintView() {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
 
-    // useEffect(() => {
-    //     if (viewable === undefined) {
-    //         message.open({
-    //             key: MESSAGE_KEY,
-    //             type: '',
-    //             className: 'message-appointment',
-    //             content: (
-    //                 <div className='d-flex align-items-center'>
-    //                     <img src={visitEnd} className='me-3' />
-    //                     <div>
-    //                         <div className='title-common text-start fontroboto'>Certificate saved successfully.</div>
-    //                         <div className='fontroboto text-start fw-normal mt-1'>View certificates in Patient Details.</div>
-    //                     </div>
-    //                     <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
-    //                 </div>
-    //             ),
-    //             duration: 5,
-    //         });
-    //     }
-    // }, []);
-
     async function onDocumentLoadSuccess(successEvent) {
         setNumPages(successEvent?.numPages);
         const data = await successEvent.getData()
@@ -111,7 +90,7 @@ function CertificatePrintView() {
                     <div className='d-flex align-items-center'>
                         <img src={visitEnd} className='me-3' />
                         <div>
-                            <div className='title-common text-start fontroboto'>{`Template ${tcu_content_id && !pms_default ? 'Updated' : 'Saved'} successfully.`}</div>
+                            <div className='title-common text-start fontroboto'>{`Template ${tcu_content_id && !pms_default ? 'Updated' : 'Saved'} successfully`}</div>
                         </div>
                         <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
                     </div>
