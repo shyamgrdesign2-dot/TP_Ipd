@@ -1,3 +1,4 @@
+import { Spin } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { pdfjs } from "react-pdf";
@@ -43,7 +44,7 @@ const PdfThumbnail = ({ pdfUrl }) => {
     return (
         <div>
             <canvas ref={canvasRef} style={{ display: 'none' }} />
-            {thumbnailUrl && <img src={thumbnailUrl} height={150} alt="PDF Thumbnail" />}
+            {thumbnailUrl ? <img src={thumbnailUrl} height={150} alt="PDF Thumbnail" /> : <Spin />}
         </div>
     );
 };

@@ -88,7 +88,7 @@ function CreateCertificate({ handleCreateCertificateDrawer, patient_data, replac
                             navigate(`/certificate`, { replace: replace, state: { patient_data: patient_data, certificate_data: { ...item, tcu_id: tcu_id } } })
                         }} className="d-flex w-100 align-items-center justify-content-between">
                             <div className="bg-fitness">
-                                {item?.title[0]}
+                                {item?.icon_image ? <img src={item?.icon_image} alt="" /> : item?.title[0]}
                             </div>
                             <div className="d-flex w-100 align-items-center justify-content-between">
                                 <div className={`title-common ${selectedTemplate == item?.id && 'text-primary'}`}>

@@ -86,7 +86,8 @@ function CertificateDetails({ patient_data }) {
                                 {patientCertificateList?.map((item, index) => {
                                     return (
                                         <div key={index} className="certificate-box border me-4 mb-4">
-                                            <div className="pfd-box d-flex justify-content-center align-items-center">
+                                            <div className="pfd-box d-flex justify-content-center align-items-center cursor-pointer"
+                                                onClick={() => navigate('/certificate_print_view', { state: { ...item, viewable: true } })}>
                                                 {/* <img src={certificatepdf} alt="Certificate PDF" /> */}
                                                 <PdfThumbnail pdfUrl={item?.certificate} />
                                             </div>

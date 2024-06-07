@@ -19,7 +19,6 @@ const initialState = {
   defaultPrintSettings: null,
   videoList: [],
   certificateList: [],
-  single_appointment_data: null,
   patientCertificateList: []
 };
 

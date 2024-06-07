@@ -10,7 +10,7 @@ import {
 } from "../redux/caseManagerSlice";
 import { resetVaccineState } from '../redux/vaccineSlice';
 
-function HeaderPrescriptionPrint({ patient_data, tcm_id, flag }) {
+function HeaderPrescriptionPrint({ patient_data, tcm_id }) {
     const navigate = useNavigate();
     const { profile } = useSelector((state) => state.doctors);
     const {
@@ -63,19 +63,11 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, flag }) {
                         </div>
                     </div>
                 </div>
-                {flag === 1 ? (
-                    <Button onClick={onEndVisitClick}
-                        loading={loadingEndVisit}
-                        className='btn align-items-center d-flex btn-41 btn-primary3 me-3 px-4'>
-                        Go to Appointment
-                    </Button>
-                ) : (
-                    <Button
-                        className='btn align-items-center d-flex btn-41 btn-primary3 me-3 px-4'
-                        onClick={() => navigate(-1)}>
-                        Done
-                    </Button>
-                )}
+                <Button onClick={onEndVisitClick}
+                    loading={loadingEndVisit}
+                    className='btn align-items-center d-flex btn-41 btn-primary3 me-3 px-4'>
+                    Go to Appointment
+                </Button>
             </div>
         </Navbar>
     );

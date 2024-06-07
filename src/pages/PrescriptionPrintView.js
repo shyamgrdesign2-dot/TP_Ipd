@@ -11,12 +11,8 @@ import { useReactToPrint } from 'react-to-print';
 
 import { errorMessage } from "../utils/utils";
 
-import visitEnd from '../assets/images/end-visit.svg';
-import imgCloseVisit from '../assets/images/close-visit.svg';
 import messageSent from '../assets/images/message-sent.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
-
-import { MESSAGE_KEY } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -99,25 +95,6 @@ function PrescriptionPrintView() {
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
-
-    useEffect(() => {
-        message.open({
-            key: MESSAGE_KEY,
-            type: '',
-            className: 'message-appointment',
-            content: (
-                <div className='d-flex align-items-center'>
-                    <img src={visitEnd} className='me-3' />
-                    <div>
-                        <div className='title-common text-start fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
-                        <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
-                    </div>
-                    <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
-                </div>
-            ),
-            duration: 5,
-        });
-    }, []);
 
     // const printContent = useReactToPrint({
     //     content: () => printRef.current,
@@ -228,7 +205,7 @@ function PrescriptionPrintView() {
 
     return (
         <>
-            <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} flag={1}/>
+            <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} />
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">

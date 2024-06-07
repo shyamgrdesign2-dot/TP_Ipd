@@ -9,12 +9,12 @@ import { useReactToPrint } from 'react-to-print';
 
 import { HTMLTransformer, removeLabelTags, errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
+import { MESSAGE_KEY } from "../utils/constants";
+
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
-import messageSent from '../assets/images/message-sent.svg';
-import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
-import { MESSAGE_KEY } from "../utils/constants";
+import HeaderCertificatePrint from "../common/HeaderCertificatePrint";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -40,7 +40,7 @@ function CertificatePrintView() {
     const navigate = useNavigate();
 
     const { state } = useLocation();
-    const { patient_data, tcu_content_id, pms_default, tcu_title, tcu_content } = state
+    const { patient_data, tcu_content_id, pms_default, tcu_title, tcu_content, viewable } = state
 
     const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.certificate}` : null);
 
@@ -53,6 +53,27 @@ function CertificatePrintView() {
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
+
+    // useEffect(() => {
+    //     if (viewable === undefined) {
+    //         message.open({
+    //             key: MESSAGE_KEY,
+    //             type: '',
+    //             className: 'message-appointment',
+    //             content: (
+    //                 <div className='d-flex align-items-center'>
+    //                     <img src={visitEnd} className='me-3' />
+    //                     <div>
+    //                         <div className='title-common text-start fontroboto'>Certificate saved successfully.</div>
+    //                         <div className='fontroboto text-start fw-normal mt-1'>View certificates in Patient Details.</div>
+    //                     </div>
+    //                     <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+    //                 </div>
+    //             ),
+    //             duration: 5,
+    //         });
+    //     }
+    // }, []);
 
     async function onDocumentLoadSuccess(successEvent) {
         setNumPages(successEvent?.numPages);
@@ -82,6 +103,21 @@ function CertificatePrintView() {
         const action = await dispatch(addCertificate(sendData))
         if (action.meta.requestStatus === "fulfilled") {
             setAddEditFlag(true)
+            message.open({
+                key: MESSAGE_KEY,
+                type: '',
+                className: 'message-appointment',
+                content: (
+                    <div className='d-flex align-items-center'>
+                        <img src={visitEnd} className='me-3' />
+                        <div>
+                            <div className='title-common text-start fontroboto'>{`Template ${tcu_content_id && !pms_default ? 'Updated' : 'Saved'} successfully.`}</div>
+                        </div>
+                        <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                    </div>
+                ),
+                duration: 5,
+            });
         } else {
             errorMessage(action.error)
         }
@@ -162,13 +198,13 @@ function CertificatePrintView() {
 
     return (
         <>
-            <HeaderPrescriptionPrint patient_data={patient_data} flag={2} />
+            <HeaderCertificatePrint state={state} viewable={viewable} />
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={7} lg={7} xl={5}>
 
-                        {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
+                        {(viewable !== undefined || isMobile) ? <div className="d-flex align-items-center justify-content-end h-38" /> : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
                             <i className="icon-setting me-2"></i>
                             <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                         </div>
@@ -176,7 +212,7 @@ function CertificatePrintView() {
                         <div className={`${!isMobile ? 'rounded-20px mt-20' : 'border-top-0 border-start-0 border-bottom-0'} border p-20 bg-white`}
                             style={{ height: !isMobile ? 'calc(100vh - 160px)' : 'calc(100vh - 60px)' }}>
                             <div>
-                                {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38" onClick={configurePrintUrl}>
+                                {(viewable !== undefined || !isMobile) ? '' : <div className="d-flex align-items-center mb-14 h-38" onClick={configurePrintUrl}>
                                     <i className="icon-setting me-2"></i>
                                     <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                                 </div>
@@ -201,25 +237,31 @@ function CertificatePrintView() {
                                     <span className="fw-semibold">Download</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
-                                <Button
-                                    type="text"
-                                    className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
-                                    icon={<i className="icon-Edit"></i>}
-                                    onClick={onEditCertificateClick}
-                                    loading={loading}
-                                >
-                                    <span className="fw-semibold">Edit Certificate</span>
-                                    <i className="icon-right iconrotate180 ms-auto"></i>
-                                </Button>
-                            </div>
-                            <hr className="my-4" />
-                            <div className="fw-medium my-2 pt-2">Save as Template</div>
-                            <div className="saveButton overflow-hidden">
-                                <Input className="popinput inputheight41 rounded-end-0" placeholder="Template Name" onChange={onTitleChange} value={title} disabled={addEditFlag} />
-                                {title?.length > 0 && (
-                                    <Button className="h-auto ps-0 rounded-start-0" onClick={onAddEditCertificateClick} disabled={addEditFlag}>{`${tcu_content_id && !pms_default ? 'Update' : 'Save'}${addEditFlag && !pms_default ? 'd' : ''}`}</Button>
+                                {viewable === undefined && (
+                                    <Button
+                                        type="text"
+                                        className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
+                                        icon={<i className="icon-Edit"></i>}
+                                        onClick={onEditCertificateClick}
+                                        loading={loading}
+                                    >
+                                        <span className="fw-semibold">Edit Certificate</span>
+                                        <i className="icon-right iconrotate180 ms-auto"></i>
+                                    </Button>
                                 )}
                             </div>
+                            {viewable === undefined && (
+                                <>
+                                    <hr className="my-4" />
+                                    <div className="fw-medium my-2 pt-2">Save as Template</div>
+                                    <div className="saveButton overflow-hidden">
+                                        <Input className="popinput inputheight41 rounded-end-0" placeholder="Template Name" onChange={onTitleChange} value={title} disabled={addEditFlag} />
+                                        {title?.length > 0 && (
+                                            <Button className="h-auto ps-0 rounded-start-0" onClick={onAddEditCertificateClick} disabled={addEditFlag}>{`${tcu_content_id && !pms_default ? 'Update' : 'Save'}${addEditFlag && !pms_default ? 'd' : ''}`}</Button>
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </Col>
                     <Col md={17} lg={17} xl={12}>
