@@ -17,6 +17,7 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
   let { patient_data } = state;
   const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     getAllGrowthChartParams({
@@ -29,10 +30,25 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
       <VaccineHeader handleDrawerVaccination={handleDrawerVaccination} />
       <SubHeader handleDrawerVital={handleDrawerVital} />
       <div className="scrollable-container">
-        <Row xs={1} sm={2} md={2} lg={2} className="gy-4">
+        <Row
+          xs={1}
+          sm={isFullscreen ? 1 : 2}
+          md={isFullscreen ? 1 : 2}
+          lg={isFullscreen ? 1 : 2}
+          className="gy-4"
+        >
           {growthData.map((item, index) => (
             <Col key={index} className="gx-4">
-              <WeightChart />
+              <div
+                className={`graphContainer ${
+                  isFullscreen ? "fullScreenStyle" : ""
+                }`}
+              >
+                <WeightChart
+                  isFullscreen={isFullscreen}
+                  setIsFullscreen={setIsFullscreen}
+                />
+              </div>
             </Col>
           ))}
         </Row>

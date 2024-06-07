@@ -12,6 +12,8 @@ import {
   Legend,
 } from "chart.js";
 import { dummyData } from "../subHeader/SubHeader";
+import minimise from "../../../../assets/images/minimise.svg";
+import maximise from "../../../../assets/images/maximise.svg";
 import "./GrowthGraph.scss";
 
 // Register Chart.js modules
@@ -56,13 +58,12 @@ const customLabelPlugin = {
   },
 };
 
-const WeightChart = ({ data = dummyData }) => {
+const WeightChart = ({ data = dummyData, isFullscreen, setIsFullscreen }) => {
   const chartRef = useRef(null);
   const [shouldShowPercentilePopup, setPercentilePopup] = useState(false);
   const [visibility, setVisibility] = useState(
     data.datasets.map((ds) => !ds.hidden)
   );
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const popupRef = useRef(null);
 
@@ -162,7 +163,7 @@ const WeightChart = ({ data = dummyData }) => {
   };
 
   return (
-    <div className="graphContainer">
+    <div style={{ height: "100%" }}>
       <div className="graphHeader">
         <h5 style={{ margin: 0 }}>Weight</h5>
         <div>
@@ -175,9 +176,13 @@ const WeightChart = ({ data = dummyData }) => {
               Percentile
               <i className="icon-right iconStyle" />
             </button>
-            <Button type="default" onClick={toggleFullscreen}>
-              {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-            </Button>
+            <img
+              onClick={toggleFullscreen}
+              className="me-3"
+              style={{ cursor: "pointer" }}
+              src={isFullscreen ? minimise : maximise}
+              alt="Warning"
+            />
           </div>
           {shouldShowPercentilePopup && (
             <div ref={popupRef} className="enablePercentile">
