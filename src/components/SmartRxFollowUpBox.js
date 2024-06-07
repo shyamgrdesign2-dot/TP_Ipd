@@ -117,7 +117,7 @@ function SmartRxFollowUpBox() {
                     {dateOptions.length > 0 &&
                         dateOptions.map((item, i) => {
                             return (
-                                <Button key={i} type="text" className="btn btn-primary2 btn-fw-bold fs-12 mb-12 me-4" onClick={() => onOptionPress(item)}>{item.label}</Button>
+                                <Button key={i} type="text" className="d-felx align-items-center btn btn-primary2 btn-fw-bold fs-12" onClick={() => onOptionPress(item)}>{item.label}</Button>
                             )
                         })}
                 </div>  

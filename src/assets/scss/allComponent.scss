@@ -188,10 +188,11 @@
 }
 .date-button{
     margin-top: 0.5rem;
-    gap: 12px
+    gap: 0.5rem;
 }
 .date-button > Button {
-    padding: 5px 27px;
+    width: 33%;
+    padding: 5px 0.4rem;
 }
 #pdf {
     width: 780px;

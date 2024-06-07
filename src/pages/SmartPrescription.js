@@ -5,17 +5,17 @@ import React, {
   useContext,
   useRef,
 } from "react";
-import { Drawer } from "antd";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Drawer,message } from "antd";
+import { useLocation } from "react-router-dom";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 import { jwtDecode } from "jwt-decode";
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT } from "../utils/constants";
+import { ADD, EDIT, SMART_RX_UPLOAD, WEBSOCKET_ERROR_MESSAGE } from "../utils/constants";
 
 import { getVitals } from "../redux/vitalsSlice";
-import { getPatientLastHistory } from "../redux/medicalhistorySlice";
+import ReconnectingWebSocket from 'reconnectingwebsocket';
 import CashManagerContext from "../context/CashManagerContext";
 import HeaderSmartPrescription from "../common/HeaderSmartPrescription";
 import VitalsBox from "../components/VitalsBox";
@@ -23,11 +23,14 @@ import VitalsList from "../components/VitalsList";
 import vitals from "../assets/images/Vitals.svg";
 import SmartRxFollowUpBox from "../components/SmartRxFollowUpBox";
 import RX_image from "../assets/images/RX_image.png";
+// import visitEnd from '../assets/images/end-visit.svg';
+// import imgCloseVisit from '../assets/images/close-visit.svg';
 
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, WEBSOCKET_ADDRESS } from "../utils/constants";
+import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
-
-const dateFormat = "YYYY-MM-DD";
+import { errorMessage } from "../utils/utils";
+import { MESSAGE_KEY } from "../utils/constants";
 
 function SmartPrescription() {
   const {
@@ -63,21 +66,16 @@ function SmartPrescription() {
   const [prescription, setPrescription] = useState(false);
   const canvasRef = useRef(null);
   const [refresh, setRefresh] = useState(false);
-  const [dataFromServer, setDataFromServer] = useState("");
-  const [loading, setLoading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalColor, setModalColor] = useState(null);
   const [progress, setProgress] = useState(0);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [blobName, setBlobName] = useState(null);
-  const [isDisable, setIsDisable] = useState(false);
   const [connected, setConnected] = useState(false);
   const [smartRxDetails, setSmartRxDetails] = useState(null);
+  
   const socketRef = useRef(null);
-  const retryTimeoutRef = useRef(null);
-
-  const navigate = useNavigate();
 
   const contextApi = {
     patient_data,
@@ -105,11 +103,9 @@ function SmartPrescription() {
     setAdditionalNote,
   };
 
-  const [vitalDrawer, setVitalDrawer] = useState(false);
+  const baseUrl = { customBaseUrl: env.casemanager_api_url };
 
-  // useEffect (() => {
-  //   const action = dispatch(getSmartRx(smartRxDetails))
-  // },[smartRxDetails])
+  const [vitalDrawer, setVitalDrawer] = useState(false);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -280,18 +276,6 @@ function SmartPrescription() {
           mode: caseManagerData !== undefined ? EDIT : ADD,
         })
       );
-
-      if (caseManagerData === undefined) {
-        const MH_action = await dispatch(
-          getPatientLastHistory({
-            patient_unique_id:
-              patient_data !== undefined ? patient_data.patient_unique_id : 0,
-          })
-        );
-        if (MH_action.meta.requestStatus === "fulfilled") {
-          setMedicalHistoryData(JSON.parse(JSON.stringify(MH_action.payload)));
-        }
-      }
     };
     patientLastHistory();
   }, []);
@@ -326,9 +310,7 @@ function SmartPrescription() {
     // Remove the previous canvas
     if (prescription) {
       const previousCanvas = canvasRef.current;
-      // console.log(previousCanvas,"previous")
       if (previousCanvas) {
-        // console.log("canvasRef.previous", canvasRef.current);
         previousCanvas.parentNode.removeChild(previousCanvas);
       }
       // Generate a new canvas with a new UUID and white background
@@ -342,79 +324,63 @@ function SmartPrescription() {
       newCanvas.style.backgroundColor = "white";
       newCanvas.style.border = "1px solid lightgrey";
       newCanvas.style.borderRadius = "20px";
-      // newCanvas.style.marginTop = "-18px";
       newCanvas.style.color = "black";
-      // console.log(document.getElementById("pdf"));
       document.getElementById("pdf").appendChild(newCanvas);
       canvasRef.current = newCanvas;
-      // console.log("canvasRef.current", canvasRef.current);
     }
   }, [refresh, prescription]);
 
-  // Handles Websoccket Connection
+  const wsError = (error) => {
+      message.open({
+        key: MESSAGE_KEY,
+        type: 'error',
+        className: 'error-red',
+        content: (
+            <div className='d-flex align-items-center'>
+                <div>
+                    <div className='title-common text-start fontroboto'>{error}</div>
+                </div>
+            </div>
+        ),
+        duration: 3,
+    });
+  }
+
+  // Handles Websocket Connection
   const connectWebSocket = () => {
-    setLoading(true);
 
-    if (socketRef.current) {
-      socketRef.current.close();
+    try {
+      // WebSocket initialization (reconnectingwebsocket -> this package handles the reconnection)
+      socketRef.current = new ReconnectingWebSocket(WEBSOCKET_ADDRESS, null, {debug: true, reconnectInterval: 3000});
+      
+      socketRef.current.onopen = () => {
+        console.log("WebSocket connection opened");
+        setConnected(true);
+      };
+
+      socketRef.current.onclose = () => {
+        console.log("WebSocket connection closed");
+        setConnected(false);
+      };
+
+      socketRef.current.onmessage = (event) => {
+          const o = event.data.split("|");
+          draw(o[0], o[1], o[2], o[3]);
+      };
+
+      socketRef.current.onerror = (error) => {
+        // Handle WebSocket errors
+        wsError(WEBSOCKET_ERROR_MESSAGE);
+        console.log("WebSocket error", error);
+      };
+    } catch (error) {
+      // Handle errors during WebSocket initialization
+      console.error("WebSocket connection failed", error);
+      wsError(WEBSOCKET_ERROR_MESSAGE);
     }
-
-    socketRef.current = new WebSocket(`ws://localhost:5001/iScribeSocket`);
-
-    socketRef.current.onopen = () => {
-      console.log("WebSocket connection opened");
-      setConnected(true);
-      setLoading(false);
-      clearTimeout(retryTimeoutRef.current);
-    };
-
-    socketRef.current.onclose = () => {
-      console.log("WebSocket connection closed");
-      setConnected(false);
-      setLoading(true);
-      // retryConnection();
-    };
-
-    socketRef.current.onmessage = (event) => {
-      // console.log("event.data",event.data)
-      const o = event.data.split("|");
-      // if (dataFromServer && dataFromServer.doctor_unique_id === o[4]) {
-      draw(o[0], o[1], o[2], o[3], o[4]);
-      // }
-    };
-
-    socketRef.current.onerror = (error) => {
-      console.log("WebSocket error", error);
-      setConnected(false);
-      setLoading(true); // Show loader when there's an error and attempting to reconnect
-      // retryConnection();
-    };
   };
 
-  // const retryConnection = () => {
-  //   if (!connected) {
-  //     retryTimeoutRef.current = setTimeout(() => {
-  //       console.log("Retrying WebSocket connection");
-  //       connectWebSocket();
-  //     }, 5000); // Retry every 5 seconds
-  //   }
-  // };
-
-  useEffect(() => {
-    if (prescription) {
-      connectWebSocket();
-    }
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
-      clearTimeout(retryTimeoutRef.current);
-    };
-  }, [prescription]);
-
-  function draw(t, n, a, c, e) {
-    // const canvas = document.getElementById("myCanvas");
+  function draw(t, n, a, c) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -442,31 +408,46 @@ function SmartPrescription() {
   };
 
   const handleSubmit = async () => {
+    socketRef.current.close();
     const canvas = canvasRef.current;
     const imgId = uuidv4();
     const name = `${imgId}.jpeg`;
     setBlobName(name);
+    let blob = null;
+    let file = null;
 
-    const blob = await convertCanvasToJPEG(canvas);
-    const file = new File([blob], name, { type: 'image/jpeg' });
+    try{
+      // throw new Error("Simulated conversion error");
+      blob = await convertCanvasToJPEG(canvas);
+      file = new File([blob], name, { type: 'image/jpeg' });
+    }
+    catch (error) {
+      console.log('Error converting canvas to JPEG:', error);
+      errorMessage("Failed to generate image, Please Sunmit again");
+      return;
+    }
 
-    // Use FormData to handle file upload
+    // FormData to handle file upload
     const formData = new FormData();
     formData.append('smart_prescription_filename', name);
     formData.append('smart_prescription_file', file);
     formData.append('doctor_unique_id', tokenData?.doctor_unique_id);
     formData.append('patient_unique_id', patient_data?.patient_unique_id);
 
-    const formattedToken = token.replace(/^"(.*)"$/, '$1');
-    const payloadToken = `Bearer ${formattedToken}`
-    const respose = await fetch(`${env.casemanager_api_url}/api/v1/casemanager/smart-rx/upload`, {
-      method: 'POST',
-      headers: {Authorization: payloadToken},
-      body: formData,
-    })
-    const data = respose.json();
-    if (data){
-      setSmartRxDetails(name);
+    try {
+      const response = await api.post(
+        SMART_RX_UPLOAD,
+        formData,
+        baseUrl
+      );
+      const data = response?.message;
+
+      if (data) {
+        setSmartRxDetails(name);
+      }
+    } catch (error) {
+      errorMessage("Error Uploading the prescription, Please try again");
+      console.log('Error Submitting the prescription:', error);
     }
   };
 
@@ -476,6 +457,7 @@ function SmartPrescription() {
 
   const handleWrite = () => {
     setPrescription(true);
+    connectWebSocket();
   };
 
   const openModal = (success, message) => {
@@ -534,7 +516,6 @@ function SmartPrescription() {
           smartRxData={smartRxDetails}
         />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
-          {/* <img src={hey} alt="vitals" className="me-3 hey" /> */}
           <div className="row">
             <div
               className="col-lg-4 col-md-12 col-12"
@@ -579,7 +560,7 @@ function SmartPrescription() {
               </div>
             </div>
             <div
-              class="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3"
+              className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3"
               style={{
                 width: "61%",
                 height: "100%",

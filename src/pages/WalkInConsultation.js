@@ -35,19 +35,6 @@ function WalkInConsultation() {
   const [onPatientClick, setOnPatientClick] = useState(false);
   const consultButtonRef = useRef(null);
 
-  const handleClickOutside = (event) => {
-    if (!consultButtonRef?.current?.contains(event.target)) {
-      setOpenRowIndex(null);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   const BoldWordInName = ({ name, boldWord }) => {
     // Split the name into parts based on the bold word
     const parts = name.split(new RegExp(`(${boldWord})`, "i"));
@@ -398,7 +385,7 @@ function WalkInConsultation() {
                     <span
                       role="img"
                       aria-label="down"
-                      class="anticon anticon-down ant-select-suffix"
+                      className="anticon anticon-down ant-select-suffix"
                     >
                       <i
                         className="icon-right"

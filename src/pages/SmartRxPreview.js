@@ -6,18 +6,17 @@ import { isMobile, isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { jwtDecode } from "jwt-decode";
-import { useReactToPrint } from 'react-to-print';
-
-// import { PDFReader } from 'reactjs-pdf-reader';
 
 import { errorMessage } from "../utils/utils";
+import api from "../api/services/axiosService";
 
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
 import wtsp from '../assets/images/wtsp.svg';
+import loadingImg from '../assets/images/loading.png';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
-import { MESSAGE_KEY } from "../utils/constants";
+import { MESSAGE_KEY, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
@@ -29,10 +28,6 @@ import CommonModal from "../common/CommonModal";
 import { env } from "../EnvironmentConfig";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
-// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-//     "pdfjs-dist/build/pdf.worker.min.js",
-//     import.meta.url
-// ).toString();
 
 function SmartRxPreview() {
 
@@ -49,10 +44,7 @@ function SmartRxPreview() {
     const { state } = useLocation();
     const { patient_data } = state
 
-    const [selectedLang, setSelectedLang] = useState(1);
-
     const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}` : null);
-    const [printRxUrl, setPrintRxUrl] = useState(state !== undefined ? `${state.print_rx_url}` : null);
     const [token, setToken] = useState(null);
     const [tokenData, setTokenData] = useState(null);
     const [divWidth, setDivWidth] = useState(0);
@@ -61,7 +53,11 @@ function SmartRxPreview() {
     const [isUpdateMobileNoModalOpen, setIsUpdateMobileNoModalOpen] = useState(false);
     const [mobileNumber, setMobileNumber] = useState('');
     const [useRegisteredMobile, setUseRegisteredMobile] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [buttonText, setButtonText] = useState("Send to WhatsApp");
     const registeredMobileNumber = '';
+
+    const baseUrl = { customBaseUrl: env.casemanager_api_url };
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
@@ -89,7 +85,7 @@ function SmartRxPreview() {
     useEffect(() => {
         const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
         setToken(token)
-        if (token !== undefined) {
+        if (token) {
           try {
             var decoded = jwtDecode(token);
             setTokenData(decoded.result)
@@ -102,12 +98,10 @@ function SmartRxPreview() {
     const handleDownload = async () => {
         try {
             const response = await axios({
-                // url: "https://morth.nic.in/sites/default/files/dd12-13_0.pdf",
                 url: printUrl,
                 method: 'GET',
                 responseType: 'blob', // Important for binary data
             });
-
             const blob = new Blob([response.data], { type: response.headers['content-type'] });
             saveAs(blob, `${Date.now()}.pdf`);
         } catch (error) {
@@ -165,36 +159,44 @@ function SmartRxPreview() {
     };
 
     const handleSendToWhatsapp = async () => {
-        const url = `${env.casemanager_api_url}/api/v1/casemanager/smart-rx/send`;
-        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN)
-        const formattedToken = token.replace(/^"(.*)"$/, '$1');
-        const payloadToken = `Bearer ${formattedToken}`
-        const headers = {
-          'Content-Type': 'application/json',
-          'Authorization': payloadToken,
-        };
         const body = {
-          tcm_id: state.tcm_id,
-          pm_contact_no: state.patient_data.pm_contact_no,
+          tcm_id: state?.tcm_id,
+          pm_contact_no: state?.patient_data?.pm_contact_no,
           change_mobile_number: false,
-          patient_unique_id: state.patient_data.patient_unique_id,
-          hospital_business_id: tokenData.hospital_business_id,
-          um_id: tokenData.user_id
+          patient_unique_id: state?.patient_data?.patient_unique_id,
+          hospital_business_id: tokenData?.hospital_business_id,
+          um_id: tokenData?.user_id
         };
     
+        setIsLoading(true);
+        setButtonText("Sending...");
         try {
-          const response = await axios.post(url, body, { headers: headers });
-          console.log(response.data,"what-app response")
-        } catch (error) {
-          console.error('Error:', error);
-        //   setResponse(null);
+            const response = await api.post(
+              WHATS_APP_API,
+              body,
+              baseUrl
+            );
+            if (response.message) {
+                setButtonText("Successfully Sent");
+
+                // After 2-3 seconds, reset the button text back to "Send to WhatsApp again"
+                setTimeout(() => {
+                    setButtonText("Send to WhatsApp again");
+                }, 3000);
+            } else {
+                setButtonText("Send to WhatsApp");
+            }
+          } catch (error) {
+                errorMessage(WTSAP_ERR_MESSAGE);
+          } finally {
+                setIsLoading(false);
         }
     };
+
     return (
         <>
             <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} />
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
-                {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={7} lg={7} xl={7}>
 
@@ -211,20 +213,6 @@ function SmartRxPreview() {
                                     <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                                 </div>
                                 }
-                                {/* <Button
-                                    type="text"
-                                    onClick={() => {
-                                        // window.Moengage.track_event("print_select", {
-                                        //     "language": LANGUAGE_LIST.find(e => e.value === selectedLang).label
-                                        // });
-                                        !isChrome && !isSafari ? printInAppContent() : printContent()
-                                    }}
-                                    className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
-                                    icon={<i className="icon-Print"></i>}
-                                >
-                                    <span className="fw-semibold">Print</span>
-                                    <i className="icon-right iconrotate180 ms-auto"></i>
-                                </Button> */}
                                 <Button
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
@@ -244,11 +232,15 @@ function SmartRxPreview() {
                                 </div>
                             </div>
                             <button
-                                className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
-                                onClick={handleSendToWhatsapp}
+                            className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
+                            onClick={handleSendToWhatsapp}
                             >
-                                Send to WhatsApp
-                            </button>
+                                {isLoading ? (
+                                <img src={loadingImg} alt="Loading..." width="25px" height="25px"/>
+                                ) : (
+                                    buttonText
+                                )}
+                            </button>                                
                             {/* <CommonModal
                                 isModalOpen={isUpdateMobileNoModalOpen}
                                 onCancel={showHideUpdateMobileNoModal}
@@ -319,14 +311,6 @@ function SmartRxPreview() {
                                                 })}
                                         </Document>
                                     </div>
-                                    {/* <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
-                                    <PDFReader key={selectedLang} ref={printRef} width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} /> */}
-                                    {/* <embed className="printBox" ref={printRef} src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed> */}
-                                    {/* <iframe
-                                        src="https://pms-upgrade.azurewebsites.net/case_manager/pdf_casemanager_send.php?pdf_id=MTI3Njgx&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ=#toolbar=0&navpanes=0&scrollbar=0"
-                                        height="100%" width="100%"
-                                        title="PDF Viewer"
-                                    ></iframe> */}
                                 </div>
                             </div>
                         </div>
