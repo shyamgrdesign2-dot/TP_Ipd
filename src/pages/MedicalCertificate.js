@@ -46,7 +46,7 @@ function MedicalCertificate() {
     };
 
     const TOOLBAR = [
-        'undo', 'redo', '|', 'ul', 'ol', 'align', 'source',
+        'undo', 'redo', '|', 'ul', 'ol', 'align',
         {
             // name: fontSize,
             name: 'font size',
