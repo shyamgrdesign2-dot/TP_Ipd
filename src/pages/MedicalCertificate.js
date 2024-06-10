@@ -223,9 +223,12 @@ function MedicalCertificate() {
         if (certificate_data !== undefined) {
             setTitle(certificate_data?.title);
             setContent(certificate_data?.content);
-            if (certificate_data?.content?.length > 0) {
-                config.placeholder = ''
-            }
+        } else {
+            setTitle('');
+            setContent('');
+        }
+        if (certificate_data?.content?.length > 0) {
+            config.placeholder = ''
         }
     }, [certificate_data]);
 
