@@ -46,7 +46,7 @@ function MedicalCertificate() {
     };
 
     const TOOLBAR = [
-        'undo', 'redo', '|', 'ul', 'ol', 'align',
+        'undo', 'redo', '|', 'ul', 'ol', 'align', 'source',
         {
             // name: fontSize,
             name: 'font size',
@@ -188,6 +188,24 @@ function MedicalCertificate() {
         askBeforePasteFromWord: false,
         askBeforePasteHTML: false,
         defaultActionOnPaste: "insert_as_html",
+        uploader: {
+            insertImageAsBase64URI: true,
+            url: 'none', // Explicitly set to 'none' to indicate no URL endpoint
+            filesVariableName: function (i) {
+                return 'files[' + i + ']';
+            },
+            process: function (resp) {
+                return {
+                    files: resp
+                };
+            },
+            defaultHandlerSuccess: function (data, resp) {
+                console.log(data);
+            },
+            error: function (e) {
+                console.error(e);
+            },
+        }
         // controls: {
         //     fontsize: {
         //         list: {
