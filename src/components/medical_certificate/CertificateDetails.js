@@ -110,7 +110,7 @@ function CertificateDetails({ patient_data }) {
                                             <div className="pfd-box d-flex justify-content-center align-items-center cursor-pointer"
                                                 onClick={() => navigate('/certificate_print_view', { state: { ...item, viewable: true } })}>
                                                 {/* <img src={certificatepdf} alt="Certificate PDF" /> */}
-                                                <PdfThumbnail pdfUrl={item?.certificate} />
+                                                <PdfThumbnail pdfUrl={item?.certificate} index={index} thumbnailUrl={item?.thumbnailUrl} />
                                             </div>
                                             <div className="bg-selected leave-ui d-flex justify-content-between">
                                                 <div className="text-truncate">
