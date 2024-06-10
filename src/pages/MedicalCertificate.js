@@ -205,6 +205,33 @@ function MedicalCertificate() {
             error: function (e) {
                 console.error(e);
             },
+        },
+        events: {
+            processPaste: (event, html) => {
+                // const cleanedHtml = html.replace(/(^|;)\s*font-family[^;]+/g, "");
+                // return cleanedHtml;
+
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                console.log(tempDiv)
+
+                // Remove all font-family styles
+                const elementsWithStyle = tempDiv.querySelectorAll('[style]');
+                elementsWithStyle.forEach(element => {
+                    if (element.getAttribute('style')) {
+                        element.removeAttribute('style');
+                    }
+                });
+
+                // const allElements = tempDiv.querySelectorAll('*');
+                // allElements.forEach(element => {
+                //     element.style.fontSize = '14px';
+                // });
+
+                const cleanedContent = tempDiv.innerHTML;
+                console.log("second", cleanedContent)
+                return cleanedContent;
+            }
         }
         // controls: {
         //     fontsize: {
@@ -223,9 +250,12 @@ function MedicalCertificate() {
         if (certificate_data !== undefined) {
             setTitle(certificate_data?.title);
             setContent(certificate_data?.content);
-            if (certificate_data?.content?.length > 0) {
-                config.placeholder = ''
-            }
+        } else {
+            setTitle('');
+            setContent('');
+        }
+        if (certificate_data?.content?.length > 0) {
+            config.placeholder = ''
         }
     }, [certificate_data]);
 
@@ -238,6 +268,7 @@ function MedicalCertificate() {
     }, [content]);
 
     const onEditorChange = (newContent) => {
+        console.log(newContent)
         const allInputs = document.querySelectorAll('input[type="date"][id], input[type="search"][id]');
         allInputs.forEach(input => input.type == 'date' ? input.addEventListener('change', handleInputChange) : input.addEventListener('keyup', handleInputChange));
 
