@@ -1,12 +1,15 @@
 import React, { useEffect, useCallback, useState, useMemo } from "react";
-import { Button, Spin } from "antd";
+import { Button, Spin, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
 
 import { useSelector, useDispatch } from "react-redux";
+import { MESSAGE_KEY } from "../../utils/constants";
 
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
+import visitEnd from '../../assets/images/end-visit.svg';
+import imgCloseVisit from '../../assets/images/close-visit.svg';
 import { listCertificate, deleteCertificate } from "../../redux/doctorsSlice";
 
 import { errorMessage } from "../../utils/utils";
@@ -34,7 +37,24 @@ function CreateCertificate({ handleCreateCertificateDrawer, patient_data, replac
 
     const onDeleteClicked = async (id) => {
         const action = await dispatch(deleteCertificate(id));
-        if (action.meta.requestStatus === "rejected") {
+        if (action.meta.requestStatus === "fulfilled") {
+            message.open({
+                key: MESSAGE_KEY,
+                type: '',
+                className: 'message-appointment',
+                content: (
+                    <div className='d-flex align-items-center'>
+                        <img src={visitEnd} className='me-3' />
+                        <div>
+                            <div className='title-common text-start fontroboto'>Deleted Successfully</div>
+                            <div className='fontroboto text-start fw-normal mt-1'>Certificate has been successfully deleted.</div>
+                        </div>
+                        <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                    </div>
+                ),
+                duration: 5,
+            });
+        } else {
             errorMessage(action.error)
         }
     };
