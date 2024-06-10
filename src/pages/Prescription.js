@@ -339,7 +339,7 @@ function Prescription() {
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessableFromGB || isPediatric} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
