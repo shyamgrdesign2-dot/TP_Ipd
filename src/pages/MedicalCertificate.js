@@ -16,6 +16,7 @@ import imgCloseVisit from '../assets/images/close-visit.svg';
 import { addPatientCertificate, editPatientCertificate } from "../redux/doctorsSlice";
 
 import alertIcon from '../assets/images/alertIcon.svg';
+import fontSizeIcon from '../assets/images/fontSizeIcon.svg';
 import CreateCertificate from "../components/medical_certificate/CreateCertificate";
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
@@ -31,6 +32,8 @@ function MedicalCertificate() {
 
     const editor = useRef(null);
 
+    // const [fontSize, setFontSize] = useState('14');
+
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
 
@@ -43,7 +46,30 @@ function MedicalCertificate() {
     };
 
     const TOOLBAR = [
-        'undo', 'redo', '|', 'ul', 'ol', 'align', 'fontsize', '|', 'bold', 'italic', 'underline', '|',
+        'undo', 'redo', '|', 'ul', 'ol', 'align',
+        {
+            // name: fontSize,
+            name: 'font size',
+            iconURL: fontSizeIcon,
+            command: 'fontSize',
+            list: [
+                '8',
+                '10',
+                '12',
+                '14',
+                '16',
+            ],
+            tooltip: 'Font size',
+            // exec: (editor, current, options) => {
+            //     if(options.control.args!==undefined){
+            //         const size = options.control.args[0];
+            //         setFontSize(size)
+            //     }
+            //     return false
+            // },
+        },
+        // 'fontsize',
+        '|', 'bold', 'italic', 'underline', '|',
         {
             name: 'Insert',
             // iconURL: 'https://img.icons8.com/ios-glyphs/30/000000/menu.png',
@@ -162,17 +188,17 @@ function MedicalCertificate() {
         askBeforePasteFromWord: false,
         askBeforePasteHTML: false,
         defaultActionOnPaste: "insert_as_html",
-        controls: {
-            fontsize: {
-                list: {
-                    '8px': '8',
-                    '10px': '10',
-                    '12px': '12',
-                    '14px': '14',
-                    '16px': '16',
-                }
-            }
-        }
+        // controls: {
+        //     fontsize: {
+        //         list: {
+        //             '8px': '8',
+        //             '10px': '10',
+        //             '12px': '12',
+        //             '14px': '14',
+        //             '16px': '16',
+        //         }
+        //     }
+        // }
     };
 
     useEffect(() => {
