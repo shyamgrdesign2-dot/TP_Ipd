@@ -302,6 +302,10 @@ const doctorsSlice = createSlice({
     },
     changeSortOrder: (state, action) => {
       state.sort_order = action.payload
+    },
+    updatePatientCertificateList: (state, action) => {
+      const { index, thumbnailUrl } = action.payload
+      state.patientCertificateList[index]['thumbnailUrl'] = thumbnailUrl
     }
   },
   extraReducers: (builder) => {
@@ -450,7 +454,13 @@ const doctorsSlice = createSlice({
         state.loading = true;
       })
       .addCase(listPatientCertificate.fulfilled, (state, action) => {
-        state.patientCertificateList = action.payload;
+        const updatedData = action.payload.map((e) => {
+          const object = state.patientCertificateList?.find(e1 => e1.tcu_id === e.tcu_id)
+          const findObject = object !== undefined ? object : {}
+          return { ...findObject, ...e };
+        });
+        state.patientCertificateList = updatedData;
+
         state.loading = false;
       })
       .addCase(listPatientCertificate.rejected, (state) => {
@@ -493,5 +503,5 @@ const doctorsSlice = createSlice({
   },
 });
 
-export const { changeLogoStatus, changeSortOrder } = doctorsSlice.actions
+export const { changeLogoStatus, changeSortOrder, updatePatientCertificateList } = doctorsSlice.actions
 export default doctorsSlice.reducer;
