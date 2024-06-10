@@ -345,7 +345,7 @@ function TabPrescription() {
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessableFromGB || isPediatric} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper p-0">
           <Layout>
             <div className="prescription-sidebar">
