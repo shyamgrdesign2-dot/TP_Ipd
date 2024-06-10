@@ -32,10 +32,8 @@ import { useSelector } from "react-redux";
 import { isSafari, isChrome } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { db } from "../../firebase.js";
-import { jwtDecode } from "jwt-decode";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants.js";
-import { useLocalStorage } from "../../utils/localStorage.js";
-import { deleteDoc, setDoc, doc, getDoc, updateDoc } from "firebase/firestore";
+import { setDoc, doc, getDoc, updateDoc } from "firebase/firestore";
+import FullPageLoader from "./components/Loader.js";
 
 function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
@@ -60,7 +58,6 @@ function Vaccination({ handleDrawerVaccination }) {
   const [isCardClicked, setCardClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [vaccinePatientDetails, setVaccinePatientDetails] = useState();
-  const [getToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const [tabLoader, setTabLoader] = useState(false);
 
   const contextApi = {
@@ -281,7 +278,7 @@ function Vaccination({ handleDrawerVaccination }) {
       }
 
       const options = {
-        filename: "my-document.pdf",
+        filename: "VaccinationChart.pdf",
         image: { type: "jpeg", quality: 0.8 },
         html2canvas: { scale: 1 },
         jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
@@ -295,25 +292,27 @@ function Vaccination({ handleDrawerVaccination }) {
           const base64string = pdfDataUri.slice(
             pdfDataUri.indexOf("base64,") + 7
           );
-          const token = getToken();
-          const decodedToken = jwtDecode(token);
-          const doctorId = decodedToken?.result?.doctor_unique_id;
-          const docRef = doc(db, "vaccinationChart", doctorId);
-          try {
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-              await updateDoc(docRef, {
-                base64string,
-              });
-            } else {
-              await setDoc(doc(db, "vaccinationChart", doctorId), {
-                base64string,
-              });
+          const deviceUid = localStorage.getItem("app_device_unique_id");
+          if (deviceUid) {
+            const docRef = doc(db, "vaccinationChart", deviceUid);
+            try {
+              const docSnap = await getDoc(docRef);
+              if (docSnap.exists()) {
+                await updateDoc(docRef, {
+                  base64string,
+                });
+              } else {
+                await setDoc(doc(db, "vaccinationChart", deviceUid), {
+                  base64string,
+                });
+              }
+            } catch (error) {
+              console.error("Error updating document:", error);
             }
-            setTabLoader(false);
-          } catch (error) {
-            console.error("Error updating document:", error);
+          } else {
+            console.error("Device Uid not found");
           }
+          setTabLoader(false);
         })
         .catch((err) => {
           console.error("Error generating PDF", err);
@@ -472,6 +471,7 @@ function Vaccination({ handleDrawerVaccination }) {
           />
         )}
       </div>
+      {tabLoader && <FullPageLoader />}
     </CashManagerContext.Provider>
   );
 }

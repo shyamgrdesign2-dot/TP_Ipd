@@ -115,7 +115,7 @@ const getEnv = () => {
   // console.log("process.env.REACT_APP_ENV",process.env.REACT_APP_ENV);
   switch (process.env.REACT_APP_ENV) {
     case "dev":
-      return dev;
+      return uat;
     case "qa":
       return qa;
     case "uat":
