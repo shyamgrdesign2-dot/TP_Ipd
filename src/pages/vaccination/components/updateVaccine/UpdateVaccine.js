@@ -65,16 +65,20 @@ const UpdateVaccine = ({
   const { patient_data } = state;
   const formRef = useRef(null);
 
+  const handleFocus = (index, isFocused = false) => {
+    setIsOpen((prev) => {
+      const newState = [...prev];
+      newState[index] = isFocused;
+      return newState;
+    });
+  };
+
   const scrollToIndex = (index) => {
     const element = selectRefs.current[index];
     if (element) {
       element.scrollTo({ behavior: "smooth", block: "center" });
       element.focus();
-      setIsOpen((prev) => {
-        const newState = [...prev];
-        newState[index] = true;
-        return newState;
-      });
+      handleFocus(index, true);
     }
   };
 
@@ -235,22 +239,6 @@ const UpdateVaccine = ({
     return selectedDate === "given"
       ? current && current > moment().endOf("day")
       : current && current < moment().startOf("day");
-  };
-
-  const handleFocus = (index) => {
-    setIsOpen((prev) => {
-      const newState = [...prev];
-      newState[index] = true;
-      return newState;
-    });
-  };
-
-  const handleBlur = (index) => {
-    setIsOpen((prev) => {
-      const newState = [...prev];
-      newState[index] = false;
-      return newState;
-    });
   };
 
   return (
@@ -423,8 +411,8 @@ const UpdateVaccine = ({
                         if (ref) selectRefs.current[i] = ref;
                       }}
                       open={isOpen[i]}
-                      onFocus={() => handleFocus(i)}
-                      onBlur={() => handleBlur(i)}
+                      onFocus={() => handleFocus(i, true)}
+                      onBlur={() => handleFocus(i)}
                       style={{
                         border: focusedIndexes.includes(i)
                           ? "1px solid blue"
