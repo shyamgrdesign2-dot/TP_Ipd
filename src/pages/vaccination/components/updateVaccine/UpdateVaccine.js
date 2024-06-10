@@ -185,11 +185,7 @@ const UpdateVaccine = ({
       else prev[vaccineName] = { [detail]: value };
       return prev;
     });
-    setIsOpen((prev) => {
-      const newState = [...prev];
-      newState[index] = false;
-      return newState;
-    });
+    handleFocus(index);
   };
 
   const updateVaccineDueDate = async () => {
