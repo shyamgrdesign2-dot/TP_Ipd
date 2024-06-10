@@ -37,14 +37,14 @@ function ProfilePopover(props) {
                 </div>
             </div>
             <div>
-                <Link to="/edit_patient" replace={true} state={{ patients_details: patients_details }}>
+                <Link to="/edit_patient" replace={true} state={{ patient_data: patients_details }}>
                     <Button className='btn btn-primary2 d-flex justify-content-center align-items-center w-100 mt-3 btn-41'>
                         <i className='icon-Edit me-2 fs-21'></i>
                         Edit Profile
                     </Button>
                 </Link>
                 {locationPath == '/patient_details' ? '' :
-                    <Link to="/patient_details" state={{ patients_details: patients_details }}>
+                    <Link to="/patient_details" state={{ patient_data: patients_details }}>
                         <Button className='btn btn-primary2 align-items-center d-flex justify-content-center w-100 mt-3 btn-41'>
                             <i className='icon-Visit-Summary fs-21 me-2'></i>
                             Visit Summary
