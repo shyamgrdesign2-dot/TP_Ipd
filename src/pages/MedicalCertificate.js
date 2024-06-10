@@ -46,7 +46,7 @@ function MedicalCertificate() {
     };
 
     const TOOLBAR = [
-        'undo', 'redo', '|', 'ul', 'ol', 'align', 'source',
+        'undo', 'redo', '|', 'ul', 'ol', 'align',
         {
             // name: fontSize,
             name: 'font size',
@@ -268,7 +268,7 @@ function MedicalCertificate() {
     }, [content]);
 
     const onEditorChange = (newContent) => {
-        console.log(newContent)
+        // console.log(newContent)
         const allInputs = document.querySelectorAll('input[type="date"][id], input[type="search"][id]');
         allInputs.forEach(input => input.type == 'date' ? input.addEventListener('change', handleInputChange) : input.addEventListener('keyup', handleInputChange));
 
@@ -315,11 +315,11 @@ function MedicalCertificate() {
                 valueToUpdate.removeAttribute('value');
                 if (inputElement.type === "date") {
                     const newDateValue = inputElement.value;
-                    console.log(newDateValue)
+                    // console.log(newDateValue)
                     valueToUpdate.setAttribute('value', newDateValue);
                 } else if (inputElement.type === "search") {
                     const newTextValue = inputElement.value;
-                    console.log(newTextValue)
+                    // console.log(newTextValue)
                     valueToUpdate.setAttribute('value', newTextValue);
                 }
             } else {
