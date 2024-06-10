@@ -43,6 +43,9 @@ body {
                 }
             }
         }
+        .jodit-wysiwyg {
+            max-height: calc(100vh - 188px);
+        }
         .jodit_hidden {
             border: none !important;
         }
