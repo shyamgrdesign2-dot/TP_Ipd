@@ -57,6 +57,9 @@ const UpdateVaccine = ({
   const [vaccineDetails, setVaccineDetails] = useState({});
   const [updateLoader, setUpdateLoader] = useState(false);
   const [focusedIndexes, setFocusedIndexes] = useState([]);
+  const [isOpen, setIsOpen] = useState(
+    Array(selectedVaccines?.length).fill(false)
+  );
   const selectRefs = useRef([]);
   const { state } = useLocation();
   const { patient_data } = state;
@@ -67,6 +70,11 @@ const UpdateVaccine = ({
     if (element) {
       element.scrollTo({ behavior: "smooth", block: "center" });
       element.focus();
+      setIsOpen((prev) => {
+        const newState = [...prev];
+        newState[index] = true;
+        return newState;
+      });
     }
   };
 
@@ -167,11 +175,16 @@ const UpdateVaccine = ({
     setShow(false);
   };
 
-  const handleDetails = (vaccineName, detail, value) => {
+  const handleDetails = (vaccineName, detail, value, index) => {
     setVaccineDetails((prev) => {
       if (prev[vaccineName]) prev[vaccineName][detail] = value;
       else prev[vaccineName] = { [detail]: value };
       return prev;
+    });
+    setIsOpen((prev) => {
+      const newState = [...prev];
+      newState[index] = false;
+      return newState;
     });
   };
 
@@ -222,6 +235,22 @@ const UpdateVaccine = ({
     return selectedDate === "given"
       ? current && current > moment().endOf("day")
       : current && current < moment().startOf("day");
+  };
+
+  const handleFocus = (index) => {
+    setIsOpen((prev) => {
+      const newState = [...prev];
+      newState[index] = true;
+      return newState;
+    });
+  };
+
+  const handleBlur = (index) => {
+    setIsOpen((prev) => {
+      const newState = [...prev];
+      newState[index] = false;
+      return newState;
+    });
   };
 
   return (
@@ -385,13 +414,17 @@ const UpdateVaccine = ({
                         handleDetails(
                           vaccine?.tvac_name,
                           "vaccine_company_id",
-                          value
+                          value,
+                          i
                         );
                       }}
                       defaultValue={vaccine?.brandId}
                       ref={(ref) => {
                         if (ref) selectRefs.current[i] = ref;
                       }}
+                      open={isOpen[i]}
+                      onFocus={() => handleFocus(i)}
+                      onBlur={() => handleBlur(i)}
                       style={{
                         border: focusedIndexes.includes(i)
                           ? "1px solid blue"
