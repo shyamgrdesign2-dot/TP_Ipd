@@ -339,7 +339,7 @@ function Prescription() {
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessableFromGB || isPediatric} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
@@ -376,7 +376,7 @@ function Prescription() {
                     )}
                   </div>
                 ) : (
-                  e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
+                  e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm p-14">
                       <div className="d-flex align-items-center justify-content-between">
                         <div className="d-flex align-items-center">
@@ -410,31 +410,29 @@ function Prescription() {
                       </div>
                       {medicalHistoryData.length > 0 && <MedicalHistoryList />}
                     </div>
-                  )
-                );
-              })}
-              {(!!isVaccinationAccessableFromGB || isPediatric) && (
-                <div className="prescription-box-sm p-14">
-                  <div className="d-flex align-items-center justify-content-between">
-                    <div className="d-flex align-items-center">
-                      <img src={vaccinationImg} alt="vitals" className="me-3" />
-                      <div className="title-common">Vaccination</div>
+                  ) :
+                  (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
+                    <div className="prescription-box-sm p-14">
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center">
+                          <img src={vaccinationImg} alt="vitals" className="me-3" />
+                          <div className="title-common">Vaccination</div>
+                        </div>
+                        <button
+                          className="btn d-flex align-items-center btn-text"
+                          onClick={handleDrawerVaccination}
+                        >
+                          {" "}
+                          <i
+                            className={`icon-Add me-1 fs-5`}
+                          ></i>{" "}
+                          <span>Add</span>
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      className="btn d-flex align-items-center btn-text"
-                      onClick={handleDrawerVaccination}
-                    >
-                      {" "}
-                      <i
-                        className={`${
-                          vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                        } me-1 fs-5`}
-                      ></i>{" "}
-                      <span>{`${vitalsData.length > 0 ? "Edit" : "Add"}`}</span>
-                    </button>
-                  </div>
-                </div>
-              )}
+                  )
+                )
+              })}
               {/* <div>
                 <button className="btn btn-parameters mx-auto w-100">
                   <div className="align-items-center d-flex justify-content-center">
