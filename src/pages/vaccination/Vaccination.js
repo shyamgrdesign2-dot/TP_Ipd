@@ -27,10 +27,13 @@ import {
   mergeDataPatientDetails,
 } from "./VaccinationHelper";
 import CashManagerContext from "../../context/CashManagerContext";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { isSafari, isChrome, isIOS, isIPad13, isIOS13 } from "react-device-detect";
+import { isSafari, isChrome } from "react-device-detect";
 import html2pdf from "html2pdf.js";
+import { db } from "../../firebase.js";
+import { setDoc, doc, getDoc, updateDoc } from "firebase/firestore";
+import FullPageLoader from "./components/Loader.js";
 
 function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
@@ -55,7 +58,7 @@ function Vaccination({ handleDrawerVaccination }) {
   const [isCardClicked, setCardClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [vaccinePatientDetails, setVaccinePatientDetails] = useState();
-  const navigate = useNavigate();
+  const [tabLoader, setTabLoader] = useState(false);
 
   const contextApi = {
     patient_data,
@@ -266,7 +269,7 @@ function Vaccination({ handleDrawerVaccination }) {
   };
 
   const handlePrintClick = () => {
-    if (!isChrome && !isSafari && !isIOS && !isIPad13 && !isIOS13) {
+    if (!isChrome && !isSafari) {
       const element = printableRef.current;
 
       if (!element) {
@@ -275,22 +278,41 @@ function Vaccination({ handleDrawerVaccination }) {
       }
 
       const options = {
-        filename: "my-document.pdf",
+        filename: "VaccinationChart.pdf",
         image: { type: "jpeg", quality: 0.8 },
         html2canvas: { scale: 1 },
         jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
       };
-
+      setTabLoader(true);
       html2pdf()
         .from(element)
         .set(options)
         .output("datauristring")
-        .then((pdfDataUri) => {
-          const b64 = pdfDataUri.slice(pdfDataUri.indexOf("base64,") + 7);
-          navigate(`/prescription?url=${b64}&key=vaccinationPrint`, {
-            state: { patient_data: patient_data },
-          });
-          navigate(0, { replace: true });
+        .then(async (pdfDataUri) => {
+          const base64string = pdfDataUri.slice(
+            pdfDataUri.indexOf("base64,") + 7
+          );
+          const deviceUid = localStorage.getItem("app_device_unique_id");
+          if (deviceUid) {
+            const docRef = doc(db, "vaccinationChart", deviceUid);
+            try {
+              const docSnap = await getDoc(docRef);
+              if (docSnap.exists()) {
+                await updateDoc(docRef, {
+                  base64string,
+                });
+              } else {
+                await setDoc(doc(db, "vaccinationChart", deviceUid), {
+                  base64string,
+                });
+              }
+            } catch (error) {
+              console.error("Error updating document:", error);
+            }
+          } else {
+            console.error("Device Uid not found");
+          }
+          setTabLoader(false);
         })
         .catch((err) => {
           console.error("Error generating PDF", err);
@@ -309,6 +331,7 @@ function Vaccination({ handleDrawerVaccination }) {
             vaccinesData={previewData}
             patientDetails={patientDetails}
             setPrintType={setPrintType}
+            printLoader={tabLoader}
           />
         )}
         <div
@@ -328,6 +351,7 @@ function Vaccination({ handleDrawerVaccination }) {
               src={require("../../assets/images/vaccine.png")}
               className="vaccineImg d-inline-block align-top ms-4"
               alt="Vaccine"
+              width={220}
             />
           </div>
           {vaccinesData?.length && !loading ? (
@@ -447,6 +471,7 @@ function Vaccination({ handleDrawerVaccination }) {
           />
         )}
       </div>
+      {tabLoader && <FullPageLoader />}
     </CashManagerContext.Provider>
   );
 }
