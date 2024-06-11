@@ -1,43 +1,57 @@
 const dev = {
-  appointment_api_url: `https://node-doctor.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  symptoms_api_url: `https://strauss-symptoms.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  examination_api_url: `https://strauss-examination.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  diagnosis_api_url: `https://strauss-diagnosis.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  advice_api_url: `https://strauss-advice.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  investigation_api_url: `https://strauss-investigation.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  medication_api_url: `https://strauss-medicine.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  vitals_api_url: `https://strauss-vital.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  casemanager_api_url: `https://strauss-casemanager.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  printsettings_api_url: `https://strauss-printsettings.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  medicalhistory_api_url: `https://strauss-medicalhistory.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  videolibrary_api_url: `https://strauss-videolibrary.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
+  appointment_api_url: `https://appointment-webservice.azurewebsites.net`,
+  symptoms_api_url: `https://symptoms-webservice.azurewebsites.net`,
+  examination_api_url: `https://examination-webservice.azurewebsites.net`,
+  diagnosis_api_url: `https://diagnosis-webservice.azurewebsites.net`,
+  advice_api_url: `https://advice-webservice.azurewebsites.net`,
+  investigation_api_url: `https://investigation-webservice.azurewebsites.net`,
+  medication_api_url: `https://medicine-webservice.azurewebsites.net`,
+  vitals_api_url: `https://vital-webservice.azurewebsites.net`,
+  casemanager_api_url: `https://casemanager-webservice.azurewebsites.net`,
+  printsettings_api_url: `https://printsettings-webservice.azurewebsites.net`,
+  medicalhistory_api_url: `https://medicalhistory-webservice.azurewebsites.net`,
+  videolibrary_api_url: `https://videolibrary-webservices.azurewebsites.net`,
   sso_to_pm_url: `https://pms-upgrade.azurewebsites.net/api/get_doctor_sso_token.php`,
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
-  GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD"
+  GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
+  firebaseApiKey: "AIzaSyAfD-YLOjDLbhC7hwyiumSkNxP2lul_Kc0",
+  firebaseAuthDomain: "diginext-28149.firebaseapp.com",
+  firebaseDatabaseURL: "https://tc-care-default-rtdb.firebaseio.com",
+  firebaseProjectId: "diginext-28149",
+  firebaseStorageBucket: "diginext-28149.appspot.com",
+  firebaseMessagingSenderId: "482265957598",
+  firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
 };
 
 const qa = {
-  appointment_api_url: `https://node-doctor.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  symptoms_api_url: `https://strauss-symptoms.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  examination_api_url: `https://strauss-examination.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  diagnosis_api_url: `https://strauss-diagnosis.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  advice_api_url: `https://strauss-advice.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  investigation_api_url: `https://strauss-investigation.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  medication_api_url: `https://strauss-medicine.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  vitals_api_url: `https://strauss-vital.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  casemanager_api_url: `https://strauss-casemanager.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  printsettings_api_url: `https://strauss-printsettings.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  medicalhistory_api_url: `https://strauss-medicalhistory.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
-  videolibrary_api_url: `https://strauss-videolibrary.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
+  appointment_api_url: `https://appointment-webservice.azurewebsites.net`,
+  symptoms_api_url: `https://symptoms-webservice.azurewebsites.net`,
+  examination_api_url: `https://examination-webservice.azurewebsites.net`,
+  diagnosis_api_url: `https://diagnosis-webservice.azurewebsites.net`,
+  advice_api_url: `https://advice-webservice.azurewebsites.net`,
+  investigation_api_url: `https://investigation-webservice.azurewebsites.net`,
+  medication_api_url: `https://medicine-webservice.azurewebsites.net`,
+  vitals_api_url: `https://vital-webservice.azurewebsites.net`,
+  casemanager_api_url: `https://casemanager-webservice.azurewebsites.net`,
+  printsettings_api_url: `https://printsettings-webservice.azurewebsites.net`,
+  medicalhistory_api_url: `https://medicalhistory-webservice.azurewebsites.net`,
+  videolibrary_api_url: `https://videolibrary-webservices.azurewebsites.net`,
   sso_to_pm_url: `https://pms-upgrade.azurewebsites.net/api/get_doctor_sso_token.php`,
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
-  GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD"
+  GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
+  firebaseApiKey: "AIzaSyAfD-YLOjDLbhC7hwyiumSkNxP2lul_Kc0",
+  firebaseAuthDomain: "diginext-28149.firebaseapp.com",
+  firebaseDatabaseURL: "https://tc-care-default-rtdb.firebaseio.com",
+  firebaseProjectId: "diginext-28149",
+  firebaseStorageBucket: "diginext-28149.appspot.com",
+  firebaseMessagingSenderId: "482265957598",
+  firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
 };
 
 const uat = {
@@ -59,6 +73,13 @@ const uat = {
   doctor_website_url: `https://pm-uat-dhspl-2.tatvacare.in/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
   GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
+  firebaseApiKey: "AIzaSyAfD-YLOjDLbhC7hwyiumSkNxP2lul_Kc0",
+  firebaseAuthDomain: "diginext-28149.firebaseapp.com",
+  firebaseDatabaseURL: "https://tc-care-default-rtdb.firebaseio.com",
+  firebaseProjectId: "diginext-28149",
+  firebaseStorageBucket: "diginext-28149.appspot.com",
+  firebaseMessagingSenderId: "482265957598",
+  firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
 };
 
 const prod = {
@@ -79,12 +100,19 @@ const prod = {
   sso_to_pm_password: `481541at-j4xc-4817-q5xz-a4rt48c69bt1`,
   doctor_website_url: `https://practice.tatvacare.in/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-prod.tatvacare.in/`,
-  GROWTHBOOK_CLIENTKEY: "sdk-qAxUqghZDXqcMH45"
+  GROWTHBOOK_CLIENTKEY: "sdk-qAxUqghZDXqcMH45",
+  firebaseApiKey: "AIzaSyAWt6CUw2ofGPI1TZIKb61lgUotLD0wUX8",
+  firebaseAuthDomain: "tc-care.firebaseapp.com",
+  firebaseDatabaseURL: "https://tc-care-default-rtdb.firebaseio.com",
+  firebaseProjectId: "tc-care",
+  firebaseStorageBucket: "tc-care.appspot.com",
+  firebaseMessagingSenderId: "932293067016",
+  firebaseAppId: "1:932293067016:web:226f46a8310301995b6cbd",
 };
 
 const getEnv = () => {
-  console.log("process.env",process.env);
-  console.log("process.env.REACT_APP_ENV",process.env.REACT_APP_ENV);
+  // console.log("process.env",process.env);
+  // console.log("process.env.REACT_APP_ENV",process.env.REACT_APP_ENV);
   switch (process.env.REACT_APP_ENV) {
     case "dev":
       return dev;
