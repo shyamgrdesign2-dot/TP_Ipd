@@ -23,18 +23,17 @@ export const mergeDataPatientDetails = (
   birthDate
 ) => {
   return vaccineDetails?.map((item) => {
-    const vaccineGivenToPatient = patientDetails?.find(
-      (obj) => obj.tvac_name === item.tvac_name
-    ) || {};
+    const vaccineGivenToPatient =
+      patientDetails?.findLast((obj) => obj.tvac_name === item.tvac_name) || {};
 
     const { tvt_due_day, tvt_due_month, tvt_due_year } = item;
     const { tvp_given_date } = vaccineGivenToPatient;
     const futureDate = birthDate ? moment(birthDate, "Do MMM YYYY")
-      .add({
-        days: tvt_due_day,
-        months: tvt_due_month,
-        years: tvt_due_year,
-      })
+          .add({
+            days: tvt_due_day,
+            months: tvt_due_month,
+            years: tvt_due_year,
+          })
       .format("DD-MMM-YYYY") : "";
 
     const matchingForOverDue = overridenVaccines.find(
@@ -44,7 +43,7 @@ export const mergeDataPatientDetails = (
     const brandDetails = tvp_given_date ? details.find(
       (brand) => brand.tvc_id === vaccineGivenToPatient?.tvc_id
     ) : {};
-
+      
     return {
       ...item,
       ...vaccineGivenToPatient,
