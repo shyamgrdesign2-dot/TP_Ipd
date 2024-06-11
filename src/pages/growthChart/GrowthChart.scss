@@ -23,3 +23,15 @@
     }
   }
 }
+
+.tooltipContainer {
+  position: absolute;
+  background: white; /* Tooltip background color */
+  color: black; /* Tooltip text color */
+  border-radius: 14px;
+  pointer-events: auto;
+  opacity: 1;
+  z-index: 1;
+  padding: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Shadow for better visibility */
+}
