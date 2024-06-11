@@ -158,5 +158,5 @@ export const checkToShowVaccination = async (doctorUniqueId) => {
   } catch (error) {
     console.error("Error while fetching vaccine template", error);
   }
-  return result;
+  return false;
 };

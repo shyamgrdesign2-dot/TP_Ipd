@@ -18,4 +18,12 @@ export default {
   doctor_website_url: env.doctor_website_url,
   vaccination_api_url: env.vaccination_api_url,
   GROWTHBOOK_CLIENTKEY: env.GROWTHBOOK_CLIENTKEY,
+  firebaseApiKey: env.firebaseApiKey,
+  firebaseAuthDomain: env.firebaseAuthDomain,
+  firebaseDatabaseURL: env.firebaseDatabaseURL,
+  firebaseProjectId: env.firebaseProjectId,
+  firebaseStorageBucket: env.firebaseStorageBucket,
+  firebaseMessagingSenderId: env.firebaseMessagingSenderId,
+  firebaseAppId: env.firebaseAppId,
+  tatvaRedirect: env.tatvaRedirect,
 };
