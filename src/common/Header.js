@@ -76,7 +76,7 @@ function Header({ locationPath }) {
   useEffect(() => {
     if (profile) {
       // setSwitchCheckbox(profile.switchtoOld != 0 ? true : false)
-      !isChrome && !isSafari && setPopOver(profile.NavigatetoTatvaPedia == 0 ? true : false);
+      setPopOver(profile.NavigatetoTatvaPedia == 0 ? true : false);
       const clinics = profile.hospital_data?.map((e) => {
         return {
           value: e.hm_id,
@@ -145,6 +145,18 @@ function Header({ locationPath }) {
     setIsLogoModalOpen(!isLogoModalOpen);
   }, [isLogoModalOpen]);
 
+  const tatvaRedirectClick = async () => {
+    showHideLogoModal()
+    setTimeout(() => {
+      if (!isChrome && !isSafari) {
+        navigate('/?close_app=true', { replace: true });
+        navigate(0, { replace: true });
+      } else {
+        window.open(config.tatvaRedirect);
+      }
+    }, 500);
+  }
+
   const LOGO_MODAL = useMemo(() => {
     return (
       <CommonModal
@@ -168,10 +180,7 @@ function Header({ locationPath }) {
             </div>
             <div>
               <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div onClick={() => {
-                  navigate('/?close_app=true', { replace: true });
-                  navigate(0, { replace: true });
-                }}
+                <div onClick={tatvaRedirectClick}
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Switch
                 </div>
@@ -382,9 +391,9 @@ function Header({ locationPath }) {
     <Navbar className="justify-content-between portal-header">
       <Container fluid>
         <div>
-          <img onClick={() => !isChrome && !isSafari && showHideLogoModal()}
+          <img onClick={showHideLogoModal}
             src={require("../assets/images/logo.png")}
-            className={`d-inline-block align-top ${!isChrome && !isSafari && 'cursor-pointer'}`}
+            className={`d-inline-block align-top cursor-pointer`}
             style={{ width: '110px' }}
             alt="Logo"
           />

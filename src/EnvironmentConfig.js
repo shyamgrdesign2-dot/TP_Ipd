@@ -24,6 +24,7 @@ const dev = {
   firebaseStorageBucket: "diginext-28149.appspot.com",
   firebaseMessagingSenderId: "482265957598",
   firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
+  tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
 };
 
 const qa = {
@@ -52,6 +53,7 @@ const qa = {
   firebaseStorageBucket: "diginext-28149.appspot.com",
   firebaseMessagingSenderId: "482265957598",
   firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
+  tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
 };
 
 const uat = {
@@ -80,6 +82,7 @@ const uat = {
   firebaseStorageBucket: "diginext-28149.appspot.com",
   firebaseMessagingSenderId: "482265957598",
   firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
+  tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
 };
 
 const prod = {
@@ -108,6 +111,7 @@ const prod = {
   firebaseStorageBucket: "tc-care.appspot.com",
   firebaseMessagingSenderId: "932293067016",
   firebaseAppId: "1:932293067016:web:226f46a8310301995b6cbd",
+  tatvaRedirect: "https://health.tatvacare.in/#/dashboard",
 };
 
 const getEnv = () => {

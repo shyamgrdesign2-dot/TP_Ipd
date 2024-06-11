@@ -118,7 +118,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         if (id == 1) {
             value = `${caseManagerData?.patient_data?.patient_salutation} ${caseManagerData?.patient_data?.patient_name} ${caseManagerData?.patient_data?.patient_id}`
         } else if (id == 2) {
-            value = `${caseManagerData?.patient_data?.patient_date_time ? moment(caseManagerData?.patient_data?.patient_date_time).format('DD/MM/YYYY HH:mm:ss') : '-'}`
+            value = `${caseManagerData?.patient_data?.patient_consultaion_date ? moment(caseManagerData?.patient_data?.patient_consultaion_date).format('DD/MM/YYYY HH:mm:ss') : '-'}`
         } else if (id == 3) {
             value = `${caseManagerData?.patient_data?.patient_age ? `${caseManagerData?.patient_data?.patient_age}Years` : '-'}, ${caseManagerData?.patient_data?.patient_gender}`
         } else if (id == 4) {
