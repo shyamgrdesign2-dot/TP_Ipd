@@ -258,7 +258,7 @@ function MedicalCertificate() {
                 // });
 
                 const cleanedContent = tempDiv.innerHTML;
-                console.log("second", cleanedContent)
+                // console.log("second", cleanedContent)
                 return cleanedContent;
             }
         }
