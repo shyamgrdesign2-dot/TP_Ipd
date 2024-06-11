@@ -215,21 +215,50 @@ function MedicalCertificate() {
                 tempDiv.innerHTML = html;
                 console.log(tempDiv)
 
-                // Remove all font-family styles
-                const elementsWithStyle = tempDiv.querySelectorAll('[style]');
-                elementsWithStyle.forEach(element => {
-                    if (element.getAttribute('style')) {
+                const elementsToProcess = tempDiv.querySelectorAll('[style], svg, img, a');
+
+                elementsToProcess.forEach(element => {
+                    // Remove the inline style if it exists
+                    if (element.hasAttribute('style')) {
                         element.removeAttribute('style');
+                    }
+
+                    // If the element is svg, img, or a, replace it with its inner content
+                    if (['svg', 'img', 'a'].includes(element.tagName.toLowerCase())) {
+                        const fragment = document.createDocumentFragment();
+                        while (element.firstChild) {
+                            fragment.appendChild(element.firstChild);
+                        }
+                        element.parentNode.replaceChild(fragment, element);
                     }
                 });
 
-                // const allElements = tempDiv.querySelectorAll('*');
+                // Remove all font-family styles
+                // const elementsWithStyle = tempDiv.querySelectorAll('[style]');
+                // elementsWithStyle.forEach(element => {
+                //     if (element.getAttribute('style')) {
+                //         element.removeAttribute('style');
+                //     }
+                // });
+
+                // const allElements = tempDiv.querySelectorAll('svg, img, a');
                 // allElements.forEach(element => {
-                //     element.style.fontSize = '14px';
+                //     // element.style.fontSize = '14px';
+                //     // element.remove()
+                //     // Create a document fragment to hold the inner content
+                //     const fragment = document.createDocumentFragment();
+
+                //     // Move all child nodes of the h1 to the fragment
+                //     while (element.firstChild) {
+                //         fragment.appendChild(element.firstChild);
+                //     }
+
+                //     // Replace the h1 with its inner content
+                //     element.parentNode.replaceChild(fragment, element);
                 // });
 
                 const cleanedContent = tempDiv.innerHTML;
-                console.log("second", cleanedContent)
+                // console.log("second", cleanedContent)
                 return cleanedContent;
             }
         }
