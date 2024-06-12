@@ -1,22 +1,24 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 // import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
-import { Col, Row, Select, Button, message, Spin } from "antd";
+import { Col, Row, Select, Button, message, Spin, Input } from "antd";
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { useReactToPrint } from 'react-to-print';
 
-// import { PDFReader } from 'reactjs-pdf-reader';
+import { HTMLTransformer, removeLabelTags, errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
-import { errorMessage } from "../utils/utils";
+import { MESSAGE_KEY } from "../utils/constants";
 
-import messageSent from '../assets/images/message-sent.svg';
-import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
+import visitEnd from '../assets/images/end-visit.svg';
+import imgCloseVisit from '../assets/images/close-visit.svg';
+
+import HeaderCertificatePrint from "../common/HeaderCertificatePrint";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { viewCaseManager } from "../redux/caseManagerSlice";
+import { addCertificate, viewPatientCertificate } from "../redux/doctorsSlice";
 
 import { pdfjs, Document, Page } from "react-pdf";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
@@ -26,52 +28,9 @@ pdfjs.GlobalWorkerOptions.workerSrc = worker
 //     import.meta.url
 // ).toString();
 
-const LANGUAGE_LIST = [
-    {
-        value: 1,
-        label: 'English',
-    },
-    {
-        value: 2,
-        label: 'Gujarati',
-    },
-    {
-        value: 3,
-        label: 'Hindi',
-    },
-    {
-        value: 4,
-        label: 'Marathi',
-    },
-    // {
-    //     value: 5,
-    //     label: 'Telugu',
-    // },
-    {
-        value: 6,
-        label: 'Kannada',
-    },
-    // {
-    //     value: 7,
-    //     label: 'Urdu',
-    // },
-    // {
-    //     value: 8,
-    //     label: 'Punjabi',
-    // },
-    // {
-    //     value: 9,
-    //     label: 'Malayalam',
-    // },
-    {
-        value: 10,
-        label: 'Tamil',
-    },
-]
-function PrescriptionPrintView() {
+function CertificatePrintView() {
 
     const divRef = useRef(null);
-    const printRef = useRef();
 
     const {
         loading,
@@ -81,24 +40,67 @@ function PrescriptionPrintView() {
     const navigate = useNavigate();
 
     const { state } = useLocation();
-    const { patient_data } = state
+    const { patient_data, tcu_content_id, pms_default, tcu_title, tcu_content, viewable } = state
 
-    const [selectedLang, setSelectedLang] = useState(1);
+    const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.certificate}` : null);
 
-    const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}` : null);
-    const [printRxUrl, setPrintRxUrl] = useState(state !== undefined ? `${state.print_rx_url}` : null);
-
+    const [title, setTitle] = useState('');
     const [divWidth, setDivWidth] = useState(0);
     const [numPages, setNumPages] = useState();
     const [printBlob, setPrintBlob] = useState(null);
+    const [addEditFlag, setAddEditFlag] = useState(false);
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
 
-    // const printContent = useReactToPrint({
-    //     content: () => printRef.current,
-    // });
+    async function onDocumentLoadSuccess(successEvent) {
+        setNumPages(successEvent?.numPages);
+        const data = await successEvent.getData()
+        const blob = new Blob([data], { type: 'application/pdf' })
+        setPrintBlob(blob)
+    }
+
+    useEffect(() => {
+        if (tcu_title !== undefined) {
+            setTitle(tcu_title);
+        }
+    }, [tcu_title]);
+
+    const onTitleChange = useCallback((e) => {
+        setTitle(removeBeforeWhiteSpace(e.target.value));
+    }, [title]);
+
+    const onAddEditCertificateClick = async () => {
+        var sendData = {
+            id: tcu_content_id,
+            pms_default: pms_default,
+            title: title,
+            content: removeLabelTags(HTMLTransformer(tcu_content))
+        }
+
+        const action = await dispatch(addCertificate(sendData))
+        if (action.meta.requestStatus === "fulfilled") {
+            setAddEditFlag(true)
+            message.open({
+                key: MESSAGE_KEY,
+                type: '',
+                className: 'message-appointment',
+                content: (
+                    <div className='d-flex align-items-center'>
+                        <img src={visitEnd} className='me-3' />
+                        <div>
+                            <div className='title-common text-start fontroboto'>{`Template ${tcu_content_id && !pms_default ? 'Updated' : 'Saved'} successfully`}</div>
+                        </div>
+                        <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                    </div>
+                ),
+                duration: 5,
+            });
+        } else {
+            errorMessage(action.error)
+        }
+    }
 
     const printContent = async () => {
         var blobURL = URL.createObjectURL(printBlob);
@@ -121,33 +123,13 @@ function PrescriptionPrintView() {
     };
 
     const printInAppContent = async () => {
-        navigate(`/prescription_print_view/?url=${printUrl}&key=print`, { replace: true, state: state })
+        navigate(`/certificate_print_view/?url=${printUrl}&key=print`, { replace: true, state: state })
         navigate(0, { replace: true });
     };
-
-    // const printContent = async () => {
-    //     {(/Android/i.test(navigator.userAgent)) ? (
-    //         window.open(printUrl, '_blank')
-    //     ) : (
-    //         <embed className="printBox" src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed>
-    //     )}
-    //     const printWindow = await window.open('https://www.aeee.in/wp-content/uploads/2020/08/Sample-pdf.pdf');
-    //     printWindow.print();
-    // };
-
-    const onSelect = useCallback(
-        (data) => {
-            const encodedData = btoa(data.toString());
-            setPrintUrl(`${printUrl}&lg=${encodedData}`)
-            setSelectedLang(data)
-        },
-        [selectedLang, printUrl]
-    );
 
     const handleDownload = async () => {
         try {
             const response = await axios({
-                // url: "https://morth.nic.in/sites/default/files/dd12-13_0.pdf",
                 url: printUrl,
                 method: 'GET',
                 responseType: 'blob', // Important for binary data
@@ -162,42 +144,32 @@ function PrescriptionPrintView() {
     };
 
     const handleInAppDownload = async () => {
-        navigate(`/prescription_print_view/?url=${printUrl}&key=download`, { replace: true, state: state })
+        navigate(`/certificate_print_view/?url=${printUrl}&key=download`, { replace: true, state: state })
         navigate(0, { replace: true });
     };
 
-    const onEditPrescriptionClick = async () => {
+    const onEditCertificateClick = async () => {
         var sendData = {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
-            tcm_id: state.tcm_id
+            tcu_id: state.tcu_id
         }
-        const action = await dispatch(viewCaseManager(sendData));
+        const action = await dispatch(viewPatientCertificate(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            navigate("/prescription", { replace: true, state: { patient_data: patient_data, caseManagerData: action.payload } })
+            navigate("/certificate", { replace: true, state: { patient_data: patient_data, certificate_data: action.payload } })
         } else {
             errorMessage(action.error)
         }
     };
 
-    // function onDocumentLoadSuccess({ numPages }) {
-    //     setNumPages(numPages);
-    // }
-    async function onDocumentLoadSuccess(successEvent) {
-        setNumPages(successEvent?.numPages);
-        const data = await successEvent.getData()
-        const blob = new Blob([data], { type: 'application/pdf' })
-        setPrintBlob(blob)
-    }
-
     const configurePrintUrl = async () => {
         var sendData = {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
-            tcm_id: state.tcm_id,
+            tcu_id: state.tcu_id,
             configurePrintSetting: true
         }
-        const action = await dispatch(viewCaseManager(sendData));
+        const action = await dispatch(viewPatientCertificate(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            navigate('/configure_print_setting', { state: { caseManagerData: action.payload } })
+            navigate('/configure_print_setting', { state: { certificateData: action.payload } })
         } else {
             errorMessage(action.error)
         }
@@ -205,21 +177,21 @@ function PrescriptionPrintView() {
 
     return (
         <>
-            <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} />
+            <HeaderCertificatePrint state={state} viewable={viewable} />
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={7} lg={7} xl={5}>
 
-                        {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
+                        {(viewable !== undefined || isMobile) ? <div className="d-flex align-items-center justify-content-end h-38" /> : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
                             <i className="icon-setting me-2"></i>
                             <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                         </div>
                         }
-                        <div className={`${!isMobile ? 'rounded-20px mt-20' : 'border-top-0 border-start-0 border-bottom-0'} border p-20 bg-white d-flex justify-content-between flex-column`}
+                        <div className={`${!isMobile ? 'rounded-20px mt-20' : 'border-top-0 border-start-0 border-bottom-0'} border p-20 bg-white`}
                             style={{ height: !isMobile ? 'calc(100vh - 160px)' : 'calc(100vh - 60px)' }}>
                             <div>
-                                {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38" onClick={configurePrintUrl}>
+                                {(viewable !== undefined || !isMobile) ? '' : <div className="d-flex align-items-center mb-14 h-38" onClick={configurePrintUrl}>
                                     <i className="icon-setting me-2"></i>
                                     <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                                 </div>
@@ -227,9 +199,6 @@ function PrescriptionPrintView() {
                                 <Button
                                     type="text"
                                     onClick={() => {
-                                        window.Moengage.track_event("print_select", {
-                                            "language": LANGUAGE_LIST.find(e => e.value === selectedLang).label
-                                        });
                                         !isChrome && !isSafari ? printInAppContent() : printContent()
                                     }}
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
@@ -238,15 +207,6 @@ function PrescriptionPrintView() {
                                     <span className="fw-semibold">Print</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
-                                {/* <Button
-
-                                    type="text"
-                                    className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
-                                    icon={<i className="icon-billings"></i>}
-                                >
-                                    <span className="fw-semibold">Create Bill</span>
-                                    <i className="icon-right iconrotate180 ms-auto"></i>
-                                </Button> */}
                                 <Button
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
@@ -256,42 +216,41 @@ function PrescriptionPrintView() {
                                     <span className="fw-semibold">Download</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
-                                <Button
-                                    type="text"
-                                    className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
-                                    icon={<i className="icon-Edit"></i>}
-                                    onClick={onEditPrescriptionClick}
-                                    loading={loading}
-                                >
-                                    <span className="fw-semibold">Edit Prescription</span>
-                                    <i className="icon-right iconrotate180 ms-auto"></i>
-                                </Button>
+                                {viewable === undefined && (
+                                    <Button
+                                        type="text"
+                                        className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
+                                        icon={<i className="icon-Edit"></i>}
+                                        onClick={onEditCertificateClick}
+                                        loading={loading}
+                                    >
+                                        <span className="fw-semibold">Edit Certificate</span>
+                                        <i className="icon-right iconrotate180 ms-auto"></i>
+                                    </Button>
+                                )}
                             </div>
-                            {/* <div className="bg-body d-flex p-3 rounded-10px border">
-                                <img src={messageSent} alt="whatsapp Message" className='align-self-baseline me-3' />
-                                <div className="fontroboto title-common">
-                                    <div className="fw-normal fontroboto mb-2">WhatsApp Sent to </div>
-                                    {patient_data !== undefined ? `+91 ${patient_data.pm_contact_no}` : '-'}
-                                </div>
-                            </div> */}
+                            {viewable === undefined && (
+                                <>
+                                    <hr className="my-4" />
+                                    <div className="fw-medium my-2 pt-2">Save as Template</div>
+                                    <div className="saveButton overflow-hidden">
+                                        <Input className="popinput inputheight41 rounded-end-0" placeholder="Template Name" onChange={onTitleChange} value={title} disabled={addEditFlag} />
+                                        {title?.length > 0 && (
+                                            <Button className="h-auto ps-0 rounded-start-0" onClick={onAddEditCertificateClick} disabled={addEditFlag}>{`${tcu_content_id && !pms_default ? 'Update' : 'Save'}${addEditFlag && !pms_default ? 'd' : ''}`}</Button>
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </Col>
                     <Col md={17} lg={17} xl={12}>
                         <div className={isMobile ? 'p-20' : ''}>
                             <div className="d-flex align-itms-center justify-content-between">
                                 <div className="titleprint">Preview</div>
-                                <div className="d-flex align-items-center">
-                                    <label className="fontroboto">Select Language</label>
-                                    <Select placeholder="English" className='ms-3 appointmentselect'
-                                        value={selectedLang}
-                                        onSelect={onSelect}
-                                        options={LANGUAGE_LIST}
-                                    />
-                                </div>
                             </div>
                             <div className="rounded-20px bg-white mt-20 overflow-hidden">
                                 <div ref={divRef} className="printheight">
-                                    <div ref={printRef} className="position-relative h-100">
+                                    <div className="position-relative h-100">
                                         <Document
                                             loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
                                             error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
@@ -315,14 +274,6 @@ function PrescriptionPrintView() {
                                                 })}
                                         </Document>
                                     </div>
-                                    {/* <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />
-                                    <PDFReader key={selectedLang} ref={printRef} width={divWidth} showAllPage={true} url={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} /> */}
-                                    {/* <embed className="printBox" ref={printRef} src={`${printUrl}#toolbar=0&navpanes=0&scrollbar=0`} height="100%" width="100%"></embed> */}
-                                    {/* <iframe
-                                        src="https://pms-upgrade.azurewebsites.net/case_manager/pdf_casemanager_send.php?pdf_id=MTI3Njgx&p_id=U1QtMTAxOQ==&pu_id=NDA3OTIzNjg1MQ=#toolbar=0&navpanes=0&scrollbar=0"
-                                        height="100%" width="100%"
-                                        title="PDF Viewer"
-                                    ></iframe> */}
                                 </div>
                             </div>
                         </div>
@@ -333,4 +284,4 @@ function PrescriptionPrintView() {
     );
 }
 
-export default PrescriptionPrintView;
+export default CertificatePrintView;

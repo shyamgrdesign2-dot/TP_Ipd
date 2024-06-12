@@ -1,10 +1,11 @@
 import React, { useContext, useState, useCallback } from 'react';
 import { Navbar } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { Button } from 'antd';
+import { Button, Popover } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 
 import { errorMessage } from "../utils/utils";
+import VideoModal from './VideoModal';
 
 import {
     getDefaultPrintsettings,
@@ -13,13 +14,23 @@ import {
 
 import CommonModal from './CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
+import tutorial from '../assets/images/tutorial-icon.svg';
+import playIcons from '../assets/images/tube-icon.svg';
 
 import PrintSettingsContext from '../context/PrintSettingsContext';
 
 function HeaderPrintSetting({ defaultPrintSettings }) {
     const navigate = useNavigate();
 
-    const { loading } = useSelector((state) => state.doctors);
+    const [popOverVideo, setPopOverVideo] = useState(false);
+    const [videoLink, setVideoLink] = useState(null);
+
+    //PopOverVideo function
+    const showHideVideoListPopover = useCallback(() => {
+        setPopOverVideo(!popOverVideo);
+    }, [popOverVideo]);
+
+    const { loading, videoList } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const { printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
@@ -31,6 +42,39 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
         setFlag(2)
         showHideBackModal()
     };
+
+    //Video Componet
+    const VIDEO_CONTENT = useCallback(() => {
+        return (
+            <>
+                <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
+                    <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+                        <div className="title-common lh-base">Video Tutorial</div>
+                        <Button className="btn btn-delete-prescription p-0"
+                            onClick={showHideVideoListPopover}>
+                            <i className="icon-Cross" />
+                        </Button>
+                    </div>
+                    <div className='overflow-y-auto' style={{maxHeight: 'calc(100vh - 550px)'}}>
+                        {videoList?.filter(e => e.category_id === 7)[0]?.video?.map((item1, i1) => {
+                            return (
+                                <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 7)[0]?.video?.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
+                                    <div className="tutorial-play me-14">
+                                        <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+                                        <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
+                                    </div>
+                                    <div>
+                                        <h3 className="title-common text-welcome">{item1?.tmv_title}</h3>
+                                        <div className="fs-12 fontroboto fw-normal text-main">{item1?.tmv_description}</div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            </>
+        );
+    }, [popOverVideo]);
 
     const onSavePrintSettingsClick = async () => {
         if (printSettings?.letterhead_format == 0 && printSettings?.header_footer?.header?.doctor_info?.enable == 'N' && printSettings?.header_footer?.header?.clinic_info?.enable == 'N' && printSettings?.logo_enable == 'N') {
@@ -151,6 +195,19 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
                     </div>
                 </div>
                 <div className='d-flex align-items-center justify-content-end w-100'>
+                    <Popover
+                        open={popOverVideo}
+                        onOpenChange={showHideVideoListPopover}
+                        content={VIDEO_CONTENT}
+                        trigger="click"
+                        overlayClassName="pop-430 pp-0 videoTutorial"
+                        placement="bottom"
+                    >
+                        <button className='btn d-flex align-items-center btn-text me-10 tutorial'>
+                            {/* onClick={showHideVideoListPopover} */}
+                            <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
+                        </button>
+                    </Popover>
                     <button className='btn btn-text me-14' onClick={onDefaultPrintsettings}>
                         <span>Default Settings</span>
                     </button>
@@ -159,6 +216,14 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
                     </Button>
                 </div>
             </div>
+            {
+                videoLink && (
+                    <VideoModal
+                        videoLink={videoLink}
+                        onCancel={() => setVideoLink(null)}
+                    />
+                )
+            }
         </Navbar>
     );
 }
