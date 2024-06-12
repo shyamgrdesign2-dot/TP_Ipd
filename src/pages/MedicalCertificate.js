@@ -69,7 +69,7 @@ function MedicalCertificate() {
             // },
         },
         // 'fontsize',
-        'align', 'bold', 'italic', 'underline', 'ul', 'ol', 
+        'align', 'bold', 'italic', 'underline', 'ul', 'ol',
         {
             name: 'Insert',
             // iconURL: 'https://img.icons8.com/ios-glyphs/30/000000/menu.png',
@@ -292,16 +292,41 @@ function MedicalCertificate() {
         const allInputs = document.querySelectorAll('input[type="date"][id], input[type="search"][id]');
         allInputs.forEach(input => input.type == 'date' ? input.addEventListener('change', handleInputChange) : input.addEventListener('keyup', handleInputChange));
 
-        removeLabelWithoutContent();
+        // removeLabelWithoutContent();
 
     }, [content]);
+
+    useEffect(() => {
+        const handleBackspace = (event) => {
+            if (event.key === 'Backspace') {
+                const allLabels = document.querySelectorAll('label');
+                allLabels.forEach(label => {
+                    if (label.hasAttribute('value') && label.getAttribute('value') == -1 && label.textContent.trim().length === 0) {
+                        label.remove();
+                    } else if (label.textContent.trim().length === 0) {
+                        label.setAttribute('value', -1);
+                    } else {
+                        label.removeAttribute('value');
+                    }
+                });
+            }
+        };
+
+        // Add event listener for keydown event
+        document.addEventListener('keydown', handleBackspace);
+
+        // Cleanup the event listener on component unmount
+        return () => {
+            document.removeEventListener('keydown', handleBackspace);
+        };
+    }, []);
 
     const onEditorChange = (newContent) => {
         // console.log(newContent)
         const allInputs = document.querySelectorAll('input[type="date"][id], input[type="search"][id]');
         allInputs.forEach(input => input.type == 'date' ? input.addEventListener('change', handleInputChange) : input.addEventListener('keyup', handleInputChange));
 
-        removeLabelWithoutContent();
+        // removeLabelWithoutContent();
 
     }
 
@@ -309,6 +334,7 @@ function MedicalCertificate() {
         const allLabels = document.querySelectorAll('label');
         // Function to handle label removal if empty
         const handleLabelChange = (label) => {
+            console.log(label)
             if (label.textContent.trim().length === 0) {
                 label.remove();
             }
