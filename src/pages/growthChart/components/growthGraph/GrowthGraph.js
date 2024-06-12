@@ -329,7 +329,7 @@ const WeightChart = ({
           <div
             ref={tooltipRef}
             className="tooltipContainer"
-            style={{ left: tooltipState.x, top: tooltipState.y }}
+            style={{ left: tooltipState.x-158, top: tooltipState.y+14 }}
           >
             <TooltipContent
               handleDrawerVital={handleDrawerVital}
