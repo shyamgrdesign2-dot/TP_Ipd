@@ -135,7 +135,7 @@ function CertificateDetails({ patient_data }) {
                             <div className="certificate-not d-flex justify-content-center flex-column align-items-center my-5 py-5">
                                 <img src={notcertificate} alt="not certificate" />
                                 <div className="text-center fs-14 text-main lh-base fw-normal fontroboto mb-20 mt-20">
-                                    Certificate Not Found! <br />No any certificate created for this patient.
+                                    Certificate Not Found! <br />No certificate created for this patient.
                                 </div>
                                 <Button type="primary" onClick={handleCreateCertificateDrawer} className="btn px-4 btn-41">Create Certificate</Button>
                             </div>

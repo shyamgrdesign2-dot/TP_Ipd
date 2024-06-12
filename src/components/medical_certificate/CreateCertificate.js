@@ -141,7 +141,7 @@ function CreateCertificate({ handleCreateCertificateDrawer, patient_data, replac
                     handleCreateCertificateDrawer()
                     navigate('/certificate', { replace: replace, state: { patient_data: patient_data } })
                 }} className='btn btn-input btn-41'>
-                    Custom Certificate
+                    Create Certificate
                 </Button>
             </div>
             {DELETE_MODAL}
