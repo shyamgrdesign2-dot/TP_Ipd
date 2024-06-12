@@ -1,0 +1,168 @@
+body {
+    table tbody tr {
+        th {
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 600;
+        }
+
+        td {
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: normal;
+            letter-spacing: 0.1px;
+        }
+    }
+    .ant-table-filter-column, .ant-table-column-sorters {
+        float: left;
+    } 
+    .ant-table {
+        .btn.btn-more {
+            font-size: 20px;
+            padding: 0;
+            line-height: 0;
+        }
+
+        thead.ant-table-thead {
+            th, td {
+                padding: 7.5px 16px;
+                border-bottom: 0;
+                background-color: #F1F1F5;
+                font-size: 12px;
+                text-transform: uppercase;
+
+                &:first-child {
+                    border-bottom-left-radius: 8px;
+                }
+
+                &:last-child {
+                    border-bottom-right-radius: 8px;
+                }
+            }
+        }
+
+        tbody.ant-table-tbody {
+            td {
+                padding: 9px 16px;
+                border-bottom: 0;
+            }
+        }
+    }
+    .customize-table {
+        .ant-table {
+            thead.ant-table-thead {
+                th, td {
+                    font-family: 'Roboto' !important;
+                    color: $welcomecolor !important;
+                    border-bottom: 1px solid $bordercolor;
+                    border-top: 1px solid $bordercolor;
+                    &:first-child {
+                        border-radius: 0;
+                        border-left: 1px solid $bordercolor;
+                    }
+                    &:last-child {
+                        border-radius: 0;
+                        border-right: 1px solid $bordercolor;
+                    }
+                }
+                th {
+                    font-weight: 500;
+                }
+            }
+            tbody {
+                td {
+                    padding: 11.5px 12px;
+                    font-size: 14px;
+                    font-family: 'Roboto' !important;
+                    font-weight: 500;
+                    border-bottom: 1px solid $bordercolor;
+                    &:first-child {
+                        border-left: 1px solid $bordercolor;
+                    }
+                    &:last-child {
+                        border-right: 1px solid $bordercolor;
+                        text-align: center;
+                    }
+                }
+            }
+        }
+        &.table-display-patient .ant-table {
+            tbody {
+                tr {
+                    &:first-child {
+                        td {
+                            border-top: 1px solid $bordercolor;
+                        }
+                    }
+                }
+            }
+        }
+        &.customize-table-format {
+            .ant-table {
+                tbody {
+                    td {
+                        &:first-child {
+                            border-left: 0;
+                            padding-left: 0px;
+                            padding-right: 5px;
+                        }
+                        &:last-child {
+                            border-right: 0;
+                            padding-right: 0px;
+                            padding-left: 0px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .radio-width-static {
+        .ant-form-item-control-input {
+            width: 209px;
+            float: right;
+        }
+    }
+    .radio-width-static-web {
+        .ant-form-item-control-input {
+            width: 260px;
+            float: right;
+        }
+    }
+    .patient-medication .ant-table {
+        .ant-table-thead {
+            th {
+                padding: 5px 9px;
+            }
+        }
+        .ant-table-tbody {
+            td {
+                padding: 8px 9px;
+               div {
+                font-size: 13px;
+                font-family: 'roboto' !important;
+               }
+               small {
+                font-size: 11.5px;
+               }
+            }
+        }
+    }
+    .table-border {
+        .ant-table {
+            tbody.ant-table-tbody {
+                tr {
+                    td {
+                        border-bottom: 1px solid $bordercolor !important;
+                    }
+
+                    &:last-child {
+                        td {
+                            border-bottom: transparent !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,842 @@
+* {
+    scrollbar-width: auto;
+    &::selection {
+        background-color: $theme;
+        color: $white;
+    }
+}
+*::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+*::-webkit-scrollbar-track {
+    background: #eee;
+}
+*::-webkit-scrollbar-thumb {
+    background-color: $grayColor;
+    border-radius: 20px;
+}
+body {
+    font-family: 'Poppins' !important;
+    color: $maincolor;
+    a {
+        text-decoration: none;
+    }
+    hr {
+        border-color: $bordercolor;
+        opacity: 1;
+    }
+    .wrapper {
+        height: calc(100vh - 56px);
+        overflow-y: auto;
+    }
+    .wrapper2 {
+        height: calc(100vh - 60px);
+        overflow-y: auto;
+    }
+    .letterspacing {
+        letter-spacing: 0.1px;
+    }
+    .title-common {
+        font-family: 'Poppins' !important;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 500 !important;
+        line-height: normal;
+        letter-spacing: 0.1px;
+    }
+    .title {
+        color: $welcomecolor !important;
+        font-family: 'Poppins' !important;
+        font-weight: 500;
+    } 
+    .title-sami {
+        color: $maincolor !important;
+        font-family: 'Poppins' !important;
+        font-weight: 600;
+        font-size: 12px;
+    } 
+    .titleprint {
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 36px;
+        letter-spacing: 0.1px;
+        color: $welcomecolor !important;
+    }
+    .text-primary {
+        color: $theme !important;
+    }
+    .text-secondary-custom {
+        color: $themesecondary !important;
+    }
+    .bg-secondary {
+        background-color: $themesecondary !important;
+    }
+    .fs-12 {
+        span, label {
+            font-size: 12px !important;
+        }
+    }
+    .fs-12-1 {
+        font-size: 12px !important;
+    }
+    .fs-14 {
+        font-size: 14px !important;
+    }
+    .fs-16 {
+        font-size: 16px !important;
+    }
+    .fs-18 {
+        font-size: 18px !important;
+    }
+    .fs-21 {
+        font-size: 21px !important;
+    }
+    .small, small {
+        font-size: .800em;
+    }
+    .text-greycolor {
+        color: $grayColor !important;
+    }
+    .backbar {
+        color: $grayColor !important;
+        font-weight: 500;
+    }
+    .text-main {
+        color: $maincolor !important;
+    }
+    .text-main2 {
+        color: $main2 !important;
+    }
+    .highlighted {
+        color: #FF974A !important;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+    .textcolor-29 {
+        color: #92929D;
+    }
+    table, p, div, span, tr, th, td{
+        font-family: 'Poppins' !important;
+        color: $maincolor !important;
+    }
+    .form-control {
+        border-radius: 10px;
+        &:focus {
+            box-shadow: none;
+            border-color: $theme;
+        }
+        &::-webkit-input-placeholder {
+            color: $grayColor;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+        }
+    }
+    .text-welcome {
+        color: $welcomecolor !important;
+    }
+    .ant-picker-input{
+        input::placeholder {
+            color: $grayColor !important;
+        }
+    }
+    .bg-body {
+        background-color: $bgbody !important;
+    }
+    .ant-tooltip {
+        // --antd-arrow-background-color: rgba(255, 255, 255, 0.85);
+        .ant-tooltip-inner {
+            // background-color: rgba(255, 255, 255, 0.85);
+            color: $white !important;
+        }
+    }
+    input {
+        font-family: 'Roboto', sans-serif !important;
+    }
+    .w-48 {
+        width: 48%;
+    }
+    .me-20 {
+        margin-right: 20px;
+    }
+    .me-30 {
+        margin-right: 30px;
+    }
+    .me-14 {
+        margin-right: 14px;
+    }
+    .me-12 {
+        margin-right: 12px;
+    }
+    .h-38 {
+        height: 38px;
+    }
+    .mb-14 {
+        margin-bottom: 14px;
+    }
+    .mx-20 {
+        margin: 0 20px;
+    }
+    .mt-14 {
+        margin-top: 14px;
+    }
+    .mt-20 {
+        margin-top: 20px;
+    }
+    .mb-12 {
+        margin-bottom: 12px;
+    }
+    .mb-15 {
+        margin-bottom:15px;
+    }
+    .mb-20 {
+        margin-bottom: 20px;
+    }
+    .mb-28 {
+        margin-bottom: 28px;
+    }
+    .p-10 {
+        padding: 10px;
+    }
+    .py-5px-3px {
+        padding-top: 5px;
+        padding-bottom: 3px;
+    }
+    .p-14 {
+        padding: 14px;
+    }
+    .p-14-pb0 {
+        padding: 14px;
+        padding-bottom: 0;
+    }
+    .p-20 {
+        padding: 20px;
+    }
+    .px-20 {
+        padding: 0 20px;
+    }
+    .p-30 {
+        padding: 30px;
+    }
+   .pt-2px {
+        padding-top: 2px;
+    }
+    .rounded-10px {
+        border-radius: 10px !important;
+    }
+    .rounded-20px {
+        border-radius: 20px;
+    }
+    .fontroboto {
+        font-family: 'Roboto' !important;
+        letter-spacing: 0.1px;
+    }
+    .fontpoppins {
+        font-family: 'Poppins' !important;
+        &.fontpoppins1 {
+            font-family: 'Poppins' !important;
+        }
+    }
+    .fontarial {
+        font-family: 'Arial' !important;
+    }
+    .fonttimesroman {
+        font-family: 'Times-Roman' !important;
+    }
+    .fontverdana {
+        font-family: 'Verdana' !important;
+    }
+    .fontcalibri {
+        font-family: 'Calibri' !important;
+    }
+    .fonttahoma {
+        font-family: Tahoma !important;
+    }
+    .alert-warning {
+        background-color: hsl(35, 100%, 46%, 0.1);
+        color: $maincolor !important;
+    }
+    .read-or-hide {
+        color: $theme !important;
+    }
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    .text-decoration-underline {
+        text-decoration: underline;
+    }
+    .text-2 {
+        font-family: 'Roboto' !important;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 18px;
+        letter-spacing: 0.1px;
+    }
+    .text14 {
+        font-size: 14px;
+    }
+    // Library common scss
+    .ant-select-dropdown {
+        &.autocompletepopup {
+            padding: 15px;
+            .ant-select-item {
+                padding: 0px;
+            }
+        }
+        .ant-select-item-option-content {
+            white-space: normal;
+        }
+    }
+    .ant-input-affix-wrapper {
+        border-radius: 10px;
+    }
+    .image-crop {
+        height: 189px;
+        overflow: hidden;
+    }
+    .ant-select {
+        &.appointmentselect {
+            min-width: 150px;
+            height: 38px;
+            .ant-select-selection-item {
+                font-weight: 500 !important;
+            }
+            .ant-select-selector .ant-select-selection-placeholder {
+                color: $grayColor !important;
+                font-weight: 400;
+            }
+        }
+        .ant-select-selection-placeholder {
+            color: $maincolor !important;
+            font-family: 'Roboto', sans-serif !important;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .ant-select-arrow .anticon {
+            svg {
+                display: none;
+            }
+            &:after {
+                content: "\e914";
+                font-family: "icomoon" !important;
+                transform: rotate(-90deg);
+                font-size: 20px;
+            }
+        }
+        .ant-select-clear {
+            width: 16px;
+        }
+    }
+    .ant-select .ant-select-selector {
+        border-color: $bordercolor !important;
+        border-radius: 10px;
+    }
+    .all-change-radio {
+        .ant-radio-button-wrapper {
+            padding-inline: 13px;
+            white-space: nowrap;
+        }
+    }
+    .medicine-templates {
+        padding: 10px 17px;
+        border-top: 1px solid $bordercolor;
+        i {
+            color: #92929D;
+        }
+        &:hover {
+            background-color: #F1F1F5;
+        }
+        &:first-child {
+            border-top: none;
+        }
+        &:last-child {
+            &:hover{
+                border-bottom-left-radius: 20px;
+                border-bottom-right-radius: 20px;
+            }
+        }
+        &.without-hover {
+            &:hover {
+                background-color: transparent;
+            }
+            &:last-child {
+                &:hover{
+                    border-radius: 0;
+                }
+            }
+        }
+    }
+    .round-box {
+        width: 37px;
+        height: 37px;
+        min-width: 37px;
+        min-height: 37px;
+        background-color: #fff;
+        border-radius: 100%;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        margin-right: 15px;
+    }
+    .ant-input-clear-icon {
+        svg {
+            display: none;
+        }
+        &:after {
+            content: "\e919";
+            font-family: "icomoon" !important;
+            transform: rotate(-90deg);
+            font-size: 20px;
+            line-height: 1.6;
+        }
+    }
+    .text-truncate-twolines {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .text-truncate-threelines {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .endreason-textarea {
+        textarea {
+            border-radius: 10px;
+        }
+    }
+    .bg-selected {
+        background-color: $drawerHeaderColor;
+    }
+    .anticon-filter {
+        svg {
+            display: none;
+        }
+        &:after {
+            content: "\e928";
+            font-family: "icomoon" !important;
+            font-size: 18px;
+            font-weight: 400;
+        }
+    }
+    .ant-picker-suffix {
+        .anticon-calendar {
+            svg {
+                display: none;
+            }
+            &:after {
+                content: "\e900";
+                font-family: "icomoon" !important;
+                font-size: 16px;
+                font-weight: 400;
+            }
+        }
+    }
+
+    .ant-picker{
+        &:hover {
+            .ant-picker-suffix {
+                opacity: 1 !important;
+            }
+        }
+    }
+    .ant-picker-clear {
+        svg {
+            display: none;
+        }
+        &:after {
+            content: "\e919";
+            font-family: "icomoon" !important;
+            transform: rotate(-90deg);
+            font-size: 18px;
+            line-height: 1.6;
+        }
+    }
+    .ant-table-column-sorter-inner {
+        .anticon svg {
+            display: none;
+        }
+        &:after {
+            content: "\e927";
+            font-family: "icomoon" !important;
+            font-size: 18px;
+            margin-left: 5px;
+            font-weight: 400;
+        }
+    }
+    .icon-search {
+        color: #A2A2A8 !important;
+    }
+    .fllowbtn {
+        .px-5-16 {
+            &:last-child {
+                margin-right: 0;
+            }
+        } 
+    }
+
+    .mobile__pdf__container {
+        #viewerContainer {
+            position: relative;
+            overflow: hidden;
+            width: 100% !important;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            .pdfViewer {
+                overflow: hidden;
+                .page {
+                    border-image: none;
+                    border: none;
+                    background-color: transparent;
+                    margin: 0;
+                }
+            }
+        }
+    }
+    #errorWrapper, #loadingBar {
+        display: none !important;
+    }
+    .pdfMobile-Class {
+        .mobile__pdf__container {
+            #viewerContainer {
+                .page {
+                    width: 100% !important;
+                    #page1 {
+                        width: 100% !important;
+                    }
+                }
+                .canvasWrapper {
+                    width: 100% !important;
+                }
+            }
+        }
+        .canvaspdf {
+            border: 1px solid $bordercolor; 
+            border-radius: 20px;   
+            background-color: $bgbody;
+            margin-top: 20px;
+            z-index: 1;
+            position: relative;
+        }
+    }
+    .title-hypertension {
+        font-size: 24px;
+        font-weight: 600;
+        letter-spacing: 0.1px;
+    }
+    .medical-history-section {
+        .ant-collapse-expand-icon {
+            margin-left: 25px;
+            margin-top: 4px;
+        }
+        .ant-collapse-header {
+            padding: 0 0 10px 0 !important;
+        }
+        .collapseButton {
+          width: 24px;
+          height: 24px;
+          &:hover {
+            color: $maincolor !important;
+          }
+        }
+        .history-badge {
+            border: 1px solid $bordercolor;
+            background-color: $white;
+            border-radius: 10px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            padding: 0 5px 0 10px;
+            margin-right: 10px;
+            margin-bottom: 14px;
+            font-family: 'roboto' !important;
+            span {
+                border-radius: 100px;
+                height: 26px;
+                width: 39px;
+                margin-left: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: $drawerHeaderColor;
+                font-size: 16px;
+                font-weight: 500;
+            }
+            &.history-active {
+                border-color: $theme;
+                span {
+                    background-color: #D1F1E4;
+                    color: #19BB7A !important;
+                }
+            }
+            &.history-inactive {
+                span {
+                    background-color: #FCDADA;
+                    color: #F04545 !important;
+                }
+            }
+        }
+    }
+    // rightside drawer css
+    .ant-drawer-open {
+        .ant-drawer-content-wrapper {
+            box-shadow: none !important;
+        }
+    }
+    .playdrawer {
+        background: transparent !important;
+        .ant-drawer-title {
+            font-size: 20px !important;
+            font-weight: 500 !important;
+            color: #000 !important;
+        }
+        .ant-drawer-header {
+            border-radius: 15px 0 0 0 !important;
+            background: #F1F1F5;
+            padding-left: 24px !important;
+            border: 0px;
+            padding: 15px 28px 14px 24px !important;
+            .ant-drawer-header-title {
+                flex-direction: row-reverse;
+                button.ant-drawer-close {
+                    margin: 0px;
+                }
+            }
+        }
+    }
+    .videodrawer-left {
+        .drawer-slider {
+            width: 340px !important;
+            margin-right: 25px;
+            margin-left: 3px;
+            img {
+                max-width: 100%;
+                outline: none;
+                border-radius: 10px;
+            }
+        }
+        &.drawer-slider:focus-visible {
+            outline: none;
+        }
+        ul.slick-dots {
+            display: flex !important;
+            justify-content: center;
+            margin: 0px;
+            padding: 0px;
+            li {
+                list-style: none;
+                margin: 5px;
+                button {
+                    border: 0px;
+                    padding: 0px;
+                    margin: 0px;
+                    font-size: 0px;
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 50%;
+                    background: #D9D9D9;
+                }
+            }
+            li.slick-active {
+                button {
+                    background: #A263D5;
+                }
+            }
+        }
+        .slick-list {
+            padding: 0px !important;
+        }
+        .slick-track {
+            display: flex;
+            width: 100% !important;
+        }
+        .slick-track {
+            .slick-slide {
+                position: relative;
+                button {
+                    border: 0px;
+                    background: transparent;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    position: absolute;
+                    outline: none;
+                    img {
+                        max-width: 100%;
+                        border-radius: 10px;
+                    }
+                }
+            }
+        }
+    }   
+}
+.prescription-pad {
+    .videodrawer {
+        margin: 0 0 -8px 0;
+    }
+}
+.shadow2 {
+    -webkit-box-shadow: 0px 0px 5px 4px rgba(202, 202, 202, 0.2);
+    -moz-box-shadow: 0px 0px 5px 4px rgba(202, 202, 202, 0.2);
+    box-shadow: 0px 0px 5px 4px rgba(202, 202, 202, 0.2);
+}
+body {
+    .beamer_icon{
+        &.active {
+            right: -13px;
+            top: -13px;
+            color: $white !important;
+        }
+    }
+    #beamerLastPostTitle{
+        span {
+            font-size: 12px !important;
+        }
+    }
+    
+    // Save button of print Certificate 
+    .saveButton {
+        display: flex;
+        border-radius: 10px;
+        border: 1px solid $bordercolor;
+        .popinput {
+            border: 0 !important;
+            &:focus, &:focus-within {
+                box-shadow: none !important;
+            }
+        }
+        .ant-btn {
+            border: 0 !important;
+            border-radius: 10px;
+            font-weight: 500;
+            span {
+                color: $theme !important;
+            } 
+            div {
+                box-shadow: none !important;
+                outline: none !important;
+            }
+            &:disabled {
+                span {
+                    opacity: 0.3;
+                }
+            }
+        }
+        &:focus-within {
+            border-color: $theme;
+            outline: $theme !important;
+            .popinput {
+                border-color: $theme;
+            }
+            .ant-btn {
+                border-color: $theme;
+            }
+        }
+    }
+}
+
+.video-animat {
+    position: relative;
+    img {
+        &:nth-child(2) {
+            position: absolute;
+            left: -7px;
+            top: -7px;
+            width: 48px;
+            height: 48px;
+            z-index: -1;
+        }
+    }
+}
+// Certificate page
+.bg-fitness {
+    background-color: $colorFitness;
+    border-radius: 100px;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    min-height: 42px;
+    margin-right: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+    font-size: 20px;
+    color: $themesecondarylight !important;
+}
+.custom-certificate {
+    background-color: $descpadcolor;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+// Certificate details page
+.certificate-box {
+    width: 223px; 
+    background:#fafafb; 
+    text-align: center; 
+    border-radius:10px; 
+    overflow: hidden;
+    .pfd-box{
+        height:180px;
+    }
+    .leave-ui{
+        border-top: solid #E2E2EA 1px; 
+        padding:11px 14px 11px 14px;
+    }
+}
+
+// medication customize setting
+.dragicon-position {
+    .subtitle-customize {
+        color: $grayColor !important;
+        font-size: 12px;
+        font-weight: 400;
+        span {
+            font-weight: 600;
+            color: $grayColor !important;
+        }
+    }
+    .anticon-menu {
+        z-index: 9999999;
+        position: absolute;
+        top: 23px;
+        left: 5px;
+    }
+    .ant-collapse-item {
+        border-bottom: 0 !important;
+        .ant-collapse-header {
+            padding: 0 !important;
+            .ant-collapse-expand-icon {
+                &:after {
+                    border: 0 !important;
+                    font-size: 18px;
+                    color: $theme;
+                }
+            }
+        }
+        .ant-collapse-content {
+            border-top: 0 !important;
+        }
+    }
+    .ant-radio-wrapper {
+        .ant-radio-checked .ant-radio-inner {
+            border-color: $theme;
+            background-color: $theme;
+        }
+        &:hover {
+            .ant-radio-inner {
+                border-color: $theme;
+            }
+        }
+    }
+}

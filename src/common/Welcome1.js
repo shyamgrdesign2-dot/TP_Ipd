@@ -1,0 +1,170 @@
+import React, { useMemo, useState, useCallback } from 'react';
+import { Popover, Drawer } from "antd";
+import Button from 'react-bootstrap/Button';
+import { useNavigate } from 'react-router-dom';
+import moment from 'moment';
+import { useSelector } from "react-redux";
+
+import playIcons from '../assets/images/tube-icon.svg';
+import tutorial from '../assets/images/tutorial-icon.svg';
+
+import ProfilePopover from './ProfilePopover';
+import VideoModal from './VideoModal';
+import CreateCertificate from '../components/medical_certificate/CreateCertificate';
+
+function Welcome1(props) {
+
+    const [popOverVideo, setPopOverVideo] = useState(false);
+    const [videoLink, setVideoLink] = useState(null);
+
+    const navigate = useNavigate();
+    const { profile, videoList, patientCertificateList } = useSelector((state) => state.doctors);
+    const { locationPath, isMobile, patient_data, viewCaseManagerData, sidebarKey } = props
+
+    const modifyFormat = useMemo(() => {
+        if (viewCaseManagerData) {
+            const data = moment(viewCaseManagerData.consultation_date).format('Do MMM')
+            let first = data.split(' ')[0].slice(0, -2);
+            let second = data.split(' ')[0].slice(-2);
+            let third = data.split(' ')[1];
+            return { first, second, third }
+        } else {
+            return null
+        }
+    }, [viewCaseManagerData])
+
+    const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
+
+
+    const handleCreateCertificateDrawer = useCallback(() => {
+        setCreateCertificateDrawer(!createCertificateDrawer)
+    }, [createCertificateDrawer]);
+
+    //PopOverVideo function
+    const showHideVideoListPopover = useCallback(() => {
+        setPopOverVideo(!popOverVideo);
+    }, [popOverVideo]);
+
+    //Video Componet
+    const VIDEO_CONTENT = useCallback(() => {
+        return (
+            <>
+                <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
+                    <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+                        <div className="title-common lh-base">Video Tutorial</div>
+                        <Button className="btn btn-videoClose p-0"
+                            onClick={showHideVideoListPopover}>
+                            <i className="icon-Cross" />
+                        </Button>
+                    </div>
+                    {videoList[0]?.video?.map((item1, i1) => {
+                        return (
+                            <div key={i1} className={`d-flex ${i1 !== videoList[0]?.video.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
+                                <div className="tutorial-play me-14">
+                                    <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+                                    <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
+                                </div>
+                                <div>
+                                    <h3 className="title-common text-welcome">{item1?.tmv_title}</h3>
+                                    <div className="fs-12 fontroboto fw-normal text-main">{item1?.tmv_description}</div>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            </>
+        );
+    }, [popOverVideo]);
+
+    return (
+        <>
+            <div className="welcomesection position-relative">
+                <div className='bg-welcome d-flex justify-content-between align-items-center'>
+                    <div className='d-flex align-items-center'>
+                        {sidebarKey === 1 ? (
+                            <div>
+                                <h1 className='mt-2'>{'Patient Details'}</h1>
+                                {isMobile && (<ProfilePopover locationPath={locationPath} isMobile={isMobile} patient_data={patient_data} />)}
+                                {isMobile ? '' : <p className='mb-1'>&nbsp;</p>}
+                            </div>
+                        ) : (
+                            <h1 className='mt-2 mb-3'>{'Certificate'}</h1>
+                        )}
+                        <img src={require("../assets/images/bg-welcome.png")} className={`welcomeig d-inline-block align-top ${isMobile ? 'ms-2' : 'ms-4'}`} alt="Welcome" />
+                    </div>
+                    {sidebarKey === 1 ? (
+                        <div>
+                            {viewCaseManagerData && (
+                                <div className='d-lg-flex d-block'>
+                                    <Popover
+                                        open={popOverVideo}
+                                        onOpenChange={showHideVideoListPopover}
+                                        content={VIDEO_CONTENT}
+                                        trigger="click"
+                                        overlayClassName="pop-430 pp-0 videoTutorial"
+                                        placement="bottom"
+                                    >
+                                        <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
+                                            {/* onClick={showHideVideoListPopover} */}
+                                            <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
+                                        </button>
+                                    </Popover>
+                                    {videoLink && (
+                                        <VideoModal
+                                            videoLink={videoLink}
+                                            onCancel={() => setVideoLink(null)}
+                                        />
+                                    )}
+                                    <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => {
+                                        window.Moengage.track_event("repeat_rx_click", {
+                                            "doctor_id": profile?.doctor_unique_id,
+                                            "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0,
+                                            "rx_date": viewCaseManagerData?.consultation_date
+                                        });
+                                        navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
+                                    }}> <i className={'icon-reload me-2'}></i>Repeat {modifyFormat && modifyFormat.first}<sup>{modifyFormat && modifyFormat.second}</sup>&nbsp;{modifyFormat && modifyFormat.third} Rx</Button>
+                                    <Button variant="primary"
+                                        className='btn-41 px-4'
+                                        onClick={() => {
+                                            window.Moengage.track_event("start_new_visit_click", {
+                                                "doctor_id": profile?.doctor_unique_id,
+                                                "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0
+                                            });
+                                            navigate("/prescription", { state: { patient_data: patient_data } })
+                                        }}>
+                                        {'Start New Visit'}
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div>
+                            {patientCertificateList?.length > 0 && (
+                                <Button variant="primary" onClick={handleCreateCertificateDrawer}
+                                    className='btn-41 px-4'>
+                                    {'Create Certificate'}
+                                </Button>
+                            )}
+                        </div>
+                    )}
+                </div>
+                <Drawer
+                    className="modalWidth-563" width="auto"
+                    title="Create Certificate"
+                    placement="right"
+                    closable
+                    open={createCertificateDrawer}
+                    onClose={handleCreateCertificateDrawer}
+                    key="left"
+                >
+                    <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={patient_data} replace={false} />
+                </Drawer>
+                <div className='pb-5'>
+                    &nbsp;
+                </div>
+            </div>
+        </>
+    )
+}
+
+export default React.memo(Welcome1)
