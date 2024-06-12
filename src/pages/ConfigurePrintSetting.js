@@ -10,6 +10,7 @@ import PrintSettingsContext from '../context/PrintSettingsContext';
 
 import HeaderPrintSetting from "../common/HeaderPrintSetting";
 import Quixote from "./Quixote";
+import QuixoteCertificate from "./QuixoteCertificate";
 
 import { TAB_PRESCRIPTION, TAB_HEADER_FOOTER, TAB_PAGE_FORMAT, NORMAL } from "../utils/constants";
 
@@ -26,10 +27,10 @@ function ConfigurePrintSetting() {
     const { defaultPrintSettings } = useSelector((state) => state.doctors);
 
     const { state } = useLocation();
-    const { caseManagerData } = state
+    const { caseManagerData, certificateData } = state
 
     const [divWidth, setDivWidth] = useState(0);
-    const [selectedTab, setSelectedTab] = useState(TAB_PRESCRIPTION);
+    const [selectedTab, setSelectedTab] = useState(caseManagerData !== undefined ? TAB_PRESCRIPTION : TAB_HEADER_FOOTER);
     const [printSettings, setPrintSettings] = useState(null);
     const [fileHeader, setFileHeader] = useState(null);
     const [fileFooter, setFileFooter] = useState(null);
@@ -41,7 +42,7 @@ function ConfigurePrintSetting() {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
 
-    const contextApi = { divWidth, caseManagerData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
+    const contextApi = { divWidth, caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
 
     const TabsPrintSetting = [
         {
@@ -91,7 +92,7 @@ function ConfigurePrintSetting() {
                     <Row justify="space-between">
                         <Col xl={8} lg={10} className="pe-3">
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
-                                <Tabs defaultActiveKey="1" items={TabsPrintSetting} onChange={onTabChange} className="print-tabs" />
+                                <Tabs defaultActiveKey="1" items={caseManagerData !== undefined ? TabsPrintSetting : TabsPrintSetting.slice(1, 2)} onChange={onTabChange} className="print-tabs" />
                                 {selectedTab === TAB_PRESCRIPTION ? (
                                     <PrescriptionLayout />
                                 ) : selectedTab === TAB_HEADER_FOOTER ? (
@@ -106,7 +107,7 @@ function ConfigurePrintSetting() {
                                 <div className="titleprint mt-20">Preview</div>
                                 <div ref={divRef} className="rounded-20px bg-white mt-20 overflow-hidden">
                                     <div className="position-relative printheight">
-                                        <Quixote mode={NORMAL} />
+                                        {caseManagerData !== undefined ? <Quixote mode={NORMAL} /> : <QuixoteCertificate mode={NORMAL} />}
                                     </div>
                                 </div>
                             </div>

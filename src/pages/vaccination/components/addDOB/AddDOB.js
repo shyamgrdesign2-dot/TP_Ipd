@@ -5,8 +5,9 @@ import { createPatient, updateDob } from "../../service";
 import { errorMessage } from "../../../../utils/utils";
 import moment from "moment";
 import dayjs from "dayjs";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import "./AddDOB.scss";
+import { viewPatient } from "../../../../redux/appointmentsSlice";
 
 const AddDOB = ({
   show,
@@ -16,6 +17,7 @@ const AddDOB = ({
   getVaccineDetails,
   setLoading,
 }) => {
+  const dispatch = useDispatch();
   const [dob, setDob] = useState("");
   const { profile } = useSelector((state) => state.doctors);
 
@@ -43,6 +45,7 @@ const AddDOB = ({
     };
     const createPatientRes = await createPatient(payload);
     if (createPatientRes?.status === 200) {
+      updatePatientDob();
       getVaccineDetails();
       setShowDob(false);
       setLoading(true);
@@ -54,9 +57,10 @@ const AddDOB = ({
   const updatePatientDob = async () => {
     const payload = {
       patient_uid: patientDetails?.patient_unique_id,
-      patient_pid: patientDetails?.vac_pid,
-      hospital_bid: patientDetails?.hm_business_id,
-      hospital_id: patientDetails?.hm_id,
+      patient_pid: patientDetails?.vac_pid || patientDetails?.pm_pid,
+      hospital_bid:
+        patientDetails?.hm_business_id || patientDetails?.hospital_business_id,
+      hospital_id: patientDetails?.hm_id || profile?.hospital_data?.[0]?.hm_id,
       updated_dob: moment(dob, "DD-MM-YYYY").format("YYYY-MM-DD"),
     };
     const createPatientRes = await updateDob(payload);
@@ -64,8 +68,20 @@ const AddDOB = ({
       getVaccineDetails();
       setShowDob(false);
       setLoading(true);
+      const sendData = {
+        patient_unique_id: patientDetails.patient_unique_id,
+      };
+      dispatch(viewPatient(sendData));
     } else {
       errorMessage({ name: "TypeError" });
+    }
+  };
+
+  const addDobHandler = () => {
+    if (!patientDetails?.vac_id) {
+      createPatientDetails();
+    } else {
+      updatePatientDob();
     }
   };
 
@@ -98,10 +114,7 @@ const AddDOB = ({
           className={`${!dob ? "opacity-50" : ""}`}
           style={{ backgroundColor: "#4B4AD5" }}
           type="primary"
-          onClick={() => {
-            if (patientDetails?.vac_id) updatePatientDob();
-            else createPatientDetails();
-          }}
+          onClick={addDobHandler}
         >
           Add
         </Button>

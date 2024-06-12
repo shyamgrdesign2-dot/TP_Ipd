@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
-import { Button, Dropdown, Tooltip, Popover, Input, Spin, Tabs, Select, Drawer, Modal } from 'antd';
+import { Button, Dropdown, Tooltip, Popover, Input, Spin, Tabs, Select, Drawer, message } from 'antd';
 import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from 'react-router-dom';
 import { isMobile } from 'react-device-detect';
@@ -21,6 +21,11 @@ import VideoModal from './VideoModal';
 
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
+import { MESSAGE_KEY } from "../utils/constants";
+
+import visitEnd from '../assets/images/end-visit.svg';
+import imgCloseVisit from '../assets/images/close-visit.svg';
+
 import { useSelector, useDispatch } from "react-redux";
 
 import {
@@ -34,7 +39,9 @@ import {
 } from "../redux/caseManagerSlice";
 import { listVideo } from "../redux/doctorsSlice";
 
-function HeaderPrescription() {
+var oneClickCosultationTemplateId = 0
+
+function HeaderPrescription({isVaccinationEnabled}) {
 
     const { frequencyList, timingList, videoList } = useSelector((state) => state.doctors);
     const vaccines = useSelector((state) => state.vaccines);
@@ -46,7 +53,8 @@ function HeaderPrescription() {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
-    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
+    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime } = useContext(CashManagerContext);
+
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
@@ -155,6 +163,7 @@ function HeaderPrescription() {
     };
 
     const onTemplateSelected = async (tmoc_id, tmoc_template_name) => {
+        oneClickCosultationTemplateId = tmoc_id
         window.Moengage.track_event("one_click_template_select", {
             "template_name": tmoc_template_name
         });
@@ -776,7 +785,7 @@ function HeaderPrescription() {
 
     const CUSTOMIZE_CONTENT_TAB = useMemo(() => {
         return (
-            <CustomizeSetting handleDrawerCustomize={handleDrawerCustomize} />
+            <CustomizeSetting handleDrawerCustomize={handleDrawerCustomize} isVaccinationEnabled={isVaccinationEnabled} />
         );
     }, [customizeDrawer]);
 
@@ -799,24 +808,43 @@ function HeaderPrescription() {
                 tcm_id: tcmId,
                 patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
                 pam_id: patient_data !== undefined ? patient_data.hasOwnProperty('pam_id') ? patient_data.pam_id : 0 : 0,
-              consultation_date: consultationDate,
-              symptoms: symptomsData,
-              examination: examinationData,
-              diagnosis: diagnosisData,
-              medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
-              advice: adviceData,
-              investigation: investigationData,
-              vitals: vitalsData,
-              follow_up_date: followUpDate,
-              visit_advice: additionalNote,
-              medical_history: medicalHistoryData,
-              vaccines: {
-                given: givenVaccines,
-                due: updatedDueVaccines
-              },
+                consultation_date: consultationDate,
+                symptoms: symptomsData,
+                examination: examinationData,
+                diagnosis: diagnosisData,
+                medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
+                advice: adviceData,
+                investigation: investigationData,
+                vitals: vitalsData,
+                follow_up_date: followUpDate,
+                visit_advice: additionalNote,
+                medical_history: medicalHistoryData,
+                consultation_start_datetime: startTime,
+                oneclick_cosultation_template_id: oneClickCosultationTemplateId,
+                vaccines: {
+                    given: givenVaccines,
+                    due: updatedDueVaccines
+                },
             };
+
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
             if (action.meta.requestStatus === "fulfilled") {
+                message.open({
+                    key: MESSAGE_KEY,
+                    type: '',
+                    className: 'message-appointment',
+                    content: (
+                        <div className='d-flex align-items-center'>
+                            <img src={visitEnd} className='me-3' />
+                            <div>
+                                <div className='title-common text-start fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
+                                <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
+                            </div>
+                            <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                        </div>
+                    ),
+                    duration: 5,
+                });
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
             } else {
                 errorMessage(action.error)
@@ -849,9 +877,9 @@ function HeaderPrescription() {
                             <i className="icon-Cross" />
                         </Button>
                     </div>
-                    {videoList[0]?.video?.map((item1, i1) => {
+                    {videoList?.filter(e => e.category_id === 1)[0]?.video?.map((item1, i1) => {
                         return (
-                            <div key={i1} className={`d-flex ${i1 !== videoList[0]?.video.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
+                            <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 1)[0]?.video?.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
                                 <div className="tutorial-play me-14">
                                     <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
                                     <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>

@@ -205,7 +205,7 @@ function PrescriptionLayout() {
                     </div>
                     <hr />
                     <div className="d-flex align-items-center">
-                        <Checkbox.Group options={checkboxOptions} defaultValue={record?.medicine_option} onChange={(checkedValues) => onMedicationOptionChange(checkedValues, i)} />
+                        <Checkbox.Group options={checkboxOptions} value={record?.medicine_option} onChange={(checkedValues) => onMedicationOptionChange(checkedValues, i)} />
                     </div>
                     <div className="subtitle-customize text-start mt-3"><span>Note:</span> The printed information will always include the name of the medicine (brand or generic), and the frequency.</div>
                 </>
