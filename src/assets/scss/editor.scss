@@ -4,6 +4,27 @@ body {
         border-radius: 10px !important;
         .jodit-toolbar__box {
             border-radius: 10px 10px 0 0;
+            .jodit-toolbar-button {
+                &:nth-child(2){
+                    margin-right: 15px;
+                }
+                &:nth-child(3){
+                    margin-right: 15px;
+                    .jodit-icon {
+                        width: 22px;
+                        height: 22px;
+                    }
+                }
+                &:nth-child(4){
+                    margin-right: 15px;
+                }
+                &:nth-child(7){
+                    margin-right: 15px;
+                }
+                &:nth-child(9){
+                    margin-right: 15px;
+                }
+            }
         }
         .jodit-workplace {
             border-radius: 0 0 10px 10px;
