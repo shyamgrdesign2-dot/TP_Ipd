@@ -72,8 +72,8 @@
 .tooltipStyle {
   background-color: white;
   padding: 10px;
-  min-height: 152px;
-  min-width: 300px;
+  min-height: 130px;
+  min-width: 285px;
 
   .measurementHeader {
     display: flex;
@@ -136,8 +136,8 @@
     position: absolute;
     width: 12px;
     height: 12px;
-    top: -6px;
-    left: 48%;
+    bottom: -6px;
+    left: 30%;
     background-color: #ffffff;
     transform: rotate(45deg);
   }
