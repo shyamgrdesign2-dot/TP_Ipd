@@ -25,4 +25,5 @@ export default {
   firebaseStorageBucket: env.firebaseStorageBucket,
   firebaseMessagingSenderId: env.firebaseMessagingSenderId,
   firebaseAppId: env.firebaseAppId,
+  tatvaRedirect: env.tatvaRedirect,
 };

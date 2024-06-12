@@ -76,7 +76,7 @@ function Header({ locationPath }) {
   useEffect(() => {
     if (profile) {
       // setSwitchCheckbox(profile.switchtoOld != 0 ? true : false)
-      !isChrome && !isSafari && setPopOver(profile.NavigatetoTatvaPedia == 0 ? true : false);
+      setPopOver(profile.NavigatetoTatvaPedia == 0 ? true : false);
       const clinics = profile.hospital_data?.map((e) => {
         return {
           value: e.hm_id,
@@ -145,6 +145,18 @@ function Header({ locationPath }) {
     setIsLogoModalOpen(!isLogoModalOpen);
   }, [isLogoModalOpen]);
 
+  const tatvaRedirectClick = async () => {
+    showHideLogoModal()
+    setTimeout(() => {
+      if (!isChrome && !isSafari) {
+        navigate('/?close_app=true', { replace: true });
+        navigate(0, { replace: true });
+      } else {
+        window.open(config.tatvaRedirect);
+      }
+    }, 500);
+  }
+
   const LOGO_MODAL = useMemo(() => {
     return (
       <CommonModal
@@ -168,10 +180,7 @@ function Header({ locationPath }) {
             </div>
             <div>
               <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div onClick={() => {
-                  navigate('/?close_app=true', { replace: true });
-                  navigate(0, { replace: true });
-                }}
+                <div onClick={tatvaRedirectClick}
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Switch
                 </div>
@@ -359,9 +368,9 @@ function Header({ locationPath }) {
               <i className="icon-Cross" />
             </Button>
           </div>
-          {videoList[0]?.video?.map((item1, i1) => {
+          {videoList?.filter(e => e.category_id === 3)[0]?.video?.map((item1, i1) => {
             return (
-              <div key={i1} className={`d-flex ${i1 !== videoList[0]?.video.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
+              <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 3)[0]?.video?.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
                 <div className="tutorial-play me-14">
                   <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
                   <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
@@ -382,9 +391,9 @@ function Header({ locationPath }) {
     <Navbar className="justify-content-between portal-header">
       <Container fluid>
         <div>
-          <img onClick={() => !isChrome && !isSafari && showHideLogoModal()}
+          <img onClick={showHideLogoModal}
             src={require("../assets/images/logo.png")}
-            className={`d-inline-block align-top ${!isChrome && !isSafari && 'cursor-pointer'}`}
+            className={`d-inline-block align-top cursor-pointer`}
             style={{ width: '110px' }}
             alt="Logo"
           />
@@ -461,22 +470,24 @@ function Header({ locationPath }) {
             <div className="mt-20">
               {videoList?.map((item, i) => {
                 return (
-                  <div key={i} className="overflow-hidden ms-4">
-                    <div className="title-common text-welcome">{item?.category}</div>
-                    <div className="fs-12 fontroboto fw-normal text-main">{item?.description}</div>
-                    <div className="videodrawer-left mt-3">
-                      <Slider {...sliderSettings}>
-                        {item?.video?.map((item1, i1) => {
-                          return (
-                            <div key={i1} className="drawer-slider">
-                              <button type="button" onClick={() => setVideoLink(item1)}><img src={playIconutube} /></button>
-                              <img src={item1?.thumbnail} />
-                            </div>
-                          )
-                        })}
-                      </Slider>
+                  item?.video?.length > 0 && (
+                    <div key={i} className="overflow-hidden ms-4">
+                      <div className="title-common text-welcome">{item?.category}</div>
+                      <div className="fs-12 fontroboto fw-normal text-main">{item?.description}</div>
+                      <div className="videodrawer-left mt-3">
+                        <Slider {...sliderSettings}>
+                          {item?.video?.map((item1, i1) => {
+                            return (
+                              <div key={i1} className="drawer-slider">
+                                <button type="button" onClick={() => setVideoLink(item1)}><img src={playIconutube} /></button>
+                                <img src={item1?.thumbnail} />
+                              </div>
+                            )
+                          })}
+                        </Slider>
+                      </div>
                     </div>
-                  </div>
+                  )
                 )
               })}
             </div>
