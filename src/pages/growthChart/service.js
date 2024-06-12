@@ -56,9 +56,9 @@ export const addGrowthChartParam = async function (payload) {
 };
 
 export const getParentalDetails = async (pm_id, pm_pid) => {
-  let res = [];
+  let res;
   try {
-    res = await api.get(`parentalDetails/13/1234`, baseUrl);
+    res = await api.get(`parentalDetails/${pm_id}/${pm_pid}`, baseUrl);
   } catch (e) {
     console.error("Error while fetching getParentalDetails: ", e);
   }
@@ -66,9 +66,9 @@ export const getParentalDetails = async (pm_id, pm_pid) => {
 };
 
 export const createParentalDetails = async function (payload) {
-  let res = {};
+  let res;
   try {
-    res = await api.post(`/parentalDetail`, payload, baseUrl);
+    res = await api.post(`/parentalDetails`, payload, baseUrl);
   } catch (e) {
     console.error("Error while createParentalDetails: ", e);
   }
@@ -76,14 +76,12 @@ export const createParentalDetails = async function (payload) {
 };
 
 export const updateParentalDetails = async function (
-  id,
-  pm_id,
-  pm_pid,
+  { pm_id, pm_pid },
   payload
 ) {
-  let res = {};
+  let res;
   try {
-    res = await api.put(`parentalDetails/13/1234`, payload, baseUrl);
+    res = await api.put(`parentalDetails/${pm_id}/${pm_pid}`, payload, baseUrl);
   } catch (e) {
     console.error("Error while updateParentalDetails: ", e);
   }

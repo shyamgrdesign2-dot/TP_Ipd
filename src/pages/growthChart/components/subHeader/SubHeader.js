@@ -90,7 +90,7 @@ export const dummyData = {
   ],
 };
 
-const SubHeader = ({ handleDrawerVital, setShowUpdate }) => {
+const SubHeader = ({ handleDrawerVital, setShowUpdate, setShowTableView }) => {
   const growthDetails = (title, value1, value2) => {
     return (
       <div className="detailsContainer">
@@ -117,9 +117,7 @@ const SubHeader = ({ handleDrawerVital, setShowUpdate }) => {
           <span>{value1}</span>
           <span>{value2}</span>
         </div>
-        <Switch
-        // onChange={(checked) => onChangeRight(checked)}
-        />
+        <Switch onChange={(checked) => setShowTableView(checked)} />
       </div>
     );
   };

@@ -1,21 +1,86 @@
 import { Modal, DatePicker, Input, Button, Divider } from "antd";
 import dayjs from "dayjs";
 import "./updateDetails.scss";
+import { useEffect, useState } from "react";
+import { createParentalDetails, updateParentalDetails } from "../service";
+import { useLocation } from "react-router-dom";
+import SuccessPopup from "../components/SuccessPopup";
 
 export default function UpdateDetails({
   show,
-  dob,
-  setDob,
-  onChange,
+  parentalDetails,
   setShow,
+  setParentalDetails,
 }) {
+  const { state } = useLocation();
+  const { patient_data } = state;
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [action, setAction] = useState("");
+
+  useEffect(() => {
+    if (parentalDetails) {
+      setAction("update");
+    } else {
+      setAction("create");
+    }
+  }, []);
+
+  const handleParentalDetails = (value, type) => {
+    setParentalDetails({ ...parentalDetails, [type]: value });
+  };
+
   const handleChange = (e) => {
-    const { value: inputValue } = e.target;
+    const { value: inputValue, name } = e.target;
     const reg = /^-?\d*(\.\d*)?$/;
-    if (reg.test(inputValue) || inputValue === "" || inputValue === "-") {
-      //   onChange(inputValue);
+    if (reg.test(inputValue) || inputValue === "") {
+      handleParentalDetails(inputValue, name);
     }
   };
+
+  const createDetails = async () => {
+    const payload = {
+      pm_id: patient_data?.pm_id,
+      pm_pid: patient_data?.pm_pid,
+      father_height: parentalDetails?.father_height,
+      mother_height: parentalDetails?.mother_height,
+      gestation_period:
+        parentalDetails?.gestation_period_weeks * 7 +
+        parentalDetails?.gestation_period_days,
+    };
+    const createParentalDetailsRes = await createParentalDetails(payload);
+    debugger
+    if (createParentalDetailsRes?.status === 201) {
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShow(false);
+      }, 1000);
+    }
+  };
+
+  const updateDetails = async () => {
+    const payload = {
+      father_height: parentalDetails?.father_height,
+      mother_height: parentalDetails?.mother_height,
+      gestation_period:
+        parentalDetails?.gestation_period_weeks * 7 +
+        parentalDetails?.gestation_period_days,
+    };
+    const updateParentalDetailsRes = await updateParentalDetails(
+      {
+        pm_id: patient_data?.pm_id,
+        pm_pid: patient_data?.pm_pid,
+      },
+      payload
+    );
+    console.log({ updateParentalDetailsRes });
+    if (updateParentalDetailsRes.status === 204) {
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShow(false);
+      }, 1000);
+    }
+  };
+
   const handleClose = () => {};
 
   return (
@@ -61,11 +126,15 @@ export default function UpdateDetails({
               className="gc-input"
               style={{ marginRight: 30 }}
               onChange={handleChange}
+              value={parentalDetails?.gestation_period_weeks ?? ""}
+              name="gestation_period_weeks"
             />
             <Input
               placeholder="Days"
               className="gc-input"
               onChange={handleChange}
+              value={parentalDetails?.gestation_period_days ?? ""}
+              name="gestation_period_days"
             />
           </div>
         </div>
@@ -83,6 +152,8 @@ export default function UpdateDetails({
                 placeholder="Ex : 160 cms"
                 className="gc-input"
                 onChange={handleChange}
+                value={parentalDetails?.father_height ?? ""}
+                name="father_height"
               />
             </div>
             <div>
@@ -93,6 +164,8 @@ export default function UpdateDetails({
                 placeholder="Ex : 160 cms"
                 className="gc-input"
                 onChange={handleChange}
+                value={parentalDetails?.mother_height ?? ""}
+                name="mother_height"
               />
             </div>
           </div>
@@ -112,11 +185,15 @@ export default function UpdateDetails({
         <Button
           className="gc-btn"
           type="primary"
-          onClick={() => setShow(false)}
+          onClick={() => {
+            if (action === "create") createDetails();
+            else updateDetails();
+          }}
         >
           Continue
         </Button>
       </div>
+      <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
     </Modal>
   );
 }

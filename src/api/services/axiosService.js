@@ -39,7 +39,9 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
     (response) => {
         // You can modify the response data here
-        return response.data;
+        if(response.data)
+            return response.data;
+        return response
     },
     (error) => {
         // You can handle errors globally here
