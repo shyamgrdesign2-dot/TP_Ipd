@@ -34,9 +34,9 @@ function TabHeader({ flag, mode = ADD, title, loading, onClick }) {
                             <i className="icon-Cross" />
                         </Button>
                     </div>
-                    {videoList[0]?.video?.map((item1, i1) => {
+                    {videoList?.filter(e => e.category_id === 3)[0]?.video?.map((item1, i1) => {
                         return (
-                            <div key={i1} className={`d-flex ${i1 !== videoList[0]?.video.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
+                            <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 3)[0]?.video?.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
                                 <div className="tutorial-play me-14">
                                     <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
                                     <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
