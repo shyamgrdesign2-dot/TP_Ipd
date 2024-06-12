@@ -29,6 +29,7 @@ import imgCloseVisit from '../assets/images/close-visit.svg';
 import CommonModal from "../common/CommonModal";
 import alertIcon from '../assets/images/alertIcon.svg';
 import { MESSAGE_KEY } from "../utils/constants";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -76,6 +77,9 @@ function AppointmentData({ locationPath }) {
     const [visitTypeFilters, setVisitTypeFilters] = useState('');
     const [openRowIndex, setOpenRowIndex] = useState(null);
     const consultButtonRef = useRef(null);
+    const isSmartSyncAccessableFromGB = useFeatureIsOn(
+        "iscribe"
+    );
 
     const handleClickOutside = (event) => {
         if (!consultButtonRef?.current?.contains(event.target)) {
@@ -476,33 +480,45 @@ function AppointmentData({ locationPath }) {
             width: 170,
             render: (_, record,index) => (
                 <div size="middle" style={{display : "flex"}}>
-                    {selectedTab !== TAB_CANCELLED && (
-                        <button 
-                            // className="btn btn-outline-primary btn-smart-rx" 
-                            className={`btn btn-outline-primary ${selectedTab === TAB_FINISHED ? 'btn-print-rx' : 'btn-smart-rx'}`}
-                            onClick={() => selectedTab === TAB_QUEUE ? onSmartRxClick(record) : onPrintRxUrlClick(record)}
-                        >
-                            {selectedTab === TAB_FINISHED ? "PrintRx" : "SmartRx"}
-                        </button>
+                    {isSmartSyncAccessableFromGB ? (
+                        <>
+                            {selectedTab !== TAB_CANCELLED && (
+                                <button 
+                                    // className="btn btn-outline-primary btn-smart-rx" 
+                                    className={`btn btn-outline-primary ${selectedTab === TAB_FINISHED ? 'btn-print-rx' : 'btn-smart-rx'}`}
+                                    onClick={() => selectedTab === TAB_QUEUE ? onSmartRxClick(record) : onPrintRxUrlClick(record)}
+                                >
+                                    {selectedTab === TAB_FINISHED ? "PrintRx" : "SmartRx"}
+                                </button>
+                            )}
+                            {selectedTab === TAB_QUEUE &&( 
+                                <button 
+                                    className="btn btn-outline-primary btn-down-arrow" 
+                                    onClick={() => setOpenRowIndex(openRowIndex === index ? null : index)}
+                                >
+                                    <span role="img" aria-label="down" class="anticon anticon-down ant-select-suffix">
+                                    <i
+                                        className="icon-right"
+                                        style={{ display: "block", transform: `rotate(270deg)` }}
+                                    />
+                                    </span>
+                                </button>
+                            )}
+                            {openRowIndex === index &&
+                                <button ref={consultButtonRef} className="btn-consult" onClick={() => onConsultClick(record)}>
+                                    Consult
+                                </button>
+                            }
+                        </>
+                    ) : (
+                        <>
+                            {selectedTab !== TAB_CANCELLED && (
+                            <button className="btn btn-outline-primary" onClick={() => selectedTab === TAB_QUEUE ? onConsultClick(record) : onPrintRxUrlClick(record)}>
+                                {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
+                            </button>
+                            )}
+                       </>
                     )}
-                    {selectedTab === TAB_QUEUE &&( 
-                        <button 
-                            className="btn btn-outline-primary btn-down-arrow" 
-                            onClick={() => setOpenRowIndex(openRowIndex === index ? null : index)}
-                        >
-                            <span role="img" aria-label="down" class="anticon anticon-down ant-select-suffix">
-                            <i
-                                className="icon-right"
-                                style={{ display: "block", transform: `rotate(270deg)` }}
-                            />
-                            </span>
-                        </button>
-                    )}
-                    {openRowIndex === index &&
-                        <button ref={consultButtonRef} className="btn-consult" onClick={() => onConsultClick(record)}>
-                            Consult
-                        </button>
-                    }
                     <Dropdown
                         className="btn btn-outline btn-more ms-3"
                         menu={{

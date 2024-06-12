@@ -46,6 +46,7 @@ function App() {
         const decodedToken = jwtDecode(token);
         growthbook?.setAttributes({
           doctorId: decodedToken?.result?.doctor_unique_id,
+          id: `${decodedToken?.result?.user_id}`
         });
       } catch (e) {
         console.log(e);
@@ -89,7 +90,7 @@ function App() {
                   element={<SmartPrescription />}
                 />
                 <Route 
-                  path="/print-smart-rx" 
+                  path="print-smart-rx" 
                   element={<SmartRxPreview />} 
                 />
                 <Route

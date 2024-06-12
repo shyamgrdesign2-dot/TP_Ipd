@@ -9,6 +9,7 @@ import { AutoComplete, Input, Button, Dropdown } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { isMobile } from "react-device-detect";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import TabHeader from "../components/tab_design/TabHeader";
 import CommonModal from "../common/CommonModal";
@@ -34,6 +35,9 @@ function WalkInConsultation() {
   const [autoCompleteFlag, setAutoCompleteFlag] = useState(false);
   const [onPatientClick, setOnPatientClick] = useState(false);
   const consultButtonRef = useRef(null);
+  const isSmartSyncAccessableFromGB = useFeatureIsOn(
+    "iscribe"
+  );
 
   const BoldWordInName = ({ name, boldWord }) => {
     // Split the name into parts based on the bold word
@@ -168,10 +172,11 @@ function WalkInConsultation() {
                   state: { patient_data: patient },
                 })
               }
-            >
+            > 
               Patient Details
             </Button>
-            <div className="d-flex btn btn-smart-rx-walkin">
+            {isSmartSyncAccessableFromGB ? (
+              <div className="d-flex btn btn-smart-rx-walkin">
               <div style={{paddingLeft: "6px"}}>
                 <img src={smartPad} alt="vitals" />
                 <button
@@ -208,7 +213,24 @@ function WalkInConsultation() {
                   </a>
                 </Dropdown>
               </div>
-            </div>
+              </div>
+            ) : ( 
+              <Button
+              type="text"
+              className="btn btn-primary3 align-items-center d-flex"
+              icon={<i className="icon-Consult"></i>}
+              onClick={() => {
+                  window.Moengage.track_event("walkin_consult_start", {
+                      "doctor_id": profile?.doctor_unique_id,
+                      "patient_type": 'Existing',
+                      "patient_id": patient?.patient_unique_id
+                  });
+                  navigate("/prescription", { state: { patient_data: patient } })
+              }}
+              >
+                Start Consult
+              </Button>
+              )}
           </div>
         </div>
       </>
@@ -342,7 +364,58 @@ function WalkInConsultation() {
                   </Button>
                   {/* </Link> */}
                 </div>
-                {/* <Button
+                {isSmartSyncAccessableFromGB ? (
+                  <>
+                  <div
+                    style={{
+                      background: "#4B4AD5",
+                      borderRadius: "10px",
+                      color: "white",
+                      marginLeft: "1rem",
+                    }}
+                  >
+                    <button
+                      // className="btn btn-outline-primary btn-smart-rx"
+                      className="btn btn-outline-primary btn-smart-rx"
+                      onClick={() => onSmartRxClick(clickedPatient)}
+                      style={{ padding: "9px 8rem 9px 10px" }}
+                    >
+                      <img src={smartPad} alt="vitals" className="me-3" />
+                      <span className="btn-span-smartRx">SmartRx</span>
+                    </button>
+                    <button
+                      className="btn btn-outline-primary btn-down-arrow"
+                      onClick={handleClickDownArrow}
+                      style={{ padding: "9.5px 5px" }}
+                    >
+                      <span
+                        role="img"
+                        aria-label="down"
+                        className="anticon anticon-down ant-select-suffix"
+                      >
+                        <i
+                          className="icon-right"
+                          style={{
+                            display: "block",
+                            transform: `rotate(270deg)`,
+                            color: "white",
+                          }}
+                        />
+                      </span>
+                    </button>
+                  </div>
+                  {clickedDownArrow && (
+                    <button
+                      ref={consultButtonRef}
+                      className="btn-consult-walkIn"
+                      onClick={() => onConsultClick(clickedPatient)}
+                    >
+                      Consult
+                    </button>
+                  )}
+                  </> 
+                ) : (  
+                  <Button
                   type="text"
                   className="btn btn-primary3 align-items-center d-flex btn-41 w-50 ms-4"
                   icon={<i className="icon-Consult"></i>}
@@ -356,57 +429,12 @@ function WalkInConsultation() {
                       state: { patient_data: clickedPatient },
                     });
                   }}
-                >
-                  Start Consult{" "}
-                  <i className="icon-right iconrotate180 ms-auto"></i>
-                </Button> */}
-                <div
-                  style={{
-                    background: "#4B4AD5",
-                    borderRadius: "10px",
-                    color: "white",
-                    marginLeft: "1rem",
-                  }}
-                >
-                  <button
-                    // className="btn btn-outline-primary btn-smart-rx"
-                    className="btn btn-outline-primary btn-smart-rx"
-                    onClick={() => onSmartRxClick(clickedPatient)}
-                    style={{ padding: "9px 8rem 9px 10px" }}
                   >
-                    <img src={smartPad} alt="vitals" className="me-3" />
-                    <span className="btn-span-smartRx">SmartRx</span>
-                  </button>
-                  <button
-                    className="btn btn-outline-primary btn-down-arrow"
-                    onClick={handleClickDownArrow}
-                    style={{ padding: "9.5px 5px" }}
-                  >
-                    <span
-                      role="img"
-                      aria-label="down"
-                      className="anticon anticon-down ant-select-suffix"
-                    >
-                      <i
-                        className="icon-right"
-                        style={{
-                          display: "block",
-                          transform: `rotate(270deg)`,
-                          color: "white",
-                        }}
-                      />
-                    </span>
-                  </button>
-                </div>
-                {clickedDownArrow && (
-                  <button
-                    ref={consultButtonRef}
-                    className="btn-consult-walkIn"
-                    onClick={() => onConsultClick(clickedPatient)}
-                  >
-                    Consult
-                  </button>
-                )}
+                    Start Consult{" "}
+                    <i className="icon-right iconrotate180 ms-auto"></i>
+                  </Button>
+                )
+              }
               </div>
             </div>
           </>

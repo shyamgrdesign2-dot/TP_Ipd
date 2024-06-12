@@ -31,6 +31,7 @@ import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import { errorMessage } from "../utils/utils";
 import { MESSAGE_KEY } from "../utils/constants";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 function SmartPrescription() {
   const {
@@ -106,6 +107,10 @@ function SmartPrescription() {
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
+  const isSmartSyncAccessableFromGB = useFeatureIsOn(
+    "iscribe"
+  );
+  console.log(isSmartSyncAccessableFromGB,"isSmartSyncAccessableFromGB")
 
   useEffect(() => {
     if (caseManagerData !== undefined) {

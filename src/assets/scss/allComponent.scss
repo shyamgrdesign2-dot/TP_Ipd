@@ -143,8 +143,8 @@
 // smart-sync styling
 
 .right-container{
-    width: 780px;
-    height: 990px;
+    width: 720px;
+    height: 980px;
     // border: 1px solid rgb(210 210 210);
     border-radius: 22px;
     background:#ffffff;
@@ -195,11 +195,10 @@
     padding: 5px 0.4rem;
 }
 #pdf {
-    width: 780px;
+    width: 720px;
+    height: 980px;
     border: 1px solid rgb(148, 147, 147);
-    border-radius: 10px;
-    /* height: calc(160vh - 2rem); */
-    height: 990px;
+    border-radius: 16px;
     background-color: white;
   }
 

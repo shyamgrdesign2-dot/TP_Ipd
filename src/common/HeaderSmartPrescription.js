@@ -4,8 +4,10 @@ import React, {
   useCallback,
   useContext,
   useMemo,
+  useRef
 } from "react";
 import { Container, Navbar, Row, Col } from "react-bootstrap";
+import axios from "axios";
 import {
   Button,
   Dropdown,
@@ -28,6 +30,7 @@ import CommonModal from "./CommonModal";
 import alertIcon from "../assets/images/alertIcon.svg";
 import reload from "../assets/images/ic_Reload.svg";
 import tutorial from "../assets/images/tutorial.svg";
+import devicePad from "../assets/images/device-pad.svg";
 
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
@@ -63,6 +66,11 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
+  const [isConnected, setIsConnected] = useState(true);
+  const [connectLoading, setConnectLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [status, setStatus] = useState(null);
+  const intervalRef = useRef(null);
 
   const items = [
       {
@@ -109,6 +117,96 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
   const handleSubmitClick = async () => {
     onSubmit();
   };
+
+  const WEBSERVICE_URL = 'http://localhost:80/Temporary_Listen_Addresses/iScribe';
+  const CONNECT_ACTION = 'http://tempuri.org/IOptimaService/ConnectDevice';
+  const DISCONNECT_ACTION = 'http://tempuri.org/IOptimaService/DisconnectDevice';
+
+  const parseXMLResponse = (responseXML, action) => {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(responseXML, 'text/xml');
+    const resultNode = xmlDoc.getElementsByTagName(`${action}Result`)[0];
+    return resultNode && resultNode.textContent === 'true';
+  };
+
+  const handleSmartSyncConnectApi = async (action) => {
+    const xmlData = `
+      <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"">
+        <s:Body>
+          <${action} xmlns="http://tempuri.org/" />
+        </s:Body>
+      </s:Envelope>
+    `;
+    const soapAction = action === 'ConnectDevice' ? CONNECT_ACTION : DISCONNECT_ACTION;
+
+    try {
+      const response = await axios.post(WEBSERVICE_URL, xmlData, {
+        headers: {
+          'Content-Type': 'text/xml',
+          'SOAPAction': soapAction,
+          'Access-Control-Allow-Origin':'*',
+        },
+      });
+
+      const success = parseXMLResponse(response.data, action);
+      return success;
+    } catch (error) {
+      console.error(`Error calling API for ${action}:`, error);
+      setError(`Error calling API for ${action}`);
+      return false;
+    }
+  };
+
+  const handleConnectButtonClick = async () => {
+    setConnectLoading(true);
+    setError(null);
+
+    const action = isConnected ? 'DisconnectDevice' : 'ConnectDevice';
+    const success = await handleSmartSyncConnectApi(action);
+
+    if (success) {
+      setIsConnected(!isConnected);
+    } else {
+      setError(`Failed to ${action.toLowerCase()}`);
+    }
+
+    setConnectLoading(false);
+  };
+
+  // const checkStatus = async () => {
+  //   const soapEnvelope = `
+  //     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+  //       <s:Body>
+  //         <GetDeviceConnectionStatus xmlns="http://temp.org/" />
+  //       </s:Body>
+  //     </s:Envelope>
+  //   `;
+
+  //   try {
+  //     const response = await axios.post('http://localhost:90/Temporaesses/ice/', soapEnvelope, {
+  //       headers: {
+  //         'Content-Type': 'text/xml',
+  //         'SOAPAction': 'http://temp.org/IOptimaService/GetDeviceConnectionStatus'
+  //       }
+  //     });
+
+  //     const parser = new DOMParser();
+  //     const xmlDoc = parser.parseFromString(response.data, "text/xml");
+  //     const connectionStatus = xmlDoc.getElementsByTagName("GetDeviceConnectionStatusResult")[0].textContent;
+
+  //     setStatus(connectionStatus === 'true');
+  //   } catch (error) {
+  //     console.error("Error calling API for GetDeviceConnectionStatus:", error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   intervalRef.current = setInterval(checkStatus, 5000);
+
+  //   return () => {
+  //     clearInterval(intervalRef.current);
+  //   };
+  // }, []);
   
   // Effect to handle updated data from parent
   useEffect(() => {
@@ -155,6 +253,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
         errorMessage(action.error);
       }
   }
+
 
   return (
     <Navbar className="justify-content-between headerprescription p-0">
@@ -210,6 +309,51 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
           </Col>
           <Col lg="auto">
             <div className="align-items-center d-flex h-100">
+              <Button
+                type="button"
+                className="btn align-items-center d-flex btn-device-connect me-20"
+                onClick={handleConnectButtonClick}
+                disabled={connectLoading}
+              >
+                <img src={devicePad} alt="devicePad" className="align-items-center d-flex"  style={{backgroundColor: isConnected ? "#4B4AD5" : "#bdbdbd"}}/>
+                <span>{connectLoading ? 'Connecting...' : isConnected ? 'Disconnect' : 'Connect'}</span>
+              </Button>
+
+              <CommonModal
+                  isModalOpen={isDisconnect}
+                  onCancel={showHideBackModal}
+                  modalWidth={500}
+                  title={"Disconnect Device"}
+                  modalBody={
+                    <>
+                      <div className="alert-warning rounded-10px p-2 patient-details">
+                        <div className="d-flex align-items-center">
+                          <img className="me-3" src={alertIcon} alt="Warning" />
+                          <span>
+                            Are you sure you want to Disconnect? <br />
+                            You will permanently lose your data.
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <div className="d-flex align-items-center mt-2 justify-content-end">
+                          <div
+                            onClick={() => navigate("/", { replace: true })}
+                            className="me-4 text-decoration-underline btn p-0 text-main"
+                          >
+                            Yes Leave
+                          </div>
+                          <Button
+                            onClick={showHideBackModal}
+                            className="lh-lg btn btn-primary3 btn-41 px-4"
+                          >
+                            <span>No, Stay</span>
+                          </Button>
+                        </div>
+                      </div>
+                    </>
+                  }
+                />
               <div className="d-flex align-items-center">
                 <button
                   className="btn d-flex align-items-center btn-play"
@@ -233,7 +377,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                 <img
                   className="align-items-center d-flex"
                   src={reload}
-                  alt="Warning"
+                  alt="clear"
                 />
                 <span>Clear</span>
               </Button>

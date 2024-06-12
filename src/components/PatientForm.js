@@ -10,6 +10,7 @@ import { Col, Row } from "react-bootstrap";
 import { Form, Tabs, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import { ADD, EDIT } from "../utils/constants";
 import { errorMessage } from "../utils/utils";
@@ -34,6 +35,9 @@ function PatientForm({ mode = ADD, patient_data }) {
     const [form] = Form.useForm();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [patientData, setPatientData] = useState(null);
+    const isSmartSyncAccessableFromGB = useFeatureIsOn(
+        "iscribe"
+    );
 
     useEffect(() => {
         const getEditData = async () => {
@@ -174,6 +178,8 @@ function PatientForm({ mode = ADD, patient_data }) {
                                         Choose Action
                                         </div>
                                         <div className="d-flex align-items-center mt-2" style={{gap: "3.4rem"}}>
+                                        {isSmartSyncAccessableFromGB ? (
+                                            <>
                                             <Button onClick={handleConsult} className="lh-lg btn btn-secondary2 btn-41 px-4 me-4">
                                                 <img className='me-3' src={startConsultIcon} alt="Consult" />
                                                 <span>Start Consult</span>
@@ -182,6 +188,13 @@ function PatientForm({ mode = ADD, patient_data }) {
                                                 <img className='me-3' src={smartPad} alt="SmartRx" />
                                                 <span>Start Smart Rx</span>
                                             </Button>
+                                            </>
+                                        ) : (
+                                            <Button onClick={handleConsult} className="lh-lg btn btn-secondary2 btn-41 px-4 me-4">
+                                                <img className='me-3' src={startConsultIcon} alt="Consult" />
+                                                <span>Start Consult</span>
+                                            </Button>
+                                        )}
                                         </div>
                                     </div>
                                 </>
