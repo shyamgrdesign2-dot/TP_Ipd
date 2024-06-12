@@ -79,8 +79,8 @@ export const dummyData = {
         { x: 18, y: 24 },
         { x: 24, y: 30 },
       ],
-      borderColor: "rgba(0, 100, 0, 0.8)",
-      backgroundColor: "rgba(0, 100, 0, 0.8)",
+      borderColor: "#19BB7A",
+      backgroundColor: "#19BB7A",
       borderDash: [5, 5], // Make the line dotted
       fill: false,
       pointRadius: 5, // Show points

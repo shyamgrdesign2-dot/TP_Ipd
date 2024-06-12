@@ -217,7 +217,13 @@ const WeightChart = ({
           if (tooltip.opacity === 0) {
             return;
           }
-          if (tooltip.body) {
+
+          // Check if the tooltip should be displayed for this point
+          if (
+            tooltip.dataPoints.length &&
+            chart.data.datasets[tooltip.dataPoints[0].datasetIndex].label ===
+              "P 7"
+          ) {
             const titleLines = tooltip.title || [];
             const bodyLines = tooltip.body.map((b) => b.lines);
 
@@ -231,6 +237,9 @@ const WeightChart = ({
               titleLines,
               bodyLines,
             });
+          }
+           else {
+            handleCloseTooltip();
           }
         },
       },
@@ -329,7 +338,7 @@ const WeightChart = ({
           <div
             ref={tooltipRef}
             className="tooltipContainer"
-            style={{ left: tooltipState.x-158, top: tooltipState.y+14 }}
+            style={{ left: tooltipState.x - 158, top: tooltipState.y + 14 }}
           >
             <TooltipContent
               handleDrawerVital={handleDrawerVital}
