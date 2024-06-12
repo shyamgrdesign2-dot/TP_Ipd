@@ -198,17 +198,6 @@ function VaccineHeader({
           </Col>
           <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
             <div className="align-items-center d-flex h-100">
-              {isVaccination && (
-                <Button
-                  type="button"
-                  className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
-                  onClick={previewBtnHandler}
-                  icon={<i className="icon-Preview" />}
-                >
-                  Preview
-                </Button>
-              )}
-              
               <Popover
                 open={popOverVideo}
                 onOpenChange={showHideVideoListPopover}
@@ -223,14 +212,16 @@ function VaccineHeader({
                   </span>
                 </button>
               </Popover>
-              <Button
-                type="button"
-                className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
-                onClick={previewBtnHandler}
-                icon={<i className="icon-Preview" />}
-              >
-                Preview
-              </Button>
+              {isVaccination && (
+                <Button
+                  type="button"
+                  className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
+                  onClick={previewBtnHandler}
+                  icon={<i className="icon-Preview" />}
+                >
+                  Preview
+                </Button>
+              )}
               <Dropdown overlay={isVaccination ? vaccinePrint : growthPrint}>
                 <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
                   <i className="icon-Print" />

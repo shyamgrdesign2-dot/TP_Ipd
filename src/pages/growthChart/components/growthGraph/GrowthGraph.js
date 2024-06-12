@@ -30,7 +30,45 @@ ChartJS.register(
 
 // Custom plugin to draw labels at the end of each line
 const customLabelPlugin = {
-  id: "customLabelPlugin",
+  id: "customFillPlugin",
+  beforeDraw: (chart) => {
+    const ctx = chart.ctx;
+    const xAxis = chart.scales["x"];
+    const yAxis = chart.scales["y"];
+    const p7Dataset = chart.data.datasets.find(
+      (dataset) => dataset.label === "P 7"
+    );
+
+    if (!p7Dataset || !p7Dataset.data.length) return;
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, chart.height);
+    gradient.addColorStop(0, "rgba(25, 187, 122, 0.2)"); // Green color with initial transparency
+    gradient.addColorStop(1, "rgba(25, 187, 122, 0)"); // Fully transparent at the bottom
+
+    ctx.beginPath();
+
+    for (let i = 0; i < p7Dataset.data.length; i++) {
+      const point = p7Dataset.data[i];
+      const x = xAxis.getPixelForValue(point.x);
+      const y = yAxis.getPixelForValue(point.y);
+
+      if (i === 0) {
+        ctx.moveTo(x, yAxis.bottom);
+        ctx.lineTo(x, y);
+      } else {
+        const prevPoint = p7Dataset.data[i - 1];
+        const prevX = xAxis.getPixelForValue(prevPoint.x);
+        ctx.lineTo(x, y);
+        ctx.lineTo(x, yAxis.bottom);
+        ctx.lineTo(prevX, yAxis.bottom);
+        ctx.lineTo(prevX, yAxis.getPixelForValue(prevPoint.y));
+      }
+    }
+
+    ctx.closePath();
+    ctx.fillStyle = gradient;
+    ctx.fill();
+  },
   afterDatasetsDraw(chart) {
     const {
       ctx,

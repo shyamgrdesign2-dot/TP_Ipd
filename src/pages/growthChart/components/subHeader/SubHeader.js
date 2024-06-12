@@ -82,7 +82,6 @@ export const dummyData = {
       borderColor: "#19BB7A",
       backgroundColor: "#19BB7A",
       borderDash: [5, 5], // Make the line dotted
-      fill: false,
       pointRadius: 5, // Show points
       pointHoverRadius: 7, // Show points on hover
       hidden: false,
@@ -94,14 +93,14 @@ const SubHeader = ({ handleDrawerVital, setShowUpdate }) => {
   const growthDetails = (title, value1, value2) => {
     return (
       <div className="detailsContainer">
-        <div className="details">
+        <div className="detailsStyle">
           <span className="titleStyle">{title}</span>
           <i
             className="icon-Edit iconStyle"
             onClick={() => setShowUpdate(true)}
           />
         </div>
-        <div className="details">
+        <div className="detailsStyle">
           <span>{value1}</span>
           <span className="breakStyle" />
           <span>{value2}</span>
