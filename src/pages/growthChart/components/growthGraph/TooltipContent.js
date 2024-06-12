@@ -47,6 +47,7 @@ const TooltipContent = ({ handleDrawerVital, handleCloseTooltip }) => {
           </div>
         </div>
       </div>
+      <span className="tooltipArrow" />
       </div>
   );
 };
