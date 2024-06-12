@@ -39,6 +39,7 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import Vaccination from "./vaccination/Vaccination";
 import { checkToShowVaccination } from "./vaccination/service";
 import GrowthChart from "./growthChart/GrowthChart";
+import { viewPatient } from "../redux/appointmentsSlice";
 
 function Prescription() {
   const {
@@ -71,6 +72,7 @@ function Prescription() {
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
   const [isGrowthChart, setIsGrowthChart] = useState(false);
+  const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
 
   const contextApi = {
     patient_data,
@@ -96,6 +98,7 @@ function Prescription() {
     setFollowUpDate,
     additionalNote,
     setAdditionalNote,
+    startTime
   };
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
@@ -112,6 +115,13 @@ function Prescription() {
       setIsPediatric(await checkToShowVaccination(profile.doctor_unique_id));
     }
   };
+
+  useEffect(() => {
+    const sendData = {
+      patient_unique_id: patient_data?.patient_unique_id,
+    };
+    dispatch(viewPatient(sendData));
+  }, []);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -185,35 +195,29 @@ function Prescription() {
               unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
             tmm_freq_type_name:
               e.tmf_block == 0
-                ? `${
-                    e.tcm_tmm_freq_morning
-                      ? e.tcm_tmm_freq_morning + " - "
-                      : "0 -"
-                  }${
-                    e.tcm_tmm_freq_afternoon
-                      ? e.tcm_tmm_freq_afternoon + " - "
-                      : "0 -"
-                  }${
-                    e.tcm_tmm_freq_evening
-                      ? e.tcm_tmm_freq_evening + " - "
-                      : "0 -"
-                  }${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+                ? `${e.tcm_tmm_freq_morning
+                  ? e.tcm_tmm_freq_morning + " - "
+                  : "0 -"
+                }${e.tcm_tmm_freq_afternoon
+                  ? e.tcm_tmm_freq_afternoon + " - "
+                  : "0 -"
+                }${e.tcm_tmm_freq_evening
+                  ? e.tcm_tmm_freq_evening + " - "
+                  : "0 -"
+                }${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
                 : frequencyObj !== undefined
-                ? frequencyObj.tmf_title
-                : "",
+                  ? frequencyObj.tmf_title
+                  : "",
             tmf_block_val:
               frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-            tmm_dosage_unit_name: `${
-              e.tmm_dosage
-                ? `${e.tmm_dosage} ${
-                    unitObj && unitObj !== undefined ? unitObj.tmu_title : ""
-                  }`
-                : ""
-            }`,
-            tmm_days_duration_type: `${
-              e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
-            }`,
+            tmm_dosage_unit_name: `${e.tmm_dosage
+              ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""
+              }`
+              : ""
+              }`,
+            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
+              }`,
             unique_id: uuidv4(),
           };
         });
@@ -341,7 +345,7 @@ function Prescription() {
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessableFromGB || isPediatric} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
@@ -362,23 +366,23 @@ function Prescription() {
                       >
                         {" "}
                         <i
-                          className={`${
-                            vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                          } me-1 fs-5`}
+                          className={`${vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                            } me-1 fs-5`}
                         ></i>{" "}
-                        <span>{`${
-                          vitalsData.length > 0 ? "Edit" : "Add"
-                        }`}</span>
+                        <span>{`${vitalsData.length > 0 ? "Edit" : "Add"
+                          }`}</span>
                       </button>
                     </div>
-                    {vitalsData.length > 0 && (
-                      <VitalsList
-                        mode={caseManagerData !== undefined ? EDIT : ADD}
-                      />
-                    )}
+                    {
+                      vitalsData.length > 0 && (
+                        <VitalsList
+                          mode={caseManagerData !== undefined ? EDIT : ADD}
+                        />
+                      )
+                    }
                   </div>
                 ) : (
-                  e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
+                  e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm p-14">
                       <div className="d-flex align-items-center justify-content-between">
                         <div className="d-flex align-items-center">
@@ -399,48 +403,40 @@ function Prescription() {
                         >
                           {" "}
                           <i
-                            className={`${
-                              medicalHistoryData.length > 0
-                                ? "icon-Edit"
-                                : "icon-Add"
-                            } me-1 fs-5`}
+                            className={`${medicalHistoryData.length > 0
+                              ? "icon-Edit"
+                              : "icon-Add"
+                              } me-1 fs-5`}
                           ></i>{" "}
-                          <span>{`${
-                            medicalHistoryData.length > 0 ? "Edit" : "Add"
-                          }`}</span>
+                          <span>{`${medicalHistoryData.length > 0 ? "Edit" : "Add"
+                            }`}</span>
                         </button>
                       </div>
                       {medicalHistoryData.length > 0 && <MedicalHistoryList />}
                     </div>
-                  )
-                );
+                  ) :
+                    (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
+                      <div className="prescription-box-sm p-14">
+                        <div className="d-flex align-items-center justify-content-between">
+                          <div className="d-flex align-items-center">
+                            <img src={vaccinationImg} alt="vitals" className="me-3" />
+                            <div className="title-common">Vaccination</div>
+                          </div>
+                          <button
+                            className="btn d-flex align-items-center btn-text"
+                            onClick={handleDrawerVaccination}
+                          >
+                            {" "}
+                            <i
+                              className={`icon-Add me-1 fs-5`}
+                            ></i>{" "}
+                            <span>Add</span>
+                          </button>
+                        </div>
+                      </div>
+                    )
+                )
               })}
-              {(!!isVaccinationAccessableFromGB || isPediatric) && (
-                <div className="prescription-box-sm p-14">
-                  <div className="d-flex align-items-center justify-content-between">
-                    <div className="d-flex align-items-center">
-                      <img
-                        src={vaccinationImg}
-                        alt="vaccination"
-                        className="me-3"
-                      />
-                      <div className="title-common">Vaccination</div>
-                    </div>
-                    <button
-                      className="btn d-flex align-items-center btn-text"
-                      onClick={handleDrawerVaccination}
-                    >
-                      {" "}
-                      <i
-                        className={`${
-                          vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                        } me-1 fs-5`}
-                      ></i>{" "}
-                      <span>{`${vitalsData.length > 0 ? "Edit" : "Add"}`}</span>
-                    </button>
-                  </div>
-                </div>
-              )}
               {
                 <div className="prescription-box-sm p-14">
                   <div className="d-flex align-items-center justify-content-between">
@@ -469,7 +465,7 @@ function Prescription() {
                   </div>
                 </button>
               </div> */}
-            </div>
+            </div >
             <div className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3">
               <Content>
                 {customizedPadRightList?.map((e, i) => {
@@ -565,7 +561,7 @@ function Prescription() {
           </Drawer>
         )}
       </>
-    </CashManagerContext.Provider>
+    </CashManagerContext.Provider >
   );
 }
 
