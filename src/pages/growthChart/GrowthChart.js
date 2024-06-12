@@ -25,15 +25,22 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
   const { profile } = useSelector((state) => state.doctors);
   const [parentalDetails, setParentalDetails] = useState();
   const [showTableView, setShowTableView] = useState(false);
+  const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
 
   useEffect(() => {
     getPatientDetail();
-    getAllGrowthChartParams({
+    getGrowthChartParams();
+    getPatientParentalDetails();
+  }, []);
+
+  const getGrowthChartParams = async () => {
+    const growthChartParamsRes = await getAllGrowthChartParams({
       pm_id: patient_data?.pm_id || 0,
       pm_pid: patient_data?.pm_pid || 0,
     });
-    getPatientParentalDetails();
-  }, []);
+    console.log({ growthChartParamsRes });
+    setAllGrowthChartParams(growthChartParamsRes);
+  };
 
   const getPatientParentalDetails = async () => {
     const getParentalDetailsRes = await getParentalDetails(
@@ -85,6 +92,7 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
         handleDrawerVital={handleDrawerVital}
         setShowUpdate={setShowUpdate}
         setShowTableView={setShowTableView}
+        allGrowthChartParams={allGrowthChartParams}
       />
 
       {showUpdate && (
@@ -106,7 +114,10 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
         />
       )}
       {showTableView ? (
-        <TableView onEdit={handleDrawerVital} />
+        <TableView
+          onEdit={handleDrawerVital}
+          dataSource={allGrowthChartParams}
+        />
       ) : (
         <div className="scrollable-container">
           <Row xs={1} sm={2} md={2} lg={2} className="gy-4">

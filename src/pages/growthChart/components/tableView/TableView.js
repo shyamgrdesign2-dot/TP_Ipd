@@ -1,62 +1,14 @@
 import React from "react";
-import { Table, Space } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import { Space } from "antd";
 import "./tableView.scss";
+import { EditOutlined } from "@ant-design/icons";
 
-const dataSource = [
-  {
-    key: "parameters",
-    parameters: "John Brown",
-    height: 32,
-    weight: "New York No. 1 Lake Park",
-    bmi: "Developer",
-    ofc: "Developer",
-  },
-  {
-    key: "height",
-    parameters: "John Brown",
-    height: 32,
-    weight: "New York No. 1 Lake Park",
-    bmi: "Developer",
-    ofc: "Developer",
-  },
-  {
-    key: "weight",
-    parameters: "Jim Green",
-    height: 42,
-    weight: "London No. 1 Lake Park",
-    bmi: "Designer",
-    ofc: "Developer",
-  },
-  {
-    key: "bmi",
-    parameters: "Joe Black",
-    height: 29,
-    weight: "Sidney No. 1 Lake Park",
-    bmi: "Manager",
-    ofc: "Developer",
-  },
-  {
-    key: "ofc",
-    parameters: "Joe Black",
-    height: 29,
-    weight: "Sidney No. 1 Lake Park",
-    bmi: "Manager",
-    ofc: "Developer",
-  },
-];
-
-const TableView = ({ onEdit }) => {
+const TableView = ({ dataSource, onEdit }) => {
   const columns = [
     {
       title: "Parameters",
-      key: "parameters",
-      render: (text, record) => (
-        <Space>
-          {text.parameters}
-          <EditOutlined onClick={onEdit} />
-        </Space>
-      ),
+      dataIndex: "tcbc_created_date",
+      key: "tcbc_created_date",
     },
     {
       title: "Height",
@@ -79,14 +31,48 @@ const TableView = ({ onEdit }) => {
       key: "ofc",
     },
   ];
+  const renderTableHeader = () => {
+    return (
+      <tr>
+        {columns?.map((header, index) => (
+          <th
+            key={index}
+            className="tcell theaderCellStyle"
+            style={{
+              width: `${header.width}`,
+            }}
+          >
+            {header.title}
+          </th>
+        ))}
+      </tr>
+    );
+  };
+
+  const renderTableData = () => {
+    return dataSource.map((item, i) => (
+      <tr key={i}>
+        <td className="tcell">
+          <Space>
+            {item.tcbc_created_date}
+            <EditOutlined color="#fff" onClick={onEdit} />
+          </Space>
+        </td>
+        <td className="tcell">{item.height}</td>
+        <td className="tcell">{item.weight}</td>
+        <td className="tcell">{item.bmi}</td>
+        <td className="tcell">{item.ofc}</td>
+      </tr>
+    ));
+  };
 
   return (
-    <Table
-      className="custom-table"
-      dataSource={dataSource}
-      columns={columns}
-      pagination={false}
-    />
+    <div className="tableViewContainer">
+      <table className="tableView">
+        <thead>{renderTableHeader()}</thead>
+        <tbody>{renderTableData()}</tbody>
+      </table>
+    </div>
   );
 };
 

@@ -90,7 +90,12 @@ export const dummyData = {
   ],
 };
 
-const SubHeader = ({ handleDrawerVital, setShowUpdate, setShowTableView }) => {
+const SubHeader = ({
+  handleDrawerVital,
+  setShowUpdate,
+  setShowTableView,
+  allGrowthChartParams,
+}) => {
   const growthDetails = (title, value1, value2) => {
     return (
       <div className="detailsContainer">

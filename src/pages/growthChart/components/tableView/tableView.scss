@@ -1,46 +1,48 @@
-.custom-table {
-    width: 80%; /* Set the width of the table */
-    margin: 0 auto; /* Center the table */
-    border: 30px solid #EAECF0;
-    border-radius: 5px;
-  }
+.tableView {
+  border-collapse: collapse;
+  margin: auto;
+  padding: 10px;
+  width: 1066px;
+  border-radius: 5px;
+}
+.tcell {
+  border: 1px solid #ddd;
+  padding: 8px;
+  vertical-align: middle;
+  height: 48px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  background-color: #fff;
+  padding: 6px 20px !important;
 
-  .custom-table .ant-table thead.ant-table-thead td {
-    background-color: #ffffff !important; /* Set header background color to white */
-  }
+  .tdateCell {
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
 
-  .custom-table .ant-table tbody.ant-table-tbody td {
-    padding: 10px 28px 10px 28px;
-    gap: 10px;
-    border: 1px 0px 0px 0px;
-    opacity: 0px;    
-    border: 1px solid #d9d9d9; /* Add border to table body cells */
+    span {
+      border-radius: 4px;
+      padding: 2px 4px;
+      line-height: 18px;
+    }
   }
+}
+.theaderCellStyle {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 21px;
+  background-color: rgba(241, 241, 245, 0.4) !important;
+}
 
-.custom-table .ant-table-thead > tr > th {
-    // background: #ffffff; /* Set header background color to white */
-    font-weight: bold; /* Make header text bold */
-    color: #000; /* Ensure header text color is black */
-    border: 1px solid #d9d9d9; /* Add border to table header cells */
-  }
-
-  
-  .custom-table .editable-cell {
-    background-color: #fffbe6; /* Change background color of editable cells */
-  }
-  
-  .custom-table .edit-icon {
-    color: #1890ff; /* Change color of the edit icon */
-    cursor: pointer; /* Change cursor to pointer */
-  }
-  
-  .custom-table .save-icon {
-    color: #52c41a; /* Change color of the save icon */
-  }
-  
-  .custom-table .cancel-icon {
-    color: #f5222d; /* Change color of the cancel icon */
-  }
-  
-  
-  
+.tableViewContainer {
+  margin: 30px auto auto auto;
+  padding: 30px;
+  border-radius: 16px;
+  background-color: #fff;
+  overflow-y: scroll;
+  background: #EAECF04D;
+  width: 1130px;
+  gap: 24px;
+  opacity: 0px;
+}
