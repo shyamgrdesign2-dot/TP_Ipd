@@ -21,8 +21,16 @@ body {
                 &:nth-child(7){
                     margin-right: 15px;
                 }
+                &:nth-child(8){
+                    .jodit-toolbar-button__trigger {
+                        display: none;
+                    }
+                }
                 &:nth-child(9){
                     margin-right: 15px;
+                    .jodit-toolbar-button__trigger {
+                        display: none;
+                    }
                 }
             }
         }
