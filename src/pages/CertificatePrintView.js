@@ -7,7 +7,7 @@ import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { useReactToPrint } from 'react-to-print';
 
-import { HTMLTransformer, removeLabelTags, errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
+import { inputToLabel,HTMLTransformer, removeLabelTags, errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
 import { MESSAGE_KEY } from "../utils/constants";
 
@@ -63,7 +63,7 @@ function CertificatePrintView() {
 
     useEffect(() => {
         if (tcu_title !== undefined) {
-            setTitle(tcu_title);
+            tcu_content_id && !pms_default ? setTitle(tcu_title) : setTitle(`${tcu_title} ${Math.floor(Math.random() * 90) + 10}`)
         }
     }, [tcu_title]);
 
@@ -76,9 +76,9 @@ function CertificatePrintView() {
             id: tcu_content_id,
             pms_default: pms_default,
             title: title,
-            content: removeLabelTags(HTMLTransformer(tcu_content))
+            content: removeLabelTags(HTMLTransformer(inputToLabel(tcu_content)))
         }
-
+        
         const action = await dispatch(addCertificate(sendData))
         if (action.meta.requestStatus === "fulfilled") {
             setAddEditFlag(true)
