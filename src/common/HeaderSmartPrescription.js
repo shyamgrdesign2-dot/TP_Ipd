@@ -67,10 +67,10 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
-  const [connectLoading, setConnectLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [status, setStatus] = useState(null);
-  const intervalRef = useRef(null);
+  // const [connectLoading, setConnectLoading] = useState(false);
+  // const [error, setError] = useState(null);
+  // const [status, setStatus] = useState(null);
+  // const intervalRef = useRef(null);
 
   const items = [
       {
@@ -118,60 +118,61 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
     onSubmit();
   };
 
-  const WEBSERVICE_URL = 'http://localhost:80/Temporary_Listen_Addresses/iScribe';
-  const CONNECT_ACTION = 'http://tempuri.org/IOptimaService/ConnectDevice';
-  const DISCONNECT_ACTION = 'http://tempuri.org/IOptimaService/DisconnectDevice';
+// COMMECTING THIS CODE PLANNED TO GO WITHOUT THIS FUNCTIONALITY WITH WHICH WE HAVE DEPEDENCY ON ITELTRONICS TEAM
+  // const WEBSERVICE_URL = 'http://localhost:80/Temporary_Listen_Addresses/iScribe';
+  // const CONNECT_ACTION = 'http://tempuri.org/IOptimaService/ConnectDevice';
+  // const DISCONNECT_ACTION = 'http://tempuri.org/IOptimaService/DisconnectDevice';
 
-  const parseXMLResponse = (responseXML, action) => {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(responseXML, 'text/xml');
-    const resultNode = xmlDoc.getElementsByTagName(`${action}Result`)[0];
-    return resultNode && resultNode.textContent === 'true';
-  };
+  // const parseXMLResponse = (responseXML, action) => {
+  //   const parser = new DOMParser();
+  //   const xmlDoc = parser.parseFromString(responseXML, 'text/xml');
+  //   const resultNode = xmlDoc.getElementsByTagName(`${action}Result`)[0];
+  //   return resultNode && resultNode.textContent === 'true';
+  // };
 
-  const handleSmartSyncConnectApi = async (action) => {
-    const xmlData = `
-      <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"">
-        <s:Body>
-          <${action} xmlns="http://tempuri.org/" />
-        </s:Body>
-      </s:Envelope>
-    `;
-    const soapAction = action === 'ConnectDevice' ? CONNECT_ACTION : DISCONNECT_ACTION;
+  // const handleSmartSyncConnectApi = async (action) => {
+  //   const xmlData = `
+  //     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"">
+  //       <s:Body>
+  //         <${action} xmlns="http://tempuri.org/" />
+  //       </s:Body>
+  //     </s:Envelope>
+  //   `;
+  //   const soapAction = action === 'ConnectDevice' ? CONNECT_ACTION : DISCONNECT_ACTION;
 
-    try {
-      const response = await axios.post(WEBSERVICE_URL, xmlData, {
-        headers: {
-          'Content-Type': 'text/xml',
-          'SOAPAction': soapAction,
-          'Access-Control-Allow-Origin':'*',
-        },
-      });
+  //   try {
+  //     const response = await axios.post(WEBSERVICE_URL, xmlData, {
+  //       headers: {
+  //         'Content-Type': 'text/xml',
+  //         'SOAPAction': soapAction,
+  //         'Access-Control-Allow-Origin':'*',
+  //       },
+  //     });
 
-      const success = parseXMLResponse(response.data, action);
-      return success;
-    } catch (error) {
-      console.error(`Error calling API for ${action}:`, error);
-      setError(`Error calling API for ${action}`);
-      return false;
-    }
-  };
+  //     const success = parseXMLResponse(response.data, action);
+  //     return success;
+  //   } catch (error) {
+  //     console.error(`Error calling API for ${action}:`, error);
+  //     setError(`Error calling API for ${action}`);
+  //     return false;
+  //   }
+  // };
 
-  const handleConnectButtonClick = async () => {
-    setConnectLoading(true);
-    setError(null);
+  // const handleConnectButtonClick = async () => {
+  //   setConnectLoading(true);
+  //   setError(null);
 
-    const action = isConnected ? 'DisconnectDevice' : 'ConnectDevice';
-    const success = await handleSmartSyncConnectApi(action);
+  //   const action = isConnected ? 'DisconnectDevice' : 'ConnectDevice';
+  //   const success = await handleSmartSyncConnectApi(action);
 
-    if (success) {
-      setIsConnected(!isConnected);
-    } else {
-      setError(`Failed to ${action.toLowerCase()}`);
-    }
+  //   if (success) {
+  //     setIsConnected(!isConnected);
+  //   } else {
+  //     setError(`Failed to ${action.toLowerCase()}`);
+  //   }
 
-    setConnectLoading(false);
-  };
+  //   setConnectLoading(false);
+  // };
 
   // const checkStatus = async () => {
   //   const soapEnvelope = `
@@ -319,7 +320,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                 <span>{connectLoading ? 'Connecting...' : isConnected ? 'Disconnect' : 'Connect'}</span>
               </Button>
 
-              <CommonModal
+              {/* <CommonModal
                   isModalOpen={isDisconnect}
                   onCancel={showHideBackModal}
                   modalWidth={500}
@@ -330,8 +331,8 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                         <div className="d-flex align-items-center">
                           <img className="me-3" src={alertIcon} alt="Warning" />
                           <span>
-                            Are you sure you want to Disconnect? <br />
-                            You will permanently lose your data.
+                            Are you sure you want to Disconnect <br />
+                            SmartSync device.
                           </span>
                         </div>
                       </div>
@@ -353,7 +354,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                       </div>
                     </>
                   }
-                />
+              /> */}
               <div className="d-flex align-items-center">
                 <button
                   className="btn d-flex align-items-center btn-play"

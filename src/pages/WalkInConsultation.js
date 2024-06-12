@@ -18,6 +18,7 @@ import { isNumeric, isAlphabet } from "../utils/utils";
 import { resetVaccineState } from "../redux/vaccineSlice";
 
 import smartPad from "../assets/images/smartPad.svg";
+import { GB_ISCRIBE } from "../utils/constants";
 
 function WalkInConsultation() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ function WalkInConsultation() {
   const [onPatientClick, setOnPatientClick] = useState(false);
   const consultButtonRef = useRef(null);
   const isSmartSyncAccessableFromGB = useFeatureIsOn(
-    "iscribe"
+    GB_ISCRIBE
   );
 
   const BoldWordInName = ({ name, boldWord }) => {

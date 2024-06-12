@@ -107,10 +107,6 @@ function SmartPrescription() {
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
-  const isSmartSyncAccessableFromGB = useFeatureIsOn(
-    "iscribe"
-  );
-  console.log(isSmartSyncAccessableFromGB,"isSmartSyncAccessableFromGB")
 
   useEffect(() => {
     if (caseManagerData !== undefined) {

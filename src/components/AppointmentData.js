@@ -21,7 +21,7 @@ import dayjs from "dayjs";
 
 import { errorMessage } from "../utils/utils";
 
-import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../utils/constants";
+import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE } from "../utils/constants";
 import noData from "../assets/images/nodata-found.svg";
 import visitEnd from '../assets/images/end-visit.svg';
 import ImgcancelEnd from '../assets/images/cancel-visit.svg';
@@ -78,7 +78,7 @@ function AppointmentData({ locationPath }) {
     const [openRowIndex, setOpenRowIndex] = useState(null);
     const consultButtonRef = useRef(null);
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
-        "iscribe"
+        GB_ISCRIBE
     );
 
     const handleClickOutside = (event) => {

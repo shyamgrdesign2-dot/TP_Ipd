@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
-import { ADD, EDIT } from "../utils/constants";
+import { ADD, EDIT, GB_ISCRIBE } from "../utils/constants";
 import { errorMessage } from "../utils/utils";
 
 import TabHeader from "../components/tab_design/TabHeader";
@@ -36,7 +36,7 @@ function PatientForm({ mode = ADD, patient_data }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [patientData, setPatientData] = useState(null);
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
-        "iscribe"
+        GB_ISCRIBE
     );
 
     useEffect(() => {

@@ -22,3 +22,6 @@ export const WEBSOCKET_ERROR_MESSAGE = "Error connecting the server, Please chec
 export const WHATS_APP_API = "/api/v1/casemanager/smart-rx/send"
 export const SMART_RX_UPLOAD = "/api/v1/casemanager/smart-rx/upload"
 export const WTSAP_ERR_MESSAGE = "Error sending the prescription, Please try again"
+
+export const GB_ISCRIBE = "iscribe"
+
