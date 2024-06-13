@@ -11,7 +11,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { dummyData } from "../subHeader/SubHeader";
 import minimise from "../../../../assets/images/minimise.svg";
 import maximise from "../../../../assets/images/maximise.svg";
 import "./GrowthGraph.scss";
@@ -98,7 +97,7 @@ const customLabelPlugin = {
 };
 
 const WeightChart = ({
-  data = dummyData,
+  data,
   isFullscreen,
   setIsFullscreen,
   handleDrawerVital,
@@ -275,8 +274,7 @@ const WeightChart = ({
               titleLines,
               bodyLines,
             });
-          }
-           else {
+          } else {
             handleCloseTooltip();
           }
         },

@@ -9,6 +9,7 @@ import { useState } from "react";
 import AddDOB from "../vaccination/components/addDOB/AddDOB";
 import { getAllGrowthChartParams } from "./service";
 import { useLocation } from "react-router-dom";
+import { dummyData, getGrowthChartData } from "./growthChartHelper";
 
 const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
   const growthData = [1, 1, 1, 1, 1];
@@ -18,13 +19,29 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
   const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [growthChartData, setGrowthChartData] = useState({
+    heights: [],
+    weights: [],
+    bmIs: [],
+    ofcs: [],
+  });
 
   useEffect(() => {
-    getAllGrowthChartParams({
+    getGrowthChartDetails();
+  }, []);
+
+  let chartData = { ...dummyData };
+
+  const getGrowthChartDetails = async () => {
+    const allGrowthChartParams = await getAllGrowthChartParams({
       pm_id: patient_data?.pm_id || 0,
       pm_pid: patient_data?.pm_pid || 0,
     });
-  }, []);
+    if (allGrowthChartParams) {
+      setGrowthChartData(getGrowthChartData(allGrowthChartParams));
+    }
+  };
+
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader handleDrawerVaccination={handleDrawerVaccination} />
@@ -48,6 +65,7 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
                 }`}
               >
                 <WeightChart
+                  data={chartData}
                   isFullscreen={isFullscreen}
                   setIsFullscreen={setIsFullscreen}
                   handleDrawerVital={handleDrawerVital}
