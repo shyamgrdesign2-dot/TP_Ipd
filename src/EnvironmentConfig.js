@@ -94,7 +94,7 @@ const prod = {
   investigation_api_url: `https://pm-investigation-prod.tatvacare.in`,
   medication_api_url: `https://pm-medicine-prod.tatvacare.in/`,
   vitals_api_url: `https://pm-vital-prod.tatvacare.in`,
-  casemanager_api_url: `https://pm-casemanager-prod.tatvcare.in`,
+  casemanager_api_url: `https://pm-casemanager-prod.tatvacare.in`,
   printsettings_api_url: `https://pm-printsetting-prod.tatvacare.in`,
   medicalhistory_api_url: `https://pm-medicalhistory-prod.tatvacare.in`,
   videolibrary_api_url: `https://pm-videolibrary-prod.tatvacare.in`,
