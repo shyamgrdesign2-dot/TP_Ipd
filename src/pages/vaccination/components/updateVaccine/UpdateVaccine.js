@@ -57,16 +57,28 @@ const UpdateVaccine = ({
   const [vaccineDetails, setVaccineDetails] = useState({});
   const [updateLoader, setUpdateLoader] = useState(false);
   const [focusedIndexes, setFocusedIndexes] = useState([]);
+  const [isOpen, setIsOpen] = useState(
+    Array(selectedVaccines?.length).fill(false)
+  );
   const selectRefs = useRef([]);
   const { state } = useLocation();
   const { patient_data } = state;
   const formRef = useRef(null);
+
+  const handleFocus = (index, isFocused = false) => {
+    setIsOpen((prev) => {
+      const newState = [...prev];
+      newState[index] = isFocused;
+      return newState;
+    });
+  };
 
   const scrollToIndex = (index) => {
     const element = selectRefs.current[index];
     if (element) {
       element.scrollTo({ behavior: "smooth", block: "center" });
       element.focus();
+      handleFocus(index, true);
     }
   };
 
@@ -167,12 +179,13 @@ const UpdateVaccine = ({
     setShow(false);
   };
 
-  const handleDetails = (vaccineName, detail, value) => {
+  const handleDetails = (vaccineName, detail, value, index) => {
     setVaccineDetails((prev) => {
       if (prev[vaccineName]) prev[vaccineName][detail] = value;
       else prev[vaccineName] = { [detail]: value };
       return prev;
     });
+    handleFocus(index);
   };
 
   const updateVaccineDueDate = async () => {
@@ -385,13 +398,17 @@ const UpdateVaccine = ({
                         handleDetails(
                           vaccine?.tvac_name,
                           "vaccine_company_id",
-                          value
+                          value,
+                          i
                         );
                       }}
                       defaultValue={vaccine?.brandId}
                       ref={(ref) => {
                         if (ref) selectRefs.current[i] = ref;
                       }}
+                      open={isOpen[i]}
+                      onFocus={() => handleFocus(i, true)}
+                      onBlur={() => handleFocus(i)}
                       style={{
                         border: focusedIndexes.includes(i)
                           ? "1px solid blue"

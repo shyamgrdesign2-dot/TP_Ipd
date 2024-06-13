@@ -75,6 +75,7 @@ function SmartPrescription() {
   const [blobName, setBlobName] = useState(null);
   const [connected, setConnected] = useState(false);
   const [smartRxDetails, setSmartRxDetails] = useState(null);
+  const [hasError, setHasError] = useState(false);
   
   const socketRef = useRef(null);
 
@@ -357,6 +358,7 @@ function SmartPrescription() {
       socketRef.current.onopen = () => {
         console.log("WebSocket connection opened");
         setConnected(true);
+        setHasError(false); // Clear any previous error messages
       };
 
       socketRef.current.onclose = () => {
@@ -371,7 +373,10 @@ function SmartPrescription() {
 
       socketRef.current.onerror = (error) => {
         // Handle WebSocket errors
-        wsError(WEBSOCKET_ERROR_MESSAGE);
+        if (!hasError) {
+          wsError(WEBSOCKET_ERROR_MESSAGE);
+          setHasError(true); // Mark that an error has been displayed
+        }
         console.log("WebSocket error", error);
       };
     } catch (error) {
@@ -410,6 +415,7 @@ function SmartPrescription() {
 
   const handleSubmit = async () => {
     socketRef.current.close();
+    socketRef.current = null;
     const canvas = canvasRef.current;
     const imgId = uuidv4();
     const name = `${imgId}.jpeg`;

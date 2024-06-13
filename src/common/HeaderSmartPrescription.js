@@ -310,7 +310,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
           </Col>
           <Col lg="auto">
             <div className="align-items-center d-flex h-100">
-              <Button
+              {/* <Button
                 type="button"
                 className="btn align-items-center d-flex btn-device-connect me-20"
                 onClick={handleConnectButtonClick}
@@ -318,7 +318,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
               >
                 <img src={devicePad} alt="devicePad" className="align-items-center d-flex"  style={{backgroundColor: isConnected ? "#4B4AD5" : "#bdbdbd"}}/>
                 <span>{connectLoading ? 'Connecting...' : isConnected ? 'Disconnect' : 'Connect'}</span>
-              </Button>
+              </Button> */}
 
               {/* <CommonModal
                   isModalOpen={isDisconnect}

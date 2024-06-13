@@ -8,12 +8,13 @@ import { useSelector } from "react-redux";
 
 import { makeDefaultLogo } from "../utils/utils";
 
-function SidebarPatient({ collapsed, patient_data }) {
+function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHandle }) {
 
     const { profile } = useSelector((state) => state.doctors);
 
     const menu = [
-        { icon_name: 'icon-Visit-Summary-Fill', short_title: 'Visit', long_title: 'Visit Summary' },
+        { key: 1, icon_name: 'icon-Visit-Summary-Fill', short_title: 'Visit', long_title: 'Visit Summary' },
+        { key: 2, icon_name: 'icon-Medical-Certificate', short_title: 'Certificate', long_title: 'Certificate' },
         // { icon_name: 'icon-Report', short_title: 'Reports', long_title: 'Medical Reports (3)' },
         // { icon_name: 'icon-Discharge-Summary', short_title: 'Discharge', long_title: 'Discharge Summary' },
         // { icon_name: 'icon-Medical-Certificate', short_title: 'Certificate', long_title: 'Medical Certificate' },
@@ -80,7 +81,6 @@ function SidebarPatient({ collapsed, patient_data }) {
                     </div>
                     {!collapsed && (
                         <div className='text-truncate'>
-                            {console.log(patient_data)}
                             <div className='patientName d-flex align-items-center'> <div className='text-truncate pt-2px'>{`${patient_data !== undefined ? patient_data.pm_fullname : "Hello Guest"}`}</div>
                                 <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right'></i></button>
                             </div>
@@ -94,12 +94,12 @@ function SidebarPatient({ collapsed, patient_data }) {
                 return (
                     <div key={index}>
                         <Nav.Item className={collapsed && 'text-center'}>
-                            <Nav.Link className={`${index == 0 && 'active'} ${!collapsed && 'd-flex align-items-center'}`}>
+                            <Nav.Link className={`${item.key == sidebarKey && 'active'} ${!collapsed && 'd-flex align-items-center'}`} onClick={() => onClickSidebarHandle(item?.key)}>
                                 <i className={item.icon_name}></i>
                                 <div className={collapsed ? 'text-truncate' : 'ms-3'}>{collapsed ? item.short_title : item.long_title}</div>
                             </Nav.Link>
                         </Nav.Item>
-                        {index == menu.length - 2 && <hr className='my-1' />}
+                        {/* {index == menu.length - 2 && <hr className='my-1' />} */}
                     </div>
                 )
             })}

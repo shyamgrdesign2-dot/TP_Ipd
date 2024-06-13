@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Layout, Button } from "antd";
 import { isMobile } from 'react-device-detect';
@@ -18,6 +18,7 @@ import {
     viewCaseManager,
 } from "../redux/caseManagerSlice";
 import VisitVaccination from "./vaccination/components/visitVaccination/VisitVaccination";
+import CertificateDetails from "../components/medical_certificate/CertificateDetails";
 
 const { Sider, Content } = Layout;
 
@@ -35,6 +36,8 @@ function PatientDetails() {
 
     let location = useLocation();
     const navigate = useNavigate();
+
+    const [sidebarKey, setSidebarKey] = useState(1);
 
     const [locationPath, setLocationPath] = useState("/");
     const [collapsed, setCollapsed] = useState(isMobile ? true : false);
@@ -77,7 +80,11 @@ function PatientDetails() {
         });
         setTcmData({ tcm_id: viewCaseManagerData?.prev_tcm_id, page: (tcmData.page += 1) })
     }
-    
+
+    const onClickSidebarHandle = useCallback((key) => {
+        setSidebarKey(key)
+    }, [sidebarKey])
+
     return (
         <>
             <Layout>
@@ -93,7 +100,7 @@ function PatientDetails() {
                         </button>
                         {!isMobile && (<Button className={collapsed ? 'collapseborder border rounded-10px' : ''} style={collapsed && { marginRight: -12, backgroundColor: 'white', zIndex: 1, }} type="text" icon={collapsed ? <i className='icon-Expand fs-21'></i> : <i className='icon-Contract fs-21'></i>} onClick={() => setCollapsed(!collapsed)} />)}
                     </div>
-                    <SidebarPatient collapsed={collapsed} patient_data={patient_data} />
+                    <SidebarPatient collapsed={collapsed} patient_data={patient_data} sidebarKey={sidebarKey} onClickSidebarHandle={onClickSidebarHandle} />
                 </Sider>
 
                 <Content>
@@ -102,11 +109,13 @@ function PatientDetails() {
                             locationPath={locationPath}
                             isMobile={isMobile}
                             patient_data={patient_data}
-                            viewCaseManagerData={viewCaseManagerData} />
+                            viewCaseManagerData={viewCaseManagerData} 
+                            sidebarKey={sidebarKey} />
+                        {sidebarKey === 1 ? (
                         <div className="appointment-wrap PatientDetailswrap">
                             <div className='row'>
                                 <div className='col-lg-5 col-md-12 col-12'>
-                                    {viewCaseManagerData && viewCaseManagerData?.vitals?.length > 0 && (
+                                {viewCaseManagerData && viewCaseManagerData?.vitals?.length > 0 && (
                                         <VitalsBodyComposition loading={loading} passVitals={viewCaseManagerData ? [...viewCaseManagerData.vitals].slice(0, 2) : viewCaseManagerData} />
                                     )}
                                     {viewCaseManagerData?.smart_prescription_filename === null &&
@@ -123,6 +132,11 @@ function PatientDetails() {
                                 </div>
                             </div>
                         </div>
+                         ) : (
+                            <div className="appointment-wrap PatientDetailswrap">
+                                <CertificateDetails patient_data={patient_data} />
+                            </div>
+                        )}
                     </div>
                 </Content>
 

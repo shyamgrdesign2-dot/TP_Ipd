@@ -713,6 +713,46 @@ body {
             font-size: 12px !important;
         }
     }
+    
+    // Save button of print Certificate 
+    .saveButton {
+        display: flex;
+        border-radius: 10px;
+        border: 1px solid $bordercolor;
+        .popinput {
+            border: 0 !important;
+            &:focus, &:focus-within {
+                box-shadow: none !important;
+            }
+        }
+        .ant-btn {
+            border: 0 !important;
+            border-radius: 10px;
+            font-weight: 500;
+            span {
+                color: $theme !important;
+            } 
+            div {
+                box-shadow: none !important;
+                outline: none !important;
+            }
+            &:disabled {
+                span {
+                    opacity: 0.3;
+                }
+            }
+        }
+        &:focus-within {
+            border-color: $theme;
+            outline: $theme !important;
+            .popinput {
+                border-color: $theme;
+            }
+            .ant-btn {
+                border-color: $theme;
+            }
+        }
+    }
 }
 
 .video-animat {
@@ -726,6 +766,44 @@ body {
             height: 48px;
             z-index: -1;
         }
+    }
+}
+// Certificate page
+.bg-fitness {
+    background-color: $colorFitness;
+    border-radius: 100px;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    min-height: 42px;
+    margin-right: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+    font-size: 20px;
+    color: $themesecondarylight !important;
+}
+.custom-certificate {
+    background-color: $descpadcolor;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+// Certificate details page
+.certificate-box {
+    width: 223px; 
+    background:#fafafb; 
+    text-align: center; 
+    border-radius:10px; 
+    overflow: hidden;
+    .pfd-box{
+        height:180px;
+    }
+    .leave-ui{
+        border-top: solid #E2E2EA 1px; 
+        padding:11px 14px 11px 14px;
     }
 }
 
