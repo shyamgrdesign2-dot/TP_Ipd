@@ -363,11 +363,13 @@ function Prescription() {
                           }`}</span>
                       </button>
                     </div>
-                    {vitalsData.length > 0 && (
-                      <VitalsList
-                        mode={caseManagerData !== undefined ? EDIT : ADD}
-                      />
-                    )}
+                    {
+                      vitalsData.length > 0 && (
+                        <VitalsList
+                          mode={caseManagerData !== undefined ? EDIT : ADD}
+                        />
+                      )
+                    }
                   </div>
                 ) : (
                   e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
@@ -403,26 +405,26 @@ function Prescription() {
                       {medicalHistoryData.length > 0 && <MedicalHistoryList />}
                     </div>
                   ) :
-                  (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
-                    <div className="prescription-box-sm p-14">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                          <img src={vaccinationImg} alt="vitals" className="me-3" />
-                          <div className="title-common">Vaccination</div>
+                    (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
+                      <div className="prescription-box-sm p-14">
+                        <div className="d-flex align-items-center justify-content-between">
+                          <div className="d-flex align-items-center">
+                            <img src={vaccinationImg} alt="vitals" className="me-3" />
+                            <div className="title-common">Vaccination</div>
+                          </div>
+                          <button
+                            className="btn d-flex align-items-center btn-text"
+                            onClick={handleDrawerVaccination}
+                          >
+                            {" "}
+                            <i
+                              className={`icon-Add me-1 fs-5`}
+                            ></i>{" "}
+                            <span>Add</span>
+                          </button>
                         </div>
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerVaccination}
-                        >
-                          {" "}
-                          <i
-                            className={`icon-Add me-1 fs-5`}
-                          ></i>{" "}
-                          <span>Add</span>
-                        </button>
                       </div>
-                    </div>
-                  )
+                    )
                 )
               })}
               {(!!isVaccinationAccessableFromGB || isPediatric) && (
@@ -453,7 +455,7 @@ function Prescription() {
                   </div>
                 </button>
               </div> */}
-            </div>
+            </div >
             <div className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3">
               <Content>
                 {customizedPadRightList?.map((e, i) => {
@@ -493,8 +495,8 @@ function Prescription() {
                 })}
               </Content>
             </div>
-          </div>
-        </div>
+          </div >
+        </div >
         <Drawer
           closeIcon={false}
           placement="right"
@@ -520,19 +522,21 @@ function Prescription() {
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
         </Drawer>
-        {vaccinationDrawer && (
-          <Drawer
-            closeIcon={false}
-            placement="right"
-            onClose={handleDrawerVaccination}
-            open={vaccinationDrawer}
-            width="100%"
-          >
-            <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
-          </Drawer>
-        )}
+        {
+          vaccinationDrawer && (
+            <Drawer
+              closeIcon={false}
+              placement="right"
+              onClose={handleDrawerVaccination}
+              open={vaccinationDrawer}
+              width="100%"
+            >
+              <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
+            </Drawer>
+          )
+        }
       </>
-    </CashManagerContext.Provider>
+    </CashManagerContext.Provider >
   );
 }
 
