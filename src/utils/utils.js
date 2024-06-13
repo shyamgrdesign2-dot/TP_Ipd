@@ -158,6 +158,165 @@ export const errorMessage = async (error) => {
   }
 };
 
+export const inputToLabel = (htmlString) => {
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlString;
+
+  const inputs = tempDiv.querySelectorAll('input');
+  inputs.forEach(input => {
+    console.log(input.type)
+    if (input.type === "date") {
+      const label = document.createElement('label');
+      label.className = input.className;
+      // label.id = input.id;
+      label.textContent = input.value;
+      input.parentNode.replaceChild(label, input);
+    }
+  });
+
+  return tempDiv.innerHTML;
+}
+
+export const HTMLTransformer = (htmlString) => {
+  // Create a temporary container to parse the HTML string
+  let tempContainer = document.createElement('div');
+  tempContainer.innerHTML = htmlString;
+
+  // Select all label elements
+  let labels = tempContainer.querySelectorAll('label');
+
+  // Iterate over the labels and replace innerHTML content based on the class
+  labels.forEach(label => {
+    if (label.classList.contains('consulting_doctor')) {
+      replaceContent(label, '{Consulting Doctor}');
+    } else if (label.classList.contains('patient_name')) {
+      replaceContent(label, '{Patient Name}');
+    } else if (label.classList.contains('age')) {
+      replaceContent(label, '{Age}');
+    } else if (label.classList.contains('contact_number')) {
+      replaceContent(label, '{Contact Number}');
+    } else if (label.classList.contains('gender')) {
+      replaceContent(label, '{Gender}');
+    } else if (label.classList.contains('email')) {
+      replaceContent(label, '{Email}');
+    } else if (label.classList.contains('patient_id')) {
+      replaceContent(label, '{Patient ID}');
+    } else if (label.classList.contains('address')) {
+      replaceContent(label, '{Address}');
+    } else if (label.classList.contains('blood_group')) {
+      replaceContent(label, '{Blood Group}');
+    } else if (label.classList.contains('date_of_birth')) {
+      replaceContent(label, '{Date of Birth}');
+    } else if (label.classList.contains('today_date')) {
+      replaceContent(label, '{Today Date}');
+    } else if (label.classList.contains('department')) {
+      replaceContent(label, '{Department}');
+    } else if (label.classList.contains('referred_by')) {
+      replaceContent(label, '{Referred by}');
+    } else if (label.classList.contains('case_type')) {
+      replaceContent(label, '{Case Type}');
+    } else if (label.classList.contains('last_appointment')) {
+      replaceContent(label, '{Last appointment}');
+    } else if (label.classList.contains('inpatient_number')) {
+      replaceContent(label, '{Inpatient Number}');
+    } else if (label.classList.contains('ward')) {
+      replaceContent(label, '{Ward}');
+    } else if (label.classList.contains('room_bed')) {
+      replaceContent(label, '{Room/Bed}');
+    } else if (label.classList.contains('admitting_doctor')) {
+      replaceContent(label, '{Admitting Doctor}');
+    } else if (label.classList.contains('admitting_date')) {
+      replaceContent(label, '{Admitting Date}');
+    } else if (label.classList.contains('admitting_time')) {
+      replaceContent(label, '{Admitting Time}');
+    } else if (label.classList.contains('discharge_date')) {
+      replaceContent(label, '{Discharge Date}');
+    } else if (label.classList.contains('discharge_time')) {
+      replaceContent(label, '{Discharge Time}');
+    } else if (label.classList.contains('admitted_days')) {
+      replaceContent(label, '{Admitted Days}');
+    } else if (label.classList.contains('admission_diagnosis')) {
+      replaceContent(label, '{Admission Diagnosis}');
+    } else if (label.classList.contains('discharge_diagnosis')) {
+      replaceContent(label, '{Discharge Diagnosis}');
+    } else if (label.classList.contains('resident_of')) {
+      replaceContent(label, '{Resident of}');
+    } else if (label.classList.contains('start_date')) {
+      replaceContent(label, '{Start Date}');
+    } else if (label.classList.contains('end_date')) {
+      replaceContent(label, '{End Date}');
+    } else if (label.classList.contains('join_date')) {
+      replaceContent(label, '{Join Date}');
+    } else if (label.classList.contains('custom_date')) {
+      replaceContent(label, '{Custom Date}');
+    } else if (label.classList.contains('diagnosis')) {
+      replaceContent(label, '{Diagnosis}');
+    } else if (label.classList.contains('time')) {
+      replaceContent(label, '{Time}');
+    } else if (label.classList.contains('travel_from')) {
+      replaceContent(label, '{Travel From}');
+    } else if (label.classList.contains('travel_to')) {
+      replaceContent(label, '{Travel To}');
+    } else if (label.classList.contains('photo_id_card_no')) {
+      replaceContent(label, '{Photo ID card No}');
+    } else if (label.classList.contains('nationality')) {
+      replaceContent(label, '{Nationality}');
+    } else if (label.classList.contains('passport_number')) {
+      replaceContent(label, '{Passport Number}');
+    } else if (label.classList.contains('procedure')) {
+      replaceContent(label, '{Procedure}');
+    } else if (label.classList.contains('number_of_months')) {
+      replaceContent(label, '{Number of Months}');
+    }
+  });
+
+  // Get the modified HTML string
+  return tempContainer.innerHTML;
+}
+
+function replaceContent(element, newText) {
+  // Traverse through the child nodes and replace the text nodes
+  element.childNodes.forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      node.textContent = newText;
+    } else {
+      replaceContent(node, newText);
+    }
+  });
+}
+
+export const removeLabelTags = (htmlString) => {
+  // Create a temporary container to parse the HTML string
+  let tempContainer = document.createElement('div');
+  tempContainer.innerHTML = htmlString;
+
+  // Select all label elements
+  let labels = tempContainer.querySelectorAll('label');
+
+  labels.forEach(label => {
+    // Create a document fragment to hold the inner content
+    let fragment = document.createDocumentFragment();
+
+    // Move all child nodes of the label into the fragment
+    while (label.firstChild) {
+      fragment.appendChild(label.firstChild);
+    }
+
+    // If the label has a style attribute, apply it to the nearest child element
+    if (label.hasAttribute('style')) {
+      if (fragment.firstChild && fragment.firstChild.nodeType === Node.ELEMENT_NODE && !fragment.firstChild.hasAttribute('style')) {
+        fragment.firstChild.setAttribute('style', label.getAttribute('style'));
+      }
+    }
+
+    // Replace the label with its content
+    label.parentNode.replaceChild(fragment, label);
+  });
+
+  // Get the modified HTML string
+  return tempContainer.innerHTML;
+}
+
 export const trimEllip = (source, length) => {
   if (source == null) {
     return "";

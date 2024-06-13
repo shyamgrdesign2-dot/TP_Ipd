@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { Popover } from "antd";
+import { Popover, Drawer } from "antd";
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
@@ -10,6 +10,7 @@ import tutorial from '../assets/images/tutorial-icon.svg';
 
 import ProfilePopover from './ProfilePopover';
 import VideoModal from './VideoModal';
+import CreateCertificate from '../components/medical_certificate/CreateCertificate';
 
 function Welcome1(props) {
 
@@ -17,8 +18,8 @@ function Welcome1(props) {
     const [videoLink, setVideoLink] = useState(null);
 
     const navigate = useNavigate();
-    const { profile, videoList } = useSelector((state) => state.doctors);
-    const { locationPath, isMobile, patient_data, viewCaseManagerData } = props
+    const { profile, videoList, patientCertificateList } = useSelector((state) => state.doctors);
+    const { locationPath, isMobile, patient_data, viewCaseManagerData, sidebarKey } = props
 
     const modifyFormat = useMemo(() => {
         if (viewCaseManagerData) {
@@ -31,6 +32,13 @@ function Welcome1(props) {
             return null
         }
     }, [viewCaseManagerData])
+
+    const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
+
+
+    const handleCreateCertificateDrawer = useCallback(() => {
+        setCreateCertificateDrawer(!createCertificateDrawer)
+    }, [createCertificateDrawer]);
 
     //PopOverVideo function
     const showHideVideoListPopover = useCallback(() => {
@@ -73,58 +81,84 @@ function Welcome1(props) {
             <div className="welcomesection position-relative">
                 <div className='bg-welcome d-flex justify-content-between align-items-center'>
                     <div className='d-flex align-items-center'>
-                        <div>
-                            <h1 className='mt-2'>{'Patient Details'}</h1>
-                            {isMobile && (<ProfilePopover locationPath={locationPath} isMobile={isMobile} patient_data={patient_data} />)}
-                            {isMobile ? '' : <p className='mb-1'>&nbsp;</p>}
-                        </div>
+                        {sidebarKey === 1 ? (
+                            <div>
+                                <h1 className='mt-2'>{'Patient Details'}</h1>
+                                {isMobile && (<ProfilePopover locationPath={locationPath} isMobile={isMobile} patient_data={patient_data} />)}
+                                {isMobile ? '' : <p className='mb-1'>&nbsp;</p>}
+                            </div>
+                        ) : (
+                            <h1 className='mt-2 mb-3'>{'Certificate'}</h1>
+                        )}
                         <img src={require("../assets/images/bg-welcome.png")} className={`welcomeig d-inline-block align-top ${isMobile ? 'ms-2' : 'ms-4'}`} alt="Welcome" />
                     </div>
-                    <div>
-                        {viewCaseManagerData && (
-                            <div className='d-lg-flex d-block'>
-                                <Popover
-                                    open={popOverVideo}
-                                    onOpenChange={showHideVideoListPopover}
-                                    content={VIDEO_CONTENT}
-                                    trigger="click"
-                                    overlayClassName="pop-430 pp-0 videoTutorial"
-                                    placement="bottom"
-                                >
-                                    <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'> 
-                                    {/* onClick={showHideVideoListPopover} */}
-                                        <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
-                                    </button>
-                                </Popover>
-                                {videoLink && (
-                                    <VideoModal
-                                        videoLink={videoLink}
-                                        onCancel={() => setVideoLink(null)}
-                                    />
-                                )}
-                                <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => {
-                                    window.Moengage.track_event("repeat_rx_click", {
-                                        "doctor_id": profile?.doctor_unique_id,
-                                        "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0,
-                                        "rx_date": viewCaseManagerData?.consultation_date
-                                    });
-                                    navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
-                                }}> <i className={'icon-reload me-2'}></i>Repeat {modifyFormat && modifyFormat.first}<sup>{modifyFormat && modifyFormat.second}</sup>&nbsp;{modifyFormat && modifyFormat.third} Rx</Button>
-                                <Button variant="primary"
-                                    className='btn-41 px-4'
-                                    onClick={() => {
-                                        window.Moengage.track_event("start_new_visit_click", {
+                    {sidebarKey === 1 ? (
+                        <div>
+                            {viewCaseManagerData && (
+                                <div className='d-lg-flex d-block'>
+                                    <Popover
+                                        open={popOverVideo}
+                                        onOpenChange={showHideVideoListPopover}
+                                        content={VIDEO_CONTENT}
+                                        trigger="click"
+                                        overlayClassName="pop-430 pp-0 videoTutorial"
+                                        placement="bottom"
+                                    >
+                                        <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
+                                            {/* onClick={showHideVideoListPopover} */}
+                                            <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
+                                        </button>
+                                    </Popover>
+                                    {videoLink && (
+                                        <VideoModal
+                                            videoLink={videoLink}
+                                            onCancel={() => setVideoLink(null)}
+                                        />
+                                    )}
+                                    <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => {
+                                        window.Moengage.track_event("repeat_rx_click", {
                                             "doctor_id": profile?.doctor_unique_id,
-                                            "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0
+                                            "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0,
+                                            "rx_date": viewCaseManagerData?.consultation_date
                                         });
-                                        navigate("/prescription", { state: { patient_data: patient_data } })
-                                    }}>
-                                    {'Start New Visit'}
+                                        navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
+                                    }}> <i className={'icon-reload me-2'}></i>Repeat {modifyFormat && modifyFormat.first}<sup>{modifyFormat && modifyFormat.second}</sup>&nbsp;{modifyFormat && modifyFormat.third} Rx</Button>
+                                    <Button variant="primary"
+                                        className='btn-41 px-4'
+                                        onClick={() => {
+                                            window.Moengage.track_event("start_new_visit_click", {
+                                                "doctor_id": profile?.doctor_unique_id,
+                                                "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0
+                                            });
+                                            navigate("/prescription", { state: { patient_data: patient_data } })
+                                        }}>
+                                        {'Start New Visit'}
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div>
+                            {patientCertificateList?.length > 0 && (
+                                <Button variant="primary" onClick={handleCreateCertificateDrawer}
+                                    className='btn-41 px-4'>
+                                    {'Create Certificate'}
                                 </Button>
-                            </div>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                    )}
                 </div>
+                <Drawer
+                    className="modalWidth-563" width="auto"
+                    title="Create Certificate"
+                    placement="right"
+                    closable
+                    open={createCertificateDrawer}
+                    onClose={handleCreateCertificateDrawer}
+                    key="left"
+                >
+                    <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={patient_data} replace={false} />
+                </Drawer>
                 <div className='pb-5'>
                     &nbsp;
                 </div>

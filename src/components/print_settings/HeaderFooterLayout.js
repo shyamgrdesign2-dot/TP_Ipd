@@ -168,7 +168,7 @@ function HeaderFooterLayout() {
     const signatureRef = React.createRef();
     const cropperSignatureRef = React.createRef();
 
-    const { printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature } = useContext(PrintSettingsContext);
+    const { caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature } = useContext(PrintSettingsContext);
 
     const [isOwnLetterHead, setIsOwnLetterHead] = useState(false);
     const [isHandleDrawerWhatsappView, setIsHandleDrawerWhatsappView] = useState(false);
@@ -922,22 +922,27 @@ function HeaderFooterLayout() {
                                     </Form.Item>
                                 </div>
 
-                                <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
-                                    <Col lg="18">
-                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
-                                    </Col>
-                                    <Col lg="6">
-                                        <div className="d-flex align-items-center" onClick={handleDrawerWhatsappView}>
-                                            <i className="icon-Preview"></i>
-                                            <button className='btn btn-text'>
-                                                <span>Preview Now</span>
-                                            </button>
-                                        </div>
-                                    </Col>
-                                </Row>
-                                <Drawer closeIcon={false} placement="right" onClose={handleDrawerWhatsappView} open={isHandleDrawerWhatsappView} width="100%" height="100%">
-                                    <WhatsappConfigureView handleDrawerWhatsappView={handleDrawerWhatsappView} />
-                                </Drawer>
+                                {caseManagerData !== undefined && (
+                                    <>
+                                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                                            <Col lg="18">
+                                                <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
+                                            </Col>
+                                            <Col lg="6">
+                                                <div className="d-flex align-items-center" onClick={handleDrawerWhatsappView}>
+                                                    <i className="icon-Preview"></i>
+                                                    <button className='btn btn-text'>
+                                                        <span>Preview Now</span>
+                                                    </button>
+                                                </div>
+                                            </Col>
+                                        </Row>
+                                        <Drawer closeIcon={false} placement="right" onClose={handleDrawerWhatsappView} open={isHandleDrawerWhatsappView} width="100%" height="100%">
+                                            <WhatsappConfigureView handleDrawerWhatsappView={handleDrawerWhatsappView} />
+                                        </Drawer>
+                                    </>
+                                )}
+
                             </div>
                         ) : printSettings?.letterhead_format === 1 ? (
                             //For Upload Letter head tab
@@ -1095,22 +1100,28 @@ function HeaderFooterLayout() {
                                         }
                                     />
                                 </div>
-                                <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
-                                    <Col lg="18">
-                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
-                                    </Col>
-                                    <Col lg="6">
-                                        <div className="d-flex align-items-center" onClick={handleDrawerWhatsappView}>
-                                            <i className="icon-Preview"></i>
-                                            <button className='btn btn-text'>
-                                                <span>Preview Now</span>
-                                            </button>
-                                        </div>
-                                    </Col>
-                                </Row>
-                                <Drawer closeIcon={false} placement="right" onClose={handleDrawerWhatsappView} open={isHandleDrawerWhatsappView} width="100%" height="100%">
-                                    <WhatsappConfigureView handleDrawerWhatsappView={handleDrawerWhatsappView} />
-                                </Drawer>
+
+                                {caseManagerData !== undefined && (
+                                    <>
+                                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                                            <Col lg="18">
+                                                <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
+                                            </Col>
+                                            <Col lg="6">
+                                                <div className="d-flex align-items-center" onClick={handleDrawerWhatsappView}>
+                                                    <i className="icon-Preview"></i>
+                                                    <button className='btn btn-text'>
+                                                        <span>Preview Now</span>
+                                                    </button>
+                                                </div>
+                                            </Col>
+                                        </Row>
+                                        <Drawer closeIcon={false} placement="right" onClose={handleDrawerWhatsappView} open={isHandleDrawerWhatsappView} width="100%" height="100%">
+                                            <WhatsappConfigureView handleDrawerWhatsappView={handleDrawerWhatsappView} />
+                                        </Drawer>
+                                    </>
+                                )}
+
                             </div>
                         ) : printSettings?.letterhead_format === 2 && (
                             // For Own Letterhead tab 
@@ -1147,23 +1158,29 @@ function HeaderFooterLayout() {
                                         <label className="mb-1">Bottom (cm)</label>
                                     </div>
                                 </div>
-                                <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
-                                    <Col lg="18">
-                                        <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
-                                        <div className="fontroboto text-greycolor" style={{ marginLeft: 37, fontSize: 13 }}> You can edit your WhatsApp preview </div>
-                                    </Col>
-                                    <Col lg="6">
-                                        <div className="d-flex align-items-center" onClick={handleDrawerOwnLetterHead}>
-                                            <i className="icon-Preview"></i>
-                                            <button className='btn btn-text'>
-                                                <span>Preview Now</span>
-                                            </button>
-                                        </div>
-                                    </Col>
-                                </Row>
-                                <Drawer closeIcon={false} placement="right" onClose={handleDrawerOwnLetterHead} open={isOwnLetterHead} width="100%">
-                                    <WhatsappConfigure handleDrawerOwnLetterHead={handleDrawerOwnLetterHead} />
-                                </Drawer>
+
+                                {caseManagerData !== undefined && (
+                                    <>
+                                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                                            <Col lg="18">
+                                                <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
+                                                <div className="fontroboto text-greycolor" style={{ marginLeft: 37, fontSize: 13 }}> You can edit your WhatsApp preview </div>
+                                            </Col>
+                                            <Col lg="6">
+                                                <div className="d-flex align-items-center" onClick={handleDrawerOwnLetterHead}>
+                                                    <i className="icon-Preview"></i>
+                                                    <button className='btn btn-text'>
+                                                        <span>Preview Now</span>
+                                                    </button>
+                                                </div>
+                                            </Col>
+                                        </Row>
+                                        <Drawer closeIcon={false} placement="right" onClose={handleDrawerOwnLetterHead} open={isOwnLetterHead} width="100%">
+                                            <WhatsappConfigure handleDrawerOwnLetterHead={handleDrawerOwnLetterHead} />
+                                        </Drawer>
+                                    </>
+                                )}
+
                             </div>
                         )}
 
@@ -1172,52 +1189,54 @@ function HeaderFooterLayout() {
 
             </div>
 
-            <div className="border-bottom pb-3 mb-3">
-                <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
-                    <Col lg="18">
-                        <div className="titleprint">Display Patient Info</div>
-                    </Col>
-                    <Col lg="6">
-                        <Button className="btn rounded-10px px-1 border px-3-15" style={{ transform: patientInfoShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onPatientInfoClick}>
-                            <i className="icon-right"></i>
-                        </Button>
+            {caseManagerData !== undefined && (
+                <div className="border-bottom pb-3 mb-3">
+                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                        <Col lg="18">
+                            <div className="titleprint">Display Patient Info</div>
+                        </Col>
+                        <Col lg="6">
+                            <Button className="btn rounded-10px px-1 border px-3-15" style={{ transform: patientInfoShowHide ? "rotate(90deg)" : "rotate(-90deg)" }} onClick={onPatientInfoClick}>
+                                <i className="icon-right"></i>
+                            </Button>
 
-                    </Col>
+                        </Col>
 
-                </Row>
-                <div>Manage your patient information</div>
-                {patientInfoShowHide && (
-                    <div className="mt-4">
+                    </Row>
+                    <div>Manage your patient information</div>
+                    {patientInfoShowHide && (
                         <div className="mt-4">
-                            <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                                <Col lg={24}>
-                                    <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndPatientInfo}>
-                                        <SortableContext
-                                            // rowKey array
-                                            items={printSettings?.header_footer?.patient_info.map((i) => i.id)}
-                                            strategy={verticalListSortingStrategy}
-                                        >
-                                            <Table
-                                                className='customize-table table-display-patient'
-                                                pagination={false}
-                                                components={{
-                                                    body: {
-                                                        row: CustomRow,
-                                                    },
-                                                }}
-                                                rowKey="id"
-                                                columns={patientInfoTable}
-                                                dataSource={printSettings?.header_footer?.patient_info}
-                                                showHeader={false}
-                                            />
-                                        </SortableContext>
-                                    </DndContext>
-                                </Col>
-                            </Row>
+                            <div className="mt-4">
+                                <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
+                                    <Col lg={24}>
+                                        <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndPatientInfo}>
+                                            <SortableContext
+                                                // rowKey array
+                                                items={printSettings?.header_footer?.patient_info.map((i) => i.id)}
+                                                strategy={verticalListSortingStrategy}
+                                            >
+                                                <Table
+                                                    className='customize-table table-display-patient'
+                                                    pagination={false}
+                                                    components={{
+                                                        body: {
+                                                            row: CustomRow,
+                                                        },
+                                                    }}
+                                                    rowKey="id"
+                                                    columns={patientInfoTable}
+                                                    dataSource={printSettings?.header_footer?.patient_info}
+                                                    showHeader={false}
+                                                />
+                                            </SortableContext>
+                                        </DndContext>
+                                    </Col>
+                                </Row>
+                            </div>
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
+            )}
 
             <div className="mb-3">
                 <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">

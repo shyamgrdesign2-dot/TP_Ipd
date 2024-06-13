@@ -26,10 +26,14 @@ import noData from "../assets/images/nodata-found.svg";
 import visitEnd from '../assets/images/end-visit.svg';
 import ImgcancelEnd from '../assets/images/cancel-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
-import CommonModal from "../common/CommonModal";
 import alertIcon from '../assets/images/alertIcon.svg';
-import { MESSAGE_KEY } from "../utils/constants";
+import docimg from "../assets/images/docimg.png";
+import welcomdoc from "../assets/images/welcom-doc.svg";
+import suporticon from "../assets/images/suport-icon.svg";
+import windoc from "../assets/images/win-doc.png";
 
+import CommonModal from "../common/CommonModal";
+import { MESSAGE_KEY } from "../utils/constants";
 import { useSelector, useDispatch } from "react-redux";
 
 import {
@@ -42,11 +46,7 @@ import {
 import {
     changeSortOrder
 } from "../redux/doctorsSlice";
-
-import docimg from "../assets/images/docimg.png";
-import welcomdoc from "../assets/images/welcom-doc.svg";
-import suporticon from "../assets/images/suport-icon.svg";
-import windoc from "../assets/images/win-doc.png";
+import CreateCertificate from "./medical_certificate/CreateCertificate";
 import { resetVaccineState } from "../redux/vaccineSlice";
 
 const { TextArea } = Input;
@@ -124,6 +124,7 @@ function AppointmentData({ locationPath }) {
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [isEndVisitReasonModal, setEndVisitReasonModal] = useState(false);
     const [endVisitReasonDrawer, setEndVisitReasonDrawer] = useState(false);
+    const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
     const [endVisitReason, setEndVisitReason] = useState('');
     const [noDetailsModal, setNoDetailsModal] = useState(false);
 
@@ -314,6 +315,14 @@ function AppointmentData({ locationPath }) {
                 label: <span
                     onClick={() => {
                         setAppointmentSelectedFromMenu(record);
+                        handleCreateCertificateDrawer()
+                    }}>Create Certificate</span>,
+                key: "certificate",
+            },
+            {
+                label: <span
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
                         handleEndVisitReasonDrawer()
                     }}>End Visit</span>,
                 key: "endvisit",
@@ -333,7 +342,7 @@ function AppointmentData({ locationPath }) {
         } else if (selectedTab === TAB_FINISHED) {
             return items.filter((item) => item.key !== "endvisit" && item.key !== "cancelappt");
         } else if (selectedTab === TAB_CANCELLED) {
-            return items.splice(0, 1);
+            return items.filter((item) => item.key !== "endvisitreason" && item.key !== "endvisit" && item.key !== "cancelappt");
         } else {
             return items;
         }
@@ -525,6 +534,13 @@ function AppointmentData({ locationPath }) {
             setEndVisitReasonDrawer(!endVisitReasonDrawer)
         },
         [endVisitReasonDrawer]
+    );
+
+    const handleCreateCertificateDrawer = useCallback(
+        () => {
+            setCreateCertificateDrawer(!createCertificateDrawer)
+        },
+        [createCertificateDrawer]
     );
 
     const handleNoDetailsModal = useCallback(
@@ -853,6 +869,17 @@ function AppointmentData({ locationPath }) {
                             }}
                         />
                     </div>
+                </Drawer>
+                <Drawer
+                    className="modalWidth-563" width="auto"
+                    title="Create Certificate"
+                    placement="right"
+                    closable
+                    open={createCertificateDrawer}
+                    onClose={handleCreateCertificateDrawer}
+                    key="left"
+                >
+                    <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={appointmentSelectedFromMenu} replace={false} />
                 </Drawer>
             </div>
 

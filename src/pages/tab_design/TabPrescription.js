@@ -41,6 +41,7 @@ import Sider from "antd/es/layout/Sider";
 import Vaccination from "../vaccination/Vaccination";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { checkToShowVaccination } from "../vaccination/service";
+import { viewPatient } from "../../redux/appointmentsSlice";
 
 function TabPrescription() {
   const {
@@ -74,6 +75,7 @@ function TabPrescription() {
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
+  const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
   const [isPediatric, setIsPediatric] = useState(false);
   const isVaccinationAccessableFromGB = useFeatureIsOn(
     "vaccination-new-design"
@@ -103,6 +105,7 @@ function TabPrescription() {
     setFollowUpDate,
     additionalNote,
     setAdditionalNote,
+    startTime
   };
 
   const [collapsed, setCollapsed] = useState(false);
@@ -110,6 +113,13 @@ function TabPrescription() {
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
+
+  useEffect(() => {
+    const sendData = {
+      patient_unique_id: patient_data?.patient_unique_id,
+    };
+    dispatch(viewPatient(sendData));
+  }, []);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
