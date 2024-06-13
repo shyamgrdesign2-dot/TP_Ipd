@@ -105,6 +105,7 @@ function Prescription() {
   const isVaccinationAccessableFromGB = useFeatureIsOn(
     "vaccination-new-design"
   );
+  console.log(isVaccinationAccessableFromGB,"isVaccinationAccessableFromGB")
 
   const checkForPediatric = async () => {
     if (profile?.doctor_unique_id) {

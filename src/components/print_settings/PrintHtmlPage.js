@@ -782,14 +782,14 @@ function PrintHtmlPage() {
         <thead>
           <tr>
             <td>
-              <div class="page-header-space"></div>
+              <div className="page-header-space"></div>
             </td>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>
-              <div class="page">
+              <div className="page">
                 <div className="print-custom-header contentPrint border-top border-bottom">
                   {/* Patient Details */}
                   <div className="border-dark border-bottom patient-details-print">
@@ -2677,7 +2677,7 @@ function PrintHtmlPage() {
         <tfoot>
           <tr>
             <td>
-              <div class="page-footer-space"></div>
+              <div className="page-footer-space"></div>
             </td>
           </tr>
         </tfoot>

@@ -126,6 +126,58 @@ export const sendCashsheetWhatsapp = createAsyncThunk(
     }
 );
 
+export const getSmartRxToken = createAsyncThunk(
+    "/casemanager/smartrx/token",
+    async (data) => {
+        let result = {};
+        result = await ApiCaseManager.getSmartRxToken(data);
+        if (result.status) {
+            return result.data;
+        } else {
+            throw Error(result.error);
+        }
+    }
+);
+
+export const getSmartRx = createAsyncThunk(
+    "caseManager/smartrx",
+    async (data) => {
+        let result = {};
+        result = await ApiCaseManager.getSmartRx(data);
+        if (result.status) {
+            return result.data;
+        } else {
+            throw Error(result.error);
+        }
+    }
+);
+
+export const saveSmartRx = createAsyncThunk(
+    "caseManager/smartrx",
+    async (data) => {
+        let result = {};
+        result = await ApiCaseManager.saveSmartRx(data);
+        if (result.status) {
+            return result.data;
+        } else {
+            throw Error(result.error);
+        }
+    }
+);
+
+export const sendSmartRxLinkOnWhatsapp = createAsyncThunk(
+    "caseManager/smartrx/send",
+    async (data) => {
+        let result = {};
+        result = await ApiCaseManager.sendSmartRxLinkOnWhatsapp(data);
+        if (result.status) {
+            return result.data;
+        } else {
+            throw Error(result.error);
+        }
+    }
+);
+
 const caseManagerSlice = createSlice({
     name: "caseManager",
     initialState,
@@ -222,6 +274,15 @@ const caseManagerSlice = createSlice({
                 state.loadingEndVisit = false;
             })
             .addCase(sendCashsheetWhatsapp.rejected, (state) => {
+                state.loadingEndVisit = false;
+            })
+            .addCase(getSmartRxToken.pending, (state) => {
+                state.loadingEndVisit = true;
+            })
+            .addCase(getSmartRxToken.fulfilled, (state) => {
+                state.loadingEndVisit = false;
+            })
+            .addCase(getSmartRxToken.rejected, (state) => {
                 state.loadingEndVisit = false;
             })
     },

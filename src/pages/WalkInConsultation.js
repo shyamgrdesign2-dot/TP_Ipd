@@ -1,8 +1,15 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { AutoComplete, Input, Button } from "antd";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
+import { AutoComplete, Input, Button, Dropdown } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { isMobile } from "react-device-detect";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import TabHeader from "../components/tab_design/TabHeader";
 import CommonModal from "../common/CommonModal";
@@ -10,320 +17,504 @@ import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
 import { isNumeric, isAlphabet } from "../utils/utils";
 import { resetVaccineState } from "../redux/vaccineSlice";
 
+import smartPad from "../assets/images/smartPad.svg";
+import { GB_ISCRIBE } from "../utils/constants";
+
 function WalkInConsultation() {
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  const { profile } = useSelector((state) => state.doctors);
+  const { patients, error } = useSelector((state) => state.records);
 
-    const { profile } = useSelector((state) => state.doctors);
-    const { patients, error } = useSelector((state) => state.records);
+  const dispatch = useDispatch();
 
-    const dispatch = useDispatch();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOptions, setSearchOptions] = useState([]);
+  const [clickedPatient, setClickedPatient] = useState(null);
+  const [openRowIndex, setOpenRowIndex] = useState(null);
+  const [clickedDownArrow, setClickedDownArrow] = useState(false);
+  const [autoCompleteFlag, setAutoCompleteFlag] = useState(false);
+  const [onPatientClick, setOnPatientClick] = useState(false);
+  const consultButtonRef = useRef(null);
+  const isSmartSyncAccessableFromGB = useFeatureIsOn(
+    GB_ISCRIBE
+  );
 
-    const [searchQuery, setSearchQuery] = useState("");
-    const [searchOptions, setSearchOptions] = useState([]);
-    const [clickedPatient, setClickedPatient] = useState(null);
+  const BoldWordInName = ({ name, boldWord }) => {
+    // Split the name into parts based on the bold word
+    const parts = name.split(new RegExp(`(${boldWord})`, "i"));
 
-    const BoldWordInName = ({ name, boldWord }) => {
-        // Split the name into parts based on the bold word
-        const parts = name.split(new RegExp(`(${boldWord})`, 'i'));
-
-        // Map through the parts and apply different styles to the bold word
-        const formattedName = parts.map((part, index) => {
-            if (part.toLowerCase() === boldWord.toLowerCase()) {
-                // If the part matches the bold word, render it in bold
-                return <span key={index} className="fw-medium">{part}</span>;
-            } else {
-                // Otherwise, render it normally
-                return <span key={index}>{part}</span>;
-            }
-        });
-
-        return formattedName;
-    };
-
-    const genderAge = (patient_data) => {
-        var value = `${patient_data?.pm_gender}, `
-        if (profile?.dp_id === 9) {
-            if (patient_data?.ageYears != 0) {
-                value += `${patient_data?.ageYears}y`
-            }
-            if (patient_data?.ageMonths != 0) {
-                value += ` ${patient_data?.ageMonths}m`
-            }
-            if (patient_data?.ageDays != 0) {
-                value += ` ${patient_data?.ageDays}d`
-            }
-        } else {
-            value += `${patient_data?.ageYears}y`
-        }
-        return value
-    }
-
-    const PatientPlank = (patient) => {
+    // Map through the parts and apply different styles to the bold word
+    const formattedName = parts.map((part, index) => {
+      if (part.toLowerCase() === boldWord.toLowerCase()) {
+        // If the part matches the bold word, render it in bold
         return (
-            <>
-                <div className="d-flex align-items-center justify-content-between">
-                    <div className="d-flex align-items-center">
-                        <div className="list-patientName d-flex align-items-center me-4">
-                            <i className="icon-patients backbar me-2"></i>{" "}
-                            {/* <span className="fw-medium">
+          <span key={index} className="fw-medium">
+            {part}
+          </span>
+        );
+      } else {
+        // Otherwise, render it normally
+        return <span key={index}>{part}</span>;
+      }
+    });
+
+    return formattedName;
+  };
+
+  const genderAge = (patient_data) => {
+    var value = `${patient_data?.pm_gender}, `;
+    if (profile?.dp_id === 9) {
+      if (patient_data?.ageYears != 0) {
+        value += `${patient_data?.ageYears}y`;
+      }
+      if (patient_data?.ageMonths != 0) {
+        value += ` ${patient_data?.ageMonths}m`;
+      }
+      if (patient_data?.ageDays != 0) {
+        value += ` ${patient_data?.ageDays}d`;
+      }
+    } else {
+      value += `${patient_data?.ageYears}y`;
+    }
+    return value;
+  };
+
+  const onFocusParent = useCallback(() => {
+    setAutoCompleteFlag(true);
+  }, [autoCompleteFlag]);
+
+  const onBlurParent = useCallback(
+    () => {
+      setAutoCompleteFlag(false);
+    },
+    [autoCompleteFlag]
+  );
+
+  // const onDownArrowClick = (patient, e) => {
+  //   //   e.preventDefault();
+  //   e.stopPropagation();
+  //   // setOpenRowIndex(patient?.patient_unique_id);
+  // };
+
+  
+  const onConsultClick = async (record) => {
+    // window.Moengage.track_event("patient_search_consult", {
+    //   doctor_id: profile?.doctor_unique_id,
+    // //   patient_id: record?.patient_unique_id,
+    // });
+    navigate("/prescription", { state: { patient_data: record } });
+  };
+
+  const getMenuItems = (record) => {
+    return [
+      {
+        label: (
+          <span
+            onClick={() => {
+              setAutoCompleteFlag(false)
+              onConsultClick(record);
+            }}
+          >
+            Consult
+          </span>
+        ),
+        key: "consult",
+      },
+    ];
+  };
+
+  const PatientPlank = (patient) => {
+    return (
+      <>
+        <div className="d-flex align-items-center justify-content-between">
+          <div className="d-flex align-items-center" onClick={()=>{
+            setAutoCompleteFlag(false)
+            setClickedPatient(patient)
+          }}>
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-patients backbar me-2"></i>{" "}
+              {/* <span className="fw-medium">
                                 {patient.pm_salutation && patient.pm_salutation}{" "}
                                 {patient.pm_first_name} {patient.pm_last_name} (
                                 {patient.pm_gender}, {patient.ageYears}y)
                             </span> */}
-                            <span>
-                                {patient.pm_salutation && patient.pm_salutation}{" "}
-                                <BoldWordInName name={patient.pm_fullname} boldWord={searchQuery} />{" "}
-                                ({patient.pm_gender}, {patient.ageYears}y)
-                            </span>
-                        </div>
-                        <div className="list-patientName d-flex align-items-center me-4">
-                            <i className="icon-phone backbar me-2"></i>
-                            {/* <span>{patient.pm_contact_no}</span> */}
-                            <BoldWordInName name={patient.pm_contact_no} boldWord={searchQuery} />
-                        </div>
-                        <div className="list-patientName d-flex align-items-center me-4">
-                            <i className="icon-Id backbar me-2"></i>
-                            {/* <span>{patient.pm_pid}</span> */}
-                            <BoldWordInName name={patient.pm_pid} boldWord={searchQuery} />
-                        </div>
-                    </div>
-                    <div className="d-flex align-items-center">
-                        {/* <Link to='/patient_details' state={{ patient_data: patient }}> */}
-                        <Button
-                            type="text"
-                            className="btn btn-primary2 me-4 align-items-center d-flex"
-                            icon={<i className="icon-Preview"></i>}
-                            onClick={() =>
-                                navigate("/patient_details", { state: { patient_data: patient } })
-                            }
-                        >
-                            Patient Details
-                        </Button>
-                        {/* </Link> */}
-                        <Button
-                            type="text"
-                            className="btn btn-primary3 align-items-center d-flex"
-                            icon={<i className="icon-Consult"></i>}
-                            onClick={() => {
-                                window.Moengage.track_event("walkin_consult_start", {
-                                    "doctor_id": profile?.doctor_unique_id,
-                                    "patient_type": 'Existing',
-                                    "patient_id": patient?.patient_unique_id
-                                });
-                                navigate("/prescription", { state: { patient_data: patient } })
-                            }}
-                        >
-                            Start Consult
-                        </Button>
-                    </div>
-                </div>
-            </>
-        );
-    };
-
-    const AddPatientPlank = () => {
-        return (
-            <Button
-                type="text"
-                className="btn btn-primary1 btn-41 align-items-center d-flex"
-                icon={<i className="icon-Add"></i>}
-            >
-                Add New Patient
-            </Button>
-        );
-    };
-
-    useEffect(()=>{
-        dispatch(resetVaccineState());
-    },[])
-
-    useEffect(() => {
-        if (searchQuery) {
-            const timeOutId = setTimeout(() => {
-                dispatch(searchPatients(searchQuery));
-            }, 500);
-            return () => {
-                clearTimeout(timeOutId);
-            };
-        } else {
-            dispatch(clearSearch());
-        }
-    }, [searchQuery]);
-
-    useEffect(() => {
-        const data = [];
-        if (patients) {
-            if (patients.length === 0 && searchQuery.length > 0) {
-                data.push({
-                    key: -2,
-                    label: <div>{error}</div>,
-                });
-            } else {
-                patients.map((patient) => {
-                    return data.push({
-                        key: JSON.stringify(patient),
-                        value: patient.pm_pid,
-                        label: PatientPlank(patient),
-                    });
-                });
-            }
-        }
-        if (!isMobile) {
-            data.push({
-                key: -1,
-                value: "Add New Patient",
-                label: AddPatientPlank(),
-            });
-        }
-        setSearchOptions(data);
-    }, [patients]);
-
-    const onSearchParent = useCallback(
-        (query) => {
-            setSearchQuery(query);
-        },
-        [searchQuery]
-    );
-
-    const onSelect = useCallback(
-        (data, e) => {
-            e.key !== -1 ?
-                setClickedPatient(JSON.parse(e.key))
-                :
-                goToAddPatient()
-        },
-        [clickedPatient, searchQuery]
-    );
-
-    const COMMON_MODAL = useMemo(() => {
-        return (
-            <CommonModal
-                isModalOpen={clickedPatient != null}
-                modalWidth={610}
-                title={"Patient Selected"}
-                onCancel={() => {
-                    setClickedPatient(null);
-                }}
-                modalBody={
-                    <>
-                        <div className="border bg-body rounded-10px p-2 patient-details">
-                            <div className="d-flex align-items-center">
-                                <i className="icon-patients me-2" />
-                                <span className="title-common fontroboto">
-                                    {clickedPatient?.pm_fullname}{" "}
-                                    <span className="fw-normal ms-2">
-                                        {/* ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y) */}
-                                        ({genderAge(clickedPatient)})
-                                    </span>
-                                </span>
-                            </div>
-                            <div className="mt-2 d-flex align-items-center">
-                                <i className="icon-phone me-2" />{" "}
-                                <span>{clickedPatient?.pm_contact_no}</span>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                <i className="icon-Id me-2" />{" "}
-                                <span>{clickedPatient?.pm_pid}</span>
-                            </div>
-                        </div>
-                        <div className="mt-4">
-                            <span className="title-common">Choose Action</span>
-                            <div className="d-flex align-items-center mt-2">
-                                <div className="w-50">
-                                    {/* <Link to='/patient_details' state={{ patient_data: clickedPatient }}> */}
-                                    <Button
-                                        type="text"
-                                        className="btn btn-primary2 align-items-center d-flex btn-41 w-100"
-                                        icon={<i className="icon-Preview" />}
-                                        onClick={() =>
-                                            navigate("/patient_details", { state: { patient_data: clickedPatient } })
-                                        }
-                                    >
-                                        View Patient Details{" "}
-                                        <i className="icon-right iconrotate180 ms-auto" />
-                                    </Button>
-                                    {/* </Link> */}
-                                </div>
-                                <Button
-                                    type="text"
-                                    className="btn btn-primary3 align-items-center d-flex btn-41 w-50 ms-4"
-                                    icon={<i className="icon-Consult"></i>}
-                                    onClick={() => {
-                                        window.Moengage.track_event("walkin_consult_start", {
-                                            "doctor_id": profile?.doctor_unique_id,
-                                            "patient_type": 'Existing',
-                                            "patient_id": clickedPatient?.patient_unique_id
-                                        });
-                                        navigate("/prescription", { state: { patient_data: clickedPatient } })
-                                    }}
-                                >
-                                    Start Consult{" "}
-                                    <i className="icon-right iconrotate180 ms-auto"></i>
-                                </Button>
-                            </div>
-                        </div>
-                    </>
-                }
-            />
-        );
-    }, [clickedPatient]);
-
-    function goToAddPatient() {
-        window.Moengage.track_event("walkin_consult_start", {
-            "doctor_id": profile?.doctor_unique_id,
-            "patient_type": 'New',
-        });
-        if (searchQuery.length === 10 && isNumeric(searchQuery)) {
-            navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery } } });
-        } else if (searchQuery.length > 0 && isAlphabet(searchQuery)) {
-            navigate("/add_patient", { state: { patient_data: { pm_fullname: searchQuery, pm_contact_no: '' } } });
-        } else {
-            navigate("/add_patient");
-        }
-    }
-
-    return (
-        <>
-            {isMobile && <TabHeader flag={1} title="Start Walk-in Consultation" onClick={goToAddPatient} />}
-            <div
-                className={`${!isMobile && "border rounded-4 appointment-wrap"} p-4`}
-            >
-                <label className="mb-2 fontroboto fs-16 fw-medium">
-                    {" "}
-                    Enter Patient’s Name, Phone number or Id
-                </label>{" "}
-                <br />
-                <div className="align-items-center d-flex position-relative">
-                    <AutoComplete
-                        value={searchQuery}
-                        onSearch={onSearchParent}
-                        options={searchOptions}
-                        className={`${isMobile ? 'autocomplete-ios' : 'w-100'} autocomplete-custom`}
-                        onSelect={onSelect}
-                        // defaultActiveFirstOption={true}
-                        defaultOpen
-                        listHeight={isMobile ? window.innerHeight - 180 : 320}
-                        autoFocus
-                        popupClassName={`walkincomplete ${isMobile && 'walkincomplete-mobile'}`}
-                    >
-                        <Input
-                            placeholder="Search by Patient’s Name, Phone number or Id"
-                            prefix={<i className="icon-search"></i>}
-                            suffix={
-                                searchQuery.length > 0 && (
-                                    <i
-                                        className="icon-Cross"
-                                        onClick={() => onSearchParent("")}
-                                    ></i>
-                                )
-                            }
-                        />
-                    </AutoComplete>
-
-                    {COMMON_MODAL}
-                </div>
+              <span>
+                {patient.pm_salutation && patient.pm_salutation}{" "}
+                <BoldWordInName
+                  name={patient.pm_fullname}
+                  boldWord={searchQuery}
+                />{" "}
+                ({patient.pm_gender}, {patient.ageYears}y)
+              </span>
             </div>
-        </>
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-phone backbar me-2"></i>
+              {/* <span>{patient.pm_contact_no}</span> */}
+              <BoldWordInName
+                name={patient.pm_contact_no}
+                boldWord={searchQuery}
+              />
+            </div>
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-Id backbar me-2"></i>
+              {/* <span>{patient.pm_pid}</span> */}
+              <BoldWordInName name={patient.pm_pid} boldWord={searchQuery} />
+            </div>
+          </div>
+          <div className="d-flex align-items-center">
+            {/* <Link to='/patient_details' state={{ patient_data: patient }}> */}
+            <Button
+              type="text"
+              className="btn btn-primary2 me-4 align-items-center d-flex"
+              icon={<i className="icon-Preview"></i>}
+              onClick={() =>
+                navigate("/patient_details", {
+                  state: { patient_data: patient },
+                })
+              }
+            > 
+              Patient Details
+            </Button>
+            {isSmartSyncAccessableFromGB ? (
+              <div className="d-flex btn btn-smart-rx-walkin">
+              <div style={{paddingLeft: "6px"}}>
+                <img src={smartPad} alt="vitals" />
+                <button
+                  // className="btn btn-outline-primary btn-smart-rx"
+                  className="btn btn-smartRx-text"
+                  onClick={() => onSmartRxClick(patient)}
+                >
+                  SmartRx
+                </button>
+              </div>
+              <div>
+                <Dropdown
+                  className="btn"
+                  menu={{
+                    items: getMenuItems(patient),
+                  }}
+                  trigger={["click"]}
+                >
+                  <a
+                    onClick={(e) => {
+                      e.preventDefault();
+                    }}
+                    style={{padding:"5px"}}
+                  >
+                    <i
+                      className="icon-right"
+                      style={{
+                      display: "block",
+                      transform: `rotate(270deg)`,
+                      color: "white",
+                      // padding: "5px"
+                      }}
+                    />
+                  </a>
+                </Dropdown>
+              </div>
+              </div>
+            ) : ( 
+              <Button
+              type="text"
+              className="btn btn-primary3 align-items-center d-flex"
+              icon={<i className="icon-Consult"></i>}
+              onClick={() => {
+                  window.Moengage.track_event("walkin_consult_start", {
+                      "doctor_id": profile?.doctor_unique_id,
+                      "patient_type": 'Existing',
+                      "patient_id": patient?.patient_unique_id
+                  });
+                  navigate("/prescription", { state: { patient_data: patient } })
+              }}
+              >
+                Start Consult
+              </Button>
+              )}
+          </div>
+        </div>
+      </>
     );
+  };
+
+  const AddPatientPlank = () => {
+    return (
+      <Button
+        type="text"
+        className="btn btn-primary1 btn-41 align-items-center d-flex"
+        icon={<i className="icon-Add"></i>}
+        onClick={goToAddPatient}
+      >
+        Add New Patient
+      </Button>
+    );
+  };
+
+  useEffect(()=>{
+    dispatch(resetVaccineState());
+  },[])
+
+  useEffect(() => {
+    if (searchQuery) {
+      const timeOutId = setTimeout(() => {
+        dispatch(searchPatients(searchQuery));
+      }, 500);
+      return () => {
+        clearTimeout(timeOutId);
+      };
+    } else {
+      dispatch(clearSearch());
+    }
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const data = [];
+    if (patients) {
+      if (patients.length === 0 && searchQuery.length > 0) {
+        data.push({
+          key: -2,
+          label: <div>{error}</div>,
+        });
+      } else {
+        patients.map((patient) => {
+          return data.push({
+            key: JSON.stringify(patient),
+            value: patient.pm_pid,
+            label: PatientPlank(patient),
+          });
+        });
+      }
+    }
+    if (!isMobile) {
+      data.push({
+        key: -1,
+        value: "Add New Patient",
+        label: AddPatientPlank(),
+      });
+    }
+    setSearchOptions(data);
+  }, [patients]);
+
+  const onSearchParent = useCallback(
+    (query) => {
+      setSearchQuery(query);
+    },
+    [searchQuery]
+  );
+
+  const onSelect = useCallback(
+    (data, e) => {
+      e.key !== -1 ? setClickedPatient(JSON.parse(e.key)) : goToAddPatient();
+    },
+    [clickedPatient, searchQuery]
+  );
+
+  const handleClickDownArrow = () => {
+    setClickedDownArrow(!clickedDownArrow);
+  };
+
+  const COMMON_MODAL = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={clickedPatient != null}
+        modalWidth={610}
+        title={"Patient Selected"}
+        onCancel={() => {
+          setClickedPatient(null);
+          setClickedDownArrow(false)
+        }}
+        modalBody={
+          <>
+            <div className="border bg-body rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <i className="icon-patients me-2" />
+                <span className="title-common fontroboto">
+                  {clickedPatient?.pm_fullname}{" "}
+                  <span className="fw-normal ms-2">
+                    {/* ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y) */}
+                    ({genderAge(clickedPatient)})
+                  </span>
+                </span>
+              </div>
+              <div className="mt-2 d-flex align-items-center">
+                <i className="icon-phone me-2" />{" "}
+                <span>{clickedPatient?.pm_contact_no}</span>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <i className="icon-Id me-2" />{" "}
+                <span>{clickedPatient?.pm_pid}</span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <span className="title-common">Choose Action</span>
+              <div className="d-flex align-items-center mt-2">
+                <div className="w-50">
+                  {/* <Link to='/patient_details' state={{ patient_data: clickedPatient }}> */}
+                  <Button
+                    type="text"
+                    className="btn btn-primary2 align-items-center d-flex btn-41 w-100"
+                    icon={<i className="icon-Preview" />}
+                    onClick={() =>
+                      navigate("/patient_details", {
+                        state: { patient_data: clickedPatient },
+                      })
+                    }
+                  >
+                    View Patient Details{" "}
+                    <i className="icon-right iconrotate180 ms-auto" />
+                  </Button>
+                  {/* </Link> */}
+                </div>
+                {isSmartSyncAccessableFromGB ? (
+                  <>
+                  <div
+                    style={{
+                      background: "#4B4AD5",
+                      borderRadius: "10px",
+                      color: "white",
+                      marginLeft: "1rem",
+                    }}
+                  >
+                    <button
+                      // className="btn btn-outline-primary btn-smart-rx"
+                      className="btn btn-outline-primary btn-smart-rx"
+                      onClick={() => onSmartRxClick(clickedPatient)}
+                      style={{ padding: "9px 8rem 9px 10px" }}
+                    >
+                      <img src={smartPad} alt="vitals" className="me-3" />
+                      <span className="btn-span-smartRx">SmartRx</span>
+                    </button>
+                    <button
+                      className="btn btn-outline-primary btn-down-arrow"
+                      onClick={handleClickDownArrow}
+                      style={{ padding: "9.5px 5px" }}
+                    >
+                      <span
+                        role="img"
+                        aria-label="down"
+                        className="anticon anticon-down ant-select-suffix"
+                      >
+                        <i
+                          className="icon-right"
+                          style={{
+                            display: "block",
+                            transform: `rotate(270deg)`,
+                            color: "white",
+                          }}
+                        />
+                      </span>
+                    </button>
+                  </div>
+                  {clickedDownArrow && (
+                    <button
+                      ref={consultButtonRef}
+                      className="btn-consult-walkIn"
+                      onClick={() => onConsultClick(clickedPatient)}
+                    >
+                      Consult
+                    </button>
+                  )}
+                  </> 
+                ) : (  
+                  <Button
+                  type="text"
+                  className="btn btn-primary3 align-items-center d-flex btn-41 w-50 ms-4"
+                  icon={<i className="icon-Consult"></i>}
+                  onClick={() => {
+                    window.Moengage.track_event("walkin_consult_start", {
+                      doctor_id: profile?.doctor_unique_id,
+                      patient_type: "Existing",
+                      patient_id: clickedPatient?.patient_unique_id,
+                    });
+                    navigate("/prescription", {
+                      state: { patient_data: clickedPatient },
+                    });
+                  }}
+                  >
+                    Start Consult{" "}
+                    <i className="icon-right iconrotate180 ms-auto"></i>
+                  </Button>
+                )
+              }
+              </div>
+            </div>
+          </>
+        }
+      />
+    );
+  }, [clickedPatient, clickedDownArrow]);
+
+  function goToAddPatient() {
+    window.Moengage.track_event("walkin_consult_start", {
+        "doctor_id": profile?.doctor_unique_id,
+        "patient_type": 'New',
+    });
+    if (searchQuery.length === 10 && isNumeric(searchQuery)) {
+        navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery } } });
+    } else if (searchQuery.length > 0 && isAlphabet(searchQuery)) {
+        navigate("/add_patient", { state: { patient_data: { pm_fullname: searchQuery, pm_contact_no: '' } } });
+    } else {
+        navigate("/add_patient");
+    }
+  }
+
+  const onSmartRxClick = async (patient) => {
+    // window.Moengage.track_event("patient_search_consult", {
+    //   doctor_id: profile?.doctor_unique_id,
+    //   //   patient_id: record?.patient_unique_id,
+    // });
+    navigate("/smart-prescription", { state: { patient_data: patient } });
+  };
+  
+  return (
+    <>
+    {isMobile && <TabHeader flag={1} title="Start Walk-in Consultation" onClick={goToAddPatient} />}
+      <div
+        className={`${!isMobile && "border rounded-4 appointment-wrap"} p-4`}
+      >
+        <label className="mb-2 fontroboto fs-16 fw-medium">
+          {" "}
+          Enter Patient’s Name, Phone number or Id
+        </label>{" "}
+        <br />
+        <div className="align-items-center d-flex position-relative">
+          <AutoComplete
+            value={searchQuery}
+            onSearch={onSearchParent}
+            options={searchOptions}
+            className={`${
+              isMobile ? "autocomplete-ios" : "w-100"
+            } autocomplete-custom`}
+            // onSelect={onSelect}
+            onFocus={onFocusParent}
+            onBlur={onBlurParent}
+            open={autoCompleteFlag}
+            // defaultActiveFirstOption={true}
+            defaultOpen
+            listHeight={isMobile ? window.innerHeight - 180 : 320}
+            autoFocus
+            popupClassName={`walkincomplete ${
+              isMobile && "walkincomplete-mobile"
+            }`}
+          >
+            <Input
+              placeholder="Search by Patient’s Name, Phone number or Id"
+              prefix={<i className="icon-search"></i>}
+              suffix={
+                searchQuery.length > 0 && (
+                  <i
+                    className="icon-Cross"
+                    onClick={() => onSearchParent("")}
+                  ></i>
+                )
+              }
+            />
+          </AutoComplete>
+
+          {COMMON_MODAL}
+        </div>
+      </div>
+    </>
+  );
 }
 export default React.memo(WalkInConsultation);
