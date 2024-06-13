@@ -12,7 +12,6 @@ import { useLocation } from "react-router-dom";
 import { dummyData, getGrowthChartData } from "./growthChartHelper";
 
 const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
-  const growthData = [1, 1, 1, 1, 1];
   const [showDob, setShowDob] = useState(true);
   const { state } = useLocation();
   let { patient_data } = state;
@@ -30,16 +29,46 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
     getGrowthChartDetails();
   }, []);
 
-  let chartData = { ...dummyData };
-
   const getGrowthChartDetails = async () => {
     const allGrowthChartParams = await getAllGrowthChartParams({
       pm_id: patient_data?.pm_id || 0,
       pm_pid: patient_data?.pm_pid || 0,
     });
-    if (allGrowthChartParams) {
-      setGrowthChartData(getGrowthChartData(allGrowthChartParams));
+    if (allGrowthChartParams && patient_data?.DOB) {
+      setGrowthChartData(
+        getGrowthChartData(allGrowthChartParams, patient_data?.DOB)
+      );
     }
+  };
+
+  const getData = () => {
+    return Object.keys(growthChartData).map((key) => {
+      if (growthChartData.hasOwnProperty(key)) {
+        const chartData = { ...dummyData };
+        chartData.datasets[5] = {
+          ...chartData.datasets[5],
+          data: growthChartData[key],
+        };
+        return (
+          <Col key={key} className="gx-4">
+            <div
+              className={`graphContainer ${
+                isFullscreen ? "fullScreenStyle" : ""
+              }`}
+            >
+              <WeightChart
+                data={chartData}
+                isFullscreen={isFullscreen}
+                setIsFullscreen={setIsFullscreen}
+                handleDrawerVital={handleDrawerVital}
+                graphName={key}
+              />
+            </div>
+          </Col>
+        );
+      }
+      return null;
+    });
   };
 
   return (
@@ -57,22 +86,7 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
           lg={isFullscreen ? 1 : 2}
           className="gy-4"
         >
-          {growthData.map((item, index) => (
-            <Col key={index} className="gx-4">
-              <div
-                className={`graphContainer ${
-                  isFullscreen ? "fullScreenStyle" : ""
-                }`}
-              >
-                <WeightChart
-                  data={chartData}
-                  isFullscreen={isFullscreen}
-                  setIsFullscreen={setIsFullscreen}
-                  handleDrawerVital={handleDrawerVital}
-                />
-              </div>
-            </Col>
-          ))}
+          {getData()}
         </Row>
       </div>
       {showUpdate && (

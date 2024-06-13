@@ -101,6 +101,7 @@ const WeightChart = ({
   isFullscreen,
   setIsFullscreen,
   handleDrawerVital,
+  graphName,
 }) => {
   const chartRef = useRef(null);
   const [shouldShowPercentilePopup, setPercentilePopup] = useState(false);
@@ -282,7 +283,7 @@ const WeightChart = ({
     },
     layout: {
       padding: {
-        right: 25, // Add padding to the right side
+        right: 30, // Add padding to the right side
       },
     },
   };
@@ -313,7 +314,7 @@ const WeightChart = ({
   return (
     <div style={{ height: "100%" }}>
       <div className="graphHeader">
-        <h5 style={{ margin: 0 }}>Weight</h5>
+        <h5 style={{ margin: 0 }}>{graphName}</h5>
         <div>
           <div style={{ display: "flex" }}>
             <button

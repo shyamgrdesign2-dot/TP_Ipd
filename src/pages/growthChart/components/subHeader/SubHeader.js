@@ -15,7 +15,7 @@ const SubHeader = ({ handleDrawerVital, setShowUpdate }) => {
         </div>
         <div className="detailsStyle">
           <span>{value1}</span>
-          <span className="breakStyle" />
+          <span className="separator" />
           <span>{value2}</span>
         </div>
       </div>

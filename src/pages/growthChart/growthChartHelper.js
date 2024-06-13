@@ -87,19 +87,17 @@ export const dummyData = {
   ],
 };
 
-export const getGrowthChartData = (growthChartData) => {
-  const currentDate = moment();
-
+export const getGrowthChartData = (growthChartData, patientDOB) => {
   return growthChartData.reduce(
     (acc, entry) => {
       const createdDate = moment(entry.tcbc_created_date);
-      const monthsDiff = currentDate.diff(createdDate, "months");
+      const DOB = moment(patientDOB, "Do MMM YYYY");
+      const monthsDiff = createdDate.diff(DOB, "months");
 
       acc.heights.push({ x: monthsDiff, y: entry.height });
       acc.weights.push({ x: monthsDiff, y: entry.weight });
       acc.bmIs.push({ x: monthsDiff, y: entry.bmi });
       acc.ofcs.push({ x: monthsDiff, y: entry.ofc });
-
       return acc;
     },
     {
