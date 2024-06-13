@@ -15,6 +15,7 @@ import Frameicon from "../assets/images/Frame.svg";
 import Investigationicon from "../assets/images/Lab.svg";
 import notesicon from "../assets/images/notes.svg";
 import calenderBlank from "../assets/images/calenderBlank.svg";
+import followUp from "../assets/images/followup.svg";
 
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
@@ -285,6 +286,7 @@ function Cardiology(props) {
                   </Button>
                 </div>
                 <div>
+                { !smartRxFile &&
                   <button
                     className="btn p-0 ms-3"
                     style={{
@@ -311,6 +313,7 @@ function Cardiology(props) {
                   >
                     <i className="icon-Edit"></i>
                   </button>
+                }
                   <button
                     className="btn p-0 ms-3"
                     onClick={() =>
@@ -321,15 +324,17 @@ function Cardiology(props) {
                   >
                     <i className="icon-Print"></i>
                   </button>
-                  <Dropdown
-                    className="btn btn-outline btn-more ms-1"
-                    menu={{ items }}
-                    trigger={["click"]}
-                  >
-                    <a onClick={(e) => e.preventDefault()}>
-                      <i className="icon-More"></i>
-                    </a>
-                  </Dropdown>
+                  { !smartRxFile &&
+                    <Dropdown
+                      className="btn btn-outline btn-more ms-1"
+                      menu={{ items }}
+                      trigger={["click"]}
+                    >
+                      <a onClick={(e) => e.preventDefault()}>
+                        <i className="icon-More"></i>
+                      </a>
+                    </Dropdown>
+                  }
                 </div>
               </div>
             </Card.Header>
@@ -344,16 +349,23 @@ function Cardiology(props) {
               </div>
             ) : //smart image
             smartRxFile ? (
-              <div style={{ padding: "5px" }}>
-                {smartRxFile && (
-                  <img
-                    src={smartRxFile}
-                    alt="Smart Rx"
-                    width="590px"
-                    height="660px"
-                  />
-                )}
-              </div>
+              <>
+                <div style={{ padding: "5px" }}>
+                  {smartRxFile && (
+                    <img
+                      src={smartRxFile}
+                      alt="Smart Rx"
+                      width="590px"
+                      height="660px"
+                    />
+                  )}
+                </div>
+                <div className="d-flex align-items-center mb-14 follow-up-detailsPage">
+                    <img className='me-3' src={followUp} alt="Symptoms" />
+                    <div className="title-common">Follow-up:</div>
+                    <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
+                </div>
+              </>
             ) : (
               <Card.Body className="p-0 cardbody-data">
                 <div>
