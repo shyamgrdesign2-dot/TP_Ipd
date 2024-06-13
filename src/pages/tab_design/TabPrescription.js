@@ -33,6 +33,8 @@ import vitalsDark from "../../assets/images/vitals-dark.svg";
 import medicalHistoryWhite from "../../assets/images/medical-history-white.svg";
 import medicalHistoryDark from "../../assets/images/medical-history-dark.svg";
 import vaccinationWhite from "../../assets/images/vaccination-white.svg";
+import privateNotesWhite from "../../assets/images/private-notes-white.svg";
+import privateNotesDark from "../../assets/images/private-notes-dark.svg";
 
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
@@ -207,9 +209,8 @@ function TabPrescription() {
               frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
             medicineUnit: medicineUnit,
-            tmm_days_duration_type: `${
-              e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
-            }`,
+            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
+              }`,
             unique_id: uuidv4(),
           };
         });
@@ -359,6 +360,26 @@ function TabPrescription() {
         <div className="w-100 bg-body wrapper2 prescription-wrapper p-0">
           <Layout>
             <div className="prescription-sidebar">
+              <button
+                type="button"
+                className="mb-3 text-center btn btn-action"
+                onClick={() =>
+                  vitalsData.length === 0 && vitalsPastList.length === 0
+                    ? handleDrawerVital()
+                    : openCollapsed(1)
+                }
+              >
+                <div
+                  className={`prescription-tab-button rounded-10px ${collapsedFlag == 1 && "active"
+                    }`}
+                >
+                  <img
+                    src={collapsedFlag == 1 ? privateNotesDark : privateNotesWhite}
+                    alt="Private Notes"
+                  />
+                </div>
+                <label className="text-white mt-1">Private Notes</label>
+              </button>
               {customizedPadLeftList?.map((e, i) => {
                 return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
                   <button
@@ -372,9 +393,8 @@ function TabPrescription() {
                     }
                   >
                     <div
-                      className={`prescription-tab-button rounded-10px ${
-                        collapsedFlag == 1 && "active"
-                      }`}
+                      className={`prescription-tab-button rounded-10px ${collapsedFlag == 1 && "active"
+                        }`}
                     >
                       <img
                         src={collapsedFlag == 1 ? vitalsDark : vitalsWhite}
@@ -383,7 +403,7 @@ function TabPrescription() {
                     </div>
                     <label className="text-white mt-1">Vitals</label>
                   </button>
-                ) : 
+                ) :
                   e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
                     <button
                       key={i}
@@ -396,9 +416,8 @@ function TabPrescription() {
                       }
                     >
                       <div
-                        className={`prescription-tab-button rounded-10px ${
-                          collapsedFlag == 2 && "active"
-                        }`}
+                        className={`prescription-tab-button rounded-10px ${collapsedFlag == 2 && "active"
+                          }`}
                       >
                         <img
                           src={
@@ -412,18 +431,18 @@ function TabPrescription() {
                       <label className="text-white mt-1">History</label>
                     </button>
                   ) :
-                  (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
-                    <button
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={handleDrawerVaccination}
-                    >
-                      <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                        <img src={vaccinationWhite} alt="Vitals" />
-                      </div>
-                      <label className="text-white mt-1">Vaccine</label>
-                    </button>
-                  )
+                    (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
+                      <button
+                        type="button"
+                        className="mb-3 text-center btn btn-action"
+                        onClick={handleDrawerVaccination}
+                      >
+                        <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                          <img src={vaccinationWhite} alt="Vitals" />
+                        </div>
+                        <label className="text-white mt-1">Vaccine</label>
+                      </button>
+                    )
               })}
               {/* <button type='button' className="mb-3 text-center btn btn-action">
                                 <div className="prescription-tab-button rounded-10px">

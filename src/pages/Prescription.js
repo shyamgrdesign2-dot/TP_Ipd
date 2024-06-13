@@ -29,6 +29,7 @@ import MedicalHistoryList from "../components/MedicalHistoryList";
 
 import vitals from "../assets/images/Vitals.svg";
 import MedicalHistory from "../assets/images/Medical-History.svg";
+import privateNotes from "../assets/images/private-notes.svg";
 
 import hey from "../assets/images/bg-hey.png";
 
@@ -38,6 +39,7 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import Vaccination from "./vaccination/Vaccination";
 import { checkToShowVaccination } from "./vaccination/service";
 import { viewPatient } from "../redux/appointmentsSlice";
+import PrivateNotesBox from "../components/PrivateNotesBox";
 
 function Prescription() {
   const {
@@ -101,6 +103,7 @@ function Prescription() {
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
+  const [privateNotesDrawer, setPrivateNotesDrawer] = useState(false);
   const [isPediatric, setIsPediatric] = useState(false);
   const isVaccinationAccessableFromGB = useFeatureIsOn(
     "vaccination-new-design"
@@ -270,6 +273,11 @@ function Prescription() {
     setVaccinationDrawer(!vaccinationDrawer);
   };
 
+  // Drawer Private Notes
+  const handleDrawerPrivateNotes = useCallback(() => {
+    setPrivateNotesDrawer(!privateNotesDrawer);
+  }, [privateNotesDrawer]);
+
   useEffect(() => {
     if (isVaccination) {
       handleDrawerVaccination();
@@ -285,9 +293,11 @@ function Prescription() {
         handleDrawerMedicalHistory();
       } else if (flag === 3) {
         handleDrawerVaccination();
+      } else if (flag === 4) {
+        handleDrawerPrivateNotes();
       }
     },
-    [vitalDrawer, medicalHistoryDrawer, vaccinationDrawer]
+    [vitalDrawer, medicalHistoryDrawer, vaccinationDrawer, privateNotesDrawer]
   );
 
   useEffect(() => {
@@ -340,6 +350,28 @@ function Prescription() {
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
             <div className="col-lg-4 col-md-12 col-12">
+              <div className="prescription-box-sm p-14">
+                <div className="d-flex align-items-center justify-content-between">
+                  <div className="d-flex align-items-center">
+                    <img src={privateNotes} alt="Private Notes" className="me-3" />
+                    <div className="title-common">
+                      Private Notes
+                    </div>
+                  </div>
+                  <button
+                    className="btn d-flex align-items-center btn-text"
+                    onClick={handleDrawerPrivateNotes}
+                  >
+                    {" "}
+                    <i
+                      className={`${vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                        } me-1 fs-5`}
+                    ></i>{" "}
+                    <span>{`${vitalsData.length > 0 ? "Edit" : "Add"
+                      }`}</span>
+                  </button>
+                </div>
+              </div>
               {customizedPadLeftList?.map((e, i) => {
                 return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
                   <div key={i} className="prescription-box-sm p-14">
@@ -371,62 +403,60 @@ function Prescription() {
                       )
                     }
                   </div>
-                ) : (
-                  e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
-                    <div key={i} className="prescription-box-sm p-14">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={MedicalHistory}
-                            alt="Medical History"
-                            className="me-3"
-                          />
-                          <div className="title-common">Medical History</div>
-                          {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
+                ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
+                  <div key={i} className="prescription-box-sm p-14">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <img
+                          src={MedicalHistory}
+                          alt="Medical History"
+                          className="me-3"
+                        />
+                        <div className="title-common">Medical History</div>
+                        {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
                             <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                           </Button> */}
-                        </div>
+                      </div>
 
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerMedicalHistory}
-                        >
-                          {" "}
-                          <i
-                            className={`${medicalHistoryData.length > 0
-                              ? "icon-Edit"
-                              : "icon-Add"
-                              } me-1 fs-5`}
-                          ></i>{" "}
-                          <span>{`${medicalHistoryData.length > 0 ? "Edit" : "Add"
-                            }`}</span>
-                        </button>
-                      </div>
-                      {medicalHistoryData.length > 0 && <MedicalHistoryList />}
+                      <button
+                        className="btn d-flex align-items-center btn-text"
+                        onClick={handleDrawerMedicalHistory}
+                      >
+                        {" "}
+                        <i
+                          className={`${medicalHistoryData.length > 0
+                            ? "icon-Edit"
+                            : "icon-Add"
+                            } me-1 fs-5`}
+                        ></i>{" "}
+                        <span>{`${medicalHistoryData.length > 0 ? "Edit" : "Add"
+                          }`}</span>
+                      </button>
                     </div>
-                  ) :
-                    (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
-                      <div className="prescription-box-sm p-14">
-                        <div className="d-flex align-items-center justify-content-between">
-                          <div className="d-flex align-items-center">
-                            <img src={vaccinationImg} alt="vitals" className="me-3" />
-                            <div className="title-common">Vaccination</div>
-                          </div>
-                          <button
-                            className="btn d-flex align-items-center btn-text"
-                            onClick={handleDrawerVaccination}
-                          >
-                            {" "}
-                            <i
-                              className={`icon-Add me-1 fs-5`}
-                            ></i>{" "}
-                            <span>Add</span>
-                          </button>
-                        </div>
+                    {medicalHistoryData.length > 0 && <MedicalHistoryList />}
+                  </div>
+                ) : (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
+                  <div className="prescription-box-sm p-14">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <img src={vaccinationImg} alt="vitals" className="me-3" />
+                        <div className="title-common">Vaccination</div>
                       </div>
-                    )
+                      <button
+                        className="btn d-flex align-items-center btn-text"
+                        onClick={handleDrawerVaccination}
+                      >
+                        {" "}
+                        <i
+                          className={`icon-Add me-1 fs-5`}
+                        ></i>{" "}
+                        <span>Add</span>
+                      </button>
+                    </div>
+                  </div>
                 )
               })}
+
               {/* <div>
                 <button className="btn btn-parameters mx-auto w-100">
                   <div className="align-items-center d-flex justify-content-center">
@@ -514,6 +544,19 @@ function Prescription() {
             </Drawer>
           )
         }
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerPrivateNotes}
+          open={privateNotesDrawer}
+          className="modalWidth-563"
+          width="auto"
+        >
+          <PrivateNotesBox
+            handleDrawerPrivateNotes={handleDrawerPrivateNotes}
+            handleCollapsed={(flag) => handleCollapsed(flag)}
+          />
+        </Drawer>
       </>
     </CashManagerContext.Provider >
   );
