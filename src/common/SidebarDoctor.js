@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "antd";
 import { isMobile } from 'react-device-detect';
 import { NavLink } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { useSelector, useDispatch } from "react-redux";
+import axios from 'axios';
 
+import config from "../config";
 import { useLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import newGif from '../assets/images/new-gif.gif';
@@ -13,6 +15,7 @@ function SidebarDoctor() {
 
     const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
     const { profile } = useSelector((state) => state.doctors);
+    const [tokenData, setTokenData] = useState(null);
 
     useEffect(() => {
         if (profile) {
@@ -21,6 +24,7 @@ function SidebarDoctor() {
                 if (token !== undefined) {
                     try {
                         var decoded = jwtDecode(token);
+                        setTokenData(decoded.result)
                         window.beamer_config = {
                             ...window.beamer_config,
                             product_id: "JBgEuAKX59541",
@@ -38,6 +42,47 @@ function SidebarDoctor() {
         }
     }, [profile]);
 
+
+    const clickOldModule = (moduleName) => {
+        SSO_TO_PM().then(async (data) => {
+            if (data.success == 200) {
+                //   navigate('/', { replace: true })
+                //   clearLocalStorage()
+
+
+                await window.open(`${data.url}&module=${moduleName}`);
+            }
+        });
+
+    }
+    async function SSO_TO_PM() {
+        try {
+            const sendData = {
+                doctor_unique_id: tokenData.doctor_unique_id,
+                mobile_no: tokenData.mobile_no
+            };
+
+            const formData = new FormData();
+            Object.keys(sendData).forEach((key) => {
+                formData.append(key, sendData[key]);
+            });
+
+            const response = await axios.post(config.sso_to_pm_url, formData,
+                {
+                    auth: {
+                        username: config.sso_to_pm_username,
+                        password: config.sso_to_pm_password,
+                    }
+                },
+            );
+
+            return response.data;
+        } catch (err) {
+            console.log(err.message);
+            console.log(err.response.status);
+        }
+    }
+
     return (
         <>
             <div className="SidebarDoctor">
@@ -47,6 +92,7 @@ function SidebarDoctor() {
                     <i className='icon-calendarfill'></i>
                     <div className='mt-1 px-2'>{isMobile ? 'Appt' : <div className='text-truncate'>Appointment</div>}</div>
                 </NavLink>
+
                 {/* <NavLink to="/" className={({ isActive, isPending }) =>
                     isPending ? "pending" : isActive ? "active" : ""
                 }>
@@ -71,6 +117,14 @@ function SidebarDoctor() {
                 </Button>
                 <img src={newGif} width={42} className='mx-auto d-block text-center' alt='New' />
 
+                <br />
+
+                <NavLink onClick={() => clickOldModule('opd_billing')} replace={true} className={({ isActive, isPending }) =>
+                    isPending ? "pending" : isActive ? "" : "active"
+                }>
+                    <i className='icon-billings'></i>
+                    <div className='mt-1 px-2'>{isMobile ? 'OPD Bill' : <div className='text-truncate'>OPD Billing</div>}</div>
+                </NavLink>
             </div>
         </>
     )
