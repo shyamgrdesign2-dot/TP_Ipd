@@ -109,26 +109,30 @@ function PatientDetails() {
                             locationPath={locationPath}
                             isMobile={isMobile}
                             patient_data={patient_data}
-                            viewCaseManagerData={viewCaseManagerData}
+                            viewCaseManagerData={viewCaseManagerData} 
                             sidebarKey={sidebarKey} />
                         {sidebarKey === 1 ? (
-                            <div className="appointment-wrap PatientDetailswrap">
-                                <div className='row'>
-                                    <div className='col-lg-5 col-md-12 col-12'>
-                                        {viewCaseManagerData && viewCaseManagerData?.vitals?.length > 0 && (
-                                            <VitalsBodyComposition loading={loading} passVitals={viewCaseManagerData ? [...viewCaseManagerData.vitals].slice(0, 2) : viewCaseManagerData} />
-                                        )}
-                                        <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
-                                        {/*   <LabParameters />
+                        <div className="appointment-wrap PatientDetailsPageWrap">
+                            <div className='row'>
+                                <div className='col-lg-5 col-md-12 col-12'>
+                                {viewCaseManagerData && viewCaseManagerData?.vitals?.length > 0 && (
+                                        <VitalsBodyComposition loading={loading} passVitals={viewCaseManagerData ? [...viewCaseManagerData.vitals].slice(0, 2) : viewCaseManagerData} />
+                                    )}
+                                    {viewCaseManagerData?.smart_prescription_filename === null &&
+                                        <>
+                                            <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
+                                            <VisitVaccination />
+                                        </>
+                                    }
+                                    {/*   <LabParameters />
                                             <Vaccination /> */}
-                                        <VisitVaccination />
-                                    </div>
-                                    <div className='col-lg-7 col-md-12 col-12'>
-                                        <Cardiology patient_data={patient_data} tcmData={tcmData} loading={loading} viewCaseManagerData={viewCaseManagerData} nextPress={nextPress} prevPress={prevPress} />
-                                    </div>
+                                </div>
+                                <div className='col-lg-7 col-md-12 col-12'>
+                                    <Cardiology patient_data={patient_data} tcmData={tcmData} loading={loading} viewCaseManagerData={viewCaseManagerData} nextPress={nextPress} prevPress={prevPress} />
                                 </div>
                             </div>
-                        ) : (
+                        </div>
+                         ) : (
                             <div className="appointment-wrap PatientDetailswrap">
                                 <CertificateDetails patient_data={patient_data} />
                             </div>
