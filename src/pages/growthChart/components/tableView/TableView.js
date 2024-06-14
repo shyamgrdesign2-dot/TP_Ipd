@@ -2,6 +2,7 @@ import React from "react";
 import { Space } from "antd";
 import "./tableView.scss";
 import { EditOutlined } from "@ant-design/icons";
+import moment from "moment";
 
 const TableView = ({ dataSource, onEdit }) => {
   const columns = [
@@ -54,8 +55,13 @@ const TableView = ({ dataSource, onEdit }) => {
       <tr key={i}>
         <td className="tcell">
           <Space>
-            {item.tcbc_created_date}
-            <EditOutlined color="#fff" onClick={onEdit} />
+            {item.tcbc_created_date
+              ? moment(item.tcbc_created_date).format("DD MMM YYYY")
+              : ""}
+            <EditOutlined
+              className="custom-icon"
+              onClick={() => onEdit(item)}
+            />
           </Space>
         </td>
         <td className="tcell">{item.height}</td>

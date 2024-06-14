@@ -557,10 +557,10 @@ function Prescription() {
             onClose={handleDrawerGrowth}
             open={growthDrawer}
             width="100%"
+            push={false}
           >
             <GrowthChart
               handleDrawerVaccination={handleDrawerGrowth}
-              handleDrawerVital={handleDrawerVital}
             />
           </Drawer>
         )}

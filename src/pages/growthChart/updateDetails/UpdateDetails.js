@@ -48,7 +48,6 @@ export default function UpdateDetails({
         parentalDetails?.gestation_period_days,
     };
     const createParentalDetailsRes = await createParentalDetails(payload);
-    debugger
     if (createParentalDetailsRes?.status === 201) {
       setShowSuccess(true);
       setTimeout(() => {

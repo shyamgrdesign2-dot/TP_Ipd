@@ -91,10 +91,10 @@ export const dummyData = {
 };
 
 const SubHeader = ({
-  handleDrawerVital,
+  handleDrawerMeasurements,
   setShowUpdate,
   setShowTableView,
-  allGrowthChartParams,
+  parentalDetails,
 }) => {
   const growthDetails = (title, value1, value2) => {
     return (
@@ -132,7 +132,7 @@ const SubHeader = ({
       <Button
         type="button"
         className="btn-41 btn ant-btn-text btn-input addMeasurementBtn"
-        onClick={handleDrawerVital}
+        onClick={handleDrawerMeasurements}
       >
         <div className="addIconStyle">
           <i className="icon-Add" />
@@ -144,11 +144,31 @@ const SubHeader = ({
       </Button>
       <div className="rightSubHeader">
         {growthDetails(
-          "Mid parental height: 169cm",
-          "Mother: 156cm",
-          "Father: 170cm"
+          `Mid parental height: ${parentalDetails?.mid_parental_height ?? ""}`,
+          `Mother: ${
+            parentalDetails?.mother_height
+              ? parentalDetails?.mother_height + " cms"
+              : ""
+          }`,
+          `Father: ${
+            parentalDetails?.father_height
+              ? parentalDetails?.father_height + " cms"
+              : ""
+          }`
         )}
-        {growthDetails("Gestation period", "37 weeks", "4 days")}
+        {growthDetails(
+          "Gestation period",
+          `${
+            parentalDetails?.gestation_period_weeks
+              ? parentalDetails?.gestation_period_weeks + " weeks"
+              : ""
+          }`,
+          `${
+            parentalDetails?.gestation_period_days
+              ? parentalDetails?.gestation_period_days + " days"
+              : ""
+          }`
+        )}
         {toggleGrowthDetails("Show", "Table View")}
         {toggleGrowthDetails("Show Timeine", "in years")}
       </div>

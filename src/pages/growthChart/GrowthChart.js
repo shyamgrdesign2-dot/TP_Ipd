@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Col, Row } from "react-bootstrap";
 import VaccineHeader from "../vaccination/components/vaccineHeader/VaccineHeader";
 import "./GrowthChart.scss";
@@ -6,17 +6,17 @@ import WeightChart from "./components/growthGraph/GrowthGraph";
 import SubHeader from "./components/subHeader/SubHeader";
 import UpdateDetails from "./updateDetails/UpdateDetails";
 import { useState } from "react";
-import AddDOB from "../growthChart/components/addDOB/AddDOB";
 import { getAllGrowthChartParams, getParentalDetails } from "./service";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getPatientDetails } from "../vaccination/service";
 import moment from "moment";
 import TableView from "./components/tableView/TableView";
+import Measurements from "./components/measurements/Measurements";
+import { Drawer } from "antd";
 
-const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
+const GrowthChart = ({ handleDrawerVaccination }) => {
   const growthData = [1, 1, 1, 1, 1];
-  const [showDob, setShowDob] = useState(false);
   const { state } = useLocation();
   const { patient_data } = state;
   const [loading, setLoading] = useState(false);
@@ -26,6 +26,8 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
   const [parentalDetails, setParentalDetails] = useState();
   const [showTableView, setShowTableView] = useState(false);
   const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
+  const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
+  const [measurementsData, setMeasurementsData] = useState([]);
 
   useEffect(() => {
     getPatientDetail();
@@ -42,19 +44,41 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
     setAllGrowthChartParams(growthChartParamsRes);
   };
 
+  function getMidParentalHeight(fatherHeight, motherHeight) {
+    const maleChildHeight = (fatherHeight + motherHeight + 13) / 2;
+    const femaleChildHeight = (fatherHeight + motherHeight - 13) / 2;
+
+    return {
+      maleChildHeight,
+      femaleChildHeight,
+    };
+  }
+
   const getPatientParentalDetails = async () => {
     const getParentalDetailsRes = await getParentalDetails(
       patient_data?.pm_id,
       patient_data?.pm_pid
     );
-    console.log({ getParentalDetailsRes });
     if (getParentalDetailsRes) {
+      const { father_height, mother_height, gestation_period } =
+        getParentalDetailsRes;
+      const { maleChildHeight, femaleChildHeight } = getMidParentalHeight(
+        father_height,
+        mother_height
+      );
       setParentalDetails({
         ...getParentalDetailsRes,
-        gestation_period_weeks: getParentalDetailsRes?.gestation_period
+        ...(father_height &&
+          mother_height && {
+            mid_parental_height:
+              gcPatientDetails?.vac_gender === "Male"
+                ? maleChildHeight
+                : femaleChildHeight,
+          }),
+        gestation_period_weeks: gestation_period
           ? Math.floor(getParentalDetailsRes?.gestation_period / 7)
           : "",
-        gestation_period_days: getParentalDetailsRes?.gestation_period
+        gestation_period_days: gestation_period
           ? getParentalDetailsRes?.gestation_period % 7
           : "",
       });
@@ -68,12 +92,7 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
       patient_uid: patient_data?.patient_unique_id,
       hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
     });
-    if (
-      !patientDetails?.vac_id ||
-      (patientDetails?.vac_id && !patientDetails?.vac_dob)
-    ) {
-      setShowDob(true);
-    } else {
+    if (patientDetails?.vac_dob) {
       patientDetails.vac_dob = moment(patientDetails.vac_dob).format(
         "DD-MMM-YYYY"
       );
@@ -82,6 +101,10 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
     setLoading(false);
   };
 
+  const handleDrawerMeasurements = useCallback(() => {
+    setMeasurementsDrawer(!measurementsDrawer);
+  }, [measurementsDrawer]);
+
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader
@@ -89,12 +112,23 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
         patientDetails={gcPatientDetails}
       />
       <SubHeader
-        handleDrawerVital={handleDrawerVital}
+        handleDrawerMeasurements={handleDrawerMeasurements}
         setShowUpdate={setShowUpdate}
         setShowTableView={setShowTableView}
-        allGrowthChartParams={allGrowthChartParams}
+        parentalDetails={parentalDetails}
       />
-
+      {measurementsDrawer && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerMeasurements}
+          open={measurementsDrawer}
+          className="modalWidth-700"
+          width="auto"
+        >
+          <Measurements handleDrawerMeasurements={handleDrawerMeasurements} />
+        </Drawer>
+      )}
       {showUpdate && (
         <UpdateDetails
           show={showUpdate}
@@ -103,19 +137,9 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
           setParentalDetails={setParentalDetails}
         />
       )}
-      {showDob && (
-        <AddDOB
-          show={showDob}
-          setShowDob={setShowDob}
-          patientDetails={gcPatientDetails}
-          handleDrawerVaccination={() => null}
-          getVaccineDetails={() => null}
-          setLoading={setLoading}
-        />
-      )}
       {showTableView ? (
         <TableView
-          onEdit={handleDrawerVital}
+          onEdit={handleDrawerMeasurements}
           dataSource={allGrowthChartParams}
         />
       ) : (

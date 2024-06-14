@@ -3,7 +3,8 @@
   margin: auto;
   padding: 10px;
   width: 1066px;
-  border-radius: 5px;
+  border:solid black 1px;
+  border-radius:6px;
 }
 .tcell {
   border: 1px solid #ddd;
@@ -15,22 +16,10 @@
   line-height: 18px;
   background-color: #fff;
   padding: 6px 20px !important;
-
-  .tdateCell {
-    display: flex;
-    align-items: center;
-    column-gap: 10px;
-
-    span {
-      border-radius: 4px;
-      padding: 2px 4px;
-      line-height: 18px;
-    }
-  }
 }
 .theaderCellStyle {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 21px;
   background-color: rgba(241, 241, 245, 0.4) !important;
 }
@@ -45,4 +34,9 @@
   width: 1130px;
   gap: 24px;
   opacity: 0px;
+}
+
+.custom-icon {
+  color: #4B4AD5 !important;
+  font-size: 16px;
 }
