@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import moment from "moment";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { isChrome, isSafari } from "react-device-detect";
+import { isChrome, isMobile, isSafari } from "react-device-detect";
 import {
     Tabs,
     Table,
@@ -489,7 +489,7 @@ function AppointmentData({ locationPath }) {
             width: 170,
             render: (_, record,index) => (
                 <div size="middle" style={{display : "flex"}}>
-                    {isSmartSyncAccessableFromGB ? (
+                    {isSmartSyncAccessableFromGB && !isMobile ? (
                         <>
                             {selectedTab !== TAB_CANCELLED && (
                                 <button 
@@ -526,7 +526,7 @@ function AppointmentData({ locationPath }) {
                                 {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
                             </button>
                             )}
-                       </>
+                        </>
                     )}
                     <Dropdown
                         className="btn btn-outline btn-more ms-3"
