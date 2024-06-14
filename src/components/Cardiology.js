@@ -241,7 +241,7 @@ function Cardiology(props) {
   };
 
   return (
-    <div className="appointment-wrap PatientDetailsPageWrap m-0">
+    <div className="appointment-wrap PatientDetailswrap m-0">
       <Card className="">
         {viewCaseManagerData ? (
           <>
