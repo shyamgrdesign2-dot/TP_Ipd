@@ -187,7 +187,7 @@ function WalkInConsultation() {
             > 
               Patient Details
             </Button>
-            {isSmartSyncAccessableFromGB ? (
+            {isSmartSyncAccessableFromGB  && !isMobile ? (
               <div className="d-flex btn btn-smart-rx-walkin">
               <div style={{paddingLeft: "6px"}} onClick={() => onSmartRxClick(patient)}>
                 <img src={smartPad} alt="vitals" />
@@ -375,7 +375,7 @@ function WalkInConsultation() {
                   </Button>
                   {/* </Link> */}
                 </div>
-                {isSmartSyncAccessableFromGB ? (
+                {isSmartSyncAccessableFromGB && !isMobile ? (
                   <>
                   <div
                     style={{

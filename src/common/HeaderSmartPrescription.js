@@ -355,7 +355,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                     </>
                   }
               /> */}
-              <div className="d-flex align-items-center">
+              {/* <div className="d-flex align-items-center">
                 <button
                   className="btn d-flex align-items-center btn-play"
                   onClick={() => {}}
@@ -367,7 +367,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                   />
                   <span>Tutorial</span>
                 </button>
-              </div>
+              </div> */}
               <Button
                 type="button"
                 className="btn align-items-center d-flex btn-41 btn-clear me-20"
