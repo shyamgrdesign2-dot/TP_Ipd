@@ -112,7 +112,7 @@ function PatientDetails() {
                             viewCaseManagerData={viewCaseManagerData} 
                             sidebarKey={sidebarKey} />
                         {sidebarKey === 1 ? (
-                        <div className="appointment-wrap PatientDetailswrap">
+                        <div className="appointment-wrap PatientDetailsPageWrap">
                             <div className='row'>
                                 <div className='col-lg-5 col-md-12 col-12'>
                                 {viewCaseManagerData && viewCaseManagerData?.vitals?.length > 0 && (
