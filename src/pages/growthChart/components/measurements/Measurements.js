@@ -12,6 +12,7 @@ import { errorMessage, onlyDecimalFormat } from "../../../../utils/utils";
 import CashManagerContext from "../../../../context/CashManagerContext";
 import moment from "moment";
 import { addGrowthChartParam } from "../../service";
+import SuccessPopup from "../SuccessPopup";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
@@ -25,6 +26,7 @@ function Measurements(props) {
   const { patient_data } = useContext(CashManagerContext);
   const [measurementsData, setMeasurementsData] = useState([]);
   const [dateString, setDateString] = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     if (measurementsData.length === 0) {
@@ -153,7 +155,10 @@ function Measurements(props) {
     });
     const updateGrowthRes = await Promise.all(result);
     if (updateGrowthRes?.every((res) => res?.tcbc_id)) {
-      handleDrawerMeasurements();
+      setShowSuccess(true);
+      setTimeout(() => {
+        handleDrawerMeasurements();
+      }, 1000);
     }
   };
 
@@ -285,6 +290,7 @@ function Measurements(props) {
           </div>
         )}
       </Card>
+      <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
     </>
   );
 }

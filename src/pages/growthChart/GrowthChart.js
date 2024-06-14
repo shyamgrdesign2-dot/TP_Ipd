@@ -17,7 +17,6 @@ import { Drawer } from "antd";
 import { dummyData, getGrowthChartData } from "./growthChartHelper";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
-  const growthData = [1, 1, 1, 1, 1];
   const { state } = useLocation();
   const { patient_data } = state;
   const [loading, setLoading] = useState(false);
@@ -190,17 +189,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           <Measurements handleDrawerMeasurements={handleDrawerMeasurements} />
         </Drawer>
       )}
-      <div className="scrollable-container">
-        <Row
-          xs={1}
-          sm={isFullscreen ? 1 : 2}
-          md={isFullscreen ? 1 : 2}
-          lg={isFullscreen ? 1 : 2}
-          className="gy-4"
-        >
-          {getData()}
-        </Row>
-      </div>
 
       {showUpdate && (
         <UpdateDetails
@@ -217,12 +205,14 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         />
       ) : (
         <div className="scrollable-container">
-          <Row xs={1} sm={2} md={2} lg={2} className="gy-4">
-            {growthData.map((item, index) => (
-              <Col key={index} className="gx-4">
-                <WeightChart />
-              </Col>
-            ))}
+          <Row
+            xs={1}
+            sm={isFullscreen ? 1 : 2}
+            md={isFullscreen ? 1 : 2}
+            lg={isFullscreen ? 1 : 2}
+            className="gy-4"
+          >
+            {getData()}
           </Row>
         </div>
       )}
