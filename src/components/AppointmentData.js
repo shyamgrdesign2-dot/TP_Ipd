@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import moment from "moment";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { isChrome, isSafari } from "react-device-detect";
+import { isChrome, isMobile, isSafari } from "react-device-detect";
 import {
     Tabs,
     Table,
@@ -21,19 +21,20 @@ import dayjs from "dayjs";
 
 import { errorMessage } from "../utils/utils";
 
-import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../utils/constants";
+import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE } from "../utils/constants";
 import noData from "../assets/images/nodata-found.svg";
 import visitEnd from '../assets/images/end-visit.svg';
 import ImgcancelEnd from '../assets/images/cancel-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
 import alertIcon from '../assets/images/alertIcon.svg';
+import { MESSAGE_KEY } from "../utils/constants";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import docimg from "../assets/images/docimg.png";
 import welcomdoc from "../assets/images/welcom-doc.svg";
 import suporticon from "../assets/images/suport-icon.svg";
 import windoc from "../assets/images/win-doc.png";
 
 import CommonModal from "../common/CommonModal";
-import { MESSAGE_KEY } from "../utils/constants";
 import { useSelector, useDispatch } from "react-redux";
 
 import {
@@ -74,6 +75,24 @@ function AppointmentData({ locationPath }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [pageNo, setPageNo] = useState(0);
     const [visitTypeFilters, setVisitTypeFilters] = useState('');
+    const [openRowIndex, setOpenRowIndex] = useState(null);
+    const consultButtonRef = useRef(null);
+    const isSmartSyncAccessableFromGB = useFeatureIsOn(
+        GB_ISCRIBE
+    );
+
+    const handleClickOutside = (event) => {
+        if (!consultButtonRef?.current?.contains(event.target)) {
+            setOpenRowIndex(null);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const items = [
         {
@@ -356,6 +375,15 @@ function AppointmentData({ locationPath }) {
         navigate("/prescription", { state: { patient_data: record } })
     }
 
+    const onSmartRxClick = async (record) => {
+        window.Moengage.track_event("patient_search_consult", {
+            "doctor_id": profile?.doctor_unique_id,
+            "patient_id": record?.patient_unique_id
+        });
+        navigate("/smart-prescription", { state: { patient_data: record } })
+    }
+
+
     const onPrintRxUrlClick = async (record) => {
         if (record.print_rx_url) {
             if (!isChrome && !isSafari) {
@@ -459,12 +487,46 @@ function AppointmentData({ locationPath }) {
             title: "Action",
             key: "action",
             width: 170,
-            render: (_, record) => (
-                <div size="middle">
-                    {selectedTab !== TAB_CANCELLED && (
-                        <button className="btn btn-outline-primary btn-consult" onClick={() => selectedTab === TAB_QUEUE ? onConsultClick(record) : onPrintRxUrlClick(record)}>
-                            {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
-                        </button>
+            render: (_, record,index) => (
+                <div size="middle" style={{display : "flex"}}>
+                    {isSmartSyncAccessableFromGB && !isMobile ? (
+                        <>
+                            {selectedTab !== TAB_CANCELLED && (
+                                <button 
+                                    // className="btn btn-outline-primary btn-smart-rx" 
+                                    className={`btn btn-outline-primary ${selectedTab === TAB_FINISHED ? 'btn-print-rx' : 'btn-smart-rx'}`}
+                                    onClick={() => selectedTab === TAB_QUEUE ? onSmartRxClick(record) : onPrintRxUrlClick(record)}
+                                >
+                                    {selectedTab === TAB_FINISHED ? "PrintRx" : "SmartRx"}
+                                </button>
+                            )}
+                            {selectedTab === TAB_QUEUE &&( 
+                                <button 
+                                    className="btn btn-outline-primary btn-down-arrow" 
+                                    onClick={() => setOpenRowIndex(openRowIndex === index ? null : index)}
+                                >
+                                    <span role="img" aria-label="down" class="anticon anticon-down ant-select-suffix">
+                                    <i
+                                        className="icon-right"
+                                        style={{ display: "block", transform: `rotate(270deg)` }}
+                                    />
+                                    </span>
+                                </button>
+                            )}
+                            {openRowIndex === index &&
+                                <button ref={consultButtonRef} className="btn-consult" onClick={() => onConsultClick(record)}>
+                                    Consult
+                                </button>
+                            }
+                        </>
+                    ) : (
+                        <>
+                            {selectedTab !== TAB_CANCELLED && (
+                            <button className="btn btn-outline-primary" onClick={() => selectedTab === TAB_QUEUE ? onConsultClick(record) : onPrintRxUrlClick(record)}>
+                                {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
+                            </button>
+                            )}
+                        </>
                     )}
                     <Dropdown
                         className="btn btn-outline btn-more ms-3"

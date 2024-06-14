@@ -10,6 +10,8 @@ import config from "./config";
 import AppointmentList from "./pages/AppointmentList";
 import PatientDetails from "./pages/PatientDetails";
 import Prescription from "./pages/Prescription";
+import SmartPrescription from "./pages/SmartPrescription";
+import SmartRxPreview from "./pages/SmartRxPreview";
 import TabPrescription from "./pages/tab_design/TabPrescription";
 import PrescriptionPrintView from "./pages/PrescriptionPrintView";
 import ConfigurePrintSetting from "./pages/ConfigurePrintSetting";
@@ -47,6 +49,7 @@ function App() {
         const decodedToken = jwtDecode(token);
         growthbook?.setAttributes({
           doctorId: decodedToken?.result?.doctor_unique_id,
+          id: `${decodedToken?.result?.user_id}`
         });
       } catch (e) {
         console.log(e);
@@ -86,6 +89,8 @@ function App() {
                 <Route path="configure_print_setting" element={<ConfigurePrintSetting />} />
                 <Route path="certificate" element={<MedicalCertificate />} />
                 <Route path="certificate_print_view" element={<CertificatePrintView />} />
+                <Route path="smart-prescription" element={<SmartPrescription />} />
+                <Route path="print-smart-rx" element={<SmartRxPreview />} />
               </Routes>
             </PersistGate>
           </Provider>
