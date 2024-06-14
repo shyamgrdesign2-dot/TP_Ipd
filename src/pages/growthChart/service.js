@@ -4,7 +4,7 @@ import config from "../../config";
 const baseUrl = { customBaseUrl: config.growth_chart_api_url };
 
 export const getAllGrowthChartParams = async function ({ pm_id, pm_pid }) {
-  let allGrowthChartParams = {};
+  let allGrowthChartParams = [];
   try {
     allGrowthChartParams = await api.get(
       `growthChart/all?pm_id=${pm_id}&pm_pid=${pm_pid}`,

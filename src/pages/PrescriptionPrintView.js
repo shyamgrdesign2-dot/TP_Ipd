@@ -11,12 +11,8 @@ import { useReactToPrint } from 'react-to-print';
 
 import { errorMessage } from "../utils/utils";
 
-import visitEnd from '../assets/images/end-visit.svg';
-import imgCloseVisit from '../assets/images/close-visit.svg';
 import messageSent from '../assets/images/message-sent.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
-
-import { MESSAGE_KEY } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -47,26 +43,26 @@ const LANGUAGE_LIST = [
         value: 4,
         label: 'Marathi',
     },
-    {
-        value: 5,
-        label: 'Telugu',
-    },
+    // {
+    //     value: 5,
+    //     label: 'Telugu',
+    // },
     {
         value: 6,
         label: 'Kannada',
     },
-    {
-        value: 7,
-        label: 'Urdu',
-    },
-    {
-        value: 8,
-        label: 'Punjabi',
-    },
-    {
-        value: 9,
-        label: 'Malayalam',
-    },
+    // {
+    //     value: 7,
+    //     label: 'Urdu',
+    // },
+    // {
+    //     value: 8,
+    //     label: 'Punjabi',
+    // },
+    // {
+    //     value: 9,
+    //     label: 'Malayalam',
+    // },
     {
         value: 10,
         label: 'Tamil',
@@ -99,25 +95,6 @@ function PrescriptionPrintView() {
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
-
-    useEffect(() => {
-        message.open({
-            key: MESSAGE_KEY,
-            type: '',
-            className: 'message-appointment',
-            content: (
-                <div className='d-flex align-items-center'>
-                    <img src={visitEnd} className='me-3' />
-                    <div>
-                        <div className='title-common text-start fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
-                        <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
-                    </div>
-                    <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
-                </div>
-            ),
-            duration: 5,
-        });
-    }, []);
 
     // const printContent = useReactToPrint({
     //     content: () => printRef.current,

@@ -118,7 +118,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         if (id == 1) {
             value = `${caseManagerData?.patient_data?.patient_salutation} ${caseManagerData?.patient_data?.patient_name} ${caseManagerData?.patient_data?.patient_id}`
         } else if (id == 2) {
-            value = `${caseManagerData?.patient_data?.patient_date_time ? moment(caseManagerData?.patient_data?.patient_date_time).format('DD/MM/YYYY HH:mm:ss') : '-'}`
+            value = `${caseManagerData?.patient_data?.patient_consultaion_date ? moment(caseManagerData?.patient_data?.patient_consultaion_date).format('DD/MM/YYYY HH:mm:ss') : '-'}`
         } else if (id == 3) {
             value = `${caseManagerData?.patient_data?.patient_age ? `${caseManagerData?.patient_data?.patient_age}Years` : '-'}, ${caseManagerData?.patient_data?.patient_gender}`
         } else if (id == 4) {
@@ -905,12 +905,15 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     </View>
                                                     {initialRows.map((item, i) => {
                                                         return (
-                                                            (item['0'] != '-' || (item.hasOwnProperty('1') && item['1'] != '-')) && (
+                                                            (item['0'] != '-' || (item.hasOwnProperty('1') && item['1'] != '-') || (item.hasOwnProperty('2') && item['2'] != '-')) && (
                                                                 <View style={styles.row} key={i}>
                                                                     <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.name}</Text>
                                                                     <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['0']}</Text>
                                                                     {item.hasOwnProperty('1') && (
                                                                         <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['1']}</Text>
+                                                                    )}
+                                                                    {item.hasOwnProperty('2') && (
+                                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['2']}</Text>
                                                                     )}
                                                                 </View>
                                                             )

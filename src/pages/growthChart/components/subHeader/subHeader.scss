@@ -6,10 +6,6 @@
   align-items: center;
   padding: 14px 40px;
 
-  @media only screen and (max-width: 1200px) {
-    padding: 14px 10px;
-  }
-
   .addMeasurementBtn {
     width: 172px !important;
     height: 60px !important;
@@ -65,15 +61,16 @@
       font-size: 18px;
     }
 
-    .details {
+    .detailsStyle {
       display: flex;
-      column-gap: 10px;
+      flex-direction: row;
+      justify-content: space-between;
       align-items: center;
-    }
 
-    .breakStyle {
-      height: 11px;
-      border: 1px solid #eaecf0;
+      .separator {
+        height: 15px;
+        border: 1px solid #eaecf0;
+      }
     }
   }
 

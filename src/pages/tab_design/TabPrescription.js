@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Layout, Drawer } from "antd";
+import { Layout, Drawer, DatePicker, Input, Button, Col, Row } from "antd";
 import { Content } from "antd/es/layout/layout";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -58,7 +58,6 @@ function TabPrescription() {
     (state) => state.vitals
   );
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
@@ -79,7 +78,9 @@ function TabPrescription() {
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
+  const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
   const [isPediatric, setIsPediatric] = useState(false);
+  const [isGrowthChart, setIsGrowthChart] = useState(false);
   const isVaccinationAccessableFromGB = useFeatureIsOn(
     "vaccination-new-design"
   );
@@ -108,6 +109,7 @@ function TabPrescription() {
     setFollowUpDate,
     additionalNote,
     setAdditionalNote,
+    startTime
   };
 
   const [collapsed, setCollapsed] = useState(false);
@@ -267,7 +269,6 @@ function TabPrescription() {
 
   // Drawer Vaccination
   const handleDrawerVaccination = () => {
-    setCollapsedFlag(3);
     setVaccinationDrawer(!vaccinationDrawer);
   };
 
@@ -275,6 +276,7 @@ function TabPrescription() {
   const handleDrawerGrowth = () => {
     setCollapsedFlag(4);
     setGrowthDrawer(!growthDrawer);
+    setIsGrowthChart(!isGrowthChart);
   };
 
   useEffect(() => {
@@ -312,29 +314,6 @@ function TabPrescription() {
       vaccinationDrawer,
     ]
   );
-
-  // Event listener for messages from the InAppBrowser
-  const handleMessage = (event) => {
-    console.log("event", { event });
-    if (event.data === "vaccinationPrintDone") {
-      navigate("/prescription", {
-        state: { patient_data: patient_data },
-        replace: true,
-      });
-      handleDrawerVaccination();
-    } else {
-      console.error("Error:", event.data.message);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("message", handleMessage);
-
-    // Clean up the event listener on component unmount
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, []);
 
   useEffect(() => {
     const patientLastHistory = async () => {
@@ -381,7 +360,7 @@ function TabPrescription() {
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessableFromGB || isPediatric} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper p-0">
           <Layout>
             <div className="prescription-sidebar">
@@ -409,8 +388,8 @@ function TabPrescription() {
                     </div>
                     <label className="text-white mt-1">Vitals</label>
                   </button>
-                ) : (
-                  e.tmdpm_id === 3 && e.tmdpm_status === 0 && (
+                ) : 
+                  e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
                     <button
                       key={i}
                       type="button"
@@ -437,30 +416,20 @@ function TabPrescription() {
                       </div>
                       <label className="text-white mt-1">History</label>
                     </button>
+                  ) :
+                  (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
+                    <button
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={handleDrawerVaccination}
+                    >
+                      <div className="bg-secondary-light prescription-tab-button rounded-10px">
+                        <img src={vaccinationWhite} alt="Vitals" />
+                      </div>
+                      <label className="text-white mt-1">Vaccine</label>
+                    </button>
                   )
-                );
               })}
-              {(!!isVaccinationAccessableFromGB || isPediatric) && (
-                <button
-                  type="button"
-                  className="mb-3 text-center btn btn-action"
-                  onClick={handleDrawerVaccination}
-                >
-                  <div
-                    className={`prescription-tab-button rounded-10px ${
-                      collapsedFlag === 3 && "active"
-                    }`}
-                  >
-                    <img
-                      src={
-                        collapsedFlag === 3 ? vaccinationDark : vaccinationWhite
-                      }
-                      alt="Vaccine"
-                    />
-                  </div>
-                  <label className="text-white mt-1">Vaccine</label>
-                </button>
-              )}
               {
                 <button
                   type="button"
@@ -577,7 +546,7 @@ function TabPrescription() {
             </div>
           </Layout>
         </div>
-        <Drawer
+        {vitalDrawer && (<Drawer
           closeIcon={false}
           placement="right"
           onClose={handleDrawerVital}
@@ -588,8 +557,9 @@ function TabPrescription() {
           <VitalsBox
             handleDrawerVital={handleDrawerVital}
             handleCollapsed={(flag) => handleCollapsed(flag)}
+            isGrowthChart={isGrowthChart}
           />
-        </Drawer>
+        </Drawer>)}
         <Drawer
           closeIcon={false}
           placement="right"

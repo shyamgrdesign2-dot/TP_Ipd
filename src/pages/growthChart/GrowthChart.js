@@ -14,6 +14,7 @@ import moment from "moment";
 import TableView from "./components/tableView/TableView";
 import Measurements from "./components/measurements/Measurements";
 import { Drawer } from "antd";
+import { dummyData, getGrowthChartData } from "./growthChartHelper";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const growthData = [1, 1, 1, 1, 1];
@@ -21,6 +22,66 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { patient_data } = state;
   const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [growthChartData, setGrowthChartData] = useState({
+    Height: [],
+    Weight: [],
+    BMI: [],
+    OFC: [],
+  });
+
+  useEffect(() => {
+    getGrowthChartDetails();
+  }, []);
+
+  const getGrowthChartDetails = async () => {
+    const allGrowthChartParams = await getAllGrowthChartParams({
+      pm_id: patient_data?.pm_id || 0,
+      pm_pid: patient_data?.pm_pid || 0,
+    });
+    if (allGrowthChartParams && patient_data?.DOB) {
+      setGrowthChartData(
+        getGrowthChartData(allGrowthChartParams, patient_data?.DOB)
+      );
+    }
+  };
+
+  const getData = () => {
+    return Object.keys(growthChartData).map((key) => {
+      if (growthChartData.hasOwnProperty(key)) {
+        const chartData = { ...dummyData };
+        // chartData.datasets[5] = {
+        //   ...chartData.datasets[5],
+        //   data: growthChartData[key],
+        //   borderColor: growthChartData[key].map((item) =>
+        //     item.isMalnutrition ? "#FF0000" : "#19BB7A"
+        //   ),
+        //   backgroundColor: growthChartData[key].map((item) =>
+        //     item.isMalnutrition ? "#FF0000" : "#19BB7A"
+        //   ),
+        // };
+
+        return (
+          <Col key={key} className="gx-4">
+            <div
+              className={`graphContainer ${
+                isFullscreen ? "fullScreenStyle" : ""
+              }`}
+            >
+              <WeightChart
+                data={chartData}
+                isFullscreen={isFullscreen}
+                setIsFullscreen={setIsFullscreen}
+                handleDrawerVital={handleDrawerMeasurements}
+                graphName={key}
+              />
+            </div>
+          </Col>
+        );
+      }
+      return null;
+    });
+  };
   const [gcPatientDetails, setGcPatientDetails] = useState();
   const { profile } = useSelector((state) => state.doctors);
   const [parentalDetails, setParentalDetails] = useState();
@@ -129,6 +190,18 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           <Measurements handleDrawerMeasurements={handleDrawerMeasurements} />
         </Drawer>
       )}
+      <div className="scrollable-container">
+        <Row
+          xs={1}
+          sm={isFullscreen ? 1 : 2}
+          md={isFullscreen ? 1 : 2}
+          lg={isFullscreen ? 1 : 2}
+          className="gy-4"
+        >
+          {getData()}
+        </Row>
+      </div>
+
       {showUpdate && (
         <UpdateDetails
           show={showUpdate}

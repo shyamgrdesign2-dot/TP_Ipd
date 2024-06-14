@@ -14,6 +14,7 @@ import {
 } from "../redux/vitalsSlice";
 import moment from "moment";
 import { addGrowthChartParam } from "../pages/growthChart/service";
+import SuccessPopup from "../pages/vaccination/components/SuccessPopup";
 
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD MMM, YY'
@@ -34,6 +35,7 @@ function VitalsBox(props) {
     const { patient_data, vitalsData, setVitalsData } = useContext(CashManagerContext);
     const [childVitalsData, setChildVitalsData] = useState([]);
     const [dateString, setDateString] = useState(null);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     useEffect(() => {
         if (selectedVitalsList.length > 0) {
@@ -217,7 +219,10 @@ function VitalsBox(props) {
         });
         const updateGrowthRes = await Promise.all(result);
         if (updateGrowthRes?.every((res) => res?.tcbc_id)) {
-          handleCollapsed(1);
+            setShowSuccess(true);
+            setTimeout(() => {
+             handleCollapsed(1);
+            }, 1000);
         } 
     }
 
@@ -289,7 +294,7 @@ function VitalsBox(props) {
                         <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={handleDrawerVital}>
                             <i className='icon-Cross fs-3'></i>
                         </Button>
-                        <div className="modal-title">Vitals</div>
+                        <div className="modal-title">{isGrowthChart? "Measurements" : "Vitals"}</div>
                     </div>
                     <Button onClick={isGrowthChart ? onAddGrowthData : onAddUpdateClicked} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading} disabled={childVitalsData.length > 0 ? false : true}>
                         Done
@@ -372,6 +377,7 @@ function VitalsBox(props) {
                     </div>
                 )}
             </Card>
+            <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
         </>
     );
 }
