@@ -111,6 +111,17 @@ function WalkInConsultation() {
       {
         label: (
           <span
+            style={{
+              position: "absolute",
+              left: "-6.5rem",
+              top: "-6px",
+              backgroundColor: "white",
+              padding: "6px 68px 4px 14px",
+              borderRadius: "9px",
+              border: "1px solid #d5d5d5",
+              display: "inline-block",
+              cursor: "pointer",
+            }}
             onClick={() => {
               setAutoCompleteFlag(false)
               onConsultClick(record);
@@ -178,12 +189,11 @@ function WalkInConsultation() {
             </Button>
             {isSmartSyncAccessableFromGB ? (
               <div className="d-flex btn btn-smart-rx-walkin">
-              <div style={{paddingLeft: "6px"}}>
+              <div style={{paddingLeft: "6px"}} onClick={() => onSmartRxClick(patient)}>
                 <img src={smartPad} alt="vitals" />
                 <button
                   // className="btn btn-outline-primary btn-smart-rx"
                   className="btn btn-smartRx-text"
-                  onClick={() => onSmartRxClick(patient)}
                 >
                   SmartRx
                 </button>

@@ -467,6 +467,17 @@ function SmartPrescription() {
     connectWebSocket();
   };
 
+  useEffect(() => {
+    // this is to remove the click from the right container.
+    handleWrite()
+    return () => {
+      // Cleanup WebSocket connection on component unmount
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+    };
+  }, []);
+
   const openModal = (success, message) => {
     setShowModal(true);
     setUploadSuccess(success);
@@ -571,7 +582,6 @@ function SmartPrescription() {
               style={{
                 width: "61%",
                 height: "100%",
-                overflowY: "auto",
                 position: "relative",
                 left: "39%",
               }}
