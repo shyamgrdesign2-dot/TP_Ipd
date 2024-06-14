@@ -575,7 +575,20 @@ body {
         border-radius: 9px;
         padding: 7px 186px 7px 9px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        z-index: 1;
+        z-index: 2;
+    }
+    .btn-consult-patient-details{
+        border: 1px solid rgb(255, 255, 255);
+        position: absolute;
+        top: 108%;
+        width: 100%;
+        right: 0%;
+        font-size: 15px;
+        background-color: white;
+        color: rgb(94, 93, 93);
+        border-radius: 9px;
+        padding: 7px 79px 7px 9px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
     .btn-span-smartRx{
         color: white !important;
