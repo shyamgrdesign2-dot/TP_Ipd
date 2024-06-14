@@ -40,33 +40,74 @@ const customLabelPlugin = {
 
     if (!p7Dataset || !p7Dataset.data.length) return;
 
-    const gradient = ctx.createLinearGradient(0, 0, 0, chart.height);
-    gradient.addColorStop(0, "rgba(25, 187, 122, 0.2)"); // Green color with initial transparency
-    gradient.addColorStop(1, "rgba(25, 187, 122, 0)"); // Fully transparent at the bottom
+    ctx.save();
 
+    // Draw the main line chart path to use for clipping later
     ctx.beginPath();
-
-    for (let i = 0; i < p7Dataset.data.length; i++) {
-      const point = p7Dataset.data[i];
+    p7Dataset.data.forEach((point, index) => {
       const x = xAxis.getPixelForValue(point.x);
       const y = yAxis.getPixelForValue(point.y);
-
-      if (i === 0) {
-        ctx.moveTo(x, yAxis.bottom);
-        ctx.lineTo(x, y);
+      if (index === 0) {
+        ctx.moveTo(x, y);
       } else {
-        const prevPoint = p7Dataset.data[i - 1];
-        const prevX = xAxis.getPixelForValue(prevPoint.x);
         ctx.lineTo(x, y);
-        ctx.lineTo(x, yAxis.bottom);
-        ctx.lineTo(prevX, yAxis.bottom);
-        ctx.lineTo(prevX, yAxis.getPixelForValue(prevPoint.y));
       }
-    }
-
+    });
+    ctx.lineTo(
+      xAxis.getPixelForValue(p7Dataset.data[p7Dataset.data.length - 1].x),
+      yAxis.bottom
+    );
+    ctx.lineTo(xAxis.getPixelForValue(p7Dataset.data[0].x), yAxis.bottom);
     ctx.closePath();
-    ctx.fillStyle = gradient;
+
+    // Create gradient for green shadow
+    const greenGradient = ctx.createLinearGradient(
+      0,
+      yAxis.top,
+      0,
+      yAxis.bottom + 100 // Extend gradient further down
+    );
+    greenGradient.addColorStop(0, "rgba(100, 230, 100, 0.3)");
+    greenGradient.addColorStop(0.2, "rgba(100, 230, 100, 0.2)");
+    greenGradient.addColorStop(0.4, "rgba(100, 230, 100, 0.1)");
+    greenGradient.addColorStop(1, "rgba(37, 205, 37, 0)"); // Fully transparent at the bottom
+
+    // Fill the area below the line chart with green gradient
+    ctx.fillStyle = greenGradient;
     ctx.fill();
+
+    // Now handle red shadows for each red point
+    p7Dataset.data.forEach((point) => {
+      if (point.isMalnutrition) {
+        const x = xAxis.getPixelForValue(point.x);
+        const y = yAxis.getPixelForValue(point.y);
+        const shadowHeight = 30; // Height to extend shadow to x-axis
+        const shadowWidth = 30; // Adjust shadow width to 30 pixels
+
+        // Create gradient for red shadow
+        const redGradient = ctx.createLinearGradient(0, y, 0, y + shadowHeight);
+        redGradient.addColorStop(0, "rgba(255, 0, 0, 0.2)"); // Intense red at the point
+        redGradient.addColorStop(1, "rgba(255, 0, 0, 0)"); // Fully transparent at the bottom
+
+        // Clip to draw only below the point
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(x - shadowWidth / 2, y);
+        ctx.lineTo(x + shadowWidth / 2, y);
+        ctx.lineTo(x + shadowWidth / 2, y + shadowHeight);
+        ctx.lineTo(x - shadowWidth / 2, y + shadowHeight);
+        ctx.closePath();
+        ctx.clip();
+
+        // Fill with gradient red color for shadow, limited to 30px below the point
+        ctx.fillStyle = redGradient;
+        ctx.fillRect(x - shadowWidth / 2, y, shadowWidth, shadowHeight);
+
+        ctx.restore(); // Restore initial context state
+      }
+    });
+
+    ctx.restore(); // Restore initial context state
   },
   afterDatasetsDraw(chart) {
     const {

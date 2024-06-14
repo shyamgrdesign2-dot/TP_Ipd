@@ -19,10 +19,10 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
   const [showUpdate, setShowUpdate] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [growthChartData, setGrowthChartData] = useState({
-    heights: [],
-    weights: [],
-    bmIs: [],
-    ofcs: [],
+    Height: [],
+    Weight: [],
+    BMI: [],
+    OFC: [],
   });
 
   useEffect(() => {
@@ -45,10 +45,17 @@ const GrowthChart = ({ handleDrawerVaccination, handleDrawerVital }) => {
     return Object.keys(growthChartData).map((key) => {
       if (growthChartData.hasOwnProperty(key)) {
         const chartData = { ...dummyData };
-        chartData.datasets[5] = {
-          ...chartData.datasets[5],
-          data: growthChartData[key],
-        };
+        // chartData.datasets[5] = {
+        //   ...chartData.datasets[5],
+        //   data: growthChartData[key],
+        //   borderColor: growthChartData[key].map((item) =>
+        //     item.isMalnutrition ? "#FF0000" : "#19BB7A"
+        //   ),
+        //   backgroundColor: growthChartData[key].map((item) =>
+        //     item.isMalnutrition ? "#FF0000" : "#19BB7A"
+        //   ),
+        // };
+
         return (
           <Col key={key} className="gx-4">
             <div

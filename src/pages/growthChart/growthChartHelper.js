@@ -71,14 +71,29 @@ export const dummyData = {
     {
       label: "P 7",
       data: [
-        { x: 1, y: 10 },
-        { x: 6, y: 12 },
-        { x: 12, y: 18 },
-        { x: 18, y: 24 },
-        { x: 24, y: 30 },
+        { x: 1, y: 10, isMalnutrition: false },
+        { x: 6, y: 12, isMalnutrition: false },
+        { x: 12, y: 18, isMalnutrition: false },
+        { x: 18, y: 24, isMalnutrition: false },
+        // { x: 18, y: 24, isMalnutrition: true },
+        { x: 24, y: 30, isMalnutrition: false },
       ],
-      borderColor: "#19BB7A",
-      backgroundColor: "#19BB7A",
+      borderColor: [
+        "#19BB7A", // Point 1
+        "#19BB7A", // Point 2
+        "#19BB7A", // Point 3
+        "#19BB7A",
+        // "#FF0000", // Point 4 (where the drop happens)
+        "#19BB7A", // Point 5
+      ],
+      backgroundColor: [
+        "#19BB7A", // Point 1
+        "#19BB7A", // Point 2
+        "#19BB7A", // Point 3
+        "#19BB7A",
+        // "#FF0000", // Point 4 (where the drop happens)
+        "#19BB7A", // Point 5
+      ],
       borderDash: [5, 5], // Make the line dotted
       pointRadius: 5, // Show points
       pointHoverRadius: 7, // Show points on hover
@@ -89,23 +104,66 @@ export const dummyData = {
 
 export const getGrowthChartData = (growthChartData, patientDOB) => {
   return growthChartData.reduce(
-    (acc, entry) => {
+    (acc, entry, index) => {
       const createdDate = moment(entry.tcbc_created_date);
       const DOB = moment(patientDOB, "Do MMM YYYY");
       const monthsDiff = createdDate.diff(DOB, "months");
 
-      acc.heights.push({ x: monthsDiff, y: entry.height });
-      acc.weights.push({ x: monthsDiff, y: entry.weight });
-      acc.bmIs.push({ x: monthsDiff, y: entry.bmi });
-      acc.ofcs.push({ x: monthsDiff, y: entry.ofc });
+      let isHeightMalnutrition = false;
+      let isWeightMalnutrition = false;
+      let isBmiMalnutrition = false;
+      let isOfcMalnutrition = false;
+
+      if (index > 0) {
+        // Check for height malnutrition
+        if (entry.height > growthChartData[index - 1].height) {
+          isHeightMalnutrition = true;
+        }
+
+        // Check for weight malnutrition
+        if (entry.weight > growthChartData[index - 1].weight) {
+          isWeightMalnutrition = true;
+        }
+
+        // Check for BMI malnutrition
+        if (entry.bmi > growthChartData[index - 1].bmi) {
+          isBmiMalnutrition = true;
+        }
+
+        // Check for OFC malnutrition
+        if (entry.ofc > growthChartData[index - 1].ofc) {
+          isOfcMalnutrition = true;
+        }
+      }
+
+      acc.Height.push({
+        x: monthsDiff,
+        y: entry.height,
+        isMalnutrition: isHeightMalnutrition,
+      });
+      acc.Weight.push({
+        x: monthsDiff,
+        y: entry.weight,
+        isMalnutrition: isWeightMalnutrition,
+      });
+      acc.BMI.push({
+        x: monthsDiff,
+        y: entry.bmi,
+        isMalnutrition: isBmiMalnutrition,
+      });
+      acc.OFC.push({
+        x: monthsDiff,
+        y: entry.ofc,
+        isMalnutrition: isOfcMalnutrition,
+      });
+
       return acc;
     },
     {
-      heights: [],
-      weights: [],
-      bmIs: [],
-      ofcs: [],
+      Height: [],
+      Weight: [],
+      BMI: [],
+      OFC: [],
     }
   );
 };
-
