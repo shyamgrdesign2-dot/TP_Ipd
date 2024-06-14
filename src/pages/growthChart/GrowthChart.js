@@ -85,6 +85,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { profile } = useSelector((state) => state.doctors);
   const [parentalDetails, setParentalDetails] = useState();
   const [showTableView, setShowTableView] = useState(false);
+  const [showTimelineInYear, setShowTimelineInYear] = useState(false);
   const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
   const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
   const [measurementsData, setMeasurementsData] = useState([]);
@@ -174,7 +175,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       <SubHeader
         handleDrawerMeasurements={handleDrawerMeasurements}
         setShowUpdate={setShowUpdate}
+        showTableView={showTableView}
         setShowTableView={setShowTableView}
+        showTimelineInYear={showTimelineInYear}
+        setShowTimelineInYear={setShowTimelineInYear}
         parentalDetails={parentalDetails}
       />
       {measurementsDrawer && (

@@ -5,7 +5,10 @@ import { Switch } from "antd";
 const SubHeader = ({
   handleDrawerMeasurements,
   setShowUpdate,
+  showTableView,
   setShowTableView,
+  showTimelineInYear,
+  setShowTimelineInYear,
   parentalDetails,
 }) => {
   const growthDetails = (title, value1, value2) => {
@@ -27,14 +30,32 @@ const SubHeader = ({
     );
   };
 
-  const toggleGrowthDetails = (value1, value2) => {
+  const showTableViewBtn = () => {
     return (
-      <div className="detailsContainer toggleContainer">
+      <div
+        className="detailsContainer toggleContainer"
+        onClick={() => setShowTableView(!showTableView)}
+      >
         <div className="textStyle">
-          <span>{value1}</span>
-          <span>{value2}</span>
+          <span>Show</span>
+          <span>Table View</span>
         </div>
-        <Switch onChange={(checked) => setShowTableView(checked)} />
+        <Switch checked={showTableView} />
+      </div>
+    );
+  };
+
+  const showTimelineInYearBtn = () => {
+    return (
+      <div
+        className="detailsContainer toggleContainer"
+        onClick={() => setShowTimelineInYear(!showTimelineInYear)}
+      >
+        <div className="textStyle">
+          <span>Show Timeine</span>
+          <span>in years</span>
+        </div>
+        <Switch checked={showTimelineInYear} />
       </div>
     );
   };
@@ -81,8 +102,8 @@ const SubHeader = ({
               : ""
           }`
         )}
-        {toggleGrowthDetails("Show", "Table View")}
-        {toggleGrowthDetails("Show Timeine", "in years")}
+        {showTableViewBtn()}
+        {showTimelineInYearBtn()}
       </div>
     </div>
   );

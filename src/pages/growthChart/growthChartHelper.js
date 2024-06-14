@@ -74,9 +74,9 @@ export const dummyData = {
         { x: 1, y: 10, isMalnutrition: false },
         { x: 6, y: 12, isMalnutrition: false },
         { x: 12, y: 18, isMalnutrition: false },
-        { x: 18, y: 24, isMalnutrition: false },
+        { x: 18, y: 20, isMalnutrition: false },
         // { x: 18, y: 24, isMalnutrition: true },
-        { x: 24, y: 30, isMalnutrition: false },
+        // { x: 24, y: 30, isMalnutrition: false },
       ],
       borderColor: [
         "#19BB7A", // Point 1
