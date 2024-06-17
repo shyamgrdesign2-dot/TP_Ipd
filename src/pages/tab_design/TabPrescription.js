@@ -62,6 +62,7 @@ function TabPrescription() {
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
   const isVaccination = state?.isVaccination;
+  const isGrowth = state?.isGrowth;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -284,6 +285,12 @@ function TabPrescription() {
       handleDrawerVaccination();
     }
   }, [isVaccination]);
+
+  useEffect(() => {
+    if (isGrowth) {
+      handleDrawerGrowth();
+    }
+  }, [isGrowth]);
 
   //Handle Sider
   const openCollapsed = useCallback(

@@ -4,7 +4,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 40px;
+  padding: 14px 52px;
 
   .addMeasurementBtn {
     width: 172px !important;
@@ -86,6 +86,11 @@
       padding: 19px 16px;
       height: 60px;
       cursor: pointer;
+
+      &:hover {
+        background-color: rgba(239, 239, 240, 1);
+        border-color: rgba(191, 191, 191, 1);
+      }
 
       .textStyle {
         flex-basis: 70%;
