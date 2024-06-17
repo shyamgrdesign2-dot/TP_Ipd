@@ -1,45 +1,71 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getAllGrowthChartParams } from "../../service";
 import { useLocation, useNavigate } from "react-router-dom";
+import growthChartImg from "../../../../assets/images/growth-chart-dark.svg";
 import { Card } from "react-bootstrap";
 import { Button } from "antd";
-import { useSelector } from "react-redux";
-import CashManagerContext from "../../../../context/CashManagerContext";
+import "./VisitGrowthChart.scss";
+import moment from "moment";
+import { getAge } from "../../growthChartHelper";
 
 export default function VisitGrowthChart() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { patient_data } = state;
 
-  const [growthChartData, setGrowthChartData] = useState([]);
+  const [growthChartData, setGrowthChartData] = useState({});
 
   useEffect(() => {
     getGrowthChartDetails();
   }, []);
 
   const getGrowthChartDetails = async () => {
-    setGrowthChartData(
-      await getAllGrowthChartParams({
-        pm_id: patient_data?.pm_id || 0,
-        pm_pid: patient_data?.pm_pid || 0,
-      })
+    const allGrowthChartParams = await getAllGrowthChartParams({
+      pm_id: patient_data?.pm_id || 0,
+      pm_pid: patient_data?.pm_pid || 0,
+    });
+    if (allGrowthChartParams?.length) {
+      setGrowthChartData(allGrowthChartParams?.[0]);
+    }
+  };
+
+  const measurementDetails = () => {
+    const measurementData = {
+      Length: growthChartData.height + " cm",
+      Weight: growthChartData.weight + " kg",
+      BMI: growthChartData.bmi + " kg/m2",
+      OFC: growthChartData.ofc + " cm",
+    };
+    return (
+      <div className="detailContainer">
+        {Object.entries(measurementData).map(([key, value], index) => (
+          <React.Fragment key={key}>
+            <div className="measurementItem">
+              <span className="keyStyle">{key}</span>
+              <span>{value}</span>
+            </div>
+            {index !== 3 && <div className="dottedLineStyle" />}
+          </React.Fragment>
+        ))}
+      </div>
     );
   };
 
+
   return (
     <>
-      {!growthChartData.length ? null : (
+      {!Object.keys(growthChartData)?.length ? null : (
         <div className="appointment-wrap PatientDetailswrap m-0">
           <Card>
             <Card.Header className="bg-white py-3">
               <div className="d-flex align-items-center justify-content-between">
                 <div>
                   <img
-                    // src={Vaccination}
+                    src={growthChartImg}
                     alt="Medical History"
                     className="me-3"
                   />
-                  Vaccination
+                  Growth
                 </div>
                 <Button
                   className="btn btn-input d-flex align-items-center gap-1"
@@ -60,8 +86,20 @@ export default function VisitGrowthChart() {
                 </Button>
               </div>
             </Card.Header>
-            <div className="visitBody">
-              <div className={"overflow-auto"} style={{ maxHeight: 458 }}></div>
+            <div className="visitBody overflow-auto visitGrowthContainer">
+              <div className="rowContainer">
+                <span className="previousText">Previous visit</span>
+                <span className="updatedText">
+                  Updated on :{" "}
+                  {moment(growthChartData.tcbc_created_date).format(
+                    "DD MMM YYYY"
+                  )}
+                </span>
+              </div>
+              <div>
+                {getAge(growthChartData.tcbc_created_date, patient_data?.DOB)}
+              </div>
+              {measurementDetails()}
             </div>
           </Card>
         </div>

@@ -167,3 +167,31 @@ export const getGrowthChartData = (growthChartData, patientDOB) => {
     }
   );
 };
+
+export const getAge = (tcbcCreatedDate, patientDOB) => {
+  const createdDate = moment(tcbcCreatedDate);
+  const DOB = moment(patientDOB, "Do MMM YYYY");
+
+  // Difference in years
+  const diffInYears = createdDate.diff(DOB, "years");
+  const tempDate = DOB.clone().add(diffInYears, "years");
+
+  // Difference in months after subtracting the years
+  const diffInMonths = createdDate.diff(tempDate, "months");
+  tempDate.add(diffInMonths, "months");
+
+  // Difference in weeks after subtracting the months
+  const diffInWeeks = createdDate.diff(tempDate, "weeks");
+  tempDate.add(diffInWeeks, "weeks");
+
+  // Difference in days after subtracting the weeks
+  const diffInDays = createdDate.diff(tempDate, "days");
+
+  if (diffInYears) {
+    return `${diffInYears} Year ${diffInMonths} Month`;
+  } else if (diffInMonths) {
+    return `${diffInMonths} Month ${diffInWeeks} Week`;
+  } else {
+    return `${diffInWeeks} Week ${diffInDays} Day`;
+  }
+};
