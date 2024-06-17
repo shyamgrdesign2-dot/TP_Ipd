@@ -118,10 +118,10 @@ function MedicalCertificate() {
                         insertHTMLContent(`<label class="gender">${patient_data?.pm_gender}</label>`);
                         break;
                     case 'option6':
-                        insertHTMLContent(`<label>${moment().format('DD-MM-YYYY')}</label>`);
+                        insertHTMLContent(`<label class="today_date">${moment().format('DD-MM-YYYY')}</label>`);
                         break;
                     case 'option7':
-                        insertHTMLContent(`<input type="date" id="${randomId}" value="">`);
+                        insertHTMLContent(`<input type="date" id="${randomId}" value="" class="custom_date">`);
                         // handleInputChange(document.getElementById(randomId), 'change');
                         break;
                     case 'option8':
@@ -430,8 +430,8 @@ function MedicalCertificate() {
                     patient_data: patient_data,
                     tcu_content_id: certificate_data !== undefined ? certificate_data?.id : 0,
                     pms_default: certificate_data !== undefined ? certificate_data?.pms_default : 0,
-                    tcu_title: title,
-                    tcu_content: editor.current?.value
+                    tcu_title: sendData?.tcu_title,
+                    tcu_content: sendData?.tcu_content
                 }
             })
         } else {
@@ -523,34 +523,39 @@ function MedicalCertificate() {
                         .replace(/{Address}/g, `<label class="address">${patient_data?.patient_address ? patient_data?.patient_address : 'Address'}</label>`)
                         .replace(/{Blood Group}/g, `<label class="blood_group">${patient_data?.pm_blood_group ? patient_data?.pm_blood_group : 'Blood Group'}</label>`)
                         .replace(/{Date of Birth}/g, `<label class="date_of_birth">${patient_data?.DOB}</label>`)
+                        .replace(/{Today Date}/g, `<label class="today_date">${moment().format('DD-MM-YYYY')}</label>`)
                         .replace(/{Department}/g, `<label class="department">${profile?.dp_name}</label>`)
-                        .replace(/{Referred by}/g, `<label class="referred_by">Referred by</label>`)
-                        .replace(/{Case Type}/g, `<label class="case_type">Case Type</label>`)
-                        .replace(/{Last appointment}/g, `<label class="last_appointment">Last appointment</label>`)
-                        .replace(/{Inpatient Number}/g, `<label class="inpatient_number">Inpatient Number</label>`)
-                        .replace(/{Ward}/g, `<label class="ward">Ward</label>`)
-                        .replace(/{Room\/Bed}/g, `<label class="room_bed">Room/Bed</label>`)
-                        .replace(/{Admitting Doctor}/g, `<label class="admitting_doctor">Admitting Doctor</label>`)
-                        .replace(/{Admitting Date}/g, `<label class="admitting_date">Admitting Date</label>`)
-                        .replace(/{Admitting Time}/g, `<label class="admitting_time">Admitting Time</label>`)
-                        .replace(/{Discharge Date}/g, `<label class="discharge_date">Discharge Date</label>`)
-                        .replace(/{Discharge Time}/g, `<label class="discharge_time">Discharge Time</label>`)
-                        .replace(/{Admitted Days}/g, `<label class="admitted_days">Admitted Days</label>`)
-                        .replace(/{Admission Diagnosis}/g, `<label class="admission_diagnosis">Admission Diagnosis</label>`)
-                        .replace(/{Discharge Diagnosis}/g, `<label class="discharge_diagnosis">Discharge Diagnosis</label>`)
-                        .replace(/{Resident of}/g, `<label class="resident_of">Resident of</label>`)
-                        .replace(/{Start Date}/g, `<label class="start_date">Start Date</label>`)
-                        .replace(/{End Date}/g, `<label class="end_date">End Date</label>`)
-                        .replace(/{Join Date}/g, `<label class="join_date">Join Date</label>`)
-                        .replace(/{Diagnosis}/g, `<label class="diagnosis">Diagnosis</label>`)
-                        .replace(/{Time}/g, `<label class="time">Time</label>`)
-                        .replace(/{Travel From}/g, `<label class="travel_from">Travel From</label>`)
-                        .replace(/{Travel To}/g, `<label class="travel_to">Travel To</label>`)
-                        .replace(/{Photo ID card No}/g, `<label class="photo_id_card_no">Photo ID card No</label>`)
-                        .replace(/{Nationality}/g, `<label class="nationality">Nationality</label>`)
-                        .replace(/{Passport Number}/g, `<label class="passport_number">Passport Number</label>`)
-                        .replace(/{Procedure}/g, `<label class="procedure">Procedure</label>`)
-                        .replace(/{Number of Months}/g, `<label class="number_of_months">Number of Months</label>`)
+                        .replace(/{Referred by}/g, `<label class="referred_by">Enter Referred by</label>`)
+                        .replace(/{Case Type}/g, `<label class="case_type">Enter Case Type</label>`)
+                        .replace(/{Last appointment}/g, `<label class="last_appointment">Enter Last appointment</label>`)
+                        .replace(/{Inpatient Number}/g, `<label class="inpatient_number">Enter Inpatient Number</label>`)
+                        .replace(/{Ward}/g, `<label class="ward">Enter Ward</label>`)
+                        .replace(/{Room\/Bed}/g, `<label class="room_bed">Enter Room/Bed</label>`)
+                        .replace(/{Admitting Doctor}/g, `<label class="admitting_doctor">Enter Admitting Doctor</label>`)
+                        .replace(/{Admitting Date}/g, `<label class="admitting_date">Enter Admitting Date</label>`)
+                        .replace(/{Admitting Time}/g, `<label class="admitting_time">Enter Admitting Time</label>`)
+                        .replace(/{Discharge Date}/g, `<label class="discharge_date">Enter Discharge Date</label>`)
+                        .replace(/{Discharge Time}/g, `<label class="discharge_time">Enter Discharge Time</label>`)
+                        .replace(/{Admitted Days}/g, `<label class="admitted_days">Enter Admitted Days</label>`)
+                        .replace(/{Admission Diagnosis}/g, `<label class="admission_diagnosis">Enter Admission Diagnosis</label>`)
+                        .replace(/{Discharge Diagnosis}/g, `<label class="discharge_diagnosis">Enter Discharge Diagnosis</label>`)
+                        .replace(/{Resident of}/g, `<label class="resident_of">Enter Resident of</label>`)
+                        // .replace(/{Start Date}/g, `<label class="start_date">Enter Start Date</label>`)
+                        // .replace(/{End Date}/g, `<label class="end_date">Enter End Date</label>`)
+                        // .replace(/{Join Date}/g, `<label class="join_date">Enter Join Date</label>`)
+                        .replace(/{Start Date}/g, `<input type="date" id="${generateRandomId()}" value="" class="start_date">`)
+                        .replace(/{End Date}/g, `<input type="date" id="${generateRandomId()}" value="" class="end_date">`)
+                        .replace(/{Join Date}/g, `<input type="date" id="${generateRandomId()}" value="" class="join_date">`)
+                        .replace(/{Custom Date}/g, `<input type="date" id="${generateRandomId()}" value="" class="custom_date">`)
+                        .replace(/{Diagnosis}/g, `<label class="diagnosis">Enter Diagnosis</label>`)
+                        .replace(/{Time}/g, `<label class="time">Enter Time</label>`)
+                        .replace(/{Travel From}/g, `<label class="travel_from">Enter Travel From</label>`)
+                        .replace(/{Travel To}/g, `<label class="travel_to">Enter Travel To</label>`)
+                        .replace(/{Photo ID card No}/g, `<label class="photo_id_card_no">Enter Photo ID card No</label>`)
+                        .replace(/{Nationality}/g, `<label class="nationality">Enter Nationality</label>`)
+                        .replace(/{Passport Number}/g, `<label class="passport_number">Enter Passport Number</label>`)
+                        .replace(/{Procedure}/g, `<label class="procedure">Enter Procedure</label>`)
+                        .replace(/{Number of Months}/g, `<label class="number_of_months">Enter Number of Months</label>`)
                     }
                     // tabIndex={1} // tabIndex of textarea
                     // onBlur={newContent => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
