@@ -5,6 +5,14 @@ import { useEffect, useState } from "react";
 import { createParentalDetails, updateParentalDetails } from "../service";
 import { useLocation } from "react-router-dom";
 import SuccessPopup from "../components/SuccessPopup";
+import moment from "moment";
+import {
+  createPatient,
+  updateDob,
+  getPatientDetails,
+} from "../../vaccination/service";
+import { errorMessage } from "../../../utils/utils";
+import { useSelector } from "react-redux";
 
 export default function UpdateDetails({
   show,
@@ -16,12 +24,21 @@ export default function UpdateDetails({
   const { patient_data } = state;
   const [showSuccess, setShowSuccess] = useState(false);
   const [action, setAction] = useState("");
+  const [dob, setDob] = useState("");
+  const { profile } = useSelector((state) => state.doctors);
+  const [vaccinePatientDetails, setVaccinePatientDetails] = useState();
 
   useEffect(() => {
+    getPatientDetail();
     if (parentalDetails) {
       setAction("update");
     } else {
       setAction("create");
+    }
+    if (patient_data.DOB) {
+      setDob(moment(patient_data.DOB, "Do MMMM YYYY").format("DD-MM-YYYY"));
+    } else if (patient_data.pm_dob) {
+      setDob(moment(patient_data.pm_dob).format("DD-MM-YYYY"));
     }
   }, []);
 
@@ -82,6 +99,72 @@ export default function UpdateDetails({
 
   const handleClose = () => {};
 
+  const getPatientDetail = async () => {
+    const patientDetails = await getPatientDetails({
+      hospital_bid:
+        patient_data?.hm_business_id || patient_data?.hospital_business_id,
+      patient_uid: patient_data?.patient_unique_id,
+      hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
+    });
+    if (!patientDetails?.vac_id) {
+      patientDetails.vac_dob = moment(patientDetails.vac_dob).format(
+        "DD-MMM-YYYY"
+      );
+    }
+    setVaccinePatientDetails({ ...patient_data, ...patientDetails });
+    return patientDetails;
+  };
+
+  const createPatientDetails = async () => {
+    const payload = {
+      patient_uid: patient_data?.patient_unique_id,
+      patient_pid: patient_data?.pm_pid,
+      hospital_bid:
+        patient_data?.hm_business_id || patient_data?.hospital_business_id,
+      hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
+      patient_first_name: patient_data?.pm_first_name || "",
+      patient_middle_name: patient_data?.pm_middle_name || "",
+      patient_last_name: patient_data?.pm_last_name || "",
+      patient_gender: patient_data?.pm_gender,
+      patient_dob: moment(dob, "DD-MM-YYYY").format("YYYY-MM-DD"),
+      patient_contact_no: patient_data?.pm_contact_no,
+    };
+    const createPatientRes = await createPatient(payload);
+    if (createPatientRes?.status === 200) {
+      updatePatientDob();
+    } else {
+      errorMessage({ name: "TypeError" });
+    }
+  };
+
+  const updatePatientDob = async () => {
+    const payload = {
+      patient_uid: patient_data?.patient_unique_id,
+      patient_pid: patient_data?.vac_pid || patient_data?.pm_pid,
+      hospital_bid:
+        patient_data?.hm_business_id || patient_data?.hospital_business_id,
+      hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
+      updated_dob: moment(dob, "DD-MM-YYYY").format("YYYY-MM-DD"),
+    };
+    const updateDobRes = await updateDob(payload);
+    if (!updateDobRes?.status === 200) {
+      errorMessage({ name: "TypeError" });
+    }
+  };
+
+  const updateGcDetails = async () => {
+    if (!vaccinePatientDetails.vac_id) {
+      createPatientDetails();
+    } else if (vaccinePatientDetails.vac_dob !== dob) {
+      updateDob();
+    }
+    if (action === "create") {
+      createDetails();
+    } else {
+      updateDetails();
+    }
+  };
+
   return (
     <Modal
       width={"422px"}
@@ -105,10 +188,10 @@ export default function UpdateDetails({
             placeholder="Select Date"
             dropdownClassName="addDOB-picker-dropdown"
             onChange={(_, d) => {
-              //   setDob(d);
+              setDob(d);
             }}
             format="DD-MM-YYYY"
-            // value={dob ? dayjs(dob, "DD-MM-YYYY") : ""}
+            value={dob ? dayjs(dob, "DD-MM-YYYY") : ""}
             style={{
               height: "38px",
               width: "374px",
@@ -181,14 +264,7 @@ export default function UpdateDetails({
         >
           <span className="gc-btn-txt">Do it later</span>
         </Button>
-        <Button
-          className="gc-btn"
-          type="primary"
-          onClick={() => {
-            if (action === "create") createDetails();
-            else updateDetails();
-          }}
-        >
+        <Button className="gc-btn" type="primary" onClick={updateGcDetails}>
           Continue
         </Button>
       </div>
