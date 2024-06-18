@@ -35,7 +35,7 @@ const customLabelPlugin = {
     const xAxis = chart.scales["x"];
     const yAxis = chart.scales["y"];
     const p7Dataset = chart.data.datasets.find(
-      (dataset) => dataset.label === "P 7"
+      (dataset) => dataset.label === ""
     );
 
     if (!p7Dataset || !p7Dataset.data.length) return;
@@ -130,7 +130,7 @@ const customLabelPlugin = {
       ctx.textAlign = "left";
       ctx.textBaseline = "middle";
       ctx.font = "12px Arial";
-      ctx.fillStyle = dataset.borderColor;
+      ctx.fillStyle = dataset.backgroundColor;
       ctx.fillText(label, right + 5, pointY);
       ctx.restore();
     });
@@ -300,8 +300,7 @@ const WeightChart = ({
           // Check if the tooltip should be displayed for this point
           if (
             tooltip.dataPoints.length &&
-            chart.data.datasets[tooltip.dataPoints[0].datasetIndex].label ===
-              "P 7"
+            chart.data.datasets[tooltip.dataPoints[0].datasetIndex].label === ""
           ) {
             const titleLines = tooltip.title || [];
             const bodyLines = tooltip.body.map((b) => b.lines);
@@ -385,11 +384,20 @@ const WeightChart = ({
                     <>
                       <Checkbox
                         key={index}
-                        style={{ padding: "6px" }}
+                        style={{
+                          padding: "6px",
+                        }}
                         checked={visibility[index]}
                         onChange={() => toggleVisibility(index)}
                       >
-                        {dataset.label}
+                        <span
+                          className="dynamicColor"
+                          style={{
+                            "--dynamic-color": dataset.backgroundColor,
+                          }}
+                        >
+                          {dataset.label}
+                        </span>
                       </Checkbox>
 
                       {index !== data.datasets.length - 1 && index !== 2 && (
