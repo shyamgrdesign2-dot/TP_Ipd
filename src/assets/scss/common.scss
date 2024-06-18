@@ -263,6 +263,12 @@ body {
     .read-or-hide {
         color: $theme !important;
     }
+    .cardbody-data {
+        .read-or-hide {
+            color: $theme !important;
+            cursor: pointer;
+        }
+    }
     .cursor-pointer {
         cursor: pointer;
     }
