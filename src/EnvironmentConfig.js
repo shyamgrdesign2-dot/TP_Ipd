@@ -111,7 +111,7 @@ const prod = {
   firebaseStorageBucket: "tatvacare.appspot.com",
   firebaseMessagingSenderId: "601922359186",
   firebaseAppId: "1:601922359186:web:a3b9df05589faed1f5fb4b",
-  tatvaRedirect: "https://health.tatvacare.in/#/dashboard",
+  tatvaRedirect: "https://health.tatvacare.in/#/content?auto=",
 };
 
 const getEnv = () => {
