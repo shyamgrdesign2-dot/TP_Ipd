@@ -279,6 +279,9 @@ const WeightChart = ({
         },
       },
       y: {
+        ticks: {
+          stepSize: 1,
+        },
         title: {
           display: true,
           text: "Weight (kg)", // Y-axis label
@@ -385,7 +388,7 @@ const WeightChart = ({
                       <Checkbox
                         key={index}
                         style={{
-                          padding: "6px",
+                          padding: "6px 0px 6px 6px",
                         }}
                         checked={visibility[index]}
                         onChange={() => toggleVisibility(index)}
@@ -394,14 +397,16 @@ const WeightChart = ({
                           className="dynamicColor"
                           style={{
                             "--dynamic-color": dataset.backgroundColor,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                           }}
                         >
                           {dataset.label}
                         </span>
                       </Checkbox>
-
                       {index !== data.datasets.length - 1 && index !== 2 && (
-                        <span className="breakStyle" />
+                        <span className="checkBoxSeparator" />
                       )}
                     </>
                   ))}

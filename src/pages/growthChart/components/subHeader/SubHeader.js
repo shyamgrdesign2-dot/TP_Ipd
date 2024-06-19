@@ -23,7 +23,7 @@ const SubHeader = ({
         </div>
         <div className="detailsStyle">
           <span>{value1}</span>
-          <span className="separator" />
+          {value1 && value2 && <span className="separator" />}
           <span>{value2}</span>
         </div>
       </div>

@@ -58,13 +58,18 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         });
 
         const patientData = {
-          ...dummyData.datasets[5],
+          data: growthChartData[key],
+          label: "",
           borderColor: growthChartData[key].map((item) =>
             item.isMalnutrition ? "#FF0000" : "#19BB7A"
           ),
           backgroundColor: growthChartData[key].map((item) =>
             item.isMalnutrition ? "#FF0000" : "#19BB7A"
           ),
+          borderDash: [5, 5], // Make the line dotted
+          pointRadius: 5, // Show points
+          pointHoverRadius: 7, // Show points on hover
+          hidden: false,
         };
 
         chartData.push(patientData);
