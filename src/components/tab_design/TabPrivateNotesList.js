@@ -16,9 +16,9 @@ const ReadMore = ({ children }) => {
     };
     return (
         <p className="text mb-0 fontroboto lh-base fs-14">
-            {isReadMore && text.length > 70 ? text.slice(0, 70) : text}
+            {isReadMore && text.length > 63 ? text.slice(0, 63) : text}
             <span onClick={toggleReadMore} className="read-or-hide">
-                {text.length > 70 ? isReadMore ? "... View More" : " View Less" : ""}
+                {text.length > 63 ? isReadMore ? "... View More" : " View Less" : ""}
             </span>
         </p>
     );
@@ -59,7 +59,7 @@ function TabPrivateNotesList(props) {
                                     <div className="fw-semibold d-flex align-items-center justify-content-between">
                                         <div className="d-flex align-items-center">
                                             <div className="title fs-14 fw-semibold">
-                                                {moment(e?.date).format('DD MMM YYYY')}
+                                                {!moment(moment(e?.date).format('YYYY-MM-DD')).isSame(moment().format('YYYY-MM-DD'), 'day') ? moment(e?.date).format('DD MMMYYYY') : 'Today'}
                                             </div>
                                             <Button className="privatebtn px-2 py-0" onClick={() => handleDrawerPrivateNotes(e)}>
                                                 <i className="icon-Edit fs-21"></i>

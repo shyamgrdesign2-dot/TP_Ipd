@@ -157,16 +157,6 @@ function Prescription() {
         );
       }
       if (
-        caseManagerData.private_notes.length > 0 &&
-        customizedPadLeftList.findIndex(
-          (e) => e.tmdpm_id === 8 && e.tmdpm_status === 0
-        ) !== -1
-      ) {
-        setPrivateNotesData(
-          caseManagerData.private_notes
-        );
-      }
-      if (
         caseManagerData.symptoms.length > 0 &&
         customizedPadRightList.findIndex(
           (e) => e.tmdpm_id === 5 && e.tmdpm_status === 0
@@ -367,6 +357,14 @@ function Prescription() {
       setVitalsData(updatedData);
     }
   }, [selectedVitalsList]);
+
+  useEffect(() => {
+    if (caseManagerData !== undefined) {
+      if (caseManagerData.private_notes && customizedPadLeftList.findIndex((e) => e.tmdpm_id === 8 && e.tmdpm_status === 0) !== -1 && privateNotesList.findIndex((e) => e.id === caseManagerData.private_notes.id) !== -1) {
+        setPrivateNotesData(caseManagerData.private_notes);
+      }
+    }
+  }, [privateNotesList]);
 
   return (
     <CashManagerContext.Provider value={contextApi}>

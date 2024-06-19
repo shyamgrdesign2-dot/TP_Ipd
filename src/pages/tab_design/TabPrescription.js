@@ -157,16 +157,6 @@ function TabPrescription() {
         );
       }
       if (
-        caseManagerData.private_notes.length > 0 &&
-        customizedPadLeftList.findIndex(
-          (e) => e.tmdpm_id === 8 && e.tmdpm_status === 0
-        ) !== -1
-      ) {
-        setPrivateNotesData(
-          caseManagerData.private_notes
-        );
-      }
-      if (
         caseManagerData.symptoms.length > 0 &&
         customizedPadRightList.findIndex(
           (e) => e.tmdpm_id === 5 && e.tmdpm_status === 0
@@ -387,6 +377,14 @@ function TabPrescription() {
     }
   }, [selectedVitalsList]);
 
+  useEffect(() => {
+    if (caseManagerData !== undefined) {
+      if (caseManagerData.private_notes && customizedPadLeftList.findIndex((e) => e.tmdpm_id === 8 && e.tmdpm_status === 0) !== -1 && privateNotesList.findIndex((e) => e.id === caseManagerData.private_notes.id) !== -1) {
+        setPrivateNotesData(caseManagerData.private_notes);
+      }
+    }
+  }, [privateNotesList]);
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -448,23 +446,21 @@ function TabPrescription() {
                     <button
                       key={i}
                       type="button"
-                      className="mb-3 text-center btn btn-action"
+                      className="mb-3 text-center btn btn-action position-relative"
                       onClick={() =>
-                        !privateNotesData
+                        privateNotesList?.length === 0
                           ? handleDrawerPrivateNotes()
                           : openCollapsed(4)
                       }
                     >
                       <div
-                        className={`prescription-tab-button rounded-10px ${collapsedFlag == 4 && "active"
+                        className={`prescription-tab-button rounded-10px  ${collapsedFlag == 4 && "active"
                           }`}
                       >
-                        <img
-                          src={
-                            collapsedFlag == 4
-                              ? privateNotesDark
-                              : privateNotesWhite
-                          }
+                        {privateNotesList?.length > 0 && (
+                          <div className="notes-dot">{privateNotesList?.length > 5 ? '5+' : privateNotesList?.length}</div>
+                        )}
+                        <img src={collapsedFlag == 4 ? privateNotesDark : privateNotesWhite}
                           alt="Private Notes"
                         />
                       </div>

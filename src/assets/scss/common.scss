@@ -858,3 +858,19 @@ body {
         }
     }
 }
+
+// Private notes
+.notes-dot {
+    background-color: #F04545;
+    color: $white !important;
+    font-weight: 400;
+    border-radius: 100px;
+    padding: 3px;
+    font-size: 10px;
+    position: absolute;
+    right: 7px;
+    top: -4px;
+    width: 19px;
+    height: 19px;
+    line-height: 1.4;
+}
