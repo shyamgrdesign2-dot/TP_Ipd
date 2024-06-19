@@ -271,7 +271,7 @@ const WeightChart = ({
       x: {
         type: "linear",
         ticks: {
-          stepSize: 1,
+          stepSize: 2,
         },
         title: {
           display: true,
