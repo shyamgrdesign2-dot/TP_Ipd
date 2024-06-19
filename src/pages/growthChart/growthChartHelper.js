@@ -116,6 +116,12 @@ export const getGrowthChartData = (growthChartData, patientDOB) => {
   );
 };
 
+const getOrdinalSuffix = (n) => {
+  const s = ["th", "st", "nd", "rd"],
+    v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
 export const getAge = (tcbcCreatedDate, patientDOB) => {
   const createdDate = moment(tcbcCreatedDate);
   const DOB = moment(patientDOB, "Do MMM YYYY");
@@ -132,14 +138,11 @@ export const getAge = (tcbcCreatedDate, patientDOB) => {
   const diffInWeeks = createdDate.diff(tempDate, "weeks");
   tempDate.add(diffInWeeks, "weeks");
 
-  // Difference in days after subtracting the weeks
-  const diffInDays = createdDate.diff(tempDate, "days");
-
   if (diffInYears) {
-    return `${diffInYears} Year ${diffInMonths} Month`;
+    return `${getOrdinalSuffix(diffInYears)} Year`;
   } else if (diffInMonths) {
-    return `${diffInMonths} Month ${diffInWeeks} Week`;
+    return `${getOrdinalSuffix(diffInMonths)} Month`;
   } else {
-    return `${diffInWeeks} Week ${diffInDays} Day`;
+    return `${getOrdinalSuffix(diffInWeeks)} Week`;
   }
 };
