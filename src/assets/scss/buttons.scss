@@ -41,10 +41,10 @@ body {
         }
 
         &.btn-outline-primary {
-            border-radius: 10px;
-            background-color: rgba($color: #FFE8AE, $alpha: 5.0);
+            background-color: rgba($color: #fff, $alpha: 5.0);
             border-color: $theme;
             color: $theme;
+            font-size: 14px;
 
             i {
                 font-size: 19px;
@@ -57,14 +57,61 @@ body {
                 color: $white;
                 border-color: $theme;
             }
+        }
 
-            &.btn-consult {
-                background-color: transparent;
-                border-radius: 10px;
+        &.btn-smart-rx {
+            border-radius: 10px 0 0 10px;
+            background-color: transparent;
+            // border-radius: 10px;
+            padding: 7px 10px;
 
-                i {
-                    font-size: 19px;
-                }
+            i {
+                font-size: 19px;
+            }
+        }
+        &.btn-print-rx {
+            border-radius: 10px 10px 10px 10px;
+            background-color: transparent;
+            // border-radius: 10px;
+            padding: 7px 10px;
+
+            i {
+                font-size: 19px;
+            }
+        }
+        &.btn-down-arrow{
+            border-radius: 0 10px 10px 0;
+            border-left:none;
+            background-color: transparent;
+            padding: 4px 5px;
+
+            i {
+                font-size: 15px;
+            }
+        }
+        &.btn-device-connect{
+            border-radius: 24px;
+            border: 1px solid $theme !important;
+            background-color: $white;
+            height: 41px;
+
+            span {
+                line-height: normal;
+                font-size: 14px;
+                font-weight: 500 !important;
+                color: #4B4AD5 !important;
+            }
+            i {
+                font-size: 19px;
+            }
+            img {
+                border: 1px solid #fff;
+                width: 33px;
+                height: 33px;
+                border-radius: 50%;
+                padding: 4px;
+                margin-right: 9px;
+                margin-left: -9px;
             }
         }
 
@@ -145,6 +192,35 @@ body {
             }
         }
 
+        &.btn-secondary2 {
+            border-radius: 10px;
+            border: 1px solid $bordercolor !important;
+            height: 33px;
+            background-color: $white;
+            font-weight: 500 !important;
+            i {
+                font-size: 19px;
+            }
+
+            .ant-btn-icon {
+                line-height: 1;
+            }
+
+            span {
+                font-family: 'Poppins';
+                font-style: normal;
+                line-height: normal;
+                letter-spacing: 0.1px;
+                color: $theme !important;
+                font-size: 14px;
+                font-weight: 500 !important;
+            }
+
+            i {
+                color: $theme !important;
+            }
+        }
+
         &.btn-primary3 {
             border-radius: 10px;
             background-color: $theme;
@@ -172,6 +248,11 @@ body {
                 color: $white !important;
             }
 
+            &:disabled {
+                border-color: rgb(89, 86, 255) !important;
+                box-shadow: none;
+            }
+
             &:hover,
             &:focus,
             &:active {
@@ -179,6 +260,134 @@ body {
             }
         }
 
+        &.btn-secondary3 {
+            border-radius: 10px;
+            border: 1px solid $theme !important;
+            background-color: $theme;
+            height: 33px;
+            font-weight: 500 !important;
+            i {
+                font-size: 19px;
+            }
+
+            .ant-btn-icon {
+                line-height: 1;
+            }
+
+            span {
+                font-family: 'Poppins';
+                font-style: normal;
+                line-height: normal;
+                letter-spacing: 0.1px;
+                color: $white !important;
+                font-size: 14px;
+                font-weight: 500 !important;
+            }
+
+            i {
+                color: $white !important;
+            }
+
+            &:hover {
+                background-color: $theme !important;
+                border-color: $theme !important;
+                color: $white !important;
+                span {
+                    color: $white !important;
+                }
+
+                i {
+                    color: $white !important;
+                }
+            }
+        }
+
+        &.btn-smart-rx-walkin{
+            border-radius: 10px;
+            border: 1px solid #4B4AD5 !important;
+            background-color: #4B4AD5;
+            height: 32px;
+            padding: 0px 3px;
+            font-weight: 500 !important;
+            display: flex;
+            align-items: center;
+        }
+
+        &.btn-smartRx-text{
+            padding: 6px 5px 5px 5px;
+            color: white;
+            font-weight: 400;
+        }
+
+        &.btn-clear {
+            border-radius: 10px;
+            border: 1px solid $theme !important;
+            background-color: $white;
+            height: 33px;
+            font-weight: 500 !important;
+            i {
+                font-size: 19px;
+            }
+
+            .ant-btn-icon {
+                line-height: 1;
+            }
+
+            // &:disabled {
+            //     border-color: lightgray;
+            //     box-shadow: none;
+            // }
+
+            span {
+                font-family: 'Poppins';
+                font-style: normal;
+                line-height: normal;
+                letter-spacing: 0.1px;
+                color: $theme !important;
+                font-size: 14px;
+                font-weight: 500 !important;
+            }
+
+            i {
+                color: $white !important;
+            }
+
+        }
+
+        &.btn-play {
+            border-radius: 31px;
+            border: 1px solid #eaeaf0 !important;
+            background-color: #fff;
+            height: 45px;
+            padding-left: 1px;
+            font-weight: 500 !important;
+            margin-right: 1.25rem;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+
+            span {
+                font-family: 'Poppins';
+                font-style: normal;
+                line-height: normal;
+                letter-spacing: 0.1px;
+                color: $theme !important;
+                font-size: 14px;
+                font-weight: 500 !important;
+            }
+
+        }
+        &.btn-send-to-wtsap{
+            margin-top: 6px;
+            display: flex;
+            width: 288px;
+            padding: 6px 15px;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            border-radius: 10px;    
+            background: linear-gradient(90deg, #58D264 0%, #24B43B 100%);
+            color:  #FAFAFB;
+        }
+        
         &.btn-save {
             border-radius: 10px;
             background-color: transparent;
@@ -340,6 +549,49 @@ body {
                 }
             }
         }
+    }
+
+    .btn-consult{   
+        border: 1px solid rgb(255, 255, 255);
+        position: absolute;
+        top: 91%;
+        font-size: 15px;
+        background-color: white;
+        color: rgb(94, 93, 93);
+        border-radius: 9px;
+        padding: 7px 40px 7px 9px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        z-index: 1;
+    }
+    .btn-consult-walkIn {
+        border: 1px solid rgb(255, 255, 255);
+        position: absolute;
+        top: 94%;
+        width: 43.5%;
+        right: 25px;
+        font-size: 15px;
+        background-color: white;
+        color: rgb(94, 93, 93);
+        border-radius: 9px;
+        padding: 7px 186px 7px 9px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        z-index: 2;
+    }
+    .btn-consult-patient-details{
+        border: 1px solid rgb(255, 255, 255);
+        position: absolute;
+        top: 108%;
+        width: 100%;
+        right: 0%;
+        font-size: 15px;
+        background-color: white;
+        color: rgb(94, 93, 93);
+        border-radius: 9px;
+        padding: 7px 79px 7px 9px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    .btn-span-smartRx{
+        color: white !important;
     }
 
     .btn-group {

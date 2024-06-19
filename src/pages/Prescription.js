@@ -437,13 +437,9 @@ function Prescription() {
                           }`}</span>
                       </button>
                     </div>
-                    {
-                      medicalHistoryData.length > 0 && (
-                        <MedicalHistoryList
-                          mode={caseManagerData !== undefined ? EDIT : ADD}
-                        />
-                      )
-                    }
+                    {medicalHistoryData.length > 0 && (
+                      <MedicalHistoryList />
+                    )}
                   </div>
                 ) : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
                   <div key={i} className="prescription-box-sm p-14">
