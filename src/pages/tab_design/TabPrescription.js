@@ -10,7 +10,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { ADD, EDIT } from "../../utils/constants";
 
 import { getVitals } from "../../redux/vitalsSlice";
-import { getPatientLastHistory } from "../../redux/medicalhistorySlice";
+import { getPatientLastHistory, listPrivateNotes } from "../../redux/medicalhistorySlice";
 
 import CashManagerContext from "../../context/CashManagerContext";
 
@@ -27,12 +27,16 @@ import VitalsBox from "../../components/VitalsBox";
 import TabVitalsList from "../../components/tab_design/TabVitalsList";
 import MedicalHistoryBox from "../../components/MedicalHistoryBox";
 import TabMedicalHistoryList from "../../components/tab_design/TabMedicalHistoryList";
+import PrivateNotesBox from "../../components/PrivateNotesBox";
+import TabPrivateNotesList from "../../components/tab_design/TabPrivateNotesList";
 
 import vitalsWhite from "../../assets/images/vitals-white.svg";
 import vitalsDark from "../../assets/images/vitals-dark.svg";
 import medicalHistoryWhite from "../../assets/images/medical-history-white.svg";
 import medicalHistoryDark from "../../assets/images/medical-history-dark.svg";
 import vaccinationWhite from "../../assets/images/vaccination-white.svg";
+import privateNotesWhite from "../../assets/images/private-notes-white.svg";
+import privateNotesDark from "../../assets/images/private-notes-dark.svg";
 
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
@@ -51,9 +55,8 @@ function TabPrescription() {
     timingList,
     profile,
   } = useSelector((state) => state.doctors);
-  const { selectedVitalsList, vitalsPastList } = useSelector(
-    (state) => state.vitals
-  );
+  const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
+  const { privateNotesList } = useSelector((state) => state.medicalhistory);
   const dispatch = useDispatch();
 
   const { state } = useLocation();
@@ -73,6 +76,7 @@ function TabPrescription() {
   const [medicationData, setMedicationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
+  const [privateNotesData, setPrivateNotesData] = useState(null);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
   const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -101,6 +105,8 @@ function TabPrescription() {
     setVitalsData,
     medicalHistoryData,
     setMedicalHistoryData,
+    privateNotesData,
+    setPrivateNotesData,
     followUpDate,
     setFollowUpDate,
     additionalNote,
@@ -112,6 +118,8 @@ function TabPrescription() {
   const [collapsedFlag, setCollapsedFlag] = useState(null);
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
+  const [privateNotesDrawer, setPrivateNotesDrawer] = useState(false);
+  const [selectPrivateNotes, setSelectPrivateNotes] = useState(null);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
 
   useEffect(() => {
@@ -207,9 +215,8 @@ function TabPrescription() {
               frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
             medicineUnit: medicineUnit,
-            tmm_days_duration_type: `${
-              e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
-            }`,
+            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
+              }`,
             unique_id: uuidv4(),
           };
         });
@@ -269,6 +276,13 @@ function TabPrescription() {
     setMedicalHistoryDrawer(!medicalHistoryDrawer);
   }, [collapsedFlag, medicalHistoryDrawer]);
 
+  // Drawer Private Notes
+  const handleDrawerPrivateNotes = useCallback((data) => {
+    setCollapsedFlag(4);
+    setSelectPrivateNotes(data)
+    setPrivateNotesDrawer(!privateNotesDrawer);
+  }, [privateNotesDrawer, selectPrivateNotes]);
+
   // Drawer Vaccination
   const handleDrawerVaccination = () => {
     setVaccinationDrawer(!vaccinationDrawer);
@@ -299,6 +313,8 @@ function TabPrescription() {
         handleDrawerMedicalHistory();
       } else if (flag === 3) {
         handleDrawerVaccination();
+      } else if (flag === 4) {
+        handleDrawerPrivateNotes();
       }
     },
     [
@@ -307,6 +323,7 @@ function TabPrescription() {
       vitalDrawer,
       medicalHistoryDrawer,
       vaccinationDrawer,
+      privateNotesDrawer
     ]
   );
 
@@ -320,6 +337,14 @@ function TabPrescription() {
             patient_data !== undefined && patient_data.pam_id !== undefined
               ? patient_data.pam_id
               : 0,
+          mode: caseManagerData !== undefined ? EDIT : ADD,
+        })
+      );
+
+      const PN_action = await dispatch(
+        listPrivateNotes({
+          patient_unique_id:
+            patient_data !== undefined ? patient_data.patient_unique_id : 0,
           mode: caseManagerData !== undefined ? EDIT : ADD,
         })
       );
@@ -352,6 +377,14 @@ function TabPrescription() {
     }
   }, [selectedVitalsList]);
 
+  useEffect(() => {
+    if (caseManagerData !== undefined) {
+      if (caseManagerData.private_notes && customizedPadLeftList.findIndex((e) => e.tmdpm_id === 8 && e.tmdpm_status === 0) !== -1 && privateNotesList.findIndex((e) => e.id === caseManagerData.private_notes.id) !== -1) {
+        setPrivateNotesData(caseManagerData.private_notes);
+      }
+    }
+  }, [privateNotesList]);
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -372,9 +405,8 @@ function TabPrescription() {
                     }
                   >
                     <div
-                      className={`prescription-tab-button rounded-10px ${
-                        collapsedFlag == 1 && "active"
-                      }`}
+                      className={`prescription-tab-button rounded-10px ${collapsedFlag == 1 && "active"
+                        }`}
                     >
                       <img
                         src={collapsedFlag == 1 ? vitalsDark : vitalsWhite}
@@ -383,7 +415,7 @@ function TabPrescription() {
                     </div>
                     <label className="text-white mt-1">Vitals</label>
                   </button>
-                ) : 
+                ) :
                   e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
                     <button
                       key={i}
@@ -396,9 +428,8 @@ function TabPrescription() {
                       }
                     >
                       <div
-                        className={`prescription-tab-button rounded-10px ${
-                          collapsedFlag == 2 && "active"
-                        }`}
+                        className={`prescription-tab-button rounded-10px ${collapsedFlag == 2 && "active"
+                          }`}
                       >
                         <img
                           src={
@@ -411,8 +442,31 @@ function TabPrescription() {
                       </div>
                       <label className="text-white mt-1">History</label>
                     </button>
-                  ) :
-                  (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
+                  ) : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
+                    <button
+                      key={i}
+                      type="button"
+                      className="mb-3 text-center btn btn-action position-relative"
+                      onClick={() =>
+                        privateNotesList?.length === 0
+                          ? handleDrawerPrivateNotes()
+                          : openCollapsed(4)
+                      }
+                    >
+                      <div
+                        className={`prescription-tab-button rounded-10px  ${collapsedFlag == 4 && "active"
+                          }`}
+                      >
+                        {privateNotesList?.length > 0 && (
+                          <div className="notes-dot">{privateNotesList?.length > 5 ? '5+' : privateNotesList?.length}</div>
+                        )}
+                        <img src={collapsedFlag == 4 ? privateNotesDark : privateNotesWhite}
+                          alt="Private Notes"
+                        />
+                      </div>
+                      <label className="text-white mt-1">Private Notes</label>
+                    </button>
+                  ) : (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
                     <button
                       type="button"
                       className="mb-3 text-center btn btn-action"
@@ -468,14 +522,18 @@ function TabPrescription() {
                   handleDrawerVital={handleDrawerVital}
                   handleCollapsed={() => setCollapsed(!collapsed)}
                 />
-              ) : (
-                collapsedFlag === 2 && (
-                  <TabMedicalHistoryList
-                    mode={caseManagerData !== undefined ? EDIT : ADD}
-                    handleDrawerMedicalHistory={handleDrawerMedicalHistory}
-                    handleCollapsed={() => setCollapsed(!collapsed)}
-                  />
-                )
+              ) : collapsedFlag === 2 ? (
+                <TabMedicalHistoryList
+                  mode={caseManagerData !== undefined ? EDIT : ADD}
+                  handleDrawerMedicalHistory={handleDrawerMedicalHistory}
+                  handleCollapsed={() => setCollapsed(!collapsed)}
+                />
+              ) : collapsedFlag === 4 && (
+                <TabPrivateNotesList
+                  mode={caseManagerData !== undefined ? EDIT : ADD}
+                  handleDrawerPrivateNotes={handleDrawerPrivateNotes}
+                  handleCollapsed={() => setCollapsed(!collapsed)}
+                />
               )}
             </Sider>
             <div
@@ -545,6 +603,20 @@ function TabPrescription() {
           <MedicalHistoryBox
             handleDrawerMedicalHistory={handleDrawerMedicalHistory}
             handleCollapsed={(flag) => handleCollapsed(flag)}
+          />
+        </Drawer>
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerPrivateNotes}
+          open={privateNotesDrawer}
+          className="modalWidth-563"
+          width="auto"
+        >
+          <PrivateNotesBox
+            handleDrawerPrivateNotes={handleDrawerPrivateNotes}
+            handleCollapsed={(flag) => handleCollapsed(flag)}
+            selectPrivateNotes={selectPrivateNotes}
           />
         </Drawer>
         {vaccinationDrawer && (

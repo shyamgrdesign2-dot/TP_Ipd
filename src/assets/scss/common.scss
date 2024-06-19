@@ -123,6 +123,18 @@ body {
         font-family: 'Poppins' !important;
         color: $maincolor !important;
     }
+    .update-number-icon{
+        font-size: 18px !important;
+        position: relative;
+        top: 5%;
+        left: 1%;
+    }
+    .edit-number-icon{
+        cursor: pointer;
+        position: relative;
+        top: 2px;
+        left: 5px;
+    }
     .form-control {
         border-radius: 10px;
         &:focus {
@@ -262,6 +274,12 @@ body {
     }
     .read-or-hide {
         color: $theme !important;
+    }
+    .cardbody-data {
+        .read-or-hide {
+            color: $theme !important;
+            cursor: pointer;
+        }
     }
     .cursor-pointer {
         cursor: pointer;
@@ -839,4 +857,20 @@ body {
             }
         }
     }
+}
+
+// Private notes
+.notes-dot {
+    background-color: #F04545;
+    color: $white !important;
+    font-weight: 400;
+    border-radius: 100px;
+    padding: 3px;
+    font-size: 10px;
+    position: absolute;
+    right: 7px;
+    top: -4px;
+    width: 19px;
+    height: 19px;
+    line-height: 1.4;
 }

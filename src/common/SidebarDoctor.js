@@ -46,10 +46,6 @@ function SidebarDoctor() {
     const clickOldModule = (moduleName) => {
         SSO_TO_PM().then(async (data) => {
             if (data.success == 200) {
-                //   navigate('/', { replace: true })
-                //   clearLocalStorage()
-
-
                 await window.open(`${data.url}&module=${moduleName}`);
             }
         });
