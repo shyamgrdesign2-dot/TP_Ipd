@@ -1,14 +1,18 @@
 .growthSubHeader {
-  height: 88px;
+  height: 70px;
   box-shadow: -1px -1px 0px 0px #e2e2ea inset;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 52px;
+  padding: 8px 52px;
+
+  @media only screen and (max-width: 1200px) {
+    padding: 8px 40px;
+  }
 
   .addMeasurementBtn {
     width: 172px !important;
-    height: 60px !important;
+    height: 50px !important;
     display: flex;
     column-gap: 5px;
     align-items: center;
@@ -44,13 +48,11 @@
   .detailsContainer {
     border-radius: 10px;
     border: 1px solid var(--Stroke-Grey, #eaecf0);
-    padding: 8px 14px;
+    padding: 6px 14px;
     font-size: 12px;
     font-weight: 400;
-    line-height: 24px;
-    @media only screen and (max-width: 1200px) {
-      font-size: 10px;
-    }
+    line-height: 18px;
+
 
     .titleStyle {
       font-weight: 500;
@@ -82,9 +84,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      column-gap: 24px;
+      column-gap: 12px;
       padding: 19px 16px;
-      height: 60px;
+      height: 52px;
       cursor: pointer;
 
       &:hover {

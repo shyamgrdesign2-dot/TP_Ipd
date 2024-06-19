@@ -275,7 +275,7 @@ const WeightChart = ({
         },
         title: {
           display: true,
-          text: "Age (months)", // X-axis label
+          text: "Age in months", // X-axis label
         },
       },
       y: {
@@ -284,7 +284,7 @@ const WeightChart = ({
         },
         title: {
           display: true,
-          text: "Weight (kg)", // Y-axis label
+          text: `${graphName} in kg`, // Y-axis label
         },
       },
     },

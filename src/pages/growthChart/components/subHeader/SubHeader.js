@@ -36,7 +36,7 @@ const SubHeader = ({
         className="detailsContainer toggleContainer"
         onClick={() => setShowTableView(!showTableView)}
       >
-        <div className="textStyle">
+        <div className="textStyle titleStyle">
           <span>Show</span>
           <span>Table View</span>
         </div>
@@ -51,7 +51,7 @@ const SubHeader = ({
         className="detailsContainer toggleContainer"
         onClick={() => setShowTimelineInYear(!showTimelineInYear)}
       >
-        <div className="textStyle">
+        <div className="textStyle titleStyle">
           <span>Show Timeine</span>
           <span>in years</span>
         </div>

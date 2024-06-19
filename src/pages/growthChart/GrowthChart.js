@@ -80,7 +80,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         };
 
         return (
-          <Col key={key} className="gx-4">
+          <Col key={key} className="gx-3 gy-3">
             <div
               className={`graphContainer ${
                 isFullscreen ? "fullScreenStyle" : ""
