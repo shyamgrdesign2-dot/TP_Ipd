@@ -54,7 +54,12 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         const objectName = staticData[gender][key];
         const chartData = dummyData.datasets?.map((item) => {
           const labelName = item.label;
-          return { ...item, data: objectName[labelName] };
+          return {
+            ...item,
+            data: showTimelineInYear
+              ? objectName[labelName]?.filter((_, index) => index % 12 === 0)
+              : objectName[labelName],
+          };
         });
 
         const patientData = {
@@ -75,10 +80,12 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         chartData.push(patientData);
 
         const graphData = {
-          labels: Array.from({ length: 63 }, (_, i) => i),
+          labels: showTimelineInYear
+            ? Array.from({ length: 6 }, (_, i) => i)
+            : Array.from({ length: 63 }, (_, i) => i),
           datasets: chartData,
         };
-
+        
         return (
           <Col key={key} className="gx-3 gy-3">
             <div
@@ -92,6 +99,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                 setIsFullscreen={setIsFullscreen}
                 handleDrawerVital={handleDrawerMeasurements}
                 graphName={key}
+                showTimelineInYear={showTimelineInYear}
               />
             </div>
           </Col>

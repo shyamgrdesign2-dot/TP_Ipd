@@ -143,6 +143,7 @@ const WeightChart = ({
   setIsFullscreen,
   handleDrawerVital,
   graphName,
+  showTimelineInYear,
 }) => {
   const chartRef = useRef(null);
   const [shouldShowPercentilePopup, setPercentilePopup] = useState(false);
@@ -249,7 +250,7 @@ const WeightChart = ({
       // Unregister the plugin when the component unmounts
       ChartJS.unregister(customLabelPlugin);
     };
-  }, []);
+  }, [showTimelineInYear]);
 
   const toggleVisibility = (index) => {
     setVisibility((prev) => {
@@ -271,7 +272,7 @@ const WeightChart = ({
       x: {
         type: "linear",
         ticks: {
-          stepSize: 2,
+          stepSize: showTimelineInYear ? 1 : 2,
         },
         title: {
           display: true,
@@ -385,29 +386,34 @@ const WeightChart = ({
                 <div>
                   {data.datasets.map((dataset, index) => (
                     <>
-                      <Checkbox
-                        key={index}
-                        style={{
-                          padding: "6px 0px 6px 6px",
-                        }}
-                        checked={visibility[index]}
-                        onChange={() => toggleVisibility(index)}
-                      >
-                        <span
-                          className="dynamicColor"
-                          style={{
-                            "--dynamic-color": dataset.backgroundColor,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          {dataset.label}
-                        </span>
-                      </Checkbox>
-                      {index !== data.datasets.length - 1 && index !== 2 && (
-                        <span className="checkBoxSeparator" />
-                      )}
+                      {index !== data.datasets.length - 1 ? (
+                        <>
+                          <Checkbox
+                            key={index}
+                            style={{
+                              padding: "6px 0px 6px 6px",
+                            }}
+                            checked={visibility[index]}
+                            onChange={() => toggleVisibility(index)}
+                          >
+                            <span
+                              className="dynamicColor"
+                              style={{
+                                "--dynamic-color": dataset.backgroundColor,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              {dataset.label}
+                            </span>
+                          </Checkbox>
+                          {index !== data.datasets.length - 2 &&
+                            index !== 2 && (
+                              <span className="checkBoxSeparator" />
+                            )}
+                        </>
+                      ) : null}
                     </>
                   ))}
                 </div>
