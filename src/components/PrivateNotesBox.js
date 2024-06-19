@@ -73,7 +73,7 @@ function PrivateNotesBox(props) {
                         <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={handleDrawerPrivateNotes}>
                             <i className='icon-Cross fs-3'></i>
                         </Button>
-                        <div className="modal-title">Add Private Note</div>
+                        <div className="modal-title">{selectPrivateNotes?.id === undefined ? 'Add' : 'Edit' } Private Note</div>
                     </div>
                     <Button onClick={onSave} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading}>
                         Save

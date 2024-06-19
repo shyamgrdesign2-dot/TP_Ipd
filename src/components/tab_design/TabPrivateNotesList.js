@@ -45,7 +45,7 @@ function TabPrivateNotesList(props) {
                 </Button>
             </div>
             <div className="overflow-y-auto" style={{ height: "calc(100vh - 108px)" }}>
-                <div className="p-10 pt-0">
+                <div className={`${privateNotesData && "pt-0"} p-10`}>
                     {!privateNotesData && (
                         <Button className='btn btn-input d-flex w-100 align-items-center btn-41' onClick={handleDrawerPrivateNotes}>
                             <i className='icon-Add me-2 fs-21'></i>
