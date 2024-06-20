@@ -18,7 +18,7 @@ import TooltipContent from "./TooltipContent";
 import { genderAge } from "../../../../common/ProfilePopover";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { getAgeInMonths } from "../../growthChartHelper";
+import { UNITS, getAgeInMonths } from "../../growthChartHelper";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -186,7 +186,7 @@ const WeightChart = ({
       const xAxis = chart.scales["x"];
       const yAxis = chart.scales["y"];
       const xValue = showTimelineInYear
-        ? patientAgeInMonths/12
+        ? patientAgeInMonths / 12
         : patientAgeInMonths; // Your x-axis value
 
       // Find the pixel position of the x-axis value
@@ -321,7 +321,7 @@ const WeightChart = ({
         },
         title: {
           display: true,
-          text: "Age in months", // X-axis label
+          text: `Age in ${showTimelineInYear ? "Years" : "Months"}`, // X-axis label
         },
       },
       y: {
@@ -330,7 +330,7 @@ const WeightChart = ({
         },
         title: {
           display: true,
-          text: `${graphName} in kg`, // Y-axis label
+          text: `${graphName} in ${UNITS[graphName]}`, // Y-axis label
         },
       },
     },

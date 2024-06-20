@@ -14,7 +14,11 @@ import moment from "moment";
 import TableView from "./components/tableView/TableView";
 import Measurements from "./components/measurements/Measurements";
 import { Drawer } from "antd";
-import { dummyData, getGrowthChartData, graphsToPrintData } from "./growthChartHelper";
+import {
+  dummyData,
+  getGrowthChartData,
+  graphsToPrintData,
+} from "./growthChartHelper";
 import { staticData } from "./GrowthChartStaticData";
 import PrintPopup from "./components/printPopup/PrintPopup";
 
@@ -66,7 +70,14 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         });
 
         const patientData = {
-          data: growthChartData[key],
+          data: showTimelineInYear
+            ? growthChartData[key].map((item) => {
+                return {
+                  ...item,
+                  x: item.x / 12,
+                };
+              })
+            : growthChartData[key],
           label: "",
           borderColor: growthChartData[key].map((item) =>
             item.isMalnutrition ? "#FF0000" : "#19BB7A"

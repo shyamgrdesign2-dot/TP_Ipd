@@ -176,3 +176,10 @@ export const graphsToPrintData = [
     isPrintEnabled: true,
   },
 ];
+
+export const UNITS = {
+  Height: "cm",
+  Weight: "kg",
+  BMI: "kg/m2",
+  OFC: "cm",
+};
