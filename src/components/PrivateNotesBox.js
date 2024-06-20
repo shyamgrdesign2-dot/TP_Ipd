@@ -87,7 +87,7 @@ function PrivateNotesBox(props) {
                     <Input.TextArea placeholder="Write your notes" value={note} onChange={onChange} className="textareaPlaceholder" rows={4} />
                     {selectPrivateNotes?.id !== undefined && (
                         <button onClick={showHideModal} className="mt-2 btn d-flex align-items-center btn-text float-end">
-                            <i className="icon-delete me-2 fs-5"></i> Delete Note
+                            <i className="icon-delete me-2 fs-5"></i> <span>Delete Note</span>
                         </button>
                     )}
                 </div>
