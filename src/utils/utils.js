@@ -158,6 +158,25 @@ export const errorMessage = async (error) => {
   }
 };
 
+export const inputToLabel = (htmlString) => {
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlString;
+
+  const inputs = tempDiv.querySelectorAll('input');
+  inputs.forEach(input => {
+    console.log(input.type)
+    if (input.type === "date") {
+      const label = document.createElement('label');
+      label.className = input.className;
+      // label.id = input.id;
+      label.textContent = input.value;
+      input.parentNode.replaceChild(label, input);
+    }
+  });
+
+  return tempDiv.innerHTML;
+}
+
 export const HTMLTransformer = (htmlString) => {
   // Create a temporary container to parse the HTML string
   let tempContainer = document.createElement('div');
@@ -188,6 +207,8 @@ export const HTMLTransformer = (htmlString) => {
       replaceContent(label, '{Blood Group}');
     } else if (label.classList.contains('date_of_birth')) {
       replaceContent(label, '{Date of Birth}');
+    } else if (label.classList.contains('today_date')) {
+      replaceContent(label, '{Today Date}');
     } else if (label.classList.contains('department')) {
       replaceContent(label, '{Department}');
     } else if (label.classList.contains('referred_by')) {
@@ -226,6 +247,8 @@ export const HTMLTransformer = (htmlString) => {
       replaceContent(label, '{End Date}');
     } else if (label.classList.contains('join_date')) {
       replaceContent(label, '{Join Date}');
+    } else if (label.classList.contains('custom_date')) {
+      replaceContent(label, '{Custom Date}');
     } else if (label.classList.contains('diagnosis')) {
       replaceContent(label, '{Diagnosis}');
     } else if (label.classList.contains('time')) {

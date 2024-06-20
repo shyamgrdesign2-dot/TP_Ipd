@@ -57,4 +57,16 @@ ApiCaseManager.sendCashsheetWhatsapp = function (data) {
     return api.post(`/api/v1/casemanager/sendCashsheetWhatsapp`, data, baseUrl);
 };
 
+ApiCaseManager.getSmartRx = function (data) {
+    return api.post(`/api/v1/casemanager/smart-rx`, data, baseUrl);
+};
+
+// ApiCaseManager.saveSmartRx = function (data) {
+//     return api.post(`/api/v1/casemanager/smartrx`, data, smartrxUrl);
+// };
+
+// ApiCaseManager.sendSmartRxLinkOnWhatsapp = function (data) {
+//     return api.post(`/api/v1/casemanager/smart-rx/send`, data, smartrxUrl);
+// };
+
 export default ApiCaseManager;

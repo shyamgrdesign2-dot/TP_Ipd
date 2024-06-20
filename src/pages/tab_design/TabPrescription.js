@@ -45,6 +45,7 @@ import Vaccination from "../vaccination/Vaccination";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { checkToShowVaccination } from "../vaccination/service";
 import GrowthChart from "../growthChart/GrowthChart";
+import { viewPatient } from "../../redux/appointmentsSlice";
 
 function TabPrescription() {
   const {
@@ -62,6 +63,7 @@ function TabPrescription() {
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
   const isVaccination = state?.isVaccination;
+  const isGrowth = state?.isGrowth;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -118,6 +120,13 @@ function TabPrescription() {
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
+
+  useEffect(() => {
+    const sendData = {
+      patient_unique_id: patient_data?.patient_unique_id,
+    };
+    dispatch(viewPatient(sendData));
+  }, []);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -284,6 +293,12 @@ function TabPrescription() {
       handleDrawerVaccination();
     }
   }, [isVaccination]);
+
+  useEffect(() => {
+    if (isGrowth) {
+      handleDrawerGrowth();
+    }
+  }, [isGrowth]);
 
   //Handle Sider
   const openCollapsed = useCallback(

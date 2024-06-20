@@ -4,7 +4,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 40px;
+  padding: 14px 52px;
+
+  @media only screen and (max-width: 1200px) {
+    padding: 8px 40px;
+  }
 
   .addMeasurementBtn {
     width: 172px !important;
@@ -47,10 +51,7 @@
     padding: 8px 14px;
     font-size: 12px;
     font-weight: 400;
-    line-height: 24px;
-    @media only screen and (max-width: 1200px) {
-      font-size: 10px;
-    }
+    line-height: 21px;
 
     .titleStyle {
       font-weight: 500;
@@ -72,6 +73,26 @@
         border: 1px solid #eaecf0;
       }
     }
+    .addDetailsContainer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      column-gap: 5px;
+      padding-top: 5px;
+      cursor: pointer;
+      .addIcon {
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 18px;
+        color: rgba(75, 74, 213, 1);
+      }
+      .addDetails {
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 18px;
+        color: rgba(75, 74, 213, 1) !important;
+      }
+    }
   }
 
   .rightSubHeader {
@@ -82,9 +103,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      column-gap: 24px;
+      column-gap: 15px;
       padding: 19px 16px;
       height: 60px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: rgba(239, 239, 240, 1);
+        border-color: rgba(191, 191, 191, 1);
+      }
 
       .textStyle {
         flex-basis: 70%;

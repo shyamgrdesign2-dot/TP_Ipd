@@ -15,10 +15,13 @@ import TableView from "./components/tableView/TableView";
 import Measurements from "./components/measurements/Measurements";
 import { Drawer } from "antd";
 import { dummyData, getGrowthChartData } from "./growthChartHelper";
+import { staticData } from "./GrowthChartStaticData";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const { state } = useLocation();
   const { patient_data } = state;
+  const gender = patient_data?.pm_gender;
+
   const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -48,17 +51,40 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const getData = () => {
     return Object.keys(growthChartData).map((key) => {
       if (growthChartData.hasOwnProperty(key)) {
-        const chartData = { ...dummyData };
-        // chartData.datasets[5] = {
-        //   ...chartData.datasets[5],
-        //   data: growthChartData[key],
-        //   borderColor: growthChartData[key].map((item) =>
-        //     item.isMalnutrition ? "#FF0000" : "#19BB7A"
-        //   ),
-        //   backgroundColor: growthChartData[key].map((item) =>
-        //     item.isMalnutrition ? "#FF0000" : "#19BB7A"
-        //   ),
-        // };
+        const objectName = staticData[gender][key];
+        const chartData = dummyData.datasets?.map((item) => {
+          const labelName = item.label;
+          return {
+            ...item,
+            data: showTimelineInYear
+              ? objectName[labelName]?.filter((_, index) => index % 12 === 0)
+              : objectName[labelName],
+          };
+        });
+
+        const patientData = {
+          data: growthChartData[key],
+          label: "",
+          borderColor: growthChartData[key].map((item) =>
+            item.isMalnutrition ? "#FF0000" : "#19BB7A"
+          ),
+          backgroundColor: growthChartData[key].map((item) =>
+            item.isMalnutrition ? "#FF0000" : "#19BB7A"
+          ),
+          borderDash: [5, 5], // Make the line dotted
+          pointRadius: 5, // Show points
+          pointHoverRadius: 7, // Show points on hover
+          hidden: false,
+        };
+
+        chartData.push(patientData);
+
+        const graphData = {
+          labels: showTimelineInYear
+            ? Array.from({ length: 6 }, (_, i) => i)
+            : Array.from({ length: 63 }, (_, i) => i),
+          datasets: chartData,
+        };
 
         return (
           <Col key={key} className="gx-4">
@@ -68,11 +94,12 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
               }`}
             >
               <WeightChart
-                data={chartData}
+                data={graphData}
                 isFullscreen={isFullscreen}
                 setIsFullscreen={setIsFullscreen}
                 handleDrawerVital={handleDrawerMeasurements}
                 graphName={key}
+                showTimelineInYear={showTimelineInYear}
               />
             </div>
           </Col>
@@ -85,6 +112,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { profile } = useSelector((state) => state.doctors);
   const [parentalDetails, setParentalDetails] = useState();
   const [showTableView, setShowTableView] = useState(false);
+  const [showTimelineInYear, setShowTimelineInYear] = useState(false);
   const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
   const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
   const [measurementsData, setMeasurementsData] = useState([]);
@@ -178,7 +206,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       <SubHeader
         handleDrawerMeasurements={handleDrawerMeasurements}
         setShowUpdate={setShowUpdate}
+        showTableView={showTableView}
         setShowTableView={setShowTableView}
+        showTimelineInYear={showTimelineInYear}
+        setShowTimelineInYear={setShowTimelineInYear}
         parentalDetails={parentalDetails}
       />
       {measurementsDrawer && (

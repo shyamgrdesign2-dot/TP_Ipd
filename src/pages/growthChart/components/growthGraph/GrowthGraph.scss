@@ -47,10 +47,12 @@
       border-radius: 4px;
       padding: 10px;
 
-      .breakStyle {
-        height: 11px;
+      .dynamicColor {
+        color: var(--dynamic-color) !important;
+      }
+
+      .checkBoxSeparator {
         border: 1px solid #eaecf0;
-        margin-right: 4px;
       }
     }
 

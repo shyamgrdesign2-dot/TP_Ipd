@@ -1,6 +1,6 @@
 {
   "name": "react-thyrocare",
-  "version": "1.8.0",
+  "version": "1.9.1",
   "private": true,
   "homepage": "/",
   "dependencies": {
@@ -45,6 +45,7 @@
     "react-slick": "^0.30.2",
     "react-to-print": "^2.14.15",
     "reactjs-pdf-reader": "^1.0.12",
+    "reconnectingwebsocket": "^1.0.0",
     "redux-devtools-extension": "^2.13.9",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.4.2",
