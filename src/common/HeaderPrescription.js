@@ -41,7 +41,7 @@ import { listVideo } from "../redux/doctorsSlice";
 
 var oneClickCosultationTemplateId = 0
 
-function HeaderPrescription({isVaccinationEnabled}) {
+function HeaderPrescription({ isVaccinationEnabled }) {
 
     const { frequencyList, timingList, videoList } = useSelector((state) => state.doctors);
     const vaccines = useSelector((state) => state.vaccines);
@@ -53,7 +53,7 @@ function HeaderPrescription({isVaccinationEnabled}) {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
-    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime } = useContext(CashManagerContext);
+    const { patient_data, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, privateNotesData, setPrivateNotesData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime } = useContext(CashManagerContext);
 
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
@@ -110,6 +110,7 @@ function HeaderPrescription({isVaccinationEnabled}) {
         setMedicationData([])
         setVitalsData([])
         setMedicalHistoryData([])
+        setPrivateNotesData(null)
         setFollowUpDate(null)
         setAdditionalNote('')
     }
@@ -819,6 +820,7 @@ function HeaderPrescription({isVaccinationEnabled}) {
                 follow_up_date: followUpDate,
                 visit_advice: additionalNote,
                 medical_history: medicalHistoryData,
+                private_notes_id: privateNotesData?.id !== undefined ? privateNotesData?.id : 0,
                 consultation_start_datetime: startTime,
                 oneclick_cosultation_template_id: oneClickCosultationTemplateId,
                 vaccines: {
@@ -853,7 +855,7 @@ function HeaderPrescription({isVaccinationEnabled}) {
     }
 
     const checkDataFillOrNot = () => {
-        if (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || medicationData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0) {
+        if (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || medicationData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || privateNotesData) {
             showHideBackModal()
         } else {
             navigate('/', { replace: true });
@@ -1049,8 +1051,8 @@ function HeaderPrescription({isVaccinationEnabled}) {
                                     </Button>
                                 </div>
                             </Tooltip> */}
-                            <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote || givenVaccines.length > 0 || updatedDueVaccines?.length > 0) ? "" : "Please fill your prescription to end visit."}>
-                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || followUpDate || additionalNote || givenVaccines.length > 0 || updatedDueVaccines?.length > 0) && onEndVisitClick()} loading={loading}>
+                            <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || privateNotesData || followUpDate || additionalNote || givenVaccines.length > 0 || updatedDueVaccines?.length > 0) ? "" : "Please fill your prescription to end visit."}>
+                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={() => (symptomsData.length > 0 || examinationData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || privateNotesData || followUpDate || additionalNote || givenVaccines.length > 0 || updatedDueVaccines?.length > 0) && onEndVisitClick()} loading={loading}>
                                     <i className='icon-exit me-2'></i>
                                     End Visit
                                 </Button>
