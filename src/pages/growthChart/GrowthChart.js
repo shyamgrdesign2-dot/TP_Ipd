@@ -30,6 +30,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [fullScreenGraphIndex, setFullScreenGraphIndex] = useState(null);
   const [showShowPrintPopup, setShowPrintPopup] = useState(false);
   const [growthChartData, setGrowthChartData] = useState({
     Height: [],
@@ -56,7 +57,17 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   };
 
   const getData = () => {
-    return Object.keys(growthChartData).map((key) => {
+    const growthChartResult = Object.keys(growthChartData).filter(
+      (_, index) => {
+        if (fullScreenGraphIndex === null) {
+          return true;
+        } else {
+          return index === fullScreenGraphIndex;
+        }
+      }
+    );
+
+    return growthChartResult.map((key, graphIndex) => {
       if (growthChartData.hasOwnProperty(key)) {
         const objectName = staticData[gender][key];
         const chartData = dummyData.datasets?.map((item) => {
@@ -108,12 +119,14 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
               }`}
             >
               <WeightChart
+                graphIndex={graphIndex}
                 data={graphData}
                 isFullscreen={isFullscreen}
                 setIsFullscreen={setIsFullscreen}
                 handleDrawerVital={handleDrawerMeasurements}
                 graphName={key}
                 showTimelineInYear={showTimelineInYear}
+                setFullScreenGraphIndex={setFullScreenGraphIndex}
               />
             </div>
           </Col>

@@ -32,12 +32,14 @@ ChartJS.register(
 );
 
 const WeightChart = ({
+  graphIndex,
   data,
   isFullscreen,
   setIsFullscreen,
   handleDrawerVital,
   graphName,
   showTimelineInYear,
+  setFullScreenGraphIndex,
 }) => {
   const { state } = useLocation();
   const { patient_data } = state;
@@ -307,6 +309,7 @@ const WeightChart = ({
 
   const toggleFullscreen = () => {
     setIsFullscreen((prev) => !prev);
+    setFullScreenGraphIndex((prev) => (prev === null ? graphIndex : null));
   };
 
   const options = {
