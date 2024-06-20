@@ -3,8 +3,8 @@
   margin: auto;
   padding: 10px;
   width: 1066px;
-  border:solid black 1px;
-  border-radius:6px;
+  border: solid black 1px;
+  border-radius: 6px;
 }
 .tcell {
   border: 1px solid #ddd;
@@ -30,13 +30,17 @@
   border-radius: 16px;
   background-color: #fff;
   overflow-y: scroll;
-  background: #EAECF04D;
+  background: #eaecf04d;
   width: 1130px;
   gap: 24px;
   opacity: 0px;
 }
 
+.tableViewContainerForPrint {
+  padding: 0px;
+}
+
 .custom-icon {
-  color: #4B4AD5 !important;
+  color: #4b4ad5 !important;
   font-size: 16px;
 }

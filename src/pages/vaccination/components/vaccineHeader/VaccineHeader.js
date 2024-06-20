@@ -22,6 +22,7 @@ function VaccineHeader({
   isVaccination,
   printLoader,
   printPopupHandler,
+  handlePrintWeb,
 }) {
   const vaccinationVideo = {
     link: "https://www.youtube.com/embed/o6ALwX9hPMM",
@@ -74,10 +75,6 @@ function VaccineHeader({
     </Menu>
   );
 
-  const handleGrowthPrint = () => {
-    window.alert("print");
-  };
-
   const growthPrint = (
     <Menu>
       <Menu.Item
@@ -91,7 +88,7 @@ function VaccineHeader({
         key="2"
         className="btn-41 btn btn-input"
         style={{ border: "0 !important" }}
-        onClick={handleGrowthPrint}
+        onClick={handlePrintWeb}
       >
         Table
       </Menu.Item>
