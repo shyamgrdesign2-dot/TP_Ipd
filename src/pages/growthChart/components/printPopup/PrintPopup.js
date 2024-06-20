@@ -1,0 +1,72 @@
+import { Button, Checkbox, Modal } from "antd";
+import React from "react";
+
+export default function PrintPopup({
+  show,
+  handleClose,
+  graphsToPrint,
+  setGraphToPrint,
+}) {
+  const graphPrintHandler = (index, toggleBox) => {
+    setGraphToPrint((prevState) => {
+      const newState = [...prevState];
+      newState[index] = {
+        ...newState[index],
+        isPrintEnabled: !toggleBox,
+      };
+      return newState;
+    });
+  };
+
+  const continuePrintHandler = () => {
+    console.log("graphsToPrint", graphsToPrint);
+  };
+
+  return (
+    <Modal
+      width="350px"
+      height="254px"
+      open={show}
+      footer={null}
+      closeIcon={null}
+      title={
+        <div>
+          <div>Which all graphs you want to print?</div>
+          <hr style={{ borderTop: "1px solid #ccc" }} />
+        </div>
+      }
+      onCancel={handleClose}
+    >
+      <div
+        style={{
+          padding: "4px 0px",
+        }}
+      >
+        {graphsToPrint.map((graphItem, index) => {
+          return (
+            <Checkbox
+              key={index}
+              style={{
+                padding: "6px 0px 6px 6px",
+              }}
+              checked={graphItem.isPrintEnabled}
+              onChange={() =>
+                graphPrintHandler(index, graphItem.isPrintEnabled)
+              }
+            >
+              <span style={{ paddingRight: "12px" }}>{graphItem.label}</span>
+            </Checkbox>
+          );
+        })}
+        <Button
+          type="button"
+          className="btn-41 btn ant-btn-text btn-input"
+          style={{ width: "100%", marginTop: "28px" }}
+          onClick={continuePrintHandler}
+        >
+          Continue Printing
+        </Button>
+      </div>
+    </Modal>
+  );
+}

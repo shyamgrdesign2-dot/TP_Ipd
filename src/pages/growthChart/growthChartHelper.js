@@ -153,3 +153,26 @@ export const getAgeInMonths = (patientDOB) => {
 
   return today.diff(DOB, "months");
 };
+
+export const graphsToPrintData = [
+  {
+    label: "Height",
+    isPrintEnabled: true,
+  },
+  {
+    label: "Weight",
+    isPrintEnabled: true,
+  },
+  {
+    label: "BMI",
+    isPrintEnabled: true,
+  },
+  {
+    label: "OFC",
+    isPrintEnabled: true,
+  },
+  {
+    label: "Height Vs Weight",
+    isPrintEnabled: true,
+  },
+];

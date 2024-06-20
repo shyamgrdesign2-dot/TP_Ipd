@@ -21,6 +21,7 @@ function VaccineHeader({
   setPrintType,
   isVaccination,
   printLoader,
+  printPopupHandler,
 }) {
   const vaccinationVideo = {
     link: "https://www.youtube.com/embed/o6ALwX9hPMM",
@@ -82,7 +83,7 @@ function VaccineHeader({
       <Menu.Item
         key="1"
         className="btn btn-41 btn-input printMenu"
-        onClick={handleGrowthPrint}
+        onClick={printPopupHandler}
       >
         Graph
       </Menu.Item>
@@ -222,7 +223,7 @@ function VaccineHeader({
                   Preview
                 </Button>
               )}
-              <Dropdown menu={isVaccination ? vaccinePrint : growthPrint}>
+              <Dropdown overlay={isVaccination ? vaccinePrint : growthPrint}>
                 <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
                   <i className="icon-Print" />
                   <span className="btn-input">Print</span>

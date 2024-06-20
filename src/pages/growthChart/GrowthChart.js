@@ -14,8 +14,9 @@ import moment from "moment";
 import TableView from "./components/tableView/TableView";
 import Measurements from "./components/measurements/Measurements";
 import { Drawer } from "antd";
-import { dummyData, getGrowthChartData } from "./growthChartHelper";
+import { dummyData, getGrowthChartData, graphsToPrintData } from "./growthChartHelper";
 import { staticData } from "./GrowthChartStaticData";
+import PrintPopup from "./components/printPopup/PrintPopup";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const { state } = useLocation();
@@ -25,12 +26,14 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showShowPrintPopup, setShowPrintPopup] = useState(false);
   const [growthChartData, setGrowthChartData] = useState({
     Height: [],
     Weight: [],
     BMI: [],
     OFC: [],
   });
+  const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
 
   useEffect(() => {
     getGrowthChartDetails();
@@ -193,11 +196,16 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     setMeasurementsDrawer(!measurementsDrawer);
   }, [measurementsDrawer]);
 
+  const printPopupHandler = () => {
+    setShowPrintPopup((prev) => !prev);
+  };
+
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader
         handleDrawerVaccination={handleDrawerVaccination}
         patientDetails={gcPatientDetails}
+        printPopupHandler={printPopupHandler}
       />
       <SubHeader
         handleDrawerMeasurements={handleDrawerMeasurements}
@@ -227,6 +235,14 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           setShow={setShowUpdate}
           parentalDetails={parentalDetails}
           setParentalDetails={setParentalDetails}
+        />
+      )}
+      {showShowPrintPopup && (
+        <PrintPopup
+          show={showShowPrintPopup}
+          handleClose={printPopupHandler}
+          graphsToPrint={graphsToPrint}
+          setGraphToPrint={setGraphToPrint}
         />
       )}
       {showTableView ? (
