@@ -449,11 +449,9 @@ function Prescription() {
                       onClick={handleDrawerGrowth}
                     >
                       <i
-                        className={`${
-                          vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                        } me-1 fs-5`}
+                        className={`icon-Add me-1 fs-5`}
                       ></i>{" "}
-                      <span>{`${vitalsData.length > 0 ? "Edit" : "Add"}`}</span>
+                      <span>Add</span>
                     </button>
                   </div>
                 </div>

@@ -165,6 +165,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     setMeasurementsDrawer(!measurementsDrawer);
   }, [measurementsDrawer]);
 
+  const handleE = (i) => {
+    setMeasurementsData(i);
+  };
+
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader
@@ -186,7 +190,11 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           className="modalWidth-700"
           width="auto"
         >
-          <Measurements handleDrawerMeasurements={handleDrawerMeasurements} />
+          <Measurements
+            measurementsToEdit={measurementsData}
+            handleDrawerMeasurements={handleDrawerMeasurements}
+            getGrowthChartParams={getGrowthChartParams}
+          />
         </Drawer>
       )}
 
@@ -200,7 +208,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       )}
       {showTableView ? (
         <TableView
-          onEdit={handleDrawerMeasurements}
+          onEdit={(i) => {
+            handleE(i);
+            handleDrawerMeasurements();
+          }}
           dataSource={allGrowthChartParams}
         />
       ) : (

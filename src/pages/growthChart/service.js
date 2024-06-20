@@ -27,15 +27,13 @@ export const getGrowthChartParamsById = async (pm_id, pm_pid) => {
 };
 
 export const updateGrowthChartParam = async function (
-  id,
-  pm_id,
-  pm_pid,
+  { id, pm_id, pm_pid },
   payload
 ) {
   let res = {};
   try {
     res = await api.put(
-      `growthChart/6?pm_id=32&pm_pid=SHRUTHI18254`,
+      `growthChart/${id}?pm_id=${pm_id}&pm_pid=${pm_pid}`,
       payload,
       baseUrl
     );

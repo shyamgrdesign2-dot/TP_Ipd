@@ -11,8 +11,10 @@ import { errorMessage, onlyDecimalFormat } from "../../../../utils/utils";
 
 import CashManagerContext from "../../../../context/CashManagerContext";
 import moment from "moment";
-import { addGrowthChartParam } from "../../service";
+import { addGrowthChartParam, updateGrowthChartParam } from "../../service";
 import SuccessPopup from "../SuccessPopup";
+import { addMeasurements } from "../../../../redux/growthChartSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
@@ -21,37 +23,39 @@ function Measurements(props) {
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
 
-  const { handleDrawerMeasurements } = props;
+  const { handleDrawerMeasurements, measurementsToEdit, getGrowthChartParams } =
+    props;
 
   const { patient_data } = useContext(CashManagerContext);
   const [measurementsData, setMeasurementsData] = useState([]);
   const [dateString, setDateString] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const dispatch = useDispatch();
+  const { measurements } = useSelector((state) => state.growthChart);
+  console.log({ measurements });
 
   useEffect(() => {
     if (measurementsData.length === 0) {
       let cal = calculate("", "");
       measurementsData.push({
         date: moment().format(dateFormat),
-        dev_unique_id: 0,
-        tcv_id: 0,
-        tcbc_id: 0,
-        temp: "",
-        pres: "",
-        resp_rate: "",
-        systolic: "",
-        diastolic: "",
-        spo2: "",
         height: "",
         weight: "",
         ofc: "",
         bmi: cal.bmi,
-        bmr: cal.bmr,
-        bsa: cal.bsa,
       });
       setMeasurementsData((prev) => [...prev]);
     }
   }, [measurementsData]);
+
+  useEffect(() => {
+    setMeasurementsData([
+      {
+        ...measurementsToEdit,
+        date: moment(measurementsToEdit?.tcbc_created_date).format(dateFormat),
+      },
+    ]);
+  }, [measurementsToEdit]);
 
   const onChange = useCallback(
     (date, dateString) => {
@@ -59,21 +63,10 @@ function Measurements(props) {
       setDateString(dateString);
       measurementsData.push({
         date: dateString,
-        dev_unique_id: 0,
-        tcv_id: 0,
-        tcbc_id: 0,
-        temp: "",
-        pres: "",
-        resp_rate: "",
-        systolic: "",
-        diastolic: "",
-        spo2: "",
         height: "",
         weight: "",
         ofc: "",
         bmi: cal.bmi,
-        bmr: cal.bmr,
-        bsa: cal.bsa,
       });
       setMeasurementsData((prev) => [...prev]);
     },
@@ -139,22 +132,41 @@ function Measurements(props) {
   );
 
   const onAddGrowthData = async () => {
-    const result = measurementsData.map(async (vitalItem) => {
+    const result = measurementsData.map(async (measurement) => {
       const payload = {
-        date: vitalItem.date,
-        height: vitalItem.height,
-        weight: vitalItem.weight,
-        bmi: vitalItem.bmi,
-        ofc: vitalItem.ofc,
-        pm_id: patient_data?.pm_id || 0,
-        pm_pid: patient_data?.pm_pid || 0,
-        patient_unique_id: patient_data?.patient_unique_id || 0,
+        date: measurement.date,
+        height: measurement.height,
+        weight: measurement.weight,
+        bmi: measurement.bmi,
+        ofc: measurement.ofc,
+        pm_id: patient_data?.pm_id,
+        pm_pid: patient_data?.pm_pid,
+        patient_unique_id: patient_data?.patient_unique_id,
         pam_id: patient_data?.pam_id || 0,
       };
-      return await addGrowthChartParam(payload);
+      const addMeasurementsRes = measurementsToEdit?.tcbc_id
+        ? await updateGrowthChartParam(
+            {
+              id: measurementsToEdit?.tcbc_id,
+              pm_id: patient_data?.pm_id,
+              pm_pid: patient_data?.pm_pid,
+            },
+            payload
+          )
+        : await addGrowthChartParam(payload);
+
+      if (addMeasurementsRes?.tcbc_id) {
+        dispatch(addMeasurements(payload));
+      }
+      return addMeasurementsRes;
     });
+
     const updateGrowthRes = await Promise.all(result);
-    if (updateGrowthRes?.every((res) => res?.tcbc_id)) {
+    if (
+      updateGrowthRes?.every((res) => res?.tcbc_id) ||
+      updateGrowthRes?.every((res) => res?.status === 204)
+    ) {
+      getGrowthChartParams();
       setShowSuccess(true);
       setTimeout(() => {
         handleDrawerMeasurements();

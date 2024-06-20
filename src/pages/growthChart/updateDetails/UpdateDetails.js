@@ -27,6 +27,7 @@ export default function UpdateDetails({
   const [dob, setDob] = useState("");
   const { profile } = useSelector((state) => state.doctors);
   const [vaccinePatientDetails, setVaccinePatientDetails] = useState();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     getPatientDetail();
@@ -153,10 +154,10 @@ export default function UpdateDetails({
   };
 
   const updateGcDetails = async () => {
-    if (!vaccinePatientDetails.vac_id) {
+    if (!vaccinePatientDetails.vac_id && dob) {
       createPatientDetails();
-    } else if (vaccinePatientDetails.vac_dob !== dob) {
-      updateDob();
+    } else if (dob && vaccinePatientDetails.vac_dob !== dob) {
+      updatePatientDob();
     }
     if (action === "create") {
       createDetails();
@@ -264,7 +265,12 @@ export default function UpdateDetails({
         >
           <span className="gc-btn-txt">Do it later</span>
         </Button>
-        <Button className="gc-btn" type="primary" onClick={updateGcDetails}>
+        <Button
+          className="gc-btn"
+          type="primary"
+          onClick={updateGcDetails}
+          disabled={loading}
+        >
           Continue
         </Button>
       </div>
