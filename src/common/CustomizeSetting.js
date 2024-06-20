@@ -71,7 +71,7 @@ const CustomRow = ({ children, ...props }) => {
 
 function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled }) {
 
-  const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setMedicalHistoryData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
+  const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setMedicalHistoryData, setPrivateNotesData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
   const { loading, customizedPadLeftList, customizedPadRightList, videoList } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
@@ -236,6 +236,9 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled }) {
         if (left.findIndex(e => e.tmdpm_id === 3 && e.tmdpm_status === 0) === -1) {
           setMedicalHistoryData([])
         }
+        if (left.findIndex(e => e.tmdpm_id === 8 && e.tmdpm_status === 0) === -1) {
+          setMedicalHistoryData([])
+        }
         handleDrawerCustomize()
       } else {
         errorMessage(action.error)
@@ -281,6 +284,9 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled }) {
         setVitalsData([])
       }
       if (left.findIndex(e => e.tmdpm_id === 3 && e.tmdpm_status === 0) === -1) {
+        setMedicalHistoryData([])
+      }
+      if (left.findIndex(e => e.tmdpm_id === 8 && e.tmdpm_status === 0) === -1) {
         setMedicalHistoryData([])
       }
       errorMessage('Action successfully')
