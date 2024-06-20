@@ -85,9 +85,9 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             : Array.from({ length: 63 }, (_, i) => i),
           datasets: chartData,
         };
-        
+
         return (
-          <Col key={key} className="gx-3 gy-3">
+          <Col key={key} className="gx-4">
             <div
               className={`graphContainer ${
                 isFullscreen ? "fullScreenStyle" : ""

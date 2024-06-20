@@ -146,3 +146,10 @@ export const getAge = (tcbcCreatedDate, patientDOB) => {
     return `${getOrdinalSuffix(diffInWeeks)} Week`;
   }
 };
+
+export const getAgeInMonths = (patientDOB) => {
+  const today = moment(new Date());
+  const DOB = moment(patientDOB, "Do MMM YYYY");
+
+  return today.diff(DOB, "months");
+};

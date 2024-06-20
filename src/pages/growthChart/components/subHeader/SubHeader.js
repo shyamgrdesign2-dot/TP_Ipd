@@ -16,16 +16,28 @@ const SubHeader = ({
       <div className="detailsContainer">
         <div className="detailsStyle">
           <span className="titleStyle">{title}</span>
-          <i
-            className="icon-Edit iconStyle"
+          {value1 && value2 && (
+            <i
+              className="icon-Edit iconStyle"
+              onClick={() => setShowUpdate(true)}
+            />
+          )}
+        </div>
+        {value1 && value2 ? (
+          <div className="detailsStyle">
+            <span>{value1}</span>
+            <span className="separator" />
+            <span>{value2}</span>
+          </div>
+        ) : (
+          <div
+            className="addDetailsContainer"
             onClick={() => setShowUpdate(true)}
-          />
-        </div>
-        <div className="detailsStyle">
-          <span>{value1}</span>
-          {value1 && value2 && <span className="separator" />}
-          <span>{value2}</span>
-        </div>
+          >
+            <i className="icon-Add addIcon" />
+            <span className="addDetails">Add details</span>
+          </div>
+        )}
       </div>
     );
   };
@@ -77,15 +89,19 @@ const SubHeader = ({
       </Button>
       <div className="rightSubHeader">
         {growthDetails(
-          `Mid parental height: ${parentalDetails?.mid_parental_height ?? ""}`,
-          `Mother: ${
-            parentalDetails?.mother_height
-              ? parentalDetails?.mother_height + " cms"
+          `Mid parental height ${
+            parentalDetails?.mid_parental_height
+              ? `: ${parentalDetails?.mid_parental_height}`
               : ""
           }`,
-          `Father: ${
+          `${
+            parentalDetails?.mother_height
+              ? "Mother: " + parentalDetails?.mother_height + " cms"
+              : ""
+          }`,
+          `${
             parentalDetails?.father_height
-              ? parentalDetails?.father_height + " cms"
+              ? "Father: " + parentalDetails?.father_height + " cms"
               : ""
           }`
         )}
