@@ -30,6 +30,7 @@ import CommonModal from "./CommonModal";
 import alertIcon from "../assets/images/alertIcon.svg";
 import reload from "../assets/images/ic_Reload.svg";
 import tutorial from "../assets/images/tutorial.svg";
+import playIcons from '../assets/images/tube-icon.svg';
 import devicePad from "../assets/images/device-pad.svg";
 
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
@@ -37,10 +38,13 @@ import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 import { useSelector, useDispatch } from "react-redux";
 
 import { addCaseManager, editCaseManager } from "../redux/caseManagerSlice";
+import VideoModal from './VideoModal';
 
 function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
 
   const { templates, loading } = useSelector((state) => state.caseManager);
+  const { videoList} = useSelector((state) => state.doctors);
+  const [videoLink, setVideoLink] = useState(null);
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
@@ -67,6 +71,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
+  const [popOverVideo, setPopOverVideo] = useState(false);
   // const [connectLoading, setConnectLoading] = useState(false);
   // const [error, setError] = useState(null);
   // const [status, setStatus] = useState(null);
@@ -117,6 +122,42 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
   const handleSubmitClick = async () => {
     onSubmit();
   };
+
+  //PopOverVideo function
+  const showHideVideoListPopover = useCallback(() => {
+    setPopOverVideo(!popOverVideo);
+  }, [popOverVideo]);
+
+  //Video Componet
+  const VIDEO_CONTENT = useCallback(() => {
+    return (
+        <>
+            <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
+                <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+                    <div className="title-common lh-base">Video Tutorial</div>
+                    <Button className="btn btn-videoClose p-0"
+                        onClick={showHideVideoListPopover}>
+                        <i className="icon-Cross" />
+                    </Button>
+                </div>
+                {videoList?.filter(e => e.category_id === 4)[0]?.video?.map((item1, i1) => {
+                    return (
+                        <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 4)[0]?.video?.length - 1  && 'pb-3 mb-15 border-bottom'}`}>
+                            <div className="tutorial-play me-14">
+                                <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+                                <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
+                            </div>
+                            <div>
+                                <h3 className="title-common text-welcome">{item1?.tmv_title}</h3>
+                                <div className="fs-12 fontroboto fw-normal text-main">{item1?.tmv_description}</div>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </>
+    );
+  }, [popOverVideo]);
 
 // COMMECTING THIS CODE PLANNED TO GO WITHOUT THIS FUNCTIONALITY WITH WHICH WE HAVE DEPEDENCY ON ITELTRONICS TEAM
   // const WEBSERVICE_URL = 'http://localhost:80/Temporary_Listen_Addresses/iScribe';
@@ -255,7 +296,6 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
       }
   }
 
-
   return (
     <Navbar className="justify-content-between headerprescription p-0">
       <Container fluid className="h-100 gx-0 w-100">
@@ -355,19 +395,24 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                     </>
                   }
               /> */}
-              {/* <div className="d-flex align-items-center">
-                <button
-                  className="btn d-flex align-items-center btn-play"
-                  onClick={() => {}}
-                >
-                  <img
-                    className="align-items-center d-flex"
-                    src={tutorial}
-                    alt="Warning"
-                  />
-                  <span>Tutorial</span>
+              <Popover
+                open={popOverVideo}
+                onOpenChange={showHideVideoListPopover}
+                content={VIDEO_CONTENT}
+                trigger="click"
+                overlayClassName="pop-430 pp-0 videoTutorial"
+                placement="bottom"
+              >
+                <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
+                  <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
                 </button>
-              </div> */}
+              </Popover>
+              {videoLink && (
+                <VideoModal
+                    videoLink={videoLink}
+                    onCancel={() => setVideoLink(null)}
+                />
+              )}
               <Button
                 type="button"
                 className="btn align-items-center d-flex btn-41 btn-clear me-20"
