@@ -1,14 +1,17 @@
 import closeFill from "../../../../assets/images/closeFill.svg";
 import "./GrowthGraph.scss";
 
-const TooltipContent = ({ handleDrawerVital, handleCloseTooltip }) => {
+const TooltipContent = ({ handleDrawerVital, handleCloseTooltip, data }) => {
   return (
-      <div className="tooltipStyle">
+    <div className="tooltipStyle">
       <div className="measurementHeader">
         <div className="rowContainer">
           <div>
             <span className="measurementText">Measurements</span>
-            <i className="icon-Edit iconStyle" onClick={handleDrawerVital} />
+            <i
+              className="icon-Edit iconStyle"
+              onClick={() => handleDrawerVital(data)}
+            />
           </div>
           <img
             src={closeFill}
@@ -27,28 +30,28 @@ const TooltipContent = ({ handleDrawerVital, handleCloseTooltip }) => {
         <div className="rowContainer">
           <div className="measurement">
             <span className="measurementKey">Height : </span>
-            40 cms
+            {data?.height} cms
           </div>
           <span className="breakStyle" />
           <div>
             <span>Weight : </span>
-            08 kg
+            {data?.weight} kg
           </div>
         </div>
         <div className="rowContainer">
           <div>
             <span>BMI : </span>
-            13 kg/m2
+            {data?.bmi} kg/m2
           </div>
           <span className="breakStyle" />
           <div>
             <span>OFC : </span>
-            13 kg/m2
+            {data?.ofc} kg/m2
           </div>
         </div>
       </div>
       <span className="tooltipArrow" />
-      </div>
+    </div>
   );
 };
 

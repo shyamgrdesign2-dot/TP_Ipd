@@ -23,8 +23,12 @@ function Measurements(props) {
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
 
-  const { handleDrawerMeasurements, measurementsToEdit, getGrowthChartParams } =
-    props;
+  const {
+    handleDrawerMeasurements,
+    measurementsToEdit,
+    getGrowthChartParams,
+    setMeasurementsToEdit,
+  } = props;
 
   const { patient_data } = useContext(CashManagerContext);
   const [measurementsData, setMeasurementsData] = useState([]);
@@ -167,6 +171,7 @@ function Measurements(props) {
       updateGrowthRes?.every((res) => res?.status === 204)
     ) {
       getGrowthChartParams();
+      setMeasurementsToEdit([]);
       setShowSuccess(true);
       setTimeout(() => {
         handleDrawerMeasurements();
@@ -208,7 +213,7 @@ function Measurements(props) {
               </div>
               <div className="vitals-row vitals-row-40 d-flex align-items-center px-2 w-100">
                 <div className="fs-14 ">{`${
-                  item.bmi != "" ? parseFloat(item.bmi).toFixed(2) : "--"
+                  item.bmi ? parseFloat(item.bmi).toFixed(2) : "--"
                 } kg/m²`}</div>
               </div>
 
@@ -240,7 +245,10 @@ function Measurements(props) {
             <Button
               type="text"
               className="btn btn-delete-prescription px-3 focus-none h-100"
-              onClick={handleDrawerMeasurements}
+              onClick={() => {
+                setMeasurementsToEdit([]);
+                handleDrawerMeasurements();
+              }}
             >
               <i className="icon-Cross fs-3"></i>
             </Button>

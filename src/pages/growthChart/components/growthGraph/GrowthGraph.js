@@ -67,6 +67,7 @@ const WeightChart = ({
 
   const patientAge = genderAge(patient_data, profile, false);
   const patientAgeInMonths = getAgeInMonths(patient_data?.DOB);
+  const [dataIndex, setDataIndex] = useState();
 
   // Custom plugin to draw labels at the end of each line
   const customLabelPlugin = {
@@ -186,7 +187,7 @@ const WeightChart = ({
       const xAxis = chart.scales["x"];
       const yAxis = chart.scales["y"];
       const xValue = showTimelineInYear
-        ? patientAgeInMonths/12
+        ? patientAgeInMonths / 12
         : patientAgeInMonths; // Your x-axis value
 
       // Find the pixel position of the x-axis value
@@ -356,7 +357,6 @@ const WeightChart = ({
 
             const { offsetLeft: positionX, offsetTop: positionY } =
               chart.canvas;
-
             setTooltipState({
               visible: true,
               x: positionX + tooltip.caretX,
@@ -375,6 +375,11 @@ const WeightChart = ({
         right: 30, // Add padding to the right side
         top: 18,
       },
+    },
+    onHover: function (_, item) {
+      if (item.length) {
+        setDataIndex(item[0]?.index);
+      }
     },
   };
 
@@ -484,8 +489,9 @@ const WeightChart = ({
             style={{ left: tooltipState.x - 98, top: tooltipState.y - 168 }}
           >
             <TooltipContent
-              handleDrawerVital={handleDrawerVital}
+              handleDrawerVital={(i) => handleDrawerVital(i)}
               handleCloseTooltip={handleCloseTooltip}
+              data={data?.datasets?.[5]?.data?.[dataIndex]?.data}
             />
           </div>
         )}

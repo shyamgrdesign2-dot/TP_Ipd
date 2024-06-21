@@ -13,6 +13,7 @@ import {
 } from "../../vaccination/service";
 import { errorMessage } from "../../../utils/utils";
 import { useSelector } from "react-redux";
+import { getMidParentalHeight } from "../growthChartHelper";
 
 export default function UpdateDetails({
   show,
@@ -59,8 +60,8 @@ export default function UpdateDetails({
     const payload = {
       pm_id: patient_data?.pm_id,
       pm_pid: patient_data?.pm_pid,
-      father_height: parentalDetails?.father_height,
-      mother_height: parentalDetails?.mother_height,
+      father_height: parentalDetails?.father_height || "",
+      mother_height: parentalDetails?.mother_height || "",
       gestation_period:
         parentalDetails?.gestation_period_weeks * 7 +
         parentalDetails?.gestation_period_days,
@@ -71,6 +72,7 @@ export default function UpdateDetails({
       setTimeout(() => {
         setShow(false);
       }, 1000);
+      updateParentalState();
     }
   };
 
@@ -95,7 +97,25 @@ export default function UpdateDetails({
       setTimeout(() => {
         setShow(false);
       }, 1000);
+      updateParentalState();
     }
+  };
+
+  const updateParentalState = () => {
+    const { maleChildHeight, femaleChildHeight } = getMidParentalHeight(
+      +parentalDetails.father_height,
+      +parentalDetails.mother_height
+    );
+    setParentalDetails({
+      ...parentalDetails,
+      ...(parentalDetails?.father_height &&
+        parentalDetails?.mother_height && {
+          mid_parental_height:
+            patient_data?.pm_gender === "Male"
+              ? maleChildHeight
+              : femaleChildHeight,
+        }),
+    });
   };
 
   const handleClose = () => {};

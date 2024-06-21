@@ -14,7 +14,11 @@ import moment from "moment";
 import TableView from "./components/tableView/TableView";
 import Measurements from "./components/measurements/Measurements";
 import { Drawer } from "antd";
-import { dummyData, getGrowthChartData } from "./growthChartHelper";
+import {
+  dummyData,
+  getGrowthChartData,
+  getMidParentalHeight,
+} from "./growthChartHelper";
 import { staticData } from "./GrowthChartStaticData";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
@@ -97,7 +101,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                 data={graphData}
                 isFullscreen={isFullscreen}
                 setIsFullscreen={setIsFullscreen}
-                handleDrawerVital={handleDrawerMeasurements}
+                handleDrawerVital={(data) => {
+                  handleEditMeasurements(data);
+                  handleDrawerMeasurements();
+                }}
                 graphName={key}
                 showTimelineInYear={showTimelineInYear}
               />
@@ -131,16 +138,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     console.log({ growthChartParamsRes });
     setAllGrowthChartParams(growthChartParamsRes);
   };
-
-  function getMidParentalHeight(fatherHeight, motherHeight) {
-    const maleChildHeight = (fatherHeight + motherHeight + 13) / 2;
-    const femaleChildHeight = (fatherHeight + motherHeight - 13) / 2;
-
-    return {
-      maleChildHeight,
-      femaleChildHeight,
-    };
-  }
 
   const getPatientParentalDetails = async () => {
     const getParentalDetailsRes = await getParentalDetails(
@@ -193,7 +190,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     setMeasurementsDrawer(!measurementsDrawer);
   }, [measurementsDrawer]);
 
-  const handleE = (i) => {
+  const handleEditMeasurements = (i) => {
     setMeasurementsData(i);
   };
 
@@ -225,6 +222,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             measurementsToEdit={measurementsData}
             handleDrawerMeasurements={handleDrawerMeasurements}
             getGrowthChartParams={getGrowthChartParams}
+            setMeasurementsToEdit={setMeasurementsData}
           />
         </Drawer>
       )}
@@ -240,7 +238,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       {showTableView ? (
         <TableView
           onEdit={(i) => {
-            handleE(i);
+            handleEditMeasurements(i);
             handleDrawerMeasurements();
           }}
           dataSource={allGrowthChartParams}

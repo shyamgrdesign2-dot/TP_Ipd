@@ -88,21 +88,25 @@ export const getGrowthChartData = (growthChartData, patientDOB) => {
         x: monthsDiff,
         y: entry.height,
         isMalnutrition: isHeightMalnutrition,
+        data: entry,
       });
       acc.Weight.push({
         x: monthsDiff,
         y: entry.weight,
         isMalnutrition: isWeightMalnutrition,
+        data: entry,
       });
       acc.BMI.push({
         x: monthsDiff,
         y: entry.bmi,
         isMalnutrition: isBmiMalnutrition,
+        data: entry,
       });
       acc.OFC.push({
         x: monthsDiff,
         y: entry.ofc,
         isMalnutrition: isOfcMalnutrition,
+        data: entry,
       });
 
       return acc;
@@ -152,4 +156,14 @@ export const getAgeInMonths = (patientDOB) => {
   const DOB = moment(patientDOB, "Do MMM YYYY");
 
   return today.diff(DOB, "months");
+};
+
+export const getMidParentalHeight = (fatherHeight, motherHeight) => {
+  const maleChildHeight = (fatherHeight + motherHeight + 13) / 2;
+  const femaleChildHeight = (fatherHeight + motherHeight - 13) / 2;
+
+  return {
+    maleChildHeight,
+    femaleChildHeight,
+  };
 };
