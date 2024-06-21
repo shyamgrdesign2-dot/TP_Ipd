@@ -160,7 +160,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                                 isModalOpen={isModalOpen}
                                 onCancel={showHideModal}
                                 modalWidth={500}
-                                title={"You may lose your data"}
+                                title={"Patient Added"}
                                 modalBody={
                                 <>
                                     <div className="rounded-10px p-2 patient-details" style={{borderRadius: "10px",background: "rgba(25, 187, 122, 0.10)"}}>
