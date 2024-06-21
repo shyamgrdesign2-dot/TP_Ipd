@@ -3,6 +3,7 @@ import moment from "moment";
 export const dummyData = {
   datasets: [
     {
+      key: "P3",
       label: "P 03",
       borderColor: "rgba(240, 69, 69, 0.2)",
       backgroundColor: "rgba(240, 69, 69, 1)",
@@ -12,6 +13,7 @@ export const dummyData = {
       hidden: false,
     },
     {
+      key: "P10",
       label: "P 10",
       borderColor: "rgba(75, 74, 213, 0.2)",
       backgroundColor: "rgba(75, 74, 213, 1)",
@@ -21,6 +23,7 @@ export const dummyData = {
       hidden: false,
     },
     {
+      key: "P50",
       label: "P 50",
       borderColor: "rgba(25, 187, 122, 0.2)",
       backgroundColor: "rgba(25, 187, 122, 1)",
@@ -30,6 +33,7 @@ export const dummyData = {
       hidden: false,
     },
     {
+      key: "P90",
       label: "P 90",
       borderColor: "rgba(186, 125, 233, 0.2)",
       backgroundColor: "rgba(164, 97, 216, 1)",
@@ -39,6 +43,7 @@ export const dummyData = {
       hidden: false,
     },
     {
+      key: "P97",
       label: "P 97",
       borderColor: "rgba(237, 138, 0, 0.2)",
       backgroundColor: "rgba(237, 138, 0, 1)",
@@ -116,6 +121,7 @@ export const getGrowthChartData = (growthChartData, patientDOB) => {
       Weight: [],
       BMI: [],
       OFC: [],
+      HeightVsWeight: [],
     }
   );
 };
@@ -149,13 +155,6 @@ export const getAge = (tcbcCreatedDate, patientDOB) => {
   } else {
     return `${getOrdinalSuffix(diffInWeeks)} Week`;
   }
-};
-
-export const getAgeInMonths = (patientDOB) => {
-  const today = moment(new Date());
-  const DOB = moment(patientDOB, "Do MMM YYYY");
-
-  return today.diff(DOB, "months");
 };
 
 export const getMidParentalHeight = (fatherHeight, motherHeight) => {

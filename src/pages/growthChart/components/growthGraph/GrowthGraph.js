@@ -18,7 +18,7 @@ import TooltipContent from "./TooltipContent";
 import { genderAge } from "../../../../common/ProfilePopover";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { UNITS, getAgeInMonths } from "../../growthChartHelper";
+import { UNITS } from "../../growthChartHelper";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -68,7 +68,7 @@ const WeightChart = ({
   });
 
   const patientAge = genderAge(patient_data, profile, false);
-  const patientAgeInMonths = getAgeInMonths(patient_data?.DOB);
+  const patientAgeInMonths = patient_data?.ageMonths;
   const [dataIndex, setDataIndex] = useState();
 
   // Custom plugin to draw labels at the end of each line
@@ -122,7 +122,7 @@ const WeightChart = ({
 
       // Now handle red shadows for each red point
       p7Dataset.data.forEach((point) => {
-        if (point.isMalnutrition && false) {
+        if (point.isMalnutrition) {
           const x = xAxis.getPixelForValue(point.x);
           const y = yAxis.getPixelForValue(point.y);
           const shadowHeight = 30; // Height to extend shadow to x-axis
@@ -321,11 +321,21 @@ const WeightChart = ({
       x: {
         type: "linear",
         ticks: {
-          stepSize: showTimelineInYear ? 1 : 2,
+          stepSize:
+            showTimelineInYear &&
+            patient_data?.ageYears < 5 &&
+            graphName !== "HeightVsWeight"
+              ? 0.5
+              : showTimelineInYear && graphName === "HeightVsWeight"
+              ? 5
+              : 1,
         },
         title: {
           display: true,
-          text: `Age in ${showTimelineInYear ? "Years" : "Months"}`, // X-axis label
+          text:
+            graphName === "HeightVsWeight"
+              ? "Height in cm"
+              : `Age in ${showTimelineInYear ? "Years" : "Months"}`, // X-axis label
         },
       },
       y: {
@@ -334,7 +344,10 @@ const WeightChart = ({
         },
         title: {
           display: true,
-          text: `${graphName} in ${UNITS[graphName]}`, // Y-axis label
+          text:
+            graphName === "HeightVsWeight"
+              ? "Weight in kg"
+              : `${graphName} in ${UNITS[graphName]}`, // Y-axis label
         },
       },
     },
@@ -412,7 +425,9 @@ const WeightChart = ({
   return (
     <div style={{ height: "100%" }}>
       <div className="graphHeader">
-        <h5 style={{ margin: 0 }}>{graphName}</h5>
+        <div className="graphName">
+          {graphName === "HeightVsWeight" ? "Height Vs Weight" : graphName}
+        </div>
         <div>
           <div style={{ display: "flex" }}>
             <button
