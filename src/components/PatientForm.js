@@ -80,7 +80,7 @@ function PatientForm({ mode = ADD, patient_data }) {
 
             const action = mode === EDIT ? await dispatch(editPatient(finalValues)) : await dispatch(addPatient(finalValues));
             if (action.meta.requestStatus === "fulfilled") {
-                if (isMobile){
+                if (isMobile || isSmartSyncAccessableFromGB){
                     mode === EDIT ? navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } }) : navigate("/prescription", { replace: true, state: { patient_data: action.payload } })
                 }
                 else {
