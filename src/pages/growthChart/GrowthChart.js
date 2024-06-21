@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { Col, Row } from "react-bootstrap";
 import VaccineHeader from "../vaccination/components/vaccineHeader/VaccineHeader";
 import "./GrowthChart.scss";
@@ -22,12 +22,15 @@ import {
 } from "./growthChartHelper";
 import { staticData } from "./GrowthChartStaticData";
 import PrintPopup from "./components/printPopup/PrintPopup";
+import TablePrint from "./components/growthChartPrint/TablePrint";
+import { useReactToPrint } from "react-to-print";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const { state } = useLocation();
   const { patient_data } = state;
   const gender = patient_data?.pm_gender;
 
+  const printableRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -44,6 +47,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   useEffect(() => {
     getGrowthChartDetails();
   }, []);
+
+  const handlePrintWeb = useReactToPrint({
+    content: () => printableRef.current,
+  });
 
   const getGrowthChartDetails = async () => {
     const allGrowthChartParams = await getAllGrowthChartParams({
@@ -229,6 +236,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         handleDrawerVaccination={handleDrawerVaccination}
         patientDetails={gcPatientDetails}
         printPopupHandler={printPopupHandler}
+        handlePrintWeb={handlePrintWeb}
       />
       <SubHeader
         handleDrawerMeasurements={handleDrawerMeasurements}
@@ -294,6 +302,11 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           </Row>
         </div>
       )}
+      <div style={{ display: "none" }}>
+        <div ref={printableRef}>
+          <TablePrint dataSource={allGrowthChartParams} getData={getData} />
+        </div>
+      </div>
     </div>
   );
 };

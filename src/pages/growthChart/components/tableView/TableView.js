@@ -58,10 +58,12 @@ const TableView = ({ dataSource, onEdit }) => {
             {item.tcbc_created_date
               ? moment(item.tcbc_created_date).format("DD MMM YYYY")
               : ""}
-            <EditOutlined
-              className="custom-icon"
-              onClick={() => onEdit(item)}
-            />
+            {onEdit && (
+              <EditOutlined
+                className="custom-icon"
+                onClick={() => onEdit(item)}
+              />
+            )}
           </Space>
         </td>
         <td className="tcell">{item.height}</td>
@@ -73,7 +75,11 @@ const TableView = ({ dataSource, onEdit }) => {
   };
 
   return (
-    <div className="tableViewContainer">
+    <div
+      className={`tableViewContainer ${
+        onEdit ? "" : "tableViewContainerForPrint"
+      }`}
+    >
       <table className="tableView">
         <thead>{renderTableHeader()}</thead>
         <tbody>{renderTableData()}</tbody>
