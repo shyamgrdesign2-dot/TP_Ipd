@@ -71,8 +71,16 @@ export default function UpdateDetails({
       setShowSuccess(true);
       setTimeout(() => {
         setShow(false);
+        updateParentalState(
+          parentalDetails
+            ? parentalDetails
+            : {
+                ...payload,
+                gestation_period_weeks: parentalDetails?.gestation_period_weeks,
+                gestation_period_days: parentalDetails?.gestation_period_days,
+              }
+        );
       }, 1000);
-      updateParentalState();
     }
   };
 
@@ -96,20 +104,28 @@ export default function UpdateDetails({
       setShowSuccess(true);
       setTimeout(() => {
         setShow(false);
+        updateParentalState(
+          parentalDetails
+            ? parentalDetails
+            : {
+                ...payload,
+                gestation_period_weeks: parentalDetails?.gestation_period_weeks,
+                gestation_period_days: parentalDetails?.gestation_period_days,
+              }
+        );
       }, 1000);
-      updateParentalState();
     }
   };
 
-  const updateParentalState = () => {
+  const updateParentalState = (data) => {
     const { maleChildHeight, femaleChildHeight } = getMidParentalHeight(
-      +parentalDetails.father_height,
-      +parentalDetails.mother_height
+      +data?.father_height,
+      +data?.mother_height
     );
     setParentalDetails({
-      ...parentalDetails,
-      ...(parentalDetails?.father_height &&
-        parentalDetails?.mother_height && {
+      ...data,
+      ...(data?.father_height &&
+        data?.mother_height && {
           mid_parental_height:
             patient_data?.pm_gender === "Male"
               ? maleChildHeight
@@ -181,7 +197,7 @@ export default function UpdateDetails({
     }
     if (action === "create") {
       createDetails();
-    } else {
+    } else if (action === "update") {
       updateDetails();
     }
   };

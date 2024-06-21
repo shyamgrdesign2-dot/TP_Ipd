@@ -26,7 +26,7 @@ function Measurements(props) {
   const {
     handleDrawerMeasurements,
     measurementsToEdit,
-    getGrowthChartParams,
+    getGrowthChartDetails,
     setMeasurementsToEdit,
   } = props;
 
@@ -170,7 +170,7 @@ function Measurements(props) {
       updateGrowthRes?.every((res) => res?.tcbc_id) ||
       updateGrowthRes?.every((res) => res?.status === 204)
     ) {
-      getGrowthChartParams();
+      getGrowthChartDetails();
       setMeasurementsToEdit([]);
       setShowSuccess(true);
       setTimeout(() => {

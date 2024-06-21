@@ -199,20 +199,22 @@ function VaccineHeader({
           </Col>
           <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
             <div className="align-items-center d-flex h-100">
-              <Popover
-                open={popOverVideo}
-                onOpenChange={showHideVideoListPopover}
-                content={VIDEO_CONTENT}
-                trigger="click"
-                overlayClassName="pop-430 pp-0 videoTutorial"
-                placement="bottom"
-              >
-                <button className="btn d-flex align-items-center btn-text p-0 me-20">
-                  <span>
-                    <img src={tutorial2} />
-                  </span>
-                </button>
-              </Popover>
+              {isVaccination && (
+                <Popover
+                  open={popOverVideo}
+                  onOpenChange={showHideVideoListPopover}
+                  content={VIDEO_CONTENT}
+                  trigger="click"
+                  overlayClassName="pop-430 pp-0 videoTutorial"
+                  placement="bottom"
+                >
+                  <button className="btn d-flex align-items-center btn-text p-0 me-20">
+                    <span>
+                      <img src={tutorial2} />
+                    </span>
+                  </button>
+                </Popover>
+              )}
               {isVaccination && (
                 <Button
                   type="button"

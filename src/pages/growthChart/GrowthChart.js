@@ -191,6 +191,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           ? getParentalDetailsRes?.gestation_period % 7
           : "",
       });
+    } else {
+      setShowUpdate(true);
     }
   };
 
@@ -249,7 +251,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           <Measurements
             measurementsToEdit={measurementsData}
             handleDrawerMeasurements={handleDrawerMeasurements}
-            getGrowthChartParams={getGrowthChartParams}
+            getGrowthChartDetails={getGrowthChartDetails}
             setMeasurementsToEdit={setMeasurementsData}
           />
         </Drawer>
