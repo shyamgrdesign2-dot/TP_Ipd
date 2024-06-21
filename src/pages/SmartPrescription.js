@@ -316,7 +316,7 @@ function SmartPrescription() {
     const parentElement = document.getElementById("pdf");
 
     if (!parentElement) {
-      console.error("Parent element not found");
+      errorMessage("Canvas not found, please refresh the page!");
       return;
     }
   
@@ -423,7 +423,6 @@ function SmartPrescription() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const scaleFactor = 1.5;
-    // console.log(ctxGlobalRef.current)
     ctxGlobalRef.current.strokeStyle = '#454554';
     ctxGlobalRef.current.lineWidth = 0.5;
     ctxGlobalRef.current.moveTo(t * scaleFactor, n * scaleFactor);
@@ -449,7 +448,6 @@ function SmartPrescription() {
       socketRef.current.close();
       socketRef.current = null;
     }
-    // const canvas = ctxGlobalRef.current;
 
     const canvas = canvasRef.current;
     let name = null;

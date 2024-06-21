@@ -239,6 +239,31 @@ function Cardiology(props) {
     navigate(0, { replace: true });
   };
 
+  const handleEditRxClick = () => {
+    window.Moengage.track_event("edit_rx_click", {
+      doctor_id: profile?.doctor_unique_id,
+      patient_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      rx_date: viewCaseManagerData?.consultation_date,
+    });
+  
+    if (smartRxFile) {
+      navigate("/smart-prescription", {
+        state: {
+          patient_data: patient_data,
+          caseManagerData: viewCaseManagerData,
+          smartRxFile: smartRxFile,
+        },
+      });
+    } else {
+      navigate("/prescription", {
+        state: {
+          patient_data: patient_data,
+          caseManagerData: viewCaseManagerData,
+        },
+      });
+    }
+  };
+
   return (
     <div className="appointment-wrap PatientDetailswrap m-0">
       <Card className="">
@@ -292,28 +317,7 @@ function Cardiology(props) {
                         ? "visible"
                         : "hidden",
                     }}
-                    onClick={() => {
-                      window.Moengage.track_event("edit_rx_click", {
-                        doctor_id: profile?.doctor_unique_id,
-                        patient_id:
-                          patient_data !== undefined
-                            ? patient_data.patient_unique_id
-                            : 0,
-                        rx_date: viewCaseManagerData?.consultation_date,
-                      });
-                      smartRxFile ? (navigate("/smart-prescription", {
-                        state: {
-                          patient_data: patient_data,
-                          caseManagerData: viewCaseManagerData,
-                          smartRxFile : smartRxFile
-                        },
-                      })) : (navigate("/prescription", {
-                        state: {
-                          patient_data: patient_data,
-                          caseManagerData: viewCaseManagerData,
-                        },
-                      })) ;
-                    }}
+                    onClick={handleEditRxClick}
                   >
                     <i className="icon-Edit"></i>
                   </button>

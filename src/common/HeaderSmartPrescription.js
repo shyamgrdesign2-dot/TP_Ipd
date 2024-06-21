@@ -140,9 +140,9 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                         <i className="icon-Cross" />
                     </Button>
                 </div>
-                {videoList[3]?.video?.map((item1, i1) => {
+                {videoList?.filter(e => e.category_id === 4)[0]?.video?.map((item1, i1) => {
                     return (
-                        <div key={i1} className={`d-flex ${i1 !== videoList[0]?.video.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
+                        <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 4)[0]?.video?.length - 1  && 'pb-3 mb-15 border-bottom'}`}>
                             <div className="tutorial-play me-14">
                                 <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
                                 <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
@@ -395,19 +395,6 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                     </>
                   }
               /> */}
-              {/* <div className="d-flex align-items-center">
-                <button
-                  className="btn d-flex align-items-center btn-play"
-                  onClick={() => {}}
-                >
-                  <img
-                    className="align-items-center d-flex"
-                    src={tutorial}
-                    alt="Warning"
-                  />
-                  <span>Tutorial</span>
-                </button>
-              </div> */}
               <Popover
                 open={popOverVideo}
                 onOpenChange={showHideVideoListPopover}
@@ -417,7 +404,6 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                 placement="bottom"
               >
                 <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
-                  {/* onClick={showHideVideoListPopover} */}
                   <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
                 </button>
               </Popover>
