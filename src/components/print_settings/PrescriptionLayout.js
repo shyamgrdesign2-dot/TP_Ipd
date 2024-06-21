@@ -10,6 +10,7 @@ import { CSS } from '@dnd-kit/utilities';
 import PrintSettingsContext from '../../context/PrintSettingsContext';
 
 import { isMobile } from 'react-device-detect';
+import { useVaccinationAccess } from "../../pages/vaccination/useVaccinationAccess";
 
 // const CustomRow = ({ children, ...props }) => {
 //     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
@@ -139,6 +140,7 @@ const checkboxOptions = [
 function PrescriptionLayout() {
 
     const { caseManagerData, printSettings, setPrintSettings } = useContext(PrintSettingsContext);
+    const isVaccinationAccessable = useVaccinationAccess();
 
     const onMainCaseOptionChange = useCallback(
         (e) => {
@@ -327,8 +329,10 @@ function PrescriptionLayout() {
                                                             ({ ...option, key: option.id })
                                                             : (caseManagerData.medical_history.length > 0 && option.id === 8) ?
                                                                 ({ ...option, key: option.id })
-                                                                : ((caseManagerData.follow_up_date || caseManagerData.visit_advice) && option.id === 9) &&
-                                                                ({ ...option, key: option.id })
+                                                                : ((caseManagerData.follow_up_date || caseManagerData.visit_advice) && option.id === 9) ?
+                                                                    ({ ...option, key: option.id })
+                                                                    : (isVaccinationAccessable && option.id === 10) &&
+                                                                    ({ ...option, key: option.id })
                             )}
                             showHeader={false}
                         />

@@ -270,6 +270,9 @@ function InvestigationBox() {
   };
 
   const onTemplateSelected = (template) => {
+    window.Moengage.track_event("investigation_template_used", {
+      "template_name": template.tit_template_name
+    });
     const updatedData = template.investigation.map(e => {
       return { ...e, unique_id: uuidv4(), note: "" }
     })

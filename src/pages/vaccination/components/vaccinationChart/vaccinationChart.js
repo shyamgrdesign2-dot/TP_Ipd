@@ -44,7 +44,7 @@ const columns = [
 const VaccinationChart = ({ vaccinesData, patientDetails, profile }) => {
   function divideArray(array) {
     const subarrays = [];
-    const rows = 14;
+    const rows = 13;
     for (let i = 0; i < array.length; i += rows) {
       const subarray = array.slice(i, i + rows);
       subarrays.push(subarray);

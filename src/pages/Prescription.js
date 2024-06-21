@@ -38,10 +38,9 @@ import hey from "../assets/images/bg-hey.png";
 
 import { Content } from "antd/es/layout/layout";
 import vaccinationImg from "../assets/images/Vaccination.svg";
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import Vaccination from "./vaccination/Vaccination";
-import { checkToShowVaccination } from "./vaccination/service";
 import { viewPatient } from "../redux/appointmentsSlice";
+import { useVaccinationAccess } from "./vaccination/useVaccinationAccess";
 
 function Prescription() {
   const {
@@ -49,7 +48,6 @@ function Prescription() {
     customizedPadRightList,
     frequencyList,
     timingList,
-    profile,
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
@@ -111,16 +109,7 @@ function Prescription() {
   const [privateNotesDrawer, setPrivateNotesDrawer] = useState(false);
   const [selectPrivateNotes, setSelectPrivateNotes] = useState(null);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
-  const [isPediatric, setIsPediatric] = useState(false);
-  const isVaccinationAccessableFromGB = useFeatureIsOn(
-    "vaccination-new-design"
-  );
-
-  const checkForPediatric = async () => {
-    if (profile?.doctor_unique_id) {
-      setIsPediatric(await checkToShowVaccination(profile.doctor_unique_id));
-    }
-  };
+  const isVaccinationAccessable = useVaccinationAccess();
 
   useEffect(() => {
     const sendData = {
@@ -262,7 +251,6 @@ function Prescription() {
         setAdditionalNote(caseManagerData.visit_advice);
       }
     }
-    checkForPediatric();
   }, []);
 
   // Drawer Vitals
@@ -369,7 +357,7 @@ function Prescription() {
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessableFromGB || isPediatric} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
@@ -463,7 +451,7 @@ function Prescription() {
                       <PrivateNotesList handleDrawerPrivateNotes={handleDrawerPrivateNotes} />
                     )}
                   </div>
-                ) : (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
+                ) : (e.tmdpm_id === 7 && e.tmdpm_status === 0 && isVaccinationAccessable) && (
                   <div className="prescription-box-sm p-14">
                     <div className="d-flex align-items-center justify-content-between">
                       <div className="d-flex align-items-center">
