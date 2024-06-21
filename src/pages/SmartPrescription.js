@@ -380,13 +380,10 @@ function SmartPrescription() {
         setConnected(false);
       };
 
+      const drawFunction = smartRxFile ? editDraw : draw;
       socketRef.current.onmessage = (event) => {
         const o = event.data.split("|");
-        if(smartRxFile){
-          editDraw(o[0], o[1], o[2], o[3]);
-        }else{
-          draw(o[0], o[1], o[2], o[3]);
-        }
+        drawFunction(o[0], o[1], o[2], o[3]);
       };
 
       socketRef.current.onerror = (error) => {
@@ -413,6 +410,9 @@ function SmartPrescription() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     const scaleFactor = 1.5;
 
+     // Set consistent styles
+    ctx.strokeStyle = '#000'; // Example color for regular drawing
+    
     ctx.moveTo(t * scaleFactor, n * scaleFactor);
     ctx.lineTo(a * scaleFactor, c * scaleFactor);
     ctx.lineJoin = ctx.lineCap = "round";
@@ -423,8 +423,8 @@ function SmartPrescription() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const scaleFactor = 1.5;
-    ctxGlobalRef.current.strokeStyle = '#454554';
-    ctxGlobalRef.current.lineWidth = 0.5;
+    ctxGlobalRef.current.strokeStyle = '#000';
+    ctxGlobalRef.current.beginPath();
     ctxGlobalRef.current.moveTo(t * scaleFactor, n * scaleFactor);
     ctxGlobalRef.current.lineTo(a * scaleFactor, c * scaleFactor);
     ctxGlobalRef.current.lineJoin = ctxGlobalRef.current.lineCap = "round";
