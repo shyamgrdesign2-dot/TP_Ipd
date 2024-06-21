@@ -21,7 +21,6 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { isNumeric } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
-import { getSmartRx } from "../redux/caseManagerSlice";
 
 function Cardiology(props) {
   const navigate = useNavigate();
@@ -286,7 +285,6 @@ function Cardiology(props) {
                   </Button>
                 </div>
                 <div>
-                { !smartRxFile &&
                   <button
                     className="btn p-0 ms-3"
                     style={{
@@ -303,17 +301,22 @@ function Cardiology(props) {
                             : 0,
                         rx_date: viewCaseManagerData?.consultation_date,
                       });
-                      navigate("/prescription", {
+                      smartRxFile ? (navigate("/smart-prescription", {
+                        state: {
+                          patient_data: patient_data,
+                          caseManagerData: viewCaseManagerData,
+                          smartRxFile : smartRxFile
+                        },
+                      })) : (navigate("/prescription", {
                         state: {
                           patient_data: patient_data,
                           caseManagerData: viewCaseManagerData,
                         },
-                      });
+                      })) ;
                     }}
                   >
                     <i className="icon-Edit"></i>
                   </button>
-                }
                   <button
                     className="btn p-0 ms-3"
                     onClick={() =>
@@ -361,9 +364,13 @@ function Cardiology(props) {
                   )}
                 </div>
                 <div className="d-flex align-items-center mb-14 follow-up-detailsPage">
+                { viewCaseManagerData?.follow_up_date &&
+                  <>
                     <img className='me-3' src={followUp} alt="Symptoms" />
                     <div className="title-common">Follow-up:</div>
                     <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
+                  </>
+                }
                 </div>
               </>
             ) : (

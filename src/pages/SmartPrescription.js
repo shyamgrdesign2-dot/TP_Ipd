@@ -31,7 +31,6 @@ import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import { errorMessage } from "../utils/utils";
 import { MESSAGE_KEY } from "../utils/constants";
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 function SmartPrescription() {
   const {
@@ -45,7 +44,7 @@ function SmartPrescription() {
   const dispatch = useDispatch();
 
   const { state } = useLocation();
-  const { patient_data, caseManagerData } = state;
+  const { patient_data, caseManagerData, smartRxFile } = state;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -76,8 +75,12 @@ function SmartPrescription() {
   const [connected, setConnected] = useState(false);
   const [smartRxDetails, setSmartRxDetails] = useState(null);
   const [hasError, setHasError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const imageRef = useRef(null);
   
   const socketRef = useRef(null);
+
+  const ctxGlobalRef = useRef(null);
 
   const contextApi = {
     patient_data,
@@ -309,28 +312,39 @@ function SmartPrescription() {
   }, []);
 
   useEffect(() => {
-    // Remove the previous canvas
-    if (prescription) {
-      const previousCanvas = canvasRef.current;
-      if (previousCanvas) {
-        previousCanvas.parentNode.removeChild(previousCanvas);
-      }
-      // Generate a new canvas with a new UUID and white background
-      const newCanvas = document.createElement("canvas");
-      const parentElement = document.getElementById("pdf");
-      const parentWidth = parentElement.offsetWidth;
-      const parentHeight = parentElement.offsetHeight;
-      newCanvas.id = uuidv4();
-      newCanvas.width = parentWidth * 1;
-      newCanvas.height = parentHeight * 1;
-      newCanvas.style.backgroundColor = "white";
-      newCanvas.style.border = "1px solid lightgrey";
-      newCanvas.style.borderRadius = "20px";
-      newCanvas.style.color = "black";
-      document.getElementById("pdf").appendChild(newCanvas);
-      canvasRef.current = newCanvas;
+    
+    const parentElement = document.getElementById("pdf");
+
+    if (!parentElement) {
+      console.error("Parent element not found");
+      return;
     }
-  }, [refresh, prescription]);
+  
+    // Remove the previous canvas
+    const previousCanvas = canvasRef.current;
+    if (previousCanvas) {
+      previousCanvas.parentNode.removeChild(previousCanvas);
+    }
+  
+    // Generate a new canvas with a new UUID and white background
+    const newCanvas = document.createElement("canvas");
+    const parentWidth = parentElement.offsetWidth;
+    const parentHeight = parentElement.offsetHeight;
+    newCanvas.id = uuidv4();
+    newCanvas.width = parentWidth * 1;
+    newCanvas.height = parentHeight * 1;
+    newCanvas.style.backgroundColor = "white";
+    newCanvas.style.border = "1px solid lightgrey";
+    newCanvas.style.borderRadius = "20px";
+    newCanvas.style.color = "black";
+    parentElement.appendChild(newCanvas);
+    canvasRef.current = newCanvas;
+  
+    if (smartRxFile && imageLoaded) {
+      ctxGlobalRef.current = canvasRef.current.getContext('2d');
+      ctxGlobalRef.current.drawImage(imageRef.current, 0, 0);
+    }
+  }, [refresh, prescription, imageLoaded]);
 
   const wsError = (error) => {
       message.open({
@@ -367,8 +381,12 @@ function SmartPrescription() {
       };
 
       socketRef.current.onmessage = (event) => {
-          const o = event.data.split("|");
+        const o = event.data.split("|");
+        if(smartRxFile){
+          editDraw(o[0], o[1], o[2], o[3]);
+        }else{
           draw(o[0], o[1], o[2], o[3]);
+        }
       };
 
       socketRef.current.onerror = (error) => {
@@ -401,6 +419,19 @@ function SmartPrescription() {
     ctx.stroke();
   }
 
+  function editDraw(t, n, a, c) {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const scaleFactor = 1.5;
+    // console.log(ctxGlobalRef.current)
+    ctxGlobalRef.current.strokeStyle = '#454554';
+    ctxGlobalRef.current.lineWidth = 0.5;
+    ctxGlobalRef.current.moveTo(t * scaleFactor, n * scaleFactor);
+    ctxGlobalRef.current.lineTo(a * scaleFactor, c * scaleFactor);
+    ctxGlobalRef.current.lineJoin = ctxGlobalRef.current.lineCap = "round";
+    ctxGlobalRef.current.stroke();
+  }
+
   const convertCanvasToJPEG = (canvas) => {
     return new Promise((resolve, reject) => {
       canvas.toBlob((blob) => {
@@ -414,11 +445,21 @@ function SmartPrescription() {
   };
 
   const handleSubmit = async () => {
-    socketRef.current.close();
-    socketRef.current = null;
+    if (socketRef.current) {
+      socketRef.current.close();
+      socketRef.current = null;
+    }
+    // const canvas = ctxGlobalRef.current;
+
     const canvas = canvasRef.current;
-    const imgId = uuidv4();
-    const name = `${imgId}.jpeg`;
+    let name = null;
+
+    if (smartRxFile) {
+      name  = caseManagerData.smart_prescription_filename;
+    } else {
+      const imgId = uuidv4();
+      name = `${imgId}.jpeg`;
+    }
     setBlobName(name);
     let blob = null;
     let file = null;
@@ -430,7 +471,7 @@ function SmartPrescription() {
     }
     catch (error) {
       console.log('Error converting canvas to JPEG:', error);
-      errorMessage("Failed to generate image, Please Sunmit again");
+      errorMessage("Failed to generate image, Please Submit again");
       return;
     }
 
@@ -469,14 +510,18 @@ function SmartPrescription() {
 
   useEffect(() => {
     // this is to remove the click from the right container.
-    handleWrite()
+    handleWrite();
+    if (smartRxFile) {
+      imageLoad(smartRxFile);
+    } 
+
     return () => {
       // Cleanup WebSocket connection on component unmount
       if (socketRef.current) {
         socketRef.current.close();
       }
     };
-  }, []);
+  }, [smartRxFile]);
 
   const openModal = (success, message) => {
     setShowModal(true);
@@ -523,6 +568,23 @@ function SmartPrescription() {
       }
     }, interval);
   };
+
+  const imageLoad = (imageUrl) => {
+    const img = new Image();
+    img.src = imageUrl;
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      setImageLoaded(true);
+      imageRef.current = img;
+    };
+  }
+
+  useEffect(() => {
+    if (smartRxFile && imageLoaded && canvasRef.current) {
+      ctxGlobalRef.current = canvasRef.current.getContext('2d');
+      ctxGlobalRef.current.drawImage(imageRef.current, 0, 0)
+    }
+  }, [imageLoaded]);
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -586,36 +648,14 @@ function SmartPrescription() {
                 left: "39%",
               }}
             >
-              {!prescription ? (
+              <div className="right-container">
                 <div
-                  className="right-container"
-                  style={{
-                    border: prescription ? "none" : "1px solid #d9d9d9",
-                  }}
+                  id="pdf"
+                  style={{ border: prescription ? "none" : "lightgrey" }}
                 >
-                  <div className="rx-image-container" onClick={handleWrite}>
-                    <img src={RX_image} alt="prescription-icon" />
-                  </div>
-                  <div className="smartRx-info-container">
-                    <p className="smartPen-intro">
-                      Smart pen writings appear here
-                    </p>
-                    <p className="smartRx-into">
-                      Are you having trouble seeing your writing on this page?{" "}
-                      <br />
-                      If so, don't worry! Click here to learn how to configure
-                      your settings.
-                    </p>
-                  </div>
+                  <canvas ref={canvasRef} width="720px" height="980px" />
                 </div>
-              ) : (
-                <div className="right-container">
-                  <div
-                    id="pdf"
-                    style={{ border: prescription ? "none" : "lightgrey" }}
-                  ></div>
-                </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
