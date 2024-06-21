@@ -18,7 +18,7 @@ import TooltipContent from "./TooltipContent";
 import { genderAge } from "../../../../common/ProfilePopover";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { getAgeInMonths } from "../../growthChartHelper";
+import { UNITS, getAgeInMonths } from "../../growthChartHelper";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -32,12 +32,14 @@ ChartJS.register(
 );
 
 const WeightChart = ({
+  graphIndex,
   data,
   isFullscreen,
   setIsFullscreen,
   handleDrawerVital,
   graphName,
   showTimelineInYear,
+  setFullScreenGraphIndex,
 }) => {
   const { state } = useLocation();
   const { patient_data } = state;
@@ -308,6 +310,7 @@ const WeightChart = ({
 
   const toggleFullscreen = () => {
     setIsFullscreen((prev) => !prev);
+    setFullScreenGraphIndex((prev) => (prev === null ? graphIndex : null));
   };
 
   const options = {
@@ -322,7 +325,7 @@ const WeightChart = ({
         },
         title: {
           display: true,
-          text: "Age in months", // X-axis label
+          text: `Age in ${showTimelineInYear ? "Years" : "Months"}`, // X-axis label
         },
       },
       y: {
@@ -331,7 +334,7 @@ const WeightChart = ({
         },
         title: {
           display: true,
-          text: `${graphName} in kg`, // Y-axis label
+          text: `${graphName} in ${UNITS[graphName]}`, // Y-axis label
         },
       },
     },

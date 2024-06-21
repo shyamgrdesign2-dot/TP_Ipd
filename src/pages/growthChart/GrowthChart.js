@@ -18,8 +18,10 @@ import {
   dummyData,
   getGrowthChartData,
   getMidParentalHeight,
+  graphsToPrintData,
 } from "./growthChartHelper";
 import { staticData } from "./GrowthChartStaticData";
+import PrintPopup from "./components/printPopup/PrintPopup";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const { state } = useLocation();
@@ -29,12 +31,15 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [fullScreenGraphIndex, setFullScreenGraphIndex] = useState(null);
+  const [showShowPrintPopup, setShowPrintPopup] = useState(false);
   const [growthChartData, setGrowthChartData] = useState({
     Height: [],
     Weight: [],
     BMI: [],
     OFC: [],
   });
+  const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
 
   useEffect(() => {
     getGrowthChartDetails();
@@ -53,7 +58,17 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   };
 
   const getData = () => {
-    return Object.keys(growthChartData).map((key) => {
+    const growthChartResult = Object.keys(growthChartData).filter(
+      (_, index) => {
+        if (fullScreenGraphIndex === null) {
+          return true;
+        } else {
+          return index === fullScreenGraphIndex;
+        }
+      }
+    );
+
+    return growthChartResult.map((key, graphIndex) => {
       if (growthChartData.hasOwnProperty(key)) {
         const objectName = staticData[gender][key];
         const chartData = dummyData.datasets?.map((item) => {
@@ -67,7 +82,14 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         });
 
         const patientData = {
-          data: growthChartData[key],
+          data: showTimelineInYear
+            ? growthChartData[key].map((item) => {
+                return {
+                  ...item,
+                  x: item.x / 12,
+                };
+              })
+            : growthChartData[key],
           label: "",
           borderColor: growthChartData[key].map((item) =>
             item.isMalnutrition ? "#FF0000" : "#19BB7A"
@@ -98,6 +120,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
               }`}
             >
               <WeightChart
+                graphIndex={graphIndex}
                 data={graphData}
                 isFullscreen={isFullscreen}
                 setIsFullscreen={setIsFullscreen}
@@ -107,6 +130,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                 }}
                 graphName={key}
                 showTimelineInYear={showTimelineInYear}
+                setFullScreenGraphIndex={setFullScreenGraphIndex}
               />
             </div>
           </Col>
@@ -193,12 +217,16 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const handleEditMeasurements = (i) => {
     setMeasurementsData(i);
   };
+  const printPopupHandler = () => {
+    setShowPrintPopup((prev) => !prev);
+  };
 
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader
         handleDrawerVaccination={handleDrawerVaccination}
         patientDetails={gcPatientDetails}
+        printPopupHandler={printPopupHandler}
       />
       <SubHeader
         handleDrawerMeasurements={handleDrawerMeasurements}
@@ -233,6 +261,14 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           setShow={setShowUpdate}
           parentalDetails={parentalDetails}
           setParentalDetails={setParentalDetails}
+        />
+      )}
+      {showShowPrintPopup && (
+        <PrintPopup
+          show={showShowPrintPopup}
+          handleClose={printPopupHandler}
+          graphsToPrint={graphsToPrint}
+          setGraphToPrint={setGraphToPrint}
         />
       )}
       {showTableView ? (

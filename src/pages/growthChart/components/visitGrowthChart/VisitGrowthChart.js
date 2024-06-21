@@ -6,7 +6,7 @@ import { Card } from "react-bootstrap";
 import { Button } from "antd";
 import "./VisitGrowthChart.scss";
 import moment from "moment";
-import { getAge } from "../../growthChartHelper";
+import { UNITS, getAge } from "../../growthChartHelper";
 
 export default function VisitGrowthChart() {
   const navigate = useNavigate();
@@ -31,10 +31,10 @@ export default function VisitGrowthChart() {
 
   const measurementDetails = () => {
     const measurementData = {
-      Length: growthChartData.height + " cm",
-      Weight: growthChartData.weight + " kg",
-      BMI: growthChartData.bmi + " kg/m2",
-      OFC: growthChartData.ofc + " cm",
+      Height: `${growthChartData.height} ${UNITS.Height}`,
+      Weight: `${growthChartData.weight} ${UNITS.Weight}`,
+      BMI: `${growthChartData.bmi} ${UNITS.BMI}`,
+      OFC: `${growthChartData.ofc} ${UNITS.OFC}`,
     };
     return (
       <div className="detailContainer">
@@ -50,7 +50,6 @@ export default function VisitGrowthChart() {
       </div>
     );
   };
-
 
   return (
     <>

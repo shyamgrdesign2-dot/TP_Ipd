@@ -167,3 +167,32 @@ export const getMidParentalHeight = (fatherHeight, motherHeight) => {
     femaleChildHeight,
   };
 };
+export const graphsToPrintData = [
+  {
+    label: "Height",
+    isPrintEnabled: true,
+  },
+  {
+    label: "Weight",
+    isPrintEnabled: true,
+  },
+  {
+    label: "BMI",
+    isPrintEnabled: true,
+  },
+  {
+    label: "OFC",
+    isPrintEnabled: true,
+  },
+  {
+    label: "Height Vs Weight",
+    isPrintEnabled: true,
+  },
+];
+
+export const UNITS = {
+  Height: "cm",
+  Weight: "kg",
+  BMI: "kg/m2",
+  OFC: "cm",
+};
