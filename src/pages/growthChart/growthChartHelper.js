@@ -55,12 +55,23 @@ export const dummyData = {
   ],
 };
 
-export const getGrowthChartData = (growthChartData, patientDOB) => {
+export const getGrowthChartData = (growthChartData, patientDOB, ageInYears) => {
   return growthChartData.reduce(
     (acc, entry, index) => {
       const createdDate = moment(entry.tcbc_created_date);
       const DOB = moment(patientDOB, "Do MMM YYYY");
       const monthsDiff = createdDate.diff(DOB, "months");
+      const yearsDiff = createdDate.diff(DOB, "years");
+
+      if (ageInYears > 5) {
+        if (yearsDiff <= 5) {
+          return acc;
+        }
+      } else if (ageInYears > 2) {
+        if (yearsDiff <= 2) {
+          return acc;
+        }
+      }
 
       let isHeightMalnutrition = false;
       let isWeightMalnutrition = false;
@@ -108,7 +119,7 @@ export const getGrowthChartData = (growthChartData, patientDOB) => {
         data: entry,
       });
       acc.OFC.push({
-        x: monthsDiff,
+        x: yearsDiff <= 5 ? yearsDiff : 5,
         y: entry.ofc,
         isMalnutrition: isOfcMalnutrition,
         data: entry,
@@ -194,4 +205,11 @@ export const UNITS = {
   Weight: "kg",
   BMI: "kg/m2",
   OFC: "cm",
+};
+
+export const getAgeInMonths = (patientDOB) => {
+  const today = moment(new Date());
+  const DOB = moment(patientDOB, "Do MMM YYYY");
+
+  return today.diff(DOB, "months");
 };

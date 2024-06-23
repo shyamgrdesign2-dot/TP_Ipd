@@ -21,6 +21,7 @@ import {
   graphsToPrintData,
 } from "./growthChartHelper";
 import { ageData, growthData } from "./GrowthChartStaticData";
+// import growthChartStaticData from "./GrowthChart.json";
 import PrintPopup from "./components/printPopup/PrintPopup";
 import TablePrint from "./components/growthChartPrint/TablePrint";
 import { useReactToPrint } from "react-to-print";
@@ -29,6 +30,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { state } = useLocation();
   const { patient_data } = state;
   const gender = patient_data?.pm_gender;
+  // const { growthData, ageData } = growthChartStaticData;
 
   const printableRef = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -60,11 +62,14 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     });
     if (allGrowthChartParams && patient_data?.DOB) {
       setGrowthChartData(
-        getGrowthChartData(allGrowthChartParams, patient_data?.DOB)
+        getGrowthChartData(
+          allGrowthChartParams,
+          patient_data?.DOB,
+          patient_data?.ageYears
+        )
       );
     }
   };
-
   const getData = () => {
     const growthChartResult = Object.keys(growthChartData).filter(
       (_, index) => {
@@ -77,18 +82,18 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     );
 
     const ageInYears = patient_data?.ageYears;
-    let xAxis = "";
+    let ageIntervals = "";
     if (ageInYears >= 0 && ageInYears < 2) {
-      xAxis = "0To2";
+      ageIntervals = "0To2";
     } else if (ageInYears >= 2 && ageInYears < 5) {
-      xAxis = "2To5";
+      ageIntervals = "2To5";
     } else {
-      xAxis = "5To18";
+      ageIntervals = "5To18";
     }
 
     return growthChartResult.map((key, graphIndex) => {
       if (growthChartData.hasOwnProperty(key)) {
-        const objectName = growthData[gender][xAxis][key];
+        const objectName = growthData[gender][ageIntervals][key];
 
         if (Object.keys(objectName).length) {
           const chartData = dummyData.datasets?.map((item) => {
@@ -131,12 +136,12 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           const graphData = {
             labels:
               showTimelineInYear && key !== "HeightVsWeight"
-                ? ageData[xAxis]
+                ? ageData[ageIntervals]
                     .filter((_, index) => index % 12 === 0)
                     .map((item) => item / 12)
                 : key === "HeightVsWeight"
-                ? ageData[key][xAxis]
-                : ageData[xAxis],
+                ? ageData[key][ageIntervals]
+                : ageData[ageIntervals],
             datasets: chartData,
           };
 
@@ -188,7 +193,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       pm_id: patient_data?.pm_id || 0,
       pm_pid: patient_data?.pm_pid || 0,
     });
-    console.log({ growthChartParamsRes });
     setAllGrowthChartParams(growthChartParamsRes);
   };
 

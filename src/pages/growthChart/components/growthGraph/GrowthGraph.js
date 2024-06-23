@@ -18,7 +18,7 @@ import TooltipContent from "./TooltipContent";
 import { genderAge } from "../../../../common/ProfilePopover";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { UNITS } from "../../growthChartHelper";
+import { UNITS, getAgeInMonths } from "../../growthChartHelper";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -68,7 +68,7 @@ const WeightChart = ({
   });
 
   const patientAge = genderAge(patient_data, profile, false);
-  const patientAgeInMonths = patient_data?.ageMonths;
+  const patientAgeInMonths = getAgeInMonths(patient_data?.DOB);
   const [dataIndex, setDataIndex] = useState();
 
   // Custom plugin to draw labels at the end of each line
