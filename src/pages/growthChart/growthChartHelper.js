@@ -119,9 +119,15 @@ export const getGrowthChartData = (growthChartData, patientDOB, ageInYears) => {
         data: entry,
       });
       acc.OFC.push({
-        x: yearsDiff <= 5 ? yearsDiff : 5,
+        x: monthsDiff,
         y: entry.ofc,
         isMalnutrition: isOfcMalnutrition,
+        data: entry,
+      });
+      acc.HeightVsWeight.push({
+        x: entry.height,
+        y: entry.weight,
+        isMalnutrition: isWeightMalnutrition,
         data: entry,
       });
 

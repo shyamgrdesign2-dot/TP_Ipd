@@ -122,7 +122,7 @@ const WeightChart = ({
 
       // Now handle red shadows for each red point
       p7Dataset.data.forEach((point) => {
-        if (point.isMalnutrition) {
+        if (point.isMalnutrition && false) {
           const x = xAxis.getPixelForValue(point.x);
           const y = yAxis.getPixelForValue(point.y);
           const shadowHeight = 30; // Height to extend shadow to x-axis
