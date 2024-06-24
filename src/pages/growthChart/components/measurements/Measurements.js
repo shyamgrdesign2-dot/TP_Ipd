@@ -37,6 +37,21 @@ function Measurements(props) {
   const dispatch = useDispatch();
   const { measurements } = useSelector((state) => state.growthChart);
   console.log({ measurements });
+  const { selectedVitalsList } = useSelector((state) => state.vitals);
+
+  // useEffect(() => {
+  //   if (selectedVitalsList.length > 0) {
+  //     setMeasurementsData(
+  //       selectedVitalsList?.map(({ date, height, weight, ofc, bmi }) => ({
+  //         date,
+  //         height,
+  //         weight,
+  //         ofc,
+  //         bmi,
+  //       }))
+  //     );
+  //   }
+  // }, [selectedVitalsList]);
 
   useEffect(() => {
     if (measurementsData.length === 0) {
@@ -186,11 +201,14 @@ function Measurements(props) {
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .map((item, i) => {
           return (
-            <div key={i} className="vitals-wrap-body w-100 vitals-child-width">
-              <div className="vitals-head rounded-start-0 w-100">
+            <div
+              key={i}
+              className="gc-measurements-wrap-body w-100 gc-measurements-child-width"
+            >
+              <div className="gc-measurements-head rounded-start-0 w-100">
                 {moment(item.date).format(showDateFormat)}
               </div>
-              <div className="vitals-row vitals-row-60 d-flex align-items-center px-2 w-100">
+              <div className="gc-measurements-row gc-measurements-row-60 d-flex align-items-center px-2 py-5 w-100">
                 <Input
                   ref={(el) => (inputRef.current[i] = el)}
                   className="inputheight41-group focused"
@@ -201,7 +219,7 @@ function Measurements(props) {
                   onChange={(e) => onChangeInput(e.target.value, i, 1)}
                 />
               </div>
-              <div className="vitals-row vitals-row-60 d-flex align-items-center px-2 w-100">
+              <div className="gc-measurements-row gc-measurements-row-60 d-flex align-items-center px-2 py-5 w-100">
                 <Input
                   className="inputheight41-group"
                   placeholder="Enter"
@@ -211,13 +229,13 @@ function Measurements(props) {
                   onChange={(e) => onChangeInput(e.target.value, i, 2)}
                 />
               </div>
-              <div className="vitals-row vitals-row-40 d-flex align-items-center px-2 w-100">
+              <div className="gc-measurements-row gc-measurements-row-40 d-flex align-items-center px-2 py-5 w-100">
                 <div className="fs-14 ">{`${
                   item.bmi ? parseFloat(item.bmi).toFixed(2) : "--"
                 } kg/m²`}</div>
               </div>
 
-              <div className="vitals-row vitals-row-60 d-flex align-items-center px-2 w-100">
+              <div className="gc-measurements-row gc-measurements-row-60 d-flex align-items-center px-2 py-5 w-100">
                 <Input
                   className="inputheight41-group"
                   placeholder="Enter"
@@ -278,16 +296,16 @@ function Measurements(props) {
         </div>
         {measurementsData.length > 0 && (
           <div className="px-20">
-            <div className="vitals-wrapper w-100">
-              <div className="vitals-wrap-body vitals-parent-width">
-                <div className="vitals-head">Name</div>
-                <div className="vitals-row vitals-row-60 d-flex align-items-center px-2">
+            <div className="gc-measurements-wrapper w-100">
+              <div className="gc-measurements-wrap-body gc-measurements-parent-width">
+                <div className="gc-measurements-head">Name</div>
+                <div className="gc-measurements-row gc-measurements-row-60 d-flex align-items-center px-2 py-5">
                   Height
                 </div>
-                <div className="vitals-row vitals-row-60 d-flex align-items-center px-2">
+                <div className="gc-measurements-row gc-measurements-row-60 d-flex align-items-center px-2 py-5">
                   Weight
                 </div>
-                <div className="vitals-row vitals-row-40 d-flex align-items-center px-2">
+                <div className="gc-measurements-row gc-measurements-row-40 d-flex align-items-center px-2 py-5">
                   BMI
                   <Tooltip
                     placement="right"
@@ -296,7 +314,7 @@ function Measurements(props) {
                     <i className="icon-info ms-1"></i>
                   </Tooltip>
                 </div>
-                <div className="vitals-row vitals-row-60 d-flex align-items-center px-2">
+                <div className="gc-measurements-row gc-measurements-row-60 d-flex align-items-center px-2 py-5">
                   OFC
                 </div>
               </div>

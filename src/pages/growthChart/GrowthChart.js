@@ -46,6 +46,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
   useEffect(() => {
     getGrowthChartDetails();
+    getPatientDetail();
+    getPatientParentalDetails();
   }, []);
 
   const handlePrintWeb = useReactToPrint({
@@ -58,6 +60,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       pm_pid: patient_data?.pm_pid || 0,
     });
     if (allGrowthChartParams && patient_data?.DOB) {
+      setAllGrowthChartParams(allGrowthChartParams);
       setGrowthChartData(
         getGrowthChartData(allGrowthChartParams, patient_data?.DOB)
       );
@@ -154,21 +157,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
   const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
   const [measurementsData, setMeasurementsData] = useState([]);
-
-  useEffect(() => {
-    getPatientDetail();
-    getGrowthChartParams();
-    getPatientParentalDetails();
-  }, []);
-
-  const getGrowthChartParams = async () => {
-    const growthChartParamsRes = await getAllGrowthChartParams({
-      pm_id: patient_data?.pm_id || 0,
-      pm_pid: patient_data?.pm_pid || 0,
-    });
-    console.log({ growthChartParamsRes });
-    setAllGrowthChartParams(growthChartParamsRes);
-  };
 
   const getPatientParentalDetails = async () => {
     const getParentalDetailsRes = await getParentalDetails(
