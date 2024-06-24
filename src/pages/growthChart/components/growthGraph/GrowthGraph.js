@@ -40,6 +40,8 @@ const WeightChart = ({
   graphName,
   showTimelineInYear,
   setFullScreenGraphIndex,
+  tooltipState,
+  setTooltipState,
 }) => {
   const { state } = useLocation();
   const { patient_data } = state;
@@ -58,14 +60,6 @@ const WeightChart = ({
   });
   const popupRef = useRef(null);
   const tooltipRef = useRef(null);
-
-  const [tooltipState, setTooltipState] = useState({
-    visible: false,
-    x: 0,
-    y: 0,
-    titleLines: [],
-    bodyLines: [],
-  });
 
   const patientAge = genderAge(patient_data, profile, false);
   const patientAgeInMonths = getAgeInMonths(patient_data?.DOB);
@@ -88,38 +82,6 @@ const WeightChart = ({
 
       // Draw the main line chart path to use for clipping later
       ctx.beginPath();
-      p7Dataset.data.forEach((point, index) => {
-        const x = xAxis.getPixelForValue(point.x);
-        const y = yAxis.getPixelForValue(point.y);
-        if (index === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-      });
-      ctx.lineTo(
-        xAxis.getPixelForValue(p7Dataset.data[p7Dataset.data.length - 1].x),
-        yAxis.bottom
-      );
-      ctx.lineTo(xAxis.getPixelForValue(p7Dataset.data[0].x), yAxis.bottom);
-      ctx.closePath();
-
-      // Create gradient for green shadow
-      const greenGradient = ctx.createLinearGradient(
-        0,
-        yAxis.top,
-        0,
-        yAxis.bottom + 100 // Extend gradient further down
-      );
-      greenGradient.addColorStop(0, "rgba(100, 230, 100, 0.3)");
-      greenGradient.addColorStop(0.2, "rgba(100, 230, 100, 0.2)");
-      greenGradient.addColorStop(0.4, "rgba(100, 230, 100, 0.1)");
-      greenGradient.addColorStop(1, "rgba(37, 205, 37, 0)"); // Fully transparent at the bottom
-
-      // Fill the area below the line chart with green gradient
-      ctx.fillStyle = greenGradient;
-      ctx.fill();
-
       // Now handle red shadows for each red point
       p7Dataset.data.forEach((point) => {
         if (point.isMalnutrition) {
@@ -169,6 +131,37 @@ const WeightChart = ({
           ctx.setLineDash([]); // Reset to solid lines
         }
       });
+      p7Dataset.data.forEach((point, index) => {
+        const x = xAxis.getPixelForValue(point.x);
+        const y = yAxis.getPixelForValue(point.y);
+        if (index === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.lineTo(
+        xAxis.getPixelForValue(p7Dataset.data[p7Dataset.data.length - 1].x),
+        yAxis.bottom
+      );
+      ctx.lineTo(xAxis.getPixelForValue(p7Dataset.data[0].x), yAxis.bottom);
+      ctx.closePath();
+
+      // Create gradient for green shadow
+      const greenGradient = ctx.createLinearGradient(
+        0,
+        yAxis.top,
+        0,
+        yAxis.bottom + 100 // Extend gradient further down
+      );
+      greenGradient.addColorStop(0, "rgba(100, 230, 100, 0.3)");
+      greenGradient.addColorStop(0.2, "rgba(100, 230, 100, 0.2)");
+      greenGradient.addColorStop(0.4, "rgba(100, 230, 100, 0.1)");
+      greenGradient.addColorStop(1, "rgba(37, 205, 37, 0)"); // Fully transparent at the bottom
+
+      // Fill the area below the line chart with green gradient
+      ctx.fillStyle = greenGradient;
+      ctx.fill();
 
       ctx.restore(); // Restore initial context state
     },
@@ -393,6 +386,7 @@ const WeightChart = ({
               y: positionY + tooltip.caretY,
               titleLines,
               bodyLines,
+              graphIndex: graphIndex,
             });
           } else {
             handleCloseTooltip();
@@ -406,7 +400,12 @@ const WeightChart = ({
         top: 18,
       },
     },
-    onHover: function (_, item) {
+    onHover: function (event, activeElements, item) {
+      if (activeElements?.length > 0) {
+        event.native.target.style.cursor = "pointer";
+      } else {
+        event.native.target.style.cursor = "auto";
+      }
       if (item.length) {
         setDataIndex(item[0]?.index);
       }
@@ -420,6 +419,7 @@ const WeightChart = ({
       y: 0,
       titleLines: [],
       bodyLines: [],
+      graphIndex: null,
     });
   };
 
@@ -514,7 +514,7 @@ const WeightChart = ({
       </div>
       <div style={{ position: "relative", height: "100%", width: "100%" }}>
         <Line ref={chartRef} data={chartData} options={options} />
-        {tooltipState.visible && (
+        {tooltipState.visible && graphIndex === tooltipState.graphIndex && (
           <div
             ref={tooltipRef}
             className="tooltipContainer"

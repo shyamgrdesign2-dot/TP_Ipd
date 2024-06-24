@@ -44,6 +44,14 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     OFC: [],
     HeightVsWeight: [],
   });
+  const [tooltipState, setTooltipState] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    titleLines: [],
+    bodyLines: [],
+    graphIndex: null,
+  });
   const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
 
   useEffect(() => {
@@ -123,7 +131,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             backgroundColor: "rgba(0, 0, 0, 0)", // Make the line background transparent
             borderDash: [4, 4], // Make the line dotted
             pointRadius: 3, // Show points
-            pointHoverRadius: 8, // Show points on hover
+            pointHoverRadius: 6, // Show points on hover
             hidden: false,
             pointBorderColor: modifiedData.map((item) =>
               item.isMalnutrition ? "#FF0000" : "#19BB7A"
@@ -166,6 +174,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   graphName={key}
                   showTimelineInYear={showTimelineInYear}
                   setFullScreenGraphIndex={setFullScreenGraphIndex}
+                  tooltipState={tooltipState}
+                  setTooltipState={setTooltipState}
                 />
               </div>
             </Col>
