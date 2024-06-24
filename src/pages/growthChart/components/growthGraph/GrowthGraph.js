@@ -305,7 +305,7 @@ const WeightChart = ({
       // Unregister the plugin when the component unmounts
       ChartJS.unregister(customLabelPlugin);
     };
-  }, [showTimelineInYear]);
+  }, [showTimelineInYear, isFullscreen]);
 
   const toggleVisibility = (index) => {
     setVisibility((prev) => {
@@ -400,14 +400,12 @@ const WeightChart = ({
         top: 18,
       },
     },
-    onHover: function (event, activeElements, item) {
-      if (activeElements?.length > 0) {
+    onHover: function (event, elements) {
+      if (elements.length) {
         event.native.target.style.cursor = "pointer";
+        setDataIndex(elements[0].index);
       } else {
         event.native.target.style.cursor = "auto";
-      }
-      if (item.length) {
-        setDataIndex(item[0]?.index);
       }
     },
   };
