@@ -20,8 +20,7 @@ import {
   getMidParentalHeight,
   graphsToPrintData,
 } from "./growthChartHelper";
-import { ageData, growthData } from "./GrowthChartStaticData";
-// import growthChartStaticData from "./GrowthChart.json";
+import growthChartStaticData from "./GrowthChart.json";
 import PrintPopup from "./components/printPopup/PrintPopup";
 import TablePrint from "./components/growthChartPrint/TablePrint";
 import { useReactToPrint } from "react-to-print";
@@ -30,7 +29,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { state } = useLocation();
   const { patient_data } = state;
   const gender = patient_data?.pm_gender;
-  // const { growthData, ageData } = growthChartStaticData;
+  const { growthData, ageData } = growthChartStaticData;
 
   const printableRef = useRef(null);
   const [loading, setLoading] = useState(false);
