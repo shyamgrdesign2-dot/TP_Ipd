@@ -154,6 +154,9 @@ function TabSymptomsBox() {
     };
 
     const onTemplateSelected = (template) => {
+        window.Moengage.track_event("symptom_template_used", {
+            "template_name": template.tst_template_name
+        });
         const updatedData = template.symptoms.map(e => {
             return { ...e, unique_id: uuidv4(), since: "", severity: "", note: "" }
         })
