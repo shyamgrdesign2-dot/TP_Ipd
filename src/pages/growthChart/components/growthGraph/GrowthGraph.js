@@ -122,7 +122,7 @@ const WeightChart = ({
 
       // Now handle red shadows for each red point
       p7Dataset.data.forEach((point) => {
-        if (point.isMalnutrition && false) {
+        if (point.isMalnutrition) {
           const x = xAxis.getPixelForValue(point.x);
           const y = yAxis.getPixelForValue(point.y);
           const shadowHeight = 30; // Height to extend shadow to x-axis
@@ -153,6 +153,20 @@ const WeightChart = ({
           ctx.fillRect(x - shadowWidth / 2, y, shadowWidth, shadowHeight);
 
           ctx.restore(); // Restore initial context state
+
+          // Draw the red point
+          ctx.beginPath();
+          ctx.arc(x, y, 3, 0, 1 * Math.PI); // Draw the point itself
+          ctx.fillStyle = "#F04545";
+          ctx.fill();
+
+          // Draw dotted circle around the red point
+          ctx.beginPath();
+          ctx.setLineDash([2, 2]); // Create a dotted line
+          ctx.arc(x, y, 10, 0, 2 * Math.PI); // Draw circle around the point
+          ctx.strokeStyle = "#000000";
+          ctx.stroke();
+          ctx.setLineDash([]); // Reset to solid lines
         }
       });
 

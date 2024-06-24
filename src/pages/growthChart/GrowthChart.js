@@ -111,26 +111,26 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             };
           });
 
+          const modifiedData = growthChartData[key].map((item) => ({
+            ...item,
+            x: showTimelineInYear ? item.x / 12 : item.x,
+          }));
+
           const patientData = {
-            data: showTimelineInYear
-              ? growthChartData[key].map((item) => {
-                  return {
-                    ...item,
-                    x: item.x / 12,
-                  };
-                })
-              : growthChartData[key],
+            data: modifiedData,
             label: "",
-            borderColor: growthChartData[key].map((item) =>
-              item.isMalnutrition ? "#FF0000" : "#19BB7A"
-            ),
-            backgroundColor: growthChartData[key].map((item) =>
-              item.isMalnutrition ? "#FF0000" : "#19BB7A"
-            ),
-            borderDash: [5, 5], // Make the line dotted
-            pointRadius: 5, // Show points
-            pointHoverRadius: 7, // Show points on hover
+            borderColor: "#19BB7A",
+            backgroundColor: "rgba(0, 0, 0, 0)", // Make the line background transparent
+            borderDash: [4, 4], // Make the line dotted
+            pointRadius: 3, // Show points
+            pointHoverRadius: 8, // Show points on hover
             hidden: false,
+            pointBorderColor: modifiedData.map((item) =>
+              item.isMalnutrition ? "#FF0000" : "#19BB7A"
+            ),
+            pointBackgroundColor: modifiedData.map((item) =>
+              item.isMalnutrition ? "#FF0000" : "#19BB7A"
+            ),
           };
 
           chartData.push(patientData);
