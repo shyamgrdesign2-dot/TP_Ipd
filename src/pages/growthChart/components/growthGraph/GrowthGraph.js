@@ -42,6 +42,7 @@ const WeightChart = ({
   setFullScreenGraphIndex,
   tooltipState,
   setTooltipState,
+  isPrint,
 }) => {
   const { state } = useLocation();
   const { patient_data } = state;
@@ -82,55 +83,6 @@ const WeightChart = ({
 
       // Draw the main line chart path to use for clipping later
       ctx.beginPath();
-      // Now handle red shadows for each red point
-      p7Dataset.data.forEach((point) => {
-        if (point.isMalnutrition) {
-          const x = xAxis.getPixelForValue(point.x);
-          const y = yAxis.getPixelForValue(point.y);
-          const shadowHeight = 30; // Height to extend shadow to x-axis
-          const shadowWidth = 30; // Adjust shadow width to 30 pixels
-
-          // Create gradient for red shadow
-          const redGradient = ctx.createLinearGradient(
-            0,
-            y,
-            0,
-            y + shadowHeight
-          );
-          redGradient.addColorStop(0, "rgba(255, 0, 0, 0.2)"); // Intense red at the point
-          redGradient.addColorStop(1, "rgba(255, 0, 0, 0)"); // Fully transparent at the bottom
-
-          // Clip to draw only below the point
-          ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(x - shadowWidth / 2, y);
-          ctx.lineTo(x + shadowWidth / 2, y);
-          ctx.lineTo(x + shadowWidth / 2, y + shadowHeight);
-          ctx.lineTo(x - shadowWidth / 2, y + shadowHeight);
-          ctx.closePath();
-          ctx.clip();
-
-          // Fill with gradient red color for shadow, limited to 30px below the point
-          ctx.fillStyle = redGradient;
-          ctx.fillRect(x - shadowWidth / 2, y, shadowWidth, shadowHeight);
-
-          ctx.restore(); // Restore initial context state
-
-          // Draw the red point
-          ctx.beginPath();
-          ctx.arc(x, y, 3, 0, 1 * Math.PI); // Draw the point itself
-          ctx.fillStyle = "#F04545";
-          ctx.fill();
-
-          // Draw dotted circle around the red point
-          ctx.beginPath();
-          ctx.setLineDash([2, 2]); // Create a dotted line
-          ctx.arc(x, y, 10, 0, 2 * Math.PI); // Draw circle around the point
-          ctx.strokeStyle = "#000000";
-          ctx.stroke();
-          ctx.setLineDash([]); // Reset to solid lines
-        }
-      });
       p7Dataset.data.forEach((point, index) => {
         const x = xAxis.getPixelForValue(point.x);
         const y = yAxis.getPixelForValue(point.y);
@@ -152,8 +104,8 @@ const WeightChart = ({
         0,
         yAxis.top,
         0,
-        yAxis.bottom + 100 // Extend gradient further down
-      );
+        yAxis.bottom + 100
+      ); // Extend gradient further down
       greenGradient.addColorStop(0, "rgba(100, 230, 100, 0.3)");
       greenGradient.addColorStop(0.2, "rgba(100, 230, 100, 0.2)");
       greenGradient.addColorStop(0.4, "rgba(100, 230, 100, 0.1)");
@@ -162,6 +114,66 @@ const WeightChart = ({
       // Fill the area below the line chart with green gradient
       ctx.fillStyle = greenGradient;
       ctx.fill();
+
+      // Draw red shadows and points below the line chart path
+      p7Dataset.data.forEach((point, index) => {
+        if (point.isMalnutrition) {
+          const x = xAxis.getPixelForValue(point.x);
+          const y = yAxis.getPixelForValue(point.y);
+
+          // Ensure the red shadow is only drawn below the main line chart path
+          if (y <= yAxis.bottom) {
+            ctx.save();
+
+            ctx.beginPath();
+
+            if (isPrint) {
+              // Draw dotted circle around the red point
+              ctx.beginPath();
+              ctx.setLineDash([2, 2]); // Create a dotted line
+              ctx.arc(x, y, 12, 0, 2 * Math.PI); // Draw circle around the point
+              ctx.strokeStyle = "#000000";
+              ctx.stroke();
+              ctx.setLineDash([]); // Reset to solid lines
+            } else {
+              const radius = 30;
+              const offsetY = 20; // Adjust the vertical offset to ensure it's below the dotted line
+
+              ctx.arc(x, y + offsetY, radius, 0, 2 * Math.PI); // Adjust y position to ensure it's below the dotted line
+              ctx.clip();
+
+              // Create gradient for red shadow
+              const redGradient = ctx.createRadialGradient(
+                x,
+                y + offsetY,
+                0,
+                x,
+                y + offsetY,
+                radius
+              ); // Adjust the shadow radius as per requirement
+              redGradient.addColorStop(0, "rgba(255, 0, 0, 0.2)"); // Intense red at the point
+              redGradient.addColorStop(1, "rgba(255, 0, 0, 0)"); // Fully transparent at the edge
+
+              // Fill with gradient red color for shadow, limited to below the main line chart path
+              ctx.fillStyle = redGradient;
+              ctx.fillRect(
+                x - radius,
+                y + offsetY - radius,
+                2 * radius,
+                2 * radius
+              ); // Rectangle covering the area, adjust dimensions as needed
+
+              ctx.restore(); // Restore initial context state
+
+              // Draw the red point
+              ctx.beginPath();
+              ctx.arc(x, y, 3, 0, 2 * Math.PI); // Draw the point itself
+              ctx.fillStyle = "#F04545";
+              ctx.fill();
+            }
+          }
+        }
+      });
 
       ctx.restore(); // Restore initial context state
     },
