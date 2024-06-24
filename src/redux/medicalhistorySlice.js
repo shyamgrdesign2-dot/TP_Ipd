@@ -159,6 +159,9 @@ const medicalHistorySlice = createSlice({
       .addCase(addEditPrivateNotes.rejected, (state) => {
         state.loading = false;
       })
+      .addCase(listPrivateNotes.pending, (state) => {
+        state.privateNotesList = [];
+      })
       .addCase(listPrivateNotes.fulfilled, (state, action) => {
         const updatedData = action.payload.map((e, index) => {
           return { ...e, isExpand: index === 0 ? true : false };
