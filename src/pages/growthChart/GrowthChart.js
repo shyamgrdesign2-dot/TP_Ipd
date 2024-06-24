@@ -20,7 +20,7 @@ import {
   getMidParentalHeight,
   graphsToPrintData,
 } from "./growthChartHelper";
-import { staticData } from "./GrowthChartStaticData";
+import growthChartStaticData from "./GrowthChart.json";
 import PrintPopup from "./components/printPopup/PrintPopup";
 import TablePrint from "./components/growthChartPrint/TablePrint";
 import { useReactToPrint } from "react-to-print";
@@ -29,6 +29,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { state } = useLocation();
   const { patient_data } = state;
   const gender = patient_data?.pm_gender;
+  const { growthData, ageData } = growthChartStaticData;
 
   const printableRef = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -41,6 +42,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     Weight: [],
     BMI: [],
     OFC: [],
+    HeightVsWeight: [],
   });
   const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
 
@@ -62,11 +64,14 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     if (allGrowthChartParams && patient_data?.DOB) {
       setAllGrowthChartParams(allGrowthChartParams);
       setGrowthChartData(
-        getGrowthChartData(allGrowthChartParams, patient_data?.DOB)
+        getGrowthChartData(
+          allGrowthChartParams,
+          patient_data?.DOB,
+          patient_data?.ageYears
+        )
       );
     }
   };
-
   const getData = () => {
     const growthChartResult = Object.keys(growthChartData).filter(
       (_, index) => {
@@ -78,73 +83,94 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       }
     );
 
+    const ageInYears = patient_data?.ageYears;
+    let ageIntervals = "";
+    if (ageInYears >= 0 && ageInYears < 2) {
+      ageIntervals = "0To2";
+    } else if (ageInYears >= 2 && ageInYears < 5) {
+      ageIntervals = "2To5";
+    } else {
+      ageIntervals = "5To18";
+    }
+
     return growthChartResult.map((key, graphIndex) => {
       if (growthChartData.hasOwnProperty(key)) {
-        const objectName = staticData[gender][key];
-        const chartData = dummyData.datasets?.map((item) => {
-          const labelName = item.label;
-          return {
-            ...item,
+        const objectName = growthData[gender][ageIntervals][key];
+
+        if (Object.keys(objectName).length) {
+          const chartData = dummyData.datasets?.map((item) => {
+            const labelName = item.key;
+            return {
+              ...item,
+              data:
+                showTimelineInYear && key !== "HeightVsWeight"
+                  ? objectName[labelName]?.filter(
+                      (_, index) => index % 12 === 0
+                    )
+                  : objectName[labelName],
+            };
+          });
+
+          const patientData = {
             data: showTimelineInYear
-              ? objectName[labelName]?.filter((_, index) => index % 12 === 0)
-              : objectName[labelName],
+              ? growthChartData[key].map((item) => {
+                  return {
+                    ...item,
+                    x: item.x / 12,
+                  };
+                })
+              : growthChartData[key],
+            label: "",
+            borderColor: growthChartData[key].map((item) =>
+              item.isMalnutrition ? "#FF0000" : "#19BB7A"
+            ),
+            backgroundColor: growthChartData[key].map((item) =>
+              item.isMalnutrition ? "#FF0000" : "#19BB7A"
+            ),
+            borderDash: [5, 5], // Make the line dotted
+            pointRadius: 5, // Show points
+            pointHoverRadius: 7, // Show points on hover
+            hidden: false,
           };
-        });
 
-        const patientData = {
-          data: showTimelineInYear
-            ? growthChartData[key].map((item) => {
-                return {
-                  ...item,
-                  x: item.x / 12,
-                };
-              })
-            : growthChartData[key],
-          label: "",
-          borderColor: growthChartData[key].map((item) =>
-            item.isMalnutrition ? "#FF0000" : "#19BB7A"
-          ),
-          backgroundColor: growthChartData[key].map((item) =>
-            item.isMalnutrition ? "#FF0000" : "#19BB7A"
-          ),
-          borderDash: [5, 5], // Make the line dotted
-          pointRadius: 5, // Show points
-          pointHoverRadius: 7, // Show points on hover
-          hidden: false,
-        };
+          chartData.push(patientData);
 
-        chartData.push(patientData);
+          const graphData = {
+            labels:
+              showTimelineInYear && key !== "HeightVsWeight"
+                ? ageData[ageIntervals]
+                    .filter((_, index) => index % 12 === 0)
+                    .map((item) => item / 12)
+                : key === "HeightVsWeight"
+                ? ageData[key][ageIntervals]
+                : ageData[ageIntervals],
+            datasets: chartData,
+          };
 
-        const graphData = {
-          labels: showTimelineInYear
-            ? Array.from({ length: 6 }, (_, i) => i)
-            : Array.from({ length: 63 }, (_, i) => i),
-          datasets: chartData,
-        };
-
-        return (
-          <Col key={key} className="gx-4">
-            <div
-              className={`graphContainer ${
-                isFullscreen ? "fullScreenStyle" : ""
-              }`}
-            >
-              <WeightChart
-                graphIndex={graphIndex}
-                data={graphData}
-                isFullscreen={isFullscreen}
-                setIsFullscreen={setIsFullscreen}
-                handleDrawerVital={(data) => {
-                  handleEditMeasurements(data);
-                  handleDrawerMeasurements();
-                }}
-                graphName={key}
-                showTimelineInYear={showTimelineInYear}
-                setFullScreenGraphIndex={setFullScreenGraphIndex}
-              />
-            </div>
-          </Col>
-        );
+          return (
+            <Col key={key} className="gx-4">
+              <div
+                className={`graphContainer ${
+                  isFullscreen ? "fullScreenStyle" : ""
+                }`}
+              >
+                <WeightChart
+                  graphIndex={graphIndex}
+                  data={graphData}
+                  isFullscreen={isFullscreen}
+                  setIsFullscreen={setIsFullscreen}
+                  handleDrawerVital={(data) => {
+                    handleEditMeasurements(data);
+                    handleDrawerMeasurements();
+                  }}
+                  graphName={key}
+                  showTimelineInYear={showTimelineInYear}
+                  setFullScreenGraphIndex={setFullScreenGraphIndex}
+                />
+              </div>
+            </Col>
+          );
+        }
       }
       return null;
     });

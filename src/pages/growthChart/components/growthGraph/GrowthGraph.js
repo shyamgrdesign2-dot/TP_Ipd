@@ -321,11 +321,21 @@ const WeightChart = ({
       x: {
         type: "linear",
         ticks: {
-          stepSize: showTimelineInYear ? 1 : 2,
+          stepSize:
+            showTimelineInYear &&
+            patient_data?.ageYears < 5 &&
+            graphName !== "HeightVsWeight"
+              ? 0.5
+              : showTimelineInYear && graphName === "HeightVsWeight"
+              ? 5
+              : 1,
         },
         title: {
           display: true,
-          text: `Age in ${showTimelineInYear ? "Years" : "Months"}`, // X-axis label
+          text:
+            graphName === "HeightVsWeight"
+              ? "Height in cm"
+              : `Age in ${showTimelineInYear ? "Years" : "Months"}`, // X-axis label
         },
       },
       y: {
@@ -334,7 +344,10 @@ const WeightChart = ({
         },
         title: {
           display: true,
-          text: `${graphName} in ${UNITS[graphName]}`, // Y-axis label
+          text:
+            graphName === "HeightVsWeight"
+              ? "Weight in kg"
+              : `${graphName} in ${UNITS[graphName]}`, // Y-axis label
         },
       },
     },
@@ -412,7 +425,9 @@ const WeightChart = ({
   return (
     <div style={{ height: "100%" }}>
       <div className="graphHeader">
-        <h5 style={{ margin: 0 }}>{graphName}</h5>
+        <div className="graphName">
+          {graphName === "HeightVsWeight" ? "Height Vs Weight" : graphName}
+        </div>
         <div>
           <div style={{ display: "flex" }}>
             <button
