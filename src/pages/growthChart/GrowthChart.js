@@ -92,18 +92,18 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     );
 
     const ageInYears = patient_data?.ageYears;
-    let ageIntervals = "";
+    let ageInterval = "";
     if (ageInYears >= 0 && ageInYears < 2) {
-      ageIntervals = "0To2";
+      ageInterval = "0To2";
     } else if (ageInYears >= 2 && ageInYears < 5) {
-      ageIntervals = "2To5";
+      ageInterval = "2To5";
     } else {
-      ageIntervals = "5To18";
+      ageInterval = "5To18";
     }
 
     return growthChartResult.map((key, graphIndex) => {
       if (growthChartData.hasOwnProperty(key)) {
-        const objectName = growthData[gender][ageIntervals][key];
+        const objectName = growthData[gender][ageInterval][key];
 
         if (Object.keys(objectName).length) {
           const chartData = dummyData.datasets?.map((item) => {
@@ -146,12 +146,12 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           const graphData = {
             labels:
               showTimelineInYear && key !== "HeightVsWeight"
-                ? ageData[ageIntervals]
+                ? ageData[ageInterval]
                     .filter((_, index) => index % 12 === 0)
                     .map((item) => item / 12)
                 : key === "HeightVsWeight"
-                ? ageData[key][ageIntervals]
-                : ageData[ageIntervals],
+                ? ageData[key][ageInterval]
+                : ageData[ageInterval],
             datasets: chartData,
           };
 
@@ -176,6 +176,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   setFullScreenGraphIndex={setFullScreenGraphIndex}
                   tooltipState={tooltipState}
                   setTooltipState={setTooltipState}
+                  ageInterval={ageInterval}
                 />
               </div>
             </Col>

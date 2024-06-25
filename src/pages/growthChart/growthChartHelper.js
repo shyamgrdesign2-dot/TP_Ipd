@@ -213,6 +213,12 @@ export const UNITS = {
   OFC: "cm",
 };
 
+export const ageIntervals = {
+  "0To2": 2,
+  "2To5": 4,
+  "5To18": 6,
+}
+
 export const getAgeInMonths = (patientDOB) => {
   const today = moment(new Date());
   const DOB = moment(patientDOB, "Do MMM YYYY");

@@ -18,7 +18,7 @@ import TooltipContent from "./TooltipContent";
 import { genderAge } from "../../../../common/ProfilePopover";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { UNITS, getAgeInMonths } from "../../growthChartHelper";
+import { UNITS, ageIntervals, getAgeInMonths } from "../../growthChartHelper";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -42,6 +42,7 @@ const WeightChart = ({
   setFullScreenGraphIndex,
   tooltipState,
   setTooltipState,
+  ageInterval,
   isPrint,
 }) => {
   const { state } = useLocation();
@@ -352,7 +353,9 @@ const WeightChart = ({
               ? 0.5
               : showTimelineInYear && graphName === "HeightVsWeight"
               ? 5
-              : 1,
+              : showTimelineInYear
+              ? 1
+              : ageIntervals[ageInterval] || 1,
         },
         title: {
           display: true,
