@@ -336,6 +336,11 @@ const WeightChart = ({
     responsive: true,
     maintainAspectRatio: false,
     onClick: handleChartClick,
+    elements: {
+      line: {
+        borderWidth: 2,
+      },
+    },
     scales: {
       x: {
         type: "linear",

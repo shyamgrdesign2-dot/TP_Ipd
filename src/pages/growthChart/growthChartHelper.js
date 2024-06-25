@@ -5,7 +5,7 @@ export const dummyData = {
     {
       key: "P3",
       label: "P 03",
-      borderColor: "rgba(240, 69, 69, 0.2)",
+      borderColor: "rgba(240, 69, 69, 0.3)",
       backgroundColor: "rgba(240, 69, 69, 1)",
       fill: true,
       pointRadius: 0, // Remove points
@@ -15,7 +15,7 @@ export const dummyData = {
     {
       key: "P10",
       label: "P 10",
-      borderColor: "rgba(75, 74, 213, 0.2)",
+      borderColor: "rgba(75, 74, 213, 0.3)",
       backgroundColor: "rgba(75, 74, 213, 1)",
       fill: true,
       pointRadius: 0,
@@ -25,7 +25,7 @@ export const dummyData = {
     {
       key: "P50",
       label: "P 50",
-      borderColor: "rgba(25, 187, 122, 0.2)",
+      borderColor: "rgba(25, 187, 122, 0.3)",
       backgroundColor: "rgba(25, 187, 122, 1)",
       fill: true,
       pointRadius: 0,
@@ -35,7 +35,7 @@ export const dummyData = {
     {
       key: "P90",
       label: "P 90",
-      borderColor: "rgba(186, 125, 233, 0.2)",
+      borderColor: "rgba(186, 125, 233, 0.3)",
       backgroundColor: "rgba(164, 97, 216, 1)",
       fill: true,
       pointRadius: 0,
@@ -45,7 +45,7 @@ export const dummyData = {
     {
       key: "P97",
       label: "P 97",
-      borderColor: "rgba(237, 138, 0, 0.2)",
+      borderColor: "rgba(237, 138, 0, 0.3)",
       backgroundColor: "rgba(237, 138, 0, 1)",
       fill: true,
       pointRadius: 0,
