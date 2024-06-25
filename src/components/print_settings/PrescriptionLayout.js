@@ -137,7 +137,7 @@ const checkboxOptions = [
     },
 ];
 
-function PrescriptionLayout() {
+function PrescriptionLayout({todayVaccines}) {
 
     const { caseManagerData, printSettings, setPrintSettings } = useContext(PrintSettingsContext);
     const isVaccinationAccessable = useVaccinationAccess();
@@ -330,7 +330,7 @@ function PrescriptionLayout() {
                                                                 ({ ...option, key: option.id })
                                                                 : ((caseManagerData.follow_up_date || caseManagerData.visit_advice) && option.id === 9) ?
                                                                     ({ ...option, key: option.id })
-                                                                    : (isVaccinationAccessable && option.id === 10) ?
+                                                                    : (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ?
                                                                         ({ ...option, key: option.id }) 
                                                                         :(caseManagerData.smart_prescription_filename && option.id === 11) &&
                                                                             ({ ...option, key: option.id }) 

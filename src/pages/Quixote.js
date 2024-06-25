@@ -109,18 +109,6 @@ function Quixote({ mode = NORMAL, ...props }) {
     const [numPages, setNumPages] = useState();
     const [loadSuccess, setLoadSuccesss] = useState(false);
 
-    const [todayVaccines, setTodayVaccines] = useState();
-
-    useEffect(() => {
-        getGivenAndDueVaccines();
-    }, []);
-
-    const getGivenAndDueVaccines = async() => {
-        const given = await getGivenVaccineDetails(caseManagerData?.patient_data?.patient_unique_id, caseManagerData?.patient_data?.patient_id)
-        const due = await getOverridenDueDate(caseManagerData?.patient_data?.patient_unique_id, caseManagerData?.patient_data?.patient_id, moment().format("YYYY-MM-DD"))
-        setTodayVaccines({given, due});
-    }
-
     useEffect(() => {
         // const makePDFUrl = async () => {
         //     var make_data = {
@@ -155,7 +143,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 fileLogo={mode == NORMAL ? fileLogo : props.fileLogoCopy}
                 fileWatermark={fileWatermark}
                 fileSignature={fileSignature}
-                todayVaccines={todayVaccines}
+                todayVaccines={props.todayVaccines}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
         }
@@ -175,7 +163,7 @@ function Quixote({ mode = NORMAL, ...props }) {
         fileSignature,
         fileWatermark,
         fileLogo,
-        todayVaccines
+        props.todayVaccines
     ]);
 
     const onDocumentLoadSuccess = ({ numPages }) => {
