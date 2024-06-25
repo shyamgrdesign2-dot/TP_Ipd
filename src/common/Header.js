@@ -344,10 +344,12 @@ function Header({ locationPath }) {
     } else {
       showHideSwitchModal()
     }
+    window.Moengage.track_event("switch_to_old_view_clicked");
   }
 
   //DrawerVideo function
   const handleDrawervideo = useCallback(() => {
+    window.Moengage.track_event("video_library_button_clicked");
     setvideoDrawer(!videoDrawer);
   }, [videoDrawer]);
 

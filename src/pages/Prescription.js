@@ -9,7 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { ADD, EDIT } from "../utils/constants";
 
 import { getVitals } from "../redux/vitalsSlice";
-import { getPatientLastHistory } from "../redux/medicalhistorySlice";
+import { getPatientLastHistory, listPrivateNotes } from "../redux/medicalhistorySlice";
 
 import CashManagerContext from "../context/CashManagerContext";
 import HeaderPrescription from "../common/HeaderPrescription";
@@ -27,17 +27,20 @@ import VitalsList from "../components/VitalsList";
 import MedicalHistoryBox from "../components/MedicalHistoryBox";
 import MedicalHistoryList from "../components/MedicalHistoryList";
 
+import PrivateNotesBox from "../components/PrivateNotesBox";
+import PrivateNotesList from "../components/PrivateNotesList";
+
 import vitals from "../assets/images/Vitals.svg";
 import MedicalHistory from "../assets/images/Medical-History.svg";
+import privateNotes from "../assets/images/private-notes.svg";
 
 import hey from "../assets/images/bg-hey.png";
 
 import { Content } from "antd/es/layout/layout";
 import vaccinationImg from "../assets/images/Vaccination.svg";
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import Vaccination from "./vaccination/Vaccination";
-import { checkToShowVaccination } from "./vaccination/service";
 import { viewPatient } from "../redux/appointmentsSlice";
+import { useVaccinationAccess } from "./vaccination/useVaccinationAccess";
 
 function Prescription() {
   const {
@@ -45,9 +48,9 @@ function Prescription() {
     customizedPadRightList,
     frequencyList,
     timingList,
-    profile,
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList } = useSelector((state) => state.vitals);
+  const { privateNotesList } = useSelector((state) => state.medicalhistory);
   const dispatch = useDispatch();
 
   const { state } = useLocation();
@@ -67,6 +70,7 @@ function Prescription() {
   const [medicationData, setMedicationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
+  const [privateNotesData, setPrivateNotesData] = useState(null);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
   const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -91,6 +95,8 @@ function Prescription() {
     setVitalsData,
     medicalHistoryData,
     setMedicalHistoryData,
+    privateNotesData,
+    setPrivateNotesData,
     followUpDate,
     setFollowUpDate,
     additionalNote,
@@ -100,17 +106,10 @@ function Prescription() {
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
+  const [privateNotesDrawer, setPrivateNotesDrawer] = useState(false);
+  const [selectPrivateNotes, setSelectPrivateNotes] = useState(null);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
-  const [isPediatric, setIsPediatric] = useState(false);
-  const isVaccinationAccessableFromGB = useFeatureIsOn(
-    "vaccination-new-design"
-  );
-
-  const checkForPediatric = async () => {
-    if (profile?.doctor_unique_id) {
-      setIsPediatric(await checkToShowVaccination(profile.doctor_unique_id));
-    }
-  };
+  const isVaccinationAccessable = useVaccinationAccess();
 
   useEffect(() => {
     const sendData = {
@@ -252,7 +251,6 @@ function Prescription() {
         setAdditionalNote(caseManagerData.visit_advice);
       }
     }
-    checkForPediatric();
   }, []);
 
   // Drawer Vitals
@@ -264,6 +262,12 @@ function Prescription() {
   const handleDrawerMedicalHistory = useCallback(() => {
     setMedicalHistoryDrawer(!medicalHistoryDrawer);
   }, [medicalHistoryDrawer]);
+
+  // Drawer Private Notes
+  const handleDrawerPrivateNotes = useCallback((data) => {
+    setSelectPrivateNotes(data)
+    setPrivateNotesDrawer(!privateNotesDrawer);
+  }, [privateNotesDrawer, selectPrivateNotes]);
 
   // Drawer Vaccination
   const handleDrawerVaccination = () => {
@@ -285,9 +289,11 @@ function Prescription() {
         handleDrawerMedicalHistory();
       } else if (flag === 3) {
         handleDrawerVaccination();
+      } else if (flag === 4) {
+        handleDrawerPrivateNotes();
       }
     },
-    [vitalDrawer, medicalHistoryDrawer, vaccinationDrawer]
+    [vitalDrawer, medicalHistoryDrawer, vaccinationDrawer, privateNotesDrawer]
   );
 
   useEffect(() => {
@@ -300,6 +306,14 @@ function Prescription() {
             patient_data !== undefined && patient_data.pam_id !== undefined
               ? patient_data.pam_id
               : 0,
+          mode: caseManagerData !== undefined ? EDIT : ADD,
+        })
+      );
+
+      const PN_action = await dispatch(
+        listPrivateNotes({
+          patient_unique_id:
+            patient_data !== undefined ? patient_data.patient_unique_id : 0,
           mode: caseManagerData !== undefined ? EDIT : ADD,
         })
       );
@@ -332,10 +346,18 @@ function Prescription() {
     }
   }, [selectedVitalsList]);
 
+  useEffect(() => {
+    if (caseManagerData !== undefined) {
+      if (caseManagerData.private_notes && customizedPadLeftList.findIndex((e) => e.tmdpm_id === 8 && e.tmdpm_status === 0) !== -1 && privateNotesList.findIndex((e) => e.id === caseManagerData.private_notes.id) !== -1 && tcmId) {
+        setPrivateNotesData(caseManagerData.private_notes);
+      }
+    }
+  }, [privateNotesList]);
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessableFromGB || isPediatric} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
@@ -371,62 +393,86 @@ function Prescription() {
                       )
                     }
                   </div>
-                ) : (
-                  e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
-                    <div key={i} className="prescription-box-sm p-14">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={MedicalHistory}
-                            alt="Medical History"
-                            className="me-3"
-                          />
-                          <div className="title-common">Medical History</div>
-                          {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
+                ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
+                  <div key={i} className="prescription-box-sm p-14">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <img
+                          src={MedicalHistory}
+                          alt="Medical History"
+                          className="me-3"
+                        />
+                        <div className="title-common">Medical History</div>
+                        {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
                             <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                           </Button> */}
-                        </div>
+                      </div>
 
+                      <button
+                        className="btn d-flex align-items-center btn-text"
+                        onClick={handleDrawerMedicalHistory}
+                      >
+                        {" "}
+                        <i
+                          className={`${medicalHistoryData.length > 0
+                            ? "icon-Edit"
+                            : "icon-Add"
+                            } me-1 fs-5`}
+                        ></i>{" "}
+                        <span>{`${medicalHistoryData.length > 0 ? "Edit" : "Add"
+                          }`}</span>
+                      </button>
+                    </div>
+                    {medicalHistoryData.length > 0 && (
+                      <MedicalHistoryList />
+                    )}
+                  </div>
+                ) : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
+                  <div key={i} className="prescription-box-sm p-14">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <img src={privateNotes} alt="Private Notes" className="me-3" />
+                        <div className="title-common">
+                          Private Notes
+                        </div>
+                      </div>
+                      {!privateNotesData && (
                         <button
                           className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerMedicalHistory}
+                          onClick={handleDrawerPrivateNotes}
                         >
-                          {" "}
                           <i
-                            className={`${medicalHistoryData.length > 0
-                              ? "icon-Edit"
-                              : "icon-Add"
-                              } me-1 fs-5`}
-                          ></i>{" "}
-                          <span>{`${medicalHistoryData.length > 0 ? "Edit" : "Add"
-                            }`}</span>
+                            className="icon-Add me-1 fs-5"></i>
+                          <span>Add</span>
                         </button>
-                      </div>
-                      {medicalHistoryData.length > 0 && <MedicalHistoryList />}
+                      )}
                     </div>
-                  ) :
-                    (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
-                      <div className="prescription-box-sm p-14">
-                        <div className="d-flex align-items-center justify-content-between">
-                          <div className="d-flex align-items-center">
-                            <img src={vaccinationImg} alt="vitals" className="me-3" />
-                            <div className="title-common">Vaccination</div>
-                          </div>
-                          <button
-                            className="btn d-flex align-items-center btn-text"
-                            onClick={handleDrawerVaccination}
-                          >
-                            {" "}
-                            <i
-                              className={`icon-Add me-1 fs-5`}
-                            ></i>{" "}
-                            <span>Add</span>
-                          </button>
-                        </div>
+                    {privateNotesList.length > 0 && (
+                      <PrivateNotesList handleDrawerPrivateNotes={handleDrawerPrivateNotes} />
+                    )}
+                  </div>
+                ) : (e.tmdpm_id === 7 && e.tmdpm_status === 0 && isVaccinationAccessable) && (
+                  <div className="prescription-box-sm p-14">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <img src={vaccinationImg} alt="vitals" className="me-3" />
+                        <div className="title-common">Vaccination</div>
                       </div>
-                    )
+                      <button
+                        className="btn d-flex align-items-center btn-text"
+                        onClick={handleDrawerVaccination}
+                      >
+                        {" "}
+                        <i
+                          className={`icon-Add me-1 fs-5`}
+                        ></i>{" "}
+                        <span>Add</span>
+                      </button>
+                    </div>
+                  </div>
                 )
               })}
+
               {/* <div>
                 <button className="btn btn-parameters mx-auto w-100">
                   <div className="align-items-center d-flex justify-content-center">
@@ -499,6 +545,20 @@ function Prescription() {
           <MedicalHistoryBox
             handleDrawerMedicalHistory={handleDrawerMedicalHistory}
             handleCollapsed={(flag) => handleCollapsed(flag)}
+          />
+        </Drawer>
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerPrivateNotes}
+          open={privateNotesDrawer}
+          className="modalWidth-563"
+          width="auto"
+        >
+          <PrivateNotesBox
+            handleDrawerPrivateNotes={handleDrawerPrivateNotes}
+            handleCollapsed={(flag) => handleCollapsed(flag)}
+            selectPrivateNotes={selectPrivateNotes}
           />
         </Drawer>
         {

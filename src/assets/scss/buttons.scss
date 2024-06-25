@@ -716,6 +716,20 @@ body {
             background-color: $themehover !important;
         }
     }
+    .privatebtn {
+        border: none;
+        box-shadow: none;
+        background: transparent;
+        &:focus {
+            border: none;
+        }
+        &:focus-visible {
+            outline: 0 !important;
+        }
+        i {
+            color: $maincolor;
+        }
+    }
     .btn-delete-prescription {
         box-shadow: none;
         i {
