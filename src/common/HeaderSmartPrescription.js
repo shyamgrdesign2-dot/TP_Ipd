@@ -350,6 +350,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
           </Col>
           <Col lg="auto">
             <div className="align-items-center d-flex h-100">
+              {/*Will be utilising this code in future, once the video is available */}
               {/* <Button
                 type="button"
                 className="btn align-items-center d-flex btn-device-connect me-20"
