@@ -40,11 +40,13 @@ const WeightChart = ({
   graphName,
   showTimelineInYear,
   setFullScreenGraphIndex,
+  chartRefs,
+  onChartRendered,
 }) => {
   const { state } = useLocation();
   const { patient_data } = state;
   const { profile } = useSelector((state) => state.doctors);
-  const chartRef = useRef(null);
+  // const chartRefs.current[graphIndex] = useRef(null);
   const [shouldShowPercentilePopup, setPercentilePopup] = useState(false);
   const [visibility, setVisibility] = useState(
     data.datasets.map((ds) => !ds.hidden)
@@ -224,7 +226,7 @@ const WeightChart = ({
     if (
       popupRef.current &&
       !popupRef.current.contains(event.target) &&
-      !chartRef.current?.canvas?.contains(event.target)
+      !chartRefs.current[graphIndex].current?.canvas?.contains(event.target)
     ) {
       setPercentilePopup(false);
       setPopup({ visible: false, x: 0, y: 0, coords: {} });
@@ -238,7 +240,9 @@ const WeightChart = ({
   };
 
   const handleChartClick = (event) => {
-    const points = chartRef.current?.getElementsAtEventForMode(
+    const points = chartRefs.current[
+      graphIndex
+    ].current?.getElementsAtEventForMode(
       event,
       "nearest",
       { intersect: true },
@@ -289,7 +293,7 @@ const WeightChart = ({
   }, [tooltipState]);
 
   useEffect(() => {
-    if (chartRef.current) {
+    if (chartRefs.current[graphIndex].current) {
       // Register the plugin only once
       ChartJS.register(customLabelPlugin);
     }
@@ -499,7 +503,19 @@ const WeightChart = ({
         </div>
       </div>
       <div style={{ position: "relative", height: "100%", width: "100%" }}>
-        <Line ref={chartRef} data={chartData} options={options} />
+        <Line
+          ref={(el) => (chartRefs.current[graphIndex] = el)}
+          data={chartData}
+          // options={options}
+          options={{
+            ...options,
+            animation: {
+              onComplete: function () {
+                onChartRendered(graphIndex);
+              },
+            },
+          }}
+        />
         {tooltipState.visible && (
           <div
             ref={tooltipRef}

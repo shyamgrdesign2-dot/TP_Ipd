@@ -31,63 +31,48 @@ function Measurements(props) {
   } = props;
 
   const { patient_data } = useContext(CashManagerContext);
-  const [measurementsData, setMeasurementsData] = useState([]);
+  const [measurementsData, setMeasurementsData] = useState([
+    {
+      date: moment().format(dateFormat),
+      height: "",
+      weight: "",
+      ofc: "",
+      bmi: calculate("", "")?.bmi,
+    },
+  ]);
   const [dateString, setDateString] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const dispatch = useDispatch();
   const { measurements } = useSelector((state) => state.growthChart);
-  console.log({ measurements });
   const { selectedVitalsList } = useSelector((state) => state.vitals);
 
-  // useEffect(() => {
-  //   if (selectedVitalsList.length > 0) {
-  //     setMeasurementsData(
-  //       selectedVitalsList?.map(({ date, height, weight, ofc, bmi }) => ({
-  //         date,
-  //         height,
-  //         weight,
-  //         ofc,
-  //         bmi,
-  //       }))
-  //     );
-  //   }
-  // }, [selectedVitalsList]);
-
   useEffect(() => {
-    if (measurementsData.length === 0) {
-      let cal = calculate("", "");
-      measurementsData.push({
-        date: moment().format(dateFormat),
-        height: "",
-        weight: "",
-        ofc: "",
-        bmi: cal.bmi,
-      });
-      setMeasurementsData((prev) => [...prev]);
-    }
-  }, [measurementsData]);
-
-  useEffect(() => {
-    setMeasurementsData([
-      {
-        ...measurementsToEdit,
-        date: moment(measurementsToEdit?.tcbc_created_date).format(dateFormat),
-      },
-    ]);
+    if (measurementsToEdit?.tcbc_id)
+      setMeasurementsData([
+        {
+          ...measurementsToEdit,
+          date: moment(measurementsToEdit?.tcbc_created_date).format(
+            dateFormat
+          ),
+        },
+      ]);
   }, [measurementsToEdit]);
 
   const onChange = useCallback(
     (date, dateString) => {
       let cal = calculate("", "");
+      const vitalData = selectedVitalsList?.find((v) => v.date === dateString);
+      const { height, weight, bmi } = vitalData || {};
+      const tempMeasurements = [...measurementsData];
       setDateString(dateString);
-      measurementsData.push({
+      tempMeasurements.push({
         date: dateString,
-        height: "",
-        weight: "",
+        height: height || "",
+        weight: weight || "",
+        bmi: bmi || cal.bmi,
         ofc: "",
-        bmi: cal.bmi,
       });
-      setMeasurementsData((prev) => [...prev]);
+      setMeasurementsData([...tempMeasurements]);
     },
     [measurementsData]
   );
@@ -108,8 +93,8 @@ function Measurements(props) {
     }
   }, [measurementsData.length]);
 
-  const calculate = (H, W) => {
-    var height = 0,
+  function calculate(H, W) {
+    let height = 0,
       weight = 0,
       bmi = "";
 
@@ -129,7 +114,7 @@ function Measurements(props) {
     bmi = weight && height ? (isFinite(calBMI) ? calBMI.toFixed(2) : "") : "";
 
     return { bmi };
-  };
+  }
 
   const onChangeInput = useCallback(
     (value, i, flag) => {
@@ -152,12 +137,14 @@ function Measurements(props) {
 
   const onAddGrowthData = async () => {
     const result = measurementsData.map(async (measurement) => {
+      const { height, weight, ofc, date, bmi } = measurement;
+      if (!height && !weight && !ofc) return;
       const payload = {
-        date: measurement.date,
-        height: measurement.height,
-        weight: measurement.weight,
-        bmi: measurement.bmi,
-        ofc: measurement.ofc,
+        date,
+        height,
+        weight,
+        bmi,
+        ofc,
         pm_id: patient_data?.pm_id,
         pm_pid: patient_data?.pm_pid,
         patient_unique_id: patient_data?.patient_unique_id,
@@ -283,9 +270,11 @@ function Measurements(props) {
         </div>
         <div className="align-items-center d-flex justify-content-between px-20 py-3">
           <div className="position-relative">
-            <Button className="btn btn-primary2 btn-41">Add New Date</Button>
+            <Button name="dateBtn" className="btn btn-primary2 btn-41">
+              Add New Date
+            </Button>
             <DatePicker
-              key={Math.random()}
+              key={"date"}
               suffixIcon={null}
               inputReadOnly
               onChange={onChange}

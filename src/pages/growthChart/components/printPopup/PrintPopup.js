@@ -6,6 +6,7 @@ export default function PrintPopup({
   handleClose,
   graphsToPrint,
   setGraphToPrint,
+  handlePrintWeb,
 }) {
   const graphPrintHandler = (index, toggleBox) => {
     setGraphToPrint((prevState) => {
@@ -20,6 +21,7 @@ export default function PrintPopup({
 
   const continuePrintHandler = () => {
     console.log("graphsToPrint", graphsToPrint);
+    handlePrintWeb();
   };
 
   return (

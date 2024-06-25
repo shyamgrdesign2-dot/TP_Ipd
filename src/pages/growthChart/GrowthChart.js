@@ -56,6 +56,25 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     content: () => printableRef.current,
   });
 
+  const printTest = () => {
+    console.log({ readyCharts });
+    setDisplay("block");
+    setTimeout(() => {
+      if (readyCharts.every((ready) => ready)) {
+        handlePrintWeb();
+        setDisplay("none");
+      }
+    }, 200);
+  };
+
+  const onChartRendered = (index) => {
+    setReadyCharts((prev) => {
+      const newReadyCharts = [...prev];
+      newReadyCharts[index] = true;
+      return newReadyCharts;
+    });
+  };
+
   const getGrowthChartDetails = async () => {
     const allGrowthChartParams = await getAllGrowthChartParams({
       pm_id: patient_data?.pm_id || 0,
@@ -166,6 +185,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   graphName={key}
                   showTimelineInYear={showTimelineInYear}
                   setFullScreenGraphIndex={setFullScreenGraphIndex}
+                  onChartRendered={onChartRendered}
+                  chartRefs={chartRefs}
                 />
               </div>
             </Col>
@@ -183,6 +204,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
   const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
   const [measurementsData, setMeasurementsData] = useState([]);
+  const chartRefs = useRef([]);
+  const [readyCharts, setReadyCharts] = useState(
+    Array(Object.keys(growthChartData).length).fill(false)
+  );
 
   const getPatientParentalDetails = async () => {
     const getParentalDetailsRes = await getParentalDetails(
@@ -244,13 +269,15 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     setShowPrintPopup((prev) => !prev);
   };
 
+  const [display, setDisplay] = useState("none");
+
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader
         handleDrawerVaccination={handleDrawerVaccination}
         patientDetails={gcPatientDetails}
         printPopupHandler={printPopupHandler}
-        handlePrintWeb={handlePrintWeb}
+        handlePrintWeb={printTest}
       />
       <SubHeader
         handleDrawerMeasurements={handleDrawerMeasurements}
@@ -293,6 +320,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           handleClose={printPopupHandler}
           graphsToPrint={graphsToPrint}
           setGraphToPrint={setGraphToPrint}
+          handlePrintWeb={printTest}
         />
       )}
       {showTableView ? (
@@ -316,9 +344,20 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           </Row>
         </div>
       )}
-      <div style={{ display: "none" }}>
+      <div style={{ display: display }}>
         <div ref={printableRef}>
-          <TablePrint dataSource={allGrowthChartParams} getData={getData} />
+          <div className="scrollable-container">
+            <Row
+              xs={1}
+              sm={isFullscreen ? 1 : 2}
+              md={isFullscreen ? 1 : 2}
+              lg={isFullscreen ? 1 : 2}
+              className="gy-4"
+            >
+              {getData()}
+            </Row>
+          </div>
+          {/* <TablePrint dataSource={allGrowthChartParams} getData={getData} /> */}
         </div>
       </div>
     </div>

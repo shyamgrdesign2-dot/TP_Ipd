@@ -33,6 +33,8 @@ function VitalsBox(props) {
     const { patient_data, vitalsData, setVitalsData } = useContext(CashManagerContext);
     const [childVitalsData, setChildVitalsData] = useState([]);
     const [dateString, setDateString] = useState(null);
+    const { measurements } = useSelector((state) => state.growthChart);
+
 
     useEffect(() => {
         if (selectedVitalsList.length > 0) {
@@ -76,25 +78,30 @@ function VitalsBox(props) {
     const onChange = useCallback(
         (date, dateString) => {
             let cal = calculate('', '');
-            setDateString(dateString)
-            childVitalsData.push({
+            const growthChartData = measurements?.find((m) => m.date === dateString);
+            const { height, weight, bmi } = growthChartData || {};
+            const tempVitals = [...childVitalsData];
+            setDateString(dateString);
+            tempVitals.push(
+                {
                 date: dateString,
+                height: height || "",
+                weight: weight || "",
+                bmi: bmi || cal.bmi,
                 dev_unique_id: 0,
                 tcv_id: 0,
                 tcbc_id: 0,
-                temp: '',
-                pres: '',
-                resp_rate: '',
-                systolic: '',
-                diastolic: '',
-                spo2: '',
-                height: '',
-                weight: '',
-                bmi: cal.bmi,
+                temp: "",
+                pres: "",
+                resp_rate: "",
+                systolic: "",
+                diastolic: "",
+                spo2: "",
                 bmr: cal.bmr,
                 bsa: cal.bsa,
-            });
-            setChildVitalsData((prev) => [...prev]);
+                },
+            );
+            setChildVitalsData([...tempVitals]);
         },
         [childVitalsData]
     );
