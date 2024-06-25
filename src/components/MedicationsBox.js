@@ -486,6 +486,9 @@ function MedicationsBox() {
   };
 
   const onTemplateSelected = async (tmtd_id) => {
+    window.Moengage.track_event("medication_template_used", {
+      "template_name": tmtd_id.tmtd_template_name
+    });
     const action = await dispatch(singleTemplateDetails(tmtd_id));
     if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map((e) => {

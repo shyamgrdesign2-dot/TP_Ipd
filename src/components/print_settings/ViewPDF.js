@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
         lineHeight: 1.4
     },
     displayPatient: {
-        fontSize: PX_TO_PT * 10,
+        fontSize: PX_TO_PT * 12,
         color: '#171725',
         fontFamily: 'Roboto'
     },
@@ -111,14 +111,14 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines } = props
+    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines } = props
 
     const patientDataShow = (id) => {
         var value = ''
         if (id == 1) {
             value = `${caseManagerData?.patient_data?.patient_salutation} ${caseManagerData?.patient_data?.patient_name} ${caseManagerData?.patient_data?.patient_id}`
         } else if (id == 2) {
-            value = `${caseManagerData?.patient_data?.patient_consultaion_date ? moment(caseManagerData?.patient_data?.patient_consultaion_date).format('DD/MM/YYYY HH:mm:ss') : '-'}`
+            value = `${caseManagerData?.patient_data?.patient_consultaion_date ? moment(caseManagerData?.patient_data?.patient_consultaion_date).format('DD/MM/YYYY HH:mm') : '-'}`
         } else if (id == 3) {
             value = `${caseManagerData?.patient_data?.patient_age ? `${caseManagerData?.patient_data?.patient_age}Years` : '-'}, ${caseManagerData?.patient_data?.patient_gender}`
         } else if (id == 4) {
@@ -177,8 +177,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     paddingLeft: mode == NORMAL ? printSettings?.letterhead_format != 2 ? PX_TO_PT * 30 : printSettings?.header_footer?.margin?.left ? printSettings?.header_footer?.margin?.left * 25 : 0 : PX_TO_PT * 30,
                     paddingRight: mode == NORMAL ? printSettings?.letterhead_format != 2 ? PX_TO_PT * 30 : printSettings?.header_footer?.margin?.right ? printSettings?.header_footer?.margin?.right * 25 : 0 : PX_TO_PT * 30,
                 }}
-                wrap>
-                {/* <View style={{ flex: 1 }}> */}
+                wrap={!smartRxFile}>
 
                 <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed>
                     {mode == NORMAL ? (
@@ -1152,7 +1151,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         </Text>
                                     )}
                                 </>
-                            ) : option?.id === 10 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
+                            ) : option?.id === 10 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     <>
                                         {(todayVaccines?.given?.length > 0 || todayVaccines?.due?.length > 0) && (
@@ -1327,6 +1326,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         )}
                                     </>
                                 </>
+                            ) : option?.id === 11 && caseManagerData?.smart_prescription_filename && (
+                                    <Image
+                                        src={smartRxFile}
+                                    />
                             )
                         )
                     })}
