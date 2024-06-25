@@ -115,7 +115,7 @@ const prod = {
   firebaseMessagingSenderId: "601922359186",
   firebaseAppId: "1:601922359186:web:a3b9df05589faed1f5fb4b",
   growth_chart_api_url: `https://pm-uat-growth-chart.tatvacare.in`,
-  tatvaRedirect: "https://health.tatvacare.in/#/dashboard",
+  tatvaRedirect: "https://health.tatvacare.in/#/content?auto=",
 };
 
 const getEnv = () => {

@@ -137,11 +137,10 @@ const checkboxOptions = [
     },
 ];
 
-function PrescriptionLayout() {
+function PrescriptionLayout({todayVaccines}) {
 
-    const { printSettings, setPrintSettings } = useContext(PrintSettingsContext);
+    const { caseManagerData, printSettings, setPrintSettings } = useContext(PrintSettingsContext);
     const isVaccinationAccessable = useVaccinationAccess();
-
     const onMainCaseOptionChange = useCallback(
         (e) => {
             const updatedData = printSettings.prescription.case_option.map((x) => {
@@ -231,15 +230,15 @@ function PrescriptionLayout() {
             render: (text, record, i) => (
                 <>
                     <div className="d-flex align-items-center justify-content-between text-start">
-                        <div className="d-flex align-items-center cursor-pointer Preview-color-icon" onClick={() => onCaseOptionChange(record, 'visible', i)}>
+                        <div className="d-flex align-items-center cursor-pointer Preview-color-icon" onClick={() => onCaseOptionChange(record, 'visible', printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}>
                             <i className={`icon-Preview ${record.enable === 'N' && 'disable-preview'} me-3`}></i>
                             <span>{record.title}</span>
                         </div>
                         <Form.Item className="mb-0 form_addnewpatient ">
-                            <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={(e) => onCaseOptionChange(e, 'radio', i)} value={record.format}>
-                                <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
-                                <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
-                                <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>
+                            <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={(e) => onCaseOptionChange(e, 'radio', printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))} value={record.format}>
+                                <Radio.Button className="w-100 text-center" disabled={record.id === 11} value="inline">Inline</Radio.Button>
+                                <Radio.Button className="w-100 text-center" disabled={record.id === 11} value="listview">List View</Radio.Button>
+                                <Radio.Button className="w-100 text-center" disabled={record.id === 11} value="table">Table</Radio.Button>
                             </Radio.Group>
                         </Form.Item>
                     </div>
@@ -247,7 +246,7 @@ function PrescriptionLayout() {
                         <div style={{ marginLeft: -40, display: 'flex' }}>
                             <div style={{ flex: 1 }} >
                                 <div className="border mt-3 rounded-4 p-3 bg-white ">
-                                    <Collapse items={accordionItems(record, i)} defaultActiveKey={['1']} className="prescriptiontab-accordian" expandIconPosition={'end'} />
+                                    <Collapse items={accordionItems(record, printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))} defaultActiveKey={['1']} className="prescriptiontab-accordian" expandIconPosition={'end'} />
                                 </div>
                             </div>
                         </div>
@@ -311,7 +310,31 @@ function PrescriptionLayout() {
                             }}
                             rowKey="id"
                             columns={caseOptionTable}
-                            dataSource={printSettings?.prescription?.case_option.filter(e => e.id === 10 ? isVaccinationAccessable : true).map((e) => ({ ...e, key: e.id }))}
+                            // dataSource={printSettings?.prescription?.case_option.map((e) => ({ ...e, key: e.id }))}
+                            dataSource={printSettings?.prescription?.case_option?.filter((option, index) =>
+                                (caseManagerData.symptoms.length > 0 && option.id === 1) ?
+                                    ({ ...option, key: option.id })
+                                    : (caseManagerData.examination.length > 0 && option.id === 2) ?
+                                        ({ ...option, key: option.id })
+                                        : (caseManagerData.diagnosis.length > 0 && option.id === 3) ?
+                                            ({ ...option, key: option.id })
+                                            : (caseManagerData.medicine.length > 0 && option.id === 4) ?
+                                                ({ ...option, key: option.id })
+                                                : (caseManagerData.advice.length > 0 && option.id === 5) ?
+                                                    ({ ...option, key: option.id })
+                                                    : (caseManagerData.investigation.length > 0 && option.id === 6) ?
+                                                        ({ ...option, key: option.id })
+                                                        : (caseManagerData.vitals.length > 0 && option.id === 7) ?
+                                                            ({ ...option, key: option.id })
+                                                            : (caseManagerData.medical_history.length > 0 && option.id === 8) ?
+                                                                ({ ...option, key: option.id })
+                                                                : ((caseManagerData.follow_up_date || caseManagerData.visit_advice) && option.id === 9) ?
+                                                                    ({ ...option, key: option.id })
+                                                                    : (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ?
+                                                                        ({ ...option, key: option.id }) 
+                                                                        :(caseManagerData.smart_prescription_filename && option.id === 11) &&
+                                                                            ({ ...option, key: option.id }) 
+                            )}
                             showHeader={false}
                         />
                     </SortableContext>

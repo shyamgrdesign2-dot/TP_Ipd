@@ -132,79 +132,78 @@ function Welcome1(props) {
                                             onCancel={() => setVideoLink(null)}
                                         />
                                     )}
-                                   { !viewCaseManagerData.smart_prescription_filename &&
-                                    <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => {
-                                        window.Moengage.track_event("repeat_rx_click", {
-                                            "doctor_id": profile?.doctor_unique_id,
-                                            "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0,
-                                            "rx_date": viewCaseManagerData?.consultation_date
-                                        });
-                                        navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
-                                    }}> <i className={'icon-reload me-2'}></i>Repeat {modifyFormat && modifyFormat.first}<sup>{modifyFormat && modifyFormat.second}</sup>&nbsp;{modifyFormat && modifyFormat.third} Rx</Button>
-                                   }
-                                   { isSmartSyncAccessableFromGB && !isMobile ? (
-                                    <>
-                                        <div
-                                            style={{
-                                            background: "#4B4AD5",
-                                            borderRadius: "10px",
-                                            color: "white",
-                                            marginLeft: "1rem",
-                                            position: "relative",
-                                            }}
-                                        >
-                                            <button
-                                                // className="btn btn-outline-primary btn-smart-rx"
-                                                className="btn btn-outline-primary btn-smart-rx"
-                                                onClick={() => onSmartRxClick(patient_data)}
-                                                style={{ padding: "9px 2rem 9px 10px" }}
+                                    {!viewCaseManagerData.smart_prescription_filename &&
+                                        <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => {
+                                            window.Moengage.track_event("repeat_rx_click", {
+                                                "doctor_id": profile?.doctor_unique_id,
+                                                "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0,
+                                                "rx_date": viewCaseManagerData?.consultation_date
+                                            });
+                                            navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
+                                        }}> <i className={'icon-reload me-2'}></i>Repeat {modifyFormat && modifyFormat.first}<sup>{modifyFormat && modifyFormat.second}</sup>&nbsp;{modifyFormat && modifyFormat.third} Rx</Button>
+                                    }
+                                    {isSmartSyncAccessableFromGB && !isMobile ? (
+                                        <>
+                                            <div
+                                                style={{
+                                                    background: "#4B4AD5",
+                                                    borderRadius: "10px",
+                                                    color: "white",
+                                                    marginLeft: "1rem",
+                                                    position: "relative",
+                                                }}
                                             >
-                                                <span className="btn-span-smartRx">SmartRx</span>
-                                            </button>
-                                            <button
-                                                className="btn btn-outline-primary btn-down-arrow"
-                                                onClick={handleClickDownArrow}
-                                                style={{ padding: "9.5px 5px" }}
-                                            >
-                                                <span
-                                                    role="img"
-                                                    aria-label="down"
-                                                    className="anticon anticon-down ant-select-suffix"
-                                                >
-                                                    <i
-                                                    className="icon-right"
-                                                    style={{
-                                                        display: "block",
-                                                        transform: `rotate(270deg)`,
-                                                        color: "white",
-                                                    }}
-                                                    />
-                                                </span>
-                                            </button>
-                                            {clickedDownArrow && (
                                                 <button
-                                                    className="btn-consult-patient-details"
-                                                    onClick={() => onConsultClick(patient_data)}
+                                                    // className="btn btn-outline-primary btn-smart-rx"
+                                                    className="btn btn-outline-primary btn-smart-rx"
+                                                    onClick={() => onSmartRxClick(patient_data)}
+                                                    style={{ padding: "9px 2rem 9px 10px" }}
                                                 >
-                                                Consult
+                                                    <span className="btn-span-smartRx">SmartRx</span>
                                                 </button>
-                                            )}
-                                       </div>
-                                      </>
+                                                <button
+                                                    className="btn btn-outline-primary btn-down-arrow"
+                                                    onClick={handleClickDownArrow}
+                                                    style={{ padding: "9.5px 5px" }}
+                                                >
+                                                    <span
+                                                        role="img"
+                                                        aria-label="down"
+                                                        className="anticon anticon-down ant-select-suffix"
+                                                    >
+                                                        <i
+                                                            className="icon-right"
+                                                            style={{
+                                                                display: "block",
+                                                                transform: `rotate(270deg)`,
+                                                                color: "white",
+                                                            }}
+                                                        />
+                                                    </span>
+                                                </button>
+                                                {clickedDownArrow && (
+                                                    <button
+                                                        className="btn-consult-patient-details"
+                                                        onClick={() => onConsultClick(patient_data)}
+                                                    >
+                                                        Consult
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </>
                                     ) : (
                                         <Button variant="primary"
-                                        className='btn-41 px-4'
-                                        onClick={() => {
-                                            window.Moengage.track_event("start_new_visit_click", {
-                                                "doctor_id": profile?.doctor_unique_id,
-                                                "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0
-                                            });
-                                            navigate("/prescription", { state: { patient_data: patient_data } })
-                                        }}>
-                                        {'Start New Visit'}
+                                            className='btn-41 px-4'
+                                            onClick={() => {
+                                                window.Moengage.track_event("start_new_visit_click", {
+                                                    "doctor_id": profile?.doctor_unique_id,
+                                                    "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0
+                                                });
+                                                navigate("/prescription", { state: { patient_data: patient_data } })
+                                            }}>
+                                            {'Start New Visit'}
                                         </Button>
-                                    )
-                                   }
+                                    )}
                                 </div>
                             )}
                         </div>

@@ -21,4 +21,16 @@ ApiMedicalHistory.searchTag = function (data) {
   return api.post(`/api/v1/medicalhistory/searchTag`, data, baseUrl);
 };
 
+ApiMedicalHistory.addEditPrivateNotes = function (data) {
+  return api.post(`/api/v1/privatenotes/addPrivateNotes`, data, baseUrl);
+};
+
+ApiMedicalHistory.listPrivateNotes = function (data) {
+  return api.post(`/api/v1/privatenotes/listPrivateNotes`, data, baseUrl);
+};
+
+ApiMedicalHistory.deletePrivateNotes = function (data) {
+  return api.post(`/api/v1/privatenotes/deletePrivateNotes`, data, baseUrl);
+};
+
 export default ApiMedicalHistory;
