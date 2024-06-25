@@ -27,7 +27,7 @@ function ConfigurePrintSetting() {
     const { defaultPrintSettings } = useSelector((state) => state.doctors);
 
     const { state } = useLocation();
-    const { caseManagerData, certificateData } = state
+    const { caseManagerData, certificateData, smartRxFile } = state
 
     const [divWidth, setDivWidth] = useState(0);
     const [selectedTab, setSelectedTab] = useState(caseManagerData !== undefined ? TAB_PRESCRIPTION : TAB_HEADER_FOOTER);
@@ -42,7 +42,7 @@ function ConfigurePrintSetting() {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
 
-    const contextApi = { divWidth, caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
+    const contextApi = { smartRxFile , divWidth, caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
 
     const TabsPrintSetting = [
         {
@@ -58,7 +58,6 @@ function ConfigurePrintSetting() {
             label: 'Page Format'
         },
     ];
-
 
     useEffect(() => {
         const makeData = async () => {

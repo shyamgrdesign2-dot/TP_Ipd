@@ -141,7 +141,6 @@ function PrescriptionLayout() {
 
     const { caseManagerData, printSettings, setPrintSettings } = useContext(PrintSettingsContext);
     const isVaccinationAccessable = useVaccinationAccess();
-
     const onMainCaseOptionChange = useCallback(
         (e) => {
             const updatedData = printSettings.prescription.case_option.map((x) => {
@@ -235,13 +234,15 @@ function PrescriptionLayout() {
                             <i className={`icon-Preview ${record.enable === 'N' && 'disable-preview'} me-3`}></i>
                             <span>{record.title}</span>
                         </div>
-                        <Form.Item className="mb-0 form_addnewpatient ">
-                            <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={(e) => onCaseOptionChange(e, 'radio', printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))} value={record.format}>
-                                <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
-                                <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
-                                <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>
-                            </Radio.Group>
-                        </Form.Item>
+                        { record.id !== 11 &&
+                            <Form.Item className="mb-0 form_addnewpatient ">
+                                <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={(e) => onCaseOptionChange(e, 'radio', printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))} value={record.format}>
+                                    <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
+                                    <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
+                                    <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>
+                                </Radio.Group>
+                            </Form.Item>
+                        }
                     </div>
                     {record.id === 4 && (
                         <div style={{ marginLeft: -40, display: 'flex' }}>
@@ -331,8 +332,10 @@ function PrescriptionLayout() {
                                                                 ({ ...option, key: option.id })
                                                                 : ((caseManagerData.follow_up_date || caseManagerData.visit_advice) && option.id === 9) ?
                                                                     ({ ...option, key: option.id })
-                                                                    : (isVaccinationAccessable && option.id === 10) &&
-                                                                    ({ ...option, key: option.id })
+                                                                    : (isVaccinationAccessable && option.id === 10) ?
+                                                                        ({ ...option, key: option.id }) 
+                                                                        :(caseManagerData.smart_prescription_filename && option.id === 11) &&
+                                                                            ({ ...option, key: option.id }) 
                             )}
                             showHeader={false}
                         />

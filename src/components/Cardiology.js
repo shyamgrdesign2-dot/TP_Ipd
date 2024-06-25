@@ -6,6 +6,7 @@ import { Table, Dropdown, Button, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import { isChrome, isSafari } from "react-device-detect";
 import { useSelector } from "react-redux";
+import api from "../api/services/axiosService";
 
 import Symptomsicon from "../assets/images/Symptoms.svg";
 import Examinationsicon from "../assets/images/Examination.svg";
@@ -17,7 +18,7 @@ import notesicon from "../assets/images/notes.svg";
 import calenderBlank from "../assets/images/calenderBlank.svg";
 import followUp from "../assets/images/followup.svg";
 
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { FETCH_SMART_RX } from "../utils/constants";
 
 import { isNumeric } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
@@ -49,25 +50,17 @@ function Cardiology(props) {
   useEffect(() => {
     setSmartRxFile(null)
     const fetchData = async () => {
-      const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-      const formattedToken = token.replace(/^"(.*)"$/, "$1");
-      const payloadToken = `Bearer ${formattedToken}`;
-      const url = `${env.casemanager_api_url}/api/v1/casemanager/smart-rx`;
       const payload = {
         tcm_id: viewCaseManagerData.tcm_id,
       };
       try {
           if(viewCaseManagerData.smart_prescription_filename){
-            const response = await axios({
-              method: "POST",
-              url: url,
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: payloadToken,
-              },
-              data: payload,
-            });
-            const fileToShow = response.data.data.smart_prescription_file;
+            const response = await api.post(
+              FETCH_SMART_RX,
+              payload,
+              baseUrl
+            );
+            const fileToShow = response.data.smart_prescription_file;
             setSmartRxFile(fileToShow);
           }
       } catch (error) {

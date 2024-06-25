@@ -290,7 +290,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
           : await dispatch(editCaseManager(sendData));
 
       if (action.meta.requestStatus === "fulfilled") {
-        navigate('/print-smart-rx', { replace: true, state: { ...action.payload, patient_data: patient_data } })
+        navigate('/print-smart-rx', { replace: true, state: { ...action.payload, patient_data: patient_data, smartRxFile:smartRxData } })
       } else {
         errorMessage(action.error);
       }
@@ -395,7 +395,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                     </>
                   }
               /> */}
-              <Popover
+              {/* <Popover
                 open={popOverVideo}
                 onOpenChange={showHideVideoListPopover}
                 content={VIDEO_CONTENT}
@@ -406,7 +406,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                 <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
                   <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
                 </button>
-              </Popover>
+              </Popover> */}
               {videoLink && (
                 <VideoModal
                     videoLink={videoLink}

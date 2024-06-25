@@ -340,11 +340,12 @@ function SmartPrescription() {
     parentElement.appendChild(newCanvas);
     canvasRef.current = newCanvas;
   
-    if (smartRxFile && imageLoaded) {
+    if (smartRxFile) {
       ctxGlobalRef.current = canvasRef.current.getContext('2d');
-      ctxGlobalRef.current.drawImage(imageRef.current, 0, 0);
+      ctxGlobalRef.current.fillStyle = "white";
+      ctxGlobalRef.current.fillRect(0, 0, newCanvas.width, newCanvas.height);
     }
-  }, [refresh, prescription, imageLoaded]);
+  }, [refresh, prescription]);
 
   const wsError = (error) => {
       message.open({
