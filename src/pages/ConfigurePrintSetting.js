@@ -19,6 +19,7 @@ import HeaderFooterLayout from "../components/print_settings/HeaderFooterLayout"
 import PageFormatLayout from "../components/print_settings/PageFormatLayout";
 
 import "cropperjs/dist/cropper.css";
+import { useTodayVaccines } from "./vaccination/useTodayVaccines";
 
 function ConfigurePrintSetting() {
 
@@ -37,6 +38,7 @@ function ConfigurePrintSetting() {
     const [fileLogo, setFileLogo] = useState(null);
     const [fileWatermark, setFileWatermark] = useState(null);
     const [fileSignature, setFileSignature] = useState(null);
+    const todayVaccines = useTodayVaccines(caseManagerData);
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
@@ -93,7 +95,7 @@ function ConfigurePrintSetting() {
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                                 <Tabs defaultActiveKey="1" items={caseManagerData !== undefined ? TabsPrintSetting : TabsPrintSetting.slice(1, 2)} onChange={onTabChange} className="print-tabs" />
                                 {selectedTab === TAB_PRESCRIPTION ? (
-                                    <PrescriptionLayout />
+                                    <PrescriptionLayout todayVaccines={todayVaccines} />
                                 ) : selectedTab === TAB_HEADER_FOOTER ? (
                                     <HeaderFooterLayout />
                                 ) : selectedTab === TAB_PAGE_FORMAT && (
@@ -106,7 +108,7 @@ function ConfigurePrintSetting() {
                                 <div className="titleprint mt-20">Preview</div>
                                 <div ref={divRef} className="rounded-20px bg-white mt-20 overflow-hidden">
                                     <div className="position-relative printheight">
-                                        {caseManagerData !== undefined ? <Quixote mode={NORMAL} /> : <QuixoteCertificate mode={NORMAL} />}
+                                        {caseManagerData !== undefined ? <Quixote mode={NORMAL} todayVaccines={todayVaccines} /> : <QuixoteCertificate mode={NORMAL} />}
                                     </div>
                                 </div>
                             </div>

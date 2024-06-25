@@ -113,14 +113,14 @@ function SidebarDoctor() {
                 </Button>
                 <img src={newGif} width={42} className='mx-auto d-block text-center' alt='New' />
 
-                <br />
+                {/* <br /> */}
 
-                <NavLink onClick={() => clickOldModule('opd_billing')} replace={true} className={({ isActive, isPending }) =>
+                {/* <NavLink onClick={() => clickOldModule('opd_billing')} replace={true} className={({ isActive, isPending }) =>
                     isPending ? "pending" : isActive ? "" : "active"
                 }>
                     <i className='icon-billings'></i>
                     <div className='mt-1 px-2'>{isMobile ? 'OPD Bill' : <div className='text-truncate'>OPD Billing</div>}</div>
-                </NavLink>
+                </NavLink> */}
             </div>
         </>
     )
