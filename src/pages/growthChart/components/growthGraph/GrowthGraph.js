@@ -472,7 +472,6 @@ const WeightChart = ({
             </button>
             <img
               onClick={toggleFullscreen}
-              className="me-3"
               style={{ cursor: "pointer" }}
               src={isFullscreen ? minimise : maximise}
               alt="Warning"
