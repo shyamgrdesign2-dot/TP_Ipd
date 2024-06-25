@@ -37,7 +37,7 @@
     width: 270px;
     min-height: 180px;
     z-index: 1;
-    padding: 20px;
+    padding: 16px;
     border-radius: 10px;
     right: 64px;
 
@@ -51,7 +51,23 @@
     .percentileContainer {
       border: 1px solid #eaecf0;
       border-radius: 4px;
-      padding: 10px;
+      padding: 8px;
+
+      .percentileCheckbox {
+        &.ant-checkbox-wrapper .ant-checkbox-checked .ant-checkbox-inner {
+          background-color: white !important;
+          border-color: #a2a2a8 !important;
+          width: 20px;
+          height: 20px;
+        }
+        .ant-checkbox .ant-checkbox-inner {
+          width: 20px;
+          height: 20px;
+          &:after {
+            border-color: #454551 !important;
+          }
+        }
+      }
 
       .dynamicColor {
         color: var(--dynamic-color) !important;
@@ -59,6 +75,7 @@
 
       .checkBoxSeparator {
         border: 1px solid #eaecf0;
+        margin-right: 3px;
       }
     }
 

@@ -491,6 +491,7 @@ const WeightChart = ({
                             style={{
                               padding: "6px 0px 6px 6px",
                             }}
+                            className="percentileCheckbox"
                             checked={visibility[index]}
                             onChange={() => toggleVisibility(index)}
                           >
