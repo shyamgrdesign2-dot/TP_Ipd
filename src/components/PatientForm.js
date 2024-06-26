@@ -79,8 +79,8 @@ function PatientForm({ mode = ADD, patient_data }) {
             }
 
             const action = mode === EDIT ? await dispatch(editPatient(finalValues)) : await dispatch(addPatient(finalValues));
-            if (action.meta.requestStatus === "fulfilled") {
-                if (isMobile){
+            if (action.meta.requestStatus === "fulfilled") { 
+                if (isMobile || !isSmartSyncAccessableFromGB){
                     mode === EDIT ? navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } }) : navigate("/prescription", { replace: true, state: { patient_data: action.payload } })
                 }
                 else {
@@ -160,7 +160,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                                 isModalOpen={isModalOpen}
                                 onCancel={showHideModal}
                                 modalWidth={500}
-                                title={"You may lose your data"}
+                                title={"Patient Added"}
                                 modalBody={
                                 <>
                                     <div className="rounded-10px p-2 patient-details" style={{borderRadius: "10px",background: "rgba(25, 187, 122, 0.10)"}}>

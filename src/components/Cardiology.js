@@ -21,7 +21,6 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { isNumeric } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
-import { getSmartRx } from "../redux/caseManagerSlice";
 
 function Cardiology(props) {
   const navigate = useNavigate();
@@ -240,6 +239,31 @@ function Cardiology(props) {
     navigate(0, { replace: true });
   };
 
+  const handleEditRxClick = () => {
+    window.Moengage.track_event("edit_rx_click", {
+      doctor_id: profile?.doctor_unique_id,
+      patient_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      rx_date: viewCaseManagerData?.consultation_date,
+    });
+  
+    if (smartRxFile) {
+      navigate("/smart-prescription", {
+        state: {
+          patient_data: patient_data,
+          caseManagerData: viewCaseManagerData,
+          smartRxFile: smartRxFile,
+        },
+      });
+    } else {
+      navigate("/prescription", {
+        state: {
+          patient_data: patient_data,
+          caseManagerData: viewCaseManagerData,
+        },
+      });
+    }
+  };
+
   return (
     <div className="appointment-wrap PatientDetailswrap m-0">
       <Card className="">
@@ -286,7 +310,6 @@ function Cardiology(props) {
                   </Button>
                 </div>
                 <div>
-                { !smartRxFile &&
                   <button
                     className="btn p-0 ms-3"
                     style={{
@@ -294,26 +317,10 @@ function Cardiology(props) {
                         ? "visible"
                         : "hidden",
                     }}
-                    onClick={() => {
-                      window.Moengage.track_event("edit_rx_click", {
-                        doctor_id: profile?.doctor_unique_id,
-                        patient_id:
-                          patient_data !== undefined
-                            ? patient_data.patient_unique_id
-                            : 0,
-                        rx_date: viewCaseManagerData?.consultation_date,
-                      });
-                      navigate("/prescription", {
-                        state: {
-                          patient_data: patient_data,
-                          caseManagerData: viewCaseManagerData,
-                        },
-                      });
-                    }}
+                    onClick={handleEditRxClick}
                   >
                     <i className="icon-Edit"></i>
                   </button>
-                }
                   <button
                     className="btn p-0 ms-3"
                     onClick={() =>
@@ -361,9 +368,13 @@ function Cardiology(props) {
                   )}
                 </div>
                 <div className="d-flex align-items-center mb-14 follow-up-detailsPage">
+                { viewCaseManagerData?.follow_up_date &&
+                  <>
                     <img className='me-3' src={followUp} alt="Symptoms" />
                     <div className="title-common">Follow-up:</div>
                     <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
+                  </>
+                }
                 </div>
               </>
             ) : (
