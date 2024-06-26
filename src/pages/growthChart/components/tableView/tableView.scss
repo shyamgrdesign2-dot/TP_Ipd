@@ -1,0 +1,49 @@
+.tableView {
+  border-collapse: collapse;
+  margin: auto;
+  padding: 10px;
+  width: 100%;
+  border: solid black 1px;
+  border-radius: 6px;
+}
+.tcell {
+  border: 1px solid #ddd;
+  padding: 8px;
+  vertical-align: middle;
+  height: 48px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  background-color: #fff;
+  padding: 6px 20px !important;
+}
+.theaderCellStyle {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+  background-color: rgba(241, 241, 245, 0.4) !important;
+}
+
+.tableViewContainer {
+  margin: 30px auto auto auto;
+  padding: 30px;
+  border-radius: 16px;
+  background-color: #fff;
+  // overflow-y: scroll;
+  background: #eaecf04d;
+  width: 80%;
+  gap: 24px;
+  opacity: 0px;
+}
+
+.tableViewContainerForPrint {
+  padding: 0px;
+  width: 100%;
+  border-radius: 0px;
+  border: 2px solid #eaecf0;
+}
+
+.custom-icon {
+  color: #4b4ad5 !important;
+  font-size: 16px;
+}

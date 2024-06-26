@@ -1,16 +1,21 @@
 import React, { useCallback, useContext, useState, useMemo } from "react";
 import { Col, Radio, Row, Form, Table, Collapse, Checkbox } from "antd";
 
-import { MenuOutlined } from '@ant-design/icons';
-import { DndContext } from '@dnd-kit/core';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { MenuOutlined } from "@ant-design/icons";
+import { DndContext } from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
-import PrintSettingsContext from '../../context/PrintSettingsContext';
+import PrintSettingsContext from "../../context/PrintSettingsContext";
 
-import { isMobile } from 'react-device-detect';
-import { useVaccinationAccess } from "../../pages/vaccination/useVaccinationAccess";
+import { isMobile } from "react-device-detect";
+import { useAccess } from "../../pages/vaccination/useAccess";
 
 // const CustomRow = ({ children, ...props }) => {
 //     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
@@ -66,210 +71,256 @@ import { useVaccinationAccess } from "../../pages/vaccination/useVaccinationAcce
 
 const RowContext = React.createContext({});
 const DragHandle = () => {
-    const { setActivatorNodeRef, listeners } = useContext(RowContext);
-    return (
-        <MenuOutlined
-            ref={setActivatorNodeRef}
-            style={{
-                touchAction: 'none',
-                cursor: 'move',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}
-            {...listeners}
-        />
-    );
+  const { setActivatorNodeRef, listeners } = useContext(RowContext);
+  return (
+    <MenuOutlined
+      ref={setActivatorNodeRef}
+      style={{
+        touchAction: "none",
+        cursor: "move",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+      {...listeners}
+    />
+  );
 };
 const CustomRow = (props) => {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        setActivatorNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({
-        id: props['data-row-key'],
-    });
-    const style = {
-        ...props.style,
-        transform: CSS.Translate.toString(transform),
-        transition,
-        ...(isDragging
-            ? {
-                position: 'relative',
-                zIndex: 9999,
-            }
-            : {}),
-    };
-    const contextValue = useMemo(
-        () => ({
-            setActivatorNodeRef,
-            listeners,
-        }),
-        [setActivatorNodeRef, listeners],
-    );
-    return (
-        <RowContext.Provider value={contextValue}>
-            <tr {...props} ref={setNodeRef} style={style} {...attributes} />
-        </RowContext.Provider>
-    );
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: props["data-row-key"],
+  });
+  const style = {
+    ...props.style,
+    transform: CSS.Translate.toString(transform),
+    transition,
+    ...(isDragging
+      ? {
+          position: "relative",
+          zIndex: 9999,
+        }
+      : {}),
+  };
+  const contextValue = useMemo(
+    () => ({
+      setActivatorNodeRef,
+      listeners,
+    }),
+    [setActivatorNodeRef, listeners]
+  );
+  return (
+    <RowContext.Provider value={contextValue}>
+      <tr {...props} ref={setNodeRef} style={style} {...attributes} />
+    </RowContext.Provider>
+  );
 };
 
 const checkboxOptions = [
-    {
-        label: 'DOSE',
-        value: 'dose',
-    },
-    {
-        label: 'DURATION',
-        value: 'duration',
-    },
-    {
-        label: 'QUANTITY',
-        value: 'quantity',
-    },
-    {
-        label: 'NOTE',
-        value: 'note',
-    },
+  {
+    label: "DOSE",
+    value: "dose",
+  },
+  {
+    label: "DURATION",
+    value: "duration",
+  },
+  {
+    label: "QUANTITY",
+    value: "quantity",
+  },
+  {
+    label: "NOTE",
+    value: "note",
+  },
 ];
 
-function PrescriptionLayout({todayVaccines}) {
+function PrescriptionLayout({todayVaccines, todayGcData}) {
+  const { caseManagerData, printSettings, setPrintSettings } = useContext(PrintSettingsContext);
+  const {isVaccinationAccessable, isGrowthChartAccessable} = useAccess();
 
-    const { caseManagerData, printSettings, setPrintSettings } = useContext(PrintSettingsContext);
-    const isVaccinationAccessable = useVaccinationAccess();
-    const onMainCaseOptionChange = useCallback(
-        (e) => {
-            const updatedData = printSettings.prescription.case_option.map((x) => {
-                return { ...x, format: e.target.value };
-            });
+  const onMainCaseOptionChange = useCallback(
+    (e) => {
+      const updatedData = printSettings.prescription.case_option.map((x) => {
+        return { ...x, format: e.target.value };
+      });
 
-            setPrintSettings((prev) => {
-                return {
-                    ...prev,
-                    prescription: {
-                        case_option: updatedData
-                    }
-                };
-            });
-        },
-        [printSettings]
-    );
+      setPrintSettings((prev) => {
+        return {
+          ...prev,
+          prescription: {
+            case_option: updatedData,
+          },
+        };
+      });
+    },
+    [printSettings]
+  );
 
+  const onCaseOptionChange = (record, flag, i) => {
+    flag === "radio"
+      ? (printSettings.prescription.case_option[i].format = record.target.value)
+      : (printSettings.prescription.case_option[i].enable =
+          record.enable === "Y" ? "N" : "Y");
 
-    const onCaseOptionChange = (record, flag, i) => {
-        flag === 'radio' ?
-            printSettings.prescription.case_option[i].format = record.target.value
-            :
-            printSettings.prescription.case_option[i].enable = record.enable === 'Y' ? 'N' : 'Y'
+    setPrintSettings((prev) => {
+      return {
+        ...prev,
+      };
+    });
+  };
 
-        setPrintSettings((prev) => {
-            return {
-                ...prev
-            };
-        });
-    }
+  const onMedicationWithGenericChange = (e, i) => {
+    printSettings.prescription.case_option[i].medicine_with_generic =
+      e.target.value;
+    setPrintSettings((prev) => {
+      return {
+        ...prev,
+      };
+    });
+  };
 
-    const onMedicationWithGenericChange = (e, i) => {
-        printSettings.prescription.case_option[i].medicine_with_generic = e.target.value
-        setPrintSettings((prev) => {
-            return {
-                ...prev
-            };
-        });
-    };
+  const onMedicationOptionChange = (checkedValues, i) => {
+    printSettings.prescription.case_option[i].medicine_option = checkedValues;
+    setPrintSettings((prev) => {
+      return {
+        ...prev,
+      };
+    });
+  };
 
-    const onMedicationOptionChange = (checkedValues, i) => {
-        printSettings.prescription.case_option[i].medicine_option = checkedValues
-        setPrintSettings((prev) => {
-            return {
-                ...prev
-            };
-        });
-    };
+  const accordionItems = (record, i) => [
+    {
+      key: "1",
+      label: (
+        <div className="text-start">
+          <div className="fw-semibold">Customise Options</div>
+          <div className="subtitle-customize">
+            Selected/deselect medication columns need to be printed
+          </div>
+        </div>
+      ),
+      children: (
+        <>
+          <div className="fw-medium text-start py-2">MEDICINE</div>
+          <div className="d-flex align-items-center text-start">
+            <Radio.Group
+              value={record?.medicine_with_generic}
+              onChange={(e) => onMedicationWithGenericChange(e, i)}
+            >
+              <Radio className="mb-2" value={true}>
+                Medicine with Generic Name
+              </Radio>
+              <Radio value={false}>Only Medicine Name</Radio>
+            </Radio.Group>
+          </div>
+          <hr />
+          <div className="d-flex align-items-center">
+            <Checkbox.Group
+              options={checkboxOptions}
+              value={record?.medicine_option}
+              onChange={(checkedValues) =>
+                onMedicationOptionChange(checkedValues, i)
+              }
+            />
+          </div>
+          <div className="subtitle-customize text-start mt-3">
+            <span>Note:</span> The printed information will always include the
+            name of the medicine (brand or generic), and the frequency.
+          </div>
+        </>
+      ),
+    },
+  ];
 
-    const accordionItems = (record, i) => [
-        {
-            key: '1',
-            label: <div className="text-start"><div className="fw-semibold">Customise Options</div><div className="subtitle-customize">Selected/deselect medication columns need to be printed</div></div>,
-            children:
-                <>
-                    <div className="fw-medium text-start py-2">MEDICINE</div>
-                    <div className="d-flex align-items-center text-start">
-                        <Radio.Group value={record?.medicine_with_generic} onChange={(e) => onMedicationWithGenericChange(e, i)}>
-                            <Radio className="mb-2" value={true}>Medicine with Generic Name</Radio>
-                            <Radio value={false}>Only Medicine Name</Radio>
-                        </Radio.Group>
-                    </div>
-                    <hr />
-                    <div className="d-flex align-items-center">
-                        <Checkbox.Group options={checkboxOptions} value={record?.medicine_option} onChange={(checkedValues) => onMedicationOptionChange(checkedValues, i)} />
-                    </div>
-                    <div className="subtitle-customize text-start mt-3"><span>Note:</span> The printed information will always include the name of the medicine (brand or generic), and the frequency.</div>
-                </>
-        },
-    ];
+  //Display Patient Info
+  const caseOptionTable = [
+    {
+      key: "sort",
+      // colSpan: 2,
+      align: "center",
+      dataIndex: "sort",
+      width: 40,
+      render: () => <DragHandle />,
+    },
+    {
+      // colSpan: 0,
+      dataIndex: "title",
+      key: "title",
+      render: (text, record, i) => (
+        <>
+          <div className="d-flex align-items-center justify-content-between text-start">
+            <div
+              className="d-flex align-items-center cursor-pointer Preview-color-icon"
+              onClick={() => onCaseOptionChange(record, "visible", i)}
+            >
+              <i
+                className={`icon-Preview ${
+                  record.enable === "N" && "disable-preview"
+                } me-3`}
+              ></i>
+              <span>{record.title}</span>
+            </div>
+            <Form.Item className="mb-0 form_addnewpatient ">
+              <Radio.Group
+                className={`d-flex gender-radio all-change-radio ${
+                  isMobile ? "segmented-radio-mobile" : ""
+                }`}
+                onChange={(e) => onCaseOptionChange(e, "radio", i)}
+                value={record.format}
+              >
+                <Radio.Button className="w-100 text-center" value="inline">
+                  Inline
+                </Radio.Button>
+                <Radio.Button className="w-100 text-center" value="listview">
+                  List View
+                </Radio.Button>
+                <Radio.Button className="w-100 text-center" value="table">
+                  Table
+                </Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+          </div>
+          {record.id === 4 && (
+            <div style={{ marginLeft: -40, display: "flex" }}>
+              <div style={{ flex: 1 }}>
+                <div className="border mt-3 rounded-4 p-3 bg-white ">
+                  <Collapse
+                    items={accordionItems(record, i)}
+                    defaultActiveKey={["1"]}
+                    className="prescriptiontab-accordian"
+                    expandIconPosition={"end"}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      ),
+    },
+  ];
 
-    //Display Patient Info
-    const caseOptionTable = [
-        {
-            key: 'sort',
-            // colSpan: 2,
-            align: 'center',
-            dataIndex: 'sort',
-            width: 40,
-            render: () => <DragHandle />,
-        },
-        {
-            // colSpan: 0,
-            dataIndex: 'title',
-            key: 'title',
-            render: (text, record, i) => (
-                <>
-                    <div className="d-flex align-items-center justify-content-between text-start">
-                        <div className="d-flex align-items-center cursor-pointer Preview-color-icon" onClick={() => onCaseOptionChange(record, 'visible', printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}>
-                            <i className={`icon-Preview ${record.enable === 'N' && 'disable-preview'} me-3`}></i>
-                            <span>{record.title}</span>
-                        </div>
-                        <Form.Item className="mb-0 form_addnewpatient ">
-                            <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={(e) => onCaseOptionChange(e, 'radio', printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))} value={record.format}>
-                                <Radio.Button className="w-100 text-center" disabled={record.id === 11} value="inline">Inline</Radio.Button>
-                                <Radio.Button className="w-100 text-center" disabled={record.id === 11} value="listview">List View</Radio.Button>
-                                <Radio.Button className="w-100 text-center" disabled={record.id === 11} value="table">Table</Radio.Button>
-                            </Radio.Group>
-                        </Form.Item>
-                    </div>
-                    {record.id === 4 && (
-                        <div style={{ marginLeft: -40, display: 'flex' }}>
-                            <div style={{ flex: 1 }} >
-                                <div className="border mt-3 rounded-4 p-3 bg-white ">
-                                    <Collapse items={accordionItems(record, printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))} defaultActiveKey={['1']} className="prescriptiontab-accordian" expandIconPosition={'end'} />
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </>
-            ),
-        }
-    ];
-
-    const onDragEndCaseOption = ({ active, over }) => {
-        if (active.id !== over?.id) {
-            setPrintSettings((prev) => {
-                const activeIndex = prev.prescription.case_option.findIndex((i) => i.id === active.id);
-                const overIndex = prev.prescription.case_option.findIndex((i) => i.id === over?.id);
-                return {
-                    ...prev,
-                    prescription: {
-                        case_option: arrayMove(prev.prescription.case_option, activeIndex, overIndex)
-                    }
-                };
-            });
-        }
-    };
+const onDragEndCaseOption = ({ active, over }) => {
+  if (active.id !== over?.id) {
+      setPrintSettings((prev) => {
+          const activeIndex = prev.prescription.case_option.findIndex((i) => i.id === active.id);
+          const overIndex = prev.prescription.case_option.findIndex((i) => i.id === over?.id);
+          return {
+              ...prev,
+              prescription: {
+                  case_option: arrayMove(prev.prescription.case_option, activeIndex, overIndex)
+              }
+          };
+      });
+  }
+};
 
     return (
         <div className="px-3">
@@ -332,8 +383,9 @@ function PrescriptionLayout({todayVaccines}) {
                                                                     ({ ...option, key: option.id })
                                                                     : (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ?
                                                                         ({ ...option, key: option.id }) 
-                                                                        :(caseManagerData.smart_prescription_filename && option.id === 11) &&
+                                                                        :(caseManagerData.smart_prescription_filename && option.id === 11) ?
                                                                             ({ ...option, key: option.id }) 
+                                                                            :(isGrowthChartAccessable && option.id === 12 && todayGcData?.length) && ({...option, key: option.id})
                             )}
                             showHeader={false}
                         />
@@ -341,7 +393,7 @@ function PrescriptionLayout({todayVaccines}) {
                 </DndContext>
             )}
 
-            {/* {printSettings?.prescription?.case_option?.map((e, i) => {
+      {/* {printSettings?.prescription?.case_option?.map((e, i) => {
                 return (
                     e?.custom_status === 'Y' && (
                         <Row key={i} justify="space-between" className="align-items-center form_addnewpatient mb-28">
@@ -364,8 +416,8 @@ function PrescriptionLayout({todayVaccines}) {
                     )
                 )
             })} */}
-        </div>
-    );
+    </div>
+  );
 }
 
 export default React.memo(PrescriptionLayout);
