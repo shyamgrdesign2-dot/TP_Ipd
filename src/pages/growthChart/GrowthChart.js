@@ -150,9 +150,16 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
               ...item,
               data:
                 showTimelineInYear && key !== "HeightVsWeight"
-                  ? objectName[labelName]?.filter(
-                      (_, index) => index % 12 === 0
-                    )
+                  ? objectName[labelName]?.filter((item, index) => {
+                      if (
+                        ageInterval === "5To18" &&
+                        index === objectName[labelName].length - 1
+                      ) {
+                        return item;
+                      } else {
+                        return index % 12 === 0;
+                      }
+                    })
                   : objectName[labelName],
             };
           });
@@ -181,12 +188,30 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
           chartData.push(patientData);
 
+          const getAgeInterval = () => {
+            const intervalData =
+              ageData[
+                key === "Weight" && ageInterval === "5To18"
+                  ? "5To10"
+                  : ageInterval
+              ];
+            const updatedInterval = intervalData.filter((item, index) => {
+              if (
+                ageInterval === "5To18" &&
+                index === intervalData.length - 1
+              ) {
+                return item;
+              } else {
+                return index % 12 === 0;
+              }
+            });
+            return updatedInterval.map((item) => item / 12);
+          };
+
           const graphData = {
             labels:
               showTimelineInYear && key !== "HeightVsWeight"
-                ? ageData[ageInterval]
-                    .filter((_, index) => index % 12 === 0)
-                    .map((item) => item / 12)
+                ? getAgeInterval()
                 : key === "HeightVsWeight"
                 ? ageData[key][ageInterval]
                 : ageData[ageInterval],
