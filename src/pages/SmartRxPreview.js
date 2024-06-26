@@ -16,7 +16,7 @@ import wtsp from '../assets/images/wtsp.svg';
 import loadingImg from '../assets/images/loading.png';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
-import { MESSAGE_KEY, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
+import { FETCH_SMART_RX, MESSAGE_KEY, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
@@ -50,6 +50,7 @@ function SmartRxPreview() {
     const [divWidth, setDivWidth] = useState(0);
     const [numPages, setNumPages] = useState();
     const [printBlob, setPrintBlob] = useState(null);
+    const [smartRxFile, setSmartRxFile] = useState(null);
     const [isUpdateMobileNoModalOpen, setIsUpdateMobileNoModalOpen] = useState(false);
     const [mobileNumber, setMobileNumber] = useState('');
     const [useRegisteredMobile, setUseRegisteredMobile] = useState(false);
@@ -122,6 +123,26 @@ function SmartRxPreview() {
         setPrintBlob(blob)
     }
 
+    useEffect(() => {
+        const fetchData = async () => {
+          const payload = {
+            tcm_id: state?.tcm_id,
+          };
+          try {
+                const response = await api.post(
+                  FETCH_SMART_RX,
+                  payload,
+                  baseUrl
+                );
+                const fileToShow = response.data.smart_prescription_file;
+                setSmartRxFile(fileToShow);
+          } catch (error) {
+            console.error("Error:", error);
+          }
+        };
+        fetchData();
+    }, []);
+
     const configurePrintUrl = async () => {
         var sendData = {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
@@ -130,7 +151,7 @@ function SmartRxPreview() {
         }
         const action = await dispatch(viewCaseManager(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            navigate('/configure_print_setting', { state: { caseManagerData: action.payload } })
+            navigate('/configure_print_setting', { state: { caseManagerData: action.payload , smartRxFile} })
         } else {
             errorMessage(action.error)
         }
