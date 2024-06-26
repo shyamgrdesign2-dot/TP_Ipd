@@ -36,7 +36,10 @@ export default function TablePrint({ dataSource, getData, isTableprint }) {
         {isTableprint ? (
           <TableView dataSource={dataSource} />
         ) : (
-          <div className="scrollable-container" style={{ padding: "0" }}>
+          <div
+            className="scrollable-container"
+            style={{ padding: "0", overflow: "hidden" }}
+          >
             <Row sm={2} md={2} lg={2} className="gy-4">
               {getData()}
             </Row>
