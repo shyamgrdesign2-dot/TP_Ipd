@@ -24,6 +24,7 @@ import growthChartStaticData from "./GrowthChart.json";
 import PrintPopup from "./components/printPopup/PrintPopup";
 import { useReactToPrint } from "react-to-print";
 import TablePrint from "./components/growthChartPrint/TablePrint";
+import FullPageLoader from "../vaccination/components/Loader";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const { state } = useLocation();
@@ -70,8 +71,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     setDisplay("block");
     setTimeout(() => {
       handlePrintWeb();
-      setDisplay("none");
-    }, 200);
+      setTimeout(() => {
+        setDisplay("none");
+      }, 10);
+    }, 1000);
   };
 
   const getGrowthChartDetails = async () => {
@@ -176,6 +179,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                 className={`graphContainer ${
                   isFullscreen ? "fullScreenStyle" : ""
                 }`}
+                style={{
+                  height: display === "block" ? "280px" : "505px",
+                  overflow: "hidden",
+                }}
               >
                 <WeightChart
                   graphIndex={graphIndex}
@@ -192,6 +199,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   tooltipState={tooltipState}
                   setTooltipState={setTooltipState}
                   ageInterval={ageInterval}
+                  displayType={display}
                 />
               </div>
             </Col>
@@ -272,89 +280,93 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   };
 
   return (
-    <div className="vaccinationWrapper">
-      <VaccineHeader
-        handleDrawerVaccination={handleDrawerVaccination}
-        patientDetails={gcPatientDetails}
-        printPopupHandler={printPopupHandler}
-        handlePrintWeb={printTest}
-        setTablePrint={setTablePrint}
-      />
-      <SubHeader
-        handleDrawerMeasurements={handleDrawerMeasurements}
-        setShowUpdate={setShowUpdate}
-        showTableView={showTableView}
-        setShowTableView={setShowTableView}
-        showTimelineInYear={showTimelineInYear}
-        setShowTimelineInYear={setShowTimelineInYear}
-        parentalDetails={parentalDetails}
-      />
-      {measurementsDrawer && (
-        <Drawer
-          closeIcon={false}
-          placement="right"
-          onClose={handleDrawerMeasurements}
-          open={measurementsDrawer}
-          className="modalWidth-700"
-          width="auto"
-        >
-          <Measurements
-            measurementsToEdit={measurementsData}
-            handleDrawerMeasurements={handleDrawerMeasurements}
-            getGrowthChartDetails={getGrowthChartDetails}
-            setMeasurementsToEdit={setMeasurementsData}
-          />
-        </Drawer>
-      )}
-
-      {showUpdate && (
-        <UpdateDetails
-          show={showUpdate}
-          setShow={setShowUpdate}
-          parentalDetails={parentalDetails}
-          setParentalDetails={setParentalDetails}
-        />
-      )}
-      {shouldShowPrintPopup && (
-        <PrintPopup
-          show={shouldShowPrintPopup}
-          handleClose={printPopupHandler}
-          graphsToPrint={graphsToPrint}
-          setGraphToPrint={setGraphToPrint}
+    <>
+      <div className="vaccinationWrapper">
+        <VaccineHeader
+          handleDrawerVaccination={handleDrawerVaccination}
+          patientDetails={gcPatientDetails}
+          printPopupHandler={printPopupHandler}
           handlePrintWeb={printTest}
+          setTablePrint={setTablePrint}
         />
-      )}
-      {showTableView ? (
-        <TableView
-          onEdit={(i) => {
-            handleEditMeasurements(i);
-            handleDrawerMeasurements();
-          }}
-          dataSource={allGrowthChartParams}
+        <SubHeader
+          handleDrawerMeasurements={handleDrawerMeasurements}
+          setShowUpdate={setShowUpdate}
+          showTableView={showTableView}
+          setShowTableView={setShowTableView}
+          showTimelineInYear={showTimelineInYear}
+          setShowTimelineInYear={setShowTimelineInYear}
+          parentalDetails={parentalDetails}
         />
-      ) : (
-        <div className="scrollable-container">
-          <Row
-            xs={1}
-            sm={isFullscreen ? 1 : 2}
-            md={isFullscreen ? 1 : 2}
-            lg={isFullscreen ? 1 : 2}
-            className="gy-4"
+        {measurementsDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerMeasurements}
+            open={measurementsDrawer}
+            className="modalWidth-700"
+            width="auto"
           >
-            {getData()}
-          </Row>
-        </div>
-      )}
-      <div style={{ display: display }}>
-        <div ref={printableRef}>
-          <TablePrint
-            dataSource={allGrowthChartParams}
-            getData={getData}
-            isTableprint={isTableprint}
+            <Measurements
+              measurementsToEdit={measurementsData}
+              handleDrawerMeasurements={handleDrawerMeasurements}
+              getGrowthChartDetails={getGrowthChartDetails}
+              setMeasurementsToEdit={setMeasurementsData}
+            />
+          </Drawer>
+        )}
+
+        {showUpdate && (
+          <UpdateDetails
+            show={showUpdate}
+            setShow={setShowUpdate}
+            parentalDetails={parentalDetails}
+            setParentalDetails={setParentalDetails}
           />
+        )}
+        {shouldShowPrintPopup && (
+          <PrintPopup
+            show={shouldShowPrintPopup}
+            handleClose={printPopupHandler}
+            graphsToPrint={graphsToPrint}
+            setGraphToPrint={setGraphToPrint}
+            handlePrintWeb={printTest}
+          />
+        )}
+        {showTableView ? (
+          <TableView
+            onEdit={(i) => {
+              handleEditMeasurements(i);
+              handleDrawerMeasurements();
+            }}
+            dataSource={allGrowthChartParams}
+          />
+        ) : (
+          <div className="scrollable-container">
+            <Row
+              xs={1}
+              sm={isFullscreen ? 1 : 2}
+              md={isFullscreen ? 1 : 2}
+              lg={isFullscreen ? 1 : 2}
+              className="gy-4"
+            >
+              {getData()}
+            </Row>
+          </div>
+        )}
+        <div style={{ display: display }}>
+          <div ref={printableRef}>
+            <TablePrint
+              dataSource={allGrowthChartParams}
+              getData={getData}
+              isTableprint={isTableprint}
+            />
+          </div>
         </div>
       </div>
-    </div>
+
+      {display === "block" && <FullPageLoader />}
+    </>
   );
 };
 

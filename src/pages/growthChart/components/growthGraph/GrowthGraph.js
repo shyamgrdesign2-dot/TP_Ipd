@@ -44,6 +44,7 @@ const WeightChart = ({
   setTooltipState,
   ageInterval,
   isPrint,
+  displayType,
 }) => {
   const { state } = useLocation();
   const { patient_data } = state;
@@ -461,22 +462,24 @@ const WeightChart = ({
           {graphName === "HeightVsWeight" ? "Height Vs Weight" : graphName}
         </div>
         <div>
-          <div style={{ display: "flex" }}>
-            <button
-              type="link"
-              className="percentileBtn"
-              onClick={() => setPercentilePopup(true)}
-            >
-              Percentile
-              <i className="icon-right iconStyle" />
-            </button>
-            <img
-              onClick={toggleFullscreen}
-              style={{ cursor: "pointer" }}
-              src={isFullscreen ? minimise : maximise}
-              alt="Warning"
-            />
-          </div>
+          {displayType === "none" && (
+            <div style={{ display: "flex" }}>
+              <button
+                type="link"
+                className="percentileBtn"
+                onClick={() => setPercentilePopup(true)}
+              >
+                Percentile
+                <i className="icon-right iconStyle" />
+              </button>
+              <img
+                onClick={toggleFullscreen}
+                style={{ cursor: "pointer" }}
+                src={isFullscreen ? minimise : maximise}
+                alt="Warning"
+              />
+            </div>
+          )}
           {shouldShowPercentilePopup && (
             <div ref={popupRef} className="enablePercentile">
               <div className="percentileText">
@@ -530,8 +533,13 @@ const WeightChart = ({
           )}
         </div>
       </div>
-      <div style={{ position: "relative", height: "100%", width: "100%" }}>
-        <Line ref={chartRef} data={chartData} options={options} />
+      <div className="graphBody">
+        <Line
+          ref={chartRef}
+          data={chartData}
+          options={options}
+          className="chartStyle"
+        />
         {tooltipState.visible && graphIndex === tooltipState.graphIndex && (
           <div
             ref={tooltipRef}
