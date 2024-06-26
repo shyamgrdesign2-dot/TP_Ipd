@@ -43,8 +43,22 @@ function Measurements(props) {
   const [dateString, setDateString] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const dispatch = useDispatch();
-  const { measurements } = useSelector((state) => state.growthChart);
   const { selectedVitalsList } = useSelector((state) => state.vitals);
+
+  useEffect(() => {
+    if (selectedVitalsList?.length) {
+      let cal = calculate("", "");
+      setMeasurementsData(
+        selectedVitalsList?.map((v) => ({
+          date: v.date,
+          height: v.height || "",
+          weight: v.weight || "",
+          ofc: "",
+          bmi: v.bmi || cal.bmi,
+        }))
+      );
+    }
+  }, [selectedVitalsList]);
 
   useEffect(() => {
     if (measurementsToEdit?.tcbc_id)

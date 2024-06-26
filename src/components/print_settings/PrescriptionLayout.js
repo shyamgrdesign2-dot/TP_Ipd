@@ -144,7 +144,7 @@ const checkboxOptions = [
 
 function PrescriptionLayout() {
   const { printSettings, setPrintSettings } = useContext(PrintSettingsContext);
-  const isVaccinationAccessable = useAccess();
+  const {isVaccinationAccessable, isGrowthChartAccessable} = useAccess();
 
   const onMainCaseOptionChange = useCallback(
     (e) => {
@@ -401,7 +401,7 @@ function PrescriptionLayout() {
               rowKey="id"
               columns={caseOptionTable}
               dataSource={printSettings?.prescription?.case_option
-                .filter((e) => (e.id === 10 ? isVaccinationAccessable : true))
+                .filter((e) => (e.id === 10 ? isVaccinationAccessable : e.id === 16 ? isGrowthChartAccessable : true))
                 .map((e) => ({ ...e, key: e.id }))}
               showHeader={false}
             />

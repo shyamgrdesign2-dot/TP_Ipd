@@ -42,10 +42,27 @@ function VitalsBox(props) {
                 return { ...e, systolic: e.blood_press ? e.blood_press.split('/')[0] : '', diastolic: e.blood_press ? e.blood_press.split('/')[1] : '' };
             });
             setVitalsData(updatedData);
-        } else {
-            // setVitalsData([]);
+        } else if(measurements.length) {
+            let cal = calculate('', '');
+            setVitalsData(measurements.map(m => ({
+                date: m.date,
+                height: m.height || "",
+                weight: m.weight || "", 
+                bmi: m.bmi || cal.bmi,
+                dev_unique_id: 0,
+                tcv_id: 0,
+                tcbc_id: 0,
+                temp: '',
+                pres: '',
+                resp_rate: '',
+                systolic: '',
+                diastolic: '',
+                spo2: '',
+                bmr: cal.bmr,
+                bsa: cal.bsa,
+            })));
         }
-    }, [selectedVitalsList]);
+    }, [selectedVitalsList, measurements]);
 
     useEffect(() => {
         setChildVitalsData([...vitalsData])

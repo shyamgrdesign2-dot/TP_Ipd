@@ -442,8 +442,8 @@ function Prescription() {
                     </div>
                   )
                   : (
-                  // e.tmdpm_id === 7 &&
-                  // e.tmdpm_status === 0 &&
+                  e.tmdpm_id === 16 &&
+                  e.tmdpm_status === 0 &&
                   isGrowthChartAccessable && (
                     <div className="prescription-box-sm p-14">
                     <div className="d-flex align-items-center justify-content-between">
