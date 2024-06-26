@@ -118,7 +118,7 @@ function PatientDetails() {
                                         {viewCaseManagerData && viewCaseManagerData?.vitals?.length > 0 && (
                                             <VitalsBodyComposition loading={loading} passVitals={viewCaseManagerData ? [...viewCaseManagerData.vitals].slice(0, 2) : viewCaseManagerData} />
                                         )}
-                                        {!viewCaseManagerData?.smart_prescription_filename &&
+                                        {viewCaseManagerData?.smart_prescription_filename === null &&
                                             <>
                                                 <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
                                                 <VisitVaccination />
