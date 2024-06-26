@@ -18,7 +18,7 @@ import TooltipContent from "./TooltipContent";
 import { genderAge } from "../../../../common/ProfilePopover";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { UNITS, getAgeInMonths } from "../../growthChartHelper";
+import { UNITS, ageIntervals, getAgeInMonths } from "../../growthChartHelper";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -40,13 +40,15 @@ const WeightChart = ({
   graphName,
   showTimelineInYear,
   setFullScreenGraphIndex,
-  chartRefs,
-  onChartRendered,
+  tooltipState,
+  setTooltipState,
+  ageInterval,
+  isPrint,
 }) => {
   const { state } = useLocation();
   const { patient_data } = state;
   const { profile } = useSelector((state) => state.doctors);
-  // const chartRefs.current[graphIndex] = useRef(null);
+  const chartRef = useRef(null);
   const [shouldShowPercentilePopup, setPercentilePopup] = useState(false);
   const [visibility, setVisibility] = useState(
     data.datasets.map((ds) => !ds.hidden)
@@ -60,14 +62,6 @@ const WeightChart = ({
   });
   const popupRef = useRef(null);
   const tooltipRef = useRef(null);
-
-  const [tooltipState, setTooltipState] = useState({
-    visible: false,
-    x: 0,
-    y: 0,
-    titleLines: [],
-    bodyLines: [],
-  });
 
   const patientAge = genderAge(patient_data, profile, false);
   const patientAgeInMonths = getAgeInMonths(patient_data?.DOB);
@@ -111,8 +105,8 @@ const WeightChart = ({
         0,
         yAxis.top,
         0,
-        yAxis.bottom + 100 // Extend gradient further down
-      );
+        yAxis.bottom + 100
+      ); // Extend gradient further down
       greenGradient.addColorStop(0, "rgba(100, 230, 100, 0.3)");
       greenGradient.addColorStop(0.2, "rgba(100, 230, 100, 0.2)");
       greenGradient.addColorStop(0.4, "rgba(100, 230, 100, 0.1)");
@@ -122,39 +116,63 @@ const WeightChart = ({
       ctx.fillStyle = greenGradient;
       ctx.fill();
 
-      // Now handle red shadows for each red point
-      p7Dataset.data.forEach((point) => {
-        if (point.isMalnutrition && false) {
+      // Draw red shadows and points below the line chart path
+      p7Dataset.data.forEach((point, index) => {
+        if (point.isMalnutrition) {
           const x = xAxis.getPixelForValue(point.x);
           const y = yAxis.getPixelForValue(point.y);
-          const shadowHeight = 30; // Height to extend shadow to x-axis
-          const shadowWidth = 30; // Adjust shadow width to 30 pixels
 
-          // Create gradient for red shadow
-          const redGradient = ctx.createLinearGradient(
-            0,
-            y,
-            0,
-            y + shadowHeight
-          );
-          redGradient.addColorStop(0, "rgba(255, 0, 0, 0.2)"); // Intense red at the point
-          redGradient.addColorStop(1, "rgba(255, 0, 0, 0)"); // Fully transparent at the bottom
+          // Ensure the red shadow is only drawn below the main line chart path
+          if (y <= yAxis.bottom) {
+            ctx.save();
 
-          // Clip to draw only below the point
-          ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(x - shadowWidth / 2, y);
-          ctx.lineTo(x + shadowWidth / 2, y);
-          ctx.lineTo(x + shadowWidth / 2, y + shadowHeight);
-          ctx.lineTo(x - shadowWidth / 2, y + shadowHeight);
-          ctx.closePath();
-          ctx.clip();
+            ctx.beginPath();
 
-          // Fill with gradient red color for shadow, limited to 30px below the point
-          ctx.fillStyle = redGradient;
-          ctx.fillRect(x - shadowWidth / 2, y, shadowWidth, shadowHeight);
+            if (isPrint) {
+              // Draw dotted circle around the red point
+              ctx.beginPath();
+              ctx.setLineDash([2, 2]); // Create a dotted line
+              ctx.arc(x, y, 12, 0, 2 * Math.PI); // Draw circle around the point
+              ctx.strokeStyle = "#000000";
+              ctx.stroke();
+              ctx.setLineDash([]); // Reset to solid lines
+            } else {
+              const radius = 30;
+              const offsetY = 20; // Adjust the vertical offset to ensure it's below the dotted line
 
-          ctx.restore(); // Restore initial context state
+              ctx.arc(x, y + offsetY, radius, 0, 2 * Math.PI); // Adjust y position to ensure it's below the dotted line
+              ctx.clip();
+
+              // Create gradient for red shadow
+              const redGradient = ctx.createRadialGradient(
+                x,
+                y + offsetY,
+                0,
+                x,
+                y + offsetY,
+                radius
+              ); // Adjust the shadow radius as per requirement
+              redGradient.addColorStop(0, "rgba(255, 0, 0, 0.2)"); // Intense red at the point
+              redGradient.addColorStop(1, "rgba(255, 0, 0, 0)"); // Fully transparent at the edge
+
+              // Fill with gradient red color for shadow, limited to below the main line chart path
+              ctx.fillStyle = redGradient;
+              ctx.fillRect(
+                x - radius,
+                y + offsetY - radius,
+                2 * radius,
+                2 * radius
+              ); // Rectangle covering the area, adjust dimensions as needed
+
+              ctx.restore(); // Restore initial context state
+
+              // Draw the red point
+              ctx.beginPath();
+              ctx.arc(x, y, 3, 0, 2 * Math.PI); // Draw the point itself
+              ctx.fillStyle = "#F04545";
+              ctx.fill();
+            }
+          }
         }
       });
 
@@ -226,7 +244,7 @@ const WeightChart = ({
     if (
       popupRef.current &&
       !popupRef.current.contains(event.target) &&
-      !chartRefs.current[graphIndex].current?.canvas?.contains(event.target)
+      !chartRef.current?.canvas?.contains(event.target)
     ) {
       setPercentilePopup(false);
       setPopup({ visible: false, x: 0, y: 0, coords: {} });
@@ -240,9 +258,7 @@ const WeightChart = ({
   };
 
   const handleChartClick = (event) => {
-    const points = chartRefs.current[
-      graphIndex
-    ].current?.getElementsAtEventForMode(
+    const points = chartRef.current?.getElementsAtEventForMode(
       event,
       "nearest",
       { intersect: true },
@@ -293,7 +309,7 @@ const WeightChart = ({
   }, [tooltipState]);
 
   useEffect(() => {
-    if (chartRefs.current[graphIndex].current) {
+    if (chartRef.current) {
       // Register the plugin only once
       ChartJS.register(customLabelPlugin);
     }
@@ -302,7 +318,7 @@ const WeightChart = ({
       // Unregister the plugin when the component unmounts
       ChartJS.unregister(customLabelPlugin);
     };
-  }, [showTimelineInYear]);
+  }, [showTimelineInYear, isFullscreen]);
 
   const toggleVisibility = (index) => {
     setVisibility((prev) => {
@@ -321,6 +337,11 @@ const WeightChart = ({
     responsive: true,
     maintainAspectRatio: false,
     onClick: handleChartClick,
+    elements: {
+      line: {
+        borderWidth: 2,
+      },
+    },
     scales: {
       x: {
         type: "linear",
@@ -332,7 +353,9 @@ const WeightChart = ({
               ? 0.5
               : showTimelineInYear && graphName === "HeightVsWeight"
               ? 5
-              : 1,
+              : showTimelineInYear
+              ? 1
+              : ageIntervals[ageInterval] || 1,
         },
         title: {
           display: true,
@@ -383,6 +406,7 @@ const WeightChart = ({
               y: positionY + tooltip.caretY,
               titleLines,
               bodyLines,
+              graphIndex: graphIndex,
             });
           } else {
             handleCloseTooltip();
@@ -396,9 +420,12 @@ const WeightChart = ({
         top: 18,
       },
     },
-    onHover: function (_, item) {
-      if (item.length) {
-        setDataIndex(item[0]?.index);
+    onHover: function (event, elements) {
+      if (elements.length) {
+        event.native.target.style.cursor = "pointer";
+        setDataIndex(elements[0].index);
+      } else {
+        event.native.target.style.cursor = "auto";
       }
     },
   };
@@ -410,6 +437,7 @@ const WeightChart = ({
       y: 0,
       titleLines: [],
       bodyLines: [],
+      graphIndex: null,
     });
   };
 
@@ -427,7 +455,7 @@ const WeightChart = ({
   };
 
   return (
-    <div style={{ height: "100%" }}>
+    <div className="graphStyle">
       <div className="graphHeader">
         <div className="graphName">
           {graphName === "HeightVsWeight" ? "Height Vs Weight" : graphName}
@@ -444,7 +472,6 @@ const WeightChart = ({
             </button>
             <img
               onClick={toggleFullscreen}
-              className="me-3"
               style={{ cursor: "pointer" }}
               src={isFullscreen ? minimise : maximise}
               alt="Warning"
@@ -466,6 +493,7 @@ const WeightChart = ({
                             style={{
                               padding: "6px 0px 6px 6px",
                             }}
+                            className="percentileCheckbox"
                             checked={visibility[index]}
                             onChange={() => toggleVisibility(index)}
                           >
@@ -503,20 +531,8 @@ const WeightChart = ({
         </div>
       </div>
       <div style={{ position: "relative", height: "100%", width: "100%" }}>
-        <Line
-          ref={(el) => (chartRefs.current[graphIndex] = el)}
-          data={chartData}
-          // options={options}
-          options={{
-            ...options,
-            animation: {
-              onComplete: function () {
-                onChartRendered(graphIndex);
-              },
-            },
-          }}
-        />
-        {tooltipState.visible && (
+        <Line ref={chartRef} data={chartData} options={options} />
+        {tooltipState.visible && graphIndex === tooltipState.graphIndex && (
           <div
             ref={tooltipRef}
             className="tooltipContainer"

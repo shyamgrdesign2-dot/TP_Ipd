@@ -1,7 +1,12 @@
+import { useLocation } from "react-router-dom";
 import closeFill from "../../../../assets/images/closeFill.svg";
 import "./GrowthGraph.scss";
+import { getAge } from "../../growthChartHelper";
+import moment from "moment";
 
 const TooltipContent = ({ handleDrawerVital, handleCloseTooltip, data }) => {
+  const { state } = useLocation();
+  const { patient_data } = state;
   return (
     <div className="tooltipStyle">
       <div className="measurementHeader">
@@ -21,8 +26,10 @@ const TooltipContent = ({ handleDrawerVital, handleCloseTooltip, data }) => {
           />
         </div>
         <div className="rowContainer">
-          <div>Age: 3 months</div>
-          <div className="updateText">Updated: 06 Jun 2024</div>
+          <div>Age: {getAge(data.tcbc_created_date, patient_data?.DOB)}</div>
+          <div className="updateText">
+            Updated: {moment(data?.tcbc_created_date).format("DD MMM YYYY")}
+          </div>
         </div>
       </div>
 

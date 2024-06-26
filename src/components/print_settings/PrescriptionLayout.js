@@ -307,107 +307,91 @@ function PrescriptionLayout() {
     },
   ];
 
-  const onDragEndCaseOption = ({ active, over }) => {
-    if (active.id !== over?.id) {
+const onDragEndCaseOption = ({ active, over }) => {
+  if (active.id !== over?.id) {
       setPrintSettings((prev) => {
-        const activeIndex = prev.prescription.case_option.findIndex(
-          (i) => i.id === active.id
-        );
-        const overIndex = prev.prescription.case_option.findIndex(
-          (i) => i.id === over?.id
-        );
-        return {
-          ...prev,
-          prescription: {
-            case_option: arrayMove(
-              prev.prescription.case_option,
-              activeIndex,
-              overIndex
-            ),
-          },
-        };
-      });
-    }
-  };
-
-  return (
-    <div className="px-3">
-      <div className="titleprint mb-3">Format Style</div>
-      <Row
-        justify="space-between"
-        className="align-items-center form_addnewpatient mb-3"
-      >
-        <Col>All Change to</Col>
-        <Col
-          className={`${
-            isMobile ? "radio-width-static" : "radio-width-static-web"
-          }`}
-        >
-          <Form.Item className="mb-0">
-            <Radio.Group
-              className={`d-flex gender-radio all-change-radio ${
-                isMobile ? "segmented-radio-mobile" : ""
-              }`}
-              onChange={onMainCaseOptionChange}
-              value={
-                printSettings?.prescription?.case_option.every(
-                  (e) => e.format === "inline"
-                )
-                  ? "inline"
-                  : printSettings?.prescription?.case_option.every(
-                      (e) => e.format === "listview"
-                    )
-                  ? "listview"
-                  : printSettings?.prescription?.case_option.every(
-                      (e) => e.format === "table"
-                    )
-                  ? "table"
-                  : null
+          const activeIndex = prev.prescription.case_option.findIndex((i) => i.id === active.id);
+          const overIndex = prev.prescription.case_option.findIndex((i) => i.id === over?.id);
+          return {
+              ...prev,
+              prescription: {
+                  case_option: arrayMove(prev.prescription.case_option, activeIndex, overIndex)
               }
-            >
-              <Radio.Button className="w-100 text-center" value="inline">
-                Inline
-              </Radio.Button>
-              <Radio.Button className="w-100 text-center" value="listview">
-                List View
-              </Radio.Button>
-              <Radio.Button className="w-100 text-center" value="table">
-                Table
-              </Radio.Button>
-            </Radio.Group>
-          </Form.Item>
-        </Col>
-      </Row>
-      {printSettings?.prescription?.case_option?.length > 0 && (
-        <DndContext
-          modifiers={[restrictToVerticalAxis]}
-          onDragEnd={onDragEndCaseOption}
-        >
-          <SortableContext
-            // rowKey array
-            items={printSettings?.prescription?.case_option?.map((i) => i.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            <Table
-              className={`customize-table customize-table-format table-display-patient dragicon-position ${
-                isMobile ? "radio-width-static" : "radio-width-static-web"
-              }`}
-              pagination={false}
-              components={{
-                body: {
-                  row: CustomRow,
-                },
-              }}
-              rowKey="id"
-              columns={caseOptionTable}
-              dataSource={printSettings?.prescription?.case_option
-                .filter((e) => (e.id === 10 ? isVaccinationAccessable : e.id === 16 ? isGrowthChartAccessable : true))
-                .map((e) => ({ ...e, key: e.id }))}
-              showHeader={false}
-            />
-          </SortableContext>
-        </DndContext>
-      )}
+          };
+      });
+  }
+};
+
+    return (
+        <div className="px-3">
+            <div className="titleprint mb-3">Format Style</div>
+            <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
+                <Col>
+                    All Change to
+                </Col>
+                <Col className={`${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}>
+                    <Form.Item className="mb-0">
+                        <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onMainCaseOptionChange}
+                            value={
+                                printSettings?.prescription?.case_option.every(e => e.format === 'inline') ? 'inline'
+                                    : printSettings?.prescription?.case_option.every(e => e.format === 'listview') ? 'listview'
+                                        : printSettings?.prescription?.case_option.every(e => e.format === 'table') ? 'table'
+                                            : null}>
+                            <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
+                            <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
+                            <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>
+                        </Radio.Group>
+                    </Form.Item>
+                </Col>
+            </Row>
+            {printSettings?.prescription?.case_option?.length > 0 && (
+                <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndCaseOption}>
+                    <SortableContext
+                        // rowKey array
+                        items={printSettings?.prescription?.case_option?.map((i) => i.id)}
+                        strategy={verticalListSortingStrategy}
+                    >
+                        <Table
+                            className={`customize-table customize-table-format table-display-patient dragicon-position ${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}
+                            pagination={false}
+                            components={{
+                                body: {
+                                    row: CustomRow,
+                                },
+                            }}
+                            rowKey="id"
+                            columns={caseOptionTable}
+                            // dataSource={printSettings?.prescription?.case_option.map((e) => ({ ...e, key: e.id }))}
+                            dataSource={printSettings?.prescription?.case_option?.filter((option, index) =>
+                                (caseManagerData.symptoms.length > 0 && option.id === 1) ?
+                                    ({ ...option, key: option.id })
+                                    : (caseManagerData.examination.length > 0 && option.id === 2) ?
+                                        ({ ...option, key: option.id })
+                                        : (caseManagerData.diagnosis.length > 0 && option.id === 3) ?
+                                            ({ ...option, key: option.id })
+                                            : (caseManagerData.medicine.length > 0 && option.id === 4) ?
+                                                ({ ...option, key: option.id })
+                                                : (caseManagerData.advice.length > 0 && option.id === 5) ?
+                                                    ({ ...option, key: option.id })
+                                                    : (caseManagerData.investigation.length > 0 && option.id === 6) ?
+                                                        ({ ...option, key: option.id })
+                                                        : (caseManagerData.vitals.length > 0 && option.id === 7) ?
+                                                            ({ ...option, key: option.id })
+                                                            : (caseManagerData.medical_history.length > 0 && option.id === 8) ?
+                                                                ({ ...option, key: option.id })
+                                                                : ((caseManagerData.follow_up_date || caseManagerData.visit_advice) && option.id === 9) ?
+                                                                    ({ ...option, key: option.id })
+                                                                    : (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ?
+                                                                        ({ ...option, key: option.id }) 
+                                                                        :(caseManagerData.smart_prescription_filename && option.id === 11) ?
+                                                                            ({ ...option, key: option.id }) 
+                                                                            :(isGrowthChartAccessable && option.id === 12) && ({...option, key: option.id})
+                            )}
+                            showHeader={false}
+                        />
+                    </SortableContext>
+                </DndContext>
+            )}
 
       {/* {printSettings?.prescription?.case_option?.map((e, i) => {
                 return (

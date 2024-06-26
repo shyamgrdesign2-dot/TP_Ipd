@@ -6,6 +6,7 @@ import { Table, Dropdown, Button, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import { isChrome, isSafari } from "react-device-detect";
 import { useSelector } from "react-redux";
+import api from "../api/services/axiosService";
 
 import Symptomsicon from "../assets/images/Symptoms.svg";
 import Examinationsicon from "../assets/images/Examination.svg";
@@ -17,11 +18,10 @@ import notesicon from "../assets/images/notes.svg";
 import calenderBlank from "../assets/images/calenderBlank.svg";
 import followUp from "../assets/images/followup.svg";
 
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { FETCH_SMART_RX } from "../utils/constants";
 
 import { isNumeric } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
-import { getSmartRx } from "../redux/caseManagerSlice";
 
 function Cardiology(props) {
   const navigate = useNavigate();
@@ -47,38 +47,32 @@ function Cardiology(props) {
   const [error, setError] = useState(null);
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
+  
   useEffect(() => {
     setSmartRxFile(null)
-    const fetchData = async () => {
-      const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-      const formattedToken = token.replace(/^"(.*)"$/, "$1");
-      const payloadToken = `Bearer ${formattedToken}`;
-      const url = `${env.casemanager_api_url}/api/v1/casemanager/smart-rx`;
-      const payload = {
-        tcm_id: viewCaseManagerData.tcm_id,
-      };
-      try {
-          if(viewCaseManagerData.smart_prescription_filename){
-            const response = await axios({
-              method: "POST",
-              url: url,
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: payloadToken,
-              },
-              data: payload,
-            });
-            const fileToShow = response.data.data.smart_prescription_file;
-            setSmartRxFile(fileToShow);
-          }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
     if (viewCaseManagerData?.tcm_id) {
       fetchData();
     }
   }, [viewCaseManagerData]);
+
+  const fetchData = async () => {
+    const payload = {
+      tcm_id: viewCaseManagerData?.tcm_id,
+    };
+    try {
+        if(viewCaseManagerData?.smart_prescription_filename){
+          const response = await api.post(
+            FETCH_SMART_RX,
+            payload,
+            baseUrl
+          );
+          const fileToShow = response.data.smart_prescription_file;
+          setSmartRxFile(fileToShow);
+        }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
   async function printRxInAppContent() {
     navigate(
@@ -240,6 +234,31 @@ function Cardiology(props) {
     navigate(0, { replace: true });
   };
 
+  const handleEditRxClick = () => {
+    window.Moengage.track_event("edit_rx_click", {
+      doctor_id: profile?.doctor_unique_id,
+      patient_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      rx_date: viewCaseManagerData?.consultation_date,
+    });
+  
+    if (smartRxFile) {
+      navigate("/smart-prescription", {
+        state: {
+          patient_data: patient_data,
+          caseManagerData: viewCaseManagerData,
+          smartRxFile: smartRxFile,
+        },
+      });
+    } else {
+      navigate("/prescription", {
+        state: {
+          patient_data: patient_data,
+          caseManagerData: viewCaseManagerData,
+        },
+      });
+    }
+  };
+
   return (
     <div className="appointment-wrap PatientDetailswrap m-0">
       <Card className="">
@@ -286,7 +305,6 @@ function Cardiology(props) {
                   </Button>
                 </div>
                 <div>
-                { !smartRxFile &&
                   <button
                     className="btn p-0 ms-3"
                     style={{
@@ -294,26 +312,10 @@ function Cardiology(props) {
                         ? "visible"
                         : "hidden",
                     }}
-                    onClick={() => {
-                      window.Moengage.track_event("edit_rx_click", {
-                        doctor_id: profile?.doctor_unique_id,
-                        patient_id:
-                          patient_data !== undefined
-                            ? patient_data.patient_unique_id
-                            : 0,
-                        rx_date: viewCaseManagerData?.consultation_date,
-                      });
-                      navigate("/prescription", {
-                        state: {
-                          patient_data: patient_data,
-                          caseManagerData: viewCaseManagerData,
-                        },
-                      });
-                    }}
+                    onClick={handleEditRxClick}
                   >
                     <i className="icon-Edit"></i>
                   </button>
-                }
                   <button
                     className="btn p-0 ms-3"
                     onClick={() =>
@@ -361,9 +363,13 @@ function Cardiology(props) {
                   )}
                 </div>
                 <div className="d-flex align-items-center mb-14 follow-up-detailsPage">
+                { viewCaseManagerData?.follow_up_date &&
+                  <>
                     <img className='me-3' src={followUp} alt="Symptoms" />
                     <div className="title-common">Follow-up:</div>
                     <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
+                  </>
+                }
                 </div>
               </>
             ) : (

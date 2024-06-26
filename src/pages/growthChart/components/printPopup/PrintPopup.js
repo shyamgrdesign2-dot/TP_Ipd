@@ -20,7 +20,7 @@ export default function PrintPopup({
   };
 
   const continuePrintHandler = () => {
-    console.log("graphsToPrint", graphsToPrint);
+    handleClose();
     handlePrintWeb();
   };
 
