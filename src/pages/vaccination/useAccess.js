@@ -3,11 +3,14 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { checkToShowVaccination } from "./service";
 
-export const useVaccinationAccess = () => {
+export const useAccess = () => {
   const [isPediatric, setIsPediatric] = useState(false);
   const { profile } = useSelector((state) => state.doctors);
   const isVaccinationAccessableFromGB = useFeatureIsOn(
     "vaccination-new-design"
+  );
+  const isGrowthChartAccessableFromGB = useFeatureIsOn(
+    "growth-chart-new-design"
   );
 
   useEffect(() => {
@@ -20,5 +23,9 @@ export const useVaccinationAccess = () => {
     }
   };
 
-  return isVaccinationAccessableFromGB || isPediatric;
+  return {
+    isPediatric,
+    isVaccinationAccessable: isVaccinationAccessableFromGB || isPediatric,
+    isGrowthChartAccessable: isGrowthChartAccessableFromGB || isPediatric,
+  };
 };

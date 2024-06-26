@@ -19,6 +19,7 @@ import {
 } from "../redux/caseManagerSlice";
 import VisitVaccination from "./vaccination/components/visitVaccination/VisitVaccination";
 import CertificateDetails from "../components/medical_certificate/CertificateDetails";
+import VisitGrowthChart from "./growthChart/components/visitGrowthChart/VisitGrowthChart";
 
 const { Sider, Content } = Layout;
 
@@ -122,6 +123,7 @@ function PatientDetails() {
                                             <>
                                                 <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
                                                 <VisitVaccination />
+                                                <VisitGrowthChart />
                                             </>
                                         }
                                         {/*   <LabParameters />
