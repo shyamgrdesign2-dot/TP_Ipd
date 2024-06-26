@@ -20,6 +20,7 @@ export default function PrintPopup({
   };
 
   const continuePrintHandler = () => {
+    handleClose();
     handlePrintWeb();
   };
 

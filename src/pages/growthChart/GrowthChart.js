@@ -38,6 +38,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [fullScreenGraphIndex, setFullScreenGraphIndex] = useState(null);
   const [shouldShowPrintPopup, setShowPrintPopup] = useState(false);
   const [isTableprint, setTablePrint] = useState(false);
+  const [display, setDisplay] = useState("none");
   const [growthChartData, setGrowthChartData] = useState({
     Height: [],
     Weight: [],
@@ -92,15 +93,20 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     }
   };
   const getData = () => {
-    const growthChartResult = Object.keys(growthChartData).filter(
-      (_, index) => {
+    let growthChartResult = [];
+    if (display === "block") {
+      growthChartResult = graphsToPrint
+        .filter((item) => item.isPrintEnabled)
+        .map((item) => item.id);
+    } else {
+      growthChartResult = Object.keys(growthChartData).filter((_, index) => {
         if (fullScreenGraphIndex === null) {
           return true;
         } else {
           return index === fullScreenGraphIndex;
         }
-      }
-    );
+      });
+    }
 
     const ageInYears = patient_data?.ageYears;
     let ageIntervals = "";
@@ -269,8 +275,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     setTablePrint(false);
     setShowPrintPopup((prev) => !prev);
   };
-
-  const [display, setDisplay] = useState("none");
 
   return (
     <div className="vaccinationWrapper">

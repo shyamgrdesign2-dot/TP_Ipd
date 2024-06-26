@@ -185,22 +185,27 @@ export const getMidParentalHeight = (fatherHeight, motherHeight) => {
 };
 export const graphsToPrintData = [
   {
+    id: "Height",
     label: "Height",
     isPrintEnabled: true,
   },
   {
+    id: "Weight",
     label: "Weight",
     isPrintEnabled: true,
   },
   {
+    id: "BMI",
     label: "BMI",
     isPrintEnabled: true,
   },
   {
+    id: "OFC",
     label: "OFC",
     isPrintEnabled: true,
   },
   {
+    id: "HeightVsWeight",
     label: "Height Vs Weight",
     isPrintEnabled: true,
   },
