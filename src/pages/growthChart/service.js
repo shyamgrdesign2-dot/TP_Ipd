@@ -3,11 +3,17 @@ import config from "../../config";
 
 const baseUrl = { customBaseUrl: config.growth_chart_api_url };
 
-export const getAllGrowthChartParams = async function ({ pm_id, pm_pid }) {
+export const getAllGrowthChartParams = async function ({
+  pm_id,
+  pm_pid,
+  date,
+}) {
   let allGrowthChartParams = [];
   try {
     allGrowthChartParams = await api.get(
-      `growthChart/all?pm_id=${pm_id}&pm_pid=${pm_pid}`,
+      `growthChart/all?pm_id=${pm_id}&pm_pid=${pm_pid}${
+        date ? `&created_date=${date}` : ""
+      }`,
       baseUrl
     );
   } catch (e) {

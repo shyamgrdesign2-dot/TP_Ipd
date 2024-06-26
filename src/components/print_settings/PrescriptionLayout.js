@@ -142,8 +142,8 @@ const checkboxOptions = [
   },
 ];
 
-function PrescriptionLayout() {
-  const { printSettings, setPrintSettings } = useContext(PrintSettingsContext);
+function PrescriptionLayout({todayVaccines, todayGcData}) {
+  const { caseManagerData, printSettings, setPrintSettings } = useContext(PrintSettingsContext);
   const {isVaccinationAccessable, isGrowthChartAccessable} = useAccess();
 
   const onMainCaseOptionChange = useCallback(
@@ -385,7 +385,7 @@ const onDragEndCaseOption = ({ active, over }) => {
                                                                         ({ ...option, key: option.id }) 
                                                                         :(caseManagerData.smart_prescription_filename && option.id === 11) ?
                                                                             ({ ...option, key: option.id }) 
-                                                                            :(isGrowthChartAccessable && option.id === 12) && ({...option, key: option.id})
+                                                                            :(isGrowthChartAccessable && option.id === 12 && todayGcData?.length) && ({...option, key: option.id})
                             )}
                             showHeader={false}
                         />
