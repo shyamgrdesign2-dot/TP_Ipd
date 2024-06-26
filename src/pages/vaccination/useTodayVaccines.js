@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getGivenVaccineDetails, getOverridenDueDate } from "./service";
+import { getGivenVaccineDetails, getOverridenDueDatesByDate } from "./service";
 import moment from "moment";
 
 export const useTodayVaccines = (caseManagerData) => {
@@ -14,7 +14,7 @@ export const useTodayVaccines = (caseManagerData) => {
       caseManagerData?.patient_data?.patient_unique_id,
       caseManagerData?.patient_data?.patient_id
     );
-    const due = await getOverridenDueDate(
+    const due = await getOverridenDueDatesByDate(
       caseManagerData?.patient_data?.patient_unique_id,
       caseManagerData?.patient_data?.patient_id,
       moment().format("YYYY-MM-DD")

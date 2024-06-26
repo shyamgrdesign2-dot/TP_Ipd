@@ -88,6 +88,29 @@ export const getOverridenDueDate = async (patientUid, patientPid, date) => {
   return res;
 };
 
+export const getOverridenDueDatesByDate = async (
+  patientUid,
+  patientPid,
+  date
+) => {
+  let res = [];
+  try {
+    res = await api.get(
+      `/vaccination/overridenduedatesbydate?patient_uid=${patientUid}&patient_pid=${patientPid}&date=${date}`,
+      baseUrl
+    );
+    if (res?.detail) {
+      res = res.detail;
+    }
+  } catch (e) {
+    console.error(
+      "Error while fetching overriden due date vaccines by date: ",
+      e
+    );
+  }
+  return res;
+};
+
 export const getVaccineTemplates = async () => {
   let result = [];
   try {
