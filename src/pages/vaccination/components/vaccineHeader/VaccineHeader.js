@@ -23,6 +23,7 @@ function VaccineHeader({
   printLoader,
   printPopupHandler,
   handlePrintWeb,
+  setTablePrint,
 }) {
   const vaccinationVideo = {
     link: "https://www.youtube.com/embed/o6ALwX9hPMM",
@@ -88,7 +89,10 @@ function VaccineHeader({
         key="2"
         className="btn-41 btn btn-input"
         style={{ border: "0 !important" }}
-        onClick={handlePrintWeb}
+        onClick={() => {
+          handlePrintWeb();
+          setTablePrint(true);
+        }}
       >
         Table
       </Menu.Item>

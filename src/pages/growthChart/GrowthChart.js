@@ -22,8 +22,8 @@ import {
 } from "./growthChartHelper";
 import growthChartStaticData from "./GrowthChart.json";
 import PrintPopup from "./components/printPopup/PrintPopup";
-import TablePrint from "./components/growthChartPrint/TablePrint";
 import { useReactToPrint } from "react-to-print";
+import TablePrint from "./components/growthChartPrint/TablePrint";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const { state } = useLocation();
@@ -36,7 +36,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [showUpdate, setShowUpdate] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fullScreenGraphIndex, setFullScreenGraphIndex] = useState(null);
-  const [showShowPrintPopup, setShowPrintPopup] = useState(false);
+  const [shouldShowPrintPopup, setShowPrintPopup] = useState(false);
+  const [isTableprint, setTablePrint] = useState(false);
   const [growthChartData, setGrowthChartData] = useState({
     Height: [],
     Weight: [],
@@ -57,7 +58,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   });
 
   const printTest = () => {
-    console.log({ readyCharts });
     setDisplay("block");
     setTimeout(() => {
       if (readyCharts.every((ready) => ready)) {
@@ -266,6 +266,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     setMeasurementsData(i);
   };
   const printPopupHandler = () => {
+    setTablePrint(false);
     setShowPrintPopup((prev) => !prev);
   };
 
@@ -278,6 +279,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         patientDetails={gcPatientDetails}
         printPopupHandler={printPopupHandler}
         handlePrintWeb={printTest}
+        setTablePrint={setTablePrint}
       />
       <SubHeader
         handleDrawerMeasurements={handleDrawerMeasurements}
@@ -314,9 +316,9 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           setParentalDetails={setParentalDetails}
         />
       )}
-      {showShowPrintPopup && (
+      {shouldShowPrintPopup && (
         <PrintPopup
-          show={showShowPrintPopup}
+          show={shouldShowPrintPopup}
           handleClose={printPopupHandler}
           graphsToPrint={graphsToPrint}
           setGraphToPrint={setGraphToPrint}
@@ -346,18 +348,11 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       )}
       <div style={{ display: display }}>
         <div ref={printableRef}>
-          <div className="scrollable-container">
-            <Row
-              xs={1}
-              sm={isFullscreen ? 1 : 2}
-              md={isFullscreen ? 1 : 2}
-              lg={isFullscreen ? 1 : 2}
-              className="gy-4"
-            >
-              {getData()}
-            </Row>
-          </div>
-          {/* <TablePrint dataSource={allGrowthChartParams} getData={getData} /> */}
+          <TablePrint
+            dataSource={allGrowthChartParams}
+            getData={getData}
+            isTableprint={isTableprint}
+          />
         </div>
       </div>
     </div>

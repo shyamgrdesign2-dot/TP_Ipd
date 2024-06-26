@@ -427,7 +427,7 @@ const WeightChart = ({
   };
 
   return (
-    <div style={{ height: "100%" }}>
+    <div className="graphStyle">
       <div className="graphHeader">
         <div className="graphName">
           {graphName === "HeightVsWeight" ? "Height Vs Weight" : graphName}
@@ -502,10 +502,11 @@ const WeightChart = ({
           )}
         </div>
       </div>
-      <div style={{ position: "relative", height: "100%", width: "100%" }}>
+      <div className="graphBody">
         <Line
           ref={(el) => (chartRefs.current[graphIndex] = el)}
           data={chartData}
+          className="chartStyle"
           // options={options}
           options={{
             ...options,
