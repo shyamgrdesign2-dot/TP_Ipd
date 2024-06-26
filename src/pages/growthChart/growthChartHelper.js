@@ -188,26 +188,31 @@ export const graphsToPrintData = [
     id: "Height",
     label: "Height",
     isPrintEnabled: true,
+    isVisible: true,
   },
   {
     id: "Weight",
     label: "Weight",
     isPrintEnabled: true,
+    isVisible: true,
   },
   {
     id: "BMI",
     label: "BMI",
     isPrintEnabled: true,
+    isVisible: true,
   },
   {
     id: "OFC",
     label: "OFC",
     isPrintEnabled: true,
+    isVisible: true,
   },
   {
     id: "HeightVsWeight",
     label: "Height Vs Weight",
     isPrintEnabled: true,
+    isVisible: true,
   },
 ];
 
@@ -222,7 +227,7 @@ export const ageIntervals = {
   "0To2": 2,
   "2To5": 4,
   "5To18": 6,
-}
+};
 
 export const getAgeInMonths = (patientDOB) => {
   const today = moment(new Date());

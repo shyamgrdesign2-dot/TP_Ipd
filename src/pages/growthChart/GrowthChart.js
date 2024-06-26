@@ -32,6 +32,16 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const gender = patient_data?.pm_gender;
   const { growthData, ageData } = growthChartStaticData;
 
+  const ageInYears = patient_data?.ageYears;
+  let ageInterval = "";
+  if (ageInYears >= 0 && ageInYears < 2) {
+    ageInterval = "0To2";
+  } else if (ageInYears >= 2 && ageInYears < 5) {
+    ageInterval = "2To5";
+  } else {
+    ageInterval = "5To18";
+  }
+
   const printableRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
@@ -61,6 +71,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     getGrowthChartDetails();
     getPatientDetail();
     getPatientParentalDetails();
+    getGraphsToPrintCheckBox();
   }, []);
 
   const handlePrintWeb = useReactToPrint({
@@ -75,6 +86,17 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         setDisplay("none");
       }, 10);
     }, 1000);
+  };
+
+  const getGraphsToPrintCheckBox = () => {
+    const updatedGraphsToPrintData = graphsToPrint.map((graphItem) => {
+      if (!Object.keys(growthData[gender][ageInterval][graphItem.id]).length) {
+        return { ...graphItem, isVisible: false };
+      } else {
+        return graphItem;
+      }
+    });
+    setGraphToPrint(updatedGraphsToPrintData);
   };
 
   const getGrowthChartDetails = async () => {
@@ -107,16 +129,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           return index === fullScreenGraphIndex;
         }
       });
-    }
-
-    const ageInYears = patient_data?.ageYears;
-    let ageInterval = "";
-    if (ageInYears >= 0 && ageInYears < 2) {
-      ageInterval = "0To2";
-    } else if (ageInYears >= 2 && ageInYears < 5) {
-      ageInterval = "2To5";
-    } else {
-      ageInterval = "5To18";
     }
 
     return growthChartResult.map((key, graphIndex) => {
@@ -199,7 +211,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   tooltipState={tooltipState}
                   setTooltipState={setTooltipState}
                   ageInterval={ageInterval}
-                  displayType={display}
+                  display={display}
                 />
               </div>
             </Col>
@@ -354,15 +366,17 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             </Row>
           </div>
         )}
-        <div style={{ display: display }}>
-          <div ref={printableRef}>
-            <TablePrint
-              dataSource={allGrowthChartParams}
-              getData={getData}
-              isTableprint={isTableprint}
-            />
+        {display === "block" ? (
+          <div style={{ display: display }}>
+            <div ref={printableRef}>
+              <TablePrint
+                dataSource={allGrowthChartParams}
+                getData={getData}
+                isTableprint={isTableprint}
+              />
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
 
       {display === "block" && <FullPageLoader />}

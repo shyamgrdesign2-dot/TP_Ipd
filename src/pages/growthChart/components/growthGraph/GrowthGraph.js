@@ -43,8 +43,7 @@ const WeightChart = ({
   tooltipState,
   setTooltipState,
   ageInterval,
-  isPrint,
-  displayType,
+  display,
 }) => {
   const { state } = useLocation();
   const { patient_data } = state;
@@ -129,7 +128,7 @@ const WeightChart = ({
 
             ctx.beginPath();
 
-            if (isPrint) {
+            if (display === "block") {
               // Draw dotted circle around the red point
               ctx.beginPath();
               ctx.setLineDash([2, 2]); // Create a dotted line
@@ -319,7 +318,7 @@ const WeightChart = ({
       // Unregister the plugin when the component unmounts
       ChartJS.unregister(customLabelPlugin);
     };
-  }, [showTimelineInYear, isFullscreen]);
+  }, [showTimelineInYear, isFullscreen, display]);
 
   const toggleVisibility = (index) => {
     setVisibility((prev) => {
@@ -462,7 +461,7 @@ const WeightChart = ({
           {graphName === "HeightVsWeight" ? "Height Vs Weight" : graphName}
         </div>
         <div>
-          {displayType === "none" && (
+          {display === "none" && (
             <div style={{ display: "flex" }}>
               <button
                 type="link"
@@ -493,10 +492,7 @@ const WeightChart = ({
                         <>
                           <Checkbox
                             key={index}
-                            style={{
-                              padding: "6px 0px 6px 6px",
-                            }}
-                            className="percentileCheckbox"
+                            className="growth-chart-custom-checkbox"
                             checked={visibility[index]}
                             onChange={() => toggleVisibility(index)}
                           >
