@@ -1,11 +1,10 @@
-import moment from "moment";
 import React from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import TableView from "../tableView/TableView";
 import { Row } from "react-bootstrap";
 
-export default function TablePrint({ dataSource, getData, isTableprint }) {
+export default function GrowthChartPrint({ dataSource, getGraphs, isTableprint }) {
   const { state } = useLocation();
   const { patient_data } = state;
   const { profile } = useSelector((state) => state.doctors);
@@ -37,11 +36,11 @@ export default function TablePrint({ dataSource, getData, isTableprint }) {
           <TableView dataSource={dataSource} />
         ) : (
           <div
-            className="scrollable-container"
+            className="graphsWrapper"
             style={{ padding: "0", overflow: "hidden" }}
           >
             <Row sm={2} md={2} lg={2} className="gy-4">
-              {getData()}
+              {getGraphs()}
             </Row>
           </div>
         )}

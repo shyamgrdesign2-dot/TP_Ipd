@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { Col, Row } from "react-bootstrap";
 import VaccineHeader from "../vaccination/components/vaccineHeader/VaccineHeader";
 import "./GrowthChart.scss";
-import WeightChart from "./components/growthGraph/GrowthGraph";
+import GrowthGraph from "./components/growthGraph/GrowthGraph";
 import SubHeader from "./components/subHeader/SubHeader";
 import UpdateDetails from "./updateDetails/UpdateDetails";
 import { useState } from "react";
@@ -23,8 +23,8 @@ import {
 import growthChartStaticData from "./GrowthChart.json";
 import PrintPopup from "./components/printPopup/PrintPopup";
 import { useReactToPrint } from "react-to-print";
-import TablePrint from "./components/growthChartPrint/TablePrint";
 import FullPageLoader from "../vaccination/components/Loader";
+import GrowthChartPrint from "./components/growthChartPrint/GrowthChartPrint";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const { state } = useLocation();
@@ -50,6 +50,14 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [shouldShowPrintPopup, setShowPrintPopup] = useState(false);
   const [isTableprint, setTablePrint] = useState(false);
   const [display, setDisplay] = useState("none");
+  const [gcPatientDetails, setGcPatientDetails] = useState();
+  const { profile } = useSelector((state) => state.doctors);
+  const [parentalDetails, setParentalDetails] = useState();
+  const [showTableView, setShowTableView] = useState(false);
+  const [showTimelineInYear, setShowTimelineInYear] = useState(false);
+  const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
+  const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
+  const [measurementsData, setMeasurementsData] = useState([]);
   const [growthChartData, setGrowthChartData] = useState({
     Height: [],
     Weight: [],
@@ -115,7 +123,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       );
     }
   };
-  const getData = () => {
+  const getGraphs = () => {
     let growthChartResult = [];
     if (display === "block") {
       growthChartResult = graphsToPrint
@@ -196,7 +204,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   overflow: "hidden",
                 }}
               >
-                <WeightChart
+                <GrowthGraph
                   graphIndex={graphIndex}
                   data={graphData}
                   isFullscreen={isFullscreen}
@@ -221,14 +229,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       return null;
     });
   };
-  const [gcPatientDetails, setGcPatientDetails] = useState();
-  const { profile } = useSelector((state) => state.doctors);
-  const [parentalDetails, setParentalDetails] = useState();
-  const [showTableView, setShowTableView] = useState(false);
-  const [showTimelineInYear, setShowTimelineInYear] = useState(false);
-  const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
-  const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
-  const [measurementsData, setMeasurementsData] = useState([]);
 
   const getPatientParentalDetails = async () => {
     const getParentalDetailsRes = await getParentalDetails(
@@ -354,24 +354,22 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             dataSource={allGrowthChartParams}
           />
         ) : (
-          <div className="scrollable-container">
+          <div className="graphsWrapper">
             <Row
-              xs={1}
-              sm={isFullscreen ? 1 : 2}
               md={isFullscreen ? 1 : 2}
               lg={isFullscreen ? 1 : 2}
               className="gy-4"
             >
-              {getData()}
+              {getGraphs()}
             </Row>
           </div>
         )}
         {display === "block" ? (
           <div style={{ display: display }}>
             <div ref={printableRef}>
-              <TablePrint
+              <GrowthChartPrint
                 dataSource={allGrowthChartParams}
-                getData={getData}
+                getGraphs={getGraphs}
                 isTableprint={isTableprint}
               />
             </div>
