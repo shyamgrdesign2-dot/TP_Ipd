@@ -28,6 +28,7 @@ function Measurements(props) {
     measurementsToEdit,
     getGrowthChartDetails,
     setMeasurementsToEdit,
+    allGrowthChartParams,
   } = props;
 
   const { patient_data } = useContext(CashManagerContext);
@@ -44,9 +45,12 @@ function Measurements(props) {
   const [showSuccess, setShowSuccess] = useState(false);
   const dispatch = useDispatch();
   const { selectedVitalsList } = useSelector((state) => state.vitals);
+  const { measurements } = useSelector((state) => state.growthChart);
 
   useEffect(() => {
-    if (selectedVitalsList?.length) {
+    if (measurements?.length) {
+      setMeasurementsData([...measurements]);
+    } else if (selectedVitalsList?.length) {
       let cal = calculate("", "");
       setMeasurementsData(
         selectedVitalsList?.map((v) => ({
@@ -58,7 +62,7 @@ function Measurements(props) {
         }))
       );
     }
-  }, [selectedVitalsList]);
+  }, [selectedVitalsList, measurements]);
 
   useEffect(() => {
     if (measurementsToEdit?.tcbc_id)
@@ -152,7 +156,7 @@ function Measurements(props) {
   const onAddGrowthData = async () => {
     const result = measurementsData.map(async (measurement) => {
       const { height, weight, ofc, date, bmi } = measurement;
-      if (!height && !weight && !ofc) return;
+      if (!height && !weight && !ofc && measurementsData?.length === 1) return;
       const payload = {
         date,
         height,
@@ -164,19 +168,28 @@ function Measurements(props) {
         patient_unique_id: patient_data?.patient_unique_id,
         pam_id: patient_data?.pam_id || 0,
       };
-      const addMeasurementsRes = measurementsToEdit?.tcbc_id
-        ? await updateGrowthChartParam(
-            {
-              id: measurementsToEdit?.tcbc_id,
-              pm_id: patient_data?.pm_id,
-              pm_pid: patient_data?.pm_pid,
-            },
-            payload
-          )
-        : await addGrowthChartParam(payload);
-
-      if (addMeasurementsRes?.tcbc_id) {
-        dispatch(addMeasurements(payload));
+      const existing = allGrowthChartParams?.find(
+        (p) =>
+          moment(p.tcbc_created_date).format(dateFormat) === measurement.date
+      );
+      const addMeasurementsRes =
+        measurementsToEdit?.tcbc_id || measurement?.tcbc_id || existing
+          ? await updateGrowthChartParam(
+              {
+                id:
+                  measurementsToEdit?.tcbc_id ||
+                  measurement?.tcbc_id ||
+                  existing?.tcbc_id,
+                pm_id: patient_data?.pm_id,
+                pm_pid: patient_data?.pm_pid,
+              },
+              payload
+            )
+          : await addGrowthChartParam(payload);
+      if (addMeasurementsRes?.tcbc_id || addMeasurementsRes?.status === 204) {
+        dispatch(
+          addMeasurements({ ...payload, tcbc_id: addMeasurementsRes?.tcbc_id })
+        );
       }
       return addMeasurementsRes;
     });

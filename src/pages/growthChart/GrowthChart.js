@@ -349,6 +349,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
               handleDrawerMeasurements={handleDrawerMeasurements}
               getGrowthChartDetails={getGrowthChartDetails}
               setMeasurementsToEdit={setMeasurementsData}
+              allGrowthChartParams={allGrowthChartParams}
             />
           </Drawer>
         )}

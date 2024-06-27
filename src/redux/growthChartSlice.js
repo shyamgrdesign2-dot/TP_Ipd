@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   measurements: [],
+  isFetched: false,
 };
 
 const growthChartSlice = createSlice({
@@ -10,7 +11,14 @@ const growthChartSlice = createSlice({
   reducers: {
     resetGrowthChartState: () => initialState,
     addMeasurements: (state, action) => {
-      state.measurements.push(action.payload);
+      const existing = state.measurements.find(
+        (m) => m.tcbc_id === action.payload.tcbc_id
+      );
+      if (existing) {
+        action.payload = { ...existing, ...action.payload };
+      }
+      state.measurements = [...state.measurements, action.payload];
+      state.isFetched = true;
     },
   },
 });
