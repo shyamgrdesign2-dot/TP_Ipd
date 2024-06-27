@@ -35,8 +35,14 @@ function ProfilePopover(props) {
     const { patients_details } = useSelector(
       (state) => state.records
     );
-    const patientDOB =
-      patients_details?.pm_dob || patient_data?.DOB || patient_data?.pm_dob;
+    let patientDOB = ''
+    if (patients_details?.pm_dob) {
+        patientDOB = moment(patients_details.pm_dob).format("DD-MM-YYYY");
+    } else if (patient_data?.DOB) {
+        patientDOB = moment(patient_data.DOB, "Do MMMM YYYY").format("DD-MM-YYYY");
+    } else if (patient_data?.pm_dob) {
+        patientDOB = moment(patient_data?.pm_dob).format("DD-MM-YYYY");
+    }
 
     const handleOpenChange = (newOpen) => {
         setOpen(newOpen);
@@ -99,7 +105,7 @@ function ProfilePopover(props) {
                 <div className={'align-items-center d-flex h-100 ps-3'}>
                     <div className='rounded-pill patientProfile border me-3'>{makeDefaultLogo(patient_data?.pm_fullname)}</div>
                     <div>
-                        <div className='patientName'>{`${patient_data !== undefined ? patient_data?.pm_fullname : "Hello Guest"}`}<div className='text-2'>{patient_data !== undefined ? genderAge(patients_details || patient_data, profile) : `M, 30y`} {locationPath === '/vaccine' && patientDOB ? `(${moment(new Date(patientDOB)).format("DD-MM-YYYY")})` : ''}</div></div>
+                        <div className='patientName'>{`${patient_data !== undefined ? patient_data?.pm_fullname : "Hello Guest"}`}<div className='text-2'>{patient_data !== undefined ? genderAge(patients_details || patient_data, profile) : `M, 30y`} {locationPath === '/vaccine' && patientDOB ? `(${patientDOB})` : ''}</div></div>
                     </div>
                     <div className='iconrotate270 align-self-start ms-2 mt-1'>
                         <i className='icon-right'></i>

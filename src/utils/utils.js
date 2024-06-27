@@ -3,6 +3,10 @@ import moment from "moment";
 import config from "../config";
 import { message } from "antd";
 import { MESSAGE_KEY } from "../utils/constants";
+import { isChrome, isSafari } from "react-device-detect";
+import { html2pdf } from "html2pdf.js";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../src/firebase.js";
 
 export const validateEmail = (email) => {
   return String(email)
@@ -458,3 +462,60 @@ export const getRandomAppointment = () => {
 export function randomInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+export const handlePrintClick = (
+  element,
+  setTabLoader,
+  handlePrintWeb,
+  chartType
+) => {
+  if (!isChrome && !isSafari) {
+    if (!element) {
+      console.error("Element not found");
+      return;
+    }
+
+    const options = {
+      filename: `${chartType}.pdf`,
+      image: { type: "jpeg", quality: 0.8 },
+      html2canvas: { scale: 1 },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    };
+    setTabLoader(true);
+    html2pdf()
+      .from(element)
+      .set(options)
+      .output("datauristring")
+      .then(async (pdfDataUri) => {
+        const base64string = pdfDataUri.slice(
+          pdfDataUri.indexOf("base64,") + 7
+        );
+        const deviceUid = localStorage.getItem("app_device_unique_id");
+        if (deviceUid) {
+          const docRef = doc(db, chartType, deviceUid);
+          try {
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              await updateDoc(docRef, {
+                base64string,
+              });
+            } else {
+              await setDoc(doc(db, chartType, deviceUid), {
+                base64string,
+              });
+            }
+          } catch (error) {
+            console.error("Error updating document:", error);
+          }
+        } else {
+          console.error("Device Uid not found");
+        }
+        setTabLoader(false);
+      })
+      .catch((err) => {
+        console.error("Error generating PDF", err);
+      });
+  } else {
+    handlePrintWeb();
+  }
+};
