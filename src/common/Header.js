@@ -18,7 +18,7 @@ import VideoModal from "./VideoModal";
 import videorotate from '../assets/images/videorotate.gif';
 
 import config from "../config";
-import { getProfile, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo } from "../redux/doctorsSlice";
+import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo } from "../redux/doctorsSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
@@ -75,6 +75,10 @@ function Header({ locationPath }) {
 
   useEffect(() => {
     if (profile) {
+      if (profile.moengage_b2c_send === undefined) {
+        window.Moengage.add_unique_user_id(profile?.b2c)
+        dispatch(updateStatusMoengageB2C());
+      }
       // setSwitchCheckbox(profile.switchtoOld != 0 ? true : false)
       setPopOver(profile.NavigatetoTatvaPedia == 0 ? true : false);
       const clinics = profile.hospital_data?.map((e) => {
