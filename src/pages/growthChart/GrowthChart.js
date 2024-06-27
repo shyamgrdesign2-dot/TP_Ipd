@@ -95,11 +95,11 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         printableRef.current,
         setTabLoader,
         handlePrintWeb,
-        "growthChart"
+        "vaccinationChart"
       );
       setTimeout(() => {
         setDisplay("none");
-      }, 10);
+      }, 1000);
     }, 1000);
   };
 
