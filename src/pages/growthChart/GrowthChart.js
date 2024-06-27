@@ -326,15 +326,36 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           handlePrintWeb={printTest}
           setTablePrint={setTablePrint}
         />
-        <SubHeader
-          handleDrawerMeasurements={handleDrawerMeasurements}
-          setShowUpdate={setShowUpdate}
-          showTableView={showTableView}
-          setShowTableView={setShowTableView}
-          showTimelineInYear={showTimelineInYear}
-          setShowTimelineInYear={setShowTimelineInYear}
-          parentalDetails={parentalDetails}
-        />
+        <div className="scrollableContainer">
+          <SubHeader
+            handleDrawerMeasurements={handleDrawerMeasurements}
+            setShowUpdate={setShowUpdate}
+            showTableView={showTableView}
+            setShowTableView={setShowTableView}
+            showTimelineInYear={showTimelineInYear}
+            setShowTimelineInYear={setShowTimelineInYear}
+            parentalDetails={parentalDetails}
+          />
+          {showTableView ? (
+            <TableView
+              onEdit={(i) => {
+                handleEditMeasurements(i);
+                handleDrawerMeasurements();
+              }}
+              dataSource={allGrowthChartParams}
+            />
+          ) : (
+            <div className="graphsWrapper">
+              <Row
+                md={isFullscreen ? 1 : 2}
+                lg={isFullscreen ? 1 : 2}
+                className="gy-4"
+              >
+                {getGraphs()}
+              </Row>
+            </div>
+          )}
+        </div>
         {measurementsDrawer && (
           <Drawer
             closeIcon={false}
@@ -369,25 +390,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             setGraphToPrint={setGraphToPrint}
             handlePrintWeb={printTest}
           />
-        )}
-        {showTableView ? (
-          <TableView
-            onEdit={(i) => {
-              handleEditMeasurements(i);
-              handleDrawerMeasurements();
-            }}
-            dataSource={allGrowthChartParams}
-          />
-        ) : (
-          <div className="graphsWrapper">
-            <Row
-              md={isFullscreen ? 1 : 2}
-              lg={isFullscreen ? 1 : 2}
-              className="gy-4"
-            >
-              {getGraphs()}
-            </Row>
-          </div>
         )}
         {display === "block" ? (
           <div style={{ display: display }}>
