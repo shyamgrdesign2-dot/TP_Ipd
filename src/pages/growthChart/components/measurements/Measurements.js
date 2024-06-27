@@ -53,7 +53,7 @@ function Measurements(props) {
           date: v.date,
           height: v.height || "",
           weight: v.weight || "",
-          ofc: "",
+          ofc: v.ofc || "",
           bmi: v.bmi || cal.bmi,
         }))
       );
