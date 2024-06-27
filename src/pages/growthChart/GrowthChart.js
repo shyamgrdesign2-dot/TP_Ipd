@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { Col, Row } from "react-bootstrap";
 import VaccineHeader from "../vaccination/components/vaccineHeader/VaccineHeader";
 import "./GrowthChart.scss";
-import WeightChart from "./components/growthGraph/GrowthGraph";
+import GrowthGraph from "./components/growthGraph/GrowthGraph";
 import SubHeader from "./components/subHeader/SubHeader";
 import UpdateDetails from "./updateDetails/UpdateDetails";
 import { useState } from "react";
@@ -23,14 +23,24 @@ import {
 import growthChartStaticData from "./GrowthChart.json";
 import PrintPopup from "./components/printPopup/PrintPopup";
 import { useReactToPrint } from "react-to-print";
-import TablePrint from "./components/growthChartPrint/TablePrint";
 import FullPageLoader from "../vaccination/components/Loader";
+import GrowthChartPrint from "./components/growthChartPrint/GrowthChartPrint";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const { state } = useLocation();
   const { patient_data } = state;
   const gender = patient_data?.pm_gender;
   const { growthData, ageData } = growthChartStaticData;
+
+  const ageInYears = patient_data?.ageYears;
+  let ageInterval = "";
+  if (ageInYears >= 0 && ageInYears < 2) {
+    ageInterval = "0To2";
+  } else if (ageInYears >= 2 && ageInYears < 5) {
+    ageInterval = "2To5";
+  } else {
+    ageInterval = "5To18";
+  }
 
   const printableRef = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -40,6 +50,14 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [shouldShowPrintPopup, setShowPrintPopup] = useState(false);
   const [isTableprint, setTablePrint] = useState(false);
   const [display, setDisplay] = useState("none");
+  const [gcPatientDetails, setGcPatientDetails] = useState();
+  const { profile } = useSelector((state) => state.doctors);
+  const [parentalDetails, setParentalDetails] = useState();
+  const [showTableView, setShowTableView] = useState(false);
+  const [showTimelineInYear, setShowTimelineInYear] = useState(false);
+  const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
+  const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
+  const [measurementsData, setMeasurementsData] = useState([]);
   const [growthChartData, setGrowthChartData] = useState({
     Height: [],
     Weight: [],
@@ -61,6 +79,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     getGrowthChartDetails();
     getPatientDetail();
     getPatientParentalDetails();
+    getGraphsToPrintCheckBox();
   }, []);
 
   const handlePrintWeb = useReactToPrint({
@@ -75,6 +94,17 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         setDisplay("none");
       }, 10);
     }, 1000);
+  };
+
+  const getGraphsToPrintCheckBox = () => {
+    const updatedGraphsToPrintData = graphsToPrint.map((graphItem) => {
+      if (!Object.keys(growthData[gender][ageInterval][graphItem.id]).length) {
+        return { ...graphItem, isVisible: false };
+      } else {
+        return graphItem;
+      }
+    });
+    setGraphToPrint(updatedGraphsToPrintData);
   };
 
   const getGrowthChartDetails = async () => {
@@ -93,7 +123,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       );
     }
   };
-  const getData = () => {
+  const getGraphs = () => {
     let growthChartResult = [];
     if (display === "block") {
       growthChartResult = graphsToPrint
@@ -109,16 +139,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       });
     }
 
-    const ageInYears = patient_data?.ageYears;
-    let ageInterval = "";
-    if (ageInYears >= 0 && ageInYears < 2) {
-      ageInterval = "0To2";
-    } else if (ageInYears >= 2 && ageInYears < 5) {
-      ageInterval = "2To5";
-    } else {
-      ageInterval = "5To18";
-    }
-
     return growthChartResult.map((key, graphIndex) => {
       if (growthChartData.hasOwnProperty(key)) {
         const objectName = growthData[gender][ageInterval][key];
@@ -130,9 +150,16 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
               ...item,
               data:
                 showTimelineInYear && key !== "HeightVsWeight"
-                  ? objectName[labelName]?.filter(
-                      (_, index) => index % 12 === 0
-                    )
+                  ? objectName[labelName]?.filter((item, index) => {
+                      if (
+                        ageInterval === "5To18" &&
+                        index === objectName[labelName].length - 1
+                      ) {
+                        return item;
+                      } else {
+                        return index % 12 === 0;
+                      }
+                    })
                   : objectName[labelName],
             };
           });
@@ -161,12 +188,30 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
           chartData.push(patientData);
 
+          const getAgeInterval = () => {
+            const intervalData =
+              ageData[
+                key === "Weight" && ageInterval === "5To18"
+                  ? "5To10"
+                  : ageInterval
+              ];
+            const updatedInterval = intervalData.filter((item, index) => {
+              if (
+                ageInterval === "5To18" &&
+                index === intervalData.length - 1
+              ) {
+                return item;
+              } else {
+                return index % 12 === 0;
+              }
+            });
+            return updatedInterval.map((item) => item / 12);
+          };
+
           const graphData = {
             labels:
               showTimelineInYear && key !== "HeightVsWeight"
-                ? ageData[ageInterval]
-                    .filter((_, index) => index % 12 === 0)
-                    .map((item) => item / 12)
+                ? getAgeInterval()
                 : key === "HeightVsWeight"
                 ? ageData[key][ageInterval]
                 : ageData[ageInterval],
@@ -184,7 +229,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   overflow: "hidden",
                 }}
               >
-                <WeightChart
+                <GrowthGraph
                   graphIndex={graphIndex}
                   data={graphData}
                   isFullscreen={isFullscreen}
@@ -199,7 +244,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   tooltipState={tooltipState}
                   setTooltipState={setTooltipState}
                   ageInterval={ageInterval}
-                  displayType={display}
+                  display={display}
                 />
               </div>
             </Col>
@@ -209,14 +254,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       return null;
     });
   };
-  const [gcPatientDetails, setGcPatientDetails] = useState();
-  const { profile } = useSelector((state) => state.doctors);
-  const [parentalDetails, setParentalDetails] = useState();
-  const [showTableView, setShowTableView] = useState(false);
-  const [showTimelineInYear, setShowTimelineInYear] = useState(false);
-  const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
-  const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
-  const [measurementsData, setMeasurementsData] = useState([]);
 
   const getPatientParentalDetails = async () => {
     const getParentalDetailsRes = await getParentalDetails(
@@ -342,27 +379,27 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             dataSource={allGrowthChartParams}
           />
         ) : (
-          <div className="scrollable-container">
+          <div className="graphsWrapper">
             <Row
-              xs={1}
-              sm={isFullscreen ? 1 : 2}
               md={isFullscreen ? 1 : 2}
               lg={isFullscreen ? 1 : 2}
               className="gy-4"
             >
-              {getData()}
+              {getGraphs()}
             </Row>
           </div>
         )}
-        <div style={{ display: display }}>
-          <div ref={printableRef}>
-            <TablePrint
-              dataSource={allGrowthChartParams}
-              getData={getData}
-              isTableprint={isTableprint}
-            />
+        {display === "block" ? (
+          <div style={{ display: display }}>
+            <div ref={printableRef}>
+              <GrowthChartPrint
+                dataSource={allGrowthChartParams}
+                getGraphs={getGraphs}
+                isTableprint={isTableprint}
+              />
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
 
       {display === "block" && <FullPageLoader />}

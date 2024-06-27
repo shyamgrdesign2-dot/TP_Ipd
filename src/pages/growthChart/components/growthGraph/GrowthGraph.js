@@ -31,7 +31,7 @@ ChartJS.register(
   Legend
 );
 
-const WeightChart = ({
+const GrowthGraph = ({
   graphIndex,
   data,
   isFullscreen,
@@ -43,30 +43,29 @@ const WeightChart = ({
   tooltipState,
   setTooltipState,
   ageInterval,
-  isPrint,
-  displayType,
+  display,
 }) => {
   const { state } = useLocation();
   const { patient_data } = state;
   const { profile } = useSelector((state) => state.doctors);
+
+  const patientAge = genderAge(patient_data, profile, false);
+  const patientAgeInMonths = getAgeInMonths(patient_data?.DOB);
+
   const chartRef = useRef(null);
+  const popupRef = useRef(null);
+  const tooltipRef = useRef(null);
   const [shouldShowPercentilePopup, setPercentilePopup] = useState(false);
+  const [dataIndex, setDataIndex] = useState();
   const [visibility, setVisibility] = useState(
     data.datasets.map((ds) => !ds.hidden)
   );
-
   const [popup, setPopup] = useState({
     visible: false,
     x: 0,
     y: 0,
     coords: {},
   });
-  const popupRef = useRef(null);
-  const tooltipRef = useRef(null);
-
-  const patientAge = genderAge(patient_data, profile, false);
-  const patientAgeInMonths = getAgeInMonths(patient_data?.DOB);
-  const [dataIndex, setDataIndex] = useState();
 
   // Custom plugin to draw labels at the end of each line
   const customLabelPlugin = {
@@ -75,17 +74,16 @@ const WeightChart = ({
       const ctx = chart.ctx;
       const xAxis = chart.scales["x"];
       const yAxis = chart.scales["y"];
-      const p7Dataset = chart.data.datasets.find(
+      const patientDataset = chart.data.datasets.find(
         (dataset) => dataset.label === ""
       );
 
-      if (!p7Dataset || !p7Dataset.data.length) return;
+      if (!patientDataset || !patientDataset.data.length) return;
 
       ctx.save();
 
-      // Draw the main line chart path to use for clipping later
       ctx.beginPath();
-      p7Dataset.data.forEach((point, index) => {
+      patientDataset.data.forEach((point, index) => {
         const x = xAxis.getPixelForValue(point.x);
         const y = yAxis.getPixelForValue(point.y);
         if (index === 0) {
@@ -95,10 +93,15 @@ const WeightChart = ({
         }
       });
       ctx.lineTo(
-        xAxis.getPixelForValue(p7Dataset.data[p7Dataset.data.length - 1].x),
+        xAxis.getPixelForValue(
+          patientDataset.data[patientDataset.data.length - 1].x
+        ),
         yAxis.bottom
       );
-      ctx.lineTo(xAxis.getPixelForValue(p7Dataset.data[0].x), yAxis.bottom);
+      ctx.lineTo(
+        xAxis.getPixelForValue(patientDataset.data[0].x),
+        yAxis.bottom
+      );
       ctx.closePath();
 
       // Create gradient for green shadow
@@ -107,41 +110,40 @@ const WeightChart = ({
         yAxis.top,
         0,
         yAxis.bottom + 100
-      ); // Extend gradient further down
+      );
       greenGradient.addColorStop(0, "rgba(100, 230, 100, 0.3)");
       greenGradient.addColorStop(0.2, "rgba(100, 230, 100, 0.2)");
       greenGradient.addColorStop(0.4, "rgba(100, 230, 100, 0.1)");
-      greenGradient.addColorStop(1, "rgba(37, 205, 37, 0)"); // Fully transparent at the bottom
+      greenGradient.addColorStop(1, "rgba(37, 205, 37, 0)");
 
       // Fill the area below the line chart with green gradient
       ctx.fillStyle = greenGradient;
       ctx.fill();
 
       // Draw red shadows and points below the line chart path
-      p7Dataset.data.forEach((point, index) => {
+      patientDataset.data.forEach((point, index) => {
         if (point.isMalnutrition) {
           const x = xAxis.getPixelForValue(point.x);
           const y = yAxis.getPixelForValue(point.y);
 
-          // Ensure the red shadow is only drawn below the main line chart path
           if (y <= yAxis.bottom) {
             ctx.save();
 
             ctx.beginPath();
 
-            if (isPrint) {
-              // Draw dotted circle around the red point
+            // Draw dotted circle around the red point
+            if (display === "block") {
               ctx.beginPath();
-              ctx.setLineDash([2, 2]); // Create a dotted line
+              ctx.setLineDash([2, 2]);
               ctx.arc(x, y, 12, 0, 2 * Math.PI); // Draw circle around the point
               ctx.strokeStyle = "#000000";
               ctx.stroke();
-              ctx.setLineDash([]); // Reset to solid lines
+              ctx.setLineDash([]);
             } else {
               const radius = 30;
-              const offsetY = 20; // Adjust the vertical offset to ensure it's below the dotted line
+              const offsetY = 20;
 
-              ctx.arc(x, y + offsetY, radius, 0, 2 * Math.PI); // Adjust y position to ensure it's below the dotted line
+              ctx.arc(x, y + offsetY, radius, 0, 2 * Math.PI);
               ctx.clip();
 
               // Create gradient for red shadow
@@ -152,24 +154,23 @@ const WeightChart = ({
                 x,
                 y + offsetY,
                 radius
-              ); // Adjust the shadow radius as per requirement
-              redGradient.addColorStop(0, "rgba(255, 0, 0, 0.2)"); // Intense red at the point
-              redGradient.addColorStop(1, "rgba(255, 0, 0, 0)"); // Fully transparent at the edge
+              );
+              redGradient.addColorStop(0, "rgba(255, 0, 0, 0.2)");
+              redGradient.addColorStop(1, "rgba(255, 0, 0, 0)");
 
-              // Fill with gradient red color for shadow, limited to below the main line chart path
               ctx.fillStyle = redGradient;
               ctx.fillRect(
                 x - radius,
                 y + offsetY - radius,
                 2 * radius,
                 2 * radius
-              ); // Rectangle covering the area, adjust dimensions as needed
+              );
 
               ctx.restore(); // Restore initial context state
 
               // Draw the red point
               ctx.beginPath();
-              ctx.arc(x, y, 3, 0, 2 * Math.PI); // Draw the point itself
+              ctx.arc(x, y, 3, 0, 2 * Math.PI);
               ctx.fillStyle = "#F04545";
               ctx.fill();
             }
@@ -186,7 +187,7 @@ const WeightChart = ({
       } = chart;
 
       chart.data.datasets.forEach((dataset, datasetIndex) => {
-        if (!chart.isDatasetVisible(datasetIndex)) return; // Check if the dataset is visible
+        if (!chart.isDatasetVisible(datasetIndex)) return;
 
         const meta = chart.getDatasetMeta(datasetIndex);
         const lastPoint = meta.data[meta.data.length - 1];
@@ -211,7 +212,7 @@ const WeightChart = ({
       const yAxis = chart.scales["y"];
       const xValue = showTimelineInYear
         ? patientAgeInMonths / 12
-        : patientAgeInMonths; // Your x-axis value
+        : patientAgeInMonths;
 
       // Find the pixel position of the x-axis value
       const xPixel = xAxis.getPixelForValue(xValue);
@@ -226,7 +227,6 @@ const WeightChart = ({
       ctx.strokeStyle = "rgba(25, 187, 122, 0.4)";
       ctx.stroke();
 
-      // Add "hello" label at the top of the line
       ctx.textAlign = "center";
       ctx.textBaseline = "bottom";
       ctx.font = "12px Arial";
@@ -319,13 +319,13 @@ const WeightChart = ({
       // Unregister the plugin when the component unmounts
       ChartJS.unregister(customLabelPlugin);
     };
-  }, [showTimelineInYear, isFullscreen]);
+  }, [showTimelineInYear, isFullscreen, display]);
 
   const toggleVisibility = (index) => {
     setVisibility((prev) => {
       const newVisibility = [...prev];
       newVisibility[index] = !newVisibility[index];
-      return [...newVisibility]; // Return a new array to trigger re-render
+      return [...newVisibility];
     });
   };
 
@@ -417,7 +417,7 @@ const WeightChart = ({
     },
     layout: {
       padding: {
-        right: 30, // Add padding to the right side
+        right: 30,
         top: 18,
       },
     },
@@ -444,7 +444,7 @@ const WeightChart = ({
 
   // Update the dataset visibility based on the state
   data.datasets.forEach((dataset, index) => {
-    dataset.hidden = !visibility[index]; // Update dataset visibility
+    dataset.hidden = !visibility[index];
   });
 
   const chartData = {
@@ -462,7 +462,7 @@ const WeightChart = ({
           {graphName === "HeightVsWeight" ? "Height Vs Weight" : graphName}
         </div>
         <div>
-          {displayType === "none" && (
+          {display === "none" && (
             <div style={{ display: "flex" }}>
               <button
                 type="link"
@@ -493,10 +493,7 @@ const WeightChart = ({
                         <>
                           <Checkbox
                             key={index}
-                            style={{
-                              padding: "6px 0px 6px 6px",
-                            }}
-                            className="percentileCheckbox"
+                            className="growth-chart-custom-checkbox"
                             checked={visibility[index]}
                             onChange={() => toggleVisibility(index)}
                           >
@@ -558,4 +555,4 @@ const WeightChart = ({
   );
 };
 
-export default WeightChart;
+export default GrowthGraph;
