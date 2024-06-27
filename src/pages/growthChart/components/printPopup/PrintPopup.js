@@ -45,20 +45,20 @@ export default function PrintPopup({
         }}
       >
         {graphsToPrint.map((graphItem, index) => {
-          return (
-            <Checkbox
-              key={index}
-              style={{
-                padding: "6px 0px 6px 6px",
-              }}
-              checked={graphItem.isPrintEnabled}
-              onChange={() =>
-                graphPrintHandler(index, graphItem.isPrintEnabled)
-              }
-            >
-              <span style={{ paddingRight: "12px" }}>{graphItem.label}</span>
-            </Checkbox>
-          );
+          if (graphItem.isVisible) {
+            return (
+              <Checkbox
+                key={index}
+                className="growth-chart-custom-checkbox"
+                checked={graphItem.isPrintEnabled}
+                onChange={() =>
+                  graphPrintHandler(index, graphItem.isPrintEnabled)
+                }
+              >
+                <span style={{ paddingRight: "12px" }}>{graphItem.label}</span>
+              </Checkbox>
+            );
+          }
         })}
         <Button
           type="button"

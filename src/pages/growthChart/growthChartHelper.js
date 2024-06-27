@@ -73,61 +73,37 @@ export const getGrowthChartData = (growthChartData, patientDOB, ageInYears) => {
         }
       }
 
-      let isHeightMalnutrition = false;
-      let isWeightMalnutrition = false;
-      let isBmiMalnutrition = false;
-      let isOfcMalnutrition = false;
-
-      if (index > 0) {
-        // Check for height malnutrition
-        if (entry.height > growthChartData[index - 1].height) {
-          isHeightMalnutrition = true;
-        }
-
-        // Check for weight malnutrition
-        if (entry.weight > growthChartData[index - 1].weight) {
-          isWeightMalnutrition = true;
-        }
-
-        // Check for BMI malnutrition
-        if (entry.bmi > growthChartData[index - 1].bmi) {
-          isBmiMalnutrition = true;
-        }
-
-        // Check for OFC malnutrition
-        if (entry.ofc > growthChartData[index - 1].ofc) {
-          isOfcMalnutrition = true;
-        }
-      }
-
       acc.Height.push({
         x: monthsDiff,
         y: entry.height,
-        isMalnutrition: isHeightMalnutrition,
+        isMalnutrition:
+          index && entry.height > growthChartData[index - 1].height,
         data: entry,
       });
       acc.Weight.push({
         x: monthsDiff,
         y: entry.weight,
-        isMalnutrition: isWeightMalnutrition,
+        isMalnutrition:
+          index && entry.weight > growthChartData[index - 1].weight,
         data: entry,
       });
       acc.BMI.push({
         x: monthsDiff,
         y: entry.bmi,
-        isMalnutrition: isBmiMalnutrition,
+        isMalnutrition: index && entry.bmi > growthChartData[index - 1].bmi,
         data: entry,
       });
       acc.OFC.push({
         x: monthsDiff,
         y: entry.ofc,
-        isMalnutrition: isOfcMalnutrition,
+        isMalnutrition: index && entry.ofc > growthChartData[index - 1].ofc,
         data: entry,
       });
       acc.HeightVsWeight.push({
         x: entry.height,
         y: entry.weight,
-        isMalnutrition: isWeightMalnutrition,
+        isMalnutrition:
+          index && entry.weight > growthChartData[index - 1].weight,
         data: entry,
       });
 
@@ -188,26 +164,31 @@ export const graphsToPrintData = [
     id: "Height",
     label: "Height",
     isPrintEnabled: true,
+    isVisible: true,
   },
   {
     id: "Weight",
     label: "Weight",
     isPrintEnabled: true,
+    isVisible: true,
   },
   {
     id: "BMI",
     label: "BMI",
     isPrintEnabled: true,
+    isVisible: true,
   },
   {
     id: "OFC",
     label: "OFC",
     isPrintEnabled: true,
+    isVisible: true,
   },
   {
     id: "HeightVsWeight",
     label: "Height Vs Weight",
     isPrintEnabled: true,
+    isVisible: true,
   },
 ];
 
@@ -222,7 +203,7 @@ export const ageIntervals = {
   "0To2": 2,
   "2To5": 4,
   "5To18": 6,
-}
+};
 
 export const getAgeInMonths = (patientDOB) => {
   const today = moment(new Date());

@@ -53,22 +53,6 @@
       border-radius: 4px;
       padding: 8px;
 
-      .percentileCheckbox {
-        &.ant-checkbox-wrapper .ant-checkbox-checked .ant-checkbox-inner {
-          background-color: white !important;
-          border-color: #a2a2a8 !important;
-          width: 20px;
-          height: 20px;
-        }
-        .ant-checkbox .ant-checkbox-inner {
-          width: 20px;
-          height: 20px;
-          &:after {
-            border-color: #454551 !important;
-          }
-        }
-      }
-
       .dynamicColor {
         color: var(--dynamic-color) !important;
       }
@@ -205,5 +189,23 @@
 
   @media print {
     width: 310px !important;
+  }
+}
+
+.growth-chart-custom-checkbox {
+  padding: 6px 0px 6px 6px;
+
+  &.ant-checkbox-wrapper .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: white !important;
+    border-color: #a2a2a8 !important;
+    width: 20px;
+    height: 20px;
+  }
+  .ant-checkbox .ant-checkbox-inner {
+    width: 20px;
+    height: 20px;
+    &:after {
+      border-color: #454551 !important;
+    }
   }
 }
