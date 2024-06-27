@@ -48,7 +48,14 @@ function Measurements(props) {
   const { measurements } = useSelector((state) => state.growthChart);
 
   useEffect(() => {
-    if (measurements?.length) {
+    if (allGrowthChartParams?.length) {
+      setMeasurementsData(
+        allGrowthChartParams?.map((p) => ({
+          ...p,
+          date: moment(p?.tcbc_created_date).format(dateFormat),
+        }))
+      );
+    } else if (measurements?.length) {
       setMeasurementsData([...measurements]);
     } else if (selectedVitalsList?.length) {
       let cal = calculate("", "");
@@ -62,7 +69,7 @@ function Measurements(props) {
         }))
       );
     }
-  }, [selectedVitalsList, measurements]);
+  }, [selectedVitalsList, measurements, allGrowthChartParams]);
 
   useEffect(() => {
     if (measurementsToEdit?.tcbc_id)
