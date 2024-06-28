@@ -318,7 +318,7 @@ const doctorsSlice = createSlice({
       })
       .addCase(getProfile.fulfilled, (state, action) => {
         state.loading = false;
-        state.profile = state.profile.old_b2c == action.payload.b2c ? { ...state.profile, ...action.payload } : action.payload;
+        state.profile = state.profile && state.profile.old_b2c == action.payload.b2c ? { ...state.profile, ...action.payload } : action.payload;
       })
       .addCase(getProfile.rejected, (state) => {
         state.loading = false;
