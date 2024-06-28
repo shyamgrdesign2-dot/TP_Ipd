@@ -55,7 +55,9 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { profile } = useSelector((state) => state.doctors);
   const [parentalDetails, setParentalDetails] = useState();
   const [showTableView, setShowTableView] = useState(false);
-  const [showTimelineInYear, setShowTimelineInYear] = useState(false);
+  const [showTimelineInYear, setShowTimelineInYear] = useState(
+    patient_data?.ageYears >= 2
+  );
   const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
   const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
   const [tabLoader, setTabLoader] = useState(false);
