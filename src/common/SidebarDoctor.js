@@ -111,16 +111,41 @@ function SidebarDoctor() {
                 <Button className="btn btn-delete-prescription mx-auto d-block p-0 mt-2"  onClick={() => window.Moengage.track_event("announcement_button_clicked")} id='beamerButton'>
                     <i className="icon-announcement fs-3"></i> <br />
                 </Button>
-                <img src={newGif} width={42} className='mx-auto d-block text-center' alt='New' />
+                <img src={newGif} width={42} className='mx-auto d-block text-center mb-2' alt='New' />
 
-                {/* <br /> */}
+                <br />
 
-                {/* <NavLink onClick={() => clickOldModule('opd_billing')} replace={true} className={({ isActive, isPending }) =>
+                <NavLink onClick={() => clickOldModule('opd_billing')} replace={true} className={({ isActive, isPending }) =>
                     isPending ? "pending" : isActive ? "" : "active"
                 }>
                     <i className='icon-billings'></i>
                     <div className='mt-1 px-2'>{isMobile ? 'OPD Bill' : <div className='text-truncate'>OPD Billing</div>}</div>
-                </NavLink> */}
+                </NavLink>
+                <NavLink onClick={() => clickOldModule('all_patients')} replace={true} className={({ isActive, isPending }) =>
+                    isPending ? "pending" : isActive ? "" : "active"
+                }>
+                    <i className='icon-billings'></i>
+                    <div className='mt-1 px-2'>{isMobile ? 'All Patients' : <div className='text-truncate'>All Patients</div>}</div>
+                </NavLink>
+                <NavLink onClick={() => clickOldModule('pharmacy')} replace={true} className={({ isActive, isPending }) =>
+                    isPending ? "pending" : isActive ? "" : "active"
+                }>
+                    <i className='icon-billings'></i>
+                    <div className='mt-1 px-2'>{isMobile ? 'Pharmacy' : <div className='text-truncate'>Pharmacy</div>}</div>
+                </NavLink>
+                <NavLink onClick={() => clickOldModule('ipd')} replace={true} className={({ isActive, isPending }) =>
+                    isPending ? "pending" : isActive ? "" : "active"
+                }>
+                    <i className='icon-billings'></i>
+                    <div className='mt-1 px-2'>{isMobile ? 'IPD' : <div className='text-truncate'>IPD</div>}</div>
+                </NavLink>
+                <NavLink onClick={() => clickOldModule('data_analytics')} replace={true} className={({ isActive, isPending }) =>
+                    isPending ? "pending" : isActive ? "" : "active"
+                }>
+                    <i className='icon-billings'></i>
+                    <div className='mt-1 px-2'>{isMobile ? 'Data analytics' : <div className='text-truncate'>Data analytics</div>}</div>
+                </NavLink>
+
             </div>
         </>
     )
