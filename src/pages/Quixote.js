@@ -143,7 +143,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 fileWatermark={fileWatermark}
                 fileSignature={fileSignature}
                 todayVaccines={props.todayVaccines}
-                todayGcData={props.todayGcData}
+                growthChartDetails={props.growthChartDetails}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
         }
@@ -164,7 +164,7 @@ function Quixote({ mode = NORMAL, ...props }) {
         fileWatermark,
         fileLogo,
         props.todayVaccines,
-        props.todayGcData
+        props.growthChartDetails
     ]);
 
     const onDocumentLoadSuccess = ({ numPages }) => {

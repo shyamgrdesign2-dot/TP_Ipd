@@ -3,7 +3,7 @@ import moment from "moment";
 import config from "../config";
 import { message } from "antd";
 import { MESSAGE_KEY } from "../utils/constants";
-import { isChrome, isSafari } from "react-device-detect";
+import { isBrowser } from "react-device-detect";
 import { html2pdf } from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
@@ -469,7 +469,7 @@ export const handlePrintClick = (
   handlePrintWeb,
   chartType
 ) => {
-  if (!isChrome && !isSafari) {
+  if (!isBrowser && html2pdf) {
     if (!element) {
       console.error("Element not found");
       return;
@@ -483,10 +483,10 @@ export const handlePrintClick = (
     };
     setTabLoader(true);
     html2pdf()
-      .from(element)
-      .set(options)
-      .output("datauristring")
-      .then(async (pdfDataUri) => {
+      ?.from(element)
+      ?.set(options)
+      ?.output("datauristring")
+      ?.then(async (pdfDataUri) => {
         const base64string = pdfDataUri.slice(
           pdfDataUri.indexOf("base64,") + 7
         );
@@ -518,4 +518,12 @@ export const handlePrintClick = (
   } else {
     handlePrintWeb();
   }
+};
+
+export const chunkArray = (array, size) => {
+  const chunkedArr = [];
+  for (let i = 0; i < array.length; i += size) {
+    chunkedArr.push(array.slice(i, i + size));
+  }
+  return chunkedArr;
 };

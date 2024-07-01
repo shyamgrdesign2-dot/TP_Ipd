@@ -6,7 +6,11 @@ import GrowthGraph from "./components/growthGraph/GrowthGraph";
 import SubHeader from "./components/subHeader/SubHeader";
 import UpdateDetails from "./updateDetails/UpdateDetails";
 import { useState } from "react";
-import { getAllGrowthChartParams, getParentalDetails } from "./service";
+import {
+  getAllGrowthChartParams,
+  getParentalDetails,
+  storeGrowthChart,
+} from "./service";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getPatientDetails } from "../vaccination/service";
@@ -26,8 +30,10 @@ import { useReactToPrint } from "react-to-print";
 import FullPageLoader from "../vaccination/components/Loader";
 import GrowthChartPrint from "./components/growthChartPrint/GrowthChartPrint";
 import { handlePrintClick } from "../../utils/utils";
+import html2canvas from "html2canvas";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
+  const { measurements } = useSelector((state) => state.growthChart);
   const { state } = useLocation();
   const { patient_data } = state;
   const gender = patient_data?.pm_gender;
@@ -44,6 +50,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   }
 
   const printableRef = useRef(null);
+  const graphImgRefs = useRef([]);
   const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -55,7 +62,9 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { profile } = useSelector((state) => state.doctors);
   const [parentalDetails, setParentalDetails] = useState();
   const [showTableView, setShowTableView] = useState(false);
-  const [showTimelineInYear, setShowTimelineInYear] = useState(false);
+  const [showTimelineInYear, setShowTimelineInYear] = useState(
+    patient_data?.ageYears >= 2
+  );
   const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
   const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
   const [tabLoader, setTabLoader] = useState(false);
@@ -103,17 +112,65 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     }, 1000);
   };
 
-  const getGraphsToPrintCheckBox = () => {
-    const updatedGraphsToPrintData = graphsToPrint.map((graphItem) => {
-      if (
-        !Object.keys(growthData[gender][ageInterval][graphItem.id]).length ||
-        (graphItem.id === "Weight" && ageInYears >= 10)
-      ) {
-        return { ...graphItem, isVisible: false };
-      } else {
-        return graphItem;
-      }
+  const convertCanvasToJPEG = async (div) => {
+    const canvas = await html2canvas(div);
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("Canvas to Blob conversion failed."));
+        }
+      }, "image/jpeg");
     });
+  };
+
+  const handleGenerateImages = async () => {
+    graphImgRefs.current.map(async (ref, index) => {
+      if (ref === null) {
+        return Promise.resolve(null);
+      }
+      const name =
+        graphsToPrint[index].id === "HeightVsWeight"
+          ? "heightVsWeight"
+          : graphsToPrint[index].id.toLowerCase();
+      const blob = await convertCanvasToJPEG(ref);
+      const file = new File([blob], name, { type: "image/jpeg" });
+
+      const formData = new FormData();
+      formData.append("growth_chart_file_name", name);
+      formData.append("growth_chart_file", file);
+      formData.append("pm_id", patient_data?.pm_id || 0);
+      formData.append("pm_pid", patient_data?.pm_pid || 0);
+
+      await storeGrowthChart(formData);
+    });
+  };
+
+  const imageUploadHandler = () => {
+    if (measurements.length) {
+      setDisplay("block");
+      setTimeout(() => {
+        handleGenerateImages();
+      }, 800);
+    }
+    setTimeout(() => {
+      handleDrawerVaccination();
+    }, 1000);
+  };
+
+  const getGraphsToPrintCheckBox = () => {
+    const updatedGraphsToPrintData = graphsToPrint
+      .map((graphItem) => {
+        const percentileData =
+          graphItem.id === "Weight" && ageInYears >= 10
+            ? {}
+            : growthData[gender][ageInterval][graphItem.id];
+        if (Object.keys(percentileData).length) {
+          return graphItem;
+        }
+      })
+      .filter((item) => item);
     setGraphToPrint(updatedGraphsToPrintData);
   };
 
@@ -179,7 +236,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
           const modifiedData = growthChartData[key].map((item) => ({
             ...item,
-            x: showTimelineInYear ? item.x / 12 : item.x,
+            x:
+              showTimelineInYear && key !== "HeightVsWeight"
+                ? item.x / 12
+                : item.x,
           }));
 
           const patientData = {
@@ -241,6 +301,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   height: display === "block" ? "280px" : "505px",
                   overflow: "hidden",
                 }}
+                ref={(el) => (graphImgRefs.current[graphIndex] = el)}
               >
                 <GrowthGraph
                   graphIndex={graphIndex}
@@ -333,7 +394,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     <>
       <div className="vaccinationWrapper">
         <VaccineHeader
-          handleDrawerVaccination={handleDrawerVaccination}
+          handleDrawerVaccination={imageUploadHandler}
           patientDetails={gcPatientDetails}
           printPopupHandler={printPopupHandler}
           handlePrintWeb={printTest}

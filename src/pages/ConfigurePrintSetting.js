@@ -40,7 +40,7 @@ function ConfigurePrintSetting() {
     const [fileWatermark, setFileWatermark] = useState(null);
     const [fileSignature, setFileSignature] = useState(null);
     const todayVaccines = useTodayVaccines(caseManagerData);
-    const todayGcData = useGrowthChart(caseManagerData);
+    const growthChartDetails = useGrowthChart(caseManagerData);
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
@@ -97,7 +97,7 @@ function ConfigurePrintSetting() {
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                                 <Tabs defaultActiveKey="1" items={caseManagerData !== undefined ? TabsPrintSetting : TabsPrintSetting.slice(1, 2)} onChange={onTabChange} className="print-tabs" />
                                 {selectedTab === TAB_PRESCRIPTION ? (
-                                    <PrescriptionLayout todayVaccines={todayVaccines} todayGcData={todayGcData}/>
+                                    <PrescriptionLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails}/>
                                 ) : selectedTab === TAB_HEADER_FOOTER ? (
                                     <HeaderFooterLayout />
                                 ) : selectedTab === TAB_PAGE_FORMAT && (
@@ -110,7 +110,7 @@ function ConfigurePrintSetting() {
                                 <div className="titleprint mt-20">Preview</div>
                                 <div ref={divRef} className="rounded-20px bg-white mt-20 overflow-hidden">
                                     <div className="position-relative printheight">
-                                        {caseManagerData !== undefined ? <Quixote mode={NORMAL} todayVaccines={todayVaccines} todayGcData={todayGcData} /> : <QuixoteCertificate mode={NORMAL} />}
+                                        {caseManagerData !== undefined ? <Quixote mode={NORMAL} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} /> : <QuixoteCertificate mode={NORMAL} />}
                                     </div>
                                 </div>
                             </div>
