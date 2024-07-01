@@ -4,7 +4,11 @@ import { useLocation } from "react-router-dom";
 import TableView from "../tableView/TableView";
 import { Row } from "react-bootstrap";
 
-export default function GrowthChartPrint({ dataSource, getGraphs, isTableprint }) {
+export default function GrowthChartPrint({
+  dataSource,
+  getGraphs,
+  isTableprint,
+}) {
   const { state } = useLocation();
   const { patient_data } = state;
   const { profile } = useSelector((state) => state.doctors);
@@ -44,7 +48,9 @@ export default function GrowthChartPrint({ dataSource, getGraphs, isTableprint }
             </Row>
           </div>
         )}
-        <div className="nameStyle">{profile?.um_name}</div>
+        <div className="nameStyle" style={{ padding: 0 }}>
+          {profile?.um_name}
+        </div>
       </div>
     </div>
   );

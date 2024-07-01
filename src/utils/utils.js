@@ -4,7 +4,7 @@ import config from "../config";
 import { message } from "antd";
 import { MESSAGE_KEY } from "../utils/constants";
 import { isBrowser } from "react-device-detect";
-import { html2pdf } from "html2pdf.js";
+import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
 
@@ -469,7 +469,7 @@ export const handlePrintClick = (
   handlePrintWeb,
   chartType
 ) => {
-  if (!isBrowser && html2pdf) {
+  if (!isBrowser) {
     if (!element) {
       console.error("Element not found");
       return;
@@ -483,10 +483,10 @@ export const handlePrintClick = (
     };
     setTabLoader(true);
     html2pdf()
-      ?.from(element)
-      ?.set(options)
-      ?.output("datauristring")
-      ?.then(async (pdfDataUri) => {
+      .from(element)
+      .set(options)
+      .output("datauristring")
+      .then(async (pdfDataUri) => {
         const base64string = pdfDataUri.slice(
           pdfDataUri.indexOf("base64,") + 7
         );
@@ -508,12 +508,13 @@ export const handlePrintClick = (
             console.error("Error updating document:", error);
           }
         } else {
-          console.error("Device Uid not found");
+          console.error("Device UID not found");
         }
         setTabLoader(false);
       })
       .catch((err) => {
         console.error("Error generating PDF", err);
+        setTabLoader(false);
       });
   } else {
     handlePrintWeb();
