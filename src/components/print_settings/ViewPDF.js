@@ -1336,7 +1336,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         )}
                                     </>
                                 </>
-                            ) : option?.id === 11 && caseManagerData?.smart_prescription_filename ? (
+                            ) : option?.id === 11 && option?.enable === 'Y' && option?.custom_status === 'Y' && caseManagerData?.smart_prescription_filename ? (
                                     <Image
                                         src={smartRxFile}
                                     />
