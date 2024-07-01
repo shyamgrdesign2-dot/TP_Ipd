@@ -55,7 +55,9 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { profile } = useSelector((state) => state.doctors);
   const [parentalDetails, setParentalDetails] = useState();
   const [showTableView, setShowTableView] = useState(false);
-  const [showTimelineInYear, setShowTimelineInYear] = useState(false);
+  const [showTimelineInYear, setShowTimelineInYear] = useState(
+    patient_data?.ageYears >= 2
+  );
   const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
   const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
   const [tabLoader, setTabLoader] = useState(false);
@@ -105,7 +107,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
   const getGraphsToPrintCheckBox = () => {
     const updatedGraphsToPrintData = graphsToPrint.map((graphItem) => {
-      if (!Object.keys(growthData[gender][ageInterval][graphItem.id]).length) {
+      if (
+        !Object.keys(growthData[gender][ageInterval][graphItem.id]).length ||
+        (graphItem.id === "Weight" && ageInYears >= 10)
+      ) {
         return { ...graphItem, isVisible: false };
       } else {
         return graphItem;
@@ -148,8 +153,11 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
     return growthChartResult.map((key, graphIndex) => {
       if (growthChartData.hasOwnProperty(key)) {
-        const objectName = growthData[gender][ageInterval][key];
+        let objectName = growthData[gender][ageInterval][key];
 
+        if (key === "Weight" && ageInYears >= 10) {
+          objectName = {};
+        }
         if (Object.keys(objectName).length) {
           const chartData = dummyData.datasets?.map((item) => {
             const labelName = item.key;
