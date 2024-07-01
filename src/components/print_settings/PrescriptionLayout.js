@@ -143,7 +143,7 @@ const checkboxOptions = [
   },
 ];
 
-function PrescriptionLayout({todayVaccines, todayGcData}) {
+function PrescriptionLayout({todayVaccines, growthChartDetails}) {
   const { caseManagerData, printSettings, setPrintSettings } = useContext(PrintSettingsContext);
   const {isVaccinationAccessable, isGrowthChartAccessable} = useAccess();
 
@@ -197,21 +197,21 @@ function PrescriptionLayout({todayVaccines, todayGcData}) {
     });
   };
 
-const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
 
- const growthChartOptions = graphsToPrint
-   //  .filter((item) => item.isPrintEnabled) // Filter based on BE response
+ const growthChartOptions = graphsToPrintData
    .map((item) => ({
      label: item.label === "Height Vs Weight" ? "H & W" : item.label,
-     value: item.id,
+     value: item?.id === "HeightVsWeight" ? "heightVsWeight" : item.id?.toLowerCase(),
    }));
 
    const onGrowthChartOptionChange = (checkedValues) => {
-     const updatedGraphsToPrintData = graphsToPrint.map((item) => ({
-       ...item,
-       isPrintEnabled: checkedValues.includes(item.id),
-     }));
-     setGraphToPrint(updatedGraphsToPrintData);
+    setPrintSettings((prev) => {
+      const i = prev.prescription.case_option.findIndex(o => o.id === 12);
+      prev.prescription.case_option[i].growth_chart_option = checkedValues;
+      return {
+        ...prev,
+      };
+    });
    };
 
   const accordionItems = (record, i) => [
@@ -258,7 +258,7 @@ const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
     },
   ];
 
-  const growthChartAccordionItems = (record, i) => [
+  const growthChartAccordionItems = (record) => [
     {
       key: "1",
       label: (
@@ -276,10 +276,8 @@ const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
         >
           <Checkbox.Group
             options={growthChartOptions}
-            value={graphsToPrint
-              .filter((item) => item.isPrintEnabled)
-              .map((item) => item.id)}
-            onChange={onGrowthChartOptionChange}
+            defaultValue={record?.growth_chart_option}
+            onChange={(checkedValues) => onGrowthChartOptionChange(checkedValues)}
           />
         </div>
       ),
@@ -353,7 +351,7 @@ const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
               <div style={{ flex: 1 }}>
                 <div className="border mt-3 rounded-4 p-3 bg-white ">
                   <Collapse
-                    items={growthChartAccordionItems(record, i)}
+                    items={growthChartAccordionItems(record)}
                     defaultActiveKey={["1"]}
                     className="prescriptiontab-accordian"
                     expandIconPosition={"end"}
@@ -445,7 +443,7 @@ const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
                                                                         ({ ...option, key: option.id }) 
                                                                         :(caseManagerData.smart_prescription_filename && option.id === 11) ?
                                                                             ({ ...option, key: option.id }) 
-                                                                            :(isGrowthChartAccessable && option.id === 12 && todayGcData?.length) && ({...option, key: option.id})
+                                                                            :(isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartData?.length) && ({...option, key: option.id})
               )}
               showHeader={false}
             />

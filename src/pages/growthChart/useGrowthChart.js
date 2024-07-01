@@ -1,16 +1,17 @@
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { getAllGrowthChartParams } from "./service";
+import { getAllGrowthChartParams, getGrowthChartImages } from "./service";
 
 export const useGrowthChart = (caseManagerData) => {
-  const [todayGcData, setTodayGcData] = useState([]);
+  const [growthChartData, setGrowthChartData] = useState([]);
+  const [growthChartImageData, setGrowthChartImageData] = useState({});
   const dateFormat = "YYYY-MM-DD";
 
   useEffect(() => {
-    getTodayGrowthChartDetails();
+    getGrowthChartDetails();
   }, []);
 
-  const getTodayGrowthChartDetails = async () => {
+  const getGrowthChartDetails = async () => {
     const allGrowthChartParams = await getAllGrowthChartParams({
       pm_id: caseManagerData?.patient_data?.pm_id || 0,
       pm_pid: caseManagerData?.patient_data?.patient_id || 0,
@@ -23,9 +24,21 @@ export const useGrowthChart = (caseManagerData) => {
           moment().format(dateFormat)
       )
     ) {
-      setTodayGcData(allGrowthChartParams);
+      setGrowthChartData(allGrowthChartParams);
+      getGrowthChartImageData();
     }
   };
 
-  return todayGcData;
+  const getGrowthChartImageData = async () => {
+    const growthChartImageData = await getGrowthChartImages({
+      pm_id: caseManagerData?.patient_data?.pm_id || 0,
+      pm_pid: caseManagerData?.patient_data?.patient_id || 0,
+    });
+    setGrowthChartImageData(growthChartImageData);
+  };
+
+  return {
+    growthChartData,
+    growthChartImageData,
+  };
 };

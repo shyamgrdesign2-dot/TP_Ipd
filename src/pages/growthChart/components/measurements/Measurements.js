@@ -203,8 +203,8 @@ function Measurements(props) {
 
     const updateGrowthRes = await Promise.all(result);
     if (
-      updateGrowthRes?.every((res) => res?.tcbc_id) ||
-      updateGrowthRes?.every((res) => res?.status === 204)
+      updateGrowthRes?.some((res) => res?.tcbc_id) ||
+      updateGrowthRes?.some((res) => res?.status === 204)
     ) {
       getGrowthChartDetails();
       setMeasurementsToEdit([]);

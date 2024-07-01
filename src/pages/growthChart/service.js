@@ -91,3 +91,16 @@ export const updateParentalDetails = async function (
   }
   return res;
 };
+
+export const getGrowthChartImages = async function ({ pm_id, pm_pid }) {
+  let growthChartImages = {};
+  try {
+    growthChartImages = await api.get(
+      `growthChart/chart/${pm_id}/${pm_pid}`,
+      baseUrl
+    );
+  } catch (e) {
+    console.error("Error while fetching growthChartImages", e);
+  }
+  return growthChartImages;
+};
