@@ -130,7 +130,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       if (ref === null) {
         return Promise.resolve(null);
       }
-      const name = graphsToPrint[index].id;
+      const name =
+        graphsToPrint[index].id === "HeightVsWeight"
+          ? "heightVsWeight"
+          : graphsToPrint[index].id.toLowerCase();
       const blob = await convertCanvasToJPEG(ref);
       const file = new File([blob], name, { type: "image/jpeg" });
 
