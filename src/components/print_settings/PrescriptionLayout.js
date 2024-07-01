@@ -16,6 +16,7 @@ import PrintSettingsContext from "../../context/PrintSettingsContext";
 
 import { isMobile } from "react-device-detect";
 import { useAccess } from "../../pages/vaccination/useAccess";
+import { graphsToPrintData } from "../../pages/growthChart/growthChartHelper";
 
 // const CustomRow = ({ children, ...props }) => {
 //     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
@@ -196,6 +197,23 @@ function PrescriptionLayout({todayVaccines, todayGcData}) {
     });
   };
 
+const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
+
+ const growthChartOptions = graphsToPrint
+   //  .filter((item) => item.isPrintEnabled) // Filter based on BE response
+   .map((item) => ({
+     label: item.label === "Height Vs Weight" ? "H & W" : item.label,
+     value: item.id,
+   }));
+
+   const onGrowthChartOptionChange = (checkedValues) => {
+     const updatedGraphsToPrintData = graphsToPrint.map((item) => ({
+       ...item,
+       isPrintEnabled: checkedValues.includes(item.id),
+     }));
+     setGraphToPrint(updatedGraphsToPrintData);
+   };
+
   const accordionItems = (record, i) => [
     {
       key: "1",
@@ -236,6 +254,34 @@ function PrescriptionLayout({todayVaccines, todayGcData}) {
             name of the medicine (brand or generic), and the frequency.
           </div>
         </>
+      ),
+    },
+  ];
+
+  const growthChartAccordionItems = (record, i) => [
+    {
+      key: "1",
+      label: (
+        <div className="text-start">
+          <div className="fw-semibold">Customise Options</div>
+          <div className="subtitle-customize">
+            Enable/Disable the parameters need to be printed in table
+          </div>
+        </div>
+      ),
+      children: (
+        <div
+          className="d-flex align-items-center"
+          style={{ paddingTop: "12px" }}
+        >
+          <Checkbox.Group
+            options={growthChartOptions}
+            value={graphsToPrint
+              .filter((item) => item.isPrintEnabled)
+              .map((item) => item.id)}
+            onChange={onGrowthChartOptionChange}
+          />
+        </div>
       ),
     },
   ];
@@ -302,37 +348,51 @@ function PrescriptionLayout({todayVaccines, todayGcData}) {
               </div>
             </div>
           )}
+          {record.id === 12 && (
+            <div style={{ marginLeft: -40, display: "flex" }}>
+              <div style={{ flex: 1 }}>
+                <div className="border mt-3 rounded-4 p-3 bg-white ">
+                  <Collapse
+                    items={growthChartAccordionItems(record, i)}
+                    defaultActiveKey={["1"]}
+                    className="prescriptiontab-accordian"
+                    expandIconPosition={"end"}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </>
       ),
     },
   ];
 
-const onDragEndCaseOption = ({ active, over }) => {
-  if (active.id !== over?.id) {
+  const onDragEndCaseOption = ({ active, over }) => {
+    if (active.id !== over?.id) {
       setPrintSettings((prev) => {
           const activeIndex = prev.prescription.case_option.findIndex((i) => i.id === active.id);
           const overIndex = prev.prescription.case_option.findIndex((i) => i.id === over?.id);
-          return {
-              ...prev,
-              prescription: {
+        return {
+          ...prev,
+          prescription: {
                   case_option: arrayMove(prev.prescription.case_option, activeIndex, overIndex)
               }
-          };
+        };
       });
-  }
-};
+    }
+  };
 
-    return (
-        <div className="px-3">
-            <div className="titleprint mb-3">Format Style</div>
+  return (
+    <div className="px-3">
+      <div className="titleprint mb-3">Format Style</div>
             <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
                 <Col>
                     All Change to
                 </Col>
                 <Col className={`${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}>
-                    <Form.Item className="mb-0">
+          <Form.Item className="mb-0">
                         <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onMainCaseOptionChange}
-                            value={
+              value={
                                 printSettings?.prescription?.case_option.every(e => e.format === 'inline') ? 'inline'
                                     : printSettings?.prescription?.case_option.every(e => e.format === 'listview') ? 'listview'
                                         : printSettings?.prescription?.case_option.every(e => e.format === 'table') ? 'table'
@@ -340,28 +400,28 @@ const onDragEndCaseOption = ({ active, over }) => {
                             <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
                             <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
                             <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>
-                        </Radio.Group>
-                    </Form.Item>
-                </Col>
-            </Row>
-            {printSettings?.prescription?.case_option?.length > 0 && (
+            </Radio.Group>
+          </Form.Item>
+        </Col>
+      </Row>
+      {printSettings?.prescription?.case_option?.length > 0 && (
                 <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndCaseOption}>
-                    <SortableContext
-                        // rowKey array
-                        items={printSettings?.prescription?.case_option?.map((i) => i.id)}
-                        strategy={verticalListSortingStrategy}
-                    >
-                        <Table
+          <SortableContext
+            // rowKey array
+            items={printSettings?.prescription?.case_option?.map((i) => i.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <Table
                             className={`customize-table customize-table-format table-display-patient dragicon-position ${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}
-                            pagination={false}
-                            components={{
-                                body: {
-                                    row: CustomRow,
-                                },
-                            }}
-                            rowKey="id"
-                            columns={caseOptionTable}
-                            // dataSource={printSettings?.prescription?.case_option.map((e) => ({ ...e, key: e.id }))}
+              pagination={false}
+              components={{
+                body: {
+                  row: CustomRow,
+                },
+              }}
+              rowKey="id"
+              columns={caseOptionTable}
+              // dataSource={printSettings?.prescription?.case_option.map((e) => ({ ...e, key: e.id }))}
                             dataSource={printSettings?.prescription?.case_option?.filter((option, index) =>
                                 (caseManagerData.symptoms.length > 0 && option.id === 1) ?
                                     ({ ...option, key: option.id })
@@ -386,12 +446,12 @@ const onDragEndCaseOption = ({ active, over }) => {
                                                                         :(caseManagerData.smart_prescription_filename && option.id === 11) ?
                                                                             ({ ...option, key: option.id }) 
                                                                             :(isGrowthChartAccessable && option.id === 12 && todayGcData?.length) && ({...option, key: option.id})
-                            )}
-                            showHeader={false}
-                        />
-                    </SortableContext>
-                </DndContext>
-            )}
+              )}
+              showHeader={false}
+            />
+          </SortableContext>
+        </DndContext>
+      )}
 
       {/* {printSettings?.prescription?.case_option?.map((e, i) => {
                 return (

@@ -26,8 +26,11 @@ import { useReactToPrint } from "react-to-print";
 import FullPageLoader from "../vaccination/components/Loader";
 import GrowthChartPrint from "./components/growthChartPrint/GrowthChartPrint";
 import { handlePrintClick } from "../../utils/utils";
+import { toPng } from "html-to-image";
+import { v4 as uuidv4 } from "uuid";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
+  const { measurements } = useSelector((state) => state.growthChart);
   const { state } = useLocation();
   const { patient_data } = state;
   const gender = patient_data?.pm_gender;
@@ -44,6 +47,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   }
 
   const printableRef = useRef(null);
+  const graphImgRefs = useRef([]);
   const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -105,17 +109,69 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     }, 1000);
   };
 
-  const getGraphsToPrintCheckBox = () => {
-    const updatedGraphsToPrintData = graphsToPrint.map((graphItem) => {
-      if (
-        !Object.keys(growthData[gender][ageInterval][graphItem.id]).length ||
-        (graphItem.id === "Weight" && ageInYears >= 10)
-      ) {
-        return { ...graphItem, isVisible: false };
-      } else {
-        return graphItem;
+  const dataURLToBlob = (dataUrl) => {
+    const arr = dataUrl.split(",");
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new Blob([u8arr], { type: mime });
+  };
+
+  const handleGenerateImages = () => {
+    const promises = graphImgRefs.current.map((ref, index) => {
+      if (ref === null) {
+        return Promise.resolve(null);
       }
+
+      return toPng(ref, { cacheBust: true })
+        .then((dataUrl) => {
+          const blob = dataURLToBlob(dataUrl);
+          return { key: graphsToPrint[index].id, blob };
+        })
+        .catch((err) => {
+          console.error("Oops, something went wrong!", err);
+          return null;
+        });
     });
+
+    Promise.all(promises).then((results) => {
+      const validResults = results.filter((result) => result !== null);
+      const blobUrls = validResults.reduce((acc, result) => {
+        acc[result.key] = URL.createObjectURL(result.blob);
+        return acc;
+      }, {});
+      console.log(blobUrls); // Log the Blob URLs with their keys
+    });
+  };
+
+  const imageUploadHandler = () => {
+    if (measurements.length) {
+      // storeGrowthChart();
+      handleGenerateImages();
+    }
+    setTimeout(() => {
+      handleDrawerVaccination();
+    }, 50);
+  };
+
+  const getGraphsToPrintCheckBox = () => {
+    const updatedGraphsToPrintData = graphsToPrint
+      .map((graphItem) => {
+        const percentileData =
+          graphItem.id === "Weight" && ageInYears >= 10
+            ? {}
+            : growthData[gender][ageInterval][graphItem.id];
+        if (Object.keys(percentileData).length) {
+          return graphItem;
+        }
+      })
+      .filter((item) => item);
     setGraphToPrint(updatedGraphsToPrintData);
   };
 
@@ -243,6 +299,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   height: display === "block" ? "280px" : "505px",
                   overflow: "hidden",
                 }}
+                ref={(el) => (graphImgRefs.current[graphIndex] = el)}
               >
                 <GrowthGraph
                   graphIndex={graphIndex}
@@ -335,7 +392,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     <>
       <div className="vaccinationWrapper">
         <VaccineHeader
-          handleDrawerVaccination={handleDrawerVaccination}
+          handleDrawerVaccination={imageUploadHandler}
           patientDetails={gcPatientDetails}
           printPopupHandler={printPopupHandler}
           handlePrintWeb={printTest}

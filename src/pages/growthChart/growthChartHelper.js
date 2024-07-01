@@ -164,31 +164,26 @@ export const graphsToPrintData = [
     id: "Height",
     label: "Height",
     isPrintEnabled: true,
-    isVisible: true,
   },
   {
     id: "Weight",
     label: "Weight",
     isPrintEnabled: true,
-    isVisible: true,
   },
   {
     id: "BMI",
     label: "BMI",
     isPrintEnabled: true,
-    isVisible: true,
   },
   {
     id: "OFC",
     label: "OFC",
     isPrintEnabled: true,
-    isVisible: true,
   },
   {
     id: "HeightVsWeight",
     label: "Height Vs Weight",
     isPrintEnabled: true,
-    isVisible: true,
   },
 ];
 
