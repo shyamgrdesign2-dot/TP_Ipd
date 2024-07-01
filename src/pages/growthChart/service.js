@@ -79,6 +79,14 @@ export const createParentalDetails = async function (payload) {
   return res;
 };
 
+export const storeGrowthChart = async function (payload) {
+  try {
+    return await api.post(`growthChart/chart/upload`, payload, baseUrl);
+  } catch (e) {
+    console.error("Error while uploading the growth chart image: ", e);
+  }
+};
+
 export const updateParentalDetails = async function (
   { pm_id, pm_pid },
   payload

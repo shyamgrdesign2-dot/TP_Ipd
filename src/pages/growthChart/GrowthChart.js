@@ -6,7 +6,11 @@ import GrowthGraph from "./components/growthGraph/GrowthGraph";
 import SubHeader from "./components/subHeader/SubHeader";
 import UpdateDetails from "./updateDetails/UpdateDetails";
 import { useState } from "react";
-import { getAllGrowthChartParams, getParentalDetails } from "./service";
+import {
+  getAllGrowthChartParams,
+  getParentalDetails,
+  storeGrowthChart,
+} from "./service";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getPatientDetails } from "../vaccination/service";
@@ -26,8 +30,7 @@ import { useReactToPrint } from "react-to-print";
 import FullPageLoader from "../vaccination/components/Loader";
 import GrowthChartPrint from "./components/growthChartPrint/GrowthChartPrint";
 import { handlePrintClick } from "../../utils/utils";
-import { toPng } from "html-to-image";
-import { v4 as uuidv4 } from "uuid";
+import html2canvas from "html2canvas";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const { measurements } = useSelector((state) => state.growthChart);
@@ -109,55 +112,51 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     }, 1000);
   };
 
-  const dataURLToBlob = (dataUrl) => {
-    const arr = dataUrl.split(",");
-    const mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-
-    return new Blob([u8arr], { type: mime });
+  const convertCanvasToJPEG = async (div) => {
+    const canvas = await html2canvas(div);
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("Canvas to Blob conversion failed."));
+        }
+      }, "image/jpeg");
+    });
   };
 
-  const handleGenerateImages = () => {
-    const promises = graphImgRefs.current.map((ref, index) => {
+  const handleGenerateImages = async () => {
+    graphImgRefs.current.map(async (ref, index) => {
       if (ref === null) {
         return Promise.resolve(null);
       }
+      const name =
+        graphsToPrint[index].id === "HeightVsWeight"
+          ? "heightVsWeight"
+          : graphsToPrint[index].id.toLowerCase();
+      const blob = await convertCanvasToJPEG(ref);
+      const file = new File([blob], name, { type: "image/jpeg" });
 
-      return toPng(ref, { cacheBust: true })
-        .then((dataUrl) => {
-          const blob = dataURLToBlob(dataUrl);
-          return { key: graphsToPrint[index].id, blob };
-        })
-        .catch((err) => {
-          console.error("Oops, something went wrong!", err);
-          return null;
-        });
-    });
+      const formData = new FormData();
+      formData.append("growth_chart_file_name", name);
+      formData.append("growth_chart_file", file);
+      formData.append("pm_id", patient_data?.pm_id || 0);
+      formData.append("pm_pid", patient_data?.pm_pid || 0);
 
-    Promise.all(promises).then((results) => {
-      const validResults = results.filter((result) => result !== null);
-      const blobUrls = validResults.reduce((acc, result) => {
-        acc[result.key] = URL.createObjectURL(result.blob);
-        return acc;
-      }, {});
-      console.log(blobUrls); // Log the Blob URLs with their keys
+      await storeGrowthChart(formData);
     });
   };
 
   const imageUploadHandler = () => {
     if (measurements.length) {
-      // storeGrowthChart();
-      handleGenerateImages();
+      setDisplay("block");
+      setTimeout(() => {
+        handleGenerateImages();
+      }, 800);
     }
     setTimeout(() => {
       handleDrawerVaccination();
-    }, 50);
+    }, 1000);
   };
 
   const getGraphsToPrintCheckBox = () => {
@@ -237,7 +236,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
           const modifiedData = growthChartData[key].map((item) => ({
             ...item,
-            x: showTimelineInYear ? item.x / 12 : item.x,
+            x:
+              showTimelineInYear && key !== "HeightVsWeight"
+                ? item.x / 12
+                : item.x,
           }));
 
           const patientData = {
