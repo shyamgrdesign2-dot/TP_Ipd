@@ -143,7 +143,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 fileWatermark={fileWatermark}
                 fileSignature={fileSignature}
                 todayVaccines={props.todayVaccines}
-                todayGcData={props.todayGcData}
+                growthChartData={props.todayGcData}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
         }
