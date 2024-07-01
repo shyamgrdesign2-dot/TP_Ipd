@@ -149,11 +149,14 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
   const imageUploadHandler = () => {
     if (measurements.length) {
-      handleGenerateImages();
+      setDisplay("block");
+      setTimeout(() => {
+        handleGenerateImages();
+      }, 800);
     }
     setTimeout(() => {
       handleDrawerVaccination();
-    }, 50);
+    }, 1000);
   };
 
   const getGraphsToPrintCheckBox = () => {
