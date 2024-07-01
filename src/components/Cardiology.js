@@ -4,7 +4,7 @@ import axios from "axios";
 import Card from "react-bootstrap/Card";
 import { Table, Dropdown, Button, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
-import { isChrome, isSafari } from "react-device-detect";
+import { isChrome, isMobile, isSafari } from "react-device-detect";
 import { useSelector } from "react-redux";
 import api from "../api/services/axiosService";
 
@@ -308,9 +308,7 @@ function Cardiology(props) {
                   <button
                     className="btn p-0 ms-3"
                     style={{
-                      visibility: viewCaseManagerData?.doctor_data?.editCase
-                        ? "visible"
-                        : "hidden",
+                      visibility: viewCaseManagerData?.doctor_data?.editCase && !(smartRxFile && isMobile) ? "visible" : "hidden",
                     }}
                     onClick={handleEditRxClick}
                   >
