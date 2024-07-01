@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines } = props
+    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartData, gcImg = [] } = props
 
     const patientDataShow = (id) => {
         var value = ''
@@ -1326,10 +1326,58 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         )}
                                     </>
                                 </>
-                            ) : option?.id === 11 && caseManagerData?.smart_prescription_filename && (
+                            ) : option?.id === 11 && caseManagerData?.smart_prescription_filename ? (
                                     <Image
                                         src={smartRxFile}
                                     />
+                            ) : option?.id === 12 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
+                                <>
+                                    {!rx && (growthChartData?.length > 0 || gcImg?.length) && (
+                                        option?.format === 'inline' ? (
+                                            <>
+                                                {growthChartData?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Growth Chart &nbsp;{'\n'}</Text>
+                                                    <View style={styles.table}>
+                                                        <View style={styles.row}>
+                                                            <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Parameters</Text>
+                                                            <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Height</Text>
+                                                            <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Weight</Text>
+                                                            <Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>BMI</Text>
+                                                            <Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>OFC</Text>
+                                                        </View>
+                                                        {growthChartData?.map((item, i) => (
+                                                            <View style={styles.row} key={i}>
+                                                                <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                    {item?.tcbc_created_date ? moment(item?.tcbc_created_date).format("DD MMM YYYY") : ''}
+                                                                </Text>
+                                                                <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                    {item?.height ? `${item?.height} cms` : ''}
+                                                                </Text>
+                                                                <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                    {item?.weight ? `${item?.weight} kgs` : ''}
+                                                                </Text>
+                                                                <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                    {item.bmi ? `${item.bmi} kg/m2` : ''}
+                                                                </Text>
+                                                                <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                    {item.ofc ? `${item.ofc} cms` : ''}
+                                                                </Text>
+                                                            </View>
+                                                        ))}
+                                                    </View>
+                                                </View>}
+                                            </>
+                                        ) : 
+                                        <>
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                            {gcImg?.map((gcImg, i) => <Image
+                                                style={{ width: '100%', objectFit: 'contain' }}
+                                                src={gcImg}
+                                            />)}
+                                            </View>
+                                        </>
+                                    )}
+                                </>
                             )
                         )
                     })}
