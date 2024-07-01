@@ -236,7 +236,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
           const modifiedData = growthChartData[key].map((item) => ({
             ...item,
-            x: showTimelineInYear ? item.x / 12 : item.x,
+            x:
+              showTimelineInYear && key !== "HeightVsWeight"
+                ? item.x / 12
+                : item.x,
           }));
 
           const patientData = {
