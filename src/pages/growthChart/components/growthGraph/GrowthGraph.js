@@ -352,7 +352,7 @@ const GrowthGraph = ({
             patient_data?.ageYears < 5 &&
             graphName !== "HeightVsWeight"
               ? 0.5
-              : showTimelineInYear && graphName === "HeightVsWeight"
+              : graphName === "HeightVsWeight"
               ? 5
               : showTimelineInYear
               ? 1

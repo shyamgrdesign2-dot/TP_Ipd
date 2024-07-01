@@ -79,6 +79,14 @@ export const createParentalDetails = async function (payload) {
   return res;
 };
 
+export const storeGrowthChart = async function (payload) {
+  try {
+    return await api.post(`growthChart/chart/upload`, payload, baseUrl);
+  } catch (e) {
+    console.error("Error while uploading the growth chart image: ", e);
+  }
+};
+
 export const updateParentalDetails = async function (
   { pm_id, pm_pid },
   payload
@@ -90,4 +98,17 @@ export const updateParentalDetails = async function (
     console.error("Error while updateParentalDetails: ", e);
   }
   return res;
+};
+
+export const getGrowthChartImages = async function ({ pm_id, pm_pid }) {
+  let growthChartImages = {};
+  try {
+    growthChartImages = await api.get(
+      `growthChart/chart/${pm_id}/${pm_pid}`,
+      baseUrl
+    );
+  } catch (e) {
+    console.error("Error while fetching growthChartImages", e);
+  }
+  return growthChartImages;
 };

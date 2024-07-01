@@ -53,7 +53,7 @@ const TooltipContent = ({ handleDrawerVital, handleCloseTooltip, data }) => {
           <span className="breakStyle" />
           <div>
             <span>OFC : </span>
-            {data?.ofc} kg/m2
+            {data?.ofc} cms
           </div>
         </div>
       </div>
