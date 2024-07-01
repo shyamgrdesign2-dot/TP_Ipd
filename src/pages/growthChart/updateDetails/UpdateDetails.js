@@ -233,6 +233,7 @@ export default function UpdateDetails({
               height: "38px",
               width: "374px",
             }}
+            allowClear={false}
           />
         </div>
         <div style={{ marginBottom: 15 }}>

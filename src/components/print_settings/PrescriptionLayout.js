@@ -204,9 +204,8 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
      value: item?.id === "HeightVsWeight" ? "heightVsWeight" : item.id?.toLowerCase(),
    }));
 
-   const onGrowthChartOptionChange = (checkedValues) => {
+   const onGrowthChartOptionChange = (checkedValues, i) => {
     setPrintSettings((prev) => {
-      const i = prev.prescription.case_option.findIndex(o => o.id === 12);
       prev.prescription.case_option[i].growth_chart_option = checkedValues;
       return {
         ...prev,
@@ -258,7 +257,7 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
     },
   ];
 
-  const growthChartAccordionItems = (record) => [
+  const growthChartAccordionItems = (record, i) => [
     {
       key: "1",
       label: (
@@ -277,7 +276,7 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
           <Checkbox.Group
             options={growthChartOptions}
             defaultValue={record?.growth_chart_option}
-            onChange={(checkedValues) => onGrowthChartOptionChange(checkedValues)}
+            onChange={(checkedValues) => onGrowthChartOptionChange(checkedValues, i)}
           />
         </div>
       ),
@@ -303,7 +302,7 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
           <div className="d-flex align-items-center justify-content-between text-start">
             <div
               className="d-flex align-items-center cursor-pointer Preview-color-icon"
-              onClick={() => onCaseOptionChange(record, "visible", i)}
+              onClick={() => onCaseOptionChange(record, "visible", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
             >
               <i
                 className={`icon-Preview ${
@@ -317,15 +316,20 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
                 className={`d-flex gender-radio all-change-radio ${
                   isMobile ? "segmented-radio-mobile" : ""
                 }`}
-                onChange={(e) => onCaseOptionChange(e, "radio", i)}
+                onChange={(e) => onCaseOptionChange(e, "radio", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
                 value={record.format}
               >
-                <Radio.Button className="w-100 text-center" value="inline">
-                  Inline
-                </Radio.Button>
-                <Radio.Button className="w-100 text-center" value="listview">
-                  List View
-                </Radio.Button>
+                {record?.id === 12 ? 
+                    <Radio.Button className="w-100 text-center" value="graph" >Graph View</Radio.Button> : 
+                    <>
+                      <Radio.Button className="w-100 text-center" value="inline">
+                        Inline
+                      </Radio.Button>
+                      <Radio.Button className="w-100 text-center" value="listview">
+                        List View
+                      </Radio.Button>
+                    </>
+                  }
                 <Radio.Button className="w-100 text-center" value="table">
                   Table
                 </Radio.Button>
@@ -337,7 +341,7 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
               <div style={{ flex: 1 }}>
                 <div className="border mt-3 rounded-4 p-3 bg-white ">
                   <Collapse
-                    items={accordionItems(record, i)}
+                    items={accordionItems(record, printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
                     defaultActiveKey={["1"]}
                     className="prescriptiontab-accordian"
                     expandIconPosition={"end"}
@@ -351,7 +355,7 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
               <div style={{ flex: 1 }}>
                 <div className="border mt-3 rounded-4 p-3 bg-white ">
                   <Collapse
-                    items={growthChartAccordionItems(record)}
+                    items={growthChartAccordionItems(record, printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
                     defaultActiveKey={["1"]}
                     className="prescriptiontab-accordian"
                     expandIconPosition={"end"}
