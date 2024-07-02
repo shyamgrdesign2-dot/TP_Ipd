@@ -6,6 +6,26 @@ import { Link } from 'react-router-dom';
 import { useSelector } from "react-redux";
 import moment from 'moment';
 
+export const genderAge = (patient_data, profile, shouldShowGender = true) => {
+  var value = shouldShowGender
+    ? `${patient_data?.pm_gender[0].toUpperCase()}, `
+    : "";
+  if (profile?.dp_id === 9) {
+    if (patient_data?.ageYears != 0) {
+      value += `${patient_data?.ageYears}y`;
+    }
+    if (patient_data?.ageMonths != 0) {
+      value += ` ${patient_data?.ageMonths}m`;
+    }
+    if (patient_data?.ageDays != 0) {
+      value += ` ${patient_data?.ageDays}d`;
+    }
+  } else {
+    value += `${patient_data?.ageYears}y`;
+  }
+  return value;
+};
+
 function ProfilePopover(props) {
     const [open, setOpen] = useState(false);
 
@@ -15,8 +35,14 @@ function ProfilePopover(props) {
     const { patients_details } = useSelector(
       (state) => state.records
     );
-    const patientDOB =
-      patients_details?.pm_dob || patient_data?.DOB || patient_data?.pm_dob;
+    let patientDOB = ''
+    if (patients_details?.pm_dob) {
+        patientDOB = moment(patients_details.pm_dob).format("DD-MM-YYYY");
+    } else if (patient_data?.DOB) {
+        patientDOB = moment(patient_data.DOB, "Do MMMM YYYY").format("DD-MM-YYYY");
+    } else if (patient_data?.pm_dob) {
+        patientDOB = moment(patient_data?.pm_dob).format("DD-MM-YYYY");
+    }
 
     const handleOpenChange = (newOpen) => {
         setOpen(newOpen);
@@ -57,24 +83,6 @@ function ProfilePopover(props) {
         </>
     )
 
-    const genderAge = (patient_data) => {
-        var value = `${patient_data?.pm_gender[0].toUpperCase()}, `
-        if (profile?.dp_id === 9) {
-            if (patient_data?.ageYears != 0) {
-                value += `${patient_data?.ageYears}y`
-            }
-            if (patient_data?.ageMonths != 0) {
-                value += ` ${patient_data?.ageMonths}m`
-            }
-            if (patient_data?.ageDays != 0) {
-                value += ` ${patient_data?.ageDays}d`
-            }
-        } else {
-            value += `${patient_data?.ageYears}y`
-        }
-        return value
-    }
-
     return (
         <Popover
             content={content}
@@ -88,7 +96,7 @@ function ProfilePopover(props) {
                 <div className={'align-items-center d-flex h-100'}>
                     <div className='align-items-center d-flex'>
                         <div className='patientName'>{`${patient_data !== undefined ? patient_data?.pm_fullname : "Hello Guest"},`}</div>
-                        <div className='text-2 fontpoppins fontpoppins1 ms-1'>{patient_data !== undefined ? genderAge(patient_data) : `M, 30y`}</div>
+                        <div className='text-2 fontpoppins fontpoppins1 ms-1'>{patient_data !== undefined ? genderAge(patient_data, profile) : `M, 30y`}</div>
                         <i className='icon-right iconrotate270 ms-1'></i>
                     </div>
                 </div>
@@ -97,7 +105,7 @@ function ProfilePopover(props) {
                 <div className={'align-items-center d-flex h-100 ps-3'}>
                     <div className='rounded-pill patientProfile border me-3'>{makeDefaultLogo(patient_data?.pm_fullname)}</div>
                     <div>
-                        <div className='patientName'>{`${patient_data !== undefined ? patient_data?.pm_fullname : "Hello Guest"}`}<div className='text-2'>{patient_data !== undefined ? genderAge(patients_details || patient_data) : `M, 30y`} {locationPath === '/vaccine' && patientDOB ? `(${moment(new Date(patientDOB)).format("DD-MM-YYYY")})` : ''}</div></div>
+                        <div className='patientName'>{`${patient_data !== undefined ? patient_data?.pm_fullname : "Hello Guest"}`}<div className='text-2'>{patient_data !== undefined ? genderAge(patients_details || patient_data, profile) : `M, 30y`} {locationPath === '/vaccine' && patientDOB ? `(${patientDOB})` : ''}</div></div>
                     </div>
                     <div className='iconrotate270 align-self-start ms-2 mt-1'>
                         <i className='icon-right'></i>

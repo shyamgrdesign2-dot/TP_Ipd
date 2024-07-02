@@ -3,6 +3,7 @@ import { Font, Page, Text, View, Image, Document, StyleSheet } from '@react-pdf/
 import { isNumeric } from '../../utils/utils'
 import { NORMAL, WHATSAPP } from '../../utils/constants';
 import moment from 'moment';
+import { chunkArray } from '../../utils/utils';
 
 const PX_TO_PT = 0.75
 
@@ -111,7 +112,15 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines } = props
+    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails } = props
+
+    const { growthChartData, growthChartImageData } = growthChartDetails
+    let growthChartImageChunks = []
+    if(growthChartImageData) {
+        const growthChartOption = printSettings?.prescription?.case_option?.find(o => o.id === 12)?.growth_chart_option;
+        const graphs = Object.keys(growthChartImageData)?.filter(g => growthChartOption.includes(g));
+        growthChartImageChunks = chunkArray(graphs, 2);
+    }
 
     const patientDataShow = (id) => {
         var value = ''
@@ -379,6 +388,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                 <View>
                     {printSettings?.prescription?.case_option?.map((option, index) => {
+                        console.log({option});
                         return (
                             option?.id === 1 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
@@ -1326,10 +1336,60 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         )}
                                     </>
                                 </>
-                            ) : option?.id === 11 && caseManagerData?.smart_prescription_filename && (
+                            ) : option?.id === 11 && option?.enable === 'Y' && option?.custom_status === 'Y' && caseManagerData?.smart_prescription_filename ? (
                                     <Image
                                         src={smartRxFile}
                                     />
+                            ) : option?.id === 12 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
+                                <>
+                                    {growthChartData?.length > 0 && (
+                                        option?.format === 'table' ? (
+                                            <>
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Growth Chart &nbsp;{'\n'}</Text>
+                                                    <View style={styles.table}>
+                                                        <View style={styles.row}>
+                                                            <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Parameters</Text>
+                                                            {option?.growth_chart_option?.includes('height') && <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Height</Text>}
+                                                            {option?.growth_chart_option?.includes('weight') &&<Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Weight</Text>}
+                                                            {option?.growth_chart_option?.includes('bmi') &&<Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>BMI</Text>}
+                                                            {option?.growth_chart_option?.includes('ofc') &&<Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>OFC</Text>}
+                                                        </View>
+                                                        {growthChartData?.map((item, i) => (
+                                                            <View style={styles.row} key={i}>
+                                                                <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                    {item?.tcbc_created_date ? moment(item?.tcbc_created_date).format("DD MMM YYYY") : ''}
+                                                                </Text>
+                                                                {option?.growth_chart_option?.includes('height') && <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                    {item?.height ? `${item?.height} cms` : ''}
+                                                                </Text>}
+                                                                {option?.growth_chart_option?.includes('weight') && <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                    {item?.weight ? `${item?.weight} kgs` : ''}
+                                                                </Text>}
+                                                                {option?.growth_chart_option?.includes('bmi') && <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                    {item.bmi ? `${item.bmi} kg/m2` : ''}
+                                                                </Text>}
+                                                                {option?.growth_chart_option?.includes('ofc') && <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                    {item.ofc ? `${item.ofc} cms` : ''}
+                                                                </Text>}
+                                                            </View>
+                                                        ))}
+                                                    </View>
+                                                </View>
+                                            </>
+                                        ) : 
+                                        <>
+                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginTop: PX_TO_PT * 15 }}>Growth Chart &nbsp;{'\n'}</Text>
+                                            <View>
+                                                {growthChartImageChunks?.map((chunk, index) => (
+                                                    <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: PX_TO_PT * 15}} key={index}>
+                                                        {chunk?.filter(c => option?.growth_chart_option?.includes(c))?.map(img => (<Image key={img} style={{width: '48%', objectFit: 'contain'}} src={growthChartImageData[img]} />))}
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        </>
+                                    )}
+                                </>
                             )
                         )
                     })}

@@ -17,6 +17,7 @@ const dev = {
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
   GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
+  growth_chart_api_url: `https://pm-uat-growth-chart.tatvacare.in`,
   firebaseApiKey: "AIzaSyAfD-YLOjDLbhC7hwyiumSkNxP2lul_Kc0",
   firebaseAuthDomain: "diginext-28149.firebaseapp.com",
   firebaseDatabaseURL: "https://tc-care-default-rtdb.firebaseio.com",
@@ -46,6 +47,7 @@ const qa = {
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
   GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
+  growth_chart_api_url: `https://pm-uat-growth-chart.tatvacare.in`,
   firebaseApiKey: "AIzaSyAfD-YLOjDLbhC7hwyiumSkNxP2lul_Kc0",
   firebaseAuthDomain: "diginext-28149.firebaseapp.com",
   firebaseDatabaseURL: "https://tc-care-default-rtdb.firebaseio.com",
@@ -75,6 +77,7 @@ const uat = {
   doctor_website_url: `https://pm-uat-dhspl-2.tatvacare.in/doctor_website/`,
   vaccination_api_url: `https://pm-vaccination-uat.mytatva.in/`,
   GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
+  growth_chart_api_url: `https://pm-uat-growth-chart.tatvacare.in`,
   firebaseApiKey: "AIzaSyAfD-YLOjDLbhC7hwyiumSkNxP2lul_Kc0",
   firebaseAuthDomain: "diginext-28149.firebaseapp.com",
   firebaseDatabaseURL: "https://tc-care-default-rtdb.firebaseio.com",
@@ -111,6 +114,7 @@ const prod = {
   firebaseStorageBucket: "tatvacare.appspot.com",
   firebaseMessagingSenderId: "601922359186",
   firebaseAppId: "1:601922359186:web:a3b9df05589faed1f5fb4b",
+  growth_chart_api_url: `https://pm-prod-growth-chart.tatvacare.in`,
   tatvaRedirect: "https://health.tatvacare.in/#/content?auto=",
 };
 

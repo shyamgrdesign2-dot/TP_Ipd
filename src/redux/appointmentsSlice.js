@@ -300,6 +300,7 @@ const appointmentsSlice = createSlice({
             })
             .addCase(editPatient.fulfilled, (state, action) => {
                 state.loading = false;
+                state.patients_details = {...state.patients_details, ...action.payload};
             })
             .addCase(editPatient.rejected, (state) => {
                 state.loading = false;
