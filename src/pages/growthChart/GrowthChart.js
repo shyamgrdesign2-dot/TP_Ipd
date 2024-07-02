@@ -299,7 +299,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   isFullscreen ? "fullScreenStyle" : ""
                 }`}
                 style={{
-                  height: display === "block" ? "450px" : "505px",
+                  height: display === "block" ? "430px" : "505px",
                   overflow: "hidden",
                 }}
                 ref={(el) => (graphImgRefs.current[graphIndex] = el)}
