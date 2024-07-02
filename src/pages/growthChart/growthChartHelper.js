@@ -60,14 +60,13 @@ export const getGrowthChartData = (growthChartData, DOB, ageInYears) => {
     (acc, entry, index) => {
       const createdDate = moment(entry.tcbc_created_date);
       const monthsDiff = createdDate.diff(DOB, "months");
-      const yearsDiff = createdDate.diff(DOB, "years");
 
       if (ageInYears > 5) {
-        if (yearsDiff <= 5) {
+        if (monthsDiff <= 60) {
           return acc;
         }
       } else if (ageInYears > 2) {
-        if (yearsDiff <= 2) {
+        if (monthsDiff <= 24) {
           return acc;
         }
       }

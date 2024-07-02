@@ -15,9 +15,13 @@ const growthChartSlice = createSlice({
         (m) => m.tcbc_id === action.payload.tcbc_id
       );
       if (existing) {
-        action.payload = { ...existing, ...action.payload };
+        const i = state.measurements.findIndex(
+          (m) => m.tcbc_id === action.payload.tcbc_id
+        );
+        state.measurements[i] = { ...existing, ...action.payload };
+      } else {
+        state.measurements = [...state.measurements, action.payload];
       }
-      state.measurements = [...state.measurements, action.payload];
       state.isFetched = true;
     },
   },
