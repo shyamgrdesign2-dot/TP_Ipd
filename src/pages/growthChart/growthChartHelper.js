@@ -126,7 +126,7 @@ const getOrdinalSuffix = (n) => {
 
 export const getAge = (tcbcCreatedDate, patientDOB) => {
   const createdDate = moment(tcbcCreatedDate);
-  const DOB = moment(patientDOB, "Do MMM YYYY");
+  const DOB = moment(patientDOB, "YYYY-MM-DD");
 
   // Difference in years
   const diffInYears = createdDate.diff(DOB, "years");
