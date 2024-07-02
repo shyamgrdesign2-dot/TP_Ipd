@@ -201,6 +201,5 @@ export const ageIntervals = {
 
 export const getAgeInMonths = (patientDOB) => {
   const today = moment(new Date());
-  const DOB = moment(patientDOB, "Do MMM YYYY");
-  return today.diff(DOB, "months");
+  return today.diff(patientDOB, "months");
 };
