@@ -18,7 +18,7 @@ import TooltipContent from "./TooltipContent";
 import { genderAge } from "../../../../common/ProfilePopover";
 import { useSelector } from "react-redux";
 import { UNITS, ageIntervals, getAgeInMonths } from "../../growthChartHelper";
-import moment from "moment";
+import { useLocation } from "react-router-dom";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -45,13 +45,13 @@ const GrowthGraph = ({
   ageInterval,
   display,
 }) => {
+  const { state } = useLocation();
+  const { patient_data } = state;
   const { profile } = useSelector((state) => state.doctors);
   const { patients_details } = useSelector((state) => state.records);
-  const [patientAge, setPatientAge] = useState("");
+  const patientAge = genderAge(patient_data, profile, false);
+  const patientAgeInMonths = getAgeInMonths(patient_data?.DOB);
 
-  const patientAgeInMonths = patients_details?.pm_dob
-    ? getAgeInMonths(moment(patients_details.pm_dob).format("DD-MM-YYYY"))
-    : 0;
 
   const chartRef = useRef(null);
   const popupRef = useRef(null);
@@ -67,12 +67,6 @@ const GrowthGraph = ({
     y: 0,
     coords: {},
   });
-
-  useEffect(() => {
-    if (patients_details) {
-      setPatientAge(genderAge(patients_details, profile, false));
-    }
-  }, [patients_details]);
 
   // Custom plugin to draw labels at the end of each line
   const customLabelPlugin = {
@@ -326,7 +320,7 @@ const GrowthGraph = ({
       // Unregister the plugin when the component unmounts
       ChartJS.unregister(customLabelPlugin);
     };
-  }, [showTimelineInYear, isFullscreen, display, patientAge]);
+  }, [showTimelineInYear, isFullscreen, display]);
 
   const toggleVisibility = (index) => {
     setVisibility((prev) => {
