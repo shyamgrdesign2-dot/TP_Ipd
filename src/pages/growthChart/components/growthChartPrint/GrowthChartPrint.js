@@ -1,6 +1,5 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
 import TableView from "../tableView/TableView";
 import { Row } from "react-bootstrap";
 import moment from "moment";
@@ -10,14 +9,14 @@ export default function GrowthChartPrint({
   getGraphs,
   isTableprint,
 }) {
-  const { state } = useLocation();
-  const { patient_data } = state;
   const { profile } = useSelector((state) => state.doctors);
   const { patients_details } = useSelector((state) => state.records);
   const pageData = [getGraphs().slice(0, 4), getGraphs().slice(4)];
   const ageString = `${
-    patient_data?.ageYears ? patient_data?.ageYears + " Years" : ""
-  } ${patient_data?.ageMonths ? patient_data?.ageMonths + " Months" : ""}`;
+    patients_details?.ageYears ? patients_details?.ageYears + " Years" : ""
+  } ${
+    patients_details?.ageMonths ? patients_details?.ageMonths + " Months" : ""
+  }`;
 
   return (
     <>
@@ -38,7 +37,7 @@ export default function GrowthChartPrint({
                 />
                 <div style={{ height: "36px" }}>
                   <div style={{ fontWeight: 600 }}>
-                    {patient_data?.pm_fullname}
+                    {patients_details?.pm_fullname}
                   </div>
                   <div>
                     {ageString ? `Age : ${ageString},` : ""}
@@ -47,7 +46,7 @@ export default function GrowthChartPrint({
                           "DD-MM-YYYY"
                         )}`
                       : ""}
-                    ,{patient_data?.pm_gender}
+                    ,{patients_details?.pm_gender}
                   </div>
                 </div>
               </div>

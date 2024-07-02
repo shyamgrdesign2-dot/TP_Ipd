@@ -7,11 +7,13 @@ import { Button } from "antd";
 import "./VisitGrowthChart.scss";
 import moment from "moment";
 import { UNITS, getAge } from "../../growthChartHelper";
+import { useSelector } from "react-redux";
 
 export default function VisitGrowthChart() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { patient_data } = state;
+  const { patients_details } = useSelector((state) => state.records);
 
   const [growthChartData, setGrowthChartData] = useState({});
 
@@ -96,7 +98,11 @@ export default function VisitGrowthChart() {
                 </span>
               </div>
               <div>
-                {getAge(growthChartData.tcbc_created_date, patient_data?.DOB)}
+                {patients_details?.pm_dob &&
+                  getAge(
+                    growthChartData.tcbc_created_date,
+                    patients_details?.pm_dob
+                  )}
               </div>
               {measurementDetails()}
             </div>
