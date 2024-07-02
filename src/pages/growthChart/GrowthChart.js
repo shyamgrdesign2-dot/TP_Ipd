@@ -108,8 +108,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       );
       setTimeout(() => {
         setDisplay("none");
-      }, 1000);
-    }, 1000);
+      }, 1500);
+    }, 2000);
   };
 
   const convertCanvasToJPEG = async (div) => {
@@ -448,7 +448,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             />
           </Drawer>
         )}
-        
+
         {showUpdate && (
           <UpdateDetails
             show={showUpdate}
