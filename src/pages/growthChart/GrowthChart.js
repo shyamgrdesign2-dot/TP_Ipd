@@ -34,6 +34,7 @@ import html2canvas from "html2canvas";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const { measurements } = useSelector((state) => state.growthChart);
+  const { patients_details } = useSelector((state) => state.records);
   const { state } = useLocation();
   const { patient_data } = state;
   const gender = patient_data?.pm_gender;
@@ -182,12 +183,12 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       pm_id: patient_data?.pm_id || 0,
       pm_pid: patient_data?.pm_pid || 0,
     });
-    if (allGrowthChartParams && patient_data?.DOB) {
+    if (allGrowthChartParams && patients_details?.pm_dob) {
       setAllGrowthChartParams(allGrowthChartParams);
       setGrowthChartData(
         getGrowthChartData(
           allGrowthChartParams,
-          patient_data?.DOB,
+          moment(patients_details.pm_dob).format("DD-MM-YYYY"),
           patient_data?.ageYears
         )
       );

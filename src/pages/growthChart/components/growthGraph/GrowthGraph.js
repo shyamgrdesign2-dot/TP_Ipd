@@ -19,6 +19,7 @@ import { genderAge } from "../../../../common/ProfilePopover";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { UNITS, ageIntervals, getAgeInMonths } from "../../growthChartHelper";
+import moment from "moment";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -48,9 +49,12 @@ const GrowthGraph = ({
   const { state } = useLocation();
   const { patient_data } = state;
   const { profile } = useSelector((state) => state.doctors);
+  const { patients_details } = useSelector((state) => state.records);
 
   const patientAge = genderAge(patient_data, profile, false);
-  const patientAgeInMonths = getAgeInMonths(patient_data?.DOB);
+  const patientAgeInMonths = getAgeInMonths(
+    moment(patients_details.pm_dob).format("DD-MM-YYYY")
+  );
 
   const chartRef = useRef(null);
   const popupRef = useRef(null);

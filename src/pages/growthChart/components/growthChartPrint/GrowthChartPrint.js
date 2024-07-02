@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import TableView from "../tableView/TableView";
 import { Row } from "react-bootstrap";
+import moment from "moment";
 
 export default function GrowthChartPrint({
   dataSource,
@@ -12,6 +13,7 @@ export default function GrowthChartPrint({
   const { state } = useLocation();
   const { patient_data } = state;
   const { profile } = useSelector((state) => state.doctors);
+  const { patients_details } = useSelector((state) => state.records);
 
   const ageString = `${
     patient_data?.ageYears ? patient_data?.ageYears + " Years" : ""
@@ -30,8 +32,11 @@ export default function GrowthChartPrint({
         <div style={{ height: "36px" }}>
           <div style={{ fontWeight: 600 }}>{patient_data?.pm_fullname}</div>
           <div>
-            {ageString ? `Age : ${ageString},` : ""} DOB : {patient_data?.DOB},{" "}
-            {patient_data?.pm_gender}
+            {ageString ? `Age : ${ageString},` : ""}
+            {patients_details.pm_dob
+              ? `DOB : ${moment(patients_details.pm_dob).format("DD-MM-YYYY")}`
+              : ""}
+            ,{patient_data?.pm_gender}
           </div>
         </div>
       </div>
