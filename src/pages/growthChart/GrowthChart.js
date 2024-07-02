@@ -95,21 +95,24 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
   const handlePrintWeb = useReactToPrint({
     content: () => printableRef.current,
+    onAfterPrint: () => setDisplay("none"),
   });
 
-  const printTest = () => {
-    setDisplay("block");
-    setTimeout(() => {
-      handlePrintClick(
-        printableRef.current,
-        setTabLoader,
-        handlePrintWeb,
-        "vaccinationChart"
-      );
+  useEffect(() => {
+    if (display === "block") {
       setTimeout(() => {
-        setDisplay("none");
-      }, 1500);
-    }, 2000);
+        handlePrintClick(
+          printableRef.current,
+          setTabLoader,
+          handlePrintWeb,
+          "vaccinationChart"
+        );
+      }, 1000);
+    }
+  }, [display]);
+
+  const handlePrint = () => {
+    setDisplay("block");
   };
 
   const convertCanvasToJPEG = async (div) => {
@@ -397,7 +400,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           handleDrawerVaccination={imageUploadHandler}
           patientDetails={gcPatientDetails}
           printPopupHandler={printPopupHandler}
-          handlePrintWeb={printTest}
+          handlePrintWeb={handlePrint}
           setTablePrint={setTablePrint}
         />
         <div className="scrollableContainer">
@@ -463,7 +466,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             handleClose={printPopupHandler}
             graphsToPrint={graphsToPrint}
             setGraphToPrint={setGraphToPrint}
-            handlePrintWeb={printTest}
+            handlePrintWeb={handlePrint}
           />
         )}
         {display === "block" ? (
