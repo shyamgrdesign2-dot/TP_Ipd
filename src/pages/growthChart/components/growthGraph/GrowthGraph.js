@@ -17,7 +17,6 @@ import "./GrowthGraph.scss";
 import TooltipContent from "./TooltipContent";
 import { genderAge } from "../../../../common/ProfilePopover";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
 import { UNITS, ageIntervals, getAgeInMonths } from "../../growthChartHelper";
 import moment from "moment";
 
@@ -46,12 +45,10 @@ const GrowthGraph = ({
   ageInterval,
   display,
 }) => {
-  const { state } = useLocation();
-  const { patient_data } = state;
   const { profile } = useSelector((state) => state.doctors);
   const { patients_details } = useSelector((state) => state.records);
+  const [patientAge, setPatientAge] = useState("");
 
-  const patientAge = genderAge(patient_data, profile, false);
   const patientAgeInMonths = patients_details?.pm_dob
     ? getAgeInMonths(moment(patients_details.pm_dob).format("DD-MM-YYYY"))
     : 0;
@@ -70,6 +67,12 @@ const GrowthGraph = ({
     y: 0,
     coords: {},
   });
+
+  useEffect(() => {
+    if (patients_details) {
+      setPatientAge(genderAge(patients_details, profile, false));
+    }
+  }, [patients_details]);
 
   // Custom plugin to draw labels at the end of each line
   const customLabelPlugin = {
@@ -323,7 +326,7 @@ const GrowthGraph = ({
       // Unregister the plugin when the component unmounts
       ChartJS.unregister(customLabelPlugin);
     };
-  }, [showTimelineInYear, isFullscreen, display]);
+  }, [showTimelineInYear, isFullscreen, display, patientAge]);
 
   const toggleVisibility = (index) => {
     setVisibility((prev) => {
@@ -353,7 +356,7 @@ const GrowthGraph = ({
         ticks: {
           stepSize:
             showTimelineInYear &&
-            patient_data?.ageYears < 5 &&
+            patients_details?.ageYears < 5 &&
             graphName !== "HeightVsWeight"
               ? 0.5
               : graphName === "HeightVsWeight"

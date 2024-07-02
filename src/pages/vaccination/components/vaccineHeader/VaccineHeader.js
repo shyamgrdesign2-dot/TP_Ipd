@@ -33,7 +33,6 @@ function VaccineHeader({
   };
   const navigate = useNavigate();
   let { patient_data } = useContext(CashManagerContext);
-  patient_data = { ...patient_data, ...patientDetails };
 
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [shouldShowPreview, setShowPreview] = useState(false);

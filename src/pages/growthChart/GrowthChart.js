@@ -13,7 +13,6 @@ import {
 } from "./service";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { getPatientDetails } from "../vaccination/service";
 import moment from "moment";
 import TableView from "./components/tableView/TableView";
 import Measurements from "./components/measurements/Measurements";
@@ -40,7 +39,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const gender = patient_data?.pm_gender;
   const { growthData, ageData } = growthChartStaticData;
 
-  const ageInYears = patient_data?.ageYears;
+  const ageInYears = patients_details?.ageYears;
   let ageInterval = "";
   if (ageInYears >= 0 && ageInYears < 2) {
     ageInterval = "0To2";
@@ -58,12 +57,9 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [shouldShowPrintPopup, setShowPrintPopup] = useState(false);
   const [isTableprint, setTablePrint] = useState(false);
   const [display, setDisplay] = useState("none");
-  const { profile } = useSelector((state) => state.doctors);
   const [parentalDetails, setParentalDetails] = useState();
   const [showTableView, setShowTableView] = useState(false);
-  const [showTimelineInYear, setShowTimelineInYear] = useState(
-    patient_data?.ageYears >= 2
-  );
+  const [showTimelineInYear, setShowTimelineInYear] = useState(false);
   const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
   const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
   const [tabLoader, setTabLoader] = useState(false);
@@ -87,7 +83,13 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [isSaveClicked, setIsSaveClicked] = useState(false);
 
   useEffect(() => {
-    getGrowthChartDetails();
+    if (patients_details) {
+      getGrowthChartDetails();
+      setShowTimelineInYear(patients_details?.ageYears >= 2);
+    }
+  }, [patients_details]);
+
+  useEffect(() => {
     getPatientParentalDetails();
     getGraphsToPrintCheckBox();
   }, []);
@@ -187,8 +189,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       setGrowthChartData(
         getGrowthChartData(
           allGrowthChartParams,
-          moment(patients_details?.pm_dob).format("DD-MM-YYYY"),
-          patient_data?.ageYears
+          moment(patients_details?.pm_dob),
+          patients_details?.ageYears
         )
       );
     }
