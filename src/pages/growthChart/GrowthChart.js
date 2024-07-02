@@ -86,12 +86,12 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     if (patients_details) {
       getGrowthChartDetails();
       setShowTimelineInYear(patients_details?.ageYears >= 2);
+      getGraphsToPrintCheckBox();
     }
   }, [patients_details]);
 
   useEffect(() => {
     getPatientParentalDetails();
-    getGraphsToPrintCheckBox();
   }, []);
 
   const handlePrintWeb = useReactToPrint({

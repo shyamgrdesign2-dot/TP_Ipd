@@ -115,7 +115,7 @@ const SubHeader = ({
           `${
             parentalDetails?.gestation_period_days
               ? parentalDetails?.gestation_period_days + " days"
-              : ""
+              : "0 days"
           }`
         )}
         {showTableViewBtn()}
