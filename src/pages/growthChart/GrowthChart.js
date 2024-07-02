@@ -63,6 +63,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [allGrowthChartParams, setAllGrowthChartParams] = useState([]);
   const [measurementsDrawer, setMeasurementsDrawer] = useState(false);
   const [tabLoader, setTabLoader] = useState(false);
+  const [isSaveClicked, setIsSaveClicked] = useState(false);
   const [measurementsData, setMeasurementsData] = useState([]);
   const [growthChartData, setGrowthChartData] = useState({
     Height: [],
@@ -150,6 +151,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
   const imageUploadHandler = () => {
     if (measurements.length) {
+      setIsSaveClicked(true);
       setDisplay("block");
       setTimeout(() => {
         handleGenerateImages();
@@ -320,6 +322,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   setTooltipState={setTooltipState}
                   ageInterval={ageInterval}
                   display={display}
+                  isSaveClicked={isSaveClicked}
                 />
               </div>
             </Col>

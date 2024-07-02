@@ -19,6 +19,7 @@ import { genderAge } from "../../../../common/ProfilePopover";
 import { useSelector } from "react-redux";
 import { UNITS, ageIntervals, getAgeInMonths } from "../../growthChartHelper";
 import { useLocation } from "react-router-dom";
+import moment from "moment";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -44,14 +45,24 @@ const GrowthGraph = ({
   setTooltipState,
   ageInterval,
   display,
+  isSaveClicked,
 }) => {
   const { state } = useLocation();
   const { patient_data } = state;
   const { profile } = useSelector((state) => state.doctors);
   const { patients_details } = useSelector((state) => state.records);
-  const patientAge = genderAge(patient_data, profile, false);
-  const patientAgeInMonths = getAgeInMonths(patient_data?.DOB);
-
+  const patientAge = genderAge(
+    patients_details || patient_data,
+    profile,
+    false
+  );
+  const patientAgeInMonths = getAgeInMonths(
+    patients_details?.pm_dob
+      ? moment(patients_details?.pm_dob, "YYYY-MM-DD")
+      : patient_data?.DOB
+      ? moment(patient_data?.DOB, "Do MMMM YYYY")
+      : ""
+  );
 
   const chartRef = useRef(null);
   const popupRef = useRef(null);
@@ -320,7 +331,13 @@ const GrowthGraph = ({
       // Unregister the plugin when the component unmounts
       ChartJS.unregister(customLabelPlugin);
     };
-  }, [showTimelineInYear, isFullscreen, display]);
+  }, [
+    showTimelineInYear,
+    isFullscreen,
+    display,
+    patientAge,
+    patientAgeInMonths,
+  ]);
 
   const toggleVisibility = (index) => {
     setVisibility((prev) => {
@@ -537,7 +554,7 @@ const GrowthGraph = ({
           data={chartData}
           options={options}
           className={`chartStyle ${
-            display === "block" ? "chartStylePrint" : ""
+            display === "block" && !isSaveClicked ? "chartStylePrint" : ""
           }`}
         />
         {tooltipState.visible && graphIndex === tooltipState.graphIndex && (
