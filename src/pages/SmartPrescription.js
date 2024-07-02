@@ -22,7 +22,6 @@ import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
 import vitals from "../assets/images/Vitals.svg";
 import SmartRxFollowUpBox from "../components/SmartRxFollowUpBox";
-import RX_image from "../assets/images/RX_image.png";
 // import visitEnd from '../assets/images/end-visit.svg';
 // import imgCloseVisit from '../assets/images/close-visit.svg';
 
