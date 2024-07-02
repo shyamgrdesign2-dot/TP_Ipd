@@ -12,7 +12,9 @@ export default function GrowthChartPrint({
 }) {
   const { profile } = useSelector((state) => state.doctors);
   const { patients_details } = useSelector((state) => state.records);
-  const pageData = [getGraphs().slice(0, 4), getGraphs().slice(4)];
+  const pageData = isTableprint
+    ? [[1]]
+    : [getGraphs().slice(0, 4), getGraphs().slice(4)];
   const ageString = `${
     patients_details?.ageYears ? patients_details?.ageYears + " Years" : ""
   } ${
@@ -24,10 +26,7 @@ export default function GrowthChartPrint({
       {pageData.map(
         (data, index) =>
           !!data?.length && (
-            <div
-              key={index}
-              className="d-flex flex-column align-items-center print-template"
-            >
+            <div key={index} className="d-flex flex-column align-items-center">
               <div
                 className="header"
                 style={{ marginTop: isBrowser ? "20px" : "0" }}
