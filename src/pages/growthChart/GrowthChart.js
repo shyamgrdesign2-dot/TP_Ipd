@@ -108,8 +108,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       );
       setTimeout(() => {
         setDisplay("none");
-      }, 1000);
-    }, 1000);
+      }, 1500);
+    }, 2000);
   };
 
   const convertCanvasToJPEG = async (div) => {
@@ -466,7 +466,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             handlePrintWeb={printTest}
           />
         )}
-        {allGrowthChartParams.length && (
+        {display === "block" ? (
           <div style={{ display: display }}>
             <div ref={printableRef}>
               <GrowthChartPrint
@@ -476,7 +476,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
               />
             </div>
           </div>
-        )}
+        ) : null}
       </div>
 
       {(display === "block" || tabLoader) && <FullPageLoader />}
