@@ -18,7 +18,7 @@ export default function GrowthChartPrint({
   } ${patient_data?.ageMonths ? patient_data?.ageMonths + " Months" : ""}`;
 
   return (
-    <div className="d-flex flex-column align-items-center print-template">
+    <div className="d-flex flex-column align-items-center">
       <div className="header">Growth Chart</div>
       <div className="details">
         <img
