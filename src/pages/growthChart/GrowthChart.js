@@ -52,14 +52,12 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
   const printableRef = useRef(null);
   const graphImgRefs = useRef([]);
-  const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fullScreenGraphIndex, setFullScreenGraphIndex] = useState(null);
   const [shouldShowPrintPopup, setShowPrintPopup] = useState(false);
   const [isTableprint, setTablePrint] = useState(false);
   const [display, setDisplay] = useState("none");
-  const [gcPatientDetails, setGcPatientDetails] = useState();
   const { profile } = useSelector((state) => state.doctors);
   const [parentalDetails, setParentalDetails] = useState();
   const [showTableView, setShowTableView] = useState(false);
@@ -90,7 +88,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
   useEffect(() => {
     getGrowthChartDetails();
-    getPatientDetail();
     getPatientParentalDetails();
     getGraphsToPrintCheckBox();
   }, []);
@@ -352,7 +349,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         ...(father_height &&
           mother_height && {
             mid_parental_height:
-              gcPatientDetails?.vac_gender === "Male"
+              patients_details?.pm_gender === "Male"
                 ? maleChildHeight
                 : femaleChildHeight,
           }),
@@ -366,22 +363,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     } else {
       setShowUpdate(true);
     }
-  };
-
-  const getPatientDetail = async () => {
-    const patientDetails = await getPatientDetails({
-      hospital_bid:
-        patient_data?.hm_business_id || patient_data?.hospital_business_id,
-      patient_uid: patient_data?.patient_unique_id,
-      hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
-    });
-    if (patientDetails?.vac_dob) {
-      patientDetails.vac_dob = moment(patientDetails.vac_dob).format(
-        "DD-MMM-YYYY"
-      );
-    }
-    setGcPatientDetails({ ...patient_data, ...patientDetails });
-    setLoading(false);
   };
 
   const handleDrawerMeasurements = useCallback(() => {
@@ -401,7 +382,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       <div className="vaccinationWrapper">
         <VaccineHeader
           handleDrawerVaccination={imageUploadHandler}
-          patientDetails={gcPatientDetails}
+          patientDetails={patients_details}
           printPopupHandler={printPopupHandler}
           handlePrintWeb={handlePrint}
           setTablePrint={setTablePrint}
