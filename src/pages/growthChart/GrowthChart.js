@@ -34,6 +34,7 @@ import html2canvas from "html2canvas";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const { measurements } = useSelector((state) => state.growthChart);
+  const { patients_details } = useSelector((state) => state.records);
   const { state } = useLocation();
   const { patient_data } = state;
   const gender = patient_data?.pm_gender;
@@ -51,14 +52,12 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
   const printableRef = useRef(null);
   const graphImgRefs = useRef([]);
-  const [loading, setLoading] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fullScreenGraphIndex, setFullScreenGraphIndex] = useState(null);
   const [shouldShowPrintPopup, setShowPrintPopup] = useState(false);
   const [isTableprint, setTablePrint] = useState(false);
   const [display, setDisplay] = useState("none");
-  const [gcPatientDetails, setGcPatientDetails] = useState();
   const { profile } = useSelector((state) => state.doctors);
   const [parentalDetails, setParentalDetails] = useState();
   const [showTableView, setShowTableView] = useState(false);
@@ -85,10 +84,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     graphIndex: null,
   });
   const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
+  const [isSaveClicked, setIsSaveClicked] = useState(false);
 
   useEffect(() => {
     getGrowthChartDetails();
-    getPatientDetail();
     getPatientParentalDetails();
     getGraphsToPrintCheckBox();
   }, []);
@@ -99,7 +98,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   });
 
   useEffect(() => {
-    if (display === "block") {
+    if (display === "block" && !isSaveClicked) {
       setTimeout(() => {
         handlePrintClick(
           printableRef.current,
@@ -152,6 +151,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
   const imageUploadHandler = () => {
     if (measurements.length) {
+      setIsSaveClicked(true);
       setDisplay("block");
       setTimeout(() => {
         handleGenerateImages();
@@ -182,12 +182,12 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       pm_id: patient_data?.pm_id || 0,
       pm_pid: patient_data?.pm_pid || 0,
     });
-    if (allGrowthChartParams && patient_data?.DOB) {
+    if (allGrowthChartParams && patients_details?.pm_dob) {
       setAllGrowthChartParams(allGrowthChartParams);
       setGrowthChartData(
         getGrowthChartData(
           allGrowthChartParams,
-          patient_data?.DOB,
+          moment(patients_details?.pm_dob).format("DD-MM-YYYY"),
           patient_data?.ageYears
         )
       );
@@ -301,7 +301,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   isFullscreen ? "fullScreenStyle" : ""
                 }`}
                 style={{
-                  height: display === "block" ? "280px" : "505px",
+                  height: display === "block" ? "450px" : "505px",
                   overflow: "hidden",
                 }}
                 ref={(el) => (graphImgRefs.current[graphIndex] = el)}
@@ -349,7 +349,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         ...(father_height &&
           mother_height && {
             mid_parental_height:
-              gcPatientDetails?.vac_gender === "Male"
+              patients_details?.pm_gender === "Male"
                 ? maleChildHeight
                 : femaleChildHeight,
           }),
@@ -363,22 +363,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     } else {
       setShowUpdate(true);
     }
-  };
-
-  const getPatientDetail = async () => {
-    const patientDetails = await getPatientDetails({
-      hospital_bid:
-        patient_data?.hm_business_id || patient_data?.hospital_business_id,
-      patient_uid: patient_data?.patient_unique_id,
-      hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
-    });
-    if (patientDetails?.vac_dob) {
-      patientDetails.vac_dob = moment(patientDetails.vac_dob).format(
-        "DD-MMM-YYYY"
-      );
-    }
-    setGcPatientDetails({ ...patient_data, ...patientDetails });
-    setLoading(false);
   };
 
   const handleDrawerMeasurements = useCallback(() => {
@@ -398,7 +382,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       <div className="vaccinationWrapper">
         <VaccineHeader
           handleDrawerVaccination={imageUploadHandler}
-          patientDetails={gcPatientDetails}
+          patientDetails={patients_details}
           printPopupHandler={printPopupHandler}
           handlePrintWeb={handlePrint}
           setTablePrint={setTablePrint}

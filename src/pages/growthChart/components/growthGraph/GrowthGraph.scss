@@ -186,10 +186,10 @@
   position: relative;
   width: 100%;
   height: 100%;
+}
 
-  @media print {
-    width: 310px !important;
-  }
+.chartStylePrint {
+  width: 310px !important;
 }
 
 .growth-chart-custom-checkbox {
