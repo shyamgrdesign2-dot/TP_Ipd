@@ -264,7 +264,7 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
         <div className="text-start">
           <div className="fw-semibold">Customise Options</div>
           <div className="subtitle-customize">
-            Enable/Disable the parameters need to be printed in table
+            Select/deselect the parameters need to be printed
           </div>
         </div>
       ),
@@ -274,7 +274,8 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
           style={{ paddingTop: "12px" }}
         >
           <Checkbox.Group
-            options={growthChartOptions}
+            options={growthChartOptions
+              .filter(({value}) => printSettings?.prescription?.case_option?.[i]?.format === "table" ? value !== "heightVsWeight" : growthChartDetails?.growthChartImageData?.[value])}
             defaultValue={record?.growth_chart_option}
             onChange={(checkedValues) => onGrowthChartOptionChange(checkedValues, i)}
           />
