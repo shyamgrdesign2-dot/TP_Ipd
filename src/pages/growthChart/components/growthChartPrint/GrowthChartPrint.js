@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import TableView from "../tableView/TableView";
 import { Row } from "react-bootstrap";
 import moment from "moment";
+import { isBrowser } from "react-device-detect";
 
 export default function GrowthChartPrint({
   dataSource,
@@ -27,7 +28,12 @@ export default function GrowthChartPrint({
               key={index}
               className="d-flex flex-column align-items-center print-template"
             >
-              <div className="header">Growth Chart</div>
+              <div
+                className="header"
+                style={{ marginTop: isBrowser ? "20px" : "0" }}
+              >
+                Growth Chart
+              </div>
               <div className="details">
                 <img
                   src={require("../../../../assets/images/babyImage.png")}
