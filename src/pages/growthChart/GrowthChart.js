@@ -466,7 +466,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             handlePrintWeb={printTest}
           />
         )}
-        {display === "block" ? (
+        {allGrowthChartParams.length && (
           <div style={{ display: display }}>
             <div ref={printableRef}>
               <GrowthChartPrint
@@ -476,7 +476,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
               />
             </div>
           </div>
-        ) : null}
+        )}
       </div>
 
       {(display === "block" || tabLoader) && <FullPageLoader />}
