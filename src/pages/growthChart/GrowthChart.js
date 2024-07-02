@@ -188,7 +188,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       setGrowthChartData(
         getGrowthChartData(
           allGrowthChartParams,
-          moment(patients_details.pm_dob).format("DD-MM-YYYY"),
+          moment(patients_details?.pm_dob).format("DD-MM-YYYY"),
           patient_data?.ageYears
         )
       );
@@ -302,7 +302,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   isFullscreen ? "fullScreenStyle" : ""
                 }`}
                 style={{
-                  height: display === "block" ? "280px" : "505px",
+                  height: display === "block" ? "450px" : "505px",
                   overflow: "hidden",
                 }}
                 ref={(el) => (graphImgRefs.current[graphIndex] = el)}

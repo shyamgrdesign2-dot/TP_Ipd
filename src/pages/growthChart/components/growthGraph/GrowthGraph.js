@@ -52,9 +52,9 @@ const GrowthGraph = ({
   const { patients_details } = useSelector((state) => state.records);
 
   const patientAge = genderAge(patient_data, profile, false);
-  const patientAgeInMonths = getAgeInMonths(
-    moment(patients_details.pm_dob).format("DD-MM-YYYY")
-  );
+  const patientAgeInMonths = patients_details?.pm_dob
+    ? getAgeInMonths(moment(patients_details.pm_dob).format("DD-MM-YYYY"))
+    : 0;
 
   const chartRef = useRef(null);
   const popupRef = useRef(null);
@@ -539,7 +539,9 @@ const GrowthGraph = ({
           ref={chartRef}
           data={chartData}
           options={options}
-          className="chartStyle"
+          className={`chartStyle ${
+            display === "block" ? "chartStylePrint" : ""
+          }`}
         />
         {tooltipState.visible && graphIndex === tooltipState.graphIndex && (
           <div
