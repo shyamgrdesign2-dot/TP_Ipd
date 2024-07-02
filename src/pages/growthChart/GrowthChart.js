@@ -86,6 +86,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     graphIndex: null,
   });
   const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
+  const [isSaveClicked, setIsSaveClicked] = useState(false);
 
   useEffect(() => {
     getGrowthChartDetails();
@@ -100,7 +101,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   });
 
   useEffect(() => {
-    if (display === "block") {
+    if (display === "block" && !isSaveClicked) {
       setTimeout(() => {
         handlePrintClick(
           printableRef.current,
@@ -153,6 +154,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
   const imageUploadHandler = () => {
     if (measurements.length) {
+      setIsSaveClicked(true);
       setDisplay("block");
       setTimeout(() => {
         handleGenerateImages();
