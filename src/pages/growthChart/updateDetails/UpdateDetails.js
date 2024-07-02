@@ -6,14 +6,11 @@ import { createParentalDetails, updateParentalDetails } from "../service";
 import { useLocation } from "react-router-dom";
 import SuccessPopup from "../components/SuccessPopup";
 import moment from "moment";
-import {
-  createPatient,
-  updateDob,
-  getPatientDetails,
-} from "../../vaccination/service";
 import { errorMessage } from "../../../utils/utils";
 import { useSelector } from "react-redux";
 import { getMidParentalHeight } from "../growthChartHelper";
+import { useDispatch } from "react-redux";
+import { editPatient } from "../../../redux/appointmentsSlice";
 
 export default function UpdateDetails({
   show,
@@ -26,21 +23,18 @@ export default function UpdateDetails({
   const [showSuccess, setShowSuccess] = useState(false);
   const [action, setAction] = useState("");
   const [dob, setDob] = useState("");
-  const { profile } = useSelector((state) => state.doctors);
-  const [vaccinePatientDetails, setVaccinePatientDetails] = useState();
   const [loading, setLoading] = useState(false);
+  const { patients_details } = useSelector((state) => state.records);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    getPatientDetail();
     if (parentalDetails) {
       setAction("update");
     } else {
       setAction("create");
     }
-    if (patient_data.DOB) {
-      setDob(moment(patient_data.DOB, "Do MMMM YYYY").format("DD-MM-YYYY"));
-    } else if (patient_data.pm_dob) {
-      setDob(moment(patient_data.pm_dob).format("DD-MM-YYYY"));
+    if (patients_details?.pm_dob) {
+      setDob(moment(patients_details.pm_dob).format("DD-MM-YYYY"));
     }
   }, []);
 
@@ -67,6 +61,7 @@ export default function UpdateDetails({
         parentalDetails?.gestation_period_days,
     };
     const createParentalDetailsRes = await createParentalDetails(payload);
+    setLoading(false);
     if (createParentalDetailsRes?.status === 201) {
       setShowSuccess(true);
       setTimeout(() => {
@@ -99,7 +94,7 @@ export default function UpdateDetails({
       },
       payload
     );
-    console.log({ updateParentalDetailsRes });
+    setLoading(false);
     if (updateParentalDetailsRes.status === 204) {
       setShowSuccess(true);
       setTimeout(() => {
@@ -134,65 +129,29 @@ export default function UpdateDetails({
     });
   };
 
-  const handleClose = () => {};
-
-  const getPatientDetail = async () => {
-    const patientDetails = await getPatientDetails({
-      hospital_bid:
-        patient_data?.hm_business_id || patient_data?.hospital_business_id,
-      patient_uid: patient_data?.patient_unique_id,
-      hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
-    });
-    if (!patientDetails?.vac_id) {
-      patientDetails.vac_dob = moment(patientDetails.vac_dob).format(
-        "DD-MMM-YYYY"
-      );
-    }
-    setVaccinePatientDetails({ ...patient_data, ...patientDetails });
-    return patientDetails;
-  };
-
-  const createPatientDetails = async () => {
-    const payload = {
-      patient_uid: patient_data?.patient_unique_id,
-      patient_pid: patient_data?.pm_pid,
-      hospital_bid:
-        patient_data?.hm_business_id || patient_data?.hospital_business_id,
-      hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
-      patient_first_name: patient_data?.pm_first_name || "",
-      patient_middle_name: patient_data?.pm_middle_name || "",
-      patient_last_name: patient_data?.pm_last_name || "",
-      patient_gender: patient_data?.pm_gender,
-      patient_dob: moment(dob, "DD-MM-YYYY").format("YYYY-MM-DD"),
-      patient_contact_no: patient_data?.pm_contact_no,
-    };
-    const createPatientRes = await createPatient(payload);
-    if (createPatientRes?.status === 200) {
-      updatePatientDob();
-    } else {
-      errorMessage({ name: "TypeError" });
-    }
-  };
-
   const updatePatientDob = async () => {
     const payload = {
-      patient_uid: patient_data?.patient_unique_id,
-      patient_pid: patient_data?.vac_pid || patient_data?.pm_pid,
-      hospital_bid:
-        patient_data?.hm_business_id || patient_data?.hospital_business_id,
-      hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
-      updated_dob: moment(dob, "DD-MM-YYYY").format("YYYY-MM-DD"),
+      pm_salutation: patients_details?.pm_salutation,
+      pm_fullname: patients_details?.pm_fullname,
+      pm_contact_no: patients_details?.pm_contact_no,
+      pm_gender: patients_details?.pm_gender,
+      pm_dob: moment(dob, "DD-MM-YYYY").format("YYYY-MM-DD"),
+      pm_reference_id: patients_details?.pm_reference_id,
+      pm_pincode: patients_details?.pm_pincode,
+      pm_city: patients_details?.pm_city,
+      pm_state: patients_details?.pm_state,
+      pm_address: patients_details?.pm_address,
+      patient_unique_id: patients_details?.patient_unique_id,
     };
-    const updateDobRes = await updateDob(payload);
-    if (!updateDobRes?.status === 200) {
+    const updateDobRes = await dispatch(editPatient(payload));
+    if (updateDobRes.meta.requestStatus !== "fulfilled") {
       errorMessage({ name: "TypeError" });
     }
   };
 
   const updateGcDetails = async () => {
-    if (!vaccinePatientDetails.vac_id && dob) {
-      createPatientDetails();
-    } else if (dob && vaccinePatientDetails.vac_dob !== dob) {
+    setLoading(true);
+    if (dob && moment(patients_details.pm_dob).format("DD-MM-YYYY") !== dob) {
       updatePatientDob();
     }
     if (action === "create") {
@@ -214,7 +173,6 @@ export default function UpdateDetails({
           <hr style={{ borderTop: "1px solid #ccc" }} />
         </div>
       }
-      onCancel={handleClose}
     >
       <div style={{ marginBottom: 20, marginTop: 20 }}>
         <div style={{ marginBottom: 15 }}>
@@ -307,6 +265,7 @@ export default function UpdateDetails({
           type="primary"
           onClick={updateGcDetails}
           disabled={loading}
+          loading={loading}
         >
           Continue
         </Button>

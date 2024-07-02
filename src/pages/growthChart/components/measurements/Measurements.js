@@ -46,6 +46,7 @@ function Measurements(props) {
   const dispatch = useDispatch();
   const { selectedVitalsList } = useSelector((state) => state.vitals);
   const { measurements } = useSelector((state) => state.growthChart);
+  const [loader, setLoader] = useState(false);
 
   useEffect(() => {
     if (allGrowthChartParams?.length) {
@@ -161,6 +162,7 @@ function Measurements(props) {
   );
 
   const onAddGrowthData = async () => {
+    setLoader(true);
     const result = measurementsData.map(async (measurement) => {
       const { height, weight, ofc, date, bmi } = measurement;
       if (!height && !weight && !ofc && measurementsData?.length === 1) return;
@@ -202,6 +204,7 @@ function Measurements(props) {
     });
 
     const updateGrowthRes = await Promise.all(result);
+    setLoader(false);
     if (
       updateGrowthRes?.some((res) => res?.tcbc_id) ||
       updateGrowthRes?.some((res) => res?.status === 204)
@@ -296,8 +299,8 @@ function Measurements(props) {
           <Button
             onClick={onAddGrowthData}
             className="btn btn-primary3 btn-41 px-4 me-20"
-            loading={false}
-            disabled={measurementsData.length > 0 ? false : true}
+            loading={loader}
+            disabled={loader}
           >
             Done
           </Button>
