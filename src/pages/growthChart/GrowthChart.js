@@ -135,7 +135,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   };
 
   const handleGenerateImages = async () => {
-    graphImgRefs.current.map(async (ref, index) => {
+    const graphImages = graphImgRefs.current.map((ref, index) => {
       if (ref === null) {
         return Promise.resolve(null);
       }
@@ -143,17 +143,22 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         graphsToPrint[index].id === "HeightVsWeight"
           ? "heightVsWeight"
           : graphsToPrint[index].id.toLowerCase();
-      const blob = await convertCanvasToJPEG(ref);
-      const file = new File([blob], name, { type: "image/jpeg" });
-
-      const formData = new FormData();
-      formData.append("growth_chart_file_name", name);
-      formData.append("growth_chart_file", file);
-      formData.append("pm_id", patient_data?.pm_id || 0);
-      formData.append("pm_pid", patient_data?.pm_pid || 0);
-
-      await storeGrowthChart(formData);
+      const blob = convertCanvasToJPEG(ref);
+      const file = new File([blob], name, {
+        type: "image/jpeg",
+      });
+      return file;
     });
+
+    const formData = new FormData();
+    formData.append("pm_id", patient_data?.pm_id || 0);
+    formData.append("pm_pid", patient_data?.pm_pid || 0);
+
+    graphImages.map((graphImg) => {
+      formData.append(graphImg.name, graphImg);
+    });
+
+    await storeGrowthChart(formData);
   };
 
   const imageUploadHandler = () => {
