@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 import moment from "moment";
 import TableView from "./components/tableView/TableView";
 import Measurements from "./components/measurements/Measurements";
-import { Drawer } from "antd";
+import { Drawer, notification } from "antd";
 import {
   dummyData,
   getAgeInMonths,
@@ -384,15 +384,28 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     setShowPrintPopup((prev) => !prev);
   };
 
+  const tablePrintHandler = () => {
+    if (allGrowthChartParams.length) {
+      handlePrint();
+      setTablePrint(true);
+    } else {
+      notification.open({
+        message: "No data has been added to this user!",
+        placement: "bottom",
+        style: {
+          backgroundColor: "rgba(252, 218, 218, 0.4)",
+        },
+      });
+    }
+  };
+
   return (
     <>
       <div className="vaccinationWrapper">
         <VaccineHeader
           handleDrawerVaccination={imageUploadHandler}
-          patientDetails={patients_details}
           printPopupHandler={printPopupHandler}
-          handlePrintWeb={handlePrint}
-          setTablePrint={setTablePrint}
+          tablePrintHandler={tablePrintHandler}
         />
         <div className="scrollableContainer">
           <SubHeader
