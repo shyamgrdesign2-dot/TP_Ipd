@@ -135,20 +135,22 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   };
 
   const handleGenerateImages = async () => {
-    const graphImages = graphImgRefs.current.map((ref, index) => {
-      if (ref === null) {
-        return Promise.resolve(null);
-      }
-      const name =
-        graphsToPrint[index].id === "HeightVsWeight"
-          ? "heightVsWeight"
-          : graphsToPrint[index].id.toLowerCase();
-      const blob = convertCanvasToJPEG(ref);
-      const file = new File([blob], name, {
-        type: "image/jpeg",
-      });
-      return file;
-    });
+    const graphImages = await Promise.all(
+      graphImgRefs.current.map(async (ref, index) => {
+        if (ref === null) {
+          return null;
+        }
+        const name =
+          graphsToPrint[index].id === "HeightVsWeight"
+            ? "heightVsWeight"
+            : graphsToPrint[index].id.toLowerCase();
+        const blob = convertCanvasToJPEG(ref);
+        const file = new File([blob], name, {
+          type: "image/jpeg",
+        });
+        return file;
+      })
+    );
 
     const formData = new FormData();
     formData.append("pm_id", patient_data?.pm_id || 0);
