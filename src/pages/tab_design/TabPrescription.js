@@ -46,10 +46,9 @@ import privateNotesDark from "../../assets/images/private-notes-dark.svg";
 // import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
 import Vaccination from "../vaccination/Vaccination";
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { checkToShowVaccination } from "../vaccination/service";
 import GrowthChart from "../growthChart/GrowthChart";
 import { viewPatient } from "../../redux/appointmentsSlice";
+import { useAccess } from "../vaccination/useAccess";
 
 function TabPrescription() {
   const {
@@ -85,11 +84,8 @@ function TabPrescription() {
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
   const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
-  const [isPediatric, setIsPediatric] = useState(false);
   const [isGrowthChart, setIsGrowthChart] = useState(false);
-  const isVaccinationAccessableFromGB = useFeatureIsOn(
-    "vaccination-new-design"
-  );
+  const {isVaccinationAccessable, isGrowthChartAccessable} = useAccess();
 
   const contextApi = {
     patient_data,
@@ -262,14 +258,7 @@ function TabPrescription() {
         setAdditionalNote(caseManagerData.visit_advice);
       }
     }
-    checkForPediatric();
   }, []);
-
-  const checkForPediatric = async () => {
-    if (profile?.doctor_unique_id) {
-      setIsPediatric(await checkToShowVaccination(profile.doctor_unique_id));
-    }
-  };
 
   // Drawer Vitals
   const handleDrawerVital = useCallback(() => {
@@ -409,7 +398,7 @@ function TabPrescription() {
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessableFromGB || isPediatric} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper p-0">
           <Layout>
             <div className="prescription-sidebar">
@@ -498,10 +487,10 @@ function TabPrescription() {
                     </div>
                     <label className="text-white mt-1">Private Notes</label>
                   </button>
-                ) : (
+                ) : 
                   e.tmdpm_id === 7 &&
                   e.tmdpm_status === 0 &&
-                  (!!isVaccinationAccessableFromGB || isPediatric) && (
+                  isVaccinationAccessable ? (
                     <button
                       type="button"
                       className="mb-3 text-center btn btn-action"
@@ -522,27 +511,31 @@ function TabPrescription() {
                       <label className="text-white mt-1">Vaccine</label>
                     </button>
                   )
-                );
+                 : 
+                  (
+                  e.tmdpm_id === 16 &&
+                  e.tmdpm_status === 0 &&
+                  isGrowthChartAccessable && (
+                    <button
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={handleDrawerGrowth}
+                    >
+                      <div
+                        className={`prescription-tab-button rounded-10px ${
+                          collapsedFlag === 5 && "active"
+                        }`}
+                      >
+                        <img
+                          src={collapsedFlag === 5 ? growthChartDark : growthChart}
+                          alt="Growth"
+                        />
+                      </div>
+                      <label className="text-white mt-1">Growth</label>
+                    </button>
+                  )
+                )
               })}
-              {
-                <button
-                  type="button"
-                  className="mb-3 text-center btn btn-action"
-                  onClick={handleDrawerGrowth}
-                >
-                  <div
-                    className={`prescription-tab-button rounded-10px ${
-                      collapsedFlag === 5 && "active"
-                    }`}
-                  >
-                    <img
-                      src={collapsedFlag === 5 ? growthChartDark : growthChart}
-                      alt="Growth"
-                    />
-                  </div>
-                  <label className="text-white mt-1">Growth</label>
-                </button>
-              }
               {/* <button type='button' className="mb-3 text-center btn btn-action">
                                 <div className="prescription-tab-button rounded-10px">
                                     <img src={medicalHistoryWhite} alt="History" />

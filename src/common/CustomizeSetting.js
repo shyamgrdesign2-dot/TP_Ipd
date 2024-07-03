@@ -69,7 +69,7 @@ const CustomRow = ({ children, ...props }) => {
   );
 };
 
-function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled }) {
+function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowthChartEnabled }) {
 
   const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setMedicalHistoryData, setPrivateNotesData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
   const { loading, customizedPadLeftList, customizedPadRightList, videoList } = useSelector((state) => state.doctors);
@@ -83,7 +83,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled }) {
 
   useEffect(() => {
     if (customizedPadLeftList.length > 0) {
-      const updatedData = customizedPadLeftList.filter(e => e.tmdpm_id === 7 && e.tmdpm_status === 0 ? isVaccinationEnabled : true).map((e, i) => {
+      const updatedData = customizedPadLeftList.filter(e => e.tmdpm_id === 7 && e.tmdpm_status === 0 ? isVaccinationEnabled : e.tmdpm_id === 16 && e.tmdpm_status === 0 ? isGrowthChartEnabled : true).map((e, i) => {
         return { ...e };
       });
       setDataSourceLeft(updatedData);

@@ -41,7 +41,7 @@ import { listVideo } from "../redux/doctorsSlice";
 
 var oneClickCosultationTemplateId = 0
 
-function HeaderPrescription({ isVaccinationEnabled }) {
+function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled }) {
 
     const { frequencyList, timingList, videoList } = useSelector((state) => state.doctors);
     const vaccines = useSelector((state) => state.vaccines);
@@ -787,7 +787,7 @@ function HeaderPrescription({ isVaccinationEnabled }) {
 
     const CUSTOMIZE_CONTENT_TAB = useMemo(() => {
         return (
-            <CustomizeSetting handleDrawerCustomize={handleDrawerCustomize} isVaccinationEnabled={isVaccinationEnabled} />
+            <CustomizeSetting handleDrawerCustomize={handleDrawerCustomize} isVaccinationEnabled={isVaccinationEnabled} isGrowthChartEnabled={isGrowthChartEnabled} />
         );
     }, [customizeDrawer]);
 
