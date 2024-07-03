@@ -19,6 +19,7 @@ import Measurements from "./components/measurements/Measurements";
 import { Drawer } from "antd";
 import {
   dummyData,
+  getAgeInMonths,
   getGrowthChartData,
   getMidParentalHeight,
   graphsToPrintData,
@@ -38,12 +39,19 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { patient_data } = state;
   const gender = patient_data?.pm_gender;
   const { growthData, ageData } = growthChartStaticData;
+  const patientAgeInMonths = getAgeInMonths(
+    patients_details?.pm_dob
+      ? moment(patients_details?.pm_dob, "YYYY-MM-DD")
+      : patient_data?.DOB
+      ? moment(patient_data?.DOB, "Do MMMM YYYY")
+      : ""
+  );
 
   const ageInYears = patients_details?.ageYears;
   let ageInterval = "";
-  if (ageInYears >= 0 && ageInYears < 2) {
+  if (patientAgeInMonths >= 0 && patientAgeInMonths <= 24) {
     ageInterval = "0To2";
-  } else if (ageInYears >= 2 && ageInYears < 5) {
+  } else if (patientAgeInMonths > 24 && patientAgeInMonths <= 60) {
     ageInterval = "2To5";
   } else {
     ageInterval = "5To18";
@@ -188,7 +196,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         getGrowthChartData(
           allGrowthChartParams,
           moment(patients_details?.pm_dob),
-          patients_details?.ageYears
+          patientAgeInMonths
         )
       );
     }
