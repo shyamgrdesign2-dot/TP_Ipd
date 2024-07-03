@@ -310,7 +310,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                 }`}
                 style={{
                   height: display === "block" ? "430px" : "505px",
-                  overflow: "hidden",
                 }}
                 ref={(el) => (graphImgRefs.current[graphIndex] = el)}
               >
