@@ -17,13 +17,11 @@ import { LoadingOutlined } from "@ant-design/icons";
 function VaccineHeader({
   handleDrawerVaccination,
   vaccinesData,
-  patientDetails,
   setPrintType,
   isVaccination,
   printLoader,
   printPopupHandler,
-  handlePrintWeb,
-  setTablePrint,
+  tablePrintHandler,
 }) {
   const vaccinationVideo = {
     link: "https://www.youtube.com/embed/o6ALwX9hPMM",
@@ -88,10 +86,7 @@ function VaccineHeader({
         key="2"
         className="btn-41 btn btn-input"
         style={{ border: "0 !important" }}
-        onClick={() => {
-          handlePrintWeb();
-          setTablePrint(true);
-        }}
+        onClick={tablePrintHandler}
       >
         Table
       </Menu.Item>
