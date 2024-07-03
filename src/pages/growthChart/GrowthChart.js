@@ -47,7 +47,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       : ""
   );
 
-  const ageInYears = patients_details?.ageYears;
   let ageInterval = "";
   if (patientAgeInMonths >= 0 && patientAgeInMonths <= 24) {
     ageInterval = "0To2";
@@ -174,7 +173,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     const updatedGraphsToPrintData = graphsToPrint
       .map((graphItem) => {
         const percentileData =
-          graphItem.id === "Weight" && ageInYears >= 10
+          graphItem.id === "Weight" && patientAgeInMonths > 120
             ? {}
             : growthData[gender][ageInterval][graphItem.id];
         if (Object.keys(percentileData).length) {
@@ -221,7 +220,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       if (growthChartData.hasOwnProperty(key)) {
         let objectName = growthData[gender][ageInterval][key];
 
-        if (key === "Weight" && ageInYears >= 10) {
+        if (key === "Weight" && patientAgeInMonths > 120) {
           objectName = {};
         }
         if (Object.keys(objectName).length) {
