@@ -695,6 +695,7 @@ function TabPrescription() {
             onClose={handleDrawerGrowth}
             open={growthDrawer}
             width="100%"
+            push={false}
           >
             <GrowthChart
               handleDrawerVaccination={handleDrawerGrowth}
