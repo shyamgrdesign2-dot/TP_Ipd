@@ -16,9 +16,10 @@ import { useSelector } from "react-redux";
 import moment from "moment";
 import TableView from "./components/tableView/TableView";
 import Measurements from "./components/measurements/Measurements";
-import { Drawer } from "antd";
+import { Drawer, notification } from "antd";
 import {
   dummyData,
+  getAgeInMonths,
   getGrowthChartData,
   getMidParentalHeight,
   graphsToPrintData,
@@ -38,12 +39,18 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { patient_data } = state;
   const gender = patient_data?.pm_gender;
   const { growthData, ageData } = growthChartStaticData;
+  const patientAgeInMonths = getAgeInMonths(
+    patients_details?.pm_dob
+      ? moment(patients_details?.pm_dob, "YYYY-MM-DD")
+      : patient_data?.DOB
+      ? moment(patient_data?.DOB, "Do MMMM YYYY")
+      : ""
+  );
 
-  const ageInYears = patients_details?.ageYears;
   let ageInterval = "";
-  if (ageInYears >= 0 && ageInYears < 2) {
+  if (patientAgeInMonths >= 0 && patientAgeInMonths <= 24) {
     ageInterval = "0To2";
-  } else if (ageInYears >= 2 && ageInYears < 5) {
+  } else if (patientAgeInMonths > 24 && patientAgeInMonths <= 60) {
     ageInterval = "2To5";
   } else {
     ageInterval = "5To18";
@@ -128,25 +135,32 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   };
 
   const handleGenerateImages = async () => {
-    graphImgRefs.current.map(async (ref, index) => {
-      if (ref === null) {
-        return Promise.resolve(null);
-      }
-      const name =
-        graphsToPrint[index].id === "HeightVsWeight"
-          ? "heightVsWeight"
-          : graphsToPrint[index].id.toLowerCase();
-      const blob = await convertCanvasToJPEG(ref);
-      const file = new File([blob], name, { type: "image/jpeg" });
+    const graphImages = await Promise.all(
+      graphImgRefs.current.map(async (ref, index) => {
+        if (ref === null) {
+          return null;
+        }
+        const name =
+          graphsToPrint[index].id === "HeightVsWeight"
+            ? "heightVsWeight"
+            : graphsToPrint[index].id.toLowerCase();
+        const blob = await convertCanvasToJPEG(ref);
+        const file = new File([blob], name, {
+          type: "image/jpeg",
+        });
+        return file;
+      })
+    );
 
-      const formData = new FormData();
-      formData.append("growth_chart_file_name", name);
-      formData.append("growth_chart_file", file);
-      formData.append("pm_id", patient_data?.pm_id || 0);
-      formData.append("pm_pid", patient_data?.pm_pid || 0);
+    const formData = new FormData();
+    formData.append("pm_id", patient_data?.pm_id || 0);
+    formData.append("pm_pid", patient_data?.pm_pid || 0);
 
-      await storeGrowthChart(formData);
+    graphImages.map((graphImg) => {
+      formData.append(graphImg.name, graphImg);
     });
+
+    await storeGrowthChart(formData);
   };
 
   const imageUploadHandler = () => {
@@ -166,7 +180,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     const updatedGraphsToPrintData = graphsToPrint
       .map((graphItem) => {
         const percentileData =
-          graphItem.id === "Weight" && ageInYears >= 10
+          graphItem.id === "Weight" && patientAgeInMonths > 120
             ? {}
             : growthData[gender][ageInterval][graphItem.id];
         if (Object.keys(percentileData).length) {
@@ -188,7 +202,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         getGrowthChartData(
           allGrowthChartParams,
           moment(patients_details?.pm_dob),
-          patients_details?.ageYears
+          patientAgeInMonths
         )
       );
     }
@@ -213,7 +227,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       if (growthChartData.hasOwnProperty(key)) {
         let objectName = growthData[gender][ageInterval][key];
 
-        if (key === "Weight" && ageInYears >= 10) {
+        if (key === "Weight" && patientAgeInMonths > 120) {
           objectName = {};
         }
         if (Object.keys(objectName).length) {
@@ -302,7 +316,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                 }`}
                 style={{
                   height: display === "block" ? "430px" : "505px",
-                  overflow: "hidden",
                 }}
                 ref={(el) => (graphImgRefs.current[graphIndex] = el)}
               >
@@ -378,15 +391,28 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     setShowPrintPopup((prev) => !prev);
   };
 
+  const tablePrintHandler = () => {
+    if (allGrowthChartParams.length) {
+      handlePrint();
+      setTablePrint(true);
+    } else {
+      notification.open({
+        message: "No data has been added to this user!",
+        placement: "bottom",
+        style: {
+          backgroundColor: "rgba(252, 218, 218, 0.4)",
+        },
+      });
+    }
+  };
+
   return (
     <>
       <div className="vaccinationWrapper">
         <VaccineHeader
           handleDrawerVaccination={imageUploadHandler}
-          patientDetails={patients_details}
           printPopupHandler={printPopupHandler}
-          handlePrintWeb={handlePrint}
-          setTablePrint={setTablePrint}
+          tablePrintHandler={tablePrintHandler}
         />
         <div className="scrollableContainer">
           <SubHeader
