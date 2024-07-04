@@ -108,14 +108,7 @@ function SidebarDoctor() {
                     <div className='mt-1 px-2'>Billings</div>
                 </NavLink> */}
 
-                <Button className="btn btn-delete-prescription mx-auto d-block p-0 mt-2"  onClick={() => window.Moengage.track_event("announcement_button_clicked")} id='beamerButton'>
-                    <i className="icon-announcement fs-3"></i> <br />
-                </Button>
-                <img src={newGif} width={42} className='mx-auto d-block text-center mb-2' alt='New' />
-
-                <br />
-
-                {profile.module_data?.map((item, i) => {
+                {profile && profile?.module_data?.map((item, i) => {
                     return (
                         <NavLink key={i} onClick={() => clickOldModule(item.type)} replace={true} className={({ isActive, isPending }) =>
                             isPending ? "pending" : isActive ? "" : "active"
@@ -125,6 +118,11 @@ function SidebarDoctor() {
                         </NavLink>
                     )
                 })}
+
+                <Button className="btn btn-delete-prescription mx-auto d-block p-0 mt-2" onClick={() => window.Moengage.track_event("announcement_button_clicked")} id='beamerButton'>
+                    <i className="icon-announcement fs-3"></i> <br />
+                </Button>
+                <img src={newGif} width={42} className='mx-auto d-block text-center mb-2' alt='New' />
             </div>
         </>
     )
