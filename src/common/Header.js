@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
+import { Container, Navbar, Nav } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { Select, Button, Checkbox, Popover, Drawer, Carousel, Modal } from "antd";
+import { Select, Button, Checkbox, Popover, Drawer, Dropdown } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 import { isChrome, isSafari } from "react-device-detect";
@@ -393,6 +393,90 @@ function Header({ locationPath }) {
     );
   }, [popOverVideo]);
 
+  const items = [
+    {
+      label:
+        <>
+          <div className="me-3">
+            {profile?.um_image ? (
+              <img
+                src={profile?.um_image ?? defaultprofile}
+                alt="Profile"
+                className="rounded-circle"
+                style={{ width: "52px" }}
+              />
+            ) : (
+              <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
+            )}
+          </div>
+          <div>
+            <div className="text-black titleprint">{(profile?.um_name)}</div>
+            <div className="title-common">{(profile?.um_contact)}</div>
+          </div>
+        </>
+      ,
+      key: '0',
+    },
+    {
+      type: 'divider',
+    },
+    {
+      label:
+        <a onClick={() => (navigate('/my-profile'))}>
+          <div className="title-common me-5 d-flex align-items-center"><i className="icon-profile me-3"></i>My Profile</div>
+          <i className="icon-right iconrotate180"></i>
+        </a>,
+      key: '2',
+    },
+    {
+      label:
+        <a>
+          <div className="title-common me-5 d-flex align-items-center"><i className="icon-group me-3"></i>Setup My Website</div>
+          <i className="icon-right iconrotate180"></i>
+        </a>,
+      key: '3',
+    },
+    {
+      label:
+        <a>
+          <div className="title-common me-5 d-flex align-items-center"><i className="icon-calendar me-3"></i>My Availability</div>
+          <i className="icon-right iconrotate180"></i>
+        </a>,
+      key: '4',
+    },
+    {
+      label:
+        <a>
+          <div className="title-common me-5 d-flex align-items-center"><i className="icon-upgrade me-3"></i>Upgrade Plan</div>
+          <i className="icon-right iconrotate180"></i>
+        </a>,
+      key: '5',
+    },
+    {
+      label:
+        <a>
+          <div className="title-common me-5 d-flex align-items-center"><i className="icon-help me-3"></i>Help Center</div>
+          <i className="icon-right iconrotate180"></i>
+        </a>,
+      key: '6',
+    },
+    {
+      label:
+        <a>
+          <div className="title-common me-5 d-flex align-items-center"><i className="icon-setting me-3"></i>Account Setting</div>
+          <i className="icon-right iconrotate180"></i>
+        </a>,
+      key: '7',
+    },
+    {
+      type: 'divider',
+    },
+    {
+      label: <><i className="icon-exit me-2"></i> Log Out</>,
+      key: '8',
+    },
+  ];
+
   return (
     <Navbar className="justify-content-between portal-header">
       <Container fluid>
@@ -411,40 +495,6 @@ function Header({ locationPath }) {
         {LOGO_MODAL}
         <Nav className="ms-auto align-items-center d-flex">
           {HOSPITAL_DATA}
-          {/* <Dropdown className="dropdown-profile nav-link-profile mx-1 pt-1 align-items-center">
-            <Dropdown.Toggle
-              id="navbarDropdown"
-              variant=""
-              className="py-0 border-0 nav-link"
-            >
-              <i className="icon-notification active-notification"></i>
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="dropdown-menu-end">
-              <Dropdown.Item>
-                <span>Profile</span>
-              </Dropdown.Item>
-              <Dropdown.Item>
-                <span>Logout</span>
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown> */}
-          {/* <Dropdown className="dropdown-profile nav-link-profile mx-1 pt-1">
-            <Dropdown.Toggle
-              id="navbarDropdown"
-              variant=""
-              className="py-0 border-0 nav-link"
-            >
-              <i className="icon-setting"></i>
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="dropdown-menu-end">
-              <Dropdown.Item>
-                <span>Profile</span>
-              </Dropdown.Item>
-              <Dropdown.Item>
-                <span>Logout</span>
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown> */}
           {profile && profile.SwitchGrowthBook != 0 && (
             <div onClick={checkModalOpenOrClose} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
               <i className='icon-switch me-2'></i>
@@ -507,12 +557,16 @@ function Header({ locationPath }) {
           )}
 
           {SWITCH_TO_OLD_MODAL}
-          <Dropdown className="dropdown-profile nav-link-profile mx-1">
-            <Dropdown.Toggle
-              id="navbarDropdown"
-              variant=""
-              className="py-0 border-0 nav-link"
-            >
+
+          <Dropdown
+            menu={{
+              items,
+            }}
+            trigger={['click']}
+            className="py-0 nav-link cursor-pointer"
+            overlayClassName="prfile-dropdown"
+          >
+            <a onClick={(e) => e.preventDefault()}>
               {profile?.um_image ? (
                 <img
                   src={profile?.um_image ?? defaultprofile}
@@ -523,8 +577,9 @@ function Header({ locationPath }) {
               ) : (
                 <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
               )}
-            </Dropdown.Toggle>
+            </a>
           </Dropdown>
+
         </Nav>
       </Container>
     </Navbar >

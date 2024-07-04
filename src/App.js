@@ -24,6 +24,7 @@ import { useLocalStorage } from "./utils/localStorage";
 
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
+import MyProfile from "./pages/MyProfile";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -91,6 +92,7 @@ function App() {
                 <Route path="certificate_print_view" element={<CertificatePrintView />} />
                 <Route path="smart-prescription" element={<SmartPrescription />} />
                 <Route path="print-smart-rx" element={<SmartRxPreview />} />
+                <Route path="my-profile" element={<MyProfile />} />
               </Routes>
             </PersistGate>
           </Provider>
