@@ -135,7 +135,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   };
 
   const handleGenerateImages = async () => {
-    const graphImages = await Promise.all(
+    const formData = new FormData();
+    formData.append("pm_id", patient_data?.pm_id || 0);
+    formData.append("pm_pid", patient_data?.pm_pid || 0);
+    await Promise.all(
       graphImgRefs.current.map(async (ref, index) => {
         if (ref === null) {
           return null;
@@ -148,17 +151,9 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         const file = new File([blob], name, {
           type: "image/jpeg",
         });
-        return file;
+        formData.append(name, file);
       })
     );
-
-    const formData = new FormData();
-    formData.append("pm_id", patient_data?.pm_id || 0);
-    formData.append("pm_pid", patient_data?.pm_pid || 0);
-
-    graphImages.map((graphImg) => {
-      formData.append(graphImg.name, graphImg);
-    });
 
     await storeGrowthChart(formData);
   };
