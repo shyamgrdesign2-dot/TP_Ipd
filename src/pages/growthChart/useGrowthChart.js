@@ -1,14 +1,18 @@
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { getAllGrowthChartParams, getGrowthChartImages } from "./service";
+import { useAccess } from "../vaccination/useAccess";
 
 export const useGrowthChart = (caseManagerData) => {
+  const { isGrowthChartAccessable } = useAccess();
   const [growthChartData, setGrowthChartData] = useState([]);
   const [growthChartImageData, setGrowthChartImageData] = useState({});
   const dateFormat = "YYYY-MM-DD";
 
   useEffect(() => {
-    getGrowthChartDetails();
+    if (isGrowthChartAccessable) {
+      getGrowthChartDetails();
+    }
   }, []);
 
   const getGrowthChartDetails = async () => {

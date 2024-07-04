@@ -12,7 +12,7 @@ import {
   storeGrowthChart,
 } from "./service";
 import { useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import TableView from "./components/tableView/TableView";
 import Measurements from "./components/measurements/Measurements";
@@ -31,9 +31,13 @@ import FullPageLoader from "../vaccination/components/Loader";
 import GrowthChartPrint from "./components/growthChartPrint/GrowthChartPrint";
 import { handlePrintClick } from "../../utils/utils";
 import html2canvas from "html2canvas";
+import { updatedMeasurement } from "../../redux/growthChartSlice";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
-  const { measurements } = useSelector((state) => state.growthChart);
+  const dispatch = useDispatch();
+  const { measurements, isMeasurementUpdated } = useSelector(
+    (state) => state.growthChart
+  );
   const { patients_details } = useSelector((state) => state.records);
   const { state } = useLocation();
   const { patient_data } = state;
@@ -159,16 +163,19 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   };
 
   const imageUploadHandler = () => {
-    if (measurements.length) {
+    if (measurements.length && isMeasurementUpdated) {
+      dispatch(updatedMeasurement());
       setIsSaveClicked(true);
       setDisplay("block");
       setTimeout(() => {
         handleGenerateImages();
       }, 800);
-    }
-    setTimeout(() => {
+      setTimeout(() => {
+        handleDrawerVaccination();
+      }, 1000);
+    } else {
       handleDrawerVaccination();
-    }, 1000);
+    }
   };
 
   const getGraphsToPrintCheckBox = () => {

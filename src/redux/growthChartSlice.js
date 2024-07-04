@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   measurements: [],
-  isFetched: false,
+  isMeasurementUpdated: false,
 };
 
 const growthChartSlice = createSlice({
@@ -22,11 +22,14 @@ const growthChartSlice = createSlice({
       } else {
         state.measurements = [...state.measurements, action.payload];
       }
-      state.isFetched = true;
+      state.isMeasurementUpdated = true;
+    },
+    updatedMeasurement: (state) => {
+      state.isMeasurementUpdated = false;
     },
   },
 });
 
-export const { resetGrowthChartState, addMeasurements } =
+export const { resetGrowthChartState, addMeasurements, updatedMeasurement } =
   growthChartSlice.actions;
 export default growthChartSlice.reducer;
