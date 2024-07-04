@@ -320,17 +320,14 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
                 onChange={(e) => onCaseOptionChange(e, "radio", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
                 value={record.format}
               >
-                {record?.id === 12 ? 
-                    <Radio.Button className="w-100 text-center" value="graph" >Graph View</Radio.Button> : 
-                    <>
-                      <Radio.Button className="w-100 text-center" value="inline">
-                        Inline
-                      </Radio.Button>
-                      <Radio.Button className="w-100 text-center" value="listview">
-                        List View
-                      </Radio.Button>
-                    </>
-                  }
+                <Radio.Button className="w-100 text-center" value="inline">
+                  {record?.id === 12 ? "Graph View" : "Inline"}
+                </Radio.Button>
+                {record?.id !== 12 && 
+                  <Radio.Button className="w-100 text-center" value="listview">
+                    List View
+                  </Radio.Button>
+                }
                 <Radio.Button className="w-100 text-center" value="table">
                   Table
                 </Radio.Button>
