@@ -388,7 +388,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                 <View>
                     {printSettings?.prescription?.case_option?.map((option, index) => {
-                        console.log({option});
                         return (
                             option?.id === 1 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>

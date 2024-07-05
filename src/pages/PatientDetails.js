@@ -38,7 +38,9 @@ function PatientDetails() {
 
     let location = useLocation();
     const navigate = useNavigate();
-    const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess();
+    const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
+      patient_data?.ageYears
+    );
 
     const [sidebarKey, setSidebarKey] = useState(1);
 

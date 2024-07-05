@@ -4,7 +4,9 @@ import { getAllGrowthChartParams, getGrowthChartImages } from "./service";
 import { useAccess } from "../vaccination/useAccess";
 
 export const useGrowthChart = (caseManagerData) => {
-  const { isGrowthChartAccessable } = useAccess();
+  const { isGrowthChartAccessable } = useAccess(
+    caseManagerData?.patient_data?.patient_age
+  );
   const [growthChartData, setGrowthChartData] = useState([]);
   const [growthChartImageData, setGrowthChartImageData] = useState({});
 
@@ -45,5 +47,6 @@ export const useGrowthChart = (caseManagerData) => {
   return {
     growthChartData,
     growthChartImageData,
+    getGrowthChartDetails,
   };
 };

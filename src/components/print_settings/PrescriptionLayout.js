@@ -145,7 +145,9 @@ const checkboxOptions = [
 
 function PrescriptionLayout({todayVaccines, growthChartDetails}) {
   const { caseManagerData, printSettings, setPrintSettings } = useContext(PrintSettingsContext);
-  const {isVaccinationAccessable, isGrowthChartAccessable} = useAccess();
+  const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
+    caseManagerData?.patient_data?.patient_age
+  );
 
   const onMainCaseOptionChange = useCallback(
     (e) => {
