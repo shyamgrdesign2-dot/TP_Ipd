@@ -3,12 +3,16 @@ import { Container } from 'react-bootstrap';
 import { Flex, Progress, Button } from 'antd';
 import { makeDefaultLogo } from "../utils/utils";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import defaultprofile from "../assets/images/default-profile.svg";
 
 import HeaderDoctorProfile from "../components/DoctorProfile/HeaderDoctorProfile";
 import ProfilePersonalDetailsCard from "../components/DoctorProfile/ProfilePersonalDetailsCard";
 import ProfileClinicCard from "../components/DoctorProfile/ProfileClinicCard";
 function DoctorProfile() {
+
+  const navigate = useNavigate();
+
   const { profile } = useSelector((state) => state.doctors);
   return (
     <>
@@ -48,7 +52,7 @@ function DoctorProfile() {
                   </div>
                 </div>
                 <div>
-                  <Button type="text" className="btn btn-input align-items-center d-flex btn-41 w-100" icon={<i className="icon-group fs-21" />}>
+                  <Button type="text" onClick={() => (navigate('/doctor-profile-setting'))} className="btn btn-input align-items-center d-flex btn-41 w-100" icon={<i className="icon-group fs-21" />}>
                     Setup Website
                     <i className="icon-right iconrotate180 ms-4" />
                   </Button>

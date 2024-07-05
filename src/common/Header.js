@@ -430,44 +430,44 @@ function Header({ locationPath }) {
     },
     {
       label:
-        <a>
+        <a onClick={() => (navigate('/doctor-profile-setting'))}>
           <div className="title-common me-5 d-flex align-items-center"><i className="icon-group me-3"></i>Setup My Website</div>
           <i className="icon-right iconrotate180"></i>
         </a>,
       key: '3',
     },
-    {
-      label:
-        <a>
-          <div className="title-common me-5 d-flex align-items-center"><i className="icon-calendar me-3"></i>My Availability</div>
-          <i className="icon-right iconrotate180"></i>
-        </a>,
-      key: '4',
-    },
-    {
-      label:
-        <a>
-          <div className="title-common me-5 d-flex align-items-center"><i className="icon-upgrade me-3"></i>Upgrade Plan</div>
-          <i className="icon-right iconrotate180"></i>
-        </a>,
-      key: '5',
-    },
-    {
-      label:
-        <a>
-          <div className="title-common me-5 d-flex align-items-center"><i className="icon-help me-3"></i>Help Center</div>
-          <i className="icon-right iconrotate180"></i>
-        </a>,
-      key: '6',
-    },
-    {
-      label:
-        <a>
-          <div className="title-common me-5 d-flex align-items-center"><i className="icon-setting me-3"></i>Account Setting</div>
-          <i className="icon-right iconrotate180"></i>
-        </a>,
-      key: '7',
-    },
+    // {
+    //   label:
+    //     <a>
+    //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-calendar me-3"></i>My Availability</div>
+    //       <i className="icon-right iconrotate180"></i>
+    //     </a>,
+    //   key: '4',
+    // },
+    // {
+    //   label:
+    //     <a>
+    //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-upgrade me-3"></i>Upgrade Plan</div>
+    //       <i className="icon-right iconrotate180"></i>
+    //     </a>,
+    //   key: '5',
+    // },
+    // {
+    //   label:
+    //     <a>
+    //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-help me-3"></i>Help Center</div>
+    //       <i className="icon-right iconrotate180"></i>
+    //     </a>,
+    //   key: '6',
+    // },
+    // {
+    //   label:
+    //     <a>
+    //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-setting me-3"></i>Account Setting</div>
+    //       <i className="icon-right iconrotate180"></i>
+    //     </a>,
+    //   key: '7',
+    // },
     {
       type: 'divider',
     },
