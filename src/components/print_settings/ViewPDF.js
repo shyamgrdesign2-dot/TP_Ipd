@@ -114,7 +114,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails } = props
 
-    const { growthChartData, growthChartImageData } = growthChartDetails
+    const { growthChartData, growthChartImageData } = growthChartDetails || {};
     let growthChartImageChunks = []
     if(growthChartImageData) {
         const growthChartOption = printSettings?.prescription?.case_option?.find(o => o.id === 12)?.growth_chart_option;

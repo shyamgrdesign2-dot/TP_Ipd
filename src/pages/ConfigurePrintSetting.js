@@ -99,7 +99,7 @@ function ConfigurePrintSetting() {
                                 {selectedTab === TAB_PRESCRIPTION ? (
                                     <PrescriptionLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails}/>
                                 ) : selectedTab === TAB_HEADER_FOOTER ? (
-                                    <HeaderFooterLayout />
+                                    <HeaderFooterLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} />
                                 ) : selectedTab === TAB_PAGE_FORMAT && (
                                     <PageFormatLayout />
                                 )}
