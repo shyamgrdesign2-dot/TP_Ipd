@@ -8,7 +8,7 @@ const SubHeader = ({
   showTableView,
   setShowTableView,
   showTimelineInYear,
-  setShowTimelineInYear,
+  showTimelineInYearHandler,
   parentalDetails,
 }) => {
   const growthDetails = (title, value1, value2) => {
@@ -61,7 +61,7 @@ const SubHeader = ({
     return (
       <div
         className="detailsContainer toggleContainer"
-        onClick={() => setShowTimelineInYear(!showTimelineInYear)}
+        onClick={showTimelineInYearHandler}
       >
         <div className="textStyle titleStyle">
           <span>Show Timeine</span>

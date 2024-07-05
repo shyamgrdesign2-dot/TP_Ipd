@@ -46,6 +46,10 @@ function ConfigurePrintSetting() {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
 
+    useEffect(() => {
+        growthChartDetails.getGrowthChartDetails();
+    }, []);
+
     const contextApi = { smartRxFile , divWidth, caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
 
     const TabsPrintSetting = [
@@ -99,7 +103,7 @@ function ConfigurePrintSetting() {
                                 {selectedTab === TAB_PRESCRIPTION ? (
                                     <PrescriptionLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails}/>
                                 ) : selectedTab === TAB_HEADER_FOOTER ? (
-                                    <HeaderFooterLayout />
+                                    <HeaderFooterLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} />
                                 ) : selectedTab === TAB_PAGE_FORMAT && (
                                     <PageFormatLayout />
                                 )}

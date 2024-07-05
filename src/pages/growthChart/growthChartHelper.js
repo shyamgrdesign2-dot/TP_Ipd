@@ -55,18 +55,18 @@ export const dummyData = {
   ],
 };
 
-export const getGrowthChartData = (growthChartData, DOB, ageInYears) => {
+export const getGrowthChartData = (growthChartData, DOB, patientAgeInMonths) => {
   return growthChartData.reduce(
     (acc, entry, index) => {
       const createdDate = moment(entry.tcbc_created_date);
       const monthsDiff = createdDate.diff(DOB, "months");
 
-      if (ageInYears > 5) {
+      if (patientAgeInMonths > 60) {
         if (monthsDiff <= 60) {
           return acc;
         }
-      } else if (ageInYears > 2) {
-        if (monthsDiff <= 24) {
+      } else if (patientAgeInMonths >= 24) {
+        if (monthsDiff < 24) {
           return acc;
         }
       }

@@ -85,7 +85,9 @@ function TabPrescription() {
   const [additionalNote, setAdditionalNote] = useState("");
   const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
   const [isGrowthChart, setIsGrowthChart] = useState(false);
-  const {isVaccinationAccessable, isGrowthChartAccessable} = useAccess();
+  const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
+    caseManagerData?.patient_data?.patient_age
+  );
 
   const contextApi = {
     patient_data,
@@ -695,6 +697,7 @@ function TabPrescription() {
             onClose={handleDrawerGrowth}
             open={growthDrawer}
             width="100%"
+            push={false}
           >
             <GrowthChart
               handleDrawerVaccination={handleDrawerGrowth}

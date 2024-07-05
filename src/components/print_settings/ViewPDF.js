@@ -114,11 +114,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails } = props
 
-    const { growthChartData, growthChartImageData } = growthChartDetails
+    const { growthChartData, growthChartImageData } = growthChartDetails || {};
     let growthChartImageChunks = []
     if(growthChartImageData) {
         const growthChartOption = printSettings?.prescription?.case_option?.find(o => o.id === 12)?.growth_chart_option;
-        const graphs = Object.keys(growthChartImageData)?.filter(g => growthChartOption.includes(g));
+        const graphs = Object.keys(growthChartImageData)?.filter(g => growthChartOption?.includes(g));
         growthChartImageChunks = chunkArray(graphs, 2);
     }
 
@@ -388,7 +388,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                 <View>
                     {printSettings?.prescription?.case_option?.map((option, index) => {
-                        console.log({option});
                         return (
                             option?.id === 1 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
@@ -1377,7 +1376,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     </View>
                                                 </View>
                                             </>
-                                        ) : 
+                                        ) : growthChartImageChunks?.length > 0 &&
                                         <>
                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginTop: PX_TO_PT * 15 }}>Growth Chart &nbsp;{'\n'}</Text>
                                             <View>

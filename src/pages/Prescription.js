@@ -114,7 +114,9 @@ function Prescription() {
   const [selectPrivateNotes, setSelectPrivateNotes] = useState(null);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
-  const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess();
+  const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
+    patient_data?.ageYears
+  );
 
   useEffect(() => {
     const sendData = {

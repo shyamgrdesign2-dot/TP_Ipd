@@ -277,7 +277,6 @@ function Vaccination({ handleDrawerVaccination }) {
           <VaccineHeader
             handleDrawerVaccination={handleDrawerVaccination}
             vaccinesData={previewData}
-            patientDetails={patientDetails}
             setPrintType={setPrintType}
             isVaccination={true}
             printLoader={tabLoader}
