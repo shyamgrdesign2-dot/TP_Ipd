@@ -48,6 +48,7 @@ const GrowthGraph = ({
   isSaveClicked,
   visibility,
   setVisibility,
+  setIsPercentileOrTimeLineUpdated,
 }) => {
   const { state } = useLocation();
   const { patient_data } = state;
@@ -344,6 +345,7 @@ const GrowthGraph = ({
       newVisibility[graphIndex][index] = !newVisibility[graphIndex][index];
       return [...newVisibility];
     });
+    setIsPercentileOrTimeLineUpdated(true);
   };
 
   const toggleFullscreen = () => {

@@ -77,6 +77,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [tabLoader, setTabLoader] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
   const [measurementsData, setMeasurementsData] = useState([]);
+  const [isPercentileOrTimeLineUpdated, setIsPercentileOrTimeLineUpdated] =
+    useState(false);
   const [growthChartData, setGrowthChartData] = useState({
     Height: [],
     Weight: [],
@@ -167,9 +169,13 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   };
 
   const imageUploadHandler = () => {
-    if (measurements.length && isMeasurementUpdated) {
+    if (
+      measurements.length &&
+      (isMeasurementUpdated || isPercentileOrTimeLineUpdated)
+    ) {
       dispatch(updatedMeasurement());
       setIsSaveClicked(true);
+      setIsPercentileOrTimeLineUpdated(false);
       setDisplay("block");
       setTimeout(() => {
         handleGenerateImages();
@@ -347,6 +353,9 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   isSaveClicked={isSaveClicked}
                   visibility={visibility}
                   setVisibility={setVisibility}
+                  setIsPercentileOrTimeLineUpdated={
+                    setIsPercentileOrTimeLineUpdated
+                  }
                 />
               </div>
             </Col>
@@ -402,6 +411,11 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     setShowPrintPopup((prev) => !prev);
   };
 
+  const showTimelineInYearHandler = () => {
+    setShowTimelineInYear(!showTimelineInYear);
+    setIsPercentileOrTimeLineUpdated(true);
+  };
+
   const tablePrintHandler = () => {
     if (allGrowthChartParams.length) {
       handlePrint();
@@ -432,7 +446,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             showTableView={showTableView}
             setShowTableView={setShowTableView}
             showTimelineInYear={showTimelineInYear}
-            setShowTimelineInYear={setShowTimelineInYear}
+            showTimelineInYearHandler={showTimelineInYearHandler}
             parentalDetails={parentalDetails}
           />
           {showTableView ? (
