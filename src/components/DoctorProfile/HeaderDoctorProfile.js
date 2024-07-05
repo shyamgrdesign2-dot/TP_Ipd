@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
-function HeaderMyProfile() {
+function HeaderDoctorProfile() {
     const navigate = useNavigate();
     
     return (
@@ -25,4 +25,4 @@ function HeaderMyProfile() {
     );
 }
 
-export default HeaderMyProfile;
+export default HeaderDoctorProfile;

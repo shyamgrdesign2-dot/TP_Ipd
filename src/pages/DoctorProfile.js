@@ -5,17 +5,14 @@ import { makeDefaultLogo } from "../utils/utils";
 import { useSelector } from "react-redux";
 import defaultprofile from "../assets/images/default-profile.svg";
 
-import HeaderMyProfile from "../components/DoctorProfile/HeaderMyProfile";
+import HeaderDoctorProfile from "../components/DoctorProfile/HeaderDoctorProfile";
 import ProfilePersonalDetailsCard from "../components/DoctorProfile/ProfilePersonalDetailsCard";
 import ProfileClinicCard from "../components/DoctorProfile/ProfileClinicCard";
-import ProfileGovermentProofCard from "../components/DoctorProfile/ProfileGovermentProofCard";
-import ProfileCertificateCard from "../components/DoctorProfile/ProfileCertificateCard";
-
-function MyProfile() {
+function DoctorProfile() {
   const { profile } = useSelector((state) => state.doctors);
   return (
     <>
-      <HeaderMyProfile />
+      <HeaderDoctorProfile />
       <div className="bg-body p-30 overflow-y-auto" style={{height: 'calc(100vh - 60px)'}}>
         <Container fluid='lg'>
           <div className="mb-4">
@@ -65,16 +62,10 @@ function MyProfile() {
           <div className="mb-4">
             <ProfileClinicCard />
           </div>
-          <div className="mb-4">
-            <ProfileGovermentProofCard />
-          </div>
-          <div className="mb-4">
-            <ProfileCertificateCard />
-          </div>
         </Container>
       </div>
     </>
   );
 }
 
-export default MyProfile;
+export default DoctorProfile;
