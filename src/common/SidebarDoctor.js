@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "antd";
-import { isMobile } from 'react-device-detect';
-import { NavLink } from "react-router-dom";
+import { isMobile, isChrome, isSafari } from 'react-device-detect';
+import { NavLink, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import axios from 'axios';
 
 import config from "../config";
@@ -16,6 +16,8 @@ function SidebarDoctor() {
     const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
     const { profile } = useSelector((state) => state.doctors);
     const [tokenData, setTokenData] = useState(null);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (profile) {
@@ -46,10 +48,14 @@ function SidebarDoctor() {
     const clickOldModule = (moduleName) => {
         SSO_TO_PM().then(async (data) => {
             if (data.success == 200) {
-                await window.open(`${data.url}&module=${moduleName}`);
+                if (!isChrome && !isSafari) {
+                    navigate(`/?url=${data.url}&module=${moduleName}&key=phpRedirect`, { replace: true })
+                    navigate(0, { replace: true });
+                } else {
+                    await window.open(`${data.url}&module=${moduleName}`)
+                }
             }
         });
-
     }
     async function SSO_TO_PM() {
         try {
