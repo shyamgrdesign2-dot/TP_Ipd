@@ -41,7 +41,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { patients_details } = useSelector((state) => state.records);
   const { state } = useLocation();
   const { patient_data } = state;
-  const gender = patient_data?.pm_gender;
+  const gender =
+    patient_data?.pm_gender === "Other" ? "Male" : patient_data?.pm_gender;
   const { growthData, ageData } = growthChartStaticData;
   const patientAgeInMonths = getAgeInMonths(
     patients_details?.pm_dob
@@ -76,6 +77,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const [tabLoader, setTabLoader] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
   const [measurementsData, setMeasurementsData] = useState([]);
+  const [isPercentileOrTimeLineUpdated, setIsPercentileOrTimeLineUpdated] =
+    useState(false);
   const [growthChartData, setGrowthChartData] = useState({
     Height: [],
     Weight: [],
@@ -92,6 +95,9 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     graphIndex: null,
   });
   const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
+  const [visibility, setVisibility] = useState(
+    new Array(5).fill(new Array(5).fill(true))
+  );
 
   useEffect(() => {
     if (patients_details) {
@@ -163,9 +169,13 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   };
 
   const imageUploadHandler = () => {
-    if (measurements.length && isMeasurementUpdated) {
+    if (
+      measurements.length &&
+      (isMeasurementUpdated || isPercentileOrTimeLineUpdated)
+    ) {
       dispatch(updatedMeasurement());
       setIsSaveClicked(true);
+      setIsPercentileOrTimeLineUpdated(false);
       setDisplay("block");
       setTimeout(() => {
         handleGenerateImages();
@@ -179,6 +189,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   };
 
   const getGraphsToPrintCheckBox = () => {
+    const percentileVisibility = [];
     const updatedGraphsToPrintData = graphsToPrint
       .map((graphItem) => {
         const percentileData =
@@ -186,11 +197,13 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             ? {}
             : growthData[gender][ageInterval][graphItem.id];
         if (Object.keys(percentileData).length) {
+          percentileVisibility.push(new Array(5).fill(true));
           return graphItem;
         }
       })
       .filter((item) => item);
     setGraphToPrint(updatedGraphsToPrintData);
+    setVisibility(percentileVisibility);
   };
 
   const getGrowthChartDetails = async () => {
@@ -338,6 +351,11 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                   ageInterval={ageInterval}
                   display={display}
                   isSaveClicked={isSaveClicked}
+                  visibility={visibility}
+                  setVisibility={setVisibility}
+                  setIsPercentileOrTimeLineUpdated={
+                    setIsPercentileOrTimeLineUpdated
+                  }
                 />
               </div>
             </Col>
@@ -393,6 +411,11 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     setShowPrintPopup((prev) => !prev);
   };
 
+  const showTimelineInYearHandler = () => {
+    setShowTimelineInYear(!showTimelineInYear);
+    setIsPercentileOrTimeLineUpdated(true);
+  };
+
   const tablePrintHandler = () => {
     if (allGrowthChartParams.length) {
       handlePrint();
@@ -423,7 +446,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             showTableView={showTableView}
             setShowTableView={setShowTableView}
             showTimelineInYear={showTimelineInYear}
-            setShowTimelineInYear={setShowTimelineInYear}
+            showTimelineInYearHandler={showTimelineInYearHandler}
             parentalDetails={parentalDetails}
           />
           {showTableView ? (

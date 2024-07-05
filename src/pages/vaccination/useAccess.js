@@ -6,6 +6,7 @@ import { checkToShowVaccination } from "./service";
 export const useAccess = () => {
   const [isPediatric, setIsPediatric] = useState(false);
   const { profile } = useSelector((state) => state.doctors);
+  const { patients_details } = useSelector((state) => state.records);
   const isVaccinationAccessableFromGB = useFeatureIsOn(
     "vaccination-new-design"
   );
@@ -26,6 +27,8 @@ export const useAccess = () => {
   return {
     isPediatric,
     isVaccinationAccessable: isVaccinationAccessableFromGB || isPediatric,
-    isGrowthChartAccessable: isGrowthChartAccessableFromGB || isPediatric,
+    isGrowthChartAccessable:
+      (isGrowthChartAccessableFromGB || isPediatric) &&
+      patients_details?.ageYears <= 18,
   };
 };

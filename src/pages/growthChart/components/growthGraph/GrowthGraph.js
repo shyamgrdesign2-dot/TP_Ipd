@@ -46,6 +46,9 @@ const GrowthGraph = ({
   ageInterval,
   display,
   isSaveClicked,
+  visibility,
+  setVisibility,
+  setIsPercentileOrTimeLineUpdated,
 }) => {
   const { state } = useLocation();
   const { patient_data } = state;
@@ -69,9 +72,6 @@ const GrowthGraph = ({
   const tooltipRef = useRef(null);
   const [shouldShowPercentilePopup, setPercentilePopup] = useState(false);
   const [dataIndex, setDataIndex] = useState();
-  const [visibility, setVisibility] = useState(
-    data.datasets.map((ds) => !ds.hidden)
-  );
   const [popup, setPopup] = useState({
     visible: false,
     x: 0,
@@ -342,9 +342,10 @@ const GrowthGraph = ({
   const toggleVisibility = (index) => {
     setVisibility((prev) => {
       const newVisibility = [...prev];
-      newVisibility[index] = !newVisibility[index];
+      newVisibility[graphIndex][index] = !newVisibility[graphIndex][index];
       return [...newVisibility];
     });
+    setIsPercentileOrTimeLineUpdated(true);
   };
 
   const toggleFullscreen = () => {
@@ -462,14 +463,14 @@ const GrowthGraph = ({
 
   // Update the dataset visibility based on the state
   data.datasets.forEach((dataset, index) => {
-    dataset.hidden = !visibility[index];
+    dataset.hidden = !visibility[graphIndex][index];
   });
 
   const chartData = {
     ...data,
     datasets: data.datasets.map((dataset, index) => ({
       ...dataset,
-      hidden: !visibility[index],
+      hidden: !visibility[graphIndex][index],
     })),
   };
 
@@ -512,7 +513,7 @@ const GrowthGraph = ({
                           <Checkbox
                             key={index}
                             className="growth-chart-custom-checkbox"
-                            checked={visibility[index]}
+                            checked={visibility[graphIndex][index]}
                             onChange={() => toggleVisibility(index)}
                           >
                             <span
