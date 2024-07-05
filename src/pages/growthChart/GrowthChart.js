@@ -41,7 +41,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { patients_details } = useSelector((state) => state.records);
   const { state } = useLocation();
   const { patient_data } = state;
-  const gender = patient_data?.pm_gender;
+  const gender =
+    patient_data?.pm_gender === "Other" ? "Male" : patient_data?.pm_gender;
   const { growthData, ageData } = growthChartStaticData;
   const patientAgeInMonths = getAgeInMonths(
     patients_details?.pm_dob
