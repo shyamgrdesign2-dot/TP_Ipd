@@ -1,10 +1,17 @@
 import React from 'react';
+import { Button, Dropdown } from 'antd';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 function HeaderDoctorWebsite() {
     const navigate = useNavigate();
-    
+    const items = [
+        {
+            label: <div>Unpublish Website</div>,
+            key: 'UnPublish',
+        },
+    ];
+
     return (
         <Navbar className="justify-content-between headerprescription p-0">
             <Container fluid className='h-100 gx-0 w-100'>
@@ -19,9 +26,22 @@ function HeaderDoctorWebsite() {
                             <div className='ms-3 title-common'>Setup Website</div>
                         </div>
                     </Col>
-                    <Col lg="auto" className='h-100'>
-                        <div className='align-items-center d-flex h-100'>
-                            <div className='ms-3 title-common'>Setup Website</div>
+                    <Col lg="auto">
+                        <div className='align-items-center d-flex'>
+                            <button className='btn d-flex align-items-center btn-text me-14'>
+                                <i className="icon-New-Window me-2"></i> <span>Live Reference Demo</span>
+                            </button>
+                            <button className='btn d-flex align-items-center btn-text me-14'>
+                                <i className="icon-Preview me-2"></i> <span>Your Website Preview</span>
+                            </button>
+                            <Button type='button' className="btn-41 btn px-4 btn-primary3 align-items-center d-flex">
+                                <i className="icon-New-Window me-2"></i> Publish Website
+                            </Button>
+                            <Dropdown className='btn btn-outline btn-more p-0 ms-3' menu={{ items }} trigger={['click']}>
+                                <a onClick={(e) => e.preventDefault()}>
+                                    <i className='icon-More'></i>
+                                </a>
+                            </Dropdown>
                         </div>
                     </Col>
                 </Row>

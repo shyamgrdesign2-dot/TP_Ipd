@@ -13,8 +13,9 @@ function DoctorWebsiteSetting() {
                 <Row justify="space-between">
                     <Col xl={8} lg={10} className="pe-3">
                         <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
-                            <div className="p-4">
-                                <Progress percent={30} />
+                            <div className="p-20">
+                                <div className="ms-5 fontroboto">Website Setup Score</div>
+                                <Progress className="profile-website-setting" percent={11} />
                             </div>
                         </div>
                     </Col>

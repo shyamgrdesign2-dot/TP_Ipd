@@ -57,6 +57,19 @@
             font-weight: 600;
         }
     }
+    &.profile-website-setting {
+        .ant-progress-text {
+            background-color: $alerText;
+            color: $white !important;
+            position: absolute;
+            padding: 3px 5px;
+            left: -5px;
+            top: -20px;
+            border-radius: 6px;
+            width: auto;
+            text-align: center;
+        }
+    }
 } 
 
 // Profile's cards header
