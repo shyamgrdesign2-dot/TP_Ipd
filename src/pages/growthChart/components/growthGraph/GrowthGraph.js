@@ -341,9 +341,9 @@ const GrowthGraph = ({
 
   const toggleVisibility = (index) => {
     setVisibility((prev) => {
-      const newVisibility = [...prev];
-      newVisibility[graphIndex][index] = !newVisibility[graphIndex][index];
-      return [...newVisibility];
+      const newVisibility = prev;
+      newVisibility[graphName][index] = !newVisibility[graphName][index];
+      return {...newVisibility};
     });
     setIsPercentileOrTimeLineUpdated(true);
   };
@@ -463,14 +463,14 @@ const GrowthGraph = ({
 
   // Update the dataset visibility based on the state
   data.datasets.forEach((dataset, index) => {
-    dataset.hidden = !visibility[graphIndex][index];
+    dataset.hidden = !visibility[graphName][index];
   });
 
   const chartData = {
     ...data,
     datasets: data.datasets.map((dataset, index) => ({
       ...dataset,
-      hidden: !visibility[graphIndex][index],
+      hidden: !visibility[graphName][index],
     })),
   };
 
@@ -513,7 +513,7 @@ const GrowthGraph = ({
                           <Checkbox
                             key={index}
                             className="growth-chart-custom-checkbox"
-                            checked={visibility[graphIndex][index]}
+                            checked={visibility[graphName][index]}
                             onChange={() => toggleVisibility(index)}
                           >
                             <span

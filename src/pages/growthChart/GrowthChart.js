@@ -95,9 +95,13 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     graphIndex: null,
   });
   const [graphsToPrint, setGraphToPrint] = useState(graphsToPrintData);
-  const [visibility, setVisibility] = useState(
-    new Array(5).fill(new Array(5).fill(true))
-  );
+  const [visibility, setVisibility] = useState({
+    Height: new Array(6).fill(true),
+    Weight: new Array(6).fill(true),
+    BMI: new Array(6).fill(true),
+    OFC: new Array(6).fill(true),
+    HeightVsWeight: new Array(6).fill(true),
+  });
 
   useEffect(() => {
     if (patients_details) {
@@ -189,7 +193,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   };
 
   const getGraphsToPrintCheckBox = () => {
-    const percentileVisibility = [];
+    const percentileVisibility = visibility;
     const updatedGraphsToPrintData = graphsToPrint
       .map((graphItem) => {
         const percentileData =
@@ -197,7 +201,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             ? {}
             : growthData[gender][ageInterval][graphItem.id];
         if (Object.keys(percentileData).length) {
-          percentileVisibility.push(new Array(5).fill(true));
+          percentileVisibility[graphItem.id] = new Array(6).fill(true);
           return graphItem;
         }
       })
@@ -282,7 +286,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             borderDash: [4, 4], // Make the line dotted
             pointRadius: 3, // Show points
             pointHoverRadius: 6, // Show points on hover
-            hidden: false,
             pointBorderColor: modifiedData.map((item) =>
               item.isMalnutrition ? "#FF0000" : "#19BB7A"
             ),

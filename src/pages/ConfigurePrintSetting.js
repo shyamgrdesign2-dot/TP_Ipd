@@ -46,6 +46,10 @@ function ConfigurePrintSetting() {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
 
+    useEffect(() => {
+        growthChartDetails.getGrowthChartDetails();
+    }, []);
+
     const contextApi = { smartRxFile , divWidth, caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
 
     const TabsPrintSetting = [
