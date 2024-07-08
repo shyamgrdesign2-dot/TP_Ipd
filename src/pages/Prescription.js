@@ -39,10 +39,12 @@ import hey from "../assets/images/bg-hey.png";
 import { Content } from "antd/es/layout/layout";
 import vaccinationImg from "../assets/images/Vaccination.svg";
 import growthChartImg from "../assets/images/growth-chart-dark.svg";
+import obstetricImg from "../assets/images/obstetric-dark.svg";
 import Vaccination from "./vaccination/Vaccination";
 import GrowthChart from "./growthChart/GrowthChart";
 import { viewPatient } from "../redux/appointmentsSlice";
 import { useAccess } from "./vaccination/useAccess";
+import Obstetric from "./obstetric/Obstetric";
 
 function Prescription() {
   const {
@@ -114,6 +116,7 @@ function Prescription() {
   const [selectPrivateNotes, setSelectPrivateNotes] = useState(null);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
+  const [obstetricDrawer, setObstetricDrawer] = useState(false);
   const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
     patient_data?.ageYears
   );
@@ -279,7 +282,7 @@ function Prescription() {
   // Drawer Private Notes
   const handleDrawerPrivateNotes = useCallback((data) => {
     setSelectPrivateNotes(data)
-    setPrivateNotesDrawer(!privateNotesDrawer);
+      setPrivateNotesDrawer(!privateNotesDrawer);
   }, [privateNotesDrawer, selectPrivateNotes]);
 
   // Drawer Vaccination
@@ -291,6 +294,11 @@ function Prescription() {
   const handleDrawerGrowth = () => {
     setGrowthDrawer(!growthDrawer);
     setIsGrowthChart(!isGrowthChart);
+  };
+
+  // Drawer Obstetric
+  const handleDrawerObstetric = () => {
+    setObstetricDrawer(!obstetricDrawer);
   };
 
   useEffect(() => {
@@ -456,32 +464,32 @@ function Prescription() {
                   e.tmdpm_id === 7 &&
                   e.tmdpm_status === 0 &&
                   isVaccinationAccessable ? (
-                    <div className="prescription-box-sm p-14">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={vaccinationImg}
-                            alt="vitals"
-                            className="me-3"
-                          />
-                          <div className="title-common">Vaccination</div>
-                        </div>
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerVaccination}
-                        >
-                          {" "}
-                          <i className={`icon-Add me-1 fs-5`}></i>{" "}
-                          <span>Add</span>
-                        </button>
+                  <div className="prescription-box-sm p-14">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <img
+                          src={vaccinationImg}
+                          alt="vitals"
+                          className="me-3"
+                        />
+                        <div className="title-common">Vaccination</div>
                       </div>
+                      <button
+                        className="btn d-flex align-items-center btn-text"
+                        onClick={handleDrawerVaccination}
+                      >
+                        {" "}
+                        <i className={`icon-Add me-1 fs-5`}></i>{" "}
+                        <span>Add</span>
+                      </button>
                     </div>
+                  </div>
                   )
                   : 
                   e.tmdpm_id === 16 &&
                   e.tmdpm_status === 0 &&
                   isGrowthChartAccessable ? (
-                    <div className="prescription-box-sm p-14">
+                  <div className="prescription-box-sm p-14">
                     <div className="d-flex align-items-center justify-content-between">
                       <div className="d-flex align-items-center">
                         <img src={growthChartImg} alt="growth" className="me-3" />
@@ -518,8 +526,27 @@ function Prescription() {
                       <PrivateNotesList handleDrawerPrivateNotes={handleDrawerPrivateNotes} />
                     )}
                   </div>
-                )
+                  )
               })}
+              <div className="prescription-box-sm p-14">
+                <div className="d-flex align-items-center justify-content-between">
+                  <div className="d-flex align-items-center">
+                    <img
+                      src={obstetricImg}
+                      alt="obstetric"
+                      className="me-3"
+                    />
+                    <div className="title-common">Obstetric History</div>
+                  </div>
+                  <button
+                    className="btn d-flex align-items-center btn-text"
+                    onClick={handleDrawerObstetric}
+                  >
+                    <i className={`icon-Add me-1 fs-5`}></i>{" "}
+                    <span>Add</span>
+                  </button>
+                </div>
+              </div>
 
               {/* <div>
                 <button className="btn btn-parameters mx-auto w-100">
@@ -614,15 +641,15 @@ function Prescription() {
         </Drawer>
         {
           vaccinationDrawer && (
-            <Drawer
-              closeIcon={false}
-              placement="right"
-              onClose={handleDrawerVaccination}
-              open={vaccinationDrawer}
-              width="100%"
-            >
-              <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
-            </Drawer>
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerVaccination}
+            open={vaccinationDrawer}
+            width="100%"
+          >
+            <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
+          </Drawer>
           )
         }
         {growthDrawer && (
@@ -635,6 +662,20 @@ function Prescription() {
             push={false}
           >
             <GrowthChart handleDrawerVaccination={handleDrawerGrowth} />
+          </Drawer>
+        )}
+        {obstetricDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerObstetric}
+            open={obstetricDrawer}
+            width="100%"
+            push={false}
+          >
+            <Obstetric
+              handleDrawerObstetric={handleDrawerObstetric}
+            />
           </Drawer>
         )}
       </>

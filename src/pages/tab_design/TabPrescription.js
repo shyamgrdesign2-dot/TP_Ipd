@@ -40,6 +40,8 @@ import growthChart from "../../assets/images/growth-chart.svg";
 import growthChartDark from "../../assets/images/growth-chart-dark.svg";
 import privateNotesWhite from "../../assets/images/private-notes-white.svg";
 import privateNotesDark from "../../assets/images/private-notes-dark.svg";
+import obstetricWhite from "../../assets/images/obstetric-white.svg";
+import obstetricDark from "../../assets/images/obstetric-dark.svg";
 
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
@@ -49,6 +51,7 @@ import Vaccination from "../vaccination/Vaccination";
 import GrowthChart from "../growthChart/GrowthChart";
 import { viewPatient } from "../../redux/appointmentsSlice";
 import { useAccess } from "../vaccination/useAccess";
+import Obstetric from "../obstetric/Obstetric";
 
 function TabPrescription() {
   const {
@@ -84,6 +87,7 @@ function TabPrescription() {
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
   const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
+  const [obstetricDrawer, setObstetricDrawer] = useState(false);
   const [isGrowthChart, setIsGrowthChart] = useState(false);
   const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
@@ -294,6 +298,12 @@ function TabPrescription() {
     setIsGrowthChart(!isGrowthChart);
   };
 
+   // Drawer Obstetric
+  const handleDrawerObstetric = () => {
+    setCollapsedFlag(6);
+    setObstetricDrawer(!obstetricDrawer);
+  };
+
   useEffect(() => {
     if (isVaccination) {
       handleDrawerVaccination();
@@ -327,6 +337,10 @@ function TabPrescription() {
         handleDrawerVaccination();
       } else if (flag === 4) {
         handleDrawerPrivateNotes();
+      } else if (flag === 5) {
+        handleDrawerGrowth();
+      } else if (flag === 6) {
+        handleDrawerObstetric();
       }
     },
     [
@@ -493,50 +507,78 @@ function TabPrescription() {
                   e.tmdpm_id === 7 &&
                   e.tmdpm_status === 0 &&
                   isVaccinationAccessable ? (
-                    <button
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={handleDrawerVaccination}
-                    >
-                      <div
+                  <button
+                    type="button"
+                    className="mb-3 text-center btn btn-action"
+                    onClick={handleDrawerVaccination}
+                  >
+                    <div
                         className={`bg-secondary-light prescription-tab-button rounded-10px ${collapsedFlag === 3 && "active"}`}
-                      >
-                        <img
-                          src={
-                            collapsedFlag === 3
-                              ? vaccinationDark
-                              : vaccinationWhite
-                          }
-                          alt="Vitals"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Vaccine</label>
-                    </button>
+                    >
+                      <img
+                        src={
+                          collapsedFlag === 3
+                            ? vaccinationDark
+                            : vaccinationWhite
+                        }
+                        alt="Vitals"
+                      />
+                    </div>
+                    <label className="text-white mt-1">Vaccine</label>
+                  </button>
                   )
                  : 
                   (
                   e.tmdpm_id === 16 &&
                   e.tmdpm_status === 0 &&
                   isGrowthChartAccessable && (
-                    <button
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={handleDrawerGrowth}
-                    >
-                      <div
-                        className={`prescription-tab-button rounded-10px ${
-                          collapsedFlag === 5 && "active"
-                        }`}
+                    <>
+                      <button
+                        type="button"
+                        className="mb-3 text-center btn btn-action"
+                        onClick={handleDrawerGrowth}
                       >
-                        <img
-                          src={collapsedFlag === 5 ? growthChartDark : growthChart}
-                          alt="Growth"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Growth</label>
-                    </button>
+                        <div
+                          className={`prescription-tab-button rounded-10px ${
+                            collapsedFlag === 5 && "active"
+                          }`}
+                        >
+                          <img
+                            src={
+                              collapsedFlag === 5
+                                ? growthChartDark
+                                : growthChart
+                            }
+                            alt="Growth"
+                          />
+                        </div>
+                        <label className="text-white mt-1">Growth</label>
+                      </button>
+                      <button
+                        type="button"
+                        className="mb-3 text-center btn btn-action"
+                        style={{padding: "0px"}}
+                        onClick={handleDrawerObstetric}
+                      >
+                        <div
+                          className={`prescription-tab-button rounded-10px ${
+                            collapsedFlag === 6 && "active"
+                          }`}
+                        >
+                          <img
+                            src={
+                              collapsedFlag === 6
+                                ? obstetricDark
+                                : obstetricWhite
+                            }
+                            alt="Growth"
+                          />
+                        </div>
+                        <label className="text-white mt-1">Obstetric</label>
+                      </button>
+                    </>
                   )
-                )
+                );
               })}
               {/* <button type='button' className="mb-3 text-center btn btn-action">
                                 <div className="prescription-tab-button rounded-10px">
@@ -703,6 +745,18 @@ function TabPrescription() {
               handleDrawerVaccination={handleDrawerGrowth}
               handleDrawerVital={handleDrawerVital}
             />
+          </Drawer>
+        )}
+        {obstetricDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerObstetric}
+            open={obstetricDrawer}
+            width="100%"
+            push={false}
+          >
+            <Obstetric />
           </Drawer>
         )}
       </>
