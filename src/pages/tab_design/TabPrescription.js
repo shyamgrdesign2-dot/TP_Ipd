@@ -756,7 +756,7 @@ function TabPrescription() {
             width="100%"
             push={false}
           >
-            <Obstetric />
+            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
           </Drawer>
         )}
       </>

@@ -1,7 +1,15 @@
+import VaccineHeader from "../vaccination/components/vaccineHeader/VaccineHeader";
 import "./Obstetric.scss";
 
-const Obstetric = () => {
-  return <div>obstetric</div>;
+const Obstetric = ({ handleDrawerObstetric }) => {
+  return (
+    <div className="vaccinationWrapper">
+      <VaccineHeader
+        handleDrawerVaccination={handleDrawerObstetric}
+        isObstetric={true}
+      />
+    </div>
+  );
 };
 
 export default Obstetric;
