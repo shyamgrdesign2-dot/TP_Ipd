@@ -150,9 +150,13 @@ export const addPatient = createAsyncThunk(
 
 export const editPatient = createAsyncThunk(
     "records/editPatient",
-    async (data) => {
+    async (patientInfo) => {
         try {
-            const result = await ApiAppointments.editPatient(data);
+            const formData = new FormData();
+            Object.keys(patientInfo).forEach((key) => {
+                formData.append(key, patientInfo[key]);
+            });
+            const result = await ApiAppointments.editPatient(formData);
             if (result.status) {
                 return result.data;
             } else {
