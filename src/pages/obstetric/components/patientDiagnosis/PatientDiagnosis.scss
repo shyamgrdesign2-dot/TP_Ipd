@@ -1,0 +1,63 @@
+.patientDiagnosisContainer {
+  padding: 24px 40px;
+  background-color: rgba(252, 218, 218, 0.3);
+  height: 193px;
+
+  .diagnosisTitle {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    padding-bottom: 20px;
+  }
+  .diagnosisItems {
+    display: flex;
+    flex-direction: column;
+    row-gap: 18px;
+
+    .rowContainer {
+      display: flex;
+      justify-content: space-between;
+
+      .history-badge {
+        border: 1px solid #e2e2ea;
+        background-color: white;
+        border-radius: 10px;
+        height: 36px;
+        width: max-content;
+        display: flex;
+        align-items: center;
+        padding-left: 10px;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 21px;
+        span {
+          padding: 8px 10px 8px 0;
+          margin-left: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+          font-weight: 500;
+        }
+        .timeInterval {
+          background-color: #fafafb;
+          margin-left: 0px;
+          padding-left: 10px;
+          height: 34px;
+          // border-radius: 10px;
+        }
+        .timeIntervalValue {
+          border: solid 1px #eaecf0;
+          border-top: none;
+          border-bottom: none;
+          padding: 8px 10px;
+          margin-left: 0px;
+          height: 34px;
+          width: 56px;
+          text-align: center;
+          border-radius: 0 !important;
+        }
+      }
+    }
+  }
+}

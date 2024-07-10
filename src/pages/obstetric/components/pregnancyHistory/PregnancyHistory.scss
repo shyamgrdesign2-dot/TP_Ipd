@@ -1,0 +1,29 @@
+.emptyDataContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+  align-items: center;
+  margin: 30px auto auto;
+  width: 450px;
+  height: 16rem;
+
+  .shortDescription {
+    font-size: 14px;
+    font-weight: 400;
+    color: #a2a2a8 !important;
+    align-items: center;
+  }
+
+  .continueBtn {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    .continueText {
+      color: #4b4ad5 !important;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: underline;
+    }
+  }
+}
