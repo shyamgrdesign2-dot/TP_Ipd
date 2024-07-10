@@ -1,6 +1,15 @@
 import React, { useState } from "react";
 import "./PatientDiagnosis.scss";
-import { Col, DatePicker, Form, Input, Row, Select } from "antd";
+import {
+  Col,
+  DatePicker,
+  Drawer,
+  Form,
+  Input,
+  Row,
+  Select,
+} from "antd";
+import DiagnosisNotes from "../diagnosisNotes/DiagnosisNotes";
 
 const bloodGroupOptions = [
   { value: 1, label: "A+ (A positive)" },
@@ -13,6 +22,9 @@ const bloodGroupOptions = [
   { value: 8, label: "O- (O negative" },
 ];
 
+const diagnosisNotes =
+  "We are an ABDM-certified platform crafted to ease administrative burdens your passion where it truly matters – caring for patients.";
+
 export default function PatientDiagnosis() {
   const [gestationWeeks, setGestationWeeks] = useState("");
   const [gestationDays, setGestationDays] = useState("");
@@ -20,6 +32,12 @@ export default function PatientDiagnosis() {
   const [marriageDurationInMonths, setMarriageDurationInMonths] = useState("");
 
   const [selectedBloodGroup, setSelectedBloodGroup] = useState(null);
+
+  const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
+
+  const handleDrawerDiagnosisNotes = () => {
+    setDiagnosisNotesDrawer(!diagnosisNotesDrawer);
+  };
 
   const handleChange = (value) => {
     setSelectedBloodGroup(value);
@@ -160,13 +178,7 @@ export default function PatientDiagnosis() {
           </div>
         </div>
       </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+      <div className="pastPregnancyContainer">
         <Row gutter={32} style={{ padding: "26px 40px 0px" }}>
           {pastPregnancyData.map((item, index) => {
             return (
@@ -182,14 +194,40 @@ export default function PatientDiagnosis() {
             );
           })}
         </Row>
-        <button
-          className="btn d-flex align-items-center btn-text"
-          style={{ color: "#4B4AD5", fontSize: "14px", fontWeight: "500" }}
-        >
-          <i className={`icon-Add me-1 fs-5`}></i> Add diagnosis notes
-        </button>
+        {diagnosisNotes ? (
+          <div className="diagnosisNotesStyle">
+            <span className="diagnosisNotesText">{diagnosisNotes}</span>
+            <div className="editStyle" onClick={handleDrawerDiagnosisNotes}>
+              <i className="icon-Edit iconStyle" />
+              <span className="editText">Edit</span>
+            </div>
+          </div>
+        ) : (
+          <button
+            className="btn d-flex align-items-center btn-text"
+            style={{ color: "#4B4AD5", fontSize: "14px", fontWeight: "500" }}
+            onClick={handleDrawerDiagnosisNotes}
+          >
+            <i className={`icon-Add me-1 fs-5`}></i> Add diagnosis notes
+          </button>
+        )}
       </div>
       <hr />
+      {diagnosisNotesDrawer && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerDiagnosisNotes}
+          open={diagnosisNotesDrawer}
+          className="modalWidth-563"
+          width="auto"
+        >
+          <DiagnosisNotes
+            handleDrawerDiagnosisNotes={handleDrawerDiagnosisNotes}
+            diagnosisNotes={diagnosisNotes}
+          />
+        </Drawer>
+      )}
     </div>
   );
 }

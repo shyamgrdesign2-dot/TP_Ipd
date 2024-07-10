@@ -16,11 +16,8 @@ const Examination = () => {
           </div>
           <Button
             type="button"
-            className="btn-41 btn ant-btn-text btn-input"
+            className="btn-41 btn ant-btn-text btn-input addBtn"
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
               width: "180px",
             }}
           >

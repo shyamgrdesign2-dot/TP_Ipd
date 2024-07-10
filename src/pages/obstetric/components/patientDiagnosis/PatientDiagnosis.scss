@@ -61,3 +61,31 @@
     }
   }
 }
+.pastPregnancyContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .diagnosisNotesStyle {
+    width: 45%;
+    display: flex;
+    padding-right: 40px;
+    align-items: flex-start;
+    column-gap: 6px;
+
+    .editStyle {
+      display: flex;
+      align-items: center;
+      column-gap: 6px;
+      cursor: pointer;
+      .iconStyle {
+        color: #4b4ad5;
+        font-size: 18px;
+      }
+      .editText {
+        color: #4b4ad5 !important;
+        text-decoration: underline;
+      }
+    }
+  }
+}

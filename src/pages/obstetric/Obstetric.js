@@ -1,4 +1,3 @@
-import { useState } from "react";
 import VaccineHeader from "../vaccination/components/vaccineHeader/VaccineHeader";
 import "./Obstetric.scss";
 import PatientDiagnosis from "./components/patientDiagnosis/PatientDiagnosis";

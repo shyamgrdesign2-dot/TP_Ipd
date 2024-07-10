@@ -18,8 +18,10 @@ const PregnancyHistory = () => {
           </div>
           <Button
             type="button"
-            className="btn-41 btn ant-btn-text btn-input"
-            style={{ display: "flex", alignItems: "center", width: "248px" }}
+            className="btn-41 btn ant-btn-text btn-input addBtn"
+            style={{
+              width: "255px",
+            }}
           >
             <i className="icon-Add" />
             <span>Add past pregnancy details</span>
