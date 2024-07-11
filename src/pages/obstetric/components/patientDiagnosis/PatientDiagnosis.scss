@@ -39,12 +39,44 @@
           font-size: 14px;
           font-weight: 500;
         }
+
+        .diagnosisSelect {
+          &.inputborder .ant-select-selector {
+            border: none !important;
+            border-radius: 10px;
+          }
+
+          .ant-select-arrow {
+            left: 85px;
+          }
+
+          .ant-select-clear {
+            left: 85px;
+          }
+
+          span {
+            margin-left: -10px;
+          }
+        }
+
+        .maritalStatusSelect {
+          span {
+            padding-right: 0px !important;
+          }
+          .ant-select-arrow {
+            left: 105px;
+          }
+
+          .ant-select-clear {
+            left: 105px;
+          }
+        }
+
         .timeInterval {
           background-color: #fafafb;
           margin-left: 0px;
           padding-left: 10px;
           height: 34px;
-          // border-radius: 10px;
         }
         .timeIntervalValue {
           border: solid 1px #eaecf0;

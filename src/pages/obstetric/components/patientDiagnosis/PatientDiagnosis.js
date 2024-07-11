@@ -4,14 +4,27 @@ import { Col, DatePicker, Drawer, Form, Input, Row, Select } from "antd";
 import DiagnosisNotes from "../diagnosisNotes/DiagnosisNotes";
 
 const bloodGroupOptions = [
-  { value: 1, label: "A+ (A positive)" },
-  { value: 2, label: "A- (A negative" },
-  { value: 3, label: "B+ (B positive)" },
-  { value: 4, label: "B- (B negative" },
-  { value: 5, label: "AB+ (AB positive)" },
-  { value: 6, label: "AB- (AB negative" },
-  { value: 7, label: "O+ (O positive)" },
-  { value: 8, label: "O- (O negative" },
+  { value: 1, label: "A+ (A positive)", shortLabel: "A+" },
+  { value: 2, label: "A- (A negative)", shortLabel: "A-" },
+  { value: 3, label: "B+ (B positive)", shortLabel: "B+" },
+  { value: 4, label: "B- (B negative)", shortLabel: "B-" },
+  { value: 5, label: "AB+ (AB positive)", shortLabel: "AB+" },
+  { value: 6, label: "AB- (AB negative)", shortLabel: "AB-" },
+  { value: 7, label: "O+ (O positive)", shortLabel: "O+" },
+  { value: 8, label: "O- (O negative)", shortLabel: "O-" },
+];
+
+const consangOptions = [
+  { value: "yes", label: "Yes" },
+  { value: "no", label: "No" },
+];
+
+const maritalStatusOptions = [
+  { value: "single", label: "Single" },
+  { value: "married", label: "Married" },
+  { value: "divorced", label: "Divorced" },
+  { value: "widowed", label: "Widowed" },
+  { value: "separated", label: "Separated" },
 ];
 
 export default function PatientDiagnosis() {
@@ -117,27 +130,61 @@ export default function PatientDiagnosis() {
                 Days
               </span>
             </div>
-            <div className="history-badge" style={{ width: "250px" }}>
-              Blood :{" "}
+            <div className="history-badge" style={{ width: "142px" }}>
+              Blood :
               <Select
-                className="autocomplete-custom h-100 inputborder"
+                className="autocomplete-custom h-100 inputborder diagnosisSelect"
+                style={{ width: "64%" }}
                 placeholder="Select"
                 options={bloodGroupOptions}
-                //   onClear={() => onSelectFrequencyChild("", index)}
+                optionLabelProp="shortLabel"
+                dropdownStyle={{ width: 142 }}
                 allowClear
               />
             </div>
           </div>
 
           <div className="rowContainer">
-            <div className="history-badge">
-              Husband's blood : <span>B +ve</span>
+            <div className="history-badge" style={{ width: "220px" }}>
+              Husband's blood :
+              <Select
+                className="autocomplete-custom h-100 inputborder diagnosisSelect"
+                style={{ width: "40%" }}
+                placeholder="Select"
+                options={bloodGroupOptions}
+                optionLabelProp="shortLabel"
+                dropdownStyle={{ width: 220 }}
+                allowClear
+              />
             </div>
-            <div className="history-badge">
-              Consang : <span>12 Jan 2024</span>
+            <div
+              className="history-badge"
+              style={{ width: "170px", position: "relative" }}
+            >
+              Consang :
+              <Select
+                className="autocomplete-custom h-100 inputborder diagnosisSelect"
+                style={{ width: "50%" }}
+                placeholder="Select"
+                options={consangOptions}
+                optionLabelProp="label"
+                dropdownStyle={{ width: 170 }}
+              />
             </div>
-            <div className="history-badge">
-              Marital status : <span>12 Jan 2024</span>
+            <div
+              className="history-badge"
+              style={{ width: "230px", position: "relative" }}
+            >
+              Marital status :
+              <Select
+                className="autocomplete-custom h-100 inputborder diagnosisSelect maritalStatusSelect"
+                style={{ width: "45%" }}
+                placeholder="Select"
+                options={maritalStatusOptions}
+                optionLabelProp="label"
+                dropdownStyle={{ width: 230 }}
+                allowClear
+              />
             </div>
             <div className="history-badge">
               Marriage duration :{" "}
