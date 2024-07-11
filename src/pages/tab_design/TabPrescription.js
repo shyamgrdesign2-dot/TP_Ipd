@@ -67,8 +67,7 @@ function TabPrescription() {
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
-  const isVaccination = state?.isVaccination;
-  const isGrowth = state?.isGrowth;
+  const chartType = state?.chartType;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -305,16 +304,14 @@ function TabPrescription() {
   };
 
   useEffect(() => {
-    if (isVaccination) {
+    if (chartType === "vaccination") {
       handleDrawerVaccination();
-    }
-  }, [isVaccination]);
-
-  useEffect(() => {
-    if (isGrowth) {
+    } else if (chartType === "growthChart") {
       handleDrawerGrowth();
+    } else if (chartType === "obstetric") {
+      handleDrawerObstetric();
     }
-  }, [isGrowth]);
+  }, [chartType]);
 
   //Handle Sider
   const openCollapsed = useCallback(

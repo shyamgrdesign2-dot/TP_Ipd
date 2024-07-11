@@ -21,6 +21,7 @@ import VisitVaccination from "./vaccination/components/visitVaccination/VisitVac
 import CertificateDetails from "../components/medical_certificate/CertificateDetails";
 import VisitGrowthChart from "./growthChart/components/visitGrowthChart/VisitGrowthChart";
 import { useAccess } from "./vaccination/useAccess";
+import VisitObstetric from "./obstetric/components/visitObstetric/VisitObstetric";
 
 const { Sider, Content } = Layout;
 
@@ -128,6 +129,7 @@ function PatientDetails() {
                                                 <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
                                                 {isVaccinationAccessable && <VisitVaccination />}
                                                 {isGrowthChartAccessable && <VisitGrowthChart />}
+                                                <VisitObstetric />
                                             </>
                                         }
                                         {/*   <LabParameters />

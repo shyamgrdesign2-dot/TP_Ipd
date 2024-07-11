@@ -157,7 +157,7 @@ function VisitVaccination() {
                     navigate("/prescription", {
                       state: {
                         patient_data: patient_data,
-                        isVaccination: true,
+                        chartType: "vaccination",
                       },
                     })
                   }
