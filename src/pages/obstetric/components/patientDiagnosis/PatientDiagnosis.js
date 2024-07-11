@@ -1,14 +1,6 @@
 import React, { useState } from "react";
 import "./PatientDiagnosis.scss";
-import {
-  Col,
-  DatePicker,
-  Drawer,
-  Form,
-  Input,
-  Row,
-  Select,
-} from "antd";
+import { Col, DatePicker, Drawer, Form, Input, Row, Select } from "antd";
 import DiagnosisNotes from "../diagnosisNotes/DiagnosisNotes";
 
 const bloodGroupOptions = [
@@ -22,9 +14,6 @@ const bloodGroupOptions = [
   { value: 8, label: "O- (O negative" },
 ];
 
-const diagnosisNotes =
-  "We are an ABDM-certified platform crafted to ease administrative burdens your passion where it truly matters – caring for patients.";
-
 export default function PatientDiagnosis() {
   const [gestationWeeks, setGestationWeeks] = useState("");
   const [gestationDays, setGestationDays] = useState("");
@@ -34,6 +23,7 @@ export default function PatientDiagnosis() {
   const [selectedBloodGroup, setSelectedBloodGroup] = useState(null);
 
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
+  const [diagnosisNotes, setDiagnosisNotes] = useState("");
 
   const handleDrawerDiagnosisNotes = () => {
     setDiagnosisNotesDrawer(!diagnosisNotesDrawer);
@@ -179,11 +169,11 @@ export default function PatientDiagnosis() {
         </div>
       </div>
       <div className="pastPregnancyContainer">
-        <Row gutter={32} style={{ padding: "26px 40px 0px" }}>
+        <Row gutter={20} style={{ padding: "26px 0px 0px 40px" }}>
           {pastPregnancyData.map((item, index) => {
             return (
               <Col key={index}>
-                <Form.Item label={item.label}>
+                <Form.Item label={item.label} style={{ marginBottom: "10px" }}>
                   <Input
                     value={item.value}
                     onChange={(e) => handleInputChange(index, e.target.value)}
@@ -225,6 +215,7 @@ export default function PatientDiagnosis() {
           <DiagnosisNotes
             handleDrawerDiagnosisNotes={handleDrawerDiagnosisNotes}
             diagnosisNotes={diagnosisNotes}
+            setDiagnosisNotes={setDiagnosisNotes}
           />
         </Drawer>
       )}

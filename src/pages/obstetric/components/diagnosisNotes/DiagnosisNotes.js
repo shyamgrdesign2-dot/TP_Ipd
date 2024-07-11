@@ -4,8 +4,11 @@ import { Button, Card, Input } from "antd";
 import alertIcon from "../../../../assets/images/alertIcon.svg";
 import CommonModal from "../../../../common/CommonModal";
 
-const DiagnosisNotes = ({ handleDrawerDiagnosisNotes, diagnosisNotes }) => {
-  const [note, setNote] = useState(diagnosisNotes);
+const DiagnosisNotes = ({
+  handleDrawerDiagnosisNotes,
+  diagnosisNotes,
+  setDiagnosisNotes,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState("");
 
   const showHideModal = useCallback(() => {
@@ -18,9 +21,9 @@ const DiagnosisNotes = ({ handleDrawerDiagnosisNotes, diagnosisNotes }) => {
 
   const onChange = useCallback(
     (e) => {
-      setNote(e.target.value);
+      setDiagnosisNotes(e.target.value);
     },
-    [note]
+    [diagnosisNotes]
   );
 
   const onDeleteClicked = async () => {
@@ -40,8 +43,8 @@ const DiagnosisNotes = ({ handleDrawerDiagnosisNotes, diagnosisNotes }) => {
               <i className="icon-Cross fs-3"></i>
             </Button>
             <div className="modal-title">
-              {diagnosisNotes ? "Add" : "Edit"}
-              Add diagnosis notes
+              {diagnosisNotes ? "Edit " : "Add "}
+              diagnosis notes
             </div>
           </div>
           <Button
@@ -53,8 +56,8 @@ const DiagnosisNotes = ({ handleDrawerDiagnosisNotes, diagnosisNotes }) => {
         </div>
         <div className="px-20 py-3">
           <Input.TextArea
-            placeholder="Write your notes"
-            value={note}
+            placeholder="Enter additional details related to patient diagnosis"
+            value={diagnosisNotes}
             onChange={onChange}
             className="textareaPlaceholder"
             rows={4}

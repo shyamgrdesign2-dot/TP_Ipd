@@ -67,10 +67,11 @@
   align-items: center;
 
   .diagnosisNotesStyle {
-    width: 45%;
+    width: 40%;
     display: flex;
     padding-right: 40px;
     align-items: flex-start;
+    justify-content: flex-end;
     column-gap: 6px;
 
     .editStyle {
