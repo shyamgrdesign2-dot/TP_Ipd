@@ -44,12 +44,22 @@
 
 // Progress bar
 .ant-progress {
-    .ant-progress-circle-trail {
-        stroke: rgba(252, 90, 90, 0.2);
+    .ant-progress-outer {
+        margin: 0 !important;
+        padding: 0 !important;
     }
     .ant-progress-inner {
+        background-color: rgba(252, 90, 90, 0.2);
+        // For Round Circle progress bar
+        .ant-progress-circle-trail {
+            stroke: rgba(252, 90, 90, 0.2);
+        }
         .ant-progress-circle-path {
             stroke: $alerText !important;
+        }
+        // For Vertical progress bar
+        .ant-progress-bg {
+            background-color: $alerText !important;
         }
         .ant-progress-text {
             color: $alerText !important;
@@ -86,3 +96,12 @@
     color: $themesecondary;
 }
 
+// Doctor Website
+.handle-personal-details {
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9;
+    position: absolute;
+}

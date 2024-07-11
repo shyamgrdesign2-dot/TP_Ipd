@@ -1,23 +1,36 @@
 import React from "react";
-import { Container } from 'react-bootstrap';
+import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { Flex, Progress, Button } from 'antd';
 import { makeDefaultLogo } from "../utils/utils";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import defaultprofile from "../assets/images/default-profile.svg";
 
-import HeaderDoctorProfile from "../components/DoctorProfile/HeaderDoctorProfile";
-import ProfilePersonalDetailsCard from "../components/DoctorProfile/ProfilePersonalDetailsCard";
-import ProfileClinicCard from "../components/DoctorProfile/ProfileClinicCard";
+import ProfilePersonalDetailsView from "../components/doctorProfile/ProfilePersonalDetailsView";
+import ProfileClinicView from "../components/doctorProfile/ProfileClinicView";
 function DoctorProfile() {
 
   const navigate = useNavigate();
-
   const { profile } = useSelector((state) => state.doctors);
   return (
     <>
-      <HeaderDoctorProfile />
-      <div className="bg-body p-30 overflow-y-auto" style={{height: 'calc(100vh - 60px)'}}>
+      <Navbar className="justify-content-between headerprescription p-0">
+        <Container fluid className='h-100 gx-0 w-100'>
+          <Row className='h-100 align-items-center w-100 justify-content-between'>
+            <Col lg="auto" className='h-100'>
+              <div className='align-items-center d-flex h-100'>
+                <div className='border-end h-100 text-center'>
+                  <div onClick={() => navigate('/', { replace: true })} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                    <i className='icon-right'></i>
+                  </div>
+                </div>
+                <div className='ms-3 title-common'>My Profile</div>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </Navbar>
+      <div className="bg-body p-30 overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
         <Container fluid='lg'>
           <div className="mb-4">
             <div className="p-20 rounded-20px rounded-bottom-0" style={{ backgroundColor: 'rgba(237, 223, 247, 0.30)' }}>
@@ -52,7 +65,7 @@ function DoctorProfile() {
                   </div>
                 </div>
                 <div>
-                  <Button type="text" onClick={() => (navigate('/doctor-profile-setting'))} className="btn btn-input align-items-center d-flex btn-41 w-100" icon={<i className="icon-group fs-21" />}>
+                  <Button type="text" onClick={() => (navigate('/doctor-website-setting'))} className="btn btn-input align-items-center d-flex btn-41 w-100" icon={<i className="icon-group fs-21" />}>
                     Setup Website
                     <i className="icon-right iconrotate180 ms-4" />
                   </Button>
@@ -61,10 +74,10 @@ function DoctorProfile() {
             </div>
           </div>
           <div className="mb-4">
-            <ProfilePersonalDetailsCard />
+            <ProfilePersonalDetailsView />
           </div>
           <div className="mb-4">
-            <ProfileClinicCard />
+            <ProfileClinicView />
           </div>
         </Container>
       </div>

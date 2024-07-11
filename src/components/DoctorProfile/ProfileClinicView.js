@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row, Col, Button } from 'antd';
-function ProfileClinicCard() {
+function ProfileClinicView() {
     return (
         <div className="rounded-20px bg-white">
             <div className="d-flex align-items-center justify-content-between p-20 border-bottom" style={{ borderColor: '#F1F1F5' }}>
@@ -45,4 +45,4 @@ function ProfileClinicCard() {
     );
 }
 
-export default ProfileClinicCard;
+export default ProfileClinicView;

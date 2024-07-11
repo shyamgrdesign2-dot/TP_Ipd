@@ -94,7 +94,7 @@ function App() {
                 <Route path="smart-prescription" element={<SmartPrescription />} />
                 <Route path="print-smart-rx" element={<SmartRxPreview />} />
                 <Route path="doctor-profile" element={<DoctorProfile />} />
-                <Route path="doctor-profile-setting" element={<DoctorWebsiteSetting />} />
+                <Route path="doctor-website-setting" element={<DoctorWebsiteSetting />} />
               </Routes>
             </PersistGate>
           </Provider>
