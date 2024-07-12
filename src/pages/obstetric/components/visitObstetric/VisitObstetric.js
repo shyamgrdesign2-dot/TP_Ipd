@@ -1,26 +1,38 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import obstetricImg from "../../../../assets/images/obstetric-dark.svg";
 import { Card } from "react-bootstrap";
 import { Button } from "antd";
 import "./VisitObstetric.scss";
 
+const mockData = {
+  Pallor: "Yes",
+  Oedema: "No",
+  "Mother's Weight": 70,
+  "Blood Pressure": "120/80 mmHg",
+  "Fundus Height": 80,
+  Presentation: "Breech",
+  "Fetal Heart Rate": "120 bpm",
+};
+
 export default function VisitObstetric() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { patient_data } = state;
 
-  const [obstetricData, setObstetricData] = useState({
-    date: "1 Jul 2024",
-    pallor: "Yes",
-    oedema: "No",
-    mothersWeight: 70,
-    systolic: 80,
-    diastolic: 120,
-    heightOfFundus: 80,
-    presentation: "Breech",
-    foetalHeartRate: "120 bpm",
-  });
+  const [obstetricData, setObstetricData] = useState(mockData);
+  const [viewMore, setViewMore] = useState(false);
+
+  useEffect(() => {
+    if (viewMore) {
+      setObstetricData(mockData);
+    } else {
+      const entries = Object.entries(obstetricData);
+      const firstThreeEntries = entries.slice(0, 3);
+      const firstThreeObject = Object.fromEntries(firstThreeEntries);
+      setObstetricData(firstThreeObject);
+    }
+  }, [viewMore]);
 
   const measurementDetails = () => {
     return (
@@ -80,11 +92,14 @@ export default function VisitObstetric() {
                 <span className="previousText">Previous visit</span>
                 <span className="updatedText">Updated on : 20 May 2024</span>
               </div>
-              <div>5 years</div>
+              <div>6th Month</div>
               {measurementDetails()}
             </div>
-            <Card.Footer className="bg-white py-3 viewLessOrMore">
-              View less
+            <Card.Footer
+              className="bg-white py-3 viewLessOrMore"
+              onClick={() => setViewMore(!viewMore)}
+            >
+              View {viewMore ? "less" : "more"}
             </Card.Footer>
           </Card>
         </div>

@@ -27,7 +27,8 @@ const DiagnosisNotes = ({
   );
 
   const onDeleteClicked = async () => {
-    window.alert("Delete Clicked");
+    setDiagnosisNotes("");
+    handleDrawerDiagnosisNotes();
   };
 
   return (

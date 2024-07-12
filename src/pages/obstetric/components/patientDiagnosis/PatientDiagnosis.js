@@ -242,7 +242,12 @@ export default function PatientDiagnosis() {
         ) : (
           <button
             className="btn d-flex align-items-center btn-text"
-            style={{ color: "#4B4AD5", fontSize: "14px", fontWeight: "500" }}
+            style={{
+              color: "#4B4AD5",
+              fontSize: "14px",
+              fontWeight: "500",
+              paddingRight: "40px",
+            }}
             onClick={handleDrawerDiagnosisNotes}
           >
             <i className={`icon-Add me-1 fs-5`}></i> Add diagnosis notes

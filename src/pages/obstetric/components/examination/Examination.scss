@@ -1,0 +1,19 @@
+.examinationTableViewContainer {
+  margin: 20px 30px 30px;
+  gap: 24px;
+
+  @media only screen and (min-width: 1200px) {
+    margin: 20px 30px 30px;
+  }
+}
+
+.anotherVisit {
+  padding-left: 30px;
+
+  .anotherVisitBtn {
+    width: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
