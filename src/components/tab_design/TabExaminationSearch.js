@@ -66,7 +66,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
 
     const onSearchParent = useCallback(
         (query) => {
-            setSearchChildQuery(query);
+            setSearchChildQuery(query?.replace(/,/g, ''));
         },
         [searchChildQuery]
     );
@@ -119,7 +119,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
 
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            examinationData[selectedIndex].note = capitalizeAfterSentence(e.target.value);
+            examinationData[selectedIndex].note = capitalizeAfterSentence(e.target.value?.replace(/,/g, ''));
             setExaminationData((prev) => [...prev]);
         },
         [selectedIndex, examinationData]

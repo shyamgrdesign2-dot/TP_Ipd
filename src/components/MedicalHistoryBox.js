@@ -152,7 +152,7 @@ function MedicalHistoryBox(props) {
         { value: "moderate", label: "Moderate" },
         { value: "scanty", label: "Scanty" },
     ];
-    
+
     const PAIN_LIST = [
         { value: "none", label: "None" },
         { value: "mild", label: "Mild" },

@@ -235,7 +235,7 @@ function Vaccination({ handleDrawerVaccination }) {
           newSelectedCards.push(id);
         } else {
           setWarningMsg(
-            "Given vaccine and Due Vaccines cannot be selected togather!"
+            "Given vaccine and Due Vaccines cannot be selected together!"
           );
           newSelectedCards = [id];
         }
