@@ -121,3 +121,21 @@
         color: $white !important;
     }
 }
+
+// Santosh bhai
+.social {
+    span.ant-input-prefix {
+        width: 36px;
+        border-right: solid #E2E2EA 1px;
+        justify-content: center;
+        align-items: center;
+    }
+    .ant-input-affix-wrapper {
+        padding: 0px;
+        border: solid #E2E2EA 1px;
+        input {
+            padding:0px 10px 0 11px;
+        }
+        input::placeholder{color:#a2a2a8; font-size: 14px; opacity:1; font-weight:400;}
+    }
+}

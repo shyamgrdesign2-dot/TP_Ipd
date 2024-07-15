@@ -1,35 +1,46 @@
 import React from 'react';
-import { Row, Col, Form, Input, Select } from 'antd';
+import { Row, Col, Form, Input} from 'antd';
+import Facebook from '../../assets/images/fb-img.svg';
+import Instagram from '../../assets/images/instagram-img.svg';
+import Linkedin from '../../assets/images/linkedin-img.svg';
+import XIcon from '../../assets/images/x-img.svg';
+import Youtube from '../../assets/images/youtube-img.svg';
 
 function DoctorWebsiteSocialLinks() {
-
     return (
         <div className="bg-white p-20 overflow-auto" style={{ height: 'calc(100vh - 120px)' }}>
-            <div className="text-greycolor fontroboto mb-3"> Write about doctor's personal details.</div>
+            <div className="text-greycolor fontroboto mb-20">Add your social media profile links.</div>
+            <div className="title-common mb-3">Social Links</div>
             <Form layout="vertical">
                 <Row gutter={20}>
-                    <Col span={12}>
+                    <Col span={24} className='social'>
                         <Form.Item
-                            label="First Name"
-                            className='fw-medium mb-20'
-                            required>
-                            <Input placeholder="First Name" className="text-capitalize rounded-10px h-38" />
+                            className='fw-medium mb-20' required>
+                            <Input placeholder="Facebook link" prefix={<img className='me-0' height={17.54} width={17.54} src={Facebook} alt="Facebook" />} className="text-capitalize rounded-10px h-38" />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    <Col span={24} className='social'>
                         <Form.Item
-                            label="Last Name"
-                            className='fw-medium mb-20'
-                            required>
-                            <Input placeholder="Last Name" className="text-capitalize rounded-10px h-38" />
+                            className='fw-medium mb-20' required>
+                            <Input placeholder="Instagram link" prefix={<img className='me-0' height={17.54} width={17.54} src={Instagram} alt="Instagram" />} className="text-capitalize rounded-10px h-38" />
                         </Form.Item>
                     </Col>
-                    
-                    <Col span={24}>
+                    <Col span={24} className='social'>
                         <Form.Item
-                            label="Email"
                             className='fw-medium mb-20'>
-                            <Input placeholder="Email" className="text-capitalize rounded-10px h-38" />
+                            <Input placeholder="LinkedIn link" prefix={<img className='me-0' height={16.54} width={16.54} src={Linkedin} alt="Linkedin" />} className="text-capitalize rounded-10px h-38" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24} className='social'>
+                        <Form.Item
+                            className='fw-medium mb-20'>
+                            <Input placeholder="Twitter link"  prefix={<img className='me-0' height={16.54} width={16.54} src={XIcon} alt="X" />} className="text-capitalize rounded-10px h-38" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24} className='social'>
+                        <Form.Item
+                            className='fw-medium mb-20'>
+                            <Input placeholder="Youtube link"  prefix={<img className='me-0' height={17.54} width={17.54} src={Youtube} alt="Youtube" />} className="text-capitalize rounded-10px h-38" />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -37,5 +48,4 @@ function DoctorWebsiteSocialLinks() {
         </div>
     );
 }
-
 export default DoctorWebsiteSocialLinks;
