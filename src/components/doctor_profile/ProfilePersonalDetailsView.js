@@ -67,4 +67,4 @@ function ProfilePersonalDetailsView() {
     );
 }
 
-export default ProfilePersonalDetailsView;
+export default React.memo(ProfilePersonalDetailsView);

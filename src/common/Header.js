@@ -422,7 +422,7 @@ function Header({ locationPath }) {
     },
     {
       label:
-        <a onClick={() => (navigate('/doctor-profile'))}>
+        <a onClick={() => navigate('/doctor_profile')}>
           <div className="title-common me-5 d-flex align-items-center"><i className="icon-profile me-3"></i>My Profile</div>
           <i className="icon-right iconrotate180"></i>
         </a>,
@@ -430,7 +430,7 @@ function Header({ locationPath }) {
     },
     {
       label:
-        <a onClick={() => (navigate('/doctor-website-setting'))}>
+        <a onClick={() => navigate('/doctor_website_setting')}>
           <div className="title-common me-5 d-flex align-items-center"><i className="icon-group me-3"></i>Setup My Website</div>
           <i className="icon-right iconrotate180"></i>
         </a>,

@@ -1,19 +1,27 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Col, Progress, Row, Switch } from "antd";
 import { isMobile } from "react-device-detect";
-import HeaderDoctorWebsite from "../components/doctorWebsite/HeaderDoctorWebsite";
+import HeaderDoctorWebsite from "../components/doctor_website/HeaderDoctorWebsite";
 
 import mendatoryTick from "../../src/assets/images/mendatory-tick.svg";
 import cloudSaved from "../../src/assets/images/cloud-saved.svg";
-import LeftOverlayDoctorWebsite from "../components/doctorWebsite/LeftOverlayDoctorWebsite";
+import DoctorWebsitePersonalDetails from "../components/doctor_website/DoctorWebsitePersonalDetails";
+import DoctorWebsiteAboutDoctor from "../components/doctor_website/DoctorWebsiteAboutDoctor";
+import DoctorWebsiteClinicProfile from "../components/doctor_website/DoctorWebsiteClinicProfile";
 
 function DoctorWebsiteSetting() {
 
     const [isVisible, setIsVisible] = useState();
+    const [selectedMenu, setSelectedMenu] = useState(null);
 
-    const handlePersonalDetails = () => {
+    const handlePersonalDetails = useCallback((value, name) => {
+        setSelectedMenu({ value: value, name: name })
+        showHide();
+    }, [selectedMenu, isVisible])
+
+    const showHide = useCallback(() => {
         setIsVisible(!isVisible);
-    }
+    }, [isVisible])
 
     return (
         <>
@@ -25,8 +33,9 @@ function DoctorWebsiteSetting() {
                             <div className="overflow-y-auto p-20" style={{ height: 'calc(100vh - 60px)' }}>
                                 <div className="ms-5 fontroboto">Website Setup Score</div>
                                 <Progress className="profile-website-setting mb-1" size="small" percent={11} />
+
                                 {/* Personal Details */}
-                                <div className="border-bottom py-3 cursor-pointer" onClick={handlePersonalDetails}>
+                                <div className="border-bottom py-3 cursor-pointer" onClick={() => handlePersonalDetails(1, 'Personal Details')}>
                                     <div className="d-flex align-items-center justify-content-between">
                                         <div className="d-flex align-items-center">
                                             <div className="titleprint">Personal Details</div>
@@ -37,12 +46,9 @@ function DoctorWebsiteSetting() {
                                     </div>
                                     <div className="text-greycolor me-30 fontroboto"> Write about doctor's personal details.</div>
                                 </div>
-                                {isVisible &&
-                                    <LeftOverlayDoctorWebsite onClose={handlePersonalDetails} />
-                                }
 
                                 {/* About Doctor */}
-                                <div className="border-bottom py-3 cursor-pointer" onClick={handlePersonalDetails}>
+                                <div className="border-bottom py-3 cursor-pointer" onClick={() => handlePersonalDetails(2, 'About Doctor')}>
                                     <div className="d-flex align-items-center justify-content-between">
                                         <div className="d-flex align-items-center">
                                             <div className="titleprint">About Doctor</div>
@@ -55,7 +61,7 @@ function DoctorWebsiteSetting() {
                                 </div>
 
                                 {/* Clinic Profile */}
-                                <div className="border-bottom py-3 cursor-pointer" onClick={handlePersonalDetails}>
+                                <div className="border-bottom py-3 cursor-pointer" onClick={() => handlePersonalDetails(3, 'Clinic Profile')}>
                                     <div className="d-flex align-items-center justify-content-between">
                                         <div className="d-flex align-items-center">
                                             <div className="titleprint">Clinic Profile</div>
@@ -68,7 +74,7 @@ function DoctorWebsiteSetting() {
                                 </div>
 
                                 {/* Doctor Experience */}
-                                <div className="border-bottom py-3 cursor-pointer" onClick={handlePersonalDetails}>
+                                <div className="border-bottom py-3 cursor-pointer">
                                     <div className="d-flex align-items-center justify-content-between">
                                         <div className="titleprint">Doctor Experience</div>
                                         <div className="d-flex">
@@ -80,7 +86,7 @@ function DoctorWebsiteSetting() {
                                 </div>
 
                                 {/* Services */}
-                                <div className="border-bottom py-3 cursor-pointer" onClick={handlePersonalDetails}>
+                                <div className="border-bottom py-3 cursor-pointer">
                                     <div className="d-flex align-items-center justify-content-between">
                                         <div className="titleprint">Services</div>
                                         <div className="d-flex">
@@ -92,7 +98,7 @@ function DoctorWebsiteSetting() {
                                 </div>
 
                                 {/* Education & Training */}
-                                <div className="border-bottom py-3 cursor-pointer" onClick={handlePersonalDetails}>
+                                <div className="border-bottom py-3 cursor-pointer">
                                     <div className="d-flex align-items-center justify-content-between">
                                         <div className="titleprint">Education & Training</div>
                                         <div className="d-flex">
@@ -104,7 +110,7 @@ function DoctorWebsiteSetting() {
                                 </div>
 
                                 {/* Memberships */}
-                                <div className="border-bottom py-3 cursor-pointer" onClick={handlePersonalDetails}>
+                                <div className="border-bottom py-3 cursor-pointer">
                                     <div className="d-flex align-items-center justify-content-between">
                                         <div className="titleprint">Memberships</div>
                                         <div className="d-flex">
@@ -116,7 +122,7 @@ function DoctorWebsiteSetting() {
                                 </div>
 
                                 {/* Rewards & Recognition */}
-                                <div className="border-bottom py-3 cursor-pointer" onClick={handlePersonalDetails}>
+                                <div className="border-bottom py-3 cursor-pointer">
                                     <div className="d-flex align-items-center justify-content-between">
                                         <div className="titleprint">Rewards & Recognition</div>
                                         <div className="d-flex">
@@ -126,7 +132,7 @@ function DoctorWebsiteSetting() {
                                     </div>
                                     <div className="text-greycolor me-30 fontroboto">Add your achievements, public acknowledgment or praise, such as awards, certificates, commendations, etc.</div>
                                 </div>
-                                
+
                                 {/* Social Links */}
                                 <div className="mt-20 pb-3">
                                     <div className="d-flex align-items-center justify-content-between">
@@ -139,6 +145,21 @@ function DoctorWebsiteSetting() {
                                     <div className="text-greycolor me-30 fontroboto">Add your profile photo and social media profile links.</div>
                                 </div>
                             </div>
+                            {isVisible &&
+                                <div className="handle-personal-details">
+                                    <div className="d-flex align-items-center bg-selected p-12 ps-0">
+                                        <div onClick={showHide} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                                            <i className='icon-Cross'></i>
+                                        </div>
+                                        <div className="titleprint">{selectedMenu ? selectedMenu?.name : ''}</div>
+                                        <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1 bg-white">Mendatory</div>
+                                    </div>
+                                    {selectedMenu && selectedMenu?.value === 1 ?
+                                        <DoctorWebsitePersonalDetails />
+                                        : selectedMenu?.value === 2 ? <DoctorWebsiteAboutDoctor />
+                                            : selectedMenu?.value === 3 && <DoctorWebsiteClinicProfile />}
+                                </div>
+                            }
                         </div>
                     </Col>
                     <Col xl={16} lg={14}>
@@ -148,8 +169,8 @@ function DoctorWebsiteSetting() {
                                 <div> <img src={cloudSaved} alt="Saved" className="me-1" /> Saved</div>
                             </div>
                             <div className="rounded-20px bg-white mt-2 overflow-hidden">
-                                <div className="position-relative printheight">
-                                    123
+                                <div className="position-relative printheight d-flex align-items-center justify-content-center fs-2 fw-normal">
+                                    Comming Soon...
                                 </div>
                             </div>
                         </div>

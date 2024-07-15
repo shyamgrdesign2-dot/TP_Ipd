@@ -6,8 +6,9 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import defaultprofile from "../assets/images/default-profile.svg";
 
-import ProfilePersonalDetailsView from "../components/doctorProfile/ProfilePersonalDetailsView";
-import ProfileClinicView from "../components/doctorProfile/ProfileClinicView";
+import ProfilePersonalDetailsView from "../components/doctor_profile/ProfilePersonalDetailsView";
+import ProfileClinicView from "../components/doctor_profile/ProfileClinicView";
+
 function DoctorProfile() {
 
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ function DoctorProfile() {
                   </div>
                 </div>
                 <div>
-                  <Button type="text" onClick={() => (navigate('/doctor-website-setting'))} className="btn btn-input align-items-center d-flex btn-41 w-100" icon={<i className="icon-group fs-21" />}>
+                  <Button type="text" onClick={() => navigate('/doctor_website_setting')} className="btn btn-input align-items-center d-flex btn-41 w-100" icon={<i className="icon-group fs-21" />}>
                     Setup Website
                     <i className="icon-right iconrotate180 ms-4" />
                   </Button>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Row, Col, Button } from 'antd';
+
 function ProfileClinicView() {
     return (
         <div className="rounded-20px bg-white">
@@ -45,4 +46,4 @@ function ProfileClinicView() {
     );
 }
 
-export default ProfileClinicView;
+export default React.memo(ProfileClinicView);
