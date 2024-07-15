@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "antd";
 
-function TabMedicationMoreModal({ width, title, onClose }) {
+function TabMedicationMoreModal({ width, onClose }) {
     return (
         <>
             <div
@@ -25,7 +25,7 @@ function TabMedicationMoreModal({ width, title, onClose }) {
                 style={{
                     position: "fixed",
                     bottom: "0px",
-                    right: "0px",
+                    left: "0px",
                     padding: "10px",
                     width: width,
                     backgroundColor: "white",
@@ -45,7 +45,7 @@ function TabMedicationMoreModal({ width, title, onClose }) {
                             margin: "8px",
                             fontSize: "16px",
                         }}>
-                        {title}
+                        Select More Languages
                     </div>
                     <button
                         type="button"
@@ -59,7 +59,43 @@ function TabMedicationMoreModal({ width, title, onClose }) {
                         type="text"
                         className="btn btn-primary2 chips-custom mb-14 me-14">
                         <span>
-                            11115881
+                            Assamese
+                        </span>
+                    </Button>
+                    <Button
+                        type="text"
+                        className="btn btn-primary2 chips-custom mb-14 me-14">
+                        <span>
+                            Bengali
+                        </span>
+                    </Button>
+                    <Button
+                        type="text"
+                        className="btn btn-primary2 chips-custom mb-14 me-14">
+                        <span>
+                            Kannada
+                        </span>
+                    </Button>
+                    <Button
+                        type="text"
+                        className="btn btn-primary2 chips-custom mb-14 me-14">
+                        <span>
+                            Kashmiri
+                        </span>
+                    </Button>
+                    <Button
+                        type="text"
+                        className="btn btn-primary2 chips-custom mb-14 me-14">
+                        <span>
+                            Konkani
+                        </span>
+                    </Button>
+
+                    <Button
+                        type="text"
+                        className="btn btn-primary2 chips-custom mb-14 me-14">
+                        <span>
+                            Manipuri
                         </span>
                     </Button>
 

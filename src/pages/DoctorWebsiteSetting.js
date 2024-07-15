@@ -9,6 +9,7 @@ import DoctorWebsitePersonalDetails from "../components/doctor_website/DoctorWeb
 import DoctorWebsiteAboutDoctor from "../components/doctor_website/DoctorWebsiteAboutDoctor";
 import DoctorWebsiteClinicProfile from "../components/doctor_website/DoctorWebsiteClinicProfile";
 import DoctorWebsiteSocialLinks from "../components/doctor_website/DoctorWebsiteSocialLinks";
+import DoctorWebsiteDoctorExperience from "../components/doctor_website/DoctorWebsiteDoctorExperience";
 
 function DoctorWebsiteSetting() {
 
@@ -159,6 +160,7 @@ function DoctorWebsiteSetting() {
                                         <DoctorWebsitePersonalDetails />
                                         : selectedMenu?.value === 2 ? <DoctorWebsiteAboutDoctor />
                                             : selectedMenu?.value === 3 ? <DoctorWebsiteClinicProfile />
+                                            : selectedMenu?.value === 4 ? <DoctorWebsiteDoctorExperience />
                                             : selectedMenu?.value === 9 && <DoctorWebsiteSocialLinks />}
                                 </div>
                             }

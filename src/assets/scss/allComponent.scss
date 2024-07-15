@@ -505,6 +505,24 @@
             }
         }
     }
+    &.doctor-experience {
+        &.ant-collapse {
+            .ant-collapse-content {
+                border-top: 0 !important;
+                border-radius: 20px !important;
+                .btn-delete-experience {
+                    border-bottom-left-radius: 20px;
+                    border-bottom-right-radius: 20px;
+                }
+            }
+            .ant-collapse-item { 
+                .ant-collapse-header {
+                    border-radius: 20px !important;
+                    padding: 20px;
+                }
+            }
+        }
+    }
 }
 
 // Tablet design
@@ -901,6 +919,11 @@ body {
             width: 7px;
             height: 12px;
             top: 45%;
+        }
+    }
+    &.checkbold {
+        span {
+            font-weight: 500;
         }
     }
 }

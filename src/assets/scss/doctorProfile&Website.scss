@@ -113,3 +113,11 @@
         }
     }
 }
+
+.language-chips {
+    border-color: $theme !important;
+    background-color: $theme !important;
+    div {
+        color: $white !important;
+    }
+}

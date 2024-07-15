@@ -26,16 +26,61 @@ function DoctorWebsitePersonalDetails() {
             </Form>
             <hr className='mt-1' />
             <div className='fw-medium mb-20'>Languages Spoken</div>
-            <div className='d-flex align-items-center'>
-                <div className="closable-chips p-2" onClick={() => handleLanguageMoreOptions()}>
-                    English
+            <div className='d-flex flex-wrap'>
+                <div className="language-chips border rounded-10px p-2 me-2 mb-2 h-100">
+                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
+                        English
+                        <i className='icon-Cross fs-18 ms-2'></i>
+                    </div>
+                </div>
+                <div className="language-chips border rounded-10px p-2 me-2 mb-2 h-100">
+                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
+                        Hindi
+                        <i className='icon-Cross fs-18 ms-2'></i>
+                    </div>
+                </div>
+                <div className="border rounded-10px p-2 me-2 mb-2 h-100">
+                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
+                        Gujarati
+                        <i className='icon-Add fs-18 ms-2'></i>
+                    </div>
+                </div>
+                <div className="border rounded-10px p-2 me-2 mb-2 h-100">
+                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
+                        Marathi
+                        <i className='icon-Add fs-18 ms-2'></i>
+                    </div>
+                </div>
+                <div className="border rounded-10px p-2 me-2 mb-2 h-100">
+                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
+                        Malayalam
+                        <i className='icon-Add fs-18 ms-2'></i>
+                    </div>
+                </div>
+                <div className="border rounded-10px p-2 me-2 mb-2 h-100">
+                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
+                        Telugu
+                        <i className='icon-Add fs-18 ms-2'></i>
+                    </div>
+                </div>
+                <div className="border rounded-10px p-2 me-2 mb-2 h-100">
+                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
+                        Tamil
+                        <i className='icon-Add fs-18 ms-2'></i>
+                    </div>
+                </div>
+                <div className="closable-chips rounded-10px p-2 me-2" onClick={() => handleLanguageMoreOptions()}>
+                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
+                        More
+                        <i className='icon-right iconrotate270 fs-18 ms-2'></i>
+                    </div>
                 </div>
             </div>
             {languageMoreOptions && (
-                <LanguageMoreModal width='563px' title={'Timings'} onClose={handleLanguageMoreOptions}
+                <LanguageMoreModal width='430px' onClose={handleLanguageMoreOptions}
                     onClick={() => {
                         setLanguageMoreOptions(false);
-                    }} label='123' value='123' />
+                    }} />
             )}
             <hr className='mt-1' />
             <div className='title-common'>About Doctor</div>
