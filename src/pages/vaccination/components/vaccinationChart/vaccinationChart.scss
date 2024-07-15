@@ -11,13 +11,13 @@
 
 .print-template {
   page-break-after: always; /* Ensure each print page starts a new page */
+}
 
-  .nameStyle {
-    margin-right: auto;
-    padding-left: 40px;
-    font-weight: 600;
-    margin-top: 20px;
-  }
+.nameStyle {
+  margin-right: auto;
+  padding-left: 40px;
+  font-weight: 600;
+  margin-top: 20px;
 }
 
 .details {

@@ -18,6 +18,7 @@ export default {
   doctor_website_url: env.doctor_website_url,
   vaccination_api_url: env.vaccination_api_url,
   GROWTHBOOK_CLIENTKEY: env.GROWTHBOOK_CLIENTKEY,
+  growth_chart_api_url: env.growth_chart_api_url,
   firebaseApiKey: env.firebaseApiKey,
   firebaseAuthDomain: env.firebaseAuthDomain,
   firebaseDatabaseURL: env.firebaseDatabaseURL,

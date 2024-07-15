@@ -9,6 +9,7 @@ import {
     sendCashsheetWhatsapp,
 } from "../redux/caseManagerSlice";
 import { resetVaccineState } from '../redux/vaccineSlice';
+import { resetGrowthChartState } from '../redux/growthChartSlice';
 
 function HeaderPrescriptionPrint({ patient_data, tcm_id }) {
     const navigate = useNavigate();
@@ -27,6 +28,7 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id }) {
         const action = await dispatch(sendCashsheetWhatsapp(sendData));
         if (action.meta.requestStatus === "fulfilled") {
             dispatch(resetVaccineState());
+            dispatch(resetGrowthChartState());
             navigate('/', { replace: true })
         } else {
             errorMessage(action.error)
