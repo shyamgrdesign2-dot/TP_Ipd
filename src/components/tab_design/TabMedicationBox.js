@@ -1146,7 +1146,7 @@ function TabMedicationBox() {
               </div>
               {selectedTab === "man" && (
                 <Row className="input-dark">
-                  <Col lg={8}>
+                  <Col sm={8}>
                     <BSButtonGroup
                       aria-label="Basic example"
                       className="inputheight45 border w-100 rounded-0"
@@ -1196,7 +1196,7 @@ function TabMedicationBox() {
                         )}
                     </BSButtonGroup>
                   </Col>
-                  <Col lg={8}>
+                  <Col sm={8}>
                     <BSButtonGroup
                       aria-label="Basic example"
                       className="inputheight45 w-100 border rounded-0 border-start-0"
@@ -1246,7 +1246,7 @@ function TabMedicationBox() {
                         )}
                     </BSButtonGroup>
                   </Col>
-                  <Col lg={8}>
+                  <Col sm={8}>
                     <BSButtonGroup
                       aria-label="Basic example"
                       className="inputheight45 w-100 border rounded-0 border-start-0"
@@ -1299,7 +1299,7 @@ function TabMedicationBox() {
               )}
               {selectedTab === "mean" && (
                 <Row className="input-dark">
-                  <Col lg={6}>
+                  <Col sm={6}>
                     <BSButtonGroup
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0"
@@ -1361,7 +1361,7 @@ function TabMedicationBox() {
                         )}
                     </BSButtonGroup>
                   </Col>
-                  <Col lg={6}>
+                  <Col sm={6}>
                     <BSButtonGroup
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0 border-start-0"
@@ -1423,7 +1423,7 @@ function TabMedicationBox() {
                         )}
                     </BSButtonGroup>
                   </Col>
-                  <Col lg={6}>
+                  <Col sm={6}>
                     <BSButtonGroup
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0 border-start-0"
@@ -1485,7 +1485,7 @@ function TabMedicationBox() {
                         )}
                     </BSButtonGroup>
                   </Col>
-                  <Col lg={6}>
+                  <Col sm={6}>
                     <BSButtonGroup
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0 border-start-0"

@@ -31,7 +31,7 @@ function UploadProfile({ form, mode = ADD }) {
 
   return (
     <>
-      <div>
+      <div className="text-center">
         <img
           className="profilepic"
           src={file ? file : defaultprofile}
@@ -39,7 +39,7 @@ function UploadProfile({ form, mode = ADD }) {
         />
       </div>
       <div className="text-center mt-4">
-        <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center">
+        <div className="btn btn-input btn-41 d-flex align-items-center justify-content-center mx-auto" style={{width: 200}}>
           <Form.Item name="pm_image" />
           <input type="file" accept="image/*" onChange={handleChange} />
           <i className="icon-camera me-3" /> <span>{`${file ? 'Update' : 'Upload'} Profile`}</span>

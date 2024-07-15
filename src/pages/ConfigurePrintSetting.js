@@ -97,7 +97,7 @@ function ConfigurePrintSetting() {
                 {/* <style scoped>{css}</style> */}
                 <div className={'w-100 bg-body wrapper2'}>
                     <Row justify="space-between">
-                        <Col xl={8} lg={10} className="pe-3">
+                        <Col xl={8} sm={10} className="pe-3">
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                                 <Tabs defaultActiveKey="1" items={caseManagerData !== undefined ? TabsPrintSetting : TabsPrintSetting.slice(1, 2)} onChange={onTabChange} className="print-tabs" />
                                 {selectedTab === TAB_PRESCRIPTION ? (
@@ -109,7 +109,7 @@ function ConfigurePrintSetting() {
                                 )}
                             </div>
                         </Col>
-                        <Col xl={16} lg={14}>
+                        <Col xl={16} sm={14}>
                             <div className="mx-auto overflow-y-auto " style={{ width: isMobile ? 580 : 900 }} >
                                 <div className="titleprint mt-20">Preview</div>
                                 <div ref={divRef} className="rounded-20px bg-white mt-20 overflow-hidden">

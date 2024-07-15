@@ -536,7 +536,7 @@ function MedicalHistoryBox(props) {
                     </div>
                 </div>
                 <Row>
-                    <Col lg={15}>
+                    <Col sm={15}>
                         <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 61px)' }}>
                             {cloneMedicalHistoryData.length > 0 ? (
                                 cloneMedicalHistoryData?.map((e, i) => {
@@ -577,7 +577,7 @@ function MedicalHistoryBox(props) {
                             )}
                         </div>
                     </Col>
-                    <Col lg={9}>
+                    <Col sm={9}>
                         <div className="bg-body overflow-y-auto" style={{ height: 'calc(100vh - 61px)' }}>
                             {addEditData ? (
                                 <div>
@@ -676,7 +676,7 @@ function MedicalHistoryBox(props) {
                                                     </>
                                                 ) : (
                                                     <Row gutter={20} className="mt-2">
-                                                        <Col lg={selectData?.tmmhs_id == 3 ? 12 : 24} >
+                                                        <Col sm={selectData?.tmmhs_id == 3 ? 12 : 24} >
                                                             <label className="title-common mb-1"> Since</label>
                                                             <AutoComplete
                                                                 defaultValue={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since}
@@ -692,7 +692,7 @@ function MedicalHistoryBox(props) {
                                                             />
                                                         </Col>
                                                         {selectData?.tmmhs_id == 3 && (
-                                                            <Col lg={12}>
+                                                            <Col sm={12}>
                                                                 <label className="title-common mb-1"> Relationship</label>
                                                                 <Popover
                                                                     open={popOver}

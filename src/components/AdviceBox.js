@@ -160,7 +160,7 @@ function AdviceBox() {
 
   const onSearchParent = useCallback(
     (query) => {
-      setSearchQuery(capitalizeAfterSentence(removeBeforeWhiteSpace(query)));
+      setSearchQuery(capitalizeAfterSentence(removeBeforeWhiteSpace(query?.replace(/,/g, ''))));
     },
     [searchQuery]
   );

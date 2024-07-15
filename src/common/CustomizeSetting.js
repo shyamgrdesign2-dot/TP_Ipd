@@ -393,7 +393,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
       </Card>
 
       <Row className='p-4'>
-        <Col lg={12} className='pe-3'>
+        <Col lg={12} sm={12} className='pe-3'>
           <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndLeft}>
             <SortableContext
               // rowKey array
@@ -415,7 +415,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
             </SortableContext>
           </DndContext>
         </Col>
-        <Col lg={12} className='ps-3'>
+        <Col lg={12} sm={12} className='ps-3'>
           <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndRight}>
             <SortableContext
               // rowKey array

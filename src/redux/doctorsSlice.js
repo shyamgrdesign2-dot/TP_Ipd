@@ -297,6 +297,9 @@ const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
   reducers: {
+    updateStatusMoengageB2C: (state) => {
+      state.profile = { ...state.profile, old_b2c: state.profile.b2c, moengage_b2c_send: true }
+    },
     changeLogoStatus: (state) => {
       state.profile = { ...state.profile, NavigatetoTatvaPedia: 1 }
     },
@@ -315,7 +318,7 @@ const doctorsSlice = createSlice({
       })
       .addCase(getProfile.fulfilled, (state, action) => {
         state.loading = false;
-        state.profile = action.payload;
+        state.profile = state.profile && state.profile.old_b2c == action.payload.b2c ? { ...state.profile, ...action.payload } : action.payload;
       })
       .addCase(getProfile.rejected, (state) => {
         state.loading = false;
@@ -503,5 +506,5 @@ const doctorsSlice = createSlice({
   },
 });
 
-export const { changeLogoStatus, changeSortOrder, updatePatientCertificateList } = doctorsSlice.actions
+export const { updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList } = doctorsSlice.actions
 export default doctorsSlice.reducer;
