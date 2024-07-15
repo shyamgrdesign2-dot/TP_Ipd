@@ -43,14 +43,17 @@ import Vaccination from "./vaccination/Vaccination";
 import GrowthChart from "./growthChart/GrowthChart";
 import { viewPatient } from "../redux/appointmentsSlice";
 import { useAccess } from "./vaccination/useAccess";
+import { getGynecDetails } from "../api/services/ApiGynec";
 
 function Prescription() {
   const {
+    profile,
     customizedPadLeftList,
     customizedPadRightList,
     frequencyList,
     timingList,
   } = useSelector((state) => state.doctors);
+
   const { selectedVitalsList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
   const dispatch = useDispatch();
@@ -114,6 +117,7 @@ function Prescription() {
   const [selectPrivateNotes, setSelectPrivateNotes] = useState(null);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
+  const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
   const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
     patient_data?.ageYears
   );
@@ -379,6 +383,26 @@ function Prescription() {
     }
   }, [privateNotesList]);
 
+  // const handleSaveGynecHistory = (updatedGynecHistory) => {
+  //   setUpdatedGynecHistory(updatedGynecHistory)
+  // };
+
+  useEffect(() => {
+    fetchGynecHistory();
+  }, []);
+
+  const fetchGynecHistory = async () => {
+      try {
+          const data = await getGynecDetails(patient_data.patient_unique_id);
+          // const data = await getGynecDetails(patinet_idd);
+          setUpdatedGynecHistory(data);
+          // setGynecLoading(false);
+      } catch (error) {
+          console.error('Error fetching gynec history:', error);
+          // setGynecLoading(false);
+      }
+  };  
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -427,7 +451,7 @@ function Prescription() {
                           alt="Medical History"
                           className="me-3"
                         />
-                        <div className="title-common">Medical History</div>
+                        <div className="title-common">{profile.dp_id === 8 ? `Gynec History` :`Medical History`}</div>
                         {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
                             <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                           </Button> */}
@@ -450,7 +474,7 @@ function Prescription() {
                         }`}</span>
                       </button>
                     </div>
-                    {medicalHistoryData.length > 0 && <MedicalHistoryList />}
+                    {medicalHistoryData.length > 0 && <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
                   </div>
                 ) : 
                   e.tmdpm_id === 7 &&
@@ -596,6 +620,7 @@ function Prescription() {
           <MedicalHistoryBox
             handleDrawerMedicalHistory={handleDrawerMedicalHistory}
             handleCollapsed={(flag) => handleCollapsed(flag)}
+            // onSave={handleSaveGynecHistory}
           />
         </Drawer>
         <Drawer

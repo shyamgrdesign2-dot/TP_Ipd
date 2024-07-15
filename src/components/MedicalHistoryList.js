@@ -5,6 +5,7 @@ import CashManagerContext from '../context/CashManagerContext';
 
 function MedicalHistoryList(props) {
     const { medicalHistoryData } = useContext(CashManagerContext);
+    const {gynecHistory} = props
     const [accordionItems, setAccordionItems] = useState([]);
 
     useEffect(() => {
@@ -82,9 +83,30 @@ function MedicalHistoryList(props) {
             <div className="overflow-y-auto" style={{ maxHeight: "661px" }}>
                 <div>
                     {medicalHistoryData.length > 0 && (
-                        <div className="p-10">
-                            <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box history-sider-box-white" expandIconPosition={'end'} />
-                        </div>
+                        <>
+                            { gynecHistory &&
+                                <div className="cardbody-data mx-3 mt-2">
+                                    <span style={{    fontWeight: "600", marginLeft: "-6px", color: "black", fontSize: "0.9rem"}}>
+                                        Menstrual Details
+                                    </span>
+                                    <div className="my-2">
+                                        <span>Cycle</span> : <label>{gynecHistory.cycle}</label> | <span>Cycle Interval</span> : <label>{gynecHistory.intervalOfCycle}</label> | <span>Flow</span> : <label>{gynecHistory.flow}</label>
+                                    </div>
+                                    <div className="my-2">
+                                        <span>Duration</span> : <label>{gynecHistory.durationOfMenstrualFlow} days</label> | <span>Clots</span> : <label>{gynecHistory.clots}</label> | <span>Pads per day</span> : <label>{gynecHistory.numberOfPadsPerDay}</label>
+                                    </div>
+                                    <div className="my-2">
+                                        <span>Pain</span> : <label>{gynecHistory.pain}</label> | <span>Occurrence</span> : <label>{gynecHistory.occurrenceOfPain}</label>
+                                    </div>
+                                    <div className="my-2">
+                                        <span>Menarche at</span> : <label>{gynecHistory.ageAtMenarche} Years</label> | <span>Menopause type</span> : <label>{gynecHistory.typeOfMenopause}</label>
+                                    </div>
+                                </div>
+                            }
+                            <div className="p-10">
+                                <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box history-sider-box-white" expandIconPosition={'end'} />
+                            </div>
+                        </>
                     )}
                 </div>
             </div>
