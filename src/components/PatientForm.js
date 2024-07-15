@@ -117,7 +117,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                 <div className={isMobile ? "" : "border rounded-4 appointment-wrap"}>
                     <div className={isMobile ? "p-30 pt-0" : "p-30 overflow-y-auto"} style={{height: 'calc(100vh - 242px)'}}>
                         <Row className="justify-content-between">
-                            <Col lg={8} md={12}>
+                            <Col sm={8}>
                                 {isMobile ? (
                                     <div className="tabs-patient">
                                         <Tabs defaultActiveKey="1">
@@ -137,7 +137,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                                     </>
                                 )}
                             </Col>
-                            <Col lg={"auto"} md={12} className="mt-5">
+                            <Col sm={3} className="mt-5">
                                 <UploadProfile form={form} mode={mode} />
                             </Col>
                         </Row>

@@ -444,7 +444,7 @@ function MedicalCertificate() {
             <Navbar className="justify-content-between headerprescription p-0 bg-white">
                 <Container fluid className='h-100 gx-0 w-100'>
                     <Row className='h-100 align-items-center w-100 justify-content-between'>
-                        <Col lg="auto" className='h-100'>
+                        <Col sm="auto" className='h-100'>
                             <div className='align-items-center d-flex h-100'>
                                 <div className='border-end h-100 text-center me-3'>
                                     <div onClick={showHideBackModal} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
@@ -499,7 +499,7 @@ function MedicalCertificate() {
 
                             </div>
                         </Col>
-                        <Col lg="auto">
+                        <Col sm="auto">
                             <div className='align-items-center d-flex h-100'>
                                 <Button className="btn btn-41 btn-primary3" onClick={onPatientCertificateClick} loading={loading} disabled={title?.length > 0 ? false : true}>{certificate_data !== undefined ? 'Continue' : 'Save & Continue'}</Button>
                             </div>

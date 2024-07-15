@@ -558,7 +558,7 @@ function Header({ locationPath }) {
 
           {SWITCH_TO_OLD_MODAL}
 
-          <Dropdown
+          {/* <Dropdown
             menu={{
               items,
             }}
@@ -578,7 +578,17 @@ function Header({ locationPath }) {
                 <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
               )}
             </a>
-          </Dropdown>
+          </Dropdown> */}
+          {profile?.um_image ? (
+            <img
+              src={profile?.um_image ?? defaultprofile}
+              alt="Profile"
+              className="rounded-circle"
+              style={{ width: "35px" }}
+            />
+          ) : (
+            <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
+          )}
 
         </Nav>
       </Container>
