@@ -1,7 +1,17 @@
-import React from 'react';
-import { Form, Input } from 'antd';
+import React, { useState, useCallback } from 'react';
+import { Form, Input, Button } from 'antd';
+import LanguageMoreModal from './LanguageMoreModal';
+
 
 function DoctorWebsitePersonalDetails() {
+
+    const [languageMoreOptions, setLanguageMoreOptions] = useState(false);
+
+    const handleLanguageMoreOptions = useCallback(() => {
+        setLanguageMoreOptions(!languageMoreOptions)
+    },
+        [languageMoreOptions]
+    );
 
     return (
         <div className="bg-white p-20 overflow-auto" style={{ height: 'calc(100vh - 120px)' }}>
@@ -13,13 +23,20 @@ function DoctorWebsitePersonalDetails() {
                     required>
                     <Input placeholder="12" className="text-capitalize rounded-10px h-38" defaultValue="0" />
                 </Form.Item>
-                <hr className='mt-1' />
-                <Form.Item
-                    label="Languages Spoken"
-                    className='fw-medium mb-20'
-                    required>
-                </Form.Item>
             </Form>
+            <hr className='mt-1' />
+            <div className='fw-medium mb-20'>Languages Spoken</div>
+            <div className='d-flex align-items-center'>
+                <div className="closable-chips p-2" onClick={() => handleLanguageMoreOptions()}>
+                    English
+                </div>
+            </div>
+            {languageMoreOptions && (
+                <LanguageMoreModal width='563px' title={'Timings'} onClose={handleLanguageMoreOptions}
+                    onClick={() => {
+                        setLanguageMoreOptions(false);
+                    }} label='123' value='123' />
+            )}
             <hr className='mt-1' />
             <div className='title-common'>About Doctor</div>
             <div className="text-greycolor fontroboto my-3"> Write a brief introduction. Share your experience journey, major achievements, best qualities, and key skills. </div>

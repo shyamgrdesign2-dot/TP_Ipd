@@ -422,7 +422,7 @@ function Header({ locationPath }) {
     },
     {
       label:
-        <a onClick={() => navigate('/doctor_profile')}>
+        <a onClick={() => (navigate('/doctor_profile'))}>
           <div className="title-common me-5 d-flex align-items-center"><i className="icon-profile me-3"></i>My Profile</div>
           <i className="icon-right iconrotate180"></i>
         </a>,
@@ -430,7 +430,7 @@ function Header({ locationPath }) {
     },
     {
       label:
-        <a onClick={() => navigate('/doctor_website_setting')}>
+        <a onClick={() => (navigate('/doctor_website_setting'))}>
           <div className="title-common me-5 d-flex align-items-center"><i className="icon-group me-3"></i>Setup My Website</div>
           <i className="icon-right iconrotate180"></i>
         </a>,
@@ -558,7 +558,7 @@ function Header({ locationPath }) {
 
           {SWITCH_TO_OLD_MODAL}
 
-          {/* <Dropdown
+          <Dropdown
             menu={{
               items,
             }}
@@ -578,17 +578,7 @@ function Header({ locationPath }) {
                 <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
               )}
             </a>
-          </Dropdown> */}
-          {profile?.um_image ? (
-            <img
-              src={profile?.um_image ?? defaultprofile}
-              alt="Profile"
-              className="rounded-circle"
-              style={{ width: "35px" }}
-            />
-          ) : (
-            <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
-          )}
+          </Dropdown>
 
         </Nav>
       </Container>

@@ -8,6 +8,7 @@ import cloudSaved from "../../src/assets/images/cloud-saved.svg";
 import DoctorWebsitePersonalDetails from "../components/doctor_website/DoctorWebsitePersonalDetails";
 import DoctorWebsiteAboutDoctor from "../components/doctor_website/DoctorWebsiteAboutDoctor";
 import DoctorWebsiteClinicProfile from "../components/doctor_website/DoctorWebsiteClinicProfile";
+import DoctorWebsiteSocialLinks from "../components/doctor_website/DoctorWebsiteSocialLinks";
 
 function DoctorWebsiteSetting() {
 
@@ -74,7 +75,7 @@ function DoctorWebsiteSetting() {
                                 </div>
 
                                 {/* Doctor Experience */}
-                                <div className="border-bottom py-3 cursor-pointer">
+                                <div className="border-bottom py-3 cursor-pointer" onClick={() => handlePersonalDetails(4, 'Doctor Experience')}>
                                     <div className="d-flex align-items-center justify-content-between">
                                         <div className="titleprint">Doctor Experience</div>
                                         <div className="d-flex">
@@ -86,7 +87,7 @@ function DoctorWebsiteSetting() {
                                 </div>
 
                                 {/* Services */}
-                                <div className="border-bottom py-3 cursor-pointer">
+                                <div className="border-bottom py-3 cursor-pointer" onClick={() => handlePersonalDetails(5, 'Services')}>
                                     <div className="d-flex align-items-center justify-content-between">
                                         <div className="titleprint">Services</div>
                                         <div className="d-flex">
@@ -98,7 +99,7 @@ function DoctorWebsiteSetting() {
                                 </div>
 
                                 {/* Education & Training */}
-                                <div className="border-bottom py-3 cursor-pointer">
+                                <div className="border-bottom py-3 cursor-pointer" onClick={() => handlePersonalDetails(6, 'Education & Training')}>
                                     <div className="d-flex align-items-center justify-content-between">
                                         <div className="titleprint">Education & Training</div>
                                         <div className="d-flex">
@@ -110,7 +111,7 @@ function DoctorWebsiteSetting() {
                                 </div>
 
                                 {/* Memberships */}
-                                <div className="border-bottom py-3 cursor-pointer">
+                                <div className="border-bottom py-3 cursor-pointer" onClick={() => handlePersonalDetails(7, 'Memberships')}>
                                     <div className="d-flex align-items-center justify-content-between">
                                         <div className="titleprint">Memberships</div>
                                         <div className="d-flex">
@@ -122,7 +123,7 @@ function DoctorWebsiteSetting() {
                                 </div>
 
                                 {/* Rewards & Recognition */}
-                                <div className="border-bottom py-3 cursor-pointer">
+                                <div className="border-bottom py-3 cursor-pointer" onClick={() => handlePersonalDetails(8, 'Rewards & Recognition')}>
                                     <div className="d-flex align-items-center justify-content-between">
                                         <div className="titleprint">Rewards & Recognition</div>
                                         <div className="d-flex">
@@ -135,7 +136,7 @@ function DoctorWebsiteSetting() {
 
                                 {/* Social Links */}
                                 <div className="mt-20 pb-3">
-                                    <div className="d-flex align-items-center justify-content-between">
+                                    <div className="d-flex align-items-center justify-content-between" onClick={() => handlePersonalDetails(9, 'Social Links')}>
                                         <div className="titleprint">Social Links</div>
                                         <div className="d-flex">
                                             <span className="fw-medium me-2 text-greycolor fs-16">Show</span>
@@ -157,7 +158,8 @@ function DoctorWebsiteSetting() {
                                     {selectedMenu && selectedMenu?.value === 1 ?
                                         <DoctorWebsitePersonalDetails />
                                         : selectedMenu?.value === 2 ? <DoctorWebsiteAboutDoctor />
-                                            : selectedMenu?.value === 3 && <DoctorWebsiteClinicProfile />}
+                                            : selectedMenu?.value === 3 ? <DoctorWebsiteClinicProfile />
+                                            : selectedMenu?.value === 9 && <DoctorWebsiteSocialLinks />}
                                 </div>
                             }
                         </div>
