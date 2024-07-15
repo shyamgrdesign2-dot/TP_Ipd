@@ -209,7 +209,7 @@ function PrescriptionPrintView() {
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
-                    <Col md={7} lg={7} xl={5}>
+                    <Col md={7} sm={7} xl={5}>
 
                         {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
                             <i className="icon-setting me-2"></i>
@@ -276,7 +276,7 @@ function PrescriptionPrintView() {
                             </div> */}
                         </div>
                     </Col>
-                    <Col md={17} lg={17} xl={12}>
+                    <Col md={17} sm={17} xl={12}>
                         <div className={isMobile ? 'p-20' : ''}>
                             <div className="d-flex align-itms-center justify-content-between">
                                 <div className="titleprint">Preview</div>
