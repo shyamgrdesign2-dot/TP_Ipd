@@ -683,7 +683,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 </div>
                 {selectedTab === "man" && (
                   <Row className="input-dark">
-                    <Col lg={8}>
+                    <Col sm={8}>
                       <BSButtonGroup
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0"
@@ -738,7 +738,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                           )}
                       </BSButtonGroup>
                     </Col>
-                    <Col lg={8}>
+                    <Col sm={8}>
                       <BSButtonGroup
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0 border-start-0"
@@ -794,7 +794,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                           )}
                       </BSButtonGroup>
                     </Col>
-                    <Col lg={8}>
+                    <Col sm={8}>
                       <BSButtonGroup
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0 border-start-0"
@@ -853,7 +853,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 )}
                 {selectedTab === "mean" && (
                   <Row className="input-dark">
-                    <Col lg={6}>
+                    <Col sm={6}>
                       <BSButtonGroup
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0"
@@ -908,7 +908,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                           )}
                       </BSButtonGroup>
                     </Col>
-                    <Col lg={6}>
+                    <Col sm={6}>
                       <BSButtonGroup
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0 border-start-0"
@@ -964,7 +964,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                           )}
                       </BSButtonGroup>
                     </Col>
-                    <Col lg={6}>
+                    <Col sm={6}>
                       <BSButtonGroup
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0 border-start-0"
@@ -1019,7 +1019,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                           )}
                       </BSButtonGroup>
                     </Col>
-                    <Col lg={6}>
+                    <Col sm={6}>
                       <BSButtonGroup
                         aria-label="Basic example"
                         className="inputheight45 border rounded-0 border-start-0"
