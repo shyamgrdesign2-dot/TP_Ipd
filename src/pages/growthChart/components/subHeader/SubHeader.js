@@ -64,7 +64,7 @@ const SubHeader = ({
         onClick={showTimelineInYearHandler}
       >
         <div className="textStyle titleStyle">
-          <span>Show Timeine</span>
+          <span>Show Timeline</span>
           <span>in years</span>
         </div>
         <Switch checked={showTimelineInYear} />
