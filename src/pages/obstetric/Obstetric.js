@@ -5,8 +5,11 @@ import PregnancyHistory from "./components/pregnancyHistory/PregnancyHistory";
 import Examination from "./components/examination/Examination";
 import { Tabs } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
+import LmpPopup from "./components/lmpPopup/LmpPopup";
+import { useState } from "react";
 
 const Obstetric = ({ handleDrawerObstetric }) => {
+  const [showLmpPopup, setShowLmpPopup] = useState(true);
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader
@@ -23,6 +26,12 @@ const Obstetric = ({ handleDrawerObstetric }) => {
           <Examination />
         </TabPane>
       </Tabs>
+      {showLmpPopup && (
+        <LmpPopup
+          handleDrawerObstetric={handleDrawerObstetric}
+          setShowLmpPopup={setShowLmpPopup}
+        />
+      )}
     </div>
   );
 };
