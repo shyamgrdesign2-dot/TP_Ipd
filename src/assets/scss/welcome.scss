@@ -21,6 +21,9 @@
         line-height: 36px; 
         color: $welcomecolor;
         margin-bottom: 0;
+        @media only screen and (max-width: 950px)  {
+            font-size: 20px;
+        }
     }
     p {
         font-size: 12px;

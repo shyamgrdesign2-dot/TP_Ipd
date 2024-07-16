@@ -359,7 +359,7 @@ function WhatsappConfigure(props) {
             {/* <style scoped>{css}</style> */}
             <div className={'w-100 bg-body wrapper2'}>
                 <Row justify="space-between">
-                    <Col xl={8} lg={10} className="pe-3">
+                    <Col xl={8} sm={10} className="pe-3">
                         <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                             <div className="px-3 form_addnewpatient">
                                 <div className="mt-4">
@@ -679,7 +679,7 @@ function WhatsappConfigure(props) {
                             </div>
                         </div>
                     </Col>
-                    <Col xl={16} lg={14}>
+                    <Col xl={16} sm={14}>
                         <div className="mx-auto overflow-y-auto " style={{ width: isMobile ? 580 : 900 }} >
                             <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" />WhatsApp Preview</div>
                             <div className="rounded-20px bg-white mt-20 overflow-hidden">

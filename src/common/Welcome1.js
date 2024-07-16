@@ -112,7 +112,7 @@ function Welcome1(props) {
                     {sidebarKey === 1 ? (
                         <div>
                             {viewCaseManagerData && (
-                                <div className='d-lg-flex d-block'>
+                                <div className='d-sm-flex d-block'>
                                     <Popover
                                         open={popOverVideo}
                                         onOpenChange={showHideVideoListPopover}
