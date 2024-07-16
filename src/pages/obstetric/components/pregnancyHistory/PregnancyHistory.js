@@ -2,6 +2,7 @@ import { Button } from "antd";
 import { useState } from "react";
 import "./PregnancyHistory.scss";
 import arrow from "../../../../assets/images/arrow.svg";
+import pregnancyHistoryImg from "../../../../assets/images/pregnancy-history.svg";
 
 const PregnancyHistory = () => {
   const [pregnancyHistoryData, setPregnancyHistoryData] = useState([]);
@@ -12,6 +13,7 @@ const PregnancyHistory = () => {
         <div>pregnancyHistoryData</div>
       ) : (
         <div className="emptyDataContainer">
+          <img src={pregnancyHistoryImg} alt="examination" />
           <div className="shortDescription">
             Add previous pregnancy details such as Type of birth, DOB, Sex,
             Weight, Type of delivery, Mode of delivery.

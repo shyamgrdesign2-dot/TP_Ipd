@@ -1,6 +1,7 @@
 import { Button } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import "./../pregnancyHistory/PregnancyHistory.scss";
+import examination from "../../../../assets/images/obs-examination.svg";
 import "./Examination.scss";
 
 const examinationData = [
@@ -137,6 +138,7 @@ const Examination = () => {
         </>
       ) : (
         <div className="emptyDataContainer">
+          <img src={examination} alt="examination" />
           <div className="shortDescription">
             Add details to track every details such as Fundus height, Fetus
             weight, Presentation and Fetus heart rate.

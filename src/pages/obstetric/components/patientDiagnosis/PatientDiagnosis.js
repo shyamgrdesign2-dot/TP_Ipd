@@ -55,10 +55,12 @@ export default function PatientDiagnosis() {
     { value: 1, label: "E" },
   ]);
 
-  const handleInputChange = (index, newValue) => {
-    const updatedData = [...pastPregnancyData];
-    updatedData[index].value = newValue;
-    setPastPregnancyData(updatedData);
+  const handleInputChange = (index, newValue, isValid) => {
+    if (isValid) {
+      const updatedData = [...pastPregnancyData];
+      updatedData[index].value = newValue;
+      setPastPregnancyData(updatedData);
+    }
   };
 
   const [selectedValue, setSelectedValue] = React.useState("");
@@ -124,15 +126,26 @@ export default function PatientDiagnosis() {
                 className="timeIntervalValue"
                 style={{ marginLeft: "10px" }}
                 placeholder="Ex : 3"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={gestationWeeks}
-                onChange={(e) => setGestationWeeks(e.target.value)}
+                onChange={(e) =>
+                  setGestationWeeks(
+                    e.target.validity.valid ? e.target.value : gestationWeeks
+                  )
+                }
               />
               <span className="timeInterval spanStyle">Weeks</span>
               <Input
                 className="timeIntervalValue"
                 placeholder="Ex : 2"
+                pattern="[0-9]*"
                 value={gestationDays}
-                onChange={(e) => setGestationDays(e.target.value)}
+                onChange={(e) =>
+                  setGestationDays(
+                    e.target.validity.valid ? e.target.value : gestationDays
+                  )
+                }
               />
               <span
                 className="timeInterval spanStyle"
@@ -241,15 +254,29 @@ export default function PatientDiagnosis() {
                 className="timeIntervalValue"
                 style={{ marginLeft: "10px" }}
                 placeholder="Ex : 3"
+                pattern="[0-9]*"
                 value={marriageDurationInYears}
-                onChange={(e) => setMarriageDurationInYears(e.target.value)}
+                onChange={(e) =>
+                  setMarriageDurationInYears(
+                    e.target.validity.valid
+                      ? e.target.value
+                      : marriageDurationInYears
+                  )
+                }
               />
               <span className="timeInterval spanStyle">Years</span>
               <Input
                 className="timeIntervalValue"
                 placeholder="Ex : 2"
+                pattern="[0-9]*"
                 value={marriageDurationInMonths}
-                onChange={(e) => setMarriageDurationInMonths(e.target.value)}
+                onChange={(e) =>
+                  setMarriageDurationInMonths(
+                    e.target.validity.valid
+                      ? e.target.value
+                      : marriageDurationInMonths
+                  )
+                }
               />
               <span
                 className="timeInterval spanStyle"
@@ -272,7 +299,14 @@ export default function PatientDiagnosis() {
                 <Form.Item label={item.label} style={{ marginBottom: "10px" }}>
                   <Input
                     value={item.value}
-                    onChange={(e) => handleInputChange(index, e.target.value)}
+                    pattern="[0-9]*"
+                    onChange={(e) =>
+                      handleInputChange(
+                        index,
+                        e.target.value,
+                        e.target.validity.valid
+                      )
+                    }
                     style={{ width: "40px", height: "28px" }}
                   />
                 </Form.Item>
