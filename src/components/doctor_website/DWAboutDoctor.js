@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { Form, Input, Button } from 'antd';
+import { Form, Input } from 'antd';
 import LanguageMoreModal from './LanguageMoreModal';
 
 
-function DoctorWebsitePersonalDetails() {
+function DWAboutDoctor() {
 
     const [languageMoreOptions, setLanguageMoreOptions] = useState(false);
 
@@ -91,4 +91,4 @@ function DoctorWebsitePersonalDetails() {
     );
 }
 
-export default DoctorWebsitePersonalDetails;
+export default DWAboutDoctor;

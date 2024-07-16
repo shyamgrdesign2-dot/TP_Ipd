@@ -5,12 +5,14 @@ import HeaderDoctorWebsite from "../components/doctor_website/HeaderDoctorWebsit
 
 import mendatoryTick from "../../src/assets/images/mendatory-tick.svg";
 import cloudSaved from "../../src/assets/images/cloud-saved.svg";
-import DoctorWebsitePersonalDetails from "../components/doctor_website/DoctorWebsitePersonalDetails";
-import DoctorWebsiteAboutDoctor from "../components/doctor_website/DoctorWebsiteAboutDoctor";
-import DoctorWebsiteClinicProfile from "../components/doctor_website/DoctorWebsiteClinicProfile";
-import DoctorWebsiteSocialLinks from "../components/doctor_website/DoctorWebsiteSocialLinks";
-import DoctorWebsiteDoctorExperience from "../components/doctor_website/DoctorWebsiteDoctorExperience";
-import DoctorWebsiteServices from "../components/doctor_website/DoctorWebsiteServices";
+import DWAboutDoctor from "../components/doctor_website/DWAboutDoctor";
+import DWPersonalDetails from "../components/doctor_website/DWPersonalDetails";
+import DWClinicProfile from "../components/doctor_website/DWClinicProfile";
+import DWDoctorExperience from "../components/doctor_website/DWDoctorExperience";
+import DWServices from "../components/doctor_website/DWServices";
+import DWEducationTraning from "../components/doctor_website/DWEducationTraning";
+import DWRewardsRecognition from "../components/doctor_website/DWRewardsRecognition";
+import DWSocialLinks from "../components/doctor_website/DWSocialLinks";
 
 function DoctorWebsiteSetting() {
 
@@ -158,12 +160,15 @@ function DoctorWebsiteSetting() {
                                         <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1 bg-white">Mendatory</div>
                                     </div>
                                     {selectedMenu && selectedMenu?.value === 1 ?
-                                        <DoctorWebsitePersonalDetails />
-                                        : selectedMenu?.value === 2 ? <DoctorWebsiteAboutDoctor />
-                                            : selectedMenu?.value === 3 ? <DoctorWebsiteClinicProfile />
-                                            : selectedMenu?.value === 4 ? <DoctorWebsiteDoctorExperience />
-                                            : selectedMenu?.value === 5 ? <DoctorWebsiteServices />
-                                            : selectedMenu?.value === 9 && <DoctorWebsiteSocialLinks />}
+                                        <DWPersonalDetails />
+                                        : selectedMenu?.value === 2 ? <DWAboutDoctor />
+                                            : selectedMenu?.value === 3 ? <DWClinicProfile />
+                                                : selectedMenu?.value === 4 ? <DWDoctorExperience />
+                                                    : selectedMenu?.value === 5 ? <DWServices />
+                                                        : selectedMenu?.value === 6 ? <DWEducationTraning />
+                                                            : selectedMenu?.value === 7 ? <DWEducationTraning />
+                                                                : selectedMenu?.value === 8 ? <DWRewardsRecognition />
+                                                                    : selectedMenu?.value === 9 && <DWSocialLinks />}
                                 </div>
                             }
                         </div>

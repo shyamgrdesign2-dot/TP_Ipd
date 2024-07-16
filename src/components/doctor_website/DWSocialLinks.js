@@ -6,7 +6,7 @@ import Linkedin from '../../assets/images/linkedin-img.svg';
 import XIcon from '../../assets/images/x-img.svg';
 import Youtube from '../../assets/images/youtube-img.svg';
 
-function DoctorWebsiteSocialLinks() {
+function DWSocialLinks() {
     return (
         <div className="bg-white p-20 overflow-auto" style={{ height: 'calc(100vh - 120px)' }}>
             <div className="text-greycolor fontroboto mb-20">Add your social media profile links.</div>
@@ -48,4 +48,4 @@ function DoctorWebsiteSocialLinks() {
         </div>
     );
 }
-export default DoctorWebsiteSocialLinks;
+export default DWSocialLinks;

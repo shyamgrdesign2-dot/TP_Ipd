@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Button, Collapse, Form, Input, Row, Col, Select, Checkbox } from 'antd';
 
-function DoctorWebsiteDoctorExperience() {
+function DWDoctorExperience() {
 
     const specialtyList = [
         {
@@ -20,7 +20,7 @@ function DoctorWebsiteDoctorExperience() {
             label:
                 <>
                     <div className="title-common">Key Experience 1</div>
-                    <div className='fontroboto'>Not Specified</div>
+                    <div className='fontroboto'>{'(Not Specified)'}</div>
                 </>,
             children:
                 <div className="rounded-20px">
@@ -101,7 +101,7 @@ function DoctorWebsiteDoctorExperience() {
                             </Row>
                         </Form>
                     </div>
-                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3' disabled><i className='icon-Add fs-18 me-2'></i>Delete Experience</Button>
+                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3' disabled><i className='icon-delete fs-18 me-2'></i>Delete Experience</Button>
                 </div>,
         },
     ];
@@ -119,4 +119,4 @@ function DoctorWebsiteDoctorExperience() {
     );
 }
 
-export default DoctorWebsiteDoctorExperience;
+export default DWDoctorExperience;

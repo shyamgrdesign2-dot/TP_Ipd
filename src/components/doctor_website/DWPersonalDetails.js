@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, Form, Input, Select } from 'antd';
 
-function DoctorWebsitePersonalDetails({ onClose }) {
+function DWPersonalDetails() {
 
     const inputWatermarkFile = React.createRef();
 
@@ -87,4 +87,4 @@ function DoctorWebsitePersonalDetails({ onClose }) {
     );
 }
 
-export default DoctorWebsitePersonalDetails;
+export default DWPersonalDetails;
