@@ -3,6 +3,10 @@
   background-color: rgba(252, 218, 218, 0.3);
   height: 193px;
 
+  @media only screen and (max-width: 1200px) {
+    padding: 24px 10px;
+  }
+
   .diagnosisTitle {
     font-size: 16px;
     font-weight: 500;
@@ -22,7 +26,7 @@
         border: 1px solid #e2e2ea;
         background-color: white;
         border-radius: 10px;
-        height: 36px;
+        height: 38px;
         width: max-content;
         display: flex;
         align-items: center;
@@ -30,7 +34,8 @@
         font-size: 14px;
         font-weight: 400;
         line-height: 21px;
-        span {
+
+        .spanStyle {
           padding: 8px 10px 8px 0;
           margin-left: 10px;
           display: flex;
@@ -40,7 +45,41 @@
           font-weight: 500;
         }
 
+        .datePickerStyle .ant-picker-input > input {
+          width: 82px !important;
+        }
+
         .diagnosisSelect {
+          color: transparent;
+          background-color: transparent;
+
+          /* Remove background color in selection box */
+          .dropdown-toggle {
+            background-color: transparent !important;
+            border-color: transparent !important;
+            color: #000 !important;
+          }
+
+          .dropdown-toggle::after {
+            display: none;
+          }
+
+          .dropdown-menu {
+            font-size: 14px;
+            font-weight: 400;
+            padding: 0px;
+          }
+
+          .dropdown-item {
+            padding: 10px 12px;
+          }
+
+          .dropdown-menu .dropdown-item:active,
+          .dropdown-menu .dropdown-item:hover {
+            background-color: #e9ecef !important; /* Light gray background on hover */
+            color: #000 !important;
+          }
+
           &.inputborder .ant-select-selector {
             border: none !important;
             border-radius: 10px;
@@ -57,6 +96,11 @@
           span {
             margin-left: -10px;
           }
+          .iconStyle {
+            display: inline-block;
+            transform: rotate(270deg);
+            margin-left: 5px;
+          }
         }
 
         .maritalStatusSelect {
@@ -64,7 +108,7 @@
             padding-right: 0px !important;
           }
           .ant-select-arrow {
-            left: 105px;
+            left: 85px;
           }
 
           .ant-select-clear {
@@ -76,7 +120,7 @@
           background-color: #fafafb;
           margin-left: 0px;
           padding-left: 10px;
-          height: 34px;
+          height: 36px;
         }
         .timeIntervalValue {
           border: solid 1px #eaecf0;
@@ -84,7 +128,7 @@
           border-bottom: none;
           padding: 8px 10px;
           margin-left: 0px;
-          height: 34px;
+          height: 36px;
           width: 56px;
           text-align: center;
           border-radius: 0 !important;
@@ -120,5 +164,38 @@
         text-decoration: underline;
       }
     }
+  }
+}
+
+.husbandBlood .dropdown-menu {
+  margin-left: -135px !important;
+  margin-top: 3px;
+  width: 220px !important;
+}
+
+.bloodDropdown .dropdown-menu {
+  margin-left: -30px !important;
+  width: 140px !important;
+}
+
+.dropdown-item-custom {
+  position: relative;
+  padding: 10px 20px;
+
+  &::after {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    border-bottom: 1px solid #eaecf0;
+    width: calc(100% - 20px);
+    margin: 0 auto;
+  }
+
+  &:last-child::after {
+    display: none;
   }
 }

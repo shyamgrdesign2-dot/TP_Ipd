@@ -8,7 +8,9 @@ const LmpPopup = ({ handleDrawerObstetric, setShowLmpPopup }) => {
   const [isContinueBtnDisabled, setContinueBtnDisabled] = useState(true);
 
   const continueBtnHandler = () => {
-    setShowLmpPopup(false);
+    if (!isContinueBtnDisabled) {
+      setShowLmpPopup(false);
+    }
   };
   return (
     <Modal
@@ -34,7 +36,7 @@ const LmpPopup = ({ handleDrawerObstetric, setShowLmpPopup }) => {
           }}
         >
           <div style={{ marginBottom: 15 }}>
-            <label style={{ marginBottom: 8 }} className="gc-label">
+            <label style={{ marginBottom: 8 }} className="lmpLabel">
               LMP date <span className="mandatory">*</span>
             </label>
             <DatePicker

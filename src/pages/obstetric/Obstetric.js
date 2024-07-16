@@ -9,7 +9,7 @@ import LmpPopup from "./components/lmpPopup/LmpPopup";
 import { useState } from "react";
 
 const Obstetric = ({ handleDrawerObstetric }) => {
-  const [showLmpPopup, setShowLmpPopup] = useState(true);
+  const [showLmpPopup, setShowLmpPopup] = useState(false);
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader

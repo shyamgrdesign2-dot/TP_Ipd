@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./PatientDiagnosis.scss";
 import { Col, DatePicker, Drawer, Form, Input, Row, Select } from "antd";
 import DiagnosisNotes from "../diagnosisNotes/DiagnosisNotes";
+import { Dropdown, DropdownButton } from "react-bootstrap";
 
 const bloodGroupOptions = [
   { value: 1, label: "A+ (A positive)", shortLabel: "A+" },
@@ -60,15 +61,25 @@ export default function PatientDiagnosis() {
     setPastPregnancyData(updatedData);
   };
 
+  const [selectedValue, setSelectedValue] = React.useState("");
+
+  const handleSelect = (eventKey) => {
+    const selectedOption = bloodGroupOptions.find(
+      (option) => option.value.toString() === eventKey
+    );
+    setSelectedValue(selectedOption ? selectedOption.shortLabel : "");
+  };
+
   return (
     <div>
       <div className="patientDiagnosisContainer">
         <div className="diagnosisTitle">Patient Diagnosis</div>
         <div className="diagnosisItems">
           <div className="rowContainer">
-            <div className="history-badge">
+            <div className="history-badge" style={{ width: "167px" }}>
               LMP :
               <DatePicker
+                className="datePickerStyle"
                 placeholder="Select Date"
                 dropdownClassName="addDOB-picker-dropdown"
                 format="DD MMM YYYY"
@@ -77,7 +88,7 @@ export default function PatientDiagnosis() {
                   border: "none",
                   borderTopRightRadius: "10px",
                   borderBottomRightRadius: "10px",
-                  paddingRight: "0px",
+                  padding: "0 10px 0 10px",
                 }}
                 allowClear={false}
               />
@@ -86,20 +97,23 @@ export default function PatientDiagnosis() {
               className="history-badge"
               style={{ cursor: "disabled", backgroundColor: "#FAFAFB" }}
             >
-              E.D.D : <span>12 Jan 2024</span>
+              E.D.D :{" "}
+              <span className="spanStyle" style={{ marginLeft: "8px" }}>
+                12 Jan 2024
+              </span>
             </div>
-            <div className="history-badge">
+            <div className="history-badge" style={{ width: "188px" }}>
               C.E.D.D :
               <DatePicker
                 placeholder="Select Date"
-                dropdownClassName="addDOB-picker-dropdown"
+                className="datePickerStyle"
                 format="DD MMM YYYY"
                 style={{
                   height: "34px",
                   border: "none",
                   borderTopRightRadius: "10px",
                   borderBottomRightRadius: "10px",
-                  paddingRight: "0px",
+                  padding: "0 10px 0 10px",
                 }}
                 allowClear={false}
               />
@@ -113,7 +127,7 @@ export default function PatientDiagnosis() {
                 value={gestationWeeks}
                 onChange={(e) => setGestationWeeks(e.target.value)}
               />
-              <span className="timeInterval">Weeks</span>
+              <span className="timeInterval spanStyle">Weeks</span>
               <Input
                 className="timeIntervalValue"
                 placeholder="Ex : 2"
@@ -121,7 +135,7 @@ export default function PatientDiagnosis() {
                 onChange={(e) => setGestationDays(e.target.value)}
               />
               <span
-                className="timeInterval"
+                className="timeInterval spanStyle"
                 style={{
                   borderTopRightRadius: "10px",
                   borderBottomRightRadius: "10px",
@@ -132,30 +146,65 @@ export default function PatientDiagnosis() {
             </div>
             <div className="history-badge" style={{ width: "142px" }}>
               Blood :
-              <Select
-                className="autocomplete-custom h-100 inputborder diagnosisSelect"
-                style={{ width: "64%" }}
-                placeholder="Select"
-                options={bloodGroupOptions}
-                optionLabelProp="shortLabel"
-                dropdownStyle={{ width: 142 }}
-                allowClear
-              />
+              <DropdownButton
+                className="h-100 inputborder diagnosisSelect bloodDropdown"
+                style={{ width: "40%" }}
+                title={
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      display: "flex",
+                    }}
+                  >
+                    {selectedValue || "Select"}
+                    <i className="icon-right iconStyle" />
+                  </div>
+                }
+                onSelect={handleSelect}
+              >
+                {bloodGroupOptions.map((option, index) => (
+                  <Dropdown.Item
+                    key={option.value}
+                    eventKey={option.value.toString()}
+                  >
+                    {option.label}
+                  </Dropdown.Item>
+                ))}
+              </DropdownButton>
             </div>
           </div>
 
           <div className="rowContainer">
             <div className="history-badge" style={{ width: "220px" }}>
               Husband's blood :
-              <Select
-                className="autocomplete-custom h-100 inputborder diagnosisSelect"
+              <DropdownButton
+                className="h-100 inputborder diagnosisSelect husbandBlood"
                 style={{ width: "40%" }}
-                placeholder="Select"
-                options={bloodGroupOptions}
-                optionLabelProp="shortLabel"
-                dropdownStyle={{ width: 220 }}
-                allowClear
-              />
+                title={
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      display: "flex",
+                    }}
+                  >
+                    {selectedValue || "Select"}
+                    <i className="icon-right iconStyle" />
+                  </div>
+                }
+                onSelect={handleSelect}
+              >
+                {bloodGroupOptions.map((option) => (
+                  <Dropdown.Item
+                    key={option.value}
+                    eventKey={option.value.toString()}
+                    className="dropdown-item-custom"
+                  >
+                    {option.label}
+                  </Dropdown.Item>
+                ))}
+              </DropdownButton>
             </div>
             <div
               className="history-badge"
@@ -173,7 +222,7 @@ export default function PatientDiagnosis() {
             </div>
             <div
               className="history-badge"
-              style={{ width: "230px", position: "relative" }}
+              style={{ width: "208px", position: "relative" }}
             >
               Marital status :
               <Select
@@ -182,7 +231,7 @@ export default function PatientDiagnosis() {
                 placeholder="Select"
                 options={maritalStatusOptions}
                 optionLabelProp="label"
-                dropdownStyle={{ width: 230 }}
+                dropdownStyle={{ width: 230, marginLeft: -112 }}
                 allowClear
               />
             </div>
@@ -195,7 +244,7 @@ export default function PatientDiagnosis() {
                 value={marriageDurationInYears}
                 onChange={(e) => setMarriageDurationInYears(e.target.value)}
               />
-              <span className="timeInterval">Years</span>
+              <span className="timeInterval spanStyle">Years</span>
               <Input
                 className="timeIntervalValue"
                 placeholder="Ex : 2"
@@ -203,7 +252,7 @@ export default function PatientDiagnosis() {
                 onChange={(e) => setMarriageDurationInMonths(e.target.value)}
               />
               <span
-                className="timeInterval"
+                className="timeInterval spanStyle"
                 style={{
                   borderTopRightRadius: "10px",
                   borderBottomRightRadius: "10px",
