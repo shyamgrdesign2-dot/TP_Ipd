@@ -6,10 +6,18 @@ import Examination from "./components/examination/Examination";
 import { Tabs } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import LmpPopup from "./components/lmpPopup/LmpPopup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { getAllObstetricDetails } from "./service";
 
 const Obstetric = ({ handleDrawerObstetric }) => {
+  const { state } = useLocation();
+  let { patient_data } = state;
   const [showLmpPopup, setShowLmpPopup] = useState(false);
+
+  useEffect(() => {
+    getAllObstetricDetails(patient_data.patient_unique_id);
+  }, []);
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader
