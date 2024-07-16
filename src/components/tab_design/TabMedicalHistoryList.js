@@ -2,6 +2,9 @@ import React, { useState, useEffect, useContext } from "react";
 import { Button, Collapse } from 'antd';
 
 import CashManagerContext from '../../context/CashManagerContext';
+import { GB_GYNEC_HISTORY } from "../../utils/constants";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import TabGynecHistoryList from "./TabGynecHistoryList";
 
 // Read More content
 const ReadMore = ({ children }) => {
@@ -26,7 +29,12 @@ function TabMedicalHistoryList(props) {
 
     const { medicalHistoryData } = useContext(CashManagerContext);
 
+    const {gynecHistory} = props
     const [accordionItems, setAccordionItems] = useState([]);
+
+    const isGynecHistoryAccessableFromGB = useFeatureIsOn(
+        GB_GYNEC_HISTORY
+    );
 
     useEffect(() => {
         if (medicalHistoryData.length > 0) {
@@ -118,6 +126,9 @@ function TabMedicalHistoryList(props) {
                         <i className='icon-Add me-2 fs-21'></i>
                         Add or Edit History
                     </Button>
+                    {gynecHistory && isGynecHistoryAccessableFromGB &&
+                        <TabGynecHistoryList gynecHistory={gynecHistory}/>
+                    }
                     {medicalHistoryData.length > 0 && (
                         <div className="border rounded-3 bg-body mt-3 p-10">
                             <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box" expandIconPosition={'end'} />

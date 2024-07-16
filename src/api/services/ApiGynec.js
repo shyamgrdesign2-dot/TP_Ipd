@@ -1,8 +1,6 @@
-import moment from "moment";
 import api from "../../api/services/axiosService";
 import config from "../../config";
 
-// const baseUrl = { customBaseUrl: config.gynec_api_url };
 const baseUrl = { customBaseUrl: config.gynec_api_url };
 
 export const getGynecDetails = async function (patient_unique_id) {
@@ -21,7 +19,6 @@ export const getGynecDetails = async function (patient_unique_id) {
 };
 
 export const postGynecDetails = async function (payload) {
-//   const today = moment().format("YYYY-MM-DD");
   let res = {};
   try {
     res = await api.post(
@@ -38,13 +35,13 @@ export const postGynecDetails = async function (payload) {
 export const updateGynecDetails = async function (patientId, payload) {
     let res = {};
     try {
-        res = await api.patch(
-            `/gynec/${patientId}`,
-            payload,
-            baseUrl
-        );
+      res = await api.patch(
+          `/gynec/${patientId}`,
+          payload,
+          baseUrl
+      );
     } catch (error) {
-        console.error("Error while updating gynec details: ", error);
+      console.error("Error while updating gynec details: ", error);
     }
     return res;
 };

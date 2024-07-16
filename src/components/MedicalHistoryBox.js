@@ -49,7 +49,6 @@ function MedicalHistoryBox(props) {
     const { medicalHistoryData, setMedicalHistoryData } = useContext(CashManagerContext);
     // const [ medicalHistoryData, setMedicalHistoryData] = useState([]);
     const [cloneMedicalHistoryData, setCloneMedicalHistoryData] = useState([])
-    // const [mensturalHistoryData, setMensturalHistoryData] = useState([])
 
     const MEDICAL_PROBLEM = {
         since: '',
@@ -298,7 +297,7 @@ function MedicalHistoryBox(props) {
             var decoded = jwtDecode(token);
             setTokenData(decoded.result)
           } catch (e) {
-            console.log(e);
+            console.error(e);
           }
       }, []);
 
@@ -887,9 +886,6 @@ function MedicalHistoryBox(props) {
                                                 <div className="d-flex align-items-center justify-content-between mb-3">
                                                     <div className="d-flex align-items-center">
                                                         <div className="titleprint">Age at menarche</div>
-                                                        {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton">
-                                                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${true ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
-                                                        </Button> */}
                                                         <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseGynecClick('ageAtMenarche')}>
                                                             <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${sectionState.ageAtMenarche ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                                                         </Button>
@@ -908,9 +904,6 @@ function MedicalHistoryBox(props) {
                                                 <div className="d-flex align-items-center justify-content-between mb-3">
                                                     <div className="d-flex align-items-center">
                                                         <div className="titleprint">Cycle</div>
-                                                        {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton">
-                                                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${true ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
-                                                        </Button> */}
                                                         <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseGynecClick('cycle')}>
                                                             <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${sectionState.cycle ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                                                         </Button>
@@ -938,9 +931,6 @@ function MedicalHistoryBox(props) {
                                                 <div className="d-flex align-items-center justify-content-between mb-3">
                                                     <div className="d-flex align-items-center">
                                                         <div className="titleprint">Flow</div>
-                                                        {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton">
-                                                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${true ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
-                                                        </Button> */}
                                                         <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseGynecClick('flow')}>
                                                             <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${sectionState.flow ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                                                         </Button>
