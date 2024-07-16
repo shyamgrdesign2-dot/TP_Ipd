@@ -11,7 +11,6 @@ import ViewPDF from '../components/print_settings/ViewPDF';
 import { renderPDF } from '../components/print_settings/renderPDF';
 import { PDF } from '../components/print_settings/PDF';
 import { pdfjs, Document, Page } from "react-pdf";
-import { getGivenVaccineDetails, getOverridenDueDate } from './vaccination/service';
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
@@ -144,6 +143,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 fileWatermark={fileWatermark}
                 fileSignature={fileSignature}
                 todayVaccines={props.todayVaccines}
+                growthChartDetails={props.growthChartDetails}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
         }
@@ -163,7 +163,8 @@ function Quixote({ mode = NORMAL, ...props }) {
         fileSignature,
         fileWatermark,
         fileLogo,
-        props.todayVaccines
+        props.todayVaccines,
+        props.growthChartDetails
     ]);
 
     const onDocumentLoadSuccess = ({ numPages }) => {

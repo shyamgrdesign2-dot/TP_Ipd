@@ -35,6 +35,9 @@ import vitalsDark from "../../assets/images/vitals-dark.svg";
 import medicalHistoryWhite from "../../assets/images/medical-history-white.svg";
 import medicalHistoryDark from "../../assets/images/medical-history-dark.svg";
 import vaccinationWhite from "../../assets/images/vaccination-white.svg";
+import vaccinationDark from "../../assets/images/Vaccination.svg";
+import growthChart from "../../assets/images/growth-chart.svg";
+import growthChartDark from "../../assets/images/growth-chart-dark.svg";
 import privateNotesWhite from "../../assets/images/private-notes-white.svg";
 import privateNotesDark from "../../assets/images/private-notes-dark.svg";
 
@@ -43,9 +46,9 @@ import privateNotesDark from "../../assets/images/private-notes-dark.svg";
 // import docsWhite from '../../assets/images/docs-white.svg';
 import Sider from "antd/es/layout/Sider";
 import Vaccination from "../vaccination/Vaccination";
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { checkToShowVaccination } from "../vaccination/service";
+import GrowthChart from "../growthChart/GrowthChart";
 import { viewPatient } from "../../redux/appointmentsSlice";
+import { useAccess } from "../vaccination/useAccess";
 
 function TabPrescription() {
   const {
@@ -62,6 +65,7 @@ function TabPrescription() {
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
   const isVaccination = state?.isVaccination;
+  const isGrowth = state?.isGrowth;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -80,9 +84,9 @@ function TabPrescription() {
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
   const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
-  const [isPediatric, setIsPediatric] = useState(false);
-  const isVaccinationAccessableFromGB = useFeatureIsOn(
-    "vaccination-new-design"
+  const [isGrowthChart, setIsGrowthChart] = useState(false);
+  const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
+    caseManagerData?.patient_data?.patient_age
   );
 
   const contextApi = {
@@ -121,6 +125,7 @@ function TabPrescription() {
   const [privateNotesDrawer, setPrivateNotesDrawer] = useState(false);
   const [selectPrivateNotes, setSelectPrivateNotes] = useState(null);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
+  const [growthDrawer, setGrowthDrawer] = useState(false);
 
   useEffect(() => {
     const sendData = {
@@ -216,7 +221,7 @@ function TabPrescription() {
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
             medicineUnit: medicineUnit,
             tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
-              }`,
+            }`,
             unique_id: uuidv4(),
           };
         });
@@ -255,14 +260,7 @@ function TabPrescription() {
         setAdditionalNote(caseManagerData.visit_advice);
       }
     }
-    checkForPediatric();
   }, []);
-
-  const checkForPediatric = async () => {
-    if (profile?.doctor_unique_id) {
-      setIsPediatric(await checkToShowVaccination(profile.doctor_unique_id));
-    }
-  };
 
   // Drawer Vitals
   const handleDrawerVital = useCallback(() => {
@@ -278,14 +276,22 @@ function TabPrescription() {
 
   // Drawer Private Notes
   const handleDrawerPrivateNotes = useCallback((data) => {
-    setCollapsedFlag(4);
+      setCollapsedFlag(4);
     setSelectPrivateNotes(data)
-    setPrivateNotesDrawer(!privateNotesDrawer);
+      setPrivateNotesDrawer(!privateNotesDrawer);
   }, [privateNotesDrawer, selectPrivateNotes]);
 
   // Drawer Vaccination
   const handleDrawerVaccination = () => {
+    setCollapsedFlag(3);
     setVaccinationDrawer(!vaccinationDrawer);
+  };
+
+  // Drawer Growth Chart
+  const handleDrawerGrowth = () => {
+    setCollapsedFlag(5);
+    setGrowthDrawer(!growthDrawer);
+    setIsGrowthChart(!isGrowthChart);
   };
 
   useEffect(() => {
@@ -293,6 +299,12 @@ function TabPrescription() {
       handleDrawerVaccination();
     }
   }, [isVaccination]);
+
+  useEffect(() => {
+    if (isGrowth) {
+      handleDrawerGrowth();
+    }
+  }, [isGrowth]);
 
   //Handle Sider
   const openCollapsed = useCallback(
@@ -388,7 +400,7 @@ function TabPrescription() {
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessableFromGB || isPediatric} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper p-0">
           <Layout>
             <div className="prescription-sidebar">
@@ -405,8 +417,9 @@ function TabPrescription() {
                     }
                   >
                     <div
-                      className={`prescription-tab-button rounded-10px ${collapsedFlag == 1 && "active"
-                        }`}
+                      className={`prescription-tab-button rounded-10px ${
+                        collapsedFlag == 1 && "active"
+                      }`}
                     >
                       <img
                         src={collapsedFlag == 1 ? vitalsDark : vitalsWhite}
@@ -415,69 +428,115 @@ function TabPrescription() {
                     </div>
                     <label className="text-white mt-1">Vitals</label>
                   </button>
-                ) :
-                  e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
-                    <button
-                      key={i}
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={() =>
-                        medicalHistoryData.length === 0
-                          ? handleDrawerMedicalHistory()
-                          : openCollapsed(2)
-                      }
+                ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
+                  <button
+                    key={i}
+                    type="button"
+                    className="mb-3 text-center btn btn-action"
+                    onClick={() =>
+                      medicalHistoryData.length === 0
+                        ? handleDrawerMedicalHistory()
+                        : openCollapsed(2)
+                    }
+                  >
+                    <div
+                      className={`prescription-tab-button rounded-10px ${
+                        collapsedFlag == 2 && "active"
+                      }`}
                     >
-                      <div
-                        className={`prescription-tab-button rounded-10px ${collapsedFlag == 2 && "active"
-                          }`}
-                      >
-                        <img
-                          src={
-                            collapsedFlag == 2
-                              ? medicalHistoryDark
-                              : medicalHistoryWhite
-                          }
-                          alt="Medical History"
-                        />
-                      </div>
-                      <label className="text-white mt-1">History</label>
-                    </button>
-                  ) : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
-                    <button
-                      key={i}
-                      type="button"
-                      className="mb-3 text-center btn btn-action position-relative"
-                      onClick={() =>
-                        privateNotesList?.length === 0
-                          ? handleDrawerPrivateNotes()
-                          : openCollapsed(4)
-                      }
+                      <img
+                        src={
+                          collapsedFlag == 2
+                            ? medicalHistoryDark
+                            : medicalHistoryWhite
+                        }
+                        alt="Medical History"
+                      />
+                    </div>
+                    <label className="text-white mt-1">History</label>
+                  </button>
+                ) : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
+                  <button
+                    key={i}
+                    type="button"
+                    className="mb-3 text-center btn btn-action position-relative"
+                    onClick={() =>
+                      privateNotesList?.length === 0
+                        ? handleDrawerPrivateNotes()
+                        : openCollapsed(4)
+                    }
+                  >
+                    <div
+                      className={`prescription-tab-button rounded-10px  ${
+                        collapsedFlag == 4 && "active"
+                      }`}
                     >
-                      <div
-                        className={`prescription-tab-button rounded-10px  ${collapsedFlag == 4 && "active"
-                          }`}
-                      >
-                        {privateNotesList?.length > 0 && (
-                          <div className="notes-dot">{privateNotesList?.length > 5 ? '5+' : privateNotesList?.length}</div>
-                        )}
-                        <img src={collapsedFlag == 4 ? privateNotesDark : privateNotesWhite}
-                          alt="Private Notes"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Private Notes</label>
-                    </button>
-                  ) : (e.tmdpm_id === 7 && e.tmdpm_status === 0 && (!!isVaccinationAccessableFromGB || isPediatric)) && (
+                      {privateNotesList?.length > 0 && (
+                        <div className="notes-dot">
+                          {privateNotesList?.length > 5
+                            ? "5+"
+                            : privateNotesList?.length}
+                        </div>
+                      )}
+                      <img
+                        src={
+                          collapsedFlag == 4
+                            ? privateNotesDark
+                            : privateNotesWhite
+                        }
+                        alt="Private Notes"
+                      />
+                    </div>
+                    <label className="text-white mt-1">Private Notes</label>
+                  </button>
+                ) : 
+                  e.tmdpm_id === 7 &&
+                  e.tmdpm_status === 0 &&
+                  isVaccinationAccessable ? (
                     <button
                       type="button"
                       className="mb-3 text-center btn btn-action"
                       onClick={handleDrawerVaccination}
                     >
-                      <div className="bg-secondary-light prescription-tab-button rounded-10px">
-                        <img src={vaccinationWhite} alt="Vitals" />
+                      <div
+                        className={`bg-secondary-light prescription-tab-button rounded-10px ${collapsedFlag === 3 && "active"}`}
+                      >
+                        <img
+                          src={
+                            collapsedFlag === 3
+                              ? vaccinationDark
+                              : vaccinationWhite
+                          }
+                          alt="Vitals"
+                        />
                       </div>
                       <label className="text-white mt-1">Vaccine</label>
                     </button>
                   )
+                 : 
+                  (
+                  e.tmdpm_id === 16 &&
+                  e.tmdpm_status === 0 &&
+                  isGrowthChartAccessable && (
+                    <button
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={handleDrawerGrowth}
+                    >
+                      <div
+                        className={`prescription-tab-button rounded-10px ${
+                          collapsedFlag === 5 && "active"
+                        }`}
+                      >
+                        <img
+                          src={collapsedFlag === 5 ? growthChartDark : growthChart}
+                          alt="Growth"
+                        />
+                      </div>
+                      <label className="text-white mt-1">Growth</label>
+                    </button>
+                  )
+                )
               })}
               {/* <button type='button' className="mb-3 text-center btn btn-action">
                                 <div className="prescription-tab-button rounded-10px">
@@ -529,11 +588,11 @@ function TabPrescription() {
                   handleCollapsed={() => setCollapsed(!collapsed)}
                 />
               ) : collapsedFlag === 4 && (
-                <TabPrivateNotesList
-                  mode={caseManagerData !== undefined ? EDIT : ADD}
-                  handleDrawerPrivateNotes={handleDrawerPrivateNotes}
-                  handleCollapsed={() => setCollapsed(!collapsed)}
-                />
+                  <TabPrivateNotesList
+                    mode={caseManagerData !== undefined ? EDIT : ADD}
+                    handleDrawerPrivateNotes={handleDrawerPrivateNotes}
+                    handleCollapsed={() => setCollapsed(!collapsed)}
+                  />
               )}
             </Sider>
             <div
@@ -580,19 +639,20 @@ function TabPrescription() {
             </div>
           </Layout>
         </div>
-        <Drawer
-          closeIcon={false}
-          placement="right"
-          onClose={handleDrawerVital}
-          open={vitalDrawer}
-          className="modalWidth-700"
-          width="auto"
-        >
-          <VitalsBox
-            handleDrawerVital={handleDrawerVital}
-            handleCollapsed={(flag) => handleCollapsed(flag)}
-          />
-        </Drawer>
+        {vitalDrawer && (<Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerVital}
+            open={vitalDrawer}
+            className="modalWidth-700"
+            width="auto"
+          >
+            <VitalsBox
+              handleDrawerVital={handleDrawerVital}
+              handleCollapsed={(flag) => handleCollapsed(flag)}
+              isGrowthChart={isGrowthChart}
+            />
+        </Drawer>)}
         <Drawer
           closeIcon={false}
           placement="right"
@@ -628,6 +688,21 @@ function TabPrescription() {
             width="100%"
           >
             <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
+          </Drawer>
+        )}
+        {growthDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerGrowth}
+            open={growthDrawer}
+            width="100%"
+            push={false}
+          >
+            <GrowthChart
+              handleDrawerVaccination={handleDrawerGrowth}
+              handleDrawerVital={handleDrawerVital}
+            />
           </Drawer>
         )}
       </>

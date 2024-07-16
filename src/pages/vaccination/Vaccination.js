@@ -29,11 +29,8 @@ import {
 import CashManagerContext from "../../context/CashManagerContext";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { isSafari, isChrome } from "react-device-detect";
-import html2pdf from "html2pdf.js";
-import { db } from "../../firebase.js";
-import { setDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import FullPageLoader from "./components/Loader.js";
+import { handlePrintClick } from "../../utils/utils.js";
 
 function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
@@ -86,7 +83,12 @@ function Vaccination({ handleDrawerVaccination }) {
 
   useEffect(() => {
     if (printType) {
-      handlePrintClick();
+      handlePrintClick(
+        printableRef.current,
+        setTabLoader,
+        handlePrintWeb,
+        "vaccinationChart"
+      );
       setPrintType("");
     }
   }, [printType]);
@@ -233,7 +235,7 @@ function Vaccination({ handleDrawerVaccination }) {
           newSelectedCards.push(id);
         } else {
           setWarningMsg(
-            "Given vaccine and Due Vaccines cannot be selected togather!"
+            "Given vaccine and Due Vaccines cannot be selected together!"
           );
           newSelectedCards = [id];
         }
@@ -268,60 +270,6 @@ function Vaccination({ handleDrawerVaccination }) {
     setShowUpdate(true);
   };
 
-  const handlePrintClick = () => {
-    if (!isChrome && !isSafari) {
-      const element = printableRef.current;
-
-      if (!element) {
-        console.error("Element not found");
-        return;
-      }
-
-      const options = {
-        filename: "VaccinationChart.pdf",
-        image: { type: "jpeg", quality: 0.8 },
-        html2canvas: { scale: 1 },
-        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-      };
-      setTabLoader(true);
-      html2pdf()
-        .from(element)
-        .set(options)
-        .output("datauristring")
-        .then(async (pdfDataUri) => {
-          const base64string = pdfDataUri.slice(
-            pdfDataUri.indexOf("base64,") + 7
-          );
-          const deviceUid = localStorage.getItem("app_device_unique_id");
-          if (deviceUid) {
-            const docRef = doc(db, "vaccinationChart", deviceUid);
-            try {
-              const docSnap = await getDoc(docRef);
-              if (docSnap.exists()) {
-                await updateDoc(docRef, {
-                  base64string,
-                });
-              } else {
-                await setDoc(doc(db, "vaccinationChart", deviceUid), {
-                  base64string,
-                });
-              }
-            } catch (error) {
-              console.error("Error updating document:", error);
-            }
-          } else {
-            console.error("Device Uid not found");
-          }
-          setTabLoader(false);
-        })
-        .catch((err) => {
-          console.error("Error generating PDF", err);
-        });
-    } else {
-      handlePrintWeb();
-    }
-  };
-
   return (
     <CashManagerContext.Provider value={contextApi}>
       <div className="vaccinationWrapper">
@@ -329,8 +277,8 @@ function Vaccination({ handleDrawerVaccination }) {
           <VaccineHeader
             handleDrawerVaccination={handleDrawerVaccination}
             vaccinesData={previewData}
-            patientDetails={patientDetails}
             setPrintType={setPrintType}
+            isVaccination={true}
             printLoader={tabLoader}
           />
         )}
