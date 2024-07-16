@@ -26,3 +26,5 @@ export const WTSAP_ERR_MESSAGE = "Error sending the prescription, Please try aga
 
 export const GB_ISCRIBE = "iscribe"
 
+export const GB_GYNEC_HISTORY = "gynec-history"
+

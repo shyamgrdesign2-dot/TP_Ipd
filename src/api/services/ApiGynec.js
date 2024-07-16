@@ -25,12 +25,26 @@ export const postGynecDetails = async function (payload) {
   let res = {};
   try {
     res = await api.post(
-        `/gynec`,
+      `/gynec`,
       payload,
       baseUrl
     );
   } catch (error) {
-    console.error("Error while updating gynec details: ", error);
+    console.error("Error while creating gynec details: ", error);
   }
   return res;
+};
+
+export const updateGynecDetails = async function (patientId, payload) {
+    let res = {};
+    try {
+        res = await api.patch(
+            `/gynec/${patientId}`,
+            payload,
+            baseUrl
+        );
+    } catch (error) {
+        console.error("Error while updating gynec details: ", error);
+    }
+    return res;
 };

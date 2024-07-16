@@ -19,6 +19,18 @@ body {
             }
         } 
     }
+    .custom-segment-input-gynec {
+        background-color: var(--White-Gradient, linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #E2E2EA 100%));
+        padding: 4px 6px;
+        text-align: center;
+        &:focus {
+            color: $white;
+            background-color : $theme; 
+            &::placeholder {
+                color: rgba(255, 255, 255, 0.7);
+            }
+        } 
+    }
     .ant-segmented{
         border-radius: 10px;
             padding: 0;

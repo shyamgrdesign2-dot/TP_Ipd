@@ -1159,3 +1159,19 @@ body {
         font-weight: 600;
     }
 }
+
+// Gynec page's style
+.gynec-notes{
+    div{
+        width: 90% !important;
+        height: 100% !important;
+    }
+    button{
+        width: 10% !important;
+        height: 100% !important;
+        color: #4B4AD5 !important;
+        span{
+            color: #4B4AD5 !important;
+        }
+    }
+}
