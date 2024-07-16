@@ -45,6 +45,41 @@ import GrowthChart from "./growthChart/GrowthChart";
 import { viewPatient } from "../redux/appointmentsSlice";
 import { useAccess } from "./vaccination/useAccess";
 import Obstetric from "./obstetric/Obstetric";
+import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
+
+const obsVisitData = [
+  {
+    title: "Visit 3",
+    Pallor: "Yes",
+    Oedema: "No",
+    "Mother's Weight": 70,
+    "Blood Pressure": "120/80 mmHg",
+    "Fundus Height": 80,
+    Presentation: "Breech",
+    "Fetal Heart Rate": "120 bpm",
+  },
+  {
+    title: "Visit 2",
+    Pallor: "Yes",
+    Oedema: "No",
+    "Mother's Weight": 70,
+    "Blood Pressure": "120/80 mmHg",
+    "Fundus Height": 80,
+    Presentation: "Breech",
+    "Fetal Heart Rate": "120 bpm",
+  },
+  {
+    title: "Visit 1",
+    Pallor: "Yes",
+    Oedema: "No",
+    "Mother's Weight": 70,
+    "Blood Pressure": "120/80 mmHg",
+    "Fundus Height": 80,
+    Presentation: "Breech",
+    "Fetal Heart Rate": "120 bpm",
+  },
+];
+
 
 function Prescription() {
   const {
@@ -539,10 +574,21 @@ function Prescription() {
                     className="btn d-flex align-items-center btn-text"
                     onClick={handleDrawerObstetric}
                   >
-                    <i className={`icon-Add me-1 fs-5`}></i>{" "}
-                    <span>Add</span>
+                    <i
+                      className={`${
+                        obsVisitData.length > 0
+                          ? "icon-Edit"
+                          : "icon-Add"
+                      } me-1 fs-5`}
+                    ></i>
+                    <span>{`${
+                      obsVisitData.length > 0 ? "Edit" : "Add"
+                    }`}</span>
                   </button>
                 </div>
+                {obsVisitData?.length > 0 && (
+                  <ObstetricList obsVisitData={obsVisitData} />
+                )}
               </div>
 
               {/* <div>
@@ -670,9 +716,7 @@ function Prescription() {
             width="100%"
             push={false}
           >
-            <Obstetric
-              handleDrawerObstetric={handleDrawerObstetric}
-            />
+            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
           </Drawer>
         )}
       </>
