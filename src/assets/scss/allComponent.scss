@@ -523,6 +523,34 @@
             }
         }
     }
+    &.timingTab {
+        &.ant-collapse {
+            .ant-collapse-item {
+                .ant-collapse-header {
+                    padding: 12px;
+                    background-color: $bgbody;
+                    border-bottom: 1px solid $bordercolor;
+                    border-top-left-radius: 10px !important;
+                    border-top-right-radius: 10px !important;
+                    border-bottom-left-radius: 0 !important;
+                    border-bottom-right-radius: 0 !important;
+                    .ant-collapse-expand-icon{
+                        &:after {
+                            background-color: $white;
+                        }
+                    }
+                }
+                border-radius: 10px !important;
+                border: 1px solid $bordercolor;
+            }
+            .ant-collapse-content {
+                border-bottom-left-radius: 10px !important;
+                border-bottom-right-radius: 10px !important;
+                border-top-left-radius: 0 !important;
+                border-top-right-radius: 0 !important;
+            }
+        }
+    }
 }
 
 // Tablet design

@@ -122,6 +122,25 @@
     }
 }
 
+.days-width {
+    width: 40px;
+    height: 31px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &.active-days {
+        color: $theme !important;
+        border-color: $theme !important;
+        background-color: rgba(75, 74, 213, 0.05);
+    }
+    &.sunday-color {
+        color: $alerText !important;
+    }
+}
+.ant-picker-now-btn {
+    color: $theme;
+}
+
 // Santosh bhai
 .social {
     span.ant-input-prefix {
