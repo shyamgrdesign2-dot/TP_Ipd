@@ -12,67 +12,93 @@ function TabGynecHistoryList(props) {
                 key: `${1}`,
                 label: <div className="fw-semibold">Menstrual Details</div>,
                 children: (
-                    <div className="cardbody-data border rounded px-2 my-2">
-                        {gynecHistory.cycle && (
-                            <div key={Math.random()} className="d-flex my-2">
-                                <div className="text-history font-roboto fw-medium">Cycle&nbsp;:&nbsp;</div>
-                                <div className="fontroboto text-history fw-normal">{gynecHistory.cycle}</div>
-                            </div>
-                        )}
-                        {gynecHistory.intervalOfCycle && (
-                            <div key={Math.random()} className="d-flex my-2">
-                                <div className="text-history font-roboto fw-medium">Cycle Interval&nbsp;:&nbsp;</div>
-                                <div className="fontroboto text-history fw-normal">{gynecHistory.intervalOfCycle}</div>
-                            </div>
-                        )}
-                        {gynecHistory.flow && (
-                            <div key={Math.random()} className="d-flex my-2">
-                                <div className="text-history font-roboto fw-medium">Flow&nbsp;:&nbsp;</div>
-                                <div className="fontroboto text-history fw-normal">{gynecHistory.flow}</div>
-                            </div>
-                        )}
-                        {gynecHistory.durationOfMenstrualFlow && (
-                            <div key={Math.random()} className="d-flex my-2">
-                                <div className="text-history font-roboto fw-medium">Duration&nbsp;:&nbsp;</div>
-                                <div className="fontroboto text-history fw-normal">{gynecHistory.durationOfMenstrualFlow} days</div>
-                            </div>
-                        )}
-                        {gynecHistory.clots !== undefined && (
-                            <div key={Math.random()} className="d-flex my-2">
-                                <div className="text-history font-roboto fw-medium">Clots&nbsp;:&nbsp;</div>
-                                <div className="fontroboto text-history fw-normal">{gynecHistory.clots ? 'Yes' : 'No'}</div>
-                            </div>
-                        )}
-                        {gynecHistory.numberOfPadsPerDay && (
-                            <div key={Math.random()} className="d-flex my-2">
-                                <div className="text-history font-roboto fw-medium">Pads per day&nbsp;:&nbsp;</div>
-                                <div className="fontroboto text-history fw-normal">{gynecHistory.numberOfPadsPerDay}</div>
-                            </div>
-                        )}
-                        {gynecHistory.pain && (
-                            <div key={Math.random()} className="d-flex my-2">
-                                <div className="text-history font-roboto fw-medium">Pain&nbsp;:&nbsp;</div>
-                                <div className="fontroboto text-history fw-normal">{gynecHistory.pain}</div>
-                            </div>
-                        )}
-                        {gynecHistory.occurrenceOfPain && (
-                            <div key={Math.random()} className="d-flex my-2">
-                                <div className="text-history font-roboto fw-medium">Occurrence&nbsp;:&nbsp;</div>
-                                <div className="fontroboto text-history fw-normal">{gynecHistory.occurrenceOfPain}</div>
-                            </div>
-                        )}
-                        {gynecHistory.ageAtMenarche && (
-                            <div key={Math.random()} className="d-flex my-2">
-                                <div className="text-history font-roboto fw-medium">Menarche at&nbsp;:&nbsp;</div>
-                                <div className="fontroboto text-history fw-normal">{gynecHistory.ageAtMenarche} Years</div>
-                            </div>
-                        )}
-                        {gynecHistory.typeOfMenopause && (
-                            <div key={Math.random()} className="d-flex my-2">
-                                <div className="text-history font-roboto fw-medium">Menopause type&nbsp;:&nbsp;</div>
-                                <div className="fontroboto text-history fw-normal">{gynecHistory.typeOfMenopause}</div>
-                            </div>
-                        )}
+                    <div className="cardbody-data">
+                        <div className="gynec-history-list">
+                            {gynecHistory.lmp && (
+                                <div key="cycle" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">LMP</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="fontroboto text-history fw-normal">{gynecHistory.cycle}</div>
+                                </div>
+                            )}
+                            {gynecHistory.cycle && (
+                                <div key="cycle" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">Cycle</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="fontroboto text-history fw-normal">{gynecHistory.cycle}</div>
+                                </div>
+                            )}
+                            {gynecHistory.intervalOfCycle && (
+                                <div key="intervalOfCycle" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">Cycle Interval</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="fontroboto text-history fw-normal">{gynecHistory.intervalOfCycle} days</div>
+                                </div>
+                            )}
+                            {gynecHistory.flow && (
+                                <div key="flow" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">Flow</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="fontroboto text-history fw-normal">{gynecHistory.flow}</div>
+                                </div>
+                            )}
+                            {gynecHistory.durationOfMenstrualFlow && (
+                                <div key="durationOfMenstrualFlow" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">Duration</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="fontroboto text-history fw-normal">{gynecHistory.durationOfMenstrualFlow} days</div>
+                                </div>
+                            )}
+                            {gynecHistory.clots !== undefined && (
+                                <div key="clots" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">Clots</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="fontroboto text-history fw-normal">{gynecHistory.clots ? 'Yes' : 'No'}</div>
+                                </div>
+                            )}
+                            {gynecHistory.numberOfPadsPerDay && (
+                                <div key="numberOfPadsPerDay" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">Pads per day</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="fontroboto text-history fw-normal">{gynecHistory.numberOfPadsPerDay}</div>
+                                </div>
+                            )}
+                            {gynecHistory.pain && (
+                                <div key="pain" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">Pain</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="fontroboto text-history fw-normal">{gynecHistory.pain}</div>
+                                </div>
+                            )}
+                            {gynecHistory.occurrenceOfPain && (
+                                <div key="occurrenceOfPain" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">Occurrence</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="fontroboto text-history fw-normal">{gynecHistory.occurrenceOfPain}</div>
+                                </div>
+                            )}
+                            {gynecHistory.ageAtMenarche && (
+                                <div key="ageAtMenarche" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">Menarche at</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="fontroboto text-history fw-normal">{gynecHistory.ageAtMenarche} Years</div>
+                                </div>
+                            )}
+                            {gynecHistory.ageAtMenopause && (
+                                <div key="ageAtMenarche" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">Menopause at</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="fontroboto text-history fw-normal">{gynecHistory.ageAtMenopause} Years</div>
+                                </div>
+                            )}
+                            {gynecHistory.typeOfMenopause && (
+                                <div key="typeOfMenopause" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">Menopause type</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="fontroboto text-history fw-normal">{gynecHistory.typeOfMenopause}</div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )
             };
@@ -85,15 +111,9 @@ function TabGynecHistoryList(props) {
 
     return (
         <>
-            <div className="overflow-y-auto" style={{ height: "calc(100vh - 108px)" }}>
-                <div className="p-10">
-                    {gynecHistory > 0 && (
-                        <div className="border rounded-3 bg-body mt-3 p-10">
-                            <Collapse items={accordionItems} defaultActiveKey={['1']} className="prescriptiontab-accordian history-sider-box" expandIconPosition={'end'} />
-                        </div>
-                    )}
-                </div>
-            </div>
+            {gynecHistory && (
+                <Collapse items={accordionItems} defaultActiveKey={['1']} className="prescriptiontab-accordian history-sider-box" expandIconPosition={'end'} />
+            )}
         </>
     );
 }

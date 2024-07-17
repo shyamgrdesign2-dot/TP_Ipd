@@ -121,50 +121,21 @@ function MedicalHistoryBox(props) {
         }
     };
 
-    // Function to handle segment click changes
-    const onChangeSegmentedCyclesChild = (value) => {
+    // Common function to handle segment click changes
+    const onChangeSegmentedChild = (type, value, setInputFunction) => {
         if (value === 'custom') {
-            setInputCycles(''); // Reset custom input value when clicked
+            setInputFunction(''); // Reset custom input value when clicked
         } else {
-            handleGynecValueChange("intervalOfCycle", value); // Handle predefined segment value
+            handleGynecValueChange(type, value); // Handle predefined segment value
         }
     };
 
-    // Function to handle segment click changes
-    const onChangeSegmentedMenarcheChild = (value) => {
-        if (value === 'custom') {
-            setInputMenarche(''); // Reset custom input value when clicked
-        } else {
-            handleGynecValueChange("ageAtMenarche", value); // Handle predefined segment value
-        }
-    };
-
-    // Function to handle segment click changes
-    const onChangeSegmentedMenopauseChild = (value) => {
-        if (value === 'custom') {
-            setInputMenopause(''); // Reset custom input value when clicked
-        } else {
-            handleGynecValueChange("ageAtMenopause", value); // Handle predefined segment value
-        }
-    };
-
-    // Function to handle segment click changes
-    const onChangeSegmentedCyclesDaysChild = (value) => {
-        if (value === 'custom') {
-            setInputCyclesDays(''); // Reset custom input value when clicked
-        } else {
-            handleGynecValueChange("durationOfMenstrualFlow", value); // Handle predefined segment value
-        }
-    };
-
-    // Function to handle segment click changes
-    const onChangeSegmentedPadNumChild = (value) => {
-        if (value === 'custom') {
-            setInputPadsNum(''); // Reset custom input value when clicked
-        } else {
-            handleGynecValueChange("numberOfPadsPerDay", value); // Handle predefined segment value
-        }
-    };
+    // handles for specific case
+    const onChangeSegmentedCyclesChild = (value) => onChangeSegmentedChild("intervalOfCycle", value, setInputCycles);
+    const onChangeSegmentedMenarcheChild = (value) => onChangeSegmentedChild("ageAtMenarche", value, setInputMenarche);
+    const onChangeSegmentedMenopauseChild = (value) => onChangeSegmentedChild("ageAtMenopause", value, setInputMenopause);
+    const onChangeSegmentedCyclesDaysChild = (value) => onChangeSegmentedChild("durationOfMenstrualFlow", value, setInputCyclesDays);
+    const onChangeSegmentedPadNumChild = (value) => onChangeSegmentedChild("numberOfPadsPerDay", value, setInputPadsNum);
 
     const SINCE_OPTIONS_WEB = [
         { value: "Hour", label: "Hour" },
@@ -798,10 +769,24 @@ function MedicalHistoryBox(props) {
             setGynecLoading(false);
         }
     };
+    
+    // Function to check if gynecHistory has any meaningful entries except createdAt and createdBy
+    const hasGynecHistoryData = (gynecHistory) => {
+        if (!gynecHistory) return false;
+        const { createdAt, createdBy, ...rest } = gynecHistory;
+        return Object.keys(rest).length > 0;
+    };
 
     const handleSaveClick = async () => {
         setGynecLoading(true);
         const today = moment().toISOString();
+        const hasData = hasGynecHistoryData(gynecHistory);
+    
+        if (!hasData) {
+            setGynecLoading(false);
+            return;
+        }
+    
         if (gynecEditState === "CREATE") {
             const payload = {
                 patientId: patient_data.patient_unique_id,
@@ -815,29 +800,31 @@ function MedicalHistoryBox(props) {
             };
             try {
                 const response = await postGynecDetails(payload);
-                // Need to Handle success response, to show a notification
             } catch (error) {
                 console.error('Error:', error);
-                // Need to Handle error response, to show an error notification
+                errorMessage("Unable to create gynec history for you. please try again.")
             } finally {
                 setGynecLoading(false);
             }
         } else {
+            const payload = {
+                ...gynecHistory,
+                createdAt: today,
+                createdBy: tokenData?.user_id,
+            };
             try {
-                const payload = {
-                        ...gynecHistory,
-                        createdAt: today,
-                        createdBy: tokenData?.user_id,
-                }
-                const response = await updateGynecDetails(patient_data.patient_unique_id,payload);
-                // Need to Handle success response, to show a notification
+                const response = await updateGynecDetails(patient_data.patient_unique_id, payload);
             } catch (error) {
                 console.error('Error:', error);
-                // Need to Handle error response, to show an error notification
+                errorMessage("Unable able to update gynecdetail for you. please try again.")
             } finally {
                 setGynecLoading(false);
             }
         }
+    };
+
+    const isCustomOrNumberOrUndefined = (value) => {
+        return value === undefined || value === '' || value === 'number' || value === 'custom';
     };
 
     return (
@@ -894,7 +881,9 @@ function MedicalHistoryBox(props) {
                                                 { sectionState.ageAtMenarche &&
                                                     <div className="d-flex flex-wrap">
                                                         <div key="regular" className={`history-badge gynec-history-badge ${ activeMenstrualData === "ageAtMenarche" && gynecHistory?.[activeMenstrualData] ? 'history-selected' : gynecHistory?.ageAtMenarche ? 'history-active' : ''}`}>
-                                                            <div onClick={() => handleSelectionChange('ageAtMenarche', gynecHistory?.ageAtMenarche || 'number')}>{gynecHistory?.ageAtMenarche ? `${gynecHistory.ageAtMenarche} years` : `+Add`}</div>
+                                                            <div onClick={() => handleSelectionChange('ageAtMenarche', gynecHistory?.ageAtMenarche || 'number')}>
+                                                                {isCustomOrNumberOrUndefined(gynecHistory?.ageAtMenarche) ? `+Add` : `${gynecHistory?.ageAtMenarche} years`}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 }   
@@ -1017,16 +1006,18 @@ function MedicalHistoryBox(props) {
                                                         </Button>
                                                     </div>
                                                 </div>
-                                                { sectionState.note ? gynecHistory?.notes ? (
+                                                { sectionState.note ? !isCustomOrNumberOrUndefined(gynecHistory?.notes) ? (
                                                         <div className="gynec-notes d-flex">
-                                                            <div className='pe-0'> {gynecHistory?.notes} </div>
+                                                            <div className='pe-0'>
+                                                                {gynecHistory?.notes}
+                                                            </div>
                                                             <button className='btn d-flex pe-0' onClick={() => handleSelectionChange('notes', gynecHistory?.notes || 'number')}>
                                                                 <span className="px-1">Edit</span><i className="icon-Edit" style={{fontSize:"18px"}}></i>
                                                             </button>
                                                         </div>
                                                     ) : (
                                                         <div className="d-flex flex-wrap">
-                                                            <div key="regular" className={`history-badge gynec-history-badge ${ activeMenstrualData ==="notes" && gynecHistory?.[activeMenstrualData] ? 'history-selected' : gynecHistory?.notes ? 'history-active' : ''}`}>
+                                                            <div key="regular" className={`history-badge gynec-history-badge ${ activeMenstrualData ==="notes" && isCustomOrNumberOrUndefined(gynecHistory?.notes)  ? 'history-selected' : gynecHistory?.notes ? 'history-active' : ''}`}>
                                                                 <div onClick={() => handleSelectionChange('notes', gynecHistory?.notes || 'number')}>
                                                                     +Add
                                                                 </div>
@@ -1248,17 +1239,17 @@ function MedicalHistoryBox(props) {
                                                 </div>
                                                 )}
                                                 {activeMenstrualData === "notes" && (
-                                                <div>
-                                                    <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
-                                                        <Input.TextArea
-                                                            value={gynecHistory?.notes}
-                                                            placeholder="Write notes"
-                                                            className="textareaPlaceholder"
-                                                            rows={3}
-                                                            onChange={(e) => handleNoteChange('notes', e.target.value)}
-                                                        />
+                                                    <div>
+                                                        <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                            <Input.TextArea
+                                                                value={!isCustomOrNumberOrUndefined(gynecHistory?.notes) ? `${gynecHistory?.notes}` : `` }
+                                                                placeholder="Write notes"
+                                                                className="textareaPlaceholder"
+                                                                rows={3}
+                                                                onChange={(e) => handleNoteChange('notes', e.target.value)}
+                                                            />
+                                                        </div>
                                                     </div>
-                                                </div>
                                                 )}
                                                 { !activeMenstrualData && (
                                                     <div className="text-center">

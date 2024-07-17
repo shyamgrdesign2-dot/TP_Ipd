@@ -14,6 +14,11 @@ function GynecHistoryList(props) {
                 children: (
                     <div className="cardbody-data border rounded px-2 my-2">
                         <div className="my-2">
+                            {gynecHistory.lmp && (
+                                <><span>LMP</span> : <label>{new Date(gynecHistory.lmp).toISOString().split('T')[0]}</label></>
+                            )}
+                        </div>
+                        <div className="my-2">
                             {gynecHistory.cycle && (
                                 <><span>Cycle</span> : <label>{gynecHistory.cycle}</label> | </>
                             )}
@@ -22,7 +27,7 @@ function GynecHistoryList(props) {
                             )}
                             {gynecHistory.flow && (
                                 <>
-                                    <span>Flow</span> : <label>{gynecHistory.flow}</label> |
+                                    <span>Flow</span> : <label>{gynecHistory.flow}</label>
                                 </>
                             )}
                         </div>
@@ -39,7 +44,7 @@ function GynecHistoryList(props) {
                             )}
                             {gynecHistory.numberOfPadsPerDay && (
                                 <>
-                                    <span> Pads per day</span> : <label>{gynecHistory.numberOfPadsPerDay}</label> |
+                                    <span> Pads per day</span> : <label>{gynecHistory.numberOfPadsPerDay}</label>
                                 </>
                             )}
                         </div>
@@ -51,7 +56,7 @@ function GynecHistoryList(props) {
                             )}
                             {gynecHistory.occurrenceOfPain && (
                                 <>
-                                    <span> Occurrence</span> : <label>{gynecHistory.occurrenceOfPain}</label> |
+                                    <span> Occurrence</span> : <label>{gynecHistory.occurrenceOfPain}</label>
                                 </>
                             )}
                         </div>
@@ -61,6 +66,13 @@ function GynecHistoryList(props) {
                                     <span>Menarche at</span> : <label>{gynecHistory.ageAtMenarche} Years</label> |
                                 </>
                             )}
+                            {gynecHistory.ageAtMenopause && (
+                                <>
+                                    <span> Menopause at</span> : <label>{gynecHistory.ageAtMenopause}</label>
+                                </>
+                            )}
+                        </div>
+                        <div className="my-2">
                             {gynecHistory.typeOfMenopause && (
                                 <>
                                     <span> Menopause type</span> : <label>{gynecHistory.typeOfMenopause}</label>
@@ -80,14 +92,10 @@ function GynecHistoryList(props) {
 
     return (
         <>
-            <div className="overflow-y-auto" style={{ maxHeight: "661px" }}>
-                <div>
-                    {gynecHistory && (
-                        <div className="p-10">
-                            <Collapse items={accordionItems} defaultActiveKey={['1']} className="prescriptiontab-accordian history-sider-box history-sider-box-white" expandIconPosition={'end'} />
-                        </div>
-                    )}
-                </div>
+            <div className="overflow-y-auto">
+                {gynecHistory && (
+                    <Collapse items={accordionItems} defaultActiveKey={['1']} className="prescriptiontab-accordian history-sider-box history-sider-box-white" expandIconPosition={'end'} />
+                )}
             </div>
         </>
     );

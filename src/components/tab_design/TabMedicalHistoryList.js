@@ -126,14 +126,14 @@ function TabMedicalHistoryList(props) {
                         <i className='icon-Add me-2 fs-21'></i>
                         Add or Edit History
                     </Button>
-                    {gynecHistory && isGynecHistoryAccessableFromGB &&
-                        <TabGynecHistoryList gynecHistory={gynecHistory}/>
-                    }
-                    {medicalHistoryData.length > 0 && (
-                        <div className="border rounded-3 bg-body mt-3 p-10">
+                    <div className="border rounded-3 bg-body mt-3 p-10">
+                        {(gynecHistory && isGynecHistoryAccessableFromGB) &&
+                            <TabGynecHistoryList gynecHistory={gynecHistory} />
+                        }
+                        {medicalHistoryData.length > 0 && (
                             <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box" expandIconPosition={'end'} />
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </>

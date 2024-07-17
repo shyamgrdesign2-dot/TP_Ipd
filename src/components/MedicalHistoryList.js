@@ -88,18 +88,14 @@ function MedicalHistoryList(props) {
     return (
         <>
             <div className="overflow-y-auto" style={{ maxHeight: "661px" }}>
-                <div>
-                    { (medicalHistoryData.length > 0 || gynecHistory) && (
-                        <>
-                            { isGynecHistoryAccessableFromGB &&
-                                <GynecHistoryList gynecHistory={gynecHistory} />
-                            }
-                            <div className="p-10">
-                                <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box history-sider-box-white" expandIconPosition={'end'} />
-                            </div>
-                        </>
-                    )}
-                </div>
+                { (medicalHistoryData.length > 0 || gynecHistory) && (
+                    <div className="p-10">
+                    { isGynecHistoryAccessableFromGB && Object.keys(gynecHistory).length > 0 &&
+                        <GynecHistoryList gynecHistory={gynecHistory} />
+                    }
+                        <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box history-sider-box-white" expandIconPosition={'end'} />
+                    </div>
+                )}
             </div>
         </>
     );

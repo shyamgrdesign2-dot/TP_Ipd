@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails } = props
+    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynecHistoryAccessableFromGB } = props
 
     const gynecHistoryData = caseManagerData?.gynecHistoryData 
     
@@ -1393,8 +1393,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </>
                             ) : option?.id === 13 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
                                 <>
-                                    { gynecHistoryData &&
-                                        (option?.format === "inline" ? (
+                                    { gynecHistoryData && isGynecHistoryAccessableFromGB &&
+                                         (option?.format === "inline" ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }} wrap={false}>
                                                 <Text
                                                     style={{
@@ -1426,7 +1426,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             fontWeight: 400,
                                                         }}
                                                     >
-                                                        {moment(gynecHistoryData.lpm).format("DD MMM YYYY")})
+                                                        {gynecHistoryData.lpm ? moment(gynecHistoryData.lpm).format("DD MMM YYYY") : `-`})
                                                     </Text>
                                                 </Text>
 
@@ -1450,7 +1450,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             textTransform: 'capitalize'                                                  
                                                         }}
                                                     >
-                                                        {gynecHistoryData.cycle}
+                                                        {gynecHistoryData.cycle || `-`}
                                                     </Text>                                        
 
                                                     <Text
@@ -1471,8 +1471,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             fontWeight: 400,
                                                         }}
                                                     >
-                                                        {gynecHistoryData.intervalOfCycle}&nbsp;
-                                                        {Number(gynecHistoryData.intervalOfCycle) > 1 ? `days` : `day`}
+                                                        {gynecHistoryData.intervalOfCycle || ``}&nbsp;
+                                                        {gynecHistoryData.intervalOfCycle ? Number(gynecHistoryData.intervalOfCycle) > 1 ? `days` : `day` : `-`}
                                                     </Text>
 
                                                     <Text
@@ -1493,7 +1493,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             fontWeight: 400,
                                                         }}
                                                     >
-                                                        {gynecHistoryData.cycleNotes})
+                                                        {gynecHistoryData.cycleNotes || `-`})
                                                     </Text>
                                                 </Text>
 
@@ -1517,7 +1517,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             textTransform: 'capitalize'
                                                         }}
                                                     >
-                                                        {gynecHistoryData.flow}
+                                                        {gynecHistoryData.flow || `-`}
                                                     </Text>
 
                                                     <Text
@@ -1538,10 +1538,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             fontWeight: 400,
                                                         }}
                                                     >
-                                                        {gynecHistoryData.durationOfMenstrualFlow}&nbsp;
-                                                        {Number(gynecHistoryData.durationOfMenstrualFlowdays) > 1
+                                                        {gynecHistoryData.durationOfMenstrualFlow || ``}&nbsp;
+                                                        {gynecHistoryData.durationOfMenstrualFlowdays ? Number(gynecHistoryData.durationOfMenstrualFlowdays) > 1
                                                         ? `days`
-                                                        : `day`}
+                                                        : `day` : `-`}
                                                     </Text>
 
                                                     <Text
@@ -1583,7 +1583,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             fontWeight: 400,
                                                         }}
                                                     >
-                                                        {gynecHistoryData.numberOfPadsPerDay}
+                                                        {gynecHistoryData.numberOfPadsPerDay || `-`}
                                                     </Text>
 
                                                     <Text
@@ -1604,7 +1604,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             fontWeight: 400,
                                                         }}
                                                     >
-                                                        {gynecHistoryData.flowNotes})
+                                                        {gynecHistoryData.flowNotes || `-`})
                                                     </Text>
                                                 </Text>
 
@@ -1628,7 +1628,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             textTransform: 'capitalize'
                                                         }}
                                                     >
-                                                        {gynecHistoryData.pain}
+                                                        {gynecHistoryData.pain || `-`}
                                                     </Text>
 
                                                     <Text
@@ -1650,7 +1650,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             textTransform: 'capitalize'
                                                         }}
                                                     >
-                                                        {gynecHistoryData.occurrenceOfPain}
+                                                        {gynecHistoryData.occurrenceOfPain || `-`}
                                                     </Text>
 
                                                     <Text
@@ -1671,7 +1671,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             fontWeight: 400,
                                                         }}
                                                     >
-                                                        {gynecHistoryData.painNotes})
+                                                        {gynecHistoryData.painNotes || `-`})
                                                     </Text>
                                                 </Text>
 
@@ -1694,7 +1694,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             fontWeight: 400,
                                                         }}
                                                     >
-                                                        {gynecHistoryData.ageAtMenarche} {`years`}
+                                                        {gynecHistoryData.ageAtMenarche || ``} {gynecHistoryData.ageAtMenarche ? `years` : `-`}
                                                     </Text>
 
                                                     <Text
@@ -1715,7 +1715,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             fontWeight: 400,
                                                         }}
                                                     >
-                                                        {gynecHistoryData.menarcheNotes})
+                                                        {gynecHistoryData.menarcheNotes || `-`})
                                                     </Text>
                                                 </Text>
 
@@ -1738,7 +1738,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             fontWeight: 400,
                                                         }}
                                                     >
-                                                        {gynecHistoryData.ageAtMenopause} {`years`}
+                                                        {gynecHistoryData.ageAtMenopause || ``} {gynecHistoryData.ageAtMenopause ? `years` : `-`}
                                                     </Text>
 
                                                     <Text
@@ -1760,7 +1760,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             textTransform: 'capitalize'
                                                         }}
                                                     >
-                                                        {gynecHistoryData.typeOfMenopause}
+                                                        {gynecHistoryData.typeOfMenopause || `-`}
                                                     </Text>
 
                                                     <Text
@@ -1781,7 +1781,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             fontWeight: 400,
                                                         }}
                                                     >
-                                                        {gynecHistoryData.reproductiveNotes})
+                                                        {gynecHistoryData.reproductiveNotes || `-`})
                                                     </Text>
                                                 </Text>
                                             </View>
@@ -1840,7 +1840,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 400,
                                                             }}
                                                         >
-                                                            {moment(gynecHistoryData.lpm).format("DD MMM YYYY")}
+                                                            {gynecHistoryData.lpm ? moment(gynecHistoryData.lpm).format("DD MMM YYYY") : `-`}
                                                         </Text>
                                                     </Text>
                                                 </Text>
@@ -1888,7 +1888,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 textTransform: 'capitalize'
                                                             }}
                                                         >
-                                                            {gynecHistoryData.cycle}
+                                                            {gynecHistoryData.cycle || `-`}
                                                         </Text>
 
                                                         <Text
@@ -1909,8 +1909,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 400,
                                                             }}
                                                         >
-                                                            {gynecHistoryData.intervalOfCycle}&nbsp;
-                                                            {Number(gynecHistoryData.intervalOfCycle) > 1 ? `days` : `day`}
+                                                            {gynecHistoryData.intervalOfCycle || ``}&nbsp;
+                                                            {gynecHistoryData.intervalOfCycle ? Number(gynecHistoryData.intervalOfCycle) > 1 ? `days` : `day` : `-`}
                                                         </Text>
 
                                                         <Text
@@ -1931,7 +1931,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 400,
                                                             }}
                                                         >
-                                                            {gynecHistoryData.cycleNotes}                                                            
+                                                            {gynecHistoryData.cycleNotes || `-`}                                                            
                                                         </Text>
                                                     </Text>
                                                 </Text>
@@ -1979,7 +1979,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 textTransform: 'capitalize'
                                                             }}
                                                         >
-                                                            {gynecHistoryData.flow}
+                                                            {gynecHistoryData.flow || `-`}
                                                         </Text>
 
                                                         <Text
@@ -2000,10 +2000,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 400,
                                                             }}
                                                         >
-                                                            {gynecHistoryData.durationOfMenstrualFlow}&nbsp;
-                                                            {Number(gynecHistoryData.durationOfMenstrualFlow) > 1
+                                                            {gynecHistoryData.durationOfMenstrualFlow || ``}&nbsp;
+                                                            {gynecHistoryData.durationOfMenstrualFlow ? Number(gynecHistoryData.durationOfMenstrualFlow) > 1
                                                                 ? `days`
-                                                                : `day`}
+                                                                : `day` : `-`}
                                                         </Text>
 
                                                         <Text
@@ -2045,7 +2045,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 400,
                                                             }}
                                                         >
-                                                            {gynecHistoryData.numberOfPadsPerDay}
+                                                            {gynecHistoryData.numberOfPadsPerDay || `-`}
                                                         </Text>
 
                                                         <Text
@@ -2066,7 +2066,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 400,
                                                             }}
                                                         >
-                                                            {gynecHistoryData.flowNotes}                                                            
+                                                            {gynecHistoryData.flowNotes || `-`}                                                            
                                                         </Text>
                                                     </Text>
                                                 </Text>
@@ -2114,7 +2114,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 textTransform: 'capitalize'
                                                             }}
                                                         >
-                                                            {gynecHistoryData.pain}
+                                                            {gynecHistoryData.pain || `-`}
                                                         </Text>
 
                                                         <Text
@@ -2136,7 +2136,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 textTransform: 'capitalize'
                                                             }}
                                                         >
-                                                            {gynecHistoryData.occurrenceOfPain}
+                                                            {gynecHistoryData.occurrenceOfPain || `-`}
                                                         </Text>
 
                                                         <Text
@@ -2157,7 +2157,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 400,
                                                             }}
                                                         >
-                                                            {gynecHistoryData.painNotes}                                                            
+                                                            {gynecHistoryData.painNotes || `-`}                                                            
                                                         </Text>
                                                     </Text>
                                                 </Text>
@@ -2204,7 +2204,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 400,
                                                             }}
                                                         >
-                                                            {gynecHistoryData.ageAtMenarche} {`years`}
+                                                            {gynecHistoryData.ageAtMenarche || ``} {gynecHistoryData.ageAtMenarche ? `years` : `-`}
                                                         </Text>
 
                                                         <Text
@@ -2225,7 +2225,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 400,
                                                             }}
                                                         >
-                                                            {gynecHistoryData.menarcheNotes}                                                            
+                                                            {gynecHistoryData.menarcheNotes || `-`}
                                                         </Text>
                                                     </Text>
                                                 </Text>
@@ -2272,7 +2272,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 400,
                                                             }}
                                                         >
-                                                            {gynecHistoryData.ageAtMenopause} {`years`}
+                                                            {gynecHistoryData.ageAtMenopause || ``} {gynecHistoryData.ageAtMenopause ? `years` : `-`}
                                                         </Text>
 
                                                         <Text
@@ -2294,7 +2294,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 textTransform: 'capitalize'
                                                             }}
                                                         >
-                                                            {gynecHistoryData.typeOfMenopause}
+                                                            {gynecHistoryData.typeOfMenopause || `-`}
                                                         </Text>
 
                                                         <Text
@@ -2315,7 +2315,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 400,
                                                             }}
                                                         >
-                                                            {gynecHistoryData.reproductiveNotes}                                                            
+                                                            {gynecHistoryData.reproductiveNotes || `-`}
                                                         </Text>
                                                     </Text>
                                                 </Text>
@@ -2347,7 +2347,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         backgroundColor: "#E2E2EA",
                                                     }}
                                                 >
-                                                    LPM
+                                                    LMP
                                                 </Text>
                                                 <View style={[styles.table, { marginTop: 0 }]}>
                                                     <View
@@ -2387,7 +2387,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 },
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.lpm ? moment(gynecHistoryData.lpm).format("DD MMM YYYY") : ` `}
+                                                            {gynecHistoryData.lmp ? moment(gynecHistoryData.lmp).format("DD MMM YYYY") : `-`}
                                                         </Text>
                                                     </View>
                                                 </View>
@@ -2442,21 +2442,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             ]}
                                                         >
                                                             Interval
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Note
-                                                        </Text>
+                                                        </Text>                                                        
                                                     </View>
                                                     
                                                     <View
@@ -2478,7 +2464,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 },
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.cycle || ` `}
+                                                            {gynecHistoryData.cycle || `-`}
                                                         </Text>
                                                         <Text
                                                             style={[
@@ -2492,22 +2478,44 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 },
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.intervalOfCycle || ` `}&nbsp;
-                                                            {gynecHistoryData.intervalOfCycle ? Number(gynecHistoryData.intervalOfCycle) > 1 ? `days` : `day` : ` `}
-                                                        </Text>
+                                                            {gynecHistoryData.intervalOfCycle || ``}&nbsp;
+                                                            {gynecHistoryData.intervalOfCycle ? Number(gynecHistoryData.intervalOfCycle) > 1 ? `days` : `day` : `-`}
+                                                        </Text>                                                        
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row
+                                                        ]}
+                                                    >
                                                         <Text
                                                             style={[
-                                                                styles.cell,
-                                                                {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                },
+                                                                styles.cell
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.cycleNotes || ` `}
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                Note&nbsp;:&nbsp;
+                                                            </Text>
+
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                {gynecHistoryData.cycleNotes || `-`}
+                                                            </Text>                                                                                                                        
                                                         </Text>
                                                     </View>
                                                 </View>
@@ -2591,20 +2599,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         >
                                                             Pads per day
                                                         </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Note
-                                                        </Text>
                                                     </View>
                                                     
                                                     <View
@@ -2626,7 +2620,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 },
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.flow || ` `}
+                                                            {gynecHistoryData.flow || `-`}
                                                         </Text>
                                                         <Text
                                                             style={[
@@ -2640,10 +2634,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 },
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.durationOfMenstrualFlow}&nbsp;
+                                                            {gynecHistoryData.durationOfMenstrualFlow || ``}&nbsp;
                                                             {gynecHistoryData.durationOfMenstrualFlow ? Number(gynecHistoryData.durationOfMenstrualFlow) > 1
                                                                 ? `days`
-                                                                : `day` : ` `}
+                                                                : `day` : `-`}
                                                         </Text>
                                                         <Text
                                                             style={[
@@ -2671,21 +2665,43 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 },
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.numberOfPadsPerDay || ` `}
+                                                            {gynecHistoryData.numberOfPadsPerDay || `-`}
                                                         </Text>
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row
+                                                        ]}
+                                                    >
                                                         <Text
                                                             style={[
-                                                                styles.cell,
-                                                                {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                },
+                                                                styles.cell
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.flowNotes || ` `}
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                Note&nbsp;:&nbsp;
+                                                            </Text>
+
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                {gynecHistoryData.flowNotes || `-`}
+                                                            </Text>                                                                                                                        
                                                         </Text>
                                                     </View>
                                                 </View>
@@ -2741,20 +2757,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         >
                                                             Occurance
                                                         </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Note
-                                                        </Text>
                                                     </View>
                                                     
                                                     <View
@@ -2776,12 +2778,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 },
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.pain || ` `}
+                                                            {gynecHistoryData.pain || `-`}
                                                         </Text>
                                                         <Text
                                                             style={[
                                                                 styles.cell,
-                                                                {
+                                                                {                                                               
                                                                 fontFamily: printSettings?.page_format?.font_family,
                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                 fontWeight: 400,
@@ -2791,21 +2793,43 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 },
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.occurrenceOfPain || ` `}
+                                                            {gynecHistoryData.occurrenceOfPain || `-`}
                                                         </Text>
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row
+                                                        ]}
+                                                    >
                                                         <Text
                                                             style={[
-                                                                styles.cell,
-                                                                {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                },
+                                                                styles.cell
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.painNotes || ` `}
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                Note&nbsp;:&nbsp;
+                                                            </Text>
+
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                {gynecHistoryData.painNotes || `-`}
+                                                            </Text>                                                                                                                        
                                                         </Text>
                                                     </View>
                                                 </View>
@@ -2846,19 +2870,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         >
                                                             Age at
                                                         </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Note
-                                                        </Text>
                                                     </View>
 
                                                     <View
@@ -2878,20 +2889,43 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 },
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.ageAtMenarche} {gynecHistoryData.ageAtMenarche ? `years` : ` `}
+                                                            {gynecHistoryData.ageAtMenarche || ``} {gynecHistoryData.ageAtMenarche ? `years` : `-`}
                                                         </Text>
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row
+                                                        ]}
+                                                    >
                                                         <Text
                                                             style={[
-                                                                styles.cell,
-                                                                {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                },
+                                                                styles.cell                                                                
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.menarcheNotes || ` `}
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                Note&nbsp;:&nbsp;
+                                                            </Text>
+
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                {gynecHistoryData.menarcheNotes || `-`}
+                                                            </Text>                                                                                                                        
                                                         </Text>
                                                     </View>
                                                 </View>
@@ -2947,20 +2981,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         >
                                                             Type of menopause
                                                         </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Note
-                                                        </Text>
                                                     </View>
                                                     
                                                     <View
@@ -2981,7 +3001,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 },
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.ageAtMenopause} {gynecHistoryData.ageAtMenopause ? `years` : ` `}
+                                                            {gynecHistoryData.ageAtMenopause || ``} {gynecHistoryData.ageAtMenopause ? `years` : `-`}
                                                         </Text>
                                                         <Text
                                                             style={[
@@ -2996,21 +3016,43 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 },
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.typeOfMenopause || ` `}
+                                                            {gynecHistoryData.typeOfMenopause || `-`}
                                                         </Text>
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row
+                                                        ]}
+                                                    >
                                                         <Text
                                                             style={[
-                                                                styles.cell,
-                                                                {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                },
+                                                                styles.cell
                                                             ]}
                                                         >
-                                                            {gynecHistoryData.reproductiveNotes || ` `}
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                Note&nbsp;:&nbsp;
+                                                            </Text>
+
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                {gynecHistoryData.reproductiveNotes || `-`}
+                                                            </Text>                                                                                                                        
                                                         </Text>
                                                     </View>
                                                 </View>
