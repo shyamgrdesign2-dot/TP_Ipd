@@ -1,7 +1,9 @@
 .patientDiagnosisContainer {
   padding: 24px 40px;
-  background: url("../../../../assets/images/obstetric-bg-img.png");
-  height: 193px;
+  background: url("../../../../assets/images/obstetric-bg.svg") no-repeat;
+  background-size: cover;
+  height: 100%;
+  width: 100%;
 
   @media only screen and (max-width: 1200px) {
     padding: 24px 10px;

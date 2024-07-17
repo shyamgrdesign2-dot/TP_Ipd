@@ -18,16 +18,18 @@ const PregnancyHistory = () => {
             Add previous pregnancy details such as Type of birth, DOB, Sex,
             Weight, Type of delivery, Mode of delivery.
           </div>
-          <Button
-            type="button"
-            className="btn-41 btn ant-btn-text btn-input addBtn"
-            style={{
-              width: "255px",
-            }}
-          >
-            <i className="icon-Add" />
-            <span>Add past pregnancy details</span>
-          </Button>
+          <div>
+            <Button
+              type="button"
+              className="btn-41 btn ant-btn-text btn-input addBtn"
+              style={{
+                width: "255px",
+              }}
+            >
+              <i className="icon-Add" />
+              <span>Add past pregnancy details</span>
+            </Button>
+          </div>
           <div className="shortDescription">Or</div>
 
           <div className="continueBtn">
