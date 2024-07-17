@@ -1,5 +1,6 @@
 import { Collapse, Divider } from "antd";
 import React, { useEffect, useState } from "react";
+import ReadMore from "../../../../common/ReadMore";
 
 const ObstetricList = ({ obsVisitData }) => {
   const [accordionItems, setAccordionItems] = useState([]);
@@ -39,9 +40,11 @@ const ObstetricList = ({ obsVisitData }) => {
             className="cardbody-data mt-2 border visitItem"
             style={{ borderRadius: "8px", padding: "5px 15px" }}
           >
-            TatvaCare is a digital system that empowers both healthcare
-            professionals and individuals with chronic conditions to create
-            healthy habits leading to positive health outcomes.
+            <ReadMore
+              text={`TatvaCare is a digital system that empowers both  and individuals with chronic conditions to create
+              healthy habits leading to positive health outcomes.`}
+              textLimit={100}
+            />
           </div>
         </div>
       ),

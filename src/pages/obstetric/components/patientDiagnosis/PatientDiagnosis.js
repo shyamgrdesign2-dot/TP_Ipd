@@ -3,6 +3,7 @@ import "./PatientDiagnosis.scss";
 import { Col, DatePicker, Drawer, Form, Input, Row, Select } from "antd";
 import DiagnosisNotes from "../diagnosisNotes/DiagnosisNotes";
 import { Dropdown, DropdownButton } from "react-bootstrap";
+import ReadMore from "../../../../common/ReadMore";
 
 const bloodGroupOptions = [
   { value: 1, label: "A+ (A positive)", shortLabel: "A+" },
@@ -316,7 +317,7 @@ export default function PatientDiagnosis() {
         </Row>
         {diagnosisNotes ? (
           <div className="diagnosisNotesStyle">
-            <span className="diagnosisNotesText">{diagnosisNotes}</span>
+            <ReadMore text={diagnosisNotes} textLimit={125} />
             <div className="editStyle" onClick={handleDrawerDiagnosisNotes}>
               <i className="icon-Edit iconStyle" />
               <span className="editText">Edit</span>
