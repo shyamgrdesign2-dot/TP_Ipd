@@ -1,14 +1,40 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Card from 'react-bootstrap/Card';
 import { Spin } from 'antd';
 
 import MedicalHistoryicon from '../assets/images/Medical-History.svg';
 import arrowright from '../assets/images/arrow-box-right.svg';
 import heartBeat from '../assets/images/heartBeat.svg';
+import { useLocation } from 'react-router-dom';
+import { getGynecDetails } from '../api/services/ApiGynec';
+import { GB_GYNEC_HISTORY } from '../utils/constants';
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import { errorMessage } from '../utils/utils';
 
 function MedicalHistory({ loading, medicalHistoryData }) {
 
     const [isExpand, setIsExpand] = useState(false);
+    const [gynecHistory, setGynecHistory] = useState(null);
+
+    const { state } = useLocation();
+    const { patient_data } = state
+
+    const isGynecHistoryAccessableFromGB = useFeatureIsOn(
+        GB_GYNEC_HISTORY
+    );
+
+    useEffect(() => {
+        fetchGynecHistory();
+    }, []);
+    
+    const fetchGynecHistory = async () => {
+        try {
+            const data = await getGynecDetails(patient_data?.patient_unique_id);
+            setGynecHistory(data);
+        } catch (error) {
+            errorMessage('Error fetching gynec history:', error);
+        }
+    };
 
     const manageExpand = useCallback(() => {
         setIsExpand(!isExpand)
@@ -30,6 +56,67 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                 </Card.Header>
                 <div className='p-3'>
                     <div className={`${!isExpand ? 'overflow-hidden' : 'overflow-auto'}`} style={{ height: isExpand ? 529 : 190 }}>
+                        { gynecHistory  && isGynecHistoryAccessableFromGB &&
+                            <>
+                                <div className="fw-semibold">Menstrual Details</div>
+                                <div className="cardbody-data border rounded px-2 my-2">
+                                    <div className="my-2">
+                                        {gynecHistory.cycle && (
+                                            <><span>Cycle</span> : <label>{gynecHistory.cycle}</label> | </>
+                                        )}
+                                        {gynecHistory.intervalOfCycle && (
+                                            <><span>Cycle Interval</span> : <label>{gynecHistory.intervalOfCycle}</label> | </>
+                                        )}
+                                        {gynecHistory.flow && (
+                                            <>
+                                                <span>Flow</span> : <label>{gynecHistory.flow}</label> |
+                                            </>
+                                        )}
+                                    </div>
+                                    <div className="my-2">
+                                        {gynecHistory.durationOfMenstrualFlow && (
+                                            <>
+                                                <span>Duration</span> : <label>{gynecHistory.durationOfMenstrualFlow} days</label> |
+                                            </>
+                                        )}
+                                        {gynecHistory.clots !== undefined && (
+                                            <>
+                                                <span> Clots</span> : <label>{gynecHistory.clots ? 'Yes' : 'No'}</label> |
+                                            </>
+                                        )}
+                                        {gynecHistory.numberOfPadsPerDay && (
+                                            <>
+                                                <span> Pads per day</span> : <label>{gynecHistory.numberOfPadsPerDay}</label> |
+                                            </>
+                                        )}
+                                    </div>
+                                    <div className="my-2">
+                                        {gynecHistory.pain && (
+                                            <>
+                                                <span>Pain</span> : <label>{gynecHistory.pain}</label> |
+                                            </>
+                                        )}
+                                        {gynecHistory.occurrenceOfPain && (
+                                            <>
+                                                <span> Occurrence</span> : <label>{gynecHistory.occurrenceOfPain}</label> |
+                                            </>
+                                        )}
+                                    </div>
+                                    <div className="my-2">
+                                        {gynecHistory.ageAtMenarche && (
+                                            <>
+                                                <span>Menarche at</span> : <label>{gynecHistory.ageAtMenarche} Years</label> |
+                                            </>
+                                        )}
+                                        {gynecHistory.typeOfMenopause && (
+                                            <>
+                                                <span> Menopause type</span> : <label>{gynecHistory.typeOfMenopause}</label>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </>
+                        }
                         {medicalHistoryData && medicalHistoryData.length > 0 ? (
                             medicalHistoryData?.map((e, i) => {
                                 return (

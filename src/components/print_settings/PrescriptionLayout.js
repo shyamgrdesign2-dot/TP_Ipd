@@ -13,10 +13,12 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import PrintSettingsContext from "../../context/PrintSettingsContext";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import { isMobile } from "react-device-detect";
 import { useAccess } from "../../pages/vaccination/useAccess";
 import { graphsToPrintData } from "../../pages/growthChart/growthChartHelper";
+import { GB_GYNEC_HISTORY } from "../../utils/constants";
 
 // const CustomRow = ({ children, ...props }) => {
 //     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
@@ -147,6 +149,10 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
   const { caseManagerData, printSettings, setPrintSettings } = useContext(PrintSettingsContext);
   const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
+  );
+
+  const isGynecHistoryAccessableFromGB = useFeatureIsOn(
+    GB_GYNEC_HISTORY
   );
 
   const onMainCaseOptionChange = useCallback(
@@ -447,7 +453,9 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
                                                                         ({ ...option, key: option.id }) 
                                                                         :(caseManagerData.smart_prescription_filename && option.id === 11) ?
                                                                             ({ ...option, key: option.id }) 
-                                                                            :(isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartData?.length) && ({...option, key: option.id})
+                                                                            :(isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartData?.length) ? 
+                                                                              ({...option, key: option.id})
+                                                                              :(caseManagerData.gynecHistoryData && isGynecHistoryAccessableFromGB && option.id === 13) && ({...option, key: option.id})
               )}
               showHeader={false}
             />
