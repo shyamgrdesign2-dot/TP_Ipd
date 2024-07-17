@@ -1,23 +1,21 @@
-import React from 'react';
-import { Row, Col, Form, Input, Select } from 'antd';
+import React, { useContext, useCallback } from 'react';
+import { Row, Col, Form, Input } from 'antd';
+
+import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
 function DWPersonalDetails() {
 
     const inputWatermarkFile = React.createRef();
 
-    const specialtyList = [
-        {
-            value: 'anaesthesiology',
-            label: 'Anaesthesiology',
-        }
-    ]
+    const { personalDetails, setPersonalDetails } = useContext(DoctorWebsiteSettingsContext);
 
-    const educationList = [
-        {
-            value: 'mbbs-md',
-            label: 'MBBS, MD',
-        }
-    ]
+    const onChangeInput = useCallback(
+        (e, key) => {
+            personalDetails[key] = e.target.value;
+            setPersonalDetails((prev) => { return { ...prev } });
+        },
+        [personalDetails]
+    );
 
     return (
         <div className="bg-white p-20 overflow-auto" style={{ height: 'calc(100vh - 120px)' }}>
@@ -29,7 +27,10 @@ function DWPersonalDetails() {
                             label="First Name"
                             className='fw-medium mb-20'
                             required>
-                            <Input placeholder="First Name" className="text-capitalize rounded-10px h-38" />
+                            <Input placeholder="First Name"
+                                className="text-capitalize rounded-10px h-38"
+                                value={personalDetails?.first_name}
+                                onChange={(e) => onChangeInput(e, 'first_name')} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -37,7 +38,10 @@ function DWPersonalDetails() {
                             label="Last Name"
                             className='fw-medium mb-20'
                             required>
-                            <Input placeholder="Last Name" className="text-capitalize rounded-10px h-38" />
+                            <Input placeholder="Last Name"
+                                className="text-capitalize rounded-10px h-38"
+                                value={personalDetails?.last_name}
+                                onChange={(e) => onChangeInput(e, 'last_name')} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -45,12 +49,10 @@ function DWPersonalDetails() {
                             label="Specialty"
                             className='fw-medium mb-20'
                             required>
-                            <Select
-                                className="autocomplete-custom"
-                                placeholder="Specialty"
-                                options={specialtyList}
-                                allowClear
-                            />
+                            <Input placeholder="Specialty"
+                                className="text-capitalize rounded-10px h-38"
+                                value={personalDetails?.specialty}
+                                disabled />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -58,19 +60,20 @@ function DWPersonalDetails() {
                             label="Education"
                             className='fw-medium mb-20'
                             required>
-                            <Select
-                                className="autocomplete-custom"
-                                placeholder="Education"
-                                options={educationList}
-                                allowClear
-                            />
+                            <Input placeholder="Education"
+                                className="text-capitalize rounded-10px h-38"
+                                value={personalDetails?.education}
+                                onChange={(e) => onChangeInput(e, 'education')} />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
                         <Form.Item
                             label="Email"
                             className='fw-medium mb-20'>
-                            <Input placeholder="Email" className="text-capitalize rounded-10px h-38" />
+                            <Input placeholder="Email"
+                                className="text-capitalize rounded-10px h-38"
+                                value={personalDetails?.email_id}
+                                onChange={(e) => onChangeInput(e, 'email_id')} />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -87,4 +90,4 @@ function DWPersonalDetails() {
     );
 }
 
-export default DWPersonalDetails;
+export default React.memo(DWPersonalDetails);
