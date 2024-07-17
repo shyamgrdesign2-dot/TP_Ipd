@@ -49,6 +49,7 @@ import Vaccination from "../vaccination/Vaccination";
 import GrowthChart from "../growthChart/GrowthChart";
 import { viewPatient } from "../../redux/appointmentsSlice";
 import { useAccess } from "../vaccination/useAccess";
+import { getGynecDetails } from "../../api/services/ApiGynec";
 
 function TabPrescription() {
   const {
@@ -88,6 +89,7 @@ function TabPrescription() {
   const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
+  const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
 
   const contextApi = {
     patient_data,
@@ -397,6 +399,23 @@ function TabPrescription() {
     }
   }, [privateNotesList]);
 
+  const handleSaveGynecHistory = (updatedGynecHistory) => {
+    setUpdatedGynecHistory(updatedGynecHistory)
+  };
+
+  useEffect(() => {
+    fetchGynecHistory();
+  }, []);
+
+  const fetchGynecHistory = async () => {
+      try {
+          const data = await getGynecDetails(patient_data.patient_unique_id);
+          setUpdatedGynecHistory(data);
+      } catch (error) {
+          console.error('Error fetching gynec history:', error);
+      }
+  }; 
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -586,6 +605,7 @@ function TabPrescription() {
                   mode={caseManagerData !== undefined ? EDIT : ADD}
                   handleDrawerMedicalHistory={handleDrawerMedicalHistory}
                   handleCollapsed={() => setCollapsed(!collapsed)}
+                  gynecHistory={updatedGynecHistory}
                 />
               ) : collapsedFlag === 4 && (
                   <TabPrivateNotesList
@@ -663,6 +683,7 @@ function TabPrescription() {
           <MedicalHistoryBox
             handleDrawerMedicalHistory={handleDrawerMedicalHistory}
             handleCollapsed={(flag) => handleCollapsed(flag)}
+            onSave={handleSaveGynecHistory}
           />
         </Drawer>
         <Drawer
