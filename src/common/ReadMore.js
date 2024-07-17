@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const ReadMore = ({ text, textLimit }) => {
+const ReadMore = ({ text, textLimit, textSize }) => {
   const [isReadMore, setIsReadMore] = useState(true);
   const toggleReadMore = () => {
     setIsReadMore(!isReadMore);
@@ -11,7 +11,7 @@ const ReadMore = ({ text, textLimit }) => {
       <span
         onClick={toggleReadMore}
         className="read-or-hide"
-        style={{ cursor: "pointer" }}
+        style={{ cursor: "pointer", fontSize: textSize }}
       >
         {text.length > textLimit
           ? isReadMore

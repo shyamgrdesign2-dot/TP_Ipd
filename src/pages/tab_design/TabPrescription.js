@@ -52,6 +52,46 @@ import GrowthChart from "../growthChart/GrowthChart";
 import { viewPatient } from "../../redux/appointmentsSlice";
 import { useAccess } from "../vaccination/useAccess";
 import Obstetric from "../obstetric/Obstetric";
+import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
+
+const obsVisitData = [
+  {
+    Pallor: "Yes",
+    Oedema: "No",
+    BMI: "22.2 Kg/m2",
+    Systolic: "120 mmHg",
+    Diastolic: "80 mmHg",
+    Fundus: 80,
+    Presentation: "Breech",
+    "Fluid index": "23 cm",
+    FHR: "120 bpm",
+    Notes: "",
+  },
+  {
+    Pallor: "Yes",
+    Oedema: "No",
+    BMI: "22.2 Kg/m2",
+    Systolic: "120 mmHg",
+    Diastolic: "80 mmHg",
+    Fundus: 80,
+    Presentation: "Breech",
+    "Fluid index": "23 cm",
+    FHR: "120 bpm",
+    Notes: "",
+  },
+  {
+    Pallor: "Yes",
+    Oedema: "No",
+    BMI: "22.2 Kg/m2",
+    Systolic: "120 mmHg",
+    Diastolic: "80 mmHg",
+    Fundus: 80,
+    Presentation: "Breech",
+    "Fluid index": "23 cm",
+    FHR: "120 bpm",
+    Notes: "",
+  },
+];
 
 function TabPrescription() {
   const {
@@ -555,7 +595,7 @@ function TabPrescription() {
                         type="button"
                         className="mb-3 text-center btn btn-action"
                         style={{padding: "0px"}}
-                        onClick={handleDrawerObstetric}
+                        onClick={() => obsVisitData.length === 0 ? handleDrawerObstetric : openCollapsed(6)}
                       >
                         <div
                           className={`prescription-tab-button rounded-10px ${
@@ -626,12 +666,17 @@ function TabPrescription() {
                   handleDrawerMedicalHistory={handleDrawerMedicalHistory}
                   handleCollapsed={() => setCollapsed(!collapsed)}
                 />
-              ) : collapsedFlag === 4 && (
+              ) : collapsedFlag === 4 ? (
                   <TabPrivateNotesList
                     mode={caseManagerData !== undefined ? EDIT : ADD}
                     handleDrawerPrivateNotes={handleDrawerPrivateNotes}
                     handleCollapsed={() => setCollapsed(!collapsed)}
                   />
+              ) : collapsedFlag === 6 && (
+                <TabObstetricList
+                  obsVisitData={obsVisitData}
+                  handleCollapsed={() => setCollapsed(!collapsed)}
+                  handleDrawerObstetric={handleDrawerObstetric} />
               )}
             </Sider>
             <div
