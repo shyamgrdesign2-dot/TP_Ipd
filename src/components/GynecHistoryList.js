@@ -6,7 +6,7 @@ function GynecHistoryList(props) {
     const [accordionItems, setAccordionItems] = useState([]);
 
     useEffect(() => {
-        if (gynecHistory) {
+        if (gynecHistory && Object.keys(gynecHistory).length > 0) {
             const data = [];
             const updateData = {
                 key: `${1}`,

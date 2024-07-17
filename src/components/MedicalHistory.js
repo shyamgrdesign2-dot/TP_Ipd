@@ -61,6 +61,11 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                 <div className="fw-semibold">Menstrual Details</div>
                                 <div className="cardbody-data border rounded px-2 my-2">
                                     <div className="my-2">
+                                        {gynecHistory.lmp && (
+                                            <><span>LMP</span> : <label>{new Date(gynecHistory.lmp).toISOString().split('T')[0]}</label></>
+                                        )}
+                                    </div>
+                                    <div className="my-2">
                                         {gynecHistory.cycle && (
                                             <><span>Cycle</span> : <label>{gynecHistory.cycle}</label> | </>
                                         )}
@@ -108,11 +113,18 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                                 <span>Menarche at</span> : <label>{gynecHistory.ageAtMenarche} Years</label> |
                                             </>
                                         )}
-                                        {gynecHistory.typeOfMenopause && (
+                                        {gynecHistory.ageAtMenopause && (
                                             <>
-                                                <span> Menopause type</span> : <label>{gynecHistory.typeOfMenopause}</label>
+                                                <span> Menopause at</span> : <label>{gynecHistory.ageAtMenopause}</label>
                                             </>
                                         )}
+                                        <div className="my-2">
+                                            {gynecHistory.typeOfMenopause && (
+                                                <>
+                                                    <span> Menopause type</span> : <label>{gynecHistory.typeOfMenopause}</label>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </>

@@ -1394,7 +1394,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             ) : option?.id === 13 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
                                 <>
                                     { gynecHistoryData && isGynecHistoryAccessableFromGB &&
-                                         (option?.format === "inline" ? (
+                                        (option?.format === "inline" ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }} wrap={false}>
                                                 <Text
                                                     style={{
@@ -1426,7 +1426,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             fontWeight: 400,
                                                         }}
                                                     >
-                                                        {gynecHistoryData.lpm ? moment(gynecHistoryData.lpm).format("DD MMM YYYY") : `-`})
+                                                        {gynecHistoryData.lmp ? moment(gynecHistoryData.lmp).format("DD MMM YYYY") : `-`})
                                                     </Text>
                                                 </Text>
 
@@ -1539,7 +1539,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         }}
                                                     >
                                                         {gynecHistoryData.durationOfMenstrualFlow || ``}&nbsp;
-                                                        {gynecHistoryData.durationOfMenstrualFlowdays ? Number(gynecHistoryData.durationOfMenstrualFlowdays) > 1
+                                                        {gynecHistoryData.durationOfMenstrualFlow ? Number(gynecHistoryData.durationOfMenstrualFlow) > 1
                                                         ? `days`
                                                         : `day` : `-`}
                                                     </Text>
@@ -1840,7 +1840,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 400,
                                                             }}
                                                         >
-                                                            {gynecHistoryData.lpm ? moment(gynecHistoryData.lpm).format("DD MMM YYYY") : `-`}
+                                                            {gynecHistoryData.lmp ? moment(gynecHistoryData.lmp).format("DD MMM YYYY") : `-`}
                                                         </Text>
                                                     </Text>
                                                 </Text>
