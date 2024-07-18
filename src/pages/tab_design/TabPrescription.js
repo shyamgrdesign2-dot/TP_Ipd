@@ -453,7 +453,7 @@ function TabPrescription() {
                     type="button"
                     className="mb-3 text-center btn btn-action"
                     onClick={() =>
-                      medicalHistoryData.length === 0
+                      (medicalHistoryData.length === 0 && !updatedGynecHistory)
                         ? handleDrawerMedicalHistory()
                         : openCollapsed(2)
                     }
