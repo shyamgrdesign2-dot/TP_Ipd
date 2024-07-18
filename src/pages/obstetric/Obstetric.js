@@ -6,32 +6,27 @@ import Examination from "./components/examination/Examination";
 import { Tabs } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import LmpPopup from "./components/lmpPopup/LmpPopup";
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { getAllObstetricDetails } from "./service";
+import { useState } from "react";
 
-const Obstetric = ({ handleDrawerObstetric }) => {
-  const { state } = useLocation();
-  let { patient_data } = state;
-  const [showLmpPopup, setShowLmpPopup] = useState(false);
+const Obstetric = ({ handleDrawerObstetric, allObstetricDetails }) => {
+  const { examinationHistory, pregnancyHistory } = allObstetricDetails;
 
-  useEffect(() => {
-    getAllObstetricDetails(patient_data.patient_unique_id);
-  }, []);
+  const [showLmpPopup, setShowLmpPopup] = useState(!allObstetricDetails.lmp);
+
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader
         handleDrawerVaccination={handleDrawerObstetric}
         isObstetric={true}
       />
-      <PatientDiagnosis />
+      <PatientDiagnosis allObstetricDetails={allObstetricDetails} />
 
       <Tabs defaultActiveKey="pregnancyHistory">
         <TabPane tab="Pregnancy History" key="pregnancyHistory">
-          <PregnancyHistory />
+          <PregnancyHistory pregnancyHistory={pregnancyHistory} />
         </TabPane>
         <TabPane tab="Examination" key="examination">
-          <Examination />
+          <Examination examinationHistory={examinationHistory} />
         </TabPane>
       </Tabs>
       {showLmpPopup && (

@@ -4,11 +4,17 @@
   flex-direction: column;
   row-gap: 28px;
 
+  .theaderStyle {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
   .tableTitle {
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: none;
 
     .editIcon {
       display: flex;

@@ -3,6 +3,7 @@ import { EditOutlined } from "@ant-design/icons";
 import "./../pregnancyHistory/PregnancyHistory.scss";
 import examination from "../../../../assets/images/obs-examination.svg";
 import "./Examination.scss";
+import moment from "moment";
 
 const examinationData = [
   {
@@ -74,7 +75,7 @@ const columns = [
   },
 ];
 
-const Examination = () => {
+const Examination = ({ examinationHistory }) => {
   const renderTableHeader = () => {
     return (
       <tr>
@@ -97,30 +98,38 @@ const Examination = () => {
     const onEdit = (item) => {
       console.log("item", item);
     };
-    return examinationData.map((item, i) => (
+    return examinationHistory.map((item, i) => (
       <tr key={i}>
-        <td className="tcell">{item.date}</td>
-        <td className="tcell">{item.pallor}</td>
-        <td className="tcell">{item.oedema}</td>
-        <td className="tcell">{item.mothersWeight + " kg"}</td>
-        <td className="tcell">
+        <td className="obstetricTcell">
+          Visit {i + 1}
+          <div className="visitStyle">
+            {item.createdAt ? moment(item.createdAt).format("DD MMM YYYY") : ""}
+          </div>
+        </td>
+        <td className="obstetricTcell">{item.pallor ? "Yes" : "No"}</td>
+        <td className="obstetricTcell">{item.oedema ? "Yes" : "No"}</td>
+        <td className="obstetricTcell">{item.mothersWeight + " kg"}</td>
+        <td className="obstetricTcell">
           {item.systolic + "/" + item.diastolic + " mmHg"}
         </td>
-        <td className="tcell">{item.heightOfFundus + " cm"}</td>
-        <td className="tcell">{item.presentation}</td>
-        <td className="tcell">{item.foetalHeartRate + " BPM"}</td>
-        <td className="tcell">{item.note}</td>
-        <td className="tcell">
-          <EditOutlined className="custom-icon" onClick={() => onEdit(item)} />
+        <td className="obstetricTcell">{item.heightOfFundus + " cm"}</td>
+        <td className="obstetricTcell">{item.presentation}</td>
+        <td className="obstetricTcell">{item.foetalHeartRate + " BPM"}</td>
+        <td className="obstetricTcell">{item.notes}</td>
+        <td className="obstetricTcell">
+          <div className="editIcon" onClick={() => onEdit(item)}>
+            <i className={"icon-Edit me-1 fs-5"} />
+            <span className="editText">Edit</span>
+          </div>
         </td>
       </tr>
     ));
   };
   return (
     <div>
-      {examinationData.length ? (
+      {examinationHistory.length ? (
         <>
-          <div className="examinationTableViewContainer" style={{}}>
+          <div className="examinationTableViewContainer">
             <table className="tableView">
               <thead>{renderTableHeader()}</thead>
               <tbody>{renderTableData()}</tbody>

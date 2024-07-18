@@ -86,7 +86,7 @@ const uat = {
   firebaseMessagingSenderId: "482265957598",
   firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
   tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
-  obstetric_api_url: "http://localhost:3016/api/v1/gynec-history",
+  obstetric_api_url: "http://localhost:3016/api/v1/obstetric-history",
 };
 
 const prod = {

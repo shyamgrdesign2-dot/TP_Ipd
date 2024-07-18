@@ -29,7 +29,9 @@ const maritalStatusOptions = [
   { value: "separated", label: "Separated" },
 ];
 
-export default function PatientDiagnosis() {
+export default function PatientDiagnosis({ allObstetricDetails }) {
+  const { gravidity, parity, livingChildren, abortion, ectopicPregnancies } =
+    allObstetricDetails;
   const [gestationWeeks, setGestationWeeks] = useState("");
   const [gestationDays, setGestationDays] = useState("");
   const [marriageDurationInYears, setMarriageDurationInYears] = useState("");
@@ -38,7 +40,9 @@ export default function PatientDiagnosis() {
   const [selectedBloodGroup, setSelectedBloodGroup] = useState(null);
 
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
-  const [diagnosisNotes, setDiagnosisNotes] = useState("");
+  const [diagnosisNotes, setDiagnosisNotes] = useState(
+    allObstetricDetails.diagnosisNotes
+  );
 
   const handleDrawerDiagnosisNotes = () => {
     setDiagnosisNotesDrawer(!diagnosisNotesDrawer);
@@ -48,12 +52,11 @@ export default function PatientDiagnosis() {
     setSelectedBloodGroup(value);
   };
   const [pastPregnancyData, setPastPregnancyData] = useState([
-    { value: 1, label: "G" },
-    { value: 1, label: "P" },
-    { value: 1, label: "L" },
-    { value: 1, label: "A" },
-    { value: 1, label: "NND" },
-    { value: 1, label: "E" },
+    { value: gravidity, label: "G" },
+    { value: parity, label: "P" },
+    { value: livingChildren, label: "L" },
+    { value: abortion, label: "A" },
+    { value: ectopicPregnancies, label: "E" },
   ]);
 
   const handleInputChange = (index, newValue, isValid) => {

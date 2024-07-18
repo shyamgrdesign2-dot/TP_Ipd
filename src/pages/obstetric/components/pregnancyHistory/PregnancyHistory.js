@@ -1,43 +1,8 @@
 import { Button } from "antd";
-import { useState } from "react";
 import "./PregnancyHistory.scss";
 import arrow from "../../../../assets/images/arrow.svg";
 import pregnancyHistoryImg from "../../../../assets/images/pregnancy-history.svg";
-
-const mockData = [
-  {
-    type: "live",
-    deliveryMode: "Vaginal",
-    dateOfDelivery: "1 May 2024",
-    gender: "Male",
-    babysWeight: 5,
-    term: "Term",
-    remarks: "Normal",
-  },
-  {
-    type: "live",
-    deliveryMode: "Vaginal",
-    dateOfDelivery: "1 May 2024",
-    gender: "Male",
-    babysWeight: 5,
-    term: "Term",
-    remarks: "Normal",
-  },
-  {
-    type: "ectopic",
-    monthOfPregnancy: "4",
-    location: "Vaginal",
-    modeOfAbortion: "C-Section",
-    remarks: "Normal",
-  },
-  {
-    type: "abortion",
-    monthOfPregnancy: "4",
-    typeOfAbortion: "Vaginal",
-    modeOfAbortion: "C-Section",
-    remarks: "Normal",
-  },
-];
+import moment from "moment";
 
 const liveColumns = [
   {
@@ -113,19 +78,24 @@ const abortionColumns = [
   },
 ];
 
-const PregnancyHistory = () => {
-  const [pregnancyHistoryData, setPregnancyHistoryData] = useState(mockData);
+const outcomes = {
+  live: "Live",
+  stillBirth: "Still Birth",
+  abortion: "Abortion",
+  ectopic: "Ectopic",
+};
 
-  const renderTableTitle = (gravidaItem, index) => {
+const PregnancyHistory = ({ pregnancyHistory }) => {
+  const renderTableTitle = (gravidaItem) => {
     const onEdit = () => {
-      console.log("item");
+      console.log("item", gravidaItem);
     };
     return (
       <div className="tcell theaderCellStyle tableTitle">
-        <div>{`G ${index + 1}, ${gravidaItem.type}${
-          gravidaItem.term ? `, ${gravidaItem.term}` : ""
+        <div>{`G ${gravidaItem.gravidaNumber}, ${gravidaItem.outcome}${
+          gravidaItem.termLength ? `, ${gravidaItem.termLength}` : ""
         }`}</div>
-        <div className="editIcon">
+        <div className="editIcon" onClick={onEdit}>
           <i className={"icon-Edit me-1 fs-5"} />
           <span className="editText">Edit</span>
         </div>
@@ -139,7 +109,7 @@ const PregnancyHistory = () => {
         {columns?.map((header, index) => (
           <th
             key={index}
-            className="tcell"
+            className="tcell theaderStyle"
             style={{
               width: `${header.width}`,
             }}
@@ -154,27 +124,32 @@ const PregnancyHistory = () => {
   const renderTableData = (gravidaItem) => {
     return (
       <>
-        {gravidaItem.type === "live" ? (
+        {gravidaItem.outcome === outcomes.live ||
+        gravidaItem.outcome === outcomes.stillBirth ? (
           <tr>
-            <td className="tcell">{gravidaItem.deliveryMode}</td>
-            <td className="tcell">{gravidaItem.dateOfDelivery}</td>
-            <td className="tcell">{gravidaItem.gender}</td>
-            <td className="tcell">{gravidaItem.babysWeight}</td>
-            <td className="tcell">{gravidaItem.remarks}</td>
+            <td className="obstetricTcell">{gravidaItem.deliveryMode}</td>
+            <td className="obstetricTcell">
+              {gravidaItem.dateOfDelivery
+                ? moment(gravidaItem.dateOfDelivery).format("DD MMM YYYY")
+                : ""}
+            </td>
+            <td className="obstetricTcell">{gravidaItem.gender}</td>
+            <td className="obstetricTcell">{gravidaItem.babysWeight}</td>
+            <td className="obstetricTcell">{gravidaItem.remarks}</td>
           </tr>
-        ) : gravidaItem.type === "ectopic" ? (
+        ) : gravidaItem.outcome === outcomes.ectopic ? (
           <tr>
-            <td className="tcell">{gravidaItem.monthOfPregnancy}</td>
-            <td className="tcell">{gravidaItem.location}</td>
-            <td className="tcell">{gravidaItem.modeOfAbortion}</td>
-            <td className="tcell">{gravidaItem.remarks}</td>
+            <td className="obstetricTcell">{gravidaItem.monthOfPregnancy}</td>
+            <td className="obstetricTcell">{gravidaItem.location}</td>
+            <td className="obstetricTcell">{gravidaItem.modeOfAbortion}</td>
+            <td className="obstetricTcell">{gravidaItem.remarks}</td>
           </tr>
-        ) : gravidaItem.type === "abortion" ? (
+        ) : gravidaItem.outcome === outcomes.abortion ? (
           <tr>
-            <td className="tcell">{gravidaItem.monthOfPregnancy}</td>
-            <td className="tcell">{gravidaItem.typeOfAbortion}</td>
-            <td className="tcell">{gravidaItem.modeOfAbortion}</td>
-            <td className="tcell">{gravidaItem.remarks}</td>
+            <td className="obstetricTcell">{gravidaItem.monthOfPregnancy}</td>
+            <td className="obstetricTcell">{gravidaItem.typeOfAbortion}</td>
+            <td className="obstetricTcell">{gravidaItem.modeOfAbortion}</td>
+            <td className="obstetricTcell">{gravidaItem.remarks}</td>
           </tr>
         ) : null}
       </>
@@ -183,15 +158,18 @@ const PregnancyHistory = () => {
 
   return (
     <div>
-      {pregnancyHistoryData.length ? (
+      {pregnancyHistory.length ? (
         <div className="pregnancyHistoryContainer">
-          {pregnancyHistoryData.map((gravidaItem, index) => {
+          {pregnancyHistory.map((gravidaItem, index) => {
             let columns = [];
-            if (gravidaItem.type === "live") {
+            if (
+              gravidaItem.outcome === outcomes.live ||
+              gravidaItem.outcome === outcomes.stillBirth
+            ) {
               columns = liveColumns;
-            } else if (gravidaItem.type === "ectopic") {
+            } else if (gravidaItem.outcome === outcomes.ectopic) {
               columns = ectopicColumns;
-            } else if (gravidaItem.type === "abortion") {
+            } else if (gravidaItem.outcome === outcomes.abortion) {
               columns = abortionColumns;
             }
             return (

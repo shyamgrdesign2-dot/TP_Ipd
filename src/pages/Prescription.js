@@ -46,6 +46,7 @@ import { viewPatient } from "../redux/appointmentsSlice";
 import { useAccess } from "./vaccination/useAccess";
 import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
+import { fetchAllObstetricDetails } from "./obstetric/service";
 
 const obsVisitData = [
   {
@@ -151,15 +152,24 @@ function Prescription() {
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
   const [obstetricDrawer, setObstetricDrawer] = useState(false);
+  const [allObstetricDetails, setAllObstetricDetails] = useState(null);
   const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
     patient_data?.ageYears
   );
+
+  const getAllObstetricDetails = async () => {
+    const obstetricResponse = await fetchAllObstetricDetails(patient_data.patient_unique_id);
+    if (obstetricResponse) {
+      setAllObstetricDetails(obstetricResponse);
+    }
+  }
 
   useEffect(() => {
     const sendData = {
       patient_unique_id: patient_data?.patient_unique_id,
     };
     dispatch(viewPatient(sendData));
+    getAllObstetricDetails();
   }, []);
 
   useEffect(() => {
@@ -716,7 +726,7 @@ function Prescription() {
             width="100%"
             push={false}
           >
-            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
+            <Obstetric handleDrawerObstetric={handleDrawerObstetric} allObstetricDetails={allObstetricDetails} />
           </Drawer>
         )}
       </>
