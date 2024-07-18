@@ -30,6 +30,13 @@ const mockData = [
     modeOfAbortion: "C-Section",
     remarks: "Normal",
   },
+  {
+    type: "abortion",
+    monthOfPregnancy: "4",
+    typeOfAbortion: "Vaginal",
+    modeOfAbortion: "C-Section",
+    remarks: "Normal",
+  },
 ];
 
 const liveColumns = [
@@ -64,22 +71,22 @@ const ectopicColumns = [
   {
     title: "Period of gestation",
     key: "monthOfPregnancy",
-    width: "30%",
+    width: "22%",
   },
   {
     title: "Location",
     key: "location",
-    width: "15%",
+    width: "18%",
   },
   {
     title: "Mode of management",
     key: "modeOfAbortion",
-    width: "15%",
+    width: "18%",
   },
   {
     title: "Remarks",
     key: "remarks",
-    width: "40%",
+    width: "42%",
   },
 ];
 
@@ -87,22 +94,22 @@ const abortionColumns = [
   {
     title: "Period of gestation",
     key: "monthOfPregnancy",
-    width: "30%",
+    width: "22%",
   },
   {
     title: "Type of abortion",
     key: "typeOfAbortion",
-    width: "15%",
+    width: "18%",
   },
   {
     title: "Mode of abortion",
     key: "modeOfAbortion",
-    width: "15%",
+    width: "18%",
   },
   {
     title: "Remarks",
     key: "remarks",
-    width: "40%",
+    width: "42%",
   },
 ];
 
@@ -146,13 +153,31 @@ const PregnancyHistory = () => {
 
   const renderTableData = (gravidaItem) => {
     return (
-      <tr>
-        <td className="tcell">{gravidaItem.deliveryMode}</td>
-        <td className="tcell">{gravidaItem.dateOfDelivery}</td>
-        <td className="tcell">{gravidaItem.gender}</td>
-        <td className="tcell">{gravidaItem.babysWeight}</td>
-        <td className="tcell">{gravidaItem.remarks}</td>
-      </tr>
+      <>
+        {gravidaItem.type === "live" ? (
+          <tr>
+            <td className="tcell">{gravidaItem.deliveryMode}</td>
+            <td className="tcell">{gravidaItem.dateOfDelivery}</td>
+            <td className="tcell">{gravidaItem.gender}</td>
+            <td className="tcell">{gravidaItem.babysWeight}</td>
+            <td className="tcell">{gravidaItem.remarks}</td>
+          </tr>
+        ) : gravidaItem.type === "ectopic" ? (
+          <tr>
+            <td className="tcell">{gravidaItem.monthOfPregnancy}</td>
+            <td className="tcell">{gravidaItem.location}</td>
+            <td className="tcell">{gravidaItem.modeOfAbortion}</td>
+            <td className="tcell">{gravidaItem.remarks}</td>
+          </tr>
+        ) : gravidaItem.type === "abortion" ? (
+          <tr>
+            <td className="tcell">{gravidaItem.monthOfPregnancy}</td>
+            <td className="tcell">{gravidaItem.typeOfAbortion}</td>
+            <td className="tcell">{gravidaItem.modeOfAbortion}</td>
+            <td className="tcell">{gravidaItem.remarks}</td>
+          </tr>
+        ) : null}
+      </>
     );
   };
 
