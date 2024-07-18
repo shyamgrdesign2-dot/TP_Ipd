@@ -85,26 +85,66 @@ function DWDoctorExperience() {
 
     const onSelect = useCallback(
         (e, key, i) => {
-            if (e == moment().year()) {
-                if (key == 'start_year' && parseInt(doctorExperience[i]['start_month']) <= moment().month()) {
+
+            // if (key == 'start_year' && e == moment().year() && parseInt(doctorExperience[i]['start_month']) >= moment().month()) {
+            //     doctorExperience[i]['start_month'] = '';
+            // } else if (key == 'end_year' && e == moment().year() && parseInt(doctorExperience[i]['end_month']) >= moment().month()) {
+            //     doctorExperience[i]['end_month'] = '';
+            // }
+
+            // if (key == 'start_year' && parseInt(e) > parseInt(doctorExperience[i]['end_year'])) {
+            //     doctorExperience[i]['end_month'] = '';
+            //     doctorExperience[i]['end_year'] = '';
+            // } else if (key == 'start_month' && parseInt(doctorExperience[i]['start_year']) == parseInt(doctorExperience[i]['end_year']) && parseInt(e) > parseInt(doctorExperience[i]['end_month'])) {
+            //     doctorExperience[i]['end_month'] = '';
+            //     doctorExperience[i]['end_year'] = '';
+
+            // } else if (key == 'end_year' && parseInt(doctorExperience[i]['start_year']) == parseInt(e) && parseInt(doctorExperience[i]['start_month']) > parseInt(doctorExperience[i]['end_month'])) {
+            //     doctorExperience[i]['end_month'] = '';
+            // }
+
+
+            if (key == 'start_year') {
+                if (e == moment().year() && parseInt(doctorExperience[i]['start_month']) >= moment().month()) {
                     doctorExperience[i]['start_month'] = '';
-                } else if (key == 'end_year' && parseInt(doctorExperience[i]['end_month']) <= moment().month()) {
+                } else if (parseInt(e) > parseInt(doctorExperience[i]['end_year'])) {
+                    doctorExperience[i]['end_month'] = '';
+                    doctorExperience[i]['end_year'] = '';
+                }
+            } else if (key == 'end_year') {
+                if (e == moment().year() && parseInt(doctorExperience[i]['end_month']) >= moment().month()) {
+                    doctorExperience[i]['end_month'] = '';
+                } else if (parseInt(doctorExperience[i]['start_year']) == parseInt(e) && parseInt(doctorExperience[i]['start_month']) > parseInt(doctorExperience[i]['end_month'])) {
                     doctorExperience[i]['end_month'] = '';
                 }
+            } else if (key == 'start_month' && parseInt(doctorExperience[i]['start_year']) == parseInt(doctorExperience[i]['end_year']) && parseInt(e) > parseInt(doctorExperience[i]['end_month'])) {
+                doctorExperience[i]['end_month'] = '';
+                doctorExperience[i]['end_year'] = '';
+
             }
+
             doctorExperience[i][key] = e;
             setDoctorExperience((prev) => { return [...prev] });
         },
         [doctorExperience]
     );
 
+    const onRemoveRow = (index) => {
+        doctorExperience.splice(index, 1);
+        setDoctorExperience((prev) => { return [...prev] });
+    };
+
     const accordionItems = (e, i) => [
         {
-            key: '1',
+            key: `${i + 1}`,
             label:
                 <>
                     <div className="title-common">{`Key Experience ${i + 1}`}</div>
-                    <div className='fontroboto'>{'(Not Specified)'}</div>
+                    {(e?.hospital || e?.city) ? (
+                        <div className='fontroboto'>{`${Object.values(Object.fromEntries(Object.entries((({ hospital, city }) => ({ hospital, city }))(e)).filter(([_, v]) => v))).join(', ')}`}</div>
+                    ) : (
+                        <div className='fontroboto'>{'(Not Specified)'}</div>
+                    )}
                 </>,
             children:
                 <div className="rounded-20px">
@@ -116,7 +156,7 @@ function DWDoctorExperience() {
                                 required>
                                 <Input
                                     placeholder="e.g. Medical Director"
-                                    className="text-capitalize rounded-10px h-38"
+                                    className="rounded-10px h-38"
                                     value={e?.title}
                                     onChange={(e) => onChangeInput(e, 'title', i)} />
                             </Form.Item>
@@ -126,7 +166,7 @@ function DWDoctorExperience() {
                                 required>
                                 <Input
                                     placeholder="e.g Medanta Hospital"
-                                    className="text-capitalize rounded-10px h-38"
+                                    className="rounded-10px h-38"
                                     value={e?.hospital}
                                     onChange={(e) => onChangeInput(e, 'hospital', i)} />
                             </Form.Item>
@@ -136,7 +176,7 @@ function DWDoctorExperience() {
                                 required>
                                 <Input
                                     placeholder="e.g. Mumbai"
-                                    className="text-capitalize rounded-10px h-38"
+                                    className="rounded-10px h-38"
                                     value={e?.city}
                                     onChange={(e) => onChangeInput(e, 'city', i)} />
                             </Form.Item>
@@ -157,8 +197,7 @@ function DWDoctorExperience() {
                                             optionFilterProp="label"
                                             className="autocomplete-custom"
                                             placeholder="Month"
-                                            options={e?.start_year == moment().year() ? monthList.slice(monthList.findIndex(e => e.value == moment().month()), monthList.length) : monthList}
-                                            allowClear
+                                            options={e?.start_year == moment().year() ? monthList.slice(0, monthList.findIndex(e => e.value == moment().month() + 1) + 1) : monthList}
                                             value={e?.start_month ? e?.start_month : null}
                                             onSelect={(e) => onSelect(e, 'start_month', i)} />
                                     </Form.Item>
@@ -173,46 +212,56 @@ function DWDoctorExperience() {
                                             className="autocomplete-custom"
                                             placeholder="Year"
                                             options={yearsFromToCurrent(1990)}
-                                            allowClear
-                                            value={e?.start_year}
+                                            value={e?.start_year ? e?.start_year : null}
                                             onSelect={(e) => onSelect(e, 'start_year', i)} />
                                     </Form.Item>
                                 </Col>
-                                <Col span={12}>
-                                    <Form.Item
-                                        label="End Date"
-                                        className='fw-medium mb-20'
-                                        required>
-                                        <Select
-                                            showSearch
-                                            optionFilterProp="label"
-                                            className="autocomplete-custom"
-                                            placeholder="Month"
-                                            options={e?.end_year == moment().year() ? monthList.slice(monthList.findIndex(e => e.value == moment().month()), monthList.length) : monthList}
-                                            allowClear
-                                            value={e?.end_month ? e?.end_month : null}
-                                            onSelect={(e) => onSelect(e, 'end_month', i)} />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={12}>
-                                    <Form.Item
-                                        label=" "
-                                        className='fw-medium mb-20'>
-                                        <Select
-                                            showSearch
-                                            optionFilterProp="label"
-                                            className="autocomplete-custom"
-                                            placeholder="Year"
-                                            options={yearsFromToCurrent(e?.start_year)}
-                                            allowClear
-                                            value={e?.end_year}
-                                            onSelect={(e) => onSelect(e, 'end_year', i)} />
-                                    </Form.Item>
-                                </Col>
+                                {!e?.currently_working && (
+                                    <>
+                                        <Col span={12}>
+                                            <Form.Item
+                                                label="End Date"
+                                                className='fw-medium mb-20'
+                                                required>
+                                                <Select
+                                                    showSearch
+                                                    optionFilterProp="label"
+                                                    className="autocomplete-custom"
+                                                    placeholder="Month"
+                                                    options={
+                                                        parseInt(e?.start_year) == parseInt(e?.end_year) ?
+                                                            e?.end_year == moment().year() ?
+                                                                monthList.slice(parseInt(e?.start_month - 1), moment().month() + 1)
+                                                                : monthList.slice(parseInt(e?.start_month - 1), monthList.length)
+                                                            :
+                                                            e?.end_year == moment().year() ?
+                                                                monthList.slice(0, monthList.findIndex(e => e.value == moment().month() + 1) + 1)
+                                                                : monthList
+                                                    }
+                                                    value={e?.end_month ? e?.end_month : null}
+                                                    onSelect={(e) => onSelect(e, 'end_month', i)} />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={12}>
+                                            <Form.Item
+                                                label=" "
+                                                className='fw-medium mb-20'>
+                                                <Select
+                                                    showSearch
+                                                    optionFilterProp="label"
+                                                    className="autocomplete-custom"
+                                                    placeholder="Year"
+                                                    options={yearsFromToCurrent(e?.start_year)}
+                                                    value={e?.end_year ? e?.end_year : null}
+                                                    onSelect={(e) => onSelect(e, 'end_year', i)} />
+                                            </Form.Item>
+                                        </Col>
+                                    </>
+                                )}
                             </Row>
                         </Form>
                     </div>
-                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3' disabled><i className='icon-delete fs-18 me-2'></i>Delete Experience</Button>
+                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3' onClick={() => onRemoveRow(i)}><i className='icon-delete fs-18 me-2'></i>Delete Experience</Button>
                 </div>,
         },
     ];
@@ -240,7 +289,7 @@ function DWDoctorExperience() {
                 <div className="text-greycolor fontroboto"> Your experience journey includes previous roles, locations, durations, and descriptions.</div>
                 {doctorExperience?.map((e, i) => {
                     return (
-                        <div key={`${Math.random()}`} className="border rounded-20px bg-white mt-3">
+                        <div key={i} className="border rounded-20px bg-white mt-3">
                             <Collapse
                                 items={accordionItems(e, i)}
                                 defaultActiveKey={['1']}
