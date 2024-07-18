@@ -57,7 +57,7 @@ function TabMedicationMoreModal({ width, onClose, onClick, selectedValue, array 
                 <div className="mt-3 d-flex flex-wrap">
                     {array.map((e, i) => (
                         <div
-                            key={`${e?.title + "-" + Math.random()}`}
+                            key={`${e?.title + "-" + i}`}
                             className={`${selectedValue.includes(e?.title) && 'language-chips'} border rounded-10px p-2 me-2 mb-2 h-100 cursor-pointer`}
                             onClick={() => onClick(e)}>
                             <div className='d-flex align-items-cnter fontroboto text-primary' style={{ lineHeight: 1.3 }}>

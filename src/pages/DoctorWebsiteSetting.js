@@ -20,6 +20,7 @@ import DWServices from "../components/doctor_website/DWServices";
 import DWEducationTraning from "../components/doctor_website/DWEducationTraning";
 import DWRewardsRecognition from "../components/doctor_website/DWRewardsRecognition";
 import DWSocialLinks from "../components/doctor_website/DWSocialLinks";
+import DWMembership from "../components/doctor_website/DWMembership";
 
 function DoctorWebsiteSetting() {
 
@@ -41,7 +42,8 @@ function DoctorWebsiteSetting() {
     const [isVisible, setIsVisible] = useState();
     const [selectedMenu, setSelectedMenu] = useState(null);
 
-    const contextApi = { personalDetails, setPersonalDetails, aboutDoctor, setAboutDoctor, doctorExperience, setDoctorExperience };
+    const contextApi = { personalDetails, setPersonalDetails, aboutDoctor, setAboutDoctor, doctorExperience, setDoctorExperience, rewardRecognition, setRewardRecognition, membership, setMembership, socialLinks, setSocialLinks };
+
 
     useEffect(() => {
         const fetchLanguages = async () => {
@@ -53,13 +55,13 @@ function DoctorWebsiteSetting() {
     useEffect(() => {
         const makeData = async () => {
             const copy_personalDetails = JSON.parse(JSON.stringify({ ...websiteData.personal_details }))
-            const copy_clinicProfile = JSON.parse(JSON.stringify([ ...websiteData.clinic_profile ]))
+            const copy_clinicProfile = JSON.parse(JSON.stringify([...websiteData.clinic_profile]))
             const copy_aboutDoctor = JSON.parse(JSON.stringify({ ...websiteData.about_doctor }))
             const copy_doctorExperience = JSON.parse(JSON.stringify([...websiteData.doctor_experience]))
-            const copy_services = JSON.parse(JSON.stringify([ ...websiteData.services ]))
-            const copy_educationTraining = JSON.parse(JSON.stringify([ ...websiteData.education_training ]))
-            const copy_membership = JSON.parse(JSON.stringify([ ...websiteData.membership ]))
-            const copy_rewardRecognition = JSON.parse(JSON.stringify([ ...websiteData.reward_recognition ]))
+            const copy_services = JSON.parse(JSON.stringify([...websiteData.services]))
+            const copy_educationTraining = JSON.parse(JSON.stringify([...websiteData.education_training]))
+            const copy_membership = JSON.parse(JSON.stringify([...websiteData.membership]))
+            const copy_rewardRecognition = JSON.parse(JSON.stringify([...websiteData.reward_recognition]))
             const copy_socialLinks = JSON.parse(JSON.stringify({ ...websiteData.social_links }))
 
             setPersonalDetails(copy_personalDetails);
@@ -237,7 +239,7 @@ function DoctorWebsiteSetting() {
                                                     : selectedMenu?.value === 4 ? <DWDoctorExperience />
                                                         : selectedMenu?.value === 5 ? <DWServices />
                                                             : selectedMenu?.value === 6 ? <DWEducationTraning />
-                                                                : selectedMenu?.value === 7 ? <DWEducationTraning />
+                                                                : selectedMenu?.value === 7 ? <DWMembership />
                                                                     : selectedMenu?.value === 8 ? <DWRewardsRecognition />
                                                                         : selectedMenu?.value === 9 && <DWSocialLinks />}
                                     </div>
@@ -252,7 +254,7 @@ function DoctorWebsiteSetting() {
                                 </div>
                                 <div className="rounded-20px bg-white mt-2 overflow-hidden">
                                     <div className="position-relative printheight d-flex align-items-center justify-content-center fs-2 fw-normal">
-                                        Comming Soon...
+                                        Coming Soon...
                                     </div>
                                 </div>
                             </div>

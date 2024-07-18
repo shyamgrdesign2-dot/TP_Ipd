@@ -9,7 +9,7 @@ function HeaderDoctorWebsite() {
 
     const navigate = useNavigate();
 
-    const { personalDetails, aboutDoctor,doctorExperience } = useContext(DoctorWebsiteSettingsContext);
+    const { personalDetails, aboutDoctor, doctorExperience, rewardRecognition, socialLinks } = useContext(DoctorWebsiteSettingsContext);
 
     const items = [
         {
@@ -22,6 +22,8 @@ function HeaderDoctorWebsite() {
         console.log(personalDetails)
         console.log(aboutDoctor)
         console.log(doctorExperience)
+        console.log(rewardRecognition);
+        console.log(socialLinks);
     }
 
     return (
