@@ -63,9 +63,9 @@ function DWAboutDoctor() {
             <hr className='mt-1' />
             <div className='fw-medium mb-20'>Languages Spoken</div>
             <div className='d-flex flex-wrap'>
-                {aboutDoctor.hasOwnProperty('language') && aboutDoctor?.language?.map((e, i) => {
+                {aboutDoctor.hasOwnProperty('language') && aboutDoctor?.language && aboutDoctor?.language?.map((e, i) => {
                     return (
-                        <div key={`${e + "-" + Math.random()}`} className={`language-chips border rounded-10px p-2 me-2 mb-2 h-100 cursor-pointer`} onClick={() => onLanguageClick(e)}>
+                        <div key={`${e + "-" + i}`} className={`language-chips border rounded-10px p-2 me-2 mb-2 h-100 cursor-pointer`} onClick={() => onLanguageClick(e)}>
                             <div className='d-flex align-items-cnter fontroboto' style={{ lineHeight: 1.3 }}>
                                 {e}
                                 <i className={`icon-Cross fs-18 ms-2`}></i>
@@ -75,7 +75,7 @@ function DWAboutDoctor() {
                 })}
                 {languageList?.slice(0, 5)?.filter(e => aboutDoctor.hasOwnProperty('language') ? !aboutDoctor?.language?.includes(e?.title) : e?.title)?.map((e, i) => {
                     return (
-                        <div key={`${e?.title + "-" + Math.random()}`} className={`${aboutDoctor.hasOwnProperty('language') && aboutDoctor?.language?.includes(e?.title) && 'language-chips'} border rounded-10px p-2 me-2 mb-2 h-100 cursor-pointer`} onClick={() => onLanguageClick(e?.title)}>
+                        <div key={`${e?.title + "-" + i}`} className={`${aboutDoctor.hasOwnProperty('language') && aboutDoctor?.language?.includes(e?.title) && 'language-chips'} border rounded-10px p-2 me-2 mb-2 h-100 cursor-pointer`} onClick={() => onLanguageClick(e?.title)}>
                             <div className='d-flex align-items-cnter fontroboto' style={{ lineHeight: 1.3 }}>
                                 {e?.title}
                                 <i className={`${aboutDoctor.hasOwnProperty('language') && aboutDoctor?.language?.includes(e?.title) ? 'icon-Cross' : 'icon-Add'} fs-18 ms-2`}></i>
