@@ -47,7 +47,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                     <div className='d-flex align-items-center justify-content-between'>
                         <div>
                             <img src={MedicalHistoryicon} alt="Medical History" className='me-3' />
-                            Medical History
+                            {isGynecHistoryAccessableFromGB ? `Gynec History` : `Medical History`}
                         </div>
                         {/* <a>
                             <img src={arrowright} alt="right" />
@@ -127,7 +127,15 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                         </div>
                                     </div>
                                 </div>
-                            </>
+                                <div className="my-2">
+                                    {gynecHistory.notes && (
+                                        <>
+                                            <span>Notes</span>
+                                            <div className='border rounded px-2'>{gynecHistory.notes}</div>
+                                        </>
+                                    )}
+                                </div>
+                                </>
                         }
                         {medicalHistoryData && medicalHistoryData.length > 0 ? (
                             medicalHistoryData?.map((e, i) => {
@@ -206,7 +214,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                             </div>
                         )}
                     </div>
-                    {medicalHistoryData && medicalHistoryData.length > 0 && (
+                    {(medicalHistoryData && medicalHistoryData.length > 0) || (gynecHistory && Object.keys(gynecHistory).length > 0) && (
                         <div className='py-2 text-center text-primary fw-medium cursor-pointer' onClick={manageExpand}>{isExpand ? 'View less' : 'View more'}</div>
                     )}
                 </div>

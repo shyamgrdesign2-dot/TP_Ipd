@@ -15,10 +15,10 @@ function TabGynecHistoryList(props) {
                     <div className="cardbody-data">
                         <div className="gynec-history-list">
                             {gynecHistory.lmp && (
-                                <div key="cycle" className="d-flex justify-content-between align-items-center my-2">
+                                <div key="lmp" className="d-flex justify-content-between align-items-center my-2">
                                     <div className="text-history font-roboto fw-medium">LMP</div>
                                     <div className="semicolon">:</div>
-                                    <div className="fontroboto text-history fw-normal">{gynecHistory.cycle}</div>
+                                    <div className="fontroboto text-history fw-normal">{new Date(gynecHistory.lmp).toISOString().split('T')[0]}</div>
                                 </div>
                             )}
                             {gynecHistory.cycle && (
@@ -96,6 +96,12 @@ function TabGynecHistoryList(props) {
                                     <div className="text-history font-roboto fw-medium">Menopause type</div>
                                     <div className="semicolon">:</div>
                                     <div className="fontroboto text-history fw-normal">{gynecHistory.typeOfMenopause}</div>
+                                </div>
+                            )}
+                             {gynecHistory.notes && (
+                                <div key="notes" className="my-2">
+                                    <div className="font-roboto fw-medium">Notes</div>
+                                    <div className="border rounded px-2">{gynecHistory.notes}</div>
                                 </div>
                             )}
                         </div>
