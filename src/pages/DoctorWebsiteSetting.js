@@ -39,11 +39,12 @@ function DoctorWebsiteSetting() {
     const [membership, setMembership] = useState([]);
     const [rewardRecognition, setRewardRecognition] = useState([]);
     const [socialLinks, setSocialLinks] = useState(null);
+    const [otherSettings, setOtherSettings] = useState(null);
 
     const [isVisible, setIsVisible] = useState();
     const [selectedMenu, setSelectedMenu] = useState(null);
 
-    const contextApi = { personalDetails, setPersonalDetails, aboutDoctor, setAboutDoctor, doctorExperience, setDoctorExperience, rewardRecognition, setRewardRecognition, membership, setMembership, socialLinks, setSocialLinks };
+    const contextApi = { personalDetails, setPersonalDetails, aboutDoctor, setAboutDoctor, doctorExperience, setDoctorExperience, rewardRecognition, setRewardRecognition, membership, setMembership, socialLinks, setSocialLinks, services, setServices, educationTraining, setEducationTraining, otherSettings, setOtherSettings };
 
 
     useEffect(() => {
@@ -59,16 +60,30 @@ function DoctorWebsiteSetting() {
             const copy_clinicProfile = JSON.parse(JSON.stringify([...websiteData.clinic_profile]))
             const copy_aboutDoctor = JSON.parse(JSON.stringify({ ...websiteData.about_doctor }))
             const copy_doctorExperience = JSON.parse(JSON.stringify([...websiteData.doctor_experience]))
-            const copy_services = JSON.parse(JSON.stringify([...websiteData.services]))
-            const copy_educationTraining = JSON.parse(JSON.stringify([...websiteData.education_training]))
 
-            const updatedData = websiteData?.membership?.map(e => {
+            const updatedServices = websiteData?.services?.map(e => {
                 return { ...e, unique_id: uuidv4() }
             })
-            const copy_membership = JSON.parse(JSON.stringify([...updatedData]))
+            const copy_services = JSON.parse(JSON.stringify([...updatedServices]))
+
+            const copy_educationTraining = JSON.parse(JSON.stringify([...websiteData.education_training]))
+
+            const updatedMembership = websiteData?.membership?.map(e => {
+                return { ...e, unique_id: uuidv4() }
+            })
+            const copy_membership = JSON.parse(JSON.stringify([...updatedMembership]))
 
             const copy_rewardRecognition = JSON.parse(JSON.stringify([...websiteData.reward_recognition]))
             const copy_socialLinks = JSON.parse(JSON.stringify({ ...websiteData.social_links }))
+
+            const copy_otherSettings = {
+                enable_doctor_experience: websiteData.enable_doctor_experience,
+                enable_services: websiteData.enable_services,
+                enable_education_training: websiteData.enable_education_training,
+                enable_membership: websiteData.enable_membership,
+                enable_reward_recognition: websiteData.enable_reward_recognition,
+                enable_social_links: websiteData.enable_social_links
+            };
 
             setPersonalDetails(copy_personalDetails);
             setClinicProfile(copy_clinicProfile);
@@ -79,6 +94,7 @@ function DoctorWebsiteSetting() {
             setMembership(copy_membership);
             setRewardRecognition(copy_rewardRecognition);
             setSocialLinks(copy_socialLinks);
+            setOtherSettings(copy_otherSettings);
         }
         makeData()
     }, [websiteData]);
@@ -92,6 +108,14 @@ function DoctorWebsiteSetting() {
         setIsVisible(!isVisible);
     }, [isVisible])
 
+    const onSwitchChange = useCallback(
+        (checked, key) => {
+            otherSettings[key] = checked ? 1 : 0;
+            setOtherSettings((prev) => { return { ...prev } });
+        },
+        [otherSettings]
+    );
+
     return (
         <DoctorWebsiteSettingsContext.Provider value={contextApi}>
             <>
@@ -101,7 +125,7 @@ function DoctorWebsiteSetting() {
                         <Col xl={8} sm={10} className="pe-3">
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                                 <div className="p-20">
-                                    <div className="ms-5 fontroboto">Website Setup Score</div>
+                                    <div className="ms-5 fontroboto" style={{ fontSize: window.innerWidth / 80 }}>Website Setup Score</div>
                                     <Progress className="profile-website-setting mb-1" size="small" percent={11} />
 
                                     {/* Personal Details */}
@@ -149,12 +173,14 @@ function DoctorWebsiteSetting() {
                                             <div className="d-flex align-items-center justify-content-between">
                                                 <div className="titleprint">Doctor Experience</div>
                                                 <div className="d-flex">
-                                                    <span className="fw-medium me-2 text-greycolor fs-16">Show</span>
+                                                    <span className="fw-medium me-2 text-greycolor fs-16">{otherSettings?.enable_doctor_experience ? 'Show' : ''}</span>
                                                 </div>
                                             </div>
                                             <div className="text-greycolor fontroboto">Your experience journey includes previous roles, locations, durations, and descriptions.</div>
                                         </div>
-                                        <Switch className="mt-2" defaultChecked />
+                                        <Switch className="mt-2"
+                                            checked={otherSettings?.enable_doctor_experience ? true : false}
+                                            onChange={(checked) => onSwitchChange(checked, 'enable_doctor_experience')} />
                                     </div>
 
                                     {/* Services */}
@@ -163,13 +189,15 @@ function DoctorWebsiteSetting() {
                                             <div className="d-flex align-items-center justify-content-between">
                                                 <div className="titleprint">Services</div>
                                                 <div className="d-flex">
-                                                    <span className="fw-medium me-2 text-greycolor fs-16">Show</span>
+                                                    <span className="fw-medium me-2 text-greycolor fs-16">{otherSettings?.enable_services ? 'Show' : ''}</span>
 
                                                 </div>
                                             </div>
                                             <div className="text-greycolor fontroboto">Include the services you provide to your patients.</div>
                                         </div>
-                                        <Switch className="mt-2" defaultChecked />
+                                        <Switch className="mt-2"
+                                            checked={otherSettings?.enable_services ? true : false}
+                                            onChange={(checked) => onSwitchChange(checked, 'enable_services')} />
                                     </div>
 
                                     {/* Education & Training */}
@@ -178,13 +206,15 @@ function DoctorWebsiteSetting() {
                                             <div className="d-flex align-items-center justify-content-between">
                                                 <div className="titleprint">Education & Training</div>
                                                 <div className="d-flex">
-                                                    <span className="fw-medium me-2 text-greycolor fs-16">Show</span>
+                                                    <span className="fw-medium me-2 text-greycolor fs-16">{otherSettings?.enable_education_training ? 'Show' : ''}</span>
 
                                                 </div>
                                             </div>
                                             <div className="text-greycolor fontroboto">A summary of the doctor's academic background, including degrees, institutions attended, and year of completion.</div>
                                         </div>
-                                        <Switch className="mt-2" defaultChecked />
+                                        <Switch className="mt-2"
+                                            checked={otherSettings?.enable_education_training ? true : false}
+                                            onChange={(checked) => onSwitchChange(checked, 'enable_education_training')} />
                                     </div>
 
                                     {/* Memberships */}
@@ -193,12 +223,14 @@ function DoctorWebsiteSetting() {
                                             <div className="d-flex align-items-center justify-content-between">
                                                 <div className="titleprint">Memberships</div>
                                                 <div className="d-flex">
-                                                    <span className="fw-medium me-2 text-greycolor fs-16">Show</span>
+                                                    <span className="fw-medium me-2 text-greycolor fs-16">{otherSettings?.enable_membership ? 'Show' : ''}</span>
                                                 </div>
                                             </div>
                                             <div className="text-greycolor fontroboto">Include the memberships you are associated with.</div>
                                         </div>
-                                        <Switch className="mt-2" defaultChecked />
+                                        <Switch className="mt-2"
+                                            checked={otherSettings?.enable_membership ? true : false}
+                                            onChange={(checked) => onSwitchChange(checked, 'enable_membership')} />
                                     </div>
 
                                     {/* Rewards & Recognition */}
@@ -207,12 +239,14 @@ function DoctorWebsiteSetting() {
                                             <div className="d-flex align-items-center justify-content-between">
                                                 <div className="titleprint">Rewards & Recognition</div>
                                                 <div className="d-flex">
-                                                    <span className="fw-medium me-2 text-greycolor fs-16">Show</span>
+                                                    <span className="fw-medium me-2 text-greycolor fs-16">{otherSettings?.enable_reward_recognition ? 'Show' : ''}</span>
                                                 </div>
                                             </div>
                                             <div className="text-greycolor fontroboto">Add your achievements, public acknowledgment or praise, such as awards, certificates, commendations, etc.</div>
                                         </div>
-                                        <Switch className="mt-2" defaultChecked />
+                                        <Switch className="mt-2"
+                                            checked={otherSettings?.enable_reward_recognition ? true : false}
+                                            onChange={(checked) => onSwitchChange(checked, 'enable_reward_recognition')} />
                                     </div>
 
                                     {/* Social Links */}
@@ -221,12 +255,15 @@ function DoctorWebsiteSetting() {
                                             <div className="d-flex align-items-center justify-content-between" onClick={() => handlePersonalDetails(9, 'Social Links')}>
                                                 <div className="titleprint">Social Links</div>
                                                 <div className="d-flex">
-                                                    <span className="fw-medium me-2 text-greycolor fs-16">Show</span>
+                                                    <span className="fw-medium me-2 text-greycolor fs-16">{otherSettings?.enable_social_links ? 'Show' : ''}</span>
                                                 </div>
                                             </div>
                                             <div className="text-greycolor fontroboto">Add your profile photo and social media profile links.</div>
                                         </div>
-                                        <Switch className="mt-2" defaultChecked />
+                                        <Switch
+                                            className="mt-2"
+                                            checked={otherSettings?.enable_social_links ? true : false}
+                                            onChange={(checked) => onSwitchChange(checked, 'enable_social_links')} />
                                     </div>
                                 </div>
                                 {isVisible &&

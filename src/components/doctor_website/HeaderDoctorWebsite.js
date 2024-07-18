@@ -9,7 +9,7 @@ function HeaderDoctorWebsite() {
 
     const navigate = useNavigate();
 
-    const { personalDetails, aboutDoctor, doctorExperience, rewardRecognition, socialLinks } = useContext(DoctorWebsiteSettingsContext);
+    const { personalDetails, aboutDoctor, doctorExperience, rewardRecognition, services, socialLinks, membership, educationTraining, otherSettings } = useContext(DoctorWebsiteSettingsContext);
 
     const items = [
         {
@@ -19,11 +19,15 @@ function HeaderDoctorWebsite() {
     ];
 
     async function onPublishWebsiteClick() {
-        console.log(personalDetails)
-        console.log(aboutDoctor)
-        console.log(doctorExperience)
-        console.log(rewardRecognition);
-        console.log(socialLinks);
+        console.log("personalDetails", personalDetails)
+        console.log("aboutDoctor", aboutDoctor)
+        console.log("doctorExperience", doctorExperience)
+        console.log("rewardRecognition", rewardRecognition);
+        console.log("membership", membership);
+        console.log("socialLinks" ,socialLinks);
+        console.log("services" ,services);
+        console.log("educationTraining", educationTraining);
+        console.log("otherSettings", otherSettings);
     }
 
     return (
