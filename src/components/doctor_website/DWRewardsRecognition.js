@@ -37,15 +37,22 @@ function DWRewardsRecognition() {
         [rewardRecognition]
     );
 
-
+    const onRemoveRow = (index) => {
+        rewardRecognition.splice(index, 1);
+        setRewardRecognition((prev) => { return [...prev] });
+    };
 
     const accordionItems = (e, i) => [
         {
-            key: '1',
+            key: `${i + 1}`,
             label:
                 <>
                     <div className="title-common">{`Rewards & Recognition ${i + 1}`}</div>
-                    <div className='fontroboto'>{'(Not Specified)'}</div>
+                    {(e?.title || e?.year) ? (
+                        <div className='fontroboto'>{`${Object.values(Object.fromEntries(Object.entries((({ title, year }) => ({ title, year }))(e)).filter(([_, v]) => v))).join(', ')}`}</div>
+                    ) : (
+                        <div className='fontroboto'>{'(Not Specified)'}</div>
+                    )}
                 </>,
             children:
                 <div className="rounded-20px">
@@ -55,7 +62,7 @@ function DWRewardsRecognition() {
                                 label="Title"
                                 className='fw-medium mb-20'>
                                 <Input placeholder="Add your achievements"
-                                    className="text-capitalize rounded-10px h-38"
+                                    className="rounded-10px h-38"
                                     value={e?.title}
                                     onChange={(e) => onChangeInput(e, 'title', i)}
                                 />
@@ -66,16 +73,14 @@ function DWRewardsRecognition() {
                                 <Select
                                     className="autocomplete-custom"
                                     placeholder="Year"
-                                    // options={yearList}
                                     options={yearsFromToCurrent(1990)}
                                     value={e?.year ? e?.year : null}
                                     onSelect={(e) => onSelect(e, 'year', i)}
-                                    allowClear
                                 />
                             </Form.Item>
                         </Form>
                     </div>
-                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3 align-items-center d-flex justify-content-center' disabled><i className='icon-delete fs-18 me-2'></i>Delete Experience</Button>
+                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3 align-items-center d-flex justify-content-center' onClick={() => onRemoveRow(i)}><i className='icon-delete fs-18 me-2'></i>Delete Experience</Button>
                 </div>,
         },
     ];
@@ -108,4 +113,4 @@ function DWRewardsRecognition() {
         </div>
     );
 }
-export default DWRewardsRecognition;
+export default React.memo(DWRewardsRecognition);

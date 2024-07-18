@@ -1,11 +1,13 @@
 import React, { useContext, useMemo, useCallback } from 'react';
 import { Button, Table, Switch, Input } from 'antd';
+import { v4 as uuidv4 } from 'uuid';
 import { DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
-import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 import { MenuOutlined } from '@ant-design/icons';
 import { CSS } from '@dnd-kit/utilities';
+
+import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
 const RowContext = React.createContext({});
 const DragHandle = () => {
@@ -66,7 +68,20 @@ function DWMembership() {
 
     const { membership, setMembership } = useContext(DoctorWebsiteSettingsContext);
 
-    const patientInfoTable = [
+    const onChangeInput = useCallback(
+        (e, key, i) => {
+            membership[i][key] = e.target.value;
+            setMembership((prev) => { return [...prev] });
+        },
+        [membership]
+    );
+
+    const onRemoveRow = (index) => {
+        membership.splice(index, 1);
+        setMembership((prev) => { return [...prev] });
+    };
+
+    const membershipTable = [
         {
             key: 'sort',
             colSpan: 2,
@@ -79,38 +94,25 @@ function DWMembership() {
             colSpan: 0,
             dataIndex: 'title',
             key: 'title',
-            render: (text, record) => (
-                <div>
-                    <Input placeholder="12"
-                        className="text-capitalize rounded-10px h-38"
-                        value={record.title}
-                    // onChange={(e) => onChangeInput(e, 'title')}
-                    />
-
-                </div>
-            ),
+            render: (text, record, i) =>
+                <Input placeholder="12"
+                    className="text-capitalize rounded-10px h-38"
+                    value={text}
+                    onChange={(e) => onChangeInput(e, 'title', i)} />
         },
         {
             dataIndex: 'enable',
             key: 'enable',
-            render: (text, record) =>
-                <i className="icon-delete"></i>
-
+            render: (text, record, i) => <i className="icon-delete" onClick={() => onRemoveRow(i)}></i>
         },
     ];
 
-    const onDragEndPatientInfo = ({ active, over }) => {
-        if (active.title !== over?.title) {
-            setMembership((prev) => {
-                const activeIndex = prev.membership.findIndex((i) => i.title === active.title);
-                const overIndex = prev.membership.findIndex((i) => i.title === over?.title);
-                return {
-                    ...prev,
-                    membership: {
-                        title: { ...prev.membership[0].title },
-
-                    }
-                };
+    const onDragEndMembership = ({ active, over }) => {
+        if (active.id !== over?.id) {
+            setMembership((previous) => {
+                const activeIndex = previous.findIndex((i) => i.unique_id === active.id);
+                const overIndex = previous.findIndex((i) => i.unique_id === over?.id);
+                return arrayMove(previous, activeIndex, overIndex);
             });
         }
     };
@@ -118,7 +120,8 @@ function DWMembership() {
     const addMemberShipClick = useCallback(
         () => {
             membership.push({
-                title: ''
+                title: '',
+                unique_id: uuidv4()
             })
             setMembership((prev) => { return [...prev] });
         },
@@ -130,31 +133,30 @@ function DWMembership() {
         <div className="bg-white overflow-auto" style={{ height: 'calc(100vh - 120px)' }}>
             <div className='p-20'>
                 <div className="text-greycolor fontroboto"> Include the memberships you are associated with.</div>
-                {membership.map((e, i) => {
-                    return (
-                        <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndPatientInfo}>
-                            <SortableContext
-                                // rowKey array
-                                items={membership.map((i) => i.title)}
-                                strategy={verticalListSortingStrategy}
-                            >
-                                <Table
-                                    className='customize-table table-display-patient'
-                                    pagination={false}
-                                    components={{
-                                        body: {
-                                            row: CustomRow,
-                                        },
-                                    }}
-                                    rowKey="id"
-                                    columns={patientInfoTable}
-                                    dataSource={membership}
-                                    showHeader={false}
-                                />
-                            </SortableContext>
-                        </DndContext>
-                    )
-                })}
+
+                <div className="mt-4">
+                    <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndMembership}>
+                        <SortableContext
+                            // rowKey array
+                            items={membership.map((i) => i.unique_id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            <Table
+                                className='customize-table table-display-patient'
+                                pagination={false}
+                                components={{
+                                    body: {
+                                        row: CustomRow,
+                                    },
+                                }}
+                                rowKey="unique_id"
+                                columns={membershipTable}
+                                dataSource={membership}
+                                showHeader={false}
+                            />
+                        </SortableContext>
+                    </DndContext>
+                </div>
 
                 <Button className='btn btn-input w-100 btn-41 d-flex align-items-center justify-content-center mt-3' onClick={addMemberShipClick} ><i className='icon-Add fs-18 me-2'></i>Add Service</Button>
             </div>
@@ -162,4 +164,4 @@ function DWMembership() {
     );
 }
 
-export default DWMembership;
+export default React.memo(DWMembership);

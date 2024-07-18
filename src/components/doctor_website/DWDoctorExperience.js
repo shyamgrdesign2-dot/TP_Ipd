@@ -261,7 +261,7 @@ function DWDoctorExperience() {
                             </Row>
                         </Form>
                     </div>
-                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3' onClick={() => onRemoveRow(i)}><i className='icon-delete fs-18 me-2'></i>Delete Experience</Button>
+                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3 align-items-center d-flex justify-content-center' onClick={() => onRemoveRow(i)}><i className='icon-delete fs-18 me-2'></i>Delete Experience</Button>
                 </div>,
         },
     ];
@@ -304,4 +304,4 @@ function DWDoctorExperience() {
     );
 }
 
-export default DWDoctorExperience;
+export default React.memo(DWDoctorExperience);

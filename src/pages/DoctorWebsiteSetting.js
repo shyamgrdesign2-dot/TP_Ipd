@@ -3,6 +3,7 @@ import { Col, Progress, Row, Switch } from "antd";
 import { isMobile } from "react-device-detect";
 import { useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { v4 as uuidv4 } from 'uuid';
 
 import DoctorWebsiteSettingsContext from '../context/DoctorWebsiteSettingsContext';
 
@@ -60,7 +61,12 @@ function DoctorWebsiteSetting() {
             const copy_doctorExperience = JSON.parse(JSON.stringify([...websiteData.doctor_experience]))
             const copy_services = JSON.parse(JSON.stringify([...websiteData.services]))
             const copy_educationTraining = JSON.parse(JSON.stringify([...websiteData.education_training]))
-            const copy_membership = JSON.parse(JSON.stringify([...websiteData.membership]))
+
+            const updatedData = websiteData?.membership?.map(e => {
+                return { ...e, unique_id: uuidv4() }
+            })
+            const copy_membership = JSON.parse(JSON.stringify([...updatedData]))
+
             const copy_rewardRecognition = JSON.parse(JSON.stringify([...websiteData.reward_recognition]))
             const copy_socialLinks = JSON.parse(JSON.stringify({ ...websiteData.social_links }))
 

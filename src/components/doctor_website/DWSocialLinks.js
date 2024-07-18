@@ -1,13 +1,16 @@
 import React, { useCallback, useContext } from 'react';
 import { Row, Col, Form, Input } from 'antd';
+
+import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
+
 import Facebook from '../../assets/images/fb-img.svg';
 import Instagram from '../../assets/images/instagram-img.svg';
 import Linkedin from '../../assets/images/linkedin-img.svg';
 import XIcon from '../../assets/images/x-img.svg';
 import Youtube from '../../assets/images/youtube-img.svg';
-import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
 function DWSocialLinks() {
+
     const { socialLinks, setSocialLinks } = useContext(DoctorWebsiteSettingsContext);
 
     const onChangeInput = useCallback(
@@ -45,10 +48,10 @@ function DWSocialLinks() {
                                 prefix={<img className='me-0'
                                     height={17.54}
                                     width={17.54}
-                                    src={Instagram}
-                                    alt="Instagram"
-                                    value={socialLinks?.instagram}
-                                    onChange={(e) => onChangeInput(e, 'instagram')} />} className="text-capitalize rounded-10px h-38" />
+                                    src={Instagram} alt="Instagram" />}
+                                className="text-capitalize rounded-10px h-38"
+                                value={socialLinks?.instagram}
+                                onChange={(e) => onChangeInput(e, 'instagram')} />
                         </Form.Item>
                     </Col>
                     <Col span={24} className='social'>
@@ -85,4 +88,4 @@ function DWSocialLinks() {
         </div>
     );
 }
-export default DWSocialLinks;
+export default React.memo(DWSocialLinks);
