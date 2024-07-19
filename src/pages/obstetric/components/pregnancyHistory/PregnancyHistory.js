@@ -158,7 +158,7 @@ const PregnancyHistory = ({ pregnancyHistory }) => {
 
   return (
     <div>
-      {pregnancyHistory.length ? (
+      {pregnancyHistory?.length ? (
         <div className="pregnancyHistoryContainer">
           {pregnancyHistory.map((gravidaItem, index) => {
             let columns = [];

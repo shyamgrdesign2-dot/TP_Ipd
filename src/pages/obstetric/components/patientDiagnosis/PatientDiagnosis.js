@@ -31,7 +31,7 @@ const maritalStatusOptions = [
 
 export default function PatientDiagnosis({ allObstetricDetails }) {
   const { gravidity, parity, livingChildren, abortion, ectopicPregnancies } =
-    allObstetricDetails;
+    allObstetricDetails || {};
   const [gestationWeeks, setGestationWeeks] = useState("");
   const [gestationDays, setGestationDays] = useState("");
   const [marriageDurationInYears, setMarriageDurationInYears] = useState("");
@@ -41,7 +41,7 @@ export default function PatientDiagnosis({ allObstetricDetails }) {
 
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
   const [diagnosisNotes, setDiagnosisNotes] = useState(
-    allObstetricDetails.diagnosisNotes
+    allObstetricDetails?.diagnosisNotes
   );
 
   const handleDrawerDiagnosisNotes = () => {

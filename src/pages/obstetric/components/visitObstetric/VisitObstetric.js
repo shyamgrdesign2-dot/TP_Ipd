@@ -4,58 +4,117 @@ import obstetricImg from "../../../../assets/images/obstetric-dark.svg";
 import { Card } from "react-bootstrap";
 import { Button } from "antd";
 import "./VisitObstetric.scss";
+import { fetchAllObstetricDetails } from "../../service";
+import moment from "moment";
 
-const mockData = {
-  Pallor: "Yes",
-  Oedema: "No",
-  "Mother's Weight": 70,
-  "Blood Pressure": "120/80 mmHg",
-  "Fundus Height": 80,
-  Presentation: "Breech",
-  "Fetal Heart Rate": "120 bpm",
-};
+const visitColumn = [
+  {
+    title: "Pallor",
+    key: "pallor",
+    siUnit: "",
+  },
+  {
+    title: "Oedema",
+    key: "oedema",
+    siUnit: "",
+  },
+  {
+    title: "Mother's BMI",
+    key: "mothersBMI",
+    siUnit: " kg/m2",
+  },
+  {
+    title: "Blood Pressure",
+    key: "bp",
+    siUnit: " mmHg",
+  },
+  {
+    title: "Fundus Height",
+    key: "heightOfFundus",
+    siUnit: " cm",
+  },
+  {
+    title: "Presentation",
+    key: "presentation",
+    siUnit: "",
+  },
+  {
+    title: "Fluid Index",
+    key: "fluidIndex",
+    siUnit: " cm",
+  },
+  {
+    title: "Fetal Heart Rate",
+    key: "foetalHeartRate",
+    siUnit: " bpm",
+  },
+];
 
 export default function VisitObstetric() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { patient_data } = state;
 
-  const [obstetricData, setObstetricData] = useState(mockData);
+  const [obstetricData, setObstetricData] = useState(visitColumn);
   const [viewMore, setViewMore] = useState(false);
+  const [previousVisit, setPreviousVisit] = useState({});
 
   useEffect(() => {
     if (viewMore) {
-      setObstetricData(mockData);
+      setObstetricData(visitColumn);
     } else {
-      const entries = Object.entries(obstetricData);
-      const firstThreeEntries = entries.slice(0, 3);
-      const firstThreeObject = Object.fromEntries(firstThreeEntries);
-      setObstetricData(firstThreeObject);
+      setObstetricData(visitColumn.slice(0, 3));
     }
   }, [viewMore]);
+
+  useEffect(() => {
+    getAllObstetricDetails();
+  }, []);
+
+  const getAllObstetricDetails = async () => {
+    const obstetricResponse = await fetchAllObstetricDetails(
+      patient_data.patient_unique_id
+    );
+    if (obstetricResponse?.examinationHistory?.[0]) {
+      setPreviousVisit(obstetricResponse.examinationHistory[0]);
+    }
+  };
 
   const measurementDetails = () => {
     return (
       <div className="detailContainer">
-        {Object.entries(obstetricData).map(([key, value], index) => (
-          <React.Fragment key={key}>
-            <div className="measurementItem">
-              <span className="key">{key}</span>
-              <span className="colon">:</span>
-              <span className="value">{value}</span>
-            </div>
-            {index !== Object.entries(obstetricData).length - 1 && (
-              <div className="dottedLineStyle" />
-            )}
-          </React.Fragment>
-        ))}
+        {obstetricData.map((visitItem, index) => {
+          let value =
+            visitItem.key === "bp"
+              ? previousVisit.systolic / previousVisit.diastolic
+              : typeof previousVisit[visitItem.key] === "boolean"
+              ? previousVisit[visitItem.key]
+                ? "Yes"
+                : "No"
+              : previousVisit[visitItem.key];
+          if (value) {
+            value += visitItem.siUnit;
+            return (
+              <React.Fragment key={index}>
+                <div className="measurementItem">
+                  <span className="key">{visitItem.title}</span>
+                  <span className="colon">:</span>
+                  <span className="value">{value}</span>
+                </div>
+                {index !== Object.entries(obstetricData).length - 1 && (
+                  <div className="dottedLineStyle" />
+                )}
+              </React.Fragment>
+            );
+          }
+        })}
       </div>
     );
   };
 
   return (
     <>
-      {!Object.keys(obstetricData)?.length ? null : (
+      {!Object.keys(previousVisit)?.length ? null : (
         <div className="appointment-wrap PatientDetailswrap m-0">
           <Card>
             <Card.Header className="bg-white py-3">
@@ -90,10 +149,21 @@ export default function VisitObstetric() {
             <div className="visitBody overflow-auto visitObstetricContainer">
               <div className="rowContainer">
                 <span className="previousText">Previous visit</span>
-                <span className="updatedText">Updated on : 20 May 2024</span>
+                <span className="updatedText">
+                  {previousVisit.createdAt
+                    ? "Updated on : " +
+                      moment(previousVisit.createdAt).format("DD MMM YYYY")
+                    : ""}
+                </span>
               </div>
               <div>6th Month</div>
               {measurementDetails()}
+              <div
+                className="cardbody-data mt-2 border visitItem"
+                style={{ borderRadius: "8px", padding: "16px" }}
+              >
+                {previousVisit.notes}
+              </div>
             </div>
             <Card.Footer
               className="bg-white py-3 viewLessOrMore"

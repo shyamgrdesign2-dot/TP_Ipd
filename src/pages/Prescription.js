@@ -156,6 +156,7 @@ function Prescription() {
   const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
     patient_data?.ageYears
   );
+  const { examinationHistory = [] } = allObstetricDetails || {};
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(patient_data.patient_unique_id);
@@ -586,18 +587,18 @@ function Prescription() {
                   >
                     <i
                       className={`${
-                        obsVisitData.length > 0
+                        examinationHistory.length > 0
                           ? "icon-Edit"
                           : "icon-Add"
                       } me-1 fs-5`}
                     ></i>
                     <span>{`${
-                      obsVisitData.length > 0 ? "Edit" : "Add"
+                      examinationHistory.length > 0 ? "Edit" : "Add"
                     }`}</span>
                   </button>
                 </div>
-                {obsVisitData?.length > 0 && (
-                  <ObstetricList obsVisitData={obsVisitData} />
+                {examinationHistory?.length > 0 && (
+                  <ObstetricList examinationHistory={examinationHistory} />
                 )}
               </div>
 

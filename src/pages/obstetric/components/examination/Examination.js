@@ -1,36 +1,8 @@
 import { Button } from "antd";
-import { EditOutlined } from "@ant-design/icons";
 import "./../pregnancyHistory/PregnancyHistory.scss";
 import examination from "../../../../assets/images/obs-examination.svg";
 import "./Examination.scss";
 import moment from "moment";
-
-const examinationData = [
-  {
-    date: "1 May 2024",
-    pallor: "Yes",
-    oedema: "No",
-    mothersWeight: 65,
-    systolic: 130,
-    diastolic: 82,
-    heightOfFundus: 70,
-    presentation: "Breech",
-    foetalHeartRate: "120 bpm",
-    note: "Normal",
-  },
-  {
-    date: "3 Jul 2024",
-    pallor: "Yes",
-    oedema: "No",
-    mothersWeight: 70,
-    systolic: 120,
-    diastolic: 80,
-    heightOfFundus: 80,
-    presentation: "Breech",
-    foetalHeartRate: "120 bpm",
-    note: "Temperature is high",
-  },
-];
 
 const columns = [
   {
@@ -42,12 +14,12 @@ const columns = [
     key: "pallor",
   },
   {
-    title: "Oedema",
-    key: "oedema",
+    title: "BMI",
+    key: "mothersBMI",
   },
   {
-    title: "Mother's Weight",
-    key: "mothersWeight",
+    title: "Oedema",
+    key: "oedema",
   },
   {
     title: "BP",
@@ -60,6 +32,10 @@ const columns = [
   {
     title: "Presentation",
     key: "presentation",
+  },
+  {
+    title: "Fluid Index",
+    key: "fluidIndex",
   },
   {
     title: "Fetal Heart Rate",
@@ -114,6 +90,7 @@ const Examination = ({ examinationHistory }) => {
         </td>
         <td className="obstetricTcell">{item.heightOfFundus + " cm"}</td>
         <td className="obstetricTcell">{item.presentation}</td>
+        <td className="obstetricTcell">{item.fluidIndex}</td>
         <td className="obstetricTcell">{item.foetalHeartRate + " BPM"}</td>
         <td className="obstetricTcell">{item.notes}</td>
         <td className="obstetricTcell">
@@ -127,7 +104,7 @@ const Examination = ({ examinationHistory }) => {
   };
   return (
     <div>
-      {examinationHistory.length ? (
+      {examinationHistory?.length ? (
         <>
           <div className="examinationTableViewContainer">
             <table className="tableView">
@@ -154,7 +131,7 @@ const Examination = ({ examinationHistory }) => {
           </div>
           <Button
             type="button"
-            className="btn-41 btn ant-btn-text btn-input addBtn"
+            className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between"
             style={{
               width: "180px",
             }}
