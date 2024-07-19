@@ -200,7 +200,7 @@ function DWClinicProfile() {
                                             className='fw-medium mb-20'>
                                             <Input placeholder="Copy and paste your clinic address link" className="text-capitalize rounded-10px h-38"
                                                 value={e?.address?.google_map}
-                                                onChange={(e) => onChangeAddressInput(e, 'address', i)} />
+                                                onChange={(e) => onChangeAddressInput(e, 'google_map', i)} />
                                         </Form.Item>
                                     </Col>
                                 </Row>
