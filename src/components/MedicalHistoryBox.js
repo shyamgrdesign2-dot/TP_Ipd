@@ -905,11 +905,9 @@ function MedicalHistoryBox(props) {
 
     const [selectedDate, setSelectedDate] = useState(null);
     useEffect(() => {
-        if (gynecHistory?.lmp) {
-            // dayjs(moment(gynecHistory.lmp).format(showDateFormat), showDateFormat)
-            setSelectedDate(formatDate(gynecHistory.lmp))
-            // setSelectedDate(moment(gynecHistory.lmp).format(showDateFormat));
-        }
+      if (gynecHistory?.lmp) {
+        setSelectedDate(moment(gynecHistory.lmp).format(showDateFormat));
+      }
     }, [gynecHistory]);
 
     return (
@@ -944,23 +942,24 @@ function MedicalHistoryBox(props) {
                                         <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 61px)' }}>
                                             <div className="border-bottom px-4 pt-3 pb-2">
                                                     <div className="d-flex align-items-center lmp-gynec">
-                                                        <Form.Item name="lmp"  style={{marginBottom:"0px"}} label="Last menstrual period">
-                                                            <DatePicker 
-                                                                style = {{border:"1px solid #fff", borderRadius:"18px"}}
-                                                                // ref={datePickerRef} 
-                                                                // placeholder={showDateFormat.toLowerCase()}
-                                                                // defaultValue={selectedDate}
-                                                                value={selectedDate}
-                                                                format={showDateFormat}
-                                                                // format={{
-                                                                //     format: showDateFormat,
-                                                                //     type: 'mask',
-                                                                // }}
-                                                                onChange={onDateChanged} 
-                                                                disabledDate={disabledDate}
-                                                            />
-                                                        </Form.Item>
-                                                </div>
+                                                        <label className="pe-3">Last menstrual period :</label>
+                                                        <DatePicker
+                                                            style={{
+                                                            border: "1px solid #fff",
+                                                            borderRadius: "18px",
+                                                            }}
+                                                            placeholder={"Select Date"}
+                                                            value={
+                                                            selectedDate
+                                                                ? dayjs(selectedDate, "DD-MM-YYYY")
+                                                                : ""
+                                                            }
+                                                            format={showDateFormat}
+
+                                                            onChange={onDateChanged}
+                                                            disabledDate={disabledDate}
+                                                        />
+                                                    </div>
                                             </div>
 
                                             <div className="border-bottom px-4 pt-3 pb-2">
