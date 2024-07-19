@@ -597,9 +597,9 @@ body {
             }
             &.history-active {
                 border-color: $theme;
-                span {
-                    background-color: #D1F1E4;
-                    color: #19BB7A !important;
+                background: rgba(75, 74, 213, 0.08) !important;
+                div {
+                    color:  #4B4AD5 !important;
                 }
             }
             &.history-selected {
@@ -628,6 +628,7 @@ body {
         font-weight: 500;
         line-height: normal;
         letter-spacing: 0.1px;
+        width: 75%;
     }
     // rightside drawer css
     .ant-drawer-open {

@@ -14,7 +14,7 @@ import { errorMessage } from '../utils/utils';
 function MedicalHistory({ loading, medicalHistoryData }) {
 
     const [isExpand, setIsExpand] = useState(false);
-    const [gynecHistory, setGynecHistory] = useState(null);
+    const [gynecHistory, setGynecHistory] = useState({});
 
     const { state } = useLocation();
     const { patient_data } = state
@@ -56,21 +56,27 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                 </Card.Header>
                 <div className='p-3'>
                     <div className={`${!isExpand ? 'overflow-hidden' : 'overflow-auto'}`} style={{ height: isExpand ? 529 : 190 }}>
-                        { gynecHistory  && isGynecHistoryAccessableFromGB &&
+                        {(gynecHistory && Object.keys(gynecHistory).length > 2) && isGynecHistoryAccessableFromGB ? (
                             <>
                                 <div className="fw-semibold">Menstrual Details</div>
                                 <div className="cardbody-data border rounded px-2 my-2">
                                     <div className="my-2">
                                         {gynecHistory.lmp && (
-                                            <><span>LMP</span> : <label>{new Date(gynecHistory.lmp).toISOString().split('T')[0]}</label></>
+                                            <>
+                                                <span>LMP</span> : <label>{new Date(gynecHistory.lmp).toISOString().split('T')[0]}</label>
+                                            </>
                                         )}
                                     </div>
                                     <div className="my-2">
                                         {gynecHistory.cycle && (
-                                            <><span>Cycle</span> : <label>{gynecHistory.cycle}</label> | </>
+                                            <>
+                                                <span>Cycle</span> : <label>{gynecHistory.cycle}</label> | 
+                                            </>
                                         )}
                                         {gynecHistory.intervalOfCycle && (
-                                            <><span>Cycle Interval</span> : <label>{gynecHistory.intervalOfCycle}</label> | </>
+                                            <>
+                                                <span>Cycle Interval</span> : <label>{gynecHistory.intervalOfCycle}</label> | 
+                                            </>
                                         )}
                                         {gynecHistory.flow && (
                                             <>
@@ -86,12 +92,12 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                         )}
                                         {gynecHistory.clots !== undefined && (
                                             <>
-                                                <span> Clots</span> : <label>{gynecHistory.clots ? 'Yes' : 'No'}</label> |
+                                                <span>Clots</span> : <label>{gynecHistory.clots ? 'Yes' : 'No'}</label> |
                                             </>
                                         )}
                                         {gynecHistory.numberOfPadsPerDay && (
                                             <>
-                                                <span> Pads per day</span> : <label>{gynecHistory.numberOfPadsPerDay}</label> |
+                                                <span>Pads per day</span> : <label>{gynecHistory.numberOfPadsPerDay}</label> |
                                             </>
                                         )}
                                     </div>
@@ -103,7 +109,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                         )}
                                         {gynecHistory.occurrenceOfPain && (
                                             <>
-                                                <span> Occurrence</span> : <label>{gynecHistory.occurrenceOfPain}</label> |
+                                                <span>Occurrence</span> : <label>{gynecHistory.occurrenceOfPain}</label> |
                                             </>
                                         )}
                                     </div>
@@ -115,16 +121,14 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                         )}
                                         {gynecHistory.ageAtMenopause && (
                                             <>
-                                                <span> Menopause at</span> : <label>{gynecHistory.ageAtMenopause}</label>
+                                                <span>Menopause at</span> : <label>{gynecHistory.ageAtMenopause}</label>
                                             </>
                                         )}
-                                        <div className="my-2">
-                                            {gynecHistory.typeOfMenopause && (
-                                                <>
-                                                    <span> Menopause type</span> : <label>{gynecHistory.typeOfMenopause}</label>
-                                                </>
-                                            )}
-                                        </div>
+                                        {gynecHistory.typeOfMenopause && (
+                                            <>
+                                                <span>Menopause type</span> : <label>{gynecHistory.typeOfMenopause}</label>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="my-2">
@@ -135,70 +139,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                         </>
                                     )}
                                 </div>
-                                </>
-                        }
-                        {medicalHistoryData && medicalHistoryData.length > 0 ? (
-                            medicalHistoryData?.map((e, i) => {
-                                return (
-                                    (e?.no_know_history || e?.tags?.length > 0) && (
-                                        <>
-                                            <div className={`fw-semibold ${i !== 0 && 'pt-2'}`}>{e?.title}</div>
-                                            {!e?.no_know_history ? (
-                                                <div className="cardbody-data">
-                                                    {e?.tags?.filter(x => x.enable == 'Y').length > 0 && (
-                                                        <div className='border rounded px-2 my-2'>
-                                                            {e?.tags?.filter(x => x.enable == 'Y')?.map((e1, i1) => {
-                                                                return (
-                                                                    <>
-                                                                        <div key={Math.random()} className='my-2'>
-                                                                            <span>Issue</span> : <label>{e1?.title}</label>
-                                                                            {e1?.since && (
-                                                                                <> | <span>Since</span> : <label>{e1?.since}</label></>
-                                                                            )}
-                                                                            {e?.tmmhs_id != 3 && (
-                                                                                <>
-                                                                                    {e1?.status && (
-                                                                                        <> | <span>Status</span> : <label>{e1?.status}</label></>
-                                                                                    )}
-                                                                                    {e1?.medication && (
-                                                                                        <> | <span>Medication</span> : <label>{e1?.medication}</label></>
-                                                                                    )}
-                                                                                </>
-                                                                            )}
-                                                                            {e?.tmmhs_id == 3 && e1?.relationship && (
-                                                                                <> | <span>Relationship</span> : <label>{e1?.relationship}</label></>
-                                                                            )}
-                                                                        </div>
-                                                                        {e1?.note && (
-                                                                            <div key={Math.random()} className='my-2'>
-                                                                                <span>Note</span> : <label>{e1?.note}</label>
-                                                                            </div>
-                                                                        )}
-                                                                    </>
-
-                                                                )
-                                                            })}
-                                                        </div>
-                                                    )}
-                                                    {e?.tags?.filter(x => x.enable == 'N').length > 0 && (
-                                                        <div className='border rounded px-2 my-2'>
-                                                            {e?.tags?.filter(x => x.enable == 'N')?.map((e1, i1) => {
-                                                                return (
-                                                                    <div key={Math.random()} className='my-2'>
-                                                                        <label>{`No ${e1?.title}`}</label>
-                                                                    </div>
-                                                                )
-                                                            })}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <div className="fontroboto border rounded p-2 my-2 text-history fw-normal">{`No known history`}</div>
-                                            )}
-                                        </>
-                                    )
-                                )
-                            })
+                            </>
                         ) : (
                             <div className='d-flex flex-column justify-content-center' style={{ minHeight: "190px" }}>
                                 {loading ? (
@@ -208,14 +149,77 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                 ) : (
                                     <div className='align-items-center text-center'>
                                         <img src={heartBeat} width={57} height={52} alt="No vital & body composition saved for the patient!" />
-                                        <p className='mt-4 fontroboto'>No Medical History saved <br /> for the patient!</p>
+                                        <p className='mt-4 fontroboto'>
+                                            No {isGynecHistoryAccessableFromGB ? 'Gynec' : 'Medical'} History saved <br /> for the patient!
+                                        </p>
                                     </div>
                                 )}
                             </div>
                         )}
+
+                        {medicalHistoryData && medicalHistoryData.length > 0 && (
+                            medicalHistoryData.map((e, i) => {
+                                return (
+                                    (e.no_know_history || e.tags?.length > 0) && (
+                                        <div key={i}>
+                                            <div className={`fw-semibold ${i !== 0 && 'pt-2'}`}>{e.title}</div>
+                                            {!e.no_know_history ? (
+                                                <div className="cardbody-data">
+                                                    {e.tags.filter(x => x.enable === 'Y').length > 0 && (
+                                                        <div className='border rounded px-2 my-2'>
+                                                            {e.tags.filter(x => x.enable === 'Y').map((e1, i1) => (
+                                                                <div key={i1} className='my-2'>
+                                                                    <span>Issue</span> : <label>{e1.title}</label>
+                                                                    {e1.since && (
+                                                                        <> | <span>Since</span> : <label>{e1.since}</label></>
+                                                                    )}
+                                                                    {e.tmmhs_id !== 3 && (
+                                                                        <>
+                                                                            {e1.status && (
+                                                                                <> | <span>Status</span> : <label>{e1.status}</label></>
+                                                                            )}
+                                                                            {e1.medication && (
+                                                                                <> | <span>Medication</span> : <label>{e1.medication}</label></>
+                                                                            )}
+                                                                        </>
+                                                                    )}
+                                                                    {e.tmmhs_id === 3 && e1.relationship && (
+                                                                        <> | <span>Relationship</span> : <label>{e1.relationship}</label></>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                            {e.tags.filter(x => x.enable === 'Y').map((e1, i1) => (
+                                                                e1.note && (
+                                                                    <div key={i1} className='my-2'>
+                                                                        <span>Note</span> : <label>{e1.note}</label>
+                                                                    </div>
+                                                                )
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                    {e.tags.filter(x => x.enable === 'N').length > 0 && (
+                                                        <div className='border rounded px-2 my-2'>
+                                                            {e.tags.filter(x => x.enable === 'N').map((e1, i1) => (
+                                                                <div key={i1} className='my-2'>
+                                                                    <label>{`No ${e1.title}`}</label>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="fontroboto border rounded p-2 my-2 text-history fw-normal">{`No known history`}</div>
+                                            )}
+                                        </div>
+                                    )
+                                );
+                            })
+                        )}
                     </div>
-                    {(medicalHistoryData && medicalHistoryData.length > 0) || (gynecHistory && Object.keys(gynecHistory).length > 0) && (
-                        <div className='py-2 text-center text-primary fw-medium cursor-pointer' onClick={manageExpand}>{isExpand ? 'View less' : 'View more'}</div>
+                    {((medicalHistoryData && medicalHistoryData.length > 0) || (gynecHistory && Object.keys(gynecHistory).length > 2)) && (
+                        <div className='py-2 text-center text-primary fw-medium cursor-pointer' onClick={manageExpand}>
+                            {isExpand ? 'View less' : 'View more'}
+                        </div>
                     )}
                 </div>
             </Card>
