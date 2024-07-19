@@ -1,9 +1,63 @@
 import React, { useState, useEffect } from "react";
 import { Button, Collapse, Divider } from "antd";
 import ReadMore from "../../../../common/ReadMore";
+import "./ObstetricList.scss";
+
+const obstetricColumns = [
+  {
+    title: "Pallor",
+    key: "pallor",
+    siUnit: "",
+  },
+  {
+    title: "Oedema",
+    key: "oedema",
+    siUnit: "",
+  },
+  {
+    title: "BMI",
+    key: "mothersBMI",
+    siUnit: " kg/m2",
+  },
+  {
+    title: "Systolic",
+    key: "systolic",
+    siUnit: " mmHg",
+  },
+  {
+    title: "Diastolic",
+    key: "diastolic",
+    siUnit: " mmHg",
+  },
+  {
+    title: "Fundus",
+    key: "heightOfFundus",
+    siUnit: " cm",
+  },
+  {
+    title: "Presentation",
+    key: "presentation",
+    siUnit: "",
+  },
+  {
+    title: "Fluid Index",
+    key: "fluidIndex",
+    siUnit: " cm",
+  },
+  {
+    title: "FHR",
+    key: "foetalHeartRate",
+    siUnit: " bpm",
+  },
+  {
+    title: "Notes",
+    key: "notes",
+    siUnit: "",
+  },
+];
 
 const TabObstetricList = ({
-  obsVisitData,
+  examinationHistory,
   handleCollapsed,
   handleDrawerObstetric,
 }) => {
@@ -11,70 +65,81 @@ const TabObstetricList = ({
 
   const measurementDetails = (obsVisit) => {
     return (
-      <div style={{ display: "flex", flexDirection: "column", rowGap: "10px" }}>
-        {Object.entries(obsVisit).map(([key, value]) => (
-          <React.Fragment key={key}>
-            <div
-              style={{
-                fontSize: "14px",
-                fontWeight: "500",
-                display: "flex",
-                justifyContent: "space-between",
-                position: "relative",
-              }}
-            >
-              <span>{key}</span>
-              <span style={{ position: "absolute", left: "52%" }}>
-                {key !== "Notes" ? ":" : ""}
-              </span>
-              <span style={{ fontWeight: "400" }}>{value}</span>
-            </div>
-          </React.Fragment>
-        ))}
+      <div style={{ display: "flex", flexDirection: "column", rowGap: "16px" }}>
+        {obstetricColumns.map((visitItem, index) => {
+          let value =
+            typeof obsVisit[visitItem.key] === "boolean"
+              ? obsVisit[visitItem.key]
+                ? "Yes"
+                : "No"
+              : obsVisit[visitItem.key];
+          if (value) {
+            value += visitItem.siUnit;
+            return (
+              <React.Fragment key={index}>
+                <div
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    position: "relative",
+                    flexDirection: visitItem.key === "notes" ? "column" : "",
+                  }}
+                >
+                  <span className="key">{visitItem.title}</span>
+                  <span style={{ position: "absolute", left: "52%" }}>
+                    {visitItem.key !== "notes" ? ":" : ""}
+                  </span>
+
+                  {visitItem.key === "notes" ? (
+                    <div
+                      className="cardbody-data mt-2 border visitItem"
+                      style={{
+                        borderRadius: "8px",
+                        padding: "5px 15px",
+                      }}
+                    >
+                      <ReadMore text={value} textLimit={60} textSize={12} />
+                    </div>
+                  ) : (
+                    <span style={{ fontWeight: "400" }}>{value}</span>
+                  )}
+                </div>
+              </React.Fragment>
+            );
+          }
+        })}
       </div>
     );
   };
 
   useEffect(() => {
-    const data = obsVisitData?.map((obsVisit, i) => ({
+    const data = examinationHistory?.map((obsVisit, i) => ({
       key: `${i + 1}`,
       label: (
-        <div className="fw-semibold" style={{ background: "#FAFAFB " }}>
-          {`Visit ${i + 1}`}
+        <div className="fw-semibold obstetricAccordianTitle">
+          {`Visit ${examinationHistory.length - i}`}
         </div>
       ),
       content: (
-        <div style={{ background: "#FAFAFB" }}>
-          <div
-            className="cardbody-data mt-2"
-            style={{
-              borderRadius: "8px",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            {measurementDetails(obsVisit)}
-          </div>
-          <div
-            className="cardbody-data mt-2 border visitItem"
-            style={{
-              borderRadius: "8px",
-              padding: "5px 15px",
-            }}
-          >
-            <ReadMore
-              text={`TatvaCare is a digital system that empowers both  and individuals with chronic conditions to create
-              healthy habits leading to positive health outcomes.`}
-              textLimit={60}
-              textSize={12}
-            />
-          </div>
+        <div
+          className="cardbody-data mt-3"
+          style={{
+            borderRadius: "8px",
+            display: "flex",
+            flexDirection: "column",
+            background: "#FAFAFB",
+            paddingBottom: "0px",
+          }}
+        >
+          {measurementDetails(obsVisit)}
         </div>
       ),
     }));
 
     setAccordionItems(data);
-  }, [obsVisitData]);
+  }, [examinationHistory]);
 
   return (
     <>
@@ -106,7 +171,7 @@ const TabObstetricList = ({
           >
             <Collapse
               defaultActiveKey={["1"]}
-              className="prescriptiontab-accordian history-sider-box history-sider-box-white"
+              className="prescriptiontab-accordian history-sider-box history-sider-box-white obstetricAccordian"
               expandIconPosition={"end"}
             >
               {accordionItems.map((item, index) => (

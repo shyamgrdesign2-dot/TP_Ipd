@@ -6,6 +6,7 @@ import { Button } from "antd";
 import "./VisitObstetric.scss";
 import { fetchAllObstetricDetails } from "../../service";
 import moment from "moment";
+import { getOrdinalSuffix } from "../../../growthChart/growthChartHelper";
 
 const visitColumn = [
   {
@@ -58,6 +59,12 @@ export default function VisitObstetric() {
   const [obstetricData, setObstetricData] = useState(visitColumn);
   const [viewMore, setViewMore] = useState(false);
   const [previousVisit, setPreviousVisit] = useState({});
+
+  const currentDate = moment();
+  const visitDate = moment(previousVisit.createdAt);
+  const visitedMonth = getOrdinalSuffix(
+    currentDate.diff(visitDate, "months") + 1
+  );
 
   useEffect(() => {
     if (viewMore) {
@@ -151,19 +158,20 @@ export default function VisitObstetric() {
                 <span className="previousText">Previous visit</span>
                 <span className="updatedText">
                   {previousVisit.createdAt
-                    ? "Updated on : " +
-                      moment(previousVisit.createdAt).format("DD MMM YYYY")
+                    ? "Updated on : " + visitDate.format("DD MMM YYYY")
                     : ""}
                 </span>
               </div>
-              <div>6th Month</div>
+              <div>{visitedMonth} Month</div>
               {measurementDetails()}
-              <div
-                className="cardbody-data mt-2 border visitItem"
-                style={{ borderRadius: "8px", padding: "16px" }}
-              >
-                {previousVisit.notes}
-              </div>
+              {previousVisit.notes.length ? (
+                <div
+                  className="cardbody-data mt-2 border visitItem"
+                  style={{ borderRadius: "8px", padding: "16px" }}
+                >
+                  {previousVisit.notes}
+                </div>
+              ) : null}
             </div>
             <Card.Footer
               className="bg-white py-3 viewLessOrMore"

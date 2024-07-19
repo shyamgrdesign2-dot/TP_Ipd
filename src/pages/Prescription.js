@@ -48,40 +48,6 @@ import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
 import { fetchAllObstetricDetails } from "./obstetric/service";
 
-const obsVisitData = [
-  {
-    title: "Visit 3",
-    Pallor: "Yes",
-    Oedema: "No",
-    "Mother's Weight": 70,
-    "Blood Pressure": "120/80 mmHg",
-    "Fundus Height": 80,
-    Presentation: "Breech",
-    "Fetal Heart Rate": "120 bpm",
-  },
-  {
-    title: "Visit 2",
-    Pallor: "Yes",
-    Oedema: "No",
-    "Mother's Weight": 70,
-    "Blood Pressure": "120/80 mmHg",
-    "Fundus Height": 80,
-    Presentation: "Breech",
-    "Fetal Heart Rate": "120 bpm",
-  },
-  {
-    title: "Visit 1",
-    Pallor: "Yes",
-    Oedema: "No",
-    "Mother's Weight": 70,
-    "Blood Pressure": "120/80 mmHg",
-    "Fundus Height": 80,
-    Presentation: "Breech",
-    "Fetal Heart Rate": "120 bpm",
-  },
-];
-
-
 function Prescription() {
   const {
     customizedPadLeftList,

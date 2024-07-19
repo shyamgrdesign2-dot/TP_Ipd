@@ -53,45 +53,7 @@ import { viewPatient } from "../../redux/appointmentsSlice";
 import { useAccess } from "../vaccination/useAccess";
 import Obstetric from "../obstetric/Obstetric";
 import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
-
-const obsVisitData = [
-  {
-    Pallor: "Yes",
-    Oedema: "No",
-    BMI: "22.2 Kg/m2",
-    Systolic: "120 mmHg",
-    Diastolic: "80 mmHg",
-    Fundus: 80,
-    Presentation: "Breech",
-    "Fluid index": "23 cm",
-    FHR: "120 bpm",
-    Notes: "",
-  },
-  {
-    Pallor: "Yes",
-    Oedema: "No",
-    BMI: "22.2 Kg/m2",
-    Systolic: "120 mmHg",
-    Diastolic: "80 mmHg",
-    Fundus: 80,
-    Presentation: "Breech",
-    "Fluid index": "23 cm",
-    FHR: "120 bpm",
-    Notes: "",
-  },
-  {
-    Pallor: "Yes",
-    Oedema: "No",
-    BMI: "22.2 Kg/m2",
-    Systolic: "120 mmHg",
-    Diastolic: "80 mmHg",
-    Fundus: 80,
-    Presentation: "Breech",
-    "Fluid index": "23 cm",
-    FHR: "120 bpm",
-    Notes: "",
-  },
-];
+import { fetchAllObstetricDetails } from "../obstetric/service";
 
 function TabPrescription() {
   const {
@@ -128,9 +90,11 @@ function TabPrescription() {
   const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
   const [obstetricDrawer, setObstetricDrawer] = useState(false);
   const [isGrowthChart, setIsGrowthChart] = useState(false);
+  const [allObstetricDetails, setAllObstetricDetails] = useState(null);
   const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
+  const { examinationHistory = [] } = allObstetricDetails || {};
 
   const contextApi = {
     patient_data,
@@ -170,11 +134,19 @@ function TabPrescription() {
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
 
+  const getAllObstetricDetails = async () => {
+    const obstetricResponse = await fetchAllObstetricDetails(patient_data.patient_unique_id);
+    if (obstetricResponse) {
+      setAllObstetricDetails(obstetricResponse);
+    }
+  }
+
   useEffect(() => {
     const sendData = {
       patient_unique_id: patient_data?.patient_unique_id,
     };
     dispatch(viewPatient(sendData));
+    getAllObstetricDetails();
   }, []);
 
   useEffect(() => {
@@ -595,7 +567,7 @@ function TabPrescription() {
                         type="button"
                         className="mb-3 text-center btn btn-action"
                         style={{padding: "0px"}}
-                        onClick={() => obsVisitData.length === 0 ? handleDrawerObstetric : openCollapsed(6)}
+                        onClick={() => examinationHistory.length === 0 ? handleDrawerObstetric : openCollapsed(6)}
                       >
                         <div
                           className={`prescription-tab-button rounded-10px ${
@@ -674,7 +646,7 @@ function TabPrescription() {
                   />
               ) : collapsedFlag === 6 && (
                 <TabObstetricList
-                  obsVisitData={obsVisitData}
+                  examinationHistory={examinationHistory}
                   handleCollapsed={() => setCollapsed(!collapsed)}
                   handleDrawerObstetric={handleDrawerObstetric} />
               )}
@@ -798,7 +770,7 @@ function TabPrescription() {
             width="100%"
             push={false}
           >
-            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
+            <Obstetric handleDrawerObstetric={handleDrawerObstetric} allObstetricDetails={allObstetricDetails} />
           </Drawer>
         )}
       </>

@@ -8,46 +8,57 @@ const columns = [
   {
     title: "Visits",
     key: "date",
+    width: "20%",
   },
   {
     title: "Pallor",
     key: "pallor",
-  },
-  {
-    title: "BMI",
-    key: "mothersBMI",
+    width: "5%",
   },
   {
     title: "Oedema",
     key: "oedema",
+    width: "5%",
+  },
+  {
+    title: "BMI",
+    key: "mothersBMI",
+    width: "8%",
   },
   {
     title: "BP",
     key: "bp",
+    width: "8%",
   },
   {
     title: "Fundus Height",
     key: "heightOfFundus",
+    width: "8%",
   },
   {
     title: "Presentation",
     key: "presentation",
+    width: "8%",
   },
   {
     title: "Fluid Index",
     key: "fluidIndex",
+    width: "8%",
   },
   {
     title: "Fetal Heart Rate",
     key: "foetalHeartRate",
+    width: "10%",
   },
   {
     title: "Note",
     key: "note",
+    width: "27%",
   },
   {
     title: "Action",
     key: "action",
+    width: "5%",
   },
 ];
 
@@ -84,7 +95,7 @@ const Examination = ({ examinationHistory }) => {
         </td>
         <td className="obstetricTcell">{item.pallor ? "Yes" : "No"}</td>
         <td className="obstetricTcell">{item.oedema ? "Yes" : "No"}</td>
-        <td className="obstetricTcell">{item.mothersWeight + " kg"}</td>
+        <td className="obstetricTcell">{item.mothersBMI + " kg/m2"}</td>
         <td className="obstetricTcell">
           {item.systolic + "/" + item.diastolic + " mmHg"}
         </td>
