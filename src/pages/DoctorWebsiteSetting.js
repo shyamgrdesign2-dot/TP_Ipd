@@ -23,6 +23,7 @@ import DWRewardsRecognition from "../components/doctor_website/DWRewardsRecognit
 import DWSocialLinks from "../components/doctor_website/DWSocialLinks";
 import Homepage from "../website/Homepage";
 import DWMembership from "../components/doctor_website/DWMembership";
+import { TAB_ADDRESS } from "../utils/constants";
 
 function DoctorWebsiteSetting() {
 
@@ -45,7 +46,7 @@ function DoctorWebsiteSetting() {
     const [isVisible, setIsVisible] = useState();
     const [selectedMenu, setSelectedMenu] = useState(null);
 
-    const contextApi = { personalDetails, setPersonalDetails, aboutDoctor, setAboutDoctor, doctorExperience, setDoctorExperience, rewardRecognition, setRewardRecognition, membership, setMembership, socialLinks, setSocialLinks, services, setServices, educationTraining, setEducationTraining, otherSettings, setOtherSettings };
+    const contextApi = { personalDetails, setPersonalDetails, clinicProfile, setClinicProfile, aboutDoctor, setAboutDoctor, doctorExperience, setDoctorExperience, rewardRecognition, setRewardRecognition, membership, setMembership, socialLinks, setSocialLinks, services, setServices, educationTraining, setEducationTraining, otherSettings, setOtherSettings };
 
 
     useEffect(() => {
@@ -58,7 +59,12 @@ function DoctorWebsiteSetting() {
     useEffect(() => {
         const makeData = async () => {
             const copy_personalDetails = JSON.parse(JSON.stringify({ ...websiteData.personal_details }))
-            const copy_clinicProfile = JSON.parse(JSON.stringify([...websiteData.clinic_profile]))
+
+            const updatedClinicProfile = websiteData?.clinic_profile?.map(e => {
+                return { ...e, selectedTab: TAB_ADDRESS }
+            })
+            const copy_clinicProfile = JSON.parse(JSON.stringify([...updatedClinicProfile]))
+            
             const copy_aboutDoctor = JSON.parse(JSON.stringify({ ...websiteData.about_doctor }))
             const copy_doctorExperience = JSON.parse(JSON.stringify([...websiteData.doctor_experience]))
 
