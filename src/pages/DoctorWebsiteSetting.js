@@ -13,6 +13,7 @@ import DWServices from "../components/doctor_website/DWServices";
 import DWEducationTraning from "../components/doctor_website/DWEducationTraning";
 import DWRewardsRecognition from "../components/doctor_website/DWRewardsRecognition";
 import DWSocialLinks from "../components/doctor_website/DWSocialLinks";
+import Homepage from "../website/Homepage";
 
 function DoctorWebsiteSetting() {
 
@@ -181,7 +182,7 @@ function DoctorWebsiteSetting() {
                             </div>
                             <div className="rounded-20px bg-white mt-2 overflow-hidden">
                                 <div className="position-relative printheight d-flex align-items-center justify-content-center fs-2 fw-normal">
-                                    Comming Soon...
+                                    <Homepage />
                                 </div>
                             </div>
                         </div>
