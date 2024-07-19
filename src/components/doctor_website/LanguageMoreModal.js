@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "antd";
 
-function TabMedicationMoreModal({ width, onClose }) {
+function TabMedicationMoreModal({ width, onClose, onClick, selectedValue, array }) {
     return (
         <>
             <div
@@ -55,50 +55,16 @@ function TabMedicationMoreModal({ width, onClose }) {
                     </button>
                 </div>
                 <div className="mt-3 d-flex flex-wrap">
-                    <Button
-                        type="text"
-                        className="btn btn-primary2 chips-custom mb-14 me-14">
-                        <span>
-                            Assamese
-                        </span>
-                    </Button>
-                    <Button
-                        type="text"
-                        className="btn btn-primary2 chips-custom mb-14 me-14">
-                        <span>
-                            Bengali
-                        </span>
-                    </Button>
-                    <Button
-                        type="text"
-                        className="btn btn-primary2 chips-custom mb-14 me-14">
-                        <span>
-                            Kannada
-                        </span>
-                    </Button>
-                    <Button
-                        type="text"
-                        className="btn btn-primary2 chips-custom mb-14 me-14">
-                        <span>
-                            Kashmiri
-                        </span>
-                    </Button>
-                    <Button
-                        type="text"
-                        className="btn btn-primary2 chips-custom mb-14 me-14">
-                        <span>
-                            Konkani
-                        </span>
-                    </Button>
-
-                    <Button
-                        type="text"
-                        className="btn btn-primary2 chips-custom mb-14 me-14">
-                        <span>
-                            Manipuri
-                        </span>
-                    </Button>
-
+                    {array.map((e, i) => (
+                        <div
+                            key={`${e?.title + "-" + i}`}
+                            className={`${selectedValue.includes(e?.title) && 'language-chips'} border rounded-10px p-2 me-2 mb-2 h-100 cursor-pointer`}
+                            onClick={() => onClick(e)}>
+                            <div className='d-flex align-items-cnter fontroboto text-primary' style={{ lineHeight: 1.3 }}>
+                                {e?.title}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </>

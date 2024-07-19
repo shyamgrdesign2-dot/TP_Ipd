@@ -1,16 +1,49 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import { Form, Input } from 'antd';
+import { useSelector } from "react-redux";
 import LanguageMoreModal from './LanguageMoreModal';
 
+import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
 function DWAboutDoctor() {
 
-    const [languageMoreOptions, setLanguageMoreOptions] = useState(false);
+    const { aboutDoctor, setAboutDoctor } = useContext(DoctorWebsiteSettingsContext);
 
-    const handleLanguageMoreOptions = useCallback(() => {
-        setLanguageMoreOptions(!languageMoreOptions)
-    },
-        [languageMoreOptions]
+    const { languageList } = useSelector((state) => state.doctorWebsite);
+
+    const [languageMoreOptionsVisible, setLanguageMoreOptionsVisible] = useState(false);
+
+    const handleLanguageMoreOptionsVisible = useCallback(
+        () => {
+            setLanguageMoreOptionsVisible(!languageMoreOptionsVisible)
+        },
+        [languageMoreOptionsVisible]
+    );
+
+    const onChangeInput = useCallback(
+        (e, key) => {
+            aboutDoctor[key] = e.target.value;
+            setAboutDoctor((prev) => { return { ...prev } });
+        },
+        [aboutDoctor]
+    );
+
+    const onLanguageClick = useCallback(
+        (e) => {
+            var data = aboutDoctor.hasOwnProperty('language') ? [...aboutDoctor?.language] : []
+            if (data.includes(e)) {
+                const index = data.indexOf(e);
+                if (index > -1) {
+                    data.splice(index, 1);
+                }
+                aboutDoctor.language = [...data];
+            } else {
+                data.push(e)
+                aboutDoctor.language = [...data];
+            }
+            setAboutDoctor((prev) => { return { ...prev } });
+        },
+        [aboutDoctor]
     );
 
     return (
@@ -21,74 +54,65 @@ function DWAboutDoctor() {
                     label="Years of Experience"
                     className='fw-medium mb-20'
                     required>
-                    <Input placeholder="12" className="text-capitalize rounded-10px h-38" defaultValue="0" />
+                    <Input placeholder="12"
+                        className="text-capitalize rounded-10px h-38"
+                        value={aboutDoctor?.years_experience}
+                        onChange={(e) => onChangeInput(e, 'years_experience')} />
                 </Form.Item>
             </Form>
             <hr className='mt-1' />
             <div className='fw-medium mb-20'>Languages Spoken</div>
             <div className='d-flex flex-wrap'>
-                <div className="language-chips border rounded-10px p-2 me-2 mb-2 h-100">
-                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
-                        English
-                        <i className='icon-Cross fs-18 ms-2'></i>
-                    </div>
-                </div>
-                <div className="language-chips border rounded-10px p-2 me-2 mb-2 h-100">
-                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
-                        Hindi
-                        <i className='icon-Cross fs-18 ms-2'></i>
-                    </div>
-                </div>
-                <div className="border rounded-10px p-2 me-2 mb-2 h-100">
-                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
-                        Gujarati
-                        <i className='icon-Add fs-18 ms-2'></i>
-                    </div>
-                </div>
-                <div className="border rounded-10px p-2 me-2 mb-2 h-100">
-                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
-                        Marathi
-                        <i className='icon-Add fs-18 ms-2'></i>
-                    </div>
-                </div>
-                <div className="border rounded-10px p-2 me-2 mb-2 h-100">
-                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
-                        Malayalam
-                        <i className='icon-Add fs-18 ms-2'></i>
-                    </div>
-                </div>
-                <div className="border rounded-10px p-2 me-2 mb-2 h-100">
-                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
-                        Telugu
-                        <i className='icon-Add fs-18 ms-2'></i>
-                    </div>
-                </div>
-                <div className="border rounded-10px p-2 me-2 mb-2 h-100">
-                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
-                        Tamil
-                        <i className='icon-Add fs-18 ms-2'></i>
-                    </div>
-                </div>
-                <div className="closable-chips rounded-10px p-2 me-2" onClick={() => handleLanguageMoreOptions()}>
-                    <div className='d-flex align-items-cnter fontroboto' style={{lineHeight: 1.3}}>
+                {aboutDoctor.hasOwnProperty('language') && aboutDoctor?.language && aboutDoctor?.language?.map((e, i) => {
+                    return (
+                        <div key={`${e + "-" + i}`} className={`language-chips border rounded-10px p-2 me-2 mb-2 h-100 cursor-pointer`} onClick={() => onLanguageClick(e)}>
+                            <div className='d-flex align-items-cnter fontroboto' style={{ lineHeight: 1.3 }}>
+                                {e}
+                                <i className={`icon-Cross fs-18 ms-2`}></i>
+                            </div>
+                        </div>
+                    )
+                })}
+                {languageList?.slice(0, 5)?.filter(e => aboutDoctor.hasOwnProperty('language') ? !aboutDoctor?.language?.includes(e?.title) : e?.title)?.map((e, i) => {
+                    return (
+                        <div key={`${e?.title + "-" + i}`} className={`${aboutDoctor.hasOwnProperty('language') && aboutDoctor?.language?.includes(e?.title) && 'language-chips'} border rounded-10px p-2 me-2 mb-2 h-100 cursor-pointer`} onClick={() => onLanguageClick(e?.title)}>
+                            <div className='d-flex align-items-cnter fontroboto' style={{ lineHeight: 1.3 }}>
+                                {e?.title}
+                                <i className={`${aboutDoctor.hasOwnProperty('language') && aboutDoctor?.language?.includes(e?.title) ? 'icon-Cross' : 'icon-Add'} fs-18 ms-2`}></i>
+                            </div>
+                        </div>
+                    )
+                })}
+                <div className="closable-chips rounded-10px p-2 me-2" onClick={handleLanguageMoreOptionsVisible}>
+                    <div className='d-flex align-items-cnter fontroboto' style={{ lineHeight: 1.3 }}>
                         More
                         <i className='icon-right iconrotate270 fs-18 ms-2'></i>
                     </div>
                 </div>
             </div>
-            {languageMoreOptions && (
-                <LanguageMoreModal width='430px' onClose={handleLanguageMoreOptions}
-                    onClick={() => {
-                        setLanguageMoreOptions(false);
-                    }} />
+            {languageMoreOptionsVisible && (
+                <LanguageMoreModal
+                    width='430px'
+                    onClose={handleLanguageMoreOptionsVisible}
+                    onClick={(e) => {
+                        // setLanguageMoreOptionsVisible(false);
+                        onLanguageClick(e?.title)
+                    }}
+                    selectedValue={aboutDoctor.hasOwnProperty('language') ? aboutDoctor?.language : []}
+                    array={languageList.slice(5, languageList.length)} />
             )}
             <hr className='mt-1' />
             <div className='title-common'>About Doctor</div>
             <div className="text-greycolor fontroboto my-3"> Write a brief introduction. Share your experience journey, major achievements, best qualities, and key skills. </div>
-            <Input.TextArea rows="5" showCount maxLength={400} className="show-count-textarea text-capitalize textareaPlaceholder rounded-10px" defaultValue="Dr. [Full Name] is a dedicated and compassionate medical professional with extensive experience in providing exceptional patient care. With a strong educational background and a commitment to continuous learning, [He/She] stays at the forefront of medical advancements to offer the best treatment options available. [He/She] is here to provide the support and expertise you need." />
+            <Input.TextArea rows="5"
+                showCount
+                maxLength={400}
+                className="show-count-textarea text-capitalize textareaPlaceholder rounded-10px"
+                value={aboutDoctor?.about}
+                onChange={(e) => onChangeInput(e, 'about')} />
             <div className="text-greycolor fontroboto my-2"> Write maximum 400 characters </div>
         </div>
     );
 }
 
-export default DWAboutDoctor;
+export default React.memo(DWAboutDoctor);

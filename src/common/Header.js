@@ -19,6 +19,7 @@ import videorotate from '../assets/images/videorotate.gif';
 
 import config from "../config";
 import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo } from "../redux/doctorsSlice";
+import { getDefaultDWsettings } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
@@ -393,6 +394,15 @@ function Header({ locationPath }) {
     );
   }, [popOverVideo]);
 
+  const setUpWebsiteUrl = async () => {
+    const action = await dispatch(getDefaultDWsettings());
+    if (action.meta.requestStatus === "fulfilled") {
+      navigate('/doctor_website_setting', { state: { websiteData: { ...action.payload } } })
+    } else {
+      errorMessage(action.error)
+    }
+  }
+
   const items = [
     {
       label:
@@ -422,7 +432,7 @@ function Header({ locationPath }) {
     },
     {
       label:
-        <a onClick={() => (navigate('/doctor_profile'))}>
+        <a onClick={() => navigate('/doctor_profile')}>
           <div className="title-common me-5 d-flex align-items-center"><i className="icon-profile me-3"></i>My Profile</div>
           <i className="icon-right iconrotate180"></i>
         </a>,
@@ -430,7 +440,7 @@ function Header({ locationPath }) {
     },
     {
       label:
-        <a onClick={() => (navigate('/doctor_website_setting'))}>
+        <a onClick={setUpWebsiteUrl}>
           <div className="title-common me-5 d-flex align-items-center"><i className="icon-group me-3"></i>Setup My Website</div>
           <i className="icon-right iconrotate180"></i>
         </a>,
