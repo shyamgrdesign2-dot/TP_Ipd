@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Collapse } from 'antd';
+import moment from 'moment';
 
 function GynecHistoryList(props) {
     const {gynecHistory} = props
@@ -16,7 +17,7 @@ function GynecHistoryList(props) {
                         <div className="cardbody-data border rounded px-2 my-2">
                             <div className="my-2">
                                 {gynecHistory.lmp && (
-                                    <><span>LMP</span> : <label>{new Date(gynecHistory.lmp).toISOString().split('T')[0]}</label></>
+                                    <><span>LMP</span> : <label>{moment(gynecHistory.lmp).format('DD/MM/YYYY')}</label></>
                                 )}
                             </div>
                             <div className="my-2">
@@ -38,7 +39,7 @@ function GynecHistoryList(props) {
                                         <span>Duration</span> : <label>{gynecHistory.durationOfMenstrualFlow} days</label> |
                                     </>
                                 )}
-                                {gynecHistory.clots !== undefined && (
+                                {gynecHistory.clots !== undefined && gynecHistory.clots !== '' && (
                                     <>
                                         <span> Clots</span> : <label>{gynecHistory.clots ? 'Yes' : 'No'}</label> |
                                     </>

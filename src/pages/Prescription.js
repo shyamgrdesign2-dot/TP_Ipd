@@ -398,10 +398,10 @@ function Prescription() {
 
   const fetchGynecHistory = async () => {
       try {
-          const data = await getGynecDetails(patient_data.patient_unique_id);
-          setUpdatedGynecHistory(data);
+        const data = await getGynecDetails(patient_data.patient_unique_id);
+        setUpdatedGynecHistory(data);
       } catch (error) {
-          console.error('Error fetching gynec history:', error);
+        console.error('Error fetching gynec history:', error);
       }
   };  
 

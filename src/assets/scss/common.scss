@@ -597,9 +597,9 @@ body {
             }
             &.history-active {
                 border-color: $theme;
-                span {
-                    background-color: #D1F1E4;
-                    color: #19BB7A !important;
+                background: rgba(75, 74, 213, 0.08) !important;
+                div {
+                    color:  #4B4AD5 !important;
                 }
             }
             &.history-selected {
@@ -619,7 +619,7 @@ body {
     }
     .lmp-gynec{
         background: #FFF9F9;
-        padding: 5px 8px 5px 10px;
+        padding: 5px 8px 5px 14px;
         border: 1px solid rgba(252, 218, 218, 0.6);
         border-radius: 1.3rem;
         font-family: Poppins;
@@ -628,6 +628,7 @@ body {
         font-weight: 500;
         line-height: normal;
         letter-spacing: 0.1px;
+        width: 80%;
     }
     // rightside drawer css
     .ant-drawer-open {

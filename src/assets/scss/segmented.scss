@@ -32,10 +32,7 @@ body {
             }
         } 
     }
-    .btn-segement .custom-segment-input-gynec {
-        color: white !important;
-        background-color: var(--White-Gradient, linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #E2E2EA 100%));
-    }
+
     .ant-segmented{
         border-radius: 10px;
             padding: 0;
@@ -214,7 +211,7 @@ body {
             color: $theme !important;
         }
         .btn {
-            background: #fff;
+            // background: #fff;
             border-radius: 0;
             border: 1px solid $bordercolor;
             height: 36px;
@@ -233,12 +230,14 @@ body {
                 border-top-left-radius: 10px;
                 border-bottom-left-radius: 10px;
             }
-            &.history-active {
+            &.history-active  {
                 border-color: $theme;
-                div {
-                    background-color: #D1F1E4;
-                    color: #000000 !important;
-                }
+                background: rgba(75, 74, 213, 0.08) !important;
+                color:  #4B4AD5 !important;
+            }
+            &.btn-padding {
+                padding-left: 7px !important;
+                padding-right: 7px !important;
             }
             &.history-selected {
                 border-color: $theme;

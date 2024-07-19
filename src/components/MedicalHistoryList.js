@@ -88,9 +88,9 @@ function MedicalHistoryList(props) {
     return (
         <>
             <div className="overflow-y-auto" style={{ maxHeight: "661px" }}>
-                { (medicalHistoryData.length > 0 || (gynecHistory && Object.keys(gynecHistory).length > 0)) && (
+                { (medicalHistoryData.length > 0 || (gynecHistory && Object.keys(gynecHistory).length > 2)) && (
                     <div className="p-10">
-                        { isGynecHistoryAccessableFromGB && gynecHistory && Object.keys(gynecHistory).length > 0 &&
+                        { isGynecHistoryAccessableFromGB && gynecHistory && Object.keys(gynecHistory).length > 2 &&
                             <GynecHistoryList gynecHistory={gynecHistory} />
                         }
                         <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box history-sider-box-white" expandIconPosition={'end'} />

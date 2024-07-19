@@ -16,6 +16,7 @@ import ActiveverticleUpDown from '../assets/images/active-verticle-up-down.svg';
 import InActiveverticleUpDown from '../assets/images/inactive-verticle-up-down.svg';
 import NoHypertension from '../assets/images/no-hypertension.png';
 import moment from "moment";
+import dayjs from "dayjs";
 
 import {
     listSectionwithTag,
@@ -29,6 +30,8 @@ import { jwtDecode } from "jwt-decode";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { CLOTS_LIST, CYCLE_KEY_LIST, FLOW_LIST, GYNEC_SECTION_ENABLE_LIST, PAIN_LIST, PAIN_OCCURANCE_LIST, REPRODUCTIVE_LIFE_STAGES_LIST, TYPES_REPRODUCTIVE_STAGES } from "../utils/gynec_constants";
 
+const dateFormat = 'YYYY-MM-DD'
+const showDateFormat = 'DD-MM-YYYY'
 
 function MedicalHistoryBox(props) {
 
@@ -116,7 +119,7 @@ function MedicalHistoryBox(props) {
             handleGynecValueChange("durationOfMenstrualFlow", value);
         }
         if (type === "padsNum") {
-            setInputCyclesDays(value);
+            setInputPadsNum(value);
             handleGynecValueChange("numberOfPadsPerDay", value);
         }
     };
@@ -159,7 +162,7 @@ function MedicalHistoryBox(props) {
         value: 22 + i,
         label: (22 + i).toString()
       })).concat({
-        value: 'custom',
+        value: -1,
         label: (
             <Input
                 className="w-100 custom-segment-input-gynec inputheight45 border-0"
@@ -167,7 +170,7 @@ function MedicalHistoryBox(props) {
                 value={customCyclesValue}
                 inputMode="numeric"
                 onChange={onChangeCustomInput("Cycle")}
-                onClick={() => onChangeSegmentedCyclesChild('custom')}
+                onClick={() => onChangeSegmentedCyclesChild(-1)}
             />
         )
     })
@@ -690,6 +693,7 @@ function MedicalHistoryBox(props) {
     }
 
     const handleSelectionChange = (key, value) => {
+        
         if (key === "pain" && value === "None") {
             setGynecHistory(prevState => ({ ...prevState, ["occurrenceOfPain"]: null }));
         }
@@ -698,10 +702,38 @@ function MedicalHistoryBox(props) {
                 return { [key]: value }; // Handle case when prevState is null or undefined
             }
             if (prevState[key] === value && activeMenstrualData === key) {
-                return {
-                    ...prevState,
-                    [key]: null
-                };
+                const updatedState = { ...prevState, [key]: null };
+
+                // Check for specific keys and set corresponding fields to null
+                if (key === "cycle") {
+                    updatedState.intervalOfCycle = null;
+                    setInputCycles('')
+                    updatedState.cycleNotes = null;
+                }
+                if (key === "flow") {
+                    updatedState.durationOfMenstrualFlow = null;
+                    setInputCyclesDays('')
+                    updatedState.clots = null;
+                    updatedState.numberOfPadsPerDay = null;
+                    setInputPadsNum('')
+                    updatedState.flowNotes = null;
+                }
+                if (key === "pain") {
+                    updatedState.occurrenceOfPain = null;
+                    updatedState.painNotes = null;
+                }
+                if (key === "reproductiveLifeStages") {
+                    updatedState.ageAtMenopause = null;
+                    setInputMenopause('')
+                    updatedState.typeOfMenopause = null;
+                    updatedState.note = null;
+                }
+                if (key === "ageAtMenarche") {
+                    updatedState.ageAtMenarche = null;
+                    setInputMenarche('')
+                }
+    
+                return updatedState;
             } else {
                 return {
                     ...prevState,
@@ -735,35 +767,21 @@ function MedicalHistoryBox(props) {
         }
     };
 
-    // const handleGynecValueChange = (key, value) => {
-    //     setGynecHistory(prevState => ({ ...prevState, [key]: value }));
-    // };
-    const handleGynecValueChange = useCallback(
-        (key, value) => {
-            setGynecHistory(prevState => {
-                if (prevState[key] !== value) {
-                    return { ...prevState, [key]: value };
-                } else {
-                    return { ...prevState, [key]: '' };
-                }
-            });
-        },
-        [setGynecHistory]
-    );
-
-    const [activeMenstrualData, setActiveMenstrualData] = useState("ageAtMenarche");
-    const [rightPanelTitle, setRightPanelTitle] = useState("Age at menarche");
-
-    const onInputChange = (e) => {
-        handleGynecValueChange("lmp", e.target.value);
+    const handleGynecValueChange = (key, value) => {
+        setGynecHistory(prevState => {
+            if (!prevState) {
+                return { [key]: value };
+            }
+            if (prevState[key] !== value) {
+                return { ...prevState, [key]: value };
+            } else {
+                return { ...prevState, [key]: '' };
+            }
+        });
     };
 
-    // Function to handle input click
-    const handleInputClick = () => {
-        if (datePickerRef.current) {
-            datePickerRef.current.focus();
-        }
-    };
+    const [activeMenstrualData, setActiveMenstrualData] = useState(null);
+    const [rightPanelTitle, setRightPanelTitle] = useState("No Record");
     
     const disabledDate = (current) => {
         // Disable dates after today
@@ -771,11 +789,12 @@ function MedicalHistoryBox(props) {
     };
 
     const formatDate = (dateString) => {
-        return dateString ? moment(dateString).format('YYYY-MM-DD') : '';
+        return dateString ? moment(dateString, showDateFormat).format(dateFormat) : '';
     };
 
     const onDateChanged = (date, dateString) => {
-        handleGynecValueChange("lmp", dateString)
+        handleGynecValueChange("lmp", formatDate(dateString) )
+        setSelectedDate(formatDate(dateString))
     };
 
     const handleNoteChange = (key, value) => {
@@ -783,7 +802,13 @@ function MedicalHistoryBox(props) {
     };
 
     const handleSave = () => {
-        onSave(gynecHistory);
+        const filteredGynecHistory = Object.keys(gynecHistory || {}).reduce((acc, key) => {
+            if (gynecHistory[key] !== '' && gynecHistory[key] !== null && gynecHistory[key] !== "custom" ) {
+                acc[key] = gynecHistory[key];
+            }
+            return acc;
+        }, {});
+        onSave(filteredGynecHistory);
         handleSaveClick()
     };
 
@@ -799,7 +824,8 @@ function MedicalHistoryBox(props) {
         try {
             const data = await getGynecDetails(patient_data.patient_unique_id);
             if (data){
-                setGynecEditState("UPDATE")
+                setGynecEditState("UPDATE");
+                setActiveMenstrualData("cycle")
             }
             setGynecHistory(data);
             setGynecLoading(false);
@@ -833,6 +859,9 @@ function MedicalHistoryBox(props) {
             }
             return acc;
         }, {});
+
+        setGynecHistory(filteredGynecHistory)
+        handleCollapsed(2)
     
         if (gynecEditState === "CREATE") {
             const payload = {
@@ -874,6 +903,13 @@ function MedicalHistoryBox(props) {
         return value === undefined || value === '' || value === 'number' || value === 'custom' || value === null;
     };
 
+    const [selectedDate, setSelectedDate] = useState(null);
+    useEffect(() => {
+      if (gynecHistory?.lmp) {
+        setSelectedDate(moment(gynecHistory.lmp).format(showDateFormat));
+      }
+    }, [gynecHistory]);
+
     return (
         <>
             <Card bordered={false} className="search-modalCard">
@@ -905,15 +941,25 @@ function MedicalHistoryBox(props) {
                                     <Col lg={12}>
                                         <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 61px)' }}>
                                             <div className="border-bottom px-4 pt-3 pb-2">
-                                                <div className="d-flex align-items-center justify-content-between mb-3">
                                                     <div className="d-flex align-items-center lmp-gynec">
-                                                        <div className="d-flex align-items-center pe-4">Last menstrual period</div>
-                                                        <div className="d-flex calender-merge-input-gynec">
-                                                            <Input className="calnder-input2" placeholder="Enter date" value={formatDate(gynecHistory?.lmp)} onChange={onInputChange} onClick={handleInputClick} inputMode="numeric" allowClear />
-                                                            <DatePicker ref={datePickerRef} inputReadOnly onChange={onDateChanged} disabledDate={disabledDate}/>
-                                                        </div>
+                                                        <label className="pe-3">Last menstrual period :</label>
+                                                        <DatePicker
+                                                            style={{
+                                                            border: "1px solid #fff",
+                                                            borderRadius: "18px",
+                                                            }}
+                                                            placeholder={"Select Date"}
+                                                            value={
+                                                            selectedDate
+                                                                ? dayjs(selectedDate, "DD-MM-YYYY")
+                                                                : ""
+                                                            }
+                                                            format={showDateFormat}
+
+                                                            onChange={onDateChanged}
+                                                            disabledDate={disabledDate}
+                                                        />
                                                     </div>
-                                                </div>
                                             </div>
 
                                             <div className="border-bottom px-4 pt-3 pb-2">
@@ -1034,8 +1080,7 @@ function MedicalHistoryBox(props) {
                                                                 <button
                                                                     key={i}
                                                                     type="button"
-                                                                    style={{paddingLeft: "7px !important", paddingRight: "7px !important"}}
-                                                                    className={`btn p-0 ${ activeMenstrualData ==="reproductiveLifeStages" && gynecHistory?.[activeMenstrualData] === item.value ? 'history-selected' : gynecHistory?.reproductiveLifeStages === item.value ? 'history-active' : ''}`}
+                                                                    className={`btn p-0 btn-padding ${ activeMenstrualData ==="reproductiveLifeStages" && gynecHistory?.[activeMenstrualData] === item.value ? 'history-selected' : gynecHistory?.reproductiveLifeStages === item.value ? 'history-active' : ''}`}
                                                                     onClick={() => handleSelectionChange('reproductiveLifeStages', item.value)}
                                                                 >
                                                                     {item.label}
