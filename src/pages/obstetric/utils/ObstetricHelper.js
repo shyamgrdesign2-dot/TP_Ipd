@@ -184,14 +184,14 @@ export const AbortionColumns = [
 ];
 
 export const BloodGroupOptions = [
-  { value: 1, label: "A+ (A positive)", shortLabel: "A+" },
-  { value: 2, label: "A- (A negative)", shortLabel: "A-" },
-  { value: 3, label: "B+ (B positive)", shortLabel: "B+" },
-  { value: 4, label: "B- (B negative)", shortLabel: "B-" },
-  { value: 5, label: "AB+ (AB positive)", shortLabel: "AB+" },
-  { value: 6, label: "AB- (AB negative)", shortLabel: "AB-" },
-  { value: 7, label: "O+ (O positive)", shortLabel: "O+" },
-  { value: 8, label: "O- (O negative)", shortLabel: "O-" },
+  { value: "A+", label: "A+ (A positive)" },
+  { value: "A-", label: "A- (A negative)" },
+  { value: "B+", label: "B+ (B positive)" },
+  { value: "B-", label: "B- (B negative)" },
+  { value: "AB+", label: "AB+ (AB positive)" },
+  { value: "AB-", label: "AB- (AB negative)" },
+  { value: "O+", label: "O+ (O positive)" },
+  { value: "O-", label: "O- (O negative)" },
 ];
 
 export const ConsangOptions = [

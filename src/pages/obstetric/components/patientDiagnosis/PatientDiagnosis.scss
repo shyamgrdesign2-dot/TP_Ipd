@@ -47,19 +47,26 @@
           font-weight: 500;
         }
 
-        .datePickerStyle .ant-picker-input > input {
-          width: 82px !important;
+        .datePickerStyle {
+          &.ant-picker-outlined:focus-within {
+            box-shadow: none !important;
+          }
+          .ant-picker-input > input {
+            width: 82px !important;
+          }
         }
 
         .diagnosisSelect {
           color: transparent;
           background-color: transparent;
+          display: flex;
+          align-items: center;
 
-          /* Remove background color in selection box */
           .dropdown-toggle {
             background-color: transparent !important;
             border-color: transparent !important;
             color: #000 !important;
+            padding: 4px;
           }
 
           .dropdown-toggle::after {
@@ -73,7 +80,7 @@
           }
 
           .dropdown-item {
-            padding: 10px 12px;
+            padding: 10px 5px 10px 12px;
           }
 
           .dropdown-menu .dropdown-item:active,
@@ -82,22 +89,6 @@
             color: #000 !important;
           }
 
-          &.inputborder .ant-select-selector {
-            border: none !important;
-            border-radius: 10px;
-          }
-
-          .ant-select-arrow {
-            left: 85px;
-          }
-
-          .ant-select-clear {
-            left: 85px;
-          }
-
-          span {
-            margin-left: -10px;
-          }
           .iconStyle {
             display: inline-block;
             transform: rotate(270deg);
@@ -177,8 +168,21 @@
 }
 
 .bloodDropdown .dropdown-menu {
-  margin-left: -30px !important;
-  width: 140px !important;
+  margin-right: -5px !important;
+  margin-top: 3px;
+  width: 80px !important;
+}
+
+.consang .dropdown-menu {
+  margin-left: -80px !important;
+  margin-top: 3px;
+  width: 60px !important;
+}
+
+.marritalStatus .dropdown-menu {
+  margin-left: -112px !important;
+  margin-top: 3px;
+  width: 212px !important;
 }
 
 .dropdown-item-custom {
@@ -201,4 +205,20 @@
   &:last-child::after {
     display: none;
   }
+}
+
+.lmpStyle {
+  &.ant-picker-dropdown .ant-picker-panel-container {
+    margin-left: -42px !important;
+  }
+}
+
+.ceddStyle {
+  &.ant-picker-dropdown .ant-picker-panel-container {
+    margin-left: -62px !important;
+  }
+}
+
+.marrital {
+  margin-right: -42px !important;
 }

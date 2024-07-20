@@ -1,11 +1,17 @@
 import React, { useState } from "react";
 import "./PatientDiagnosis.scss";
-import { Col, DatePicker, Drawer, Form, Input, Row, Select } from "antd";
+import { Col, DatePicker, Drawer, Form, Input, Row } from "antd";
 import DiagnosisNotes from "../diagnosisNotes/DiagnosisNotes";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import ReadMore from "../../../../common/ReadMore";
 import { useSelector } from "react-redux";
-import { BloodGroupOptions, ConsangOptions, MaritalStatusOptions } from "../../utils/ObstetricHelper";
+import {
+  BloodGroupOptions,
+  ConsangOptions,
+  MaritalStatusOptions,
+} from "../../utils/ObstetricHelper";
+import dayjs from "dayjs";
+import moment from "moment";
 
 export default function PatientDiagnosis() {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
@@ -16,25 +22,36 @@ export default function PatientDiagnosis() {
     abortion,
     ectopicPregnancies,
     diagnosisNotes,
+    blood,
+    ceed,
+    lmp,
+    consang,
+    edd,
+    gestationDays,
+    gestationWeeks,
+    husbandsBlood,
+    maritialStatus,
+    marriageDurationYears,
+    marriageDurationMonths,
   } = obstetricDetails || {};
-  const [gestationWeeks, setGestationWeeks] = useState("");
-  const [gestationDays, setGestationDays] = useState("");
-  const [marriageDurationInYears, setMarriageDurationInYears] = useState("");
-  const [marriageDurationInMonths, setMarriageDurationInMonths] = useState("");
-
-  const [selectedBloodGroup, setSelectedBloodGroup] = useState(null);
-
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
   const [patientDiagnosisNotes, setPatientDiagnosisNotes] =
     useState(diagnosisNotes);
 
-  const handleDrawerDiagnosisNotes = () => {
-    setDiagnosisNotesDrawer(!diagnosisNotesDrawer);
-  };
+  const [patientDiagnosisData, setPatientDiagnosisData] = useState({
+    lmp: lmp ? dayjs(moment(lmp).format("DD-MM-YYYY"), "DD-MM-YYYY") : "",
+    edd: edd ? moment(edd).format("DD MMM YYYY") : "",
+    ceed: ceed ? dayjs(moment(ceed).format("DD-MM-YYYY"), "DD-MM-YYYY") : "",
+    gestationWeeks: gestationWeeks || 0,
+    gestationDays: gestationDays || 0,
+    blood: blood,
+    husbandsBlood: husbandsBlood,
+    consang: typeof consang === "boolean" ? (consang ? "Yes" : "No") : "",
+    maritialStatus: maritialStatus,
+    marriageDurationYears: marriageDurationYears || 0,
+    marriageDurationMonths: marriageDurationMonths || 0,
+  });
 
-  const handleChange = (value) => {
-    setSelectedBloodGroup(value);
-  };
   const [pastPregnancyData, setPastPregnancyData] = useState([
     { value: gravidity, label: "G" },
     { value: parity, label: "P" },
@@ -42,6 +59,19 @@ export default function PatientDiagnosis() {
     { value: abortion, label: "A" },
     { value: ectopicPregnancies, label: "E" },
   ]);
+
+  const handlePatientDiagnosis = (newValue, key, isValid = true) => {
+    if (isValid) {
+      setPatientDiagnosisData((prevState) => ({
+        ...prevState,
+        [key]: newValue,
+      }));
+    }
+  };
+
+  const handleDrawerDiagnosisNotes = () => {
+    setDiagnosisNotesDrawer(!diagnosisNotesDrawer);
+  };
 
   const handleInputChange = (index, newValue, isValid) => {
     if (isValid) {
@@ -51,14 +81,6 @@ export default function PatientDiagnosis() {
     }
   };
 
-  const [selectedValue, setSelectedValue] = React.useState("");
-
-  const handleSelect = (eventKey) => {
-    const selectedOption = BloodGroupOptions.find(
-      (option) => option.value.toString() === eventKey
-    );
-    setSelectedValue(selectedOption ? selectedOption.shortLabel : "");
-  };
 
   return (
     <div>
@@ -71,8 +93,15 @@ export default function PatientDiagnosis() {
               <DatePicker
                 className="datePickerStyle"
                 placeholder="Select Date"
-                dropdownClassName="addDOB-picker-dropdown"
+                dropdownClassName="addDOB-picker-dropdown lmpStyle"
                 format="DD MMM YYYY"
+                value={patientDiagnosisData.lmp}
+                onChange={(_, d) => {
+                  handlePatientDiagnosis(
+                    dayjs(moment(d).format("DD-MM-YYYY"), "DD-MM-YYYY"),
+                    "lmp"
+                  );
+                }}
                 style={{
                   height: "34px",
                   border: "none",
@@ -89,7 +118,7 @@ export default function PatientDiagnosis() {
             >
               E.D.D :{" "}
               <span className="spanStyle" style={{ marginLeft: "8px" }}>
-                12 Jan 2024
+                {patientDiagnosisData.edd}
               </span>
             </div>
             <div className="history-badge" style={{ width: "188px" }}>
@@ -97,7 +126,15 @@ export default function PatientDiagnosis() {
               <DatePicker
                 placeholder="Select Date"
                 className="datePickerStyle"
+                dropdownClassName="addDOB-picker-dropdown ceddStyle"
                 format="DD MMM YYYY"
+                value={patientDiagnosisData.ceed}
+                onChange={(_, d) => {
+                  handlePatientDiagnosis(
+                    dayjs(moment(d).format("DD-MM-YYYY"), "DD-MM-YYYY"),
+                    "ceed"
+                  );
+                }}
                 style={{
                   height: "34px",
                   border: "none",
@@ -116,10 +153,12 @@ export default function PatientDiagnosis() {
                 placeholder="Ex : 3"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                value={gestationWeeks}
+                value={patientDiagnosisData.gestationWeeks}
                 onChange={(e) =>
-                  setGestationWeeks(
-                    e.target.validity.valid ? e.target.value : gestationWeeks
+                  handlePatientDiagnosis(
+                    e.target.value,
+                    "gestationWeeks",
+                    e.target.validity.valid
                   )
                 }
               />
@@ -128,10 +167,12 @@ export default function PatientDiagnosis() {
                 className="timeIntervalValue"
                 placeholder="Ex : 2"
                 pattern="[0-9]*"
-                value={gestationDays}
+                value={patientDiagnosisData.gestationDays}
                 onChange={(e) =>
-                  setGestationDays(
-                    e.target.validity.valid ? e.target.value : gestationDays
+                  handlePatientDiagnosis(
+                    e.target.value,
+                    "gestationDays",
+                    e.target.validity.valid
                   )
                 }
               />
@@ -148,7 +189,7 @@ export default function PatientDiagnosis() {
             <div className="history-badge" style={{ width: "142px" }}>
               Blood :
               <DropdownButton
-                className="h-100 inputborder diagnosisSelect bloodDropdown"
+                className="diagnosisSelect bloodDropdown"
                 style={{ width: "40%" }}
                 title={
                   <div
@@ -158,16 +199,17 @@ export default function PatientDiagnosis() {
                       display: "flex",
                     }}
                   >
-                    {selectedValue || "Select"}
+                    {patientDiagnosisData.blood || "Select"}
                     <i className="icon-right iconStyle" />
                   </div>
                 }
-                onSelect={handleSelect}
+                onSelect={(e) => handlePatientDiagnosis(e, "blood")}
               >
                 {BloodGroupOptions.map((option) => (
                   <Dropdown.Item
                     key={option.value}
-                    eventKey={option.value.toString()}
+                    eventKey={option.value}
+                    className="dropdown-item-custom"
                   >
                     {option.label}
                   </Dropdown.Item>
@@ -180,7 +222,7 @@ export default function PatientDiagnosis() {
             <div className="history-badge" style={{ width: "220px" }}>
               Husband's blood :
               <DropdownButton
-                className="h-100 inputborder diagnosisSelect husbandBlood"
+                className="diagnosisSelect husbandBlood"
                 style={{ width: "40%" }}
                 title={
                   <div
@@ -190,16 +232,16 @@ export default function PatientDiagnosis() {
                       display: "flex",
                     }}
                   >
-                    {selectedValue || "Select"}
+                    {patientDiagnosisData.husbandsBlood || "Select"}
                     <i className="icon-right iconStyle" />
                   </div>
                 }
-                onSelect={handleSelect}
+                onSelect={(e) => handlePatientDiagnosis(e, "husbandsBlood")}
               >
                 {BloodGroupOptions.map((option) => (
                   <Dropdown.Item
                     key={option.value}
-                    eventKey={option.value.toString()}
+                    eventKey={option.value}
                     className="dropdown-item-custom"
                   >
                     {option.label}
@@ -209,32 +251,69 @@ export default function PatientDiagnosis() {
             </div>
             <div
               className="history-badge"
-              style={{ width: "170px", position: "relative" }}
+              style={{ width: "154px", position: "relative" }}
             >
               Consang :
-              <Select
-                className="autocomplete-custom h-100 inputborder diagnosisSelect"
-                style={{ width: "50%" }}
-                placeholder="Select"
-                options={ConsangOptions}
-                optionLabelProp="label"
-                dropdownStyle={{ width: 170 }}
-              />
+              <DropdownButton
+                className="diagnosisSelect consang"
+                style={{ width: "40%" }}
+                title={
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      display: "flex",
+                    }}
+                  >
+                    {patientDiagnosisData.consang || "Select"}
+                    <i className="icon-right iconStyle" />
+                  </div>
+                }
+                onSelect={(e) => handlePatientDiagnosis(e, "consang")}
+              >
+                {ConsangOptions.map((option) => (
+                  <Dropdown.Item
+                    key={option.value}
+                    eventKey={option.value}
+                    className="dropdown-item-custom"
+                  >
+                    {option.label}
+                  </Dropdown.Item>
+                ))}
+              </DropdownButton>
             </div>
             <div
               className="history-badge"
-              style={{ width: "208px", position: "relative" }}
+              style={{ width: "212px", position: "relative" }}
             >
               Marital status :
-              <Select
-                className="autocomplete-custom h-100 inputborder diagnosisSelect maritalStatusSelect"
-                style={{ width: "45%" }}
-                placeholder="Select"
-                options={MaritalStatusOptions}
-                optionLabelProp="label"
-                dropdownStyle={{ width: 230, marginLeft: -112 }}
-                allowClear
-              />
+              <DropdownButton
+                className="diagnosisSelect marritalStatus"
+                style={{ width: "40%" }}
+                title={
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      display: "flex",
+                    }}
+                  >
+                    {patientDiagnosisData.maritialStatus || "Select"}
+                    <i className="icon-right iconStyle" />
+                  </div>
+                }
+                onSelect={(e) => handlePatientDiagnosis(e, "maritialStatus")}
+              >
+                {MaritalStatusOptions.map((option) => (
+                  <Dropdown.Item
+                    key={option.value}
+                    eventKey={option.value}
+                    className="dropdown-item-custom"
+                  >
+                    {option.label}
+                  </Dropdown.Item>
+                ))}
+              </DropdownButton>
             </div>
             <div className="history-badge">
               Marriage duration :{" "}
@@ -243,12 +322,12 @@ export default function PatientDiagnosis() {
                 style={{ marginLeft: "10px" }}
                 placeholder="Ex : 3"
                 pattern="[0-9]*"
-                value={marriageDurationInYears}
+                value={patientDiagnosisData.marriageDurationYears}
                 onChange={(e) =>
-                  setMarriageDurationInYears(
+                  handlePatientDiagnosis(
+                    e.target.value,
+                    "marriageDurationInYears",
                     e.target.validity.valid
-                      ? e.target.value
-                      : marriageDurationInYears
                   )
                 }
               />
@@ -257,12 +336,12 @@ export default function PatientDiagnosis() {
                 className="timeIntervalValue"
                 placeholder="Ex : 2"
                 pattern="[0-9]*"
-                value={marriageDurationInMonths}
+                value={patientDiagnosisData.marriageDurationMonths}
                 onChange={(e) =>
-                  setMarriageDurationInMonths(
+                  handlePatientDiagnosis(
+                    e.target.value,
+                    "marriageDurationInMonths",
                     e.target.validity.valid
-                      ? e.target.value
-                      : marriageDurationInMonths
                   )
                 }
               />
