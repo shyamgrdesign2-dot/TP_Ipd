@@ -3,70 +3,16 @@ import "./../pregnancyHistory/PregnancyHistory.scss";
 import examination from "../../../../assets/images/obs-examination.svg";
 import "./Examination.scss";
 import moment from "moment";
+import { useSelector } from "react-redux";
+import { ExaminationColumns } from "../../utils/ObstetricHelper";
 
-const columns = [
-  {
-    title: "Visits",
-    key: "date",
-    width: "20%",
-  },
-  {
-    title: "Pallor",
-    key: "pallor",
-    width: "5%",
-  },
-  {
-    title: "Oedema",
-    key: "oedema",
-    width: "5%",
-  },
-  {
-    title: "BMI",
-    key: "mothersBMI",
-    width: "8%",
-  },
-  {
-    title: "BP",
-    key: "bp",
-    width: "8%",
-  },
-  {
-    title: "Fundus Height",
-    key: "heightOfFundus",
-    width: "8%",
-  },
-  {
-    title: "Presentation",
-    key: "presentation",
-    width: "8%",
-  },
-  {
-    title: "Fluid Index",
-    key: "fluidIndex",
-    width: "8%",
-  },
-  {
-    title: "Fetal Heart Rate",
-    key: "foetalHeartRate",
-    width: "10%",
-  },
-  {
-    title: "Note",
-    key: "note",
-    width: "27%",
-  },
-  {
-    title: "Action",
-    key: "action",
-    width: "5%",
-  },
-];
-
-const Examination = ({ examinationHistory }) => {
+const Examination = () => {
+  const { obstetricDetails } = useSelector((state) => state.obstetric);
+  const { examinationHistory } = obstetricDetails;
   const renderTableHeader = () => {
     return (
       <tr>
-        {columns?.map((header, index) => (
+        {ExaminationColumns?.map((header, index) => (
           <th
             key={index}
             className="tcell theaderCellStyle"

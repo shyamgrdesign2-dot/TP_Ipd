@@ -1,8 +1,11 @@
 import { Collapse, Divider } from "antd";
 import React, { useEffect, useState } from "react";
 import ReadMore from "../../../../common/ReadMore";
+import { useSelector } from "react-redux";
 
-const ObstetricList = ({ examinationHistory }) => {
+const ObstetricList = () => {
+  const { obstetricDetails } = useSelector((state) => state.obstetric);
+  const { examinationHistory } = obstetricDetails;
   const [accordionItems, setAccordionItems] = useState([]);
 
   useEffect(() => {

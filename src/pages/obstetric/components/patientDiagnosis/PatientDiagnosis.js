@@ -4,34 +4,19 @@ import { Col, DatePicker, Drawer, Form, Input, Row, Select } from "antd";
 import DiagnosisNotes from "../diagnosisNotes/DiagnosisNotes";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import ReadMore from "../../../../common/ReadMore";
+import { useSelector } from "react-redux";
+import { BloodGroupOptions, ConsangOptions, MaritalStatusOptions } from "../../utils/ObstetricHelper";
 
-const bloodGroupOptions = [
-  { value: 1, label: "A+ (A positive)", shortLabel: "A+" },
-  { value: 2, label: "A- (A negative)", shortLabel: "A-" },
-  { value: 3, label: "B+ (B positive)", shortLabel: "B+" },
-  { value: 4, label: "B- (B negative)", shortLabel: "B-" },
-  { value: 5, label: "AB+ (AB positive)", shortLabel: "AB+" },
-  { value: 6, label: "AB- (AB negative)", shortLabel: "AB-" },
-  { value: 7, label: "O+ (O positive)", shortLabel: "O+" },
-  { value: 8, label: "O- (O negative)", shortLabel: "O-" },
-];
-
-const consangOptions = [
-  { value: "yes", label: "Yes" },
-  { value: "no", label: "No" },
-];
-
-const maritalStatusOptions = [
-  { value: "single", label: "Single" },
-  { value: "married", label: "Married" },
-  { value: "divorced", label: "Divorced" },
-  { value: "widowed", label: "Widowed" },
-  { value: "separated", label: "Separated" },
-];
-
-export default function PatientDiagnosis({ allObstetricDetails }) {
-  const { gravidity, parity, livingChildren, abortion, ectopicPregnancies } =
-    allObstetricDetails || {};
+export default function PatientDiagnosis() {
+  const { obstetricDetails } = useSelector((state) => state.obstetric);
+  const {
+    gravidity,
+    parity,
+    livingChildren,
+    abortion,
+    ectopicPregnancies,
+    diagnosisNotes,
+  } = obstetricDetails || {};
   const [gestationWeeks, setGestationWeeks] = useState("");
   const [gestationDays, setGestationDays] = useState("");
   const [marriageDurationInYears, setMarriageDurationInYears] = useState("");
@@ -40,9 +25,8 @@ export default function PatientDiagnosis({ allObstetricDetails }) {
   const [selectedBloodGroup, setSelectedBloodGroup] = useState(null);
 
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
-  const [diagnosisNotes, setDiagnosisNotes] = useState(
-    allObstetricDetails?.diagnosisNotes
-  );
+  const [patientDiagnosisNotes, setPatientDiagnosisNotes] =
+    useState(diagnosisNotes);
 
   const handleDrawerDiagnosisNotes = () => {
     setDiagnosisNotesDrawer(!diagnosisNotesDrawer);
@@ -70,7 +54,7 @@ export default function PatientDiagnosis({ allObstetricDetails }) {
   const [selectedValue, setSelectedValue] = React.useState("");
 
   const handleSelect = (eventKey) => {
-    const selectedOption = bloodGroupOptions.find(
+    const selectedOption = BloodGroupOptions.find(
       (option) => option.value.toString() === eventKey
     );
     setSelectedValue(selectedOption ? selectedOption.shortLabel : "");
@@ -180,7 +164,7 @@ export default function PatientDiagnosis({ allObstetricDetails }) {
                 }
                 onSelect={handleSelect}
               >
-                {bloodGroupOptions.map((option, index) => (
+                {BloodGroupOptions.map((option) => (
                   <Dropdown.Item
                     key={option.value}
                     eventKey={option.value.toString()}
@@ -212,7 +196,7 @@ export default function PatientDiagnosis({ allObstetricDetails }) {
                 }
                 onSelect={handleSelect}
               >
-                {bloodGroupOptions.map((option) => (
+                {BloodGroupOptions.map((option) => (
                   <Dropdown.Item
                     key={option.value}
                     eventKey={option.value.toString()}
@@ -232,7 +216,7 @@ export default function PatientDiagnosis({ allObstetricDetails }) {
                 className="autocomplete-custom h-100 inputborder diagnosisSelect"
                 style={{ width: "50%" }}
                 placeholder="Select"
-                options={consangOptions}
+                options={ConsangOptions}
                 optionLabelProp="label"
                 dropdownStyle={{ width: 170 }}
               />
@@ -246,7 +230,7 @@ export default function PatientDiagnosis({ allObstetricDetails }) {
                 className="autocomplete-custom h-100 inputborder diagnosisSelect maritalStatusSelect"
                 style={{ width: "45%" }}
                 placeholder="Select"
-                options={maritalStatusOptions}
+                options={MaritalStatusOptions}
                 optionLabelProp="label"
                 dropdownStyle={{ width: 230, marginLeft: -112 }}
                 allowClear
@@ -318,9 +302,9 @@ export default function PatientDiagnosis({ allObstetricDetails }) {
             );
           })}
         </Row>
-        {diagnosisNotes ? (
+        {patientDiagnosisNotes ? (
           <div className="diagnosisNotesStyle">
-            <ReadMore text={diagnosisNotes} textLimit={125} />
+            <ReadMore text={patientDiagnosisNotes} textLimit={125} />
             <div className="editStyle" onClick={handleDrawerDiagnosisNotes}>
               <i className="icon-Edit iconStyle" />
               <span className="editText">Edit</span>
@@ -353,8 +337,8 @@ export default function PatientDiagnosis({ allObstetricDetails }) {
         >
           <DiagnosisNotes
             handleDrawerDiagnosisNotes={handleDrawerDiagnosisNotes}
-            diagnosisNotes={diagnosisNotes}
-            setDiagnosisNotes={setDiagnosisNotes}
+            diagnosisNotes={patientDiagnosisNotes}
+            setDiagnosisNotes={setPatientDiagnosisNotes}
           />
         </Drawer>
       )}

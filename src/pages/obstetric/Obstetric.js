@@ -7,11 +7,14 @@ import { Tabs } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import LmpPopup from "./components/lmpPopup/LmpPopup";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
-const Obstetric = ({ handleDrawerObstetric, allObstetricDetails }) => {
-  const { examinationHistory, pregnancyHistory } = allObstetricDetails || {};
+const Obstetric = ({ handleDrawerObstetric }) => {
+  const { obstetricDetails } = useSelector(
+    (state) => state.obstetric
+  );
 
-  const [showLmpPopup, setShowLmpPopup] = useState(!allObstetricDetails?.lmp);
+  const [showLmpPopup, setShowLmpPopup] = useState(!obstetricDetails?.lmp);
 
   return (
     <div className="vaccinationWrapper">
@@ -19,14 +22,14 @@ const Obstetric = ({ handleDrawerObstetric, allObstetricDetails }) => {
         handleDrawerVaccination={handleDrawerObstetric}
         isObstetric={true}
       />
-      <PatientDiagnosis allObstetricDetails={allObstetricDetails} />
+      <PatientDiagnosis />
 
       <Tabs defaultActiveKey="pregnancyHistory">
         <TabPane tab="Pregnancy History" key="pregnancyHistory">
-          <PregnancyHistory pregnancyHistory={pregnancyHistory} />
+          <PregnancyHistory />
         </TabPane>
         <TabPane tab="Examination" key="examination">
-          <Examination examinationHistory={examinationHistory} />
+          <Examination />
         </TabPane>
       </Tabs>
       {showLmpPopup && (

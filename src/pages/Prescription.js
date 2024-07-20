@@ -47,6 +47,7 @@ import { useAccess } from "./vaccination/useAccess";
 import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
 import { fetchAllObstetricDetails } from "./obstetric/service";
+import { addObstetricDetails } from "../redux/obstetricSlice";
 
 function Prescription() {
   const {
@@ -57,6 +58,10 @@ function Prescription() {
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
+  const { obstetricDetails, isObstetricDetailsFetched } = useSelector(
+    (state) => state.obstetric
+  );
+  const { examinationHistory = [] } = obstetricDetails;
   const dispatch = useDispatch();
 
   const { state } = useLocation();
@@ -118,16 +123,14 @@ function Prescription() {
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
   const [obstetricDrawer, setObstetricDrawer] = useState(false);
-  const [allObstetricDetails, setAllObstetricDetails] = useState(null);
   const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
     patient_data?.ageYears
   );
-  const { examinationHistory = [] } = allObstetricDetails || {};
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(patient_data.patient_unique_id);
     if (obstetricResponse) {
-      setAllObstetricDetails(obstetricResponse);
+      dispatch(addObstetricDetails(obstetricResponse));
     }
   }
 
@@ -136,7 +139,9 @@ function Prescription() {
       patient_unique_id: patient_data?.patient_unique_id,
     };
     dispatch(viewPatient(sendData));
-    getAllObstetricDetails();
+    if (!isObstetricDetailsFetched) {
+      getAllObstetricDetails();
+    }
   }, []);
 
   useEffect(() => {
@@ -564,7 +569,7 @@ function Prescription() {
                   </button>
                 </div>
                 {examinationHistory?.length > 0 && (
-                  <ObstetricList examinationHistory={examinationHistory} />
+                  <ObstetricList />
                 )}
               </div>
 
@@ -693,7 +698,7 @@ function Prescription() {
             width="100%"
             push={false}
           >
-            <Obstetric handleDrawerObstetric={handleDrawerObstetric} allObstetricDetails={allObstetricDetails} />
+            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
           </Drawer>
         )}
       </>

@@ -3,89 +3,17 @@ import "./PregnancyHistory.scss";
 import arrow from "../../../../assets/images/arrow.svg";
 import pregnancyHistoryImg from "../../../../assets/images/pregnancy-history.svg";
 import moment from "moment";
+import { useSelector } from "react-redux";
+import {
+  AbortionColumns,
+  EctopicColumns,
+  LiveColumns,
+  OutcomeOptions,
+} from "../../utils/ObstetricHelper";
 
-const liveColumns = [
-  {
-    title: "Mode of delivery",
-    key: "deliveryMode",
-    width: "22%",
-  },
-  {
-    title: "Date of delivery",
-    key: "dateOfDelivery",
-    width: "12%",
-  },
-  {
-    title: "Gender",
-    key: "gender",
-    width: "12%",
-  },
-  {
-    title: "Baby's Weight",
-    key: "babysWeight",
-    width: "12%",
-  },
-  {
-    title: "Remarks",
-    key: "remarks",
-    width: "42%",
-  },
-];
-
-const ectopicColumns = [
-  {
-    title: "Period of gestation",
-    key: "monthOfPregnancy",
-    width: "22%",
-  },
-  {
-    title: "Location",
-    key: "location",
-    width: "18%",
-  },
-  {
-    title: "Mode of management",
-    key: "modeOfAbortion",
-    width: "18%",
-  },
-  {
-    title: "Remarks",
-    key: "remarks",
-    width: "42%",
-  },
-];
-
-const abortionColumns = [
-  {
-    title: "Period of gestation",
-    key: "monthOfPregnancy",
-    width: "22%",
-  },
-  {
-    title: "Type of abortion",
-    key: "typeOfAbortion",
-    width: "18%",
-  },
-  {
-    title: "Mode of abortion",
-    key: "modeOfAbortion",
-    width: "18%",
-  },
-  {
-    title: "Remarks",
-    key: "remarks",
-    width: "42%",
-  },
-];
-
-const outcomes = {
-  live: "Live",
-  stillBirth: "Still Birth",
-  abortion: "Abortion",
-  ectopic: "Ectopic",
-};
-
-const PregnancyHistory = ({ pregnancyHistory }) => {
+const PregnancyHistory = () => {
+  const { obstetricDetails } = useSelector((state) => state.obstetric);
+  const { pregnancyHistory } = obstetricDetails;
   const renderTableTitle = (gravidaItem) => {
     const onEdit = () => {
       console.log("item", gravidaItem);
@@ -124,8 +52,8 @@ const PregnancyHistory = ({ pregnancyHistory }) => {
   const renderTableData = (gravidaItem) => {
     return (
       <>
-        {gravidaItem.outcome === outcomes.live ||
-        gravidaItem.outcome === outcomes.stillBirth ? (
+        {gravidaItem.outcome === OutcomeOptions.live ||
+        gravidaItem.outcome === OutcomeOptions.stillBirth ? (
           <tr>
             <td className="obstetricTcell">{gravidaItem.deliveryMode}</td>
             <td className="obstetricTcell">
@@ -137,14 +65,14 @@ const PregnancyHistory = ({ pregnancyHistory }) => {
             <td className="obstetricTcell">{gravidaItem.babysWeight}</td>
             <td className="obstetricTcell">{gravidaItem.remarks}</td>
           </tr>
-        ) : gravidaItem.outcome === outcomes.ectopic ? (
+        ) : gravidaItem.outcome === OutcomeOptions.ectopic ? (
           <tr>
             <td className="obstetricTcell">{gravidaItem.monthOfPregnancy}</td>
             <td className="obstetricTcell">{gravidaItem.location}</td>
             <td className="obstetricTcell">{gravidaItem.modeOfAbortion}</td>
             <td className="obstetricTcell">{gravidaItem.remarks}</td>
           </tr>
-        ) : gravidaItem.outcome === outcomes.abortion ? (
+        ) : gravidaItem.outcome === OutcomeOptions.abortion ? (
           <tr>
             <td className="obstetricTcell">{gravidaItem.monthOfPregnancy}</td>
             <td className="obstetricTcell">{gravidaItem.typeOfAbortion}</td>
@@ -163,14 +91,14 @@ const PregnancyHistory = ({ pregnancyHistory }) => {
           {pregnancyHistory.map((gravidaItem, index) => {
             let columns = [];
             if (
-              gravidaItem.outcome === outcomes.live ||
-              gravidaItem.outcome === outcomes.stillBirth
+              gravidaItem.outcome === OutcomeOptions.live ||
+              gravidaItem.outcome === OutcomeOptions.stillBirth
             ) {
-              columns = liveColumns;
-            } else if (gravidaItem.outcome === outcomes.ectopic) {
-              columns = ectopicColumns;
-            } else if (gravidaItem.outcome === outcomes.abortion) {
-              columns = abortionColumns;
+              columns = LiveColumns;
+            } else if (gravidaItem.outcome === OutcomeOptions.ectopic) {
+              columns = EctopicColumns;
+            } else if (gravidaItem.outcome === OutcomeOptions.abortion) {
+              columns = AbortionColumns;
             }
             return (
               <div key={index}>

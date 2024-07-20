@@ -7,6 +7,8 @@ import "./VisitObstetric.scss";
 import { fetchAllObstetricDetails } from "../../service";
 import moment from "moment";
 import { getOrdinalSuffix } from "../../../growthChart/growthChartHelper";
+import { useDispatch, useSelector } from "react-redux";
+import { addObstetricDetails } from "../../../../redux/obstetricSlice";
 
 const visitColumn = [
   {
@@ -53,6 +55,10 @@ const visitColumn = [
 
 export default function VisitObstetric() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { obstetricDetails, isObstetricDetailsFetched } = useSelector(
+    (state) => state.obstetric
+  );
   const { state } = useLocation();
   const { patient_data } = state;
 
@@ -75,15 +81,23 @@ export default function VisitObstetric() {
   }, [viewMore]);
 
   useEffect(() => {
-    getAllObstetricDetails();
+    if (!isObstetricDetailsFetched) {
+      getAllObstetricDetails();
+    }
   }, []);
+
+  useEffect(() => {
+    if (obstetricDetails?.examinationHistory?.[0]) {
+      setPreviousVisit(obstetricDetails.examinationHistory[0]);
+    }
+  }, [obstetricDetails]);
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
       patient_data.patient_unique_id
     );
-    if (obstetricResponse?.examinationHistory?.[0]) {
-      setPreviousVisit(obstetricResponse.examinationHistory[0]);
+    if (obstetricResponse) {
+      dispatch(addObstetricDetails(obstetricResponse));
     }
   };
 

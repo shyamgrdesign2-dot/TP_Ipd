@@ -2,71 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Button, Collapse, Divider } from "antd";
 import ReadMore from "../../../../common/ReadMore";
 import "./ObstetricList.scss";
+import { useSelector } from "react-redux";
+import { obstetricTabListColumns } from "../../utils/ObstetricHelper";
 
-const obstetricColumns = [
-  {
-    title: "Pallor",
-    key: "pallor",
-    siUnit: "",
-  },
-  {
-    title: "Oedema",
-    key: "oedema",
-    siUnit: "",
-  },
-  {
-    title: "BMI",
-    key: "mothersBMI",
-    siUnit: " kg/m2",
-  },
-  {
-    title: "Systolic",
-    key: "systolic",
-    siUnit: " mmHg",
-  },
-  {
-    title: "Diastolic",
-    key: "diastolic",
-    siUnit: " mmHg",
-  },
-  {
-    title: "Fundus",
-    key: "heightOfFundus",
-    siUnit: " cm",
-  },
-  {
-    title: "Presentation",
-    key: "presentation",
-    siUnit: "",
-  },
-  {
-    title: "Fluid Index",
-    key: "fluidIndex",
-    siUnit: " cm",
-  },
-  {
-    title: "FHR",
-    key: "foetalHeartRate",
-    siUnit: " bpm",
-  },
-  {
-    title: "Notes",
-    key: "notes",
-    siUnit: "",
-  },
-];
-
-const TabObstetricList = ({
-  examinationHistory,
-  handleCollapsed,
-  handleDrawerObstetric,
-}) => {
+const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
+  const { obstetricDetails } = useSelector((state) => state.obstetric);
+  const { examinationHistory } = obstetricDetails;
   const [accordionItems, setAccordionItems] = useState([]);
 
   const measurementDetails = (obsVisit) => {
     return (
       <div style={{ display: "flex", flexDirection: "column", rowGap: "16px" }}>
-        {obstetricColumns.map((visitItem, index) => {
+        {obstetricTabListColumns.map((visitItem, index) => {
           let value =
             typeof obsVisit[visitItem.key] === "boolean"
               ? obsVisit[visitItem.key]

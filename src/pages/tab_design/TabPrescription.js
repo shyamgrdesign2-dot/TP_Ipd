@@ -54,6 +54,7 @@ import { useAccess } from "../vaccination/useAccess";
 import Obstetric from "../obstetric/Obstetric";
 import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
 import { fetchAllObstetricDetails } from "../obstetric/service";
+import { addObstetricDetails } from "../../redux/obstetricSlice";
 
 function TabPrescription() {
   const {
@@ -65,6 +66,10 @@ function TabPrescription() {
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
+  const { obstetricDetails, isObstetricDetailsFetched } = useSelector(
+    (state) => state.obstetric
+  );
+  const { examinationHistory = [] } = obstetricDetails;
   const dispatch = useDispatch();
 
   const { state } = useLocation();
@@ -90,11 +95,9 @@ function TabPrescription() {
   const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
   const [obstetricDrawer, setObstetricDrawer] = useState(false);
   const [isGrowthChart, setIsGrowthChart] = useState(false);
-  const [allObstetricDetails, setAllObstetricDetails] = useState(null);
   const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
-  const { examinationHistory = [] } = allObstetricDetails || {};
 
   const contextApi = {
     patient_data,
@@ -137,7 +140,7 @@ function TabPrescription() {
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(patient_data.patient_unique_id);
     if (obstetricResponse) {
-      setAllObstetricDetails(obstetricResponse);
+      dispatch(addObstetricDetails(obstetricResponse));
     }
   }
 
@@ -146,7 +149,9 @@ function TabPrescription() {
       patient_unique_id: patient_data?.patient_unique_id,
     };
     dispatch(viewPatient(sendData));
-    getAllObstetricDetails();
+    if (!isObstetricDetailsFetched) {
+      getAllObstetricDetails();
+    }
   }, []);
 
   useEffect(() => {
@@ -646,7 +651,6 @@ function TabPrescription() {
                   />
               ) : collapsedFlag === 6 && (
                 <TabObstetricList
-                  examinationHistory={examinationHistory}
                   handleCollapsed={() => setCollapsed(!collapsed)}
                   handleDrawerObstetric={handleDrawerObstetric} />
               )}
@@ -770,7 +774,7 @@ function TabPrescription() {
             width="100%"
             push={false}
           >
-            <Obstetric handleDrawerObstetric={handleDrawerObstetric} allObstetricDetails={allObstetricDetails} />
+            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
           </Drawer>
         )}
       </>
