@@ -697,11 +697,17 @@ function MedicalHistoryBox(props) {
         if (key === "pain" && value === "None") {
             setGynecHistory(prevState => ({ ...prevState, ["occurrenceOfPain"]: null }));
         }
+
+        if (key === "ageAtMenarche" && value === "number") {
+            setGynecHistory(prevState => ({ ...prevState, [key]: null }));
+        }
+
         setGynecHistory(prevState => {
             if (!prevState) {
                 return { [key]: value }; // Handle case when prevState is null or undefined
             }
             if (prevState[key] === value && activeMenstrualData === key) {
+
                 const updatedState = { ...prevState, [key]: null };
 
                 // Check for specific keys and set corresponding fields to null
@@ -741,6 +747,7 @@ function MedicalHistoryBox(props) {
                 };
             }
         });
+
         setActiveMenstrualData(key);
         switch (key) {
             case 'cycle':
@@ -803,7 +810,7 @@ function MedicalHistoryBox(props) {
 
     const handleSave = () => {
         const filteredGynecHistory = Object.keys(gynecHistory || {}).reduce((acc, key) => {
-            if (gynecHistory[key] !== '' && gynecHistory[key] !== null && gynecHistory[key] !== "custom" ) {
+            if (gynecHistory[key] !== '' && gynecHistory[key] !== null && gynecHistory[key] !== "custom" && gynecHistory[key] !== "number") {
                 acc[key] = gynecHistory[key];
             }
             return acc;
@@ -826,6 +833,7 @@ function MedicalHistoryBox(props) {
             if (data){
                 setGynecEditState("UPDATE");
                 setActiveMenstrualData("cycle")
+                setRightPanelTitle('Cycle')
             }
             setGynecHistory(data);
             setGynecLoading(false);
@@ -843,6 +851,7 @@ function MedicalHistoryBox(props) {
     };
 
     const handleSaveClick = async () => {
+        setGynecEditState("UPDATE");
         setGynecLoading(true);
         const today = moment().toISOString();
         const hasData = hasGynecHistoryData(gynecHistory);
@@ -854,7 +863,7 @@ function MedicalHistoryBox(props) {
 
         // Filter out keys with empty string values
         const filteredGynecHistory = Object.keys(gynecHistory).reduce((acc, key) => {
-            if (gynecHistory[key] !== '' && gynecHistory[key] !== null && gynecHistory[key] !== "custom" ) {
+            if (gynecHistory[key] !== '' && gynecHistory[key] !== null && gynecHistory[key] !== "custom" && gynecHistory[key] !== "number") {
                 acc[key] = gynecHistory[key];
             }
             return acc;
@@ -900,7 +909,7 @@ function MedicalHistoryBox(props) {
     };
 
     const isCustomOrNumberOrUndefined = (value) => {
-        return value === undefined || value === '' || value === 'number' || value === 'custom' || value === null;
+        return value === undefined || value === '' || value === 'number' || value === 'custom' || value === null || value === -1;
     };
 
     const [selectedDate, setSelectedDate] = useState(null);
@@ -913,25 +922,23 @@ function MedicalHistoryBox(props) {
     return (
         <>
             <Card bordered={false} className="search-modalCard">
-                <div>
-                    <div className='modalCard-header h-60 align-items-center justify-content-between d-flex'>
-                        <div className='align-items-center d-flex h-100'>
-                            <div className='border-end h-100 text-center me-3'>
-                                <div
-                                    onClick={onSaveClicked}
-                                    // onClick={handleDrawerMedicalHistory} 
-                                    className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
-                                    <i className='icon-right'></i>
-                                </div>
-                            </div>
-                            <div className="title-common">
-                                { isGynecHistoryAccessableFromGB ? `Gynec History` :`Medical History`}
+                <div className='modalCard-header h-60 align-items-center justify-content-between d-flex'>
+                    <div className='align-items-center d-flex h-100'>
+                        <div className='border-end h-100 text-center me-3'>
+                            <div
+                                onClick={onSaveClicked}
+                                // onClick={handleDrawerMedicalHistory} 
+                                className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                                <i className='icon-right'></i>
                             </div>
                         </div>
-                        <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={onSaveClicked}>
-                            Save
-                        </Button>
+                        <div className="title-common">
+                            { isGynecHistoryAccessableFromGB ? `Gynec History` :`Medical History`}
+                        </div>
                     </div>
+                    <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={onSaveClicked}>
+                        Save
+                    </Button>
                 </div>
                 <Tabs defaultActiveKey="gynec" onChange={onTabChange}>
                     { isGynecHistoryAccessableFromGB && 
@@ -939,7 +946,7 @@ function MedicalHistoryBox(props) {
                             <div style={{marginTop: "-1rem"}}>
                                 <Row>
                                     <Col lg={12}>
-                                        <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 61px)' }}>
+                                        <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(101vh - 110px)'}}>
                                             <div className="border-bottom px-4 pt-3 pb-2">
                                                     <div className="d-flex align-items-center lmp-gynec">
                                                         <label className="pe-3">Last menstrual period :</label>
@@ -948,13 +955,16 @@ function MedicalHistoryBox(props) {
                                                             border: "1px solid #fff",
                                                             borderRadius: "18px",
                                                             }}
-                                                            placeholder={"Select Date"}
+                                                            placeholder={showDateFormat.toLowerCase()}
                                                             value={
                                                             selectedDate
                                                                 ? dayjs(selectedDate, "DD-MM-YYYY")
                                                                 : ""
                                                             }
-                                                            format={showDateFormat}
+                                                            format={{
+                                                                format: showDateFormat,
+                                                                type: 'mask',
+                                                            }}
 
                                                             onChange={onDateChanged}
                                                             disabledDate={disabledDate}
@@ -1128,11 +1138,11 @@ function MedicalHistoryBox(props) {
                                     <Col lg={12}>
                                         <div className="bg-body overflow-y-auto" style={{ height: 'calc(100vh - 61px)' }}>
                                             <h4 className="border-bottom px-4 pt-3 pb-3">{(activeMenstrualData === "reproductiveLifeStages" && !gynecHistory?.reproductiveLifeStages) ? `Lifecycle Hormonal Changes` : rightPanelTitle}</h4>
-                                            <div className="my-2 mx-4">
+                                            <div className="mb-2 mx-4">
                                                 {/* Cycle Options */}
                                                 {activeMenstrualData === "cycle" && (
                                                     <div>
-                                                        <h6 className="pt-1 pb-1">Interval of cycle (in days)</h6>
+                                                        <h6 className="pb-1">Interval of cycle (in days)</h6>
                                                         <div className="segement-static d-flex flex-wrap">
                                                             {CYCLES_LIST.map((item, i) => {
                                                                 const isCustomButton = i === CYCLES_LIST.length-1;
@@ -1164,131 +1174,131 @@ function MedicalHistoryBox(props) {
                                                 )}
                                                 {/* Flow Options */}
                                                 {activeMenstrualData === "flow" && (
-                                                <div>
-                                                    <h6 className="pt-4 pb-1">Duration of menstrual flow (in days)</h6>
-                                                    <div className="segement-static d-flex mb-3">
-                                                        {DURATION_OF_CYCLE_LIST.map((item, i) => {
-                                                            const isCustomButton = i === DURATION_OF_CYCLE_LIST.length-1;
-                                                            const isActive = gynecHistory?.durationOfMenstrualFlow === item.value || (isCustomButton && (gynecHistory?.durationOfMenstrualFlow === customCyclesDaysValue || gynecHistory?.durationOfMenstrualFlow === inputCyclesDays));
-                                                            return (
+                                                    <div>
+                                                        <h6 className="pb-1">Duration of menstrual flow (in days)</h6>
+                                                        <div className="segement-static d-flex mb-3">
+                                                            {DURATION_OF_CYCLE_LIST.map((item, i) => {
+                                                                const isCustomButton = i === DURATION_OF_CYCLE_LIST.length-1;
+                                                                const isActive = gynecHistory?.durationOfMenstrualFlow === item.value || (isCustomButton && (gynecHistory?.durationOfMenstrualFlow === customCyclesDaysValue || gynecHistory?.durationOfMenstrualFlow === inputCyclesDays));
+                                                                return (
+                                                                    <button
+                                                                        key={i}
+                                                                        type="button"
+                                                                        className={`btn cycles-intervals p-0 ${isActive ? 'btn-segement' : ''}`}
+                                                                        onClick={() => handleGynecValueChange('durationOfMenstrualFlow', item.value)}
+                                                                    >
+                                                                        {item.label}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                        <h6 className="pt-2 pb-1">Clots During Flow</h6>
+                                                        <div className="segement-static d-flex mb-3">
+                                                            {CLOTS_LIST.map((item, i) => (
                                                                 <button
                                                                     key={i}
                                                                     type="button"
-                                                                    className={`btn cycles-intervals p-0 ${isActive ? 'btn-segement' : ''}`}
-                                                                    onClick={() => handleGynecValueChange('durationOfMenstrualFlow', item.value)}
+                                                                    className={`btn p-0 ${gynecHistory?.clots === item.value ? 'btn-segement' : ''}`}
+                                                                    onClick={() => handleGynecValueChange('clots', item.value)}
                                                                 >
                                                                     {item.label}
                                                                 </button>
-                                                            );
-                                                        })}
+                                                            ))}
+                                                        </div>
+                                                        <h6 className="pt-2 pb-1">Number of Pads Per Day</h6>
+                                                        <div className="segement-static d-flex">
+                                                            {PAD_NUM_LIST.map((item, i) => {
+                                                                const isCustomButton = i === PAD_NUM_LIST.length-1;
+                                                                const isActive = gynecHistory?.numberOfPadsPerDay === item.value || (isCustomButton && (gynecHistory?.numberOfPadsPerDay === customPadNumValue || gynecHistory?.numberOfPadsPerDay === inputPadsNum));
+                                                                return (
+                                                                    <button
+                                                                        key={i}
+                                                                        type="button"
+                                                                        className={`btn cycles-intervals p-0 ${isActive ? 'btn-segement' : ''}`}
+                                                                        onClick={() => handleGynecValueChange('numberOfPadsPerDay', item.value)}
+                                                                    >
+                                                                        {item.label}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                        <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                            <label className="title-common mb-1">Note</label>
+                                                            <Input.TextArea
+                                                                value={gynecHistory?.flowNotes}
+                                                                placeholder="Enter any specific flow notes here"
+                                                                className="textareaPlaceholder"
+                                                                rows={3}
+                                                                onChange={(e) => handleNoteChange('flowNotes', e.target.value)}
+                                                            />
+                                                        </div>
                                                     </div>
-                                                    <h6 className="pt-2 pb-1">Clots During Flow</h6>
-                                                    <div className="segement-static d-flex mb-3">
-                                                        {CLOTS_LIST.map((item, i) => (
-                                                            <button
-                                                                key={i}
-                                                                type="button"
-                                                                className={`btn p-0 ${gynecHistory?.clots === item.value ? 'btn-segement' : ''}`}
-                                                                onClick={() => handleGynecValueChange('clots', item.value)}
-                                                            >
-                                                                {item.label}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                    <h6 className="pt-2 pb-1">Number of Pads Per Day</h6>
-                                                    <div className="segement-static d-flex">
-                                                        {PAD_NUM_LIST.map((item, i) => {
-                                                            const isCustomButton = i === PAD_NUM_LIST.length-1;
-                                                            const isActive = gynecHistory?.numberOfPadsPerDay === item.value || (isCustomButton && (gynecHistory?.numberOfPadsPerDay === customPadNumValue || gynecHistory?.numberOfPadsPerDay === inputPadsNum));
-                                                            return (
-                                                                <button
-                                                                    key={i}
-                                                                    type="button"
-                                                                    className={`btn cycles-intervals p-0 ${isActive ? 'btn-segement' : ''}`}
-                                                                    onClick={() => handleGynecValueChange('numberOfPadsPerDay', item.value)}
-                                                                >
-                                                                    {item.label}
-                                                                </button>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                    <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
-                                                        <label className="title-common mb-1">Note</label>
-                                                        <Input.TextArea
-                                                            value={gynecHistory?.flowNotes}
-                                                            placeholder="Enter any specific flow notes here"
-                                                            className="textareaPlaceholder"
-                                                            rows={3}
-                                                            onChange={(e) => handleNoteChange('flowNotes', e.target.value)}
-                                                        />
-                                                    </div>
-                                                </div>
                                                 )}
                                                 {/* Pain Options */}
                                                 {activeMenstrualData === "pain" && (
-                                                <div>
-                                                    <h6 className="pt-4 pb-1">Occurrence of pain</h6>
-                                                    <div className="segement-static d-flex flex-wrap">
-                                                        {PAIN_OCCURANCE_LIST.map((item, i) => (
-                                                            <button
-                                                                key={i}
-                                                                type="button"
-                                                                className={`btn p-0 pain-occurance ${gynecHistory?.occurrenceOfPain === item.value ? 'btn-segement' : ''}
-                                                                }`}
-                                                                onClick={() => handleGynecValueChange('occurrenceOfPain', item.value)}
-                                                            >
-                                                                {item.label}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                    <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
-                                                        <label className="title-common mb-1">Note</label>   
-                                                        <Input.TextArea
-                                                            value={gynecHistory?.painNotes}
-                                                            placeholder="Enter any specific pain notes here"
-                                                            className="textareaPlaceholder"
-                                                            rows={3}
-                                                            onChange={(e) => handleNoteChange('painNotes', e.target.value)}
-                                                        />
-                                                    </div>
-                                                </div>
-                                                )}
-                                                {/* Age at Menarche */}
-                                                {activeMenstrualData === "ageAtMenarche" && (
-                                                <div>
-                                                    <h6 className="pt-4 pb-1">Age at Menarche</h6>
-                                                    <div className="segement-static d-flex flex-wrap">
-                                                        {MENARCHE_LIST.map((item, i) => {
-                                                            const isCustomButton = i === MENARCHE_LIST.length-1;
-                                                            const isActive = gynecHistory?.ageAtMenarche === item.value || (isCustomButton && (gynecHistory?.ageAtMenarche === customMenarcheValue || gynecHistory?.ageAtMenarche === inputMenarche));
-                                                            return (
+                                                    <div>
+                                                        <h6 className="pb-1">Occurrence of pain</h6>
+                                                        <div className="segement-static d-flex flex-wrap">
+                                                            {PAIN_OCCURANCE_LIST.map((item, i) => (
                                                                 <button
                                                                     key={i}
                                                                     type="button"
-                                                                    className={`btn cycles-intervals p-0 ${isActive ? 'btn-segement' : ''}`}
-                                                                    onClick={() => handleGynecValueChange('ageAtMenarche', item.value)}
+                                                                    className={`btn p-0 pain-occurance ${gynecHistory?.occurrenceOfPain === item.value ? 'btn-segement' : ''}
+                                                                    }`}
+                                                                    onClick={() => handleGynecValueChange('occurrenceOfPain', item.value)}
                                                                 >
                                                                     {item.label}
                                                                 </button>
-                                                            );
-                                                        })}
+                                                            ))}
+                                                        </div>
+                                                        <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                            <label className="title-common mb-1">Note</label>   
+                                                            <Input.TextArea
+                                                                value={gynecHistory?.painNotes}
+                                                                placeholder="Enter any specific pain notes here"
+                                                                className="textareaPlaceholder"
+                                                                rows={3}
+                                                                onChange={(e) => handleNoteChange('painNotes', e.target.value)}
+                                                            />
+                                                        </div>
                                                     </div>
-                                                    <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
-                                                        <label className="title-common mb-1">Note</label>  
-                                                        <Input.TextArea
-                                                            value={gynecHistory?.menarcheNotes}
-                                                            placeholder="Enter any specific menarche notes here"
-                                                            className="textareaPlaceholder"
-                                                            rows={3}
-                                                            onChange={(e) => handleNoteChange('menarcheNotes', e.target.value)}
-                                                        />
+                                                )}
+                                                {/* Age at Menarche */}
+                                                {activeMenstrualData === "ageAtMenarche" && (
+                                                    <div>
+                                                        <h6 className="pb-1">Age at Menarche</h6>
+                                                        <div className="segement-static d-flex flex-wrap">
+                                                            {MENARCHE_LIST.map((item, i) => {
+                                                                const isCustomButton = i === MENARCHE_LIST.length-1;
+                                                                const isActive = gynecHistory?.ageAtMenarche === item.value || (isCustomButton && (gynecHistory?.ageAtMenarche === customMenarcheValue || gynecHistory?.ageAtMenarche === inputMenarche));
+                                                                return (
+                                                                    <button
+                                                                        key={i}
+                                                                        type="button"
+                                                                        className={`btn cycles-intervals p-0 ${isActive ? 'btn-segement' : ''}`}
+                                                                        onClick={() => handleGynecValueChange('ageAtMenarche', item.value)}
+                                                                    >
+                                                                        {item.label}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                        <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                            <label className="title-common mb-1">Note</label>  
+                                                            <Input.TextArea
+                                                                value={gynecHistory?.menarcheNotes}
+                                                                placeholder="Enter any specific menarche notes here"
+                                                                className="textareaPlaceholder"
+                                                                rows={3}
+                                                                onChange={(e) => handleNoteChange('menarcheNotes', e.target.value)}
+                                                            />
+                                                        </div>
                                                     </div>
-                                                </div>
                                                 )}
                                                 {/* Reproductive Life stages*/}
                                                 {activeMenstrualData === "reproductiveLifeStages" && gynecHistory?.reproductiveLifeStages &&(
                                                     <div>
-                                                        <h6 className="pt-4 pb-1">Age at {gynecHistory?.reproductiveLifeStages}</h6>
+                                                        <h6 className="pb-1">Age at {gynecHistory?.reproductiveLifeStages}</h6>
                                                         <div className="segement-static d-flex mb-2">
                                                             {MENOPAUSE_LIST.map((item, i) => {
                                                                 const isCustomButton = i === MENOPAUSE_LIST.length-1;

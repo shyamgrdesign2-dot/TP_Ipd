@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import Card from 'react-bootstrap/Card';
 import { Spin } from 'antd';
+import moment from 'moment';
 
 import MedicalHistoryicon from '../assets/images/Medical-History.svg';
 import arrowright from '../assets/images/arrow-box-right.svg';
@@ -62,82 +63,64 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                 <div className="cardbody-data border rounded px-2 my-2">
                                     <div className="my-2">
                                         {gynecHistory.lmp && (
-                                            <>
-                                                <span>LMP</span> : <label>{new Date(gynecHistory.lmp).toISOString().split('T')[0]}</label>
-                                            </>
-                                        )}
-                                    </div>
-                                    <div className="my-2">
-                                        {gynecHistory.cycle && (
-                                            <>
-                                                <span>Cycle</span> : <label>{gynecHistory.cycle}</label> | 
-                                            </>
-                                        )}
-                                        {gynecHistory.intervalOfCycle && (
-                                            <>
-                                                <span>Cycle Interval</span> : <label>{gynecHistory.intervalOfCycle}</label> | 
-                                            </>
-                                        )}
-                                        {gynecHistory.flow && (
-                                            <>
-                                                <span>Flow</span> : <label>{gynecHistory.flow}</label> |
-                                            </>
-                                        )}
-                                    </div>
-                                    <div className="my-2">
-                                        {gynecHistory.durationOfMenstrualFlow && (
-                                            <>
-                                                <span>Duration</span> : <label>{gynecHistory.durationOfMenstrualFlow} days</label> |
-                                            </>
-                                        )}
-                                        {gynecHistory.clots !== undefined && (
-                                            <>
-                                                <span>Clots</span> : <label>{gynecHistory.clots ? 'Yes' : 'No'}</label> |
-                                            </>
-                                        )}
-                                        {gynecHistory.numberOfPadsPerDay && (
-                                            <>
-                                                <span>Pads per day</span> : <label>{gynecHistory.numberOfPadsPerDay}</label> |
-                                            </>
-                                        )}
-                                    </div>
-                                    <div className="my-2">
-                                        {gynecHistory.pain && (
-                                            <>
-                                                <span>Pain</span> : <label>{gynecHistory.pain}</label> |
-                                            </>
-                                        )}
-                                        {gynecHistory.occurrenceOfPain && (
-                                            <>
-                                                <span>Occurrence</span> : <label>{gynecHistory.occurrenceOfPain}</label> |
-                                            </>
+                                            <> <span>LMP</span> : <label>{moment(gynecHistory.lmp).format('DD/MM/YYYY')}</label> </>
                                         )}
                                     </div>
                                     <div className="my-2">
                                         {gynecHistory.ageAtMenarche && (
-                                            <>
-                                                <span>Menarche at</span> : <label>{gynecHistory.ageAtMenarche} Years</label> |
-                                            </>
+                                            <> <span>Menarche at</span> : <label>{gynecHistory.ageAtMenarche} years</label> | </>
+                                        )}
+                                        {gynecHistory.menarcheNotes && (
+                                            <> <span> Menarche notes</span> : <label>{gynecHistory.menarcheNotes}</label> | </>
+                                        )}
+                                        {gynecHistory.cycle && (
+                                            <> <span>Cycle</span> : <label>{gynecHistory.cycle}</label> | </>
+                                        )}
+                                        {gynecHistory.intervalOfCycle && (
+                                            <> <span>Cycle Interval</span> : <label>{gynecHistory.intervalOfCycle} days</label> | </>
+                                        )}
+                                        {gynecHistory.cycleNotes && (
+                                            <> <span>Cycle Note</span> : <label>{gynecHistory.cycleNotes}</label> | </>
+                                        )}
+                                        {gynecHistory.flow && (
+                                            <> <span>Flow</span> : <label>{gynecHistory.flow}</label> | </>
+                                        )}
+                                        {gynecHistory.durationOfMenstrualFlow && (
+                                            <> <span>Duration</span> : <label>{gynecHistory.durationOfMenstrualFlow} days</label> | </>
+                                        )}
+                                        {gynecHistory.clots !== undefined && gynecHistory.clots !== '' && (
+                                            <> <span> Clots</span> : <label>{gynecHistory.clots ? 'Yes' : 'No'}</label> | </>
+                                        )}
+                                        {gynecHistory.numberOfPadsPerDay && (
+                                            <> <span> Pads per day</span> : <label>{gynecHistory.numberOfPadsPerDay}</label> | </>
+                                        )}
+                                        {gynecHistory.flowNotes && (
+                                            <> <span> Flow notes</span> : <label>{gynecHistory.flowNotes}</label> | </>
+                                        )}
+                                        {gynecHistory.pain && (
+                                            <> <span>Pain</span> : <label>{gynecHistory.pain}</label> | </>
+                                        )}
+                                        {gynecHistory.occurrenceOfPain && (
+                                            <> <span> Occurrence</span> : <label>{gynecHistory.occurrenceOfPain}</label> | </>
+                                        )}
+                                        {gynecHistory.painNotes && (
+                                            <> <span> Pain note</span> : <label>{gynecHistory.painNotes}</label> | </>
                                         )}
                                         {gynecHistory.ageAtMenopause && (
-                                            <>
-                                                <span>Menopause at</span> : <label>{gynecHistory.ageAtMenopause}</label>
-                                            </>
+                                            <> <span>{gynecHistory?.reproductiveLifeStages} at</span> : <label>{gynecHistory.ageAtMenopause} years</label> |</>
                                         )}
                                         {gynecHistory.typeOfMenopause && (
-                                            <>
-                                                <span>Menopause type</span> : <label>{gynecHistory.typeOfMenopause}</label>
-                                            </>
+                                            <> <span>{gynecHistory?.reproductiveLifeStages} type</span> : <label>{gynecHistory.typeOfMenopause}</label> </>
+                                        )}
+                                        {gynecHistory.menopauseNotes && (
+                                            <> <span>{gynecHistory?.reproductiveLifeStages} note</span> : <label>{gynecHistory.menopauseNotes}</label> </>
                                         )}
                                     </div>
-                                </div>
-                                <div className="my-2">
-                                    {gynecHistory.notes && (
-                                        <>
-                                            <span>Notes</span>
-                                            <div className='border rounded px-2'>{gynecHistory.notes}</div>
-                                        </>
-                                    )}
+                                    <div className="my-2">
+                                        {gynecHistory.notes && (
+                                            <> <span>Mensuration Notes</span> : <label>{gynecHistory.notes}</label> </>
+                                        )}
+                                    </div>
                                 </div>
                             </>
                         ) : (
