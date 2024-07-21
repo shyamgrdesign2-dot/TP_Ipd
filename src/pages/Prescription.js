@@ -466,17 +466,17 @@ function Prescription() {
                         {" "}
                         <i
                           className={`${
-                            medicalHistoryData.length > 0 || updatedGynecHistory
+                            medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 2)
                               ? "icon-Edit"
                               : "icon-Add"
                           } me-1 fs-5`}
                         ></i>{" "}
                         <span>{`${
-                          medicalHistoryData.length > 0 || updatedGynecHistory ? "Edit" : "Add"
+                          medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 2) ? "Edit" : "Add"
                         }`}</span>
                       </button>
                     </div>
-                    { (medicalHistoryData.length > 0 || updatedGynecHistory ) &&  <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
+                    { (medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 2) ) &&  <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
                   </div>
                 ) : 
                   e.tmdpm_id === 7 &&
@@ -613,6 +613,7 @@ function Prescription() {
           </Drawer>
         )}
         <Drawer
+          className="scroll-y-hidden"
           closeIcon={false}
           placement="right"
           onClose={handleDrawerMedicalHistory}

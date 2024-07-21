@@ -21,6 +21,13 @@ function TabGynecHistoryList(props) {
                                     <div className="fontroboto text-history fw-normal">{new Date(gynecHistory.lmp).toISOString().split('T')[0]}</div>
                                 </div>
                             )}
+                            {gynecHistory.ageAtMenarche && (
+                                <div key="ageAtMenarche" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">Menarche at</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="fontroboto text-history fw-normal">{gynecHistory.ageAtMenarche} Years</div>
+                                </div>
+                            )}
                             {gynecHistory.cycle && (
                                 <div key="cycle" className="d-flex justify-content-between align-items-center my-2">
                                     <div className="text-history font-roboto fw-medium">Cycle</div>
@@ -77,23 +84,16 @@ function TabGynecHistoryList(props) {
                                     <div className="fontroboto text-history fw-normal">{gynecHistory.occurrenceOfPain}</div>
                                 </div>
                             )}
-                            {gynecHistory.ageAtMenarche && (
-                                <div key="ageAtMenarche" className="d-flex justify-content-between align-items-center my-2">
-                                    <div className="text-history font-roboto fw-medium">Menarche at</div>
-                                    <div className="semicolon">:</div>
-                                    <div className="fontroboto text-history fw-normal">{gynecHistory.ageAtMenarche} Years</div>
-                                </div>
-                            )}
                             {gynecHistory.ageAtMenopause && (
-                                <div key="ageAtMenarche" className="d-flex justify-content-between align-items-center my-2">
-                                    <div className="text-history font-roboto fw-medium">Menopause at</div>
+                                <div key="ageAtMenopause" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fw-medium">{gynecHistory?.reproductiveLifeStages} at</div>
                                     <div className="semicolon">:</div>
                                     <div className="fontroboto text-history fw-normal">{gynecHistory.ageAtMenopause} Years</div>
                                 </div>
                             )}
                             {gynecHistory.typeOfMenopause && (
                                 <div key="typeOfMenopause" className="d-flex justify-content-between align-items-center my-2">
-                                    <div className="text-history font-roboto fw-medium">Menopause type</div>
+                                    <div className="text-history font-roboto fw-medium">{gynecHistory?.reproductiveLifeStages} type</div>
                                     <div className="semicolon">:</div>
                                     <div className="fontroboto text-history fw-normal">{gynecHistory.typeOfMenopause}</div>
                                 </div>
