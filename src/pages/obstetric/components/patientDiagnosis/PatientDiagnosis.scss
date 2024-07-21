@@ -9,6 +9,38 @@
     padding: 24px 10px;
   }
 
+  .patientDiagnosisAccordian {
+    &.ant-collapse {
+      background-color: transparent;
+      .ant-collapse-item {
+        &.ant-collapse-item-active {
+          border: 0 !important;
+          padding-bottom: 0;
+        }
+        .ant-collapse-header {
+          background: transparent !important;
+          padding: 0px;
+          line-height: 24px;
+          .ant-collapse-expand-icon:after {
+            width: 22px;
+            height: 22px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-color: #a2a2a8;
+          }
+        }
+        .ant-collapse-content {
+          background: transparent !important;
+          border-top: 0;
+          border-radius: 0 !important;
+          padding-bottom: 5px;
+        }
+      }
+    }
+  }
+
   .diagnosisTitle {
     font-size: 16px;
     font-weight: 500;
@@ -16,6 +48,7 @@
     padding-bottom: 20px;
   }
   .diagnosisItems {
+    padding-top: 15px;
     display: flex;
     flex-direction: column;
     row-gap: 18px;

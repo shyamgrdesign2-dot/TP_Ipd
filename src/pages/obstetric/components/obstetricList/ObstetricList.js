@@ -23,29 +23,68 @@ const ObstetricList = () => {
             style={{ borderRadius: "8px", padding: "5px 15px" }}
           >
             <div className="my-2">
-              <span>Polar</span> :{" "}
-              <label>{visitItem.pallor ? "Yes" : "No"}</label>
-              {" | "}
-              <span>Oedema</span> :{" "}
-              <label>{visitItem.oedma ? "Yes" : "No"}</label> {" | "}
-              <span>BMI</span>: <label>{visitItem.mothersBMI} kg/m2</label>
+              {typeof visitItem.pallor === "boolean" ? (
+                <>
+                  <span>Polar : </span>
+                  <label>{`${visitItem.pallor ? " Yes " : " No "} | `}</label>{" "}
+                </>
+              ) : null}
+              {typeof visitItem.oedema === "boolean" ? (
+                <>
+                  <span>Oedema : </span>
+                  <label>{`${visitItem.oedema ? " Yes " : " No "} | `}</label>{" "}
+                </>
+              ) : null}
+              {visitItem.mothersBMI ? (
+                <>
+                  <span>BMI : </span>
+                  <label>{visitItem.mothersBMI} kg/m2</label>
+                </>
+              ) : null}
             </div>
             <div className="my-2">
-              <span>Systolic</span> : <label>{visitItem.systolic} mmHg</label>{" "}
-              {" | "}
-              <span>Diastolic</span> : <label>{visitItem.diastolic} mmHg</label>
+              {visitItem.systolic ? (
+                <>
+                  <span>Systolic : </span>
+                  <label>{visitItem.systolic} mmHg | </label>{" "}
+                </>
+              ) : null}
+              {visitItem.diastolic ? (
+                <>
+                  <span>Diastolic : </span>
+                  <label>{visitItem.diastolic} mmHg</label>
+                </>
+              ) : null}
             </div>
             <div className="my-2">
-              <span>Fundus</span> : <label>{visitItem.heightOfFundus} cm</label>
-              {" | "}
-              <span>Presentation</span> :{" "}
-              <label>{visitItem.presentation}</label>
+              {visitItem.heightOfFundus ? (
+                <>
+                  <span>Fundus : </span>
+                  <label>{visitItem.heightOfFundus} cm</label>
+                  {" | "}
+                </>
+              ) : null}
+              {visitItem.presentation ? (
+                <>
+                  <span>Presentation : </span>
+                  <label>{visitItem.presentation}</label>{" "}
+                </>
+              ) : null}
             </div>
             <div className="my-2">
-              <span>Fluid index</span> :{" "}
-              <label>{visitItem.fluidIndex} cm</label>
-              {" | "}
-              <span>FHR</span> : <label>{visitItem.foetalHeartRate} bpm</label>
+              {visitItem.fluidIndex ? (
+                <>
+                  <span>Fluid index : </span>
+                  <label>{visitItem.fluidIndex} cm</label>
+                  {" | "}
+                </>
+              ) : null}
+              {visitItem.foetalHeartRate ? (
+                <>
+                  <span>FHR : </span>
+                  <label>{visitItem.foetalHeartRate} bpm</label>
+                </>
+              ) : null}
             </div>
           </div>
           <div
