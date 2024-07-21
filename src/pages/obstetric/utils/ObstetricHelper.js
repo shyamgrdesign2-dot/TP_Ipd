@@ -2,42 +2,42 @@ export const ExaminationColumns = [
   {
     title: "Visits",
     key: "date",
-    width: "20%",
+    width: "10%",
   },
   {
     title: "Pallor",
     key: "pallor",
-    width: "5%",
+    width: "6%",
   },
   {
     title: "Oedema",
     key: "oedema",
-    width: "5%",
+    width: "8%",
   },
   {
     title: "BMI",
     key: "mothersBMI",
-    width: "8%",
+    width: "7%",
   },
   {
     title: "BP",
     key: "bp",
-    width: "8%",
+    width: "7%",
   },
   {
     title: "Fundus Height",
     key: "heightOfFundus",
-    width: "8%",
+    width: "7%",
   },
   {
     title: "Presentation",
     key: "presentation",
-    width: "8%",
+    width: "11%",
   },
   {
     title: "Fluid Index",
     key: "fluidIndex",
-    width: "8%",
+    width: "6%",
   },
   {
     title: "Fetal Heart Rate",
@@ -47,12 +47,12 @@ export const ExaminationColumns = [
   {
     title: "Note",
     key: "note",
-    width: "27%",
+    width: "21%",
   },
   {
     title: "Action",
     key: "action",
-    width: "5%",
+    width: "7%",
   },
 ];
 

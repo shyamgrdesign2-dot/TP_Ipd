@@ -5,19 +5,21 @@ import "./Examination.scss";
 import moment from "moment";
 import { useSelector } from "react-redux";
 import { ExaminationColumns } from "../../utils/ObstetricHelper";
+import ReadMore from "../../../../common/ReadMore";
 
 const Examination = () => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { examinationHistory } = obstetricDetails;
+
   const renderTableHeader = () => {
     return (
       <tr>
         {ExaminationColumns?.map((header, index) => (
           <th
             key={index}
-            className="tcell theaderCellStyle"
+            className="obstetricTcell theaderCellStyle"
             style={{
-              width: `${header.width}`,
+              width: header.width,
             }}
           >
             {header.title}
@@ -49,7 +51,9 @@ const Examination = () => {
         <td className="obstetricTcell">{item.presentation}</td>
         <td className="obstetricTcell">{item.fluidIndex}</td>
         <td className="obstetricTcell">{item.foetalHeartRate + " BPM"}</td>
-        <td className="obstetricTcell">{item.notes}</td>
+        <td className="obstetricTcell">
+          <ReadMore text={item.notes} textLimit={70} />
+        </td>
         <td className="obstetricTcell">
           <div className="editIcon" onClick={() => onEdit(item)}>
             <i className={"icon-Edit me-1 fs-5"} />
@@ -59,12 +63,13 @@ const Examination = () => {
       </tr>
     ));
   };
+
   return (
     <div>
       {examinationHistory?.length ? (
         <>
           <div className="examinationTableViewContainer">
-            <table className="tableView">
+            <table className="tableView" style={{ tableLayout: "fixed" }}>
               <thead>{renderTableHeader()}</thead>
               <tbody>{renderTableData()}</tbody>
             </table>

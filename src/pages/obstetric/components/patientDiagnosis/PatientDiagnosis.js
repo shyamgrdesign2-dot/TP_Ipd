@@ -333,7 +333,7 @@ export default function PatientDiagnosis() {
               onChange={(e) =>
                 handlePatientDiagnosis(
                   e.target.value,
-                  "marriageDurationInYears",
+                  "marriageDurationYears",
                   e.target.validity.valid
                 )
               }
@@ -347,7 +347,7 @@ export default function PatientDiagnosis() {
               onChange={(e) =>
                 handlePatientDiagnosis(
                   e.target.value,
-                  "marriageDurationInMonths",
+                  "marriageDurationMonths",
                   e.target.validity.valid
                 )
               }

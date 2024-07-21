@@ -10,9 +10,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 
 const Obstetric = ({ handleDrawerObstetric }) => {
-  const { obstetricDetails } = useSelector(
-    (state) => state.obstetric
-  );
+  const { obstetricDetails } = useSelector((state) => state.obstetric);
 
   const [showLmpPopup, setShowLmpPopup] = useState(!obstetricDetails?.lmp);
 
@@ -22,16 +20,19 @@ const Obstetric = ({ handleDrawerObstetric }) => {
         handleDrawerVaccination={handleDrawerObstetric}
         isObstetric={true}
       />
-      <PatientDiagnosis />
 
-      <Tabs defaultActiveKey="pregnancyHistory">
-        <TabPane tab="Pregnancy History" key="pregnancyHistory">
-          <PregnancyHistory />
-        </TabPane>
-        <TabPane tab="Examination" key="examination">
-          <Examination />
-        </TabPane>
-      </Tabs>
+      <div className="scrollableContainer">
+        <PatientDiagnosis />
+
+        <Tabs defaultActiveKey="pregnancyHistory">
+          <TabPane tab="Pregnancy History" key="pregnancyHistory">
+            <PregnancyHistory />
+          </TabPane>
+          <TabPane tab="Examination" key="examination">
+            <Examination />
+          </TabPane>
+        </Tabs>
+      </div>
       {showLmpPopup && (
         <LmpPopup
           handleDrawerObstetric={handleDrawerObstetric}

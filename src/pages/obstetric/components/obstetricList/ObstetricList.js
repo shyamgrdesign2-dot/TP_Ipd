@@ -87,12 +87,14 @@ const ObstetricList = () => {
               ) : null}
             </div>
           </div>
-          <div
-            className="cardbody-data mt-2 border visitItem"
-            style={{ borderRadius: "8px", padding: "5px 15px" }}
-          >
-            <ReadMore text={visitItem.notes} textLimit={100} />
-          </div>
+          {visitItem?.notes?.length ? (
+            <div
+              className="cardbody-data mt-2 border visitItem"
+              style={{ borderRadius: "8px", padding: "5px 15px" }}
+            >
+              <ReadMore text={visitItem.notes} textLimit={100} />
+            </div>
+          ) : null}
         </div>
       ),
     }));
