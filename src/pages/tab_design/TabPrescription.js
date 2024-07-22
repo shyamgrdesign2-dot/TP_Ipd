@@ -52,6 +52,9 @@ import GrowthChart from "../growthChart/GrowthChart";
 import { viewPatient } from "../../redux/appointmentsSlice";
 import { useAccess } from "../vaccination/useAccess";
 import Obstetric from "../obstetric/Obstetric";
+import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
+import { fetchAllObstetricDetails } from "../obstetric/service";
+import { addObstetricDetails } from "../../redux/obstetricSlice";
 
 function TabPrescription() {
   const {
@@ -63,12 +66,15 @@ function TabPrescription() {
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
+  const { obstetricDetails, isObstetricDetailsFetched } = useSelector(
+    (state) => state.obstetric
+  );
+  const { examinationHistory = [] } = obstetricDetails;
   const dispatch = useDispatch();
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
-  const isVaccination = state?.isVaccination;
-  const isGrowth = state?.isGrowth;
+  const chartType = state?.chartType;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -131,11 +137,21 @@ function TabPrescription() {
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
 
+  const getAllObstetricDetails = async () => {
+    const obstetricResponse = await fetchAllObstetricDetails(patient_data.patient_unique_id);
+    if (obstetricResponse) {
+      dispatch(addObstetricDetails(obstetricResponse));
+    }
+  }
+
   useEffect(() => {
     const sendData = {
       patient_unique_id: patient_data?.patient_unique_id,
     };
     dispatch(viewPatient(sendData));
+    if (!isObstetricDetailsFetched) {
+      getAllObstetricDetails();
+    }
   }, []);
 
   useEffect(() => {
@@ -305,16 +321,14 @@ function TabPrescription() {
   };
 
   useEffect(() => {
-    if (isVaccination) {
+    if (chartType === "vaccination") {
       handleDrawerVaccination();
-    }
-  }, [isVaccination]);
-
-  useEffect(() => {
-    if (isGrowth) {
+    } else if (chartType === "growthChart") {
       handleDrawerGrowth();
+    } else if (chartType === "obstetric") {
+      handleDrawerObstetric();
     }
-  }, [isGrowth]);
+  }, [chartType]);
 
   //Handle Sider
   const openCollapsed = useCallback(
@@ -558,7 +572,7 @@ function TabPrescription() {
                         type="button"
                         className="mb-3 text-center btn btn-action"
                         style={{padding: "0px"}}
-                        onClick={handleDrawerObstetric}
+                        onClick={() => examinationHistory.length === 0 ? handleDrawerObstetric : openCollapsed(6)}
                       >
                         <div
                           className={`prescription-tab-button rounded-10px ${
@@ -629,12 +643,16 @@ function TabPrescription() {
                   handleDrawerMedicalHistory={handleDrawerMedicalHistory}
                   handleCollapsed={() => setCollapsed(!collapsed)}
                 />
-              ) : collapsedFlag === 4 && (
+              ) : collapsedFlag === 4 ? (
                   <TabPrivateNotesList
                     mode={caseManagerData !== undefined ? EDIT : ADD}
                     handleDrawerPrivateNotes={handleDrawerPrivateNotes}
                     handleCollapsed={() => setCollapsed(!collapsed)}
                   />
+              ) : collapsedFlag === 6 && (
+                <TabObstetricList
+                  handleCollapsed={() => setCollapsed(!collapsed)}
+                  handleDrawerObstetric={handleDrawerObstetric} />
               )}
             </Sider>
             <div

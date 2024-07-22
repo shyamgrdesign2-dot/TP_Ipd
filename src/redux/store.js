@@ -17,6 +17,7 @@ import caseManagerSlice from './caseManagerSlice';
 import followUpSlice from './followUpSlice';
 import vaccineSlice from './vaccineSlice';
 import growthChartSlice from './growthChartSlice';
+import obstetricSlice from './obstetricSlice';
 
 const persistConfig = {
   key: 'root',
@@ -38,7 +39,8 @@ const rootReducer = combineReducers({
   caseManager: caseManagerSlice,
   followUp: followUpSlice,
   vaccines: vaccineSlice,
-  growthChart: growthChartSlice
+  growthChart: growthChartSlice,
+  obstetric: obstetricSlice
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

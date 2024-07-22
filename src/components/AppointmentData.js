@@ -50,6 +50,7 @@ import {
 import CreateCertificate from "./medical_certificate/CreateCertificate";
 import { resetVaccineState } from "../redux/vaccineSlice";
 import { resetGrowthChartState } from "../redux/growthChartSlice";
+import { resetObstetricState } from "../redux/obstetricSlice";
 
 const { TextArea } = Input;
 
@@ -158,6 +159,7 @@ function AppointmentData({ locationPath }) {
         dispatch(getCaseTypes());
         dispatch(resetVaccineState());
         dispatch(resetGrowthChartState());
+        dispatch(resetObstetricState());
     }, []);
 
     useEffect(() => {

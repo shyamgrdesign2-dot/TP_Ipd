@@ -27,4 +27,5 @@ export default {
   firebaseMessagingSenderId: env.firebaseMessagingSenderId,
   firebaseAppId: env.firebaseAppId,
   tatvaRedirect: env.tatvaRedirect,
+  obstetric_api_url: env.obstetric_api_url,
 };

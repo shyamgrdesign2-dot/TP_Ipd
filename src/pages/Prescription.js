@@ -45,6 +45,9 @@ import GrowthChart from "./growthChart/GrowthChart";
 import { viewPatient } from "../redux/appointmentsSlice";
 import { useAccess } from "./vaccination/useAccess";
 import Obstetric from "./obstetric/Obstetric";
+import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
+import { fetchAllObstetricDetails } from "./obstetric/service";
+import { addObstetricDetails } from "../redux/obstetricSlice";
 
 function Prescription() {
   const {
@@ -55,12 +58,15 @@ function Prescription() {
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
+  const { obstetricDetails, isObstetricDetailsFetched } = useSelector(
+    (state) => state.obstetric
+  );
+  const { examinationHistory = [] } = obstetricDetails;
   const dispatch = useDispatch();
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
-  const isVaccination = state?.isVaccination;
-  const isGrowth = state?.isGrowth;
+  const chartType = state?.chartType;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -121,11 +127,21 @@ function Prescription() {
     patient_data?.ageYears
   );
 
+  const getAllObstetricDetails = async () => {
+    const obstetricResponse = await fetchAllObstetricDetails(patient_data.patient_unique_id);
+    if (obstetricResponse) {
+      dispatch(addObstetricDetails(obstetricResponse));
+    }
+  }
+
   useEffect(() => {
     const sendData = {
       patient_unique_id: patient_data?.patient_unique_id,
     };
     dispatch(viewPatient(sendData));
+    if (!isObstetricDetailsFetched) {
+      getAllObstetricDetails();
+    }
   }, []);
 
   useEffect(() => {
@@ -302,16 +318,14 @@ function Prescription() {
   };
 
   useEffect(() => {
-    if (isVaccination) {
+    if (chartType === "vaccination") {
       handleDrawerVaccination();
-    }
-  }, [isVaccination]);
-
-  useEffect(() => {
-    if (isGrowth) {
+    } else if (chartType === "growthChart") {
       handleDrawerGrowth();
+    } else if (chartType === "obstetric") {
+      handleDrawerObstetric();
     }
-  }, [isGrowth]);
+  }, [chartType]);
 
   //Handle Sider
   const handleCollapsed = useCallback(
@@ -503,29 +517,29 @@ function Prescription() {
                       </button></div></div>
                   )
                  : e.tmdpm_id === 8 && e.tmdpm_status === 0 && (
-                  <div key={i} className="prescription-box-sm p-14">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <div className="d-flex align-items-center">
+                    <div key={i} className="prescription-box-sm p-14">
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center">
                         <img src={privateNotes} alt="Private Notes" className="me-3" />
                         <div className="title-common">
                           Private Notes
                         </div>
-                      </div>
-                      {!privateNotesData && (
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerPrivateNotes}
-                        >
+                        </div>
+                        {!privateNotesData && (
+                          <button
+                            className="btn d-flex align-items-center btn-text"
+                            onClick={handleDrawerPrivateNotes}
+                          >
                           <i
                             className="icon-Add me-1 fs-5"></i>
-                          <span>Add</span>
-                        </button>
+                            <span>Add</span>
+                          </button>
+                        )}
+                      </div>
+                      {privateNotesList.length > 0 && (
+                      <PrivateNotesList handleDrawerPrivateNotes={handleDrawerPrivateNotes} />
                       )}
                     </div>
-                    {privateNotesList.length > 0 && (
-                      <PrivateNotesList handleDrawerPrivateNotes={handleDrawerPrivateNotes} />
-                    )}
-                  </div>
                   )
               })}
               <div className="prescription-box-sm p-14">
@@ -542,10 +556,21 @@ function Prescription() {
                     className="btn d-flex align-items-center btn-text"
                     onClick={handleDrawerObstetric}
                   >
-                    <i className={`icon-Add me-1 fs-5`}></i>{" "}
-                    <span>Add</span>
+                    <i
+                      className={`${
+                        examinationHistory.length > 0
+                          ? "icon-Edit"
+                          : "icon-Add"
+                      } me-1 fs-5`}
+                    ></i>
+                    <span>{`${
+                      examinationHistory.length > 0 ? "Edit" : "Add"
+                    }`}</span>
                   </button>
                 </div>
+                {examinationHistory?.length > 0 && (
+                  <ObstetricList />
+                )}
               </div>
 
               {/* <div>
@@ -673,9 +698,7 @@ function Prescription() {
             width="100%"
             push={false}
           >
-            <Obstetric
-              handleDrawerObstetric={handleDrawerObstetric}
-            />
+            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
           </Drawer>
         )}
       </>
