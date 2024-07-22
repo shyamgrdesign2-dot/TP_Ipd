@@ -6,6 +6,7 @@ function GynecHistoryList(props) {
     const {gynecHistory} = props
     const [accordionItems, setAccordionItems] = useState([]);
 
+    console.log({gynecHistory})
     useEffect(() => {
         if (gynecHistory && Object.keys(gynecHistory).length > 0) {
             const data = [];
@@ -72,7 +73,7 @@ function GynecHistoryList(props) {
                             </div>
                             <div className="my-2">
                                 {gynecHistory.notes && (
-                                    <> <span>Mensturation notes</span> : <label>{gynecHistory.notes}</label> </>
+                                    <> <span>Menstruation notes</span> : <label>{gynecHistory.notes}</label> </>
                                 )}
                             </div>
                         </div>
