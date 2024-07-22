@@ -810,7 +810,11 @@ function MedicalHistoryBox(props) {
 
     const handleSave = () => {
         const filteredGynecHistory = Object.keys(gynecHistory || {}).reduce((acc, key) => {
-            if (gynecHistory[key] !== '' && gynecHistory[key] !== null && gynecHistory[key] !== "custom" && gynecHistory[key] !== "number") {
+            if (
+                key !== 'createdAt' && key !== 'createdBy' &&
+                gynecHistory[key] !== '' && gynecHistory[key] !== null &&
+                gynecHistory[key] !== 'custom' && gynecHistory[key] !== 'number'
+            ) {
                 acc[key] = gynecHistory[key];
             }
             return acc;
