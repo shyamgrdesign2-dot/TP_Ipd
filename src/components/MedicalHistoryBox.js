@@ -1378,7 +1378,7 @@ function MedicalHistoryBox(props) {
                         <div style={{marginTop: "-1rem"}}>
                             <Row>
                                 <Col lg={15}>
-                                    <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 61px)' }}>
+                                    <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(101vh - 110px)' }}>
                                         {cloneMedicalHistoryData.length > 0 ? (
                                             cloneMedicalHistoryData?.map((e, i) => {
                                                 return (
