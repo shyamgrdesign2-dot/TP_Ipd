@@ -6,7 +6,6 @@ function GynecHistoryList(props) {
     const {gynecHistory} = props
     const [accordionItems, setAccordionItems] = useState([]);
 
-    console.log({gynecHistory})
     useEffect(() => {
         if (gynecHistory && Object.keys(gynecHistory).length > 0) {
             const data = [];
