@@ -1,15 +1,21 @@
-import React, { useState, useCallback, useContext } from 'react';
+import React, { useState, useCallback, useContext, useRef } from 'react';
 import { Button, Collapse, Form, Input, Tabs, Row, Col, TimePicker } from 'antd';
 import moment from 'moment';
 import dayjs from "dayjs";
+
+import CloseWithWhiteFill from "../../../src/assets/images/close-with-white-fill.svg";
+import AddPhotos from "../../../src/assets/images/add-photos.svg";
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
 import { TAB_ADDRESS, TAB_TIMINGS, TAB_PHOTOS } from "../../utils/constants";
+import { errorMessage } from '../../utils/utils';
 
 const dateFormat = 'HH:mm:ss'
 const showDateFormat = 'h:mm A'
 
 function DWClinicProfile() {
+
+    const inputImageUrls = useRef([]);
 
     const { clinicProfile, setClinicProfile } = useContext(DoctorWebsiteSettingsContext);
 
@@ -54,9 +60,6 @@ function DWClinicProfile() {
         [clinicProfile]
     );
 
-    const inputWatermarkFile = React.createRef();
-
-
     const onDayClick = useCallback(
         (e, i, i1) => {
             var data = clinicProfile[i]['shift'][i1].hasOwnProperty('days') ? [...clinicProfile[i]['shift'][i1]['days']] : []
@@ -93,15 +96,15 @@ function DWClinicProfile() {
         },
         [clinicProfile]
     );
-    const RemoveTimingClick = (i, i1) => {
-        clinicProfile[i]['shift'][i1]['timing'].splice(i1, 1);
+    const RemoveTimingClick = (i, i1, i2) => {
+        clinicProfile[i]['shift'][i1]['timing'].splice(i2, 1);
         setClinicProfile((prev) => { return [...prev] });
     };
 
     const onTimeClick = useCallback(
         (time, timeString, key, i, i1, i2) => {
             if (timeString) {
-                
+
                 if (key == 'from_time' && moment.duration(moment(moment(timeString, showDateFormat).format(dateFormat), "HH:mm:ss").diff(moment(clinicProfile[i]['shift'][i1]['timing'][i2]['end_time'], "HH:mm:ss"))).asMinutes() >= 0) {
                     clinicProfile[i]['shift'][i1]['timing'][i2]['end_time'] = '';
                     clinicProfile[i]['shift'][i1]['timing'][i2][key] = moment(timeString, showDateFormat).format(dateFormat);
@@ -150,16 +153,16 @@ function DWClinicProfile() {
                             className='fw-medium p-10 pb-0 mb-0'
                             required>
 
-                            {e1?.timing?.map((e1, i2) => {
+                            {e1?.timing?.map((e2, i2) => {
                                 return (
-                                    <Row align="middle" justify="space-between" className='mb-12'>
+                                    <Row key={i2} align="middle" justify="space-between" className='mb-12'>
                                         <Col span={9}>
                                             <TimePicker
                                                 format={showDateFormat}
                                                 use12Hours
                                                 placeholder="hh:mm"
                                                 className="text-capitalize rounded-10px h-38"
-                                                value={e1?.from_time ? dayjs(moment(e1?.from_time, dateFormat).format(showDateFormat), showDateFormat) : ''}
+                                                value={e2?.from_time ? dayjs(moment(e2?.from_time, dateFormat).format(showDateFormat), showDateFormat) : ''}
                                                 onChange={(time, timeString) => onTimeClick(time, timeString, 'from_time', i, i1, i2)} />
                                         </Col>
                                         <Col span={2}>
@@ -171,36 +174,19 @@ function DWClinicProfile() {
                                                 use12Hours
                                                 placeholder="hh:mm"
                                                 className="text-capitalize rounded-10px h-38"
-                                                value={e1?.end_time ? dayjs(moment(e1?.end_time, dateFormat).format(showDateFormat), showDateFormat) : ''}
+                                                value={e2?.end_time ? dayjs(moment(e2?.end_time, dateFormat).format(showDateFormat), showDateFormat) : ''}
                                                 onChange={(time, timeString) => onTimeClick(time, timeString, 'end_time', i, i1, i2)} />
                                         </Col>
                                         <Col span='auto'>
                                             {i2 === 0 ? (
                                                 <Button className='btn-delete-prescription btn px-0' onClick={() => addTimingClick(i, i1)}><i className='icon-Add text-primary'></i></Button>
                                             ) : (
-                                                <Button className='btn-delete-prescription btn px-0' onClick={() => RemoveTimingClick(i, i1)}><i className='icon-delete text-primary'></i></Button>
+                                                <Button className='btn-delete-prescription btn px-0' onClick={() => RemoveTimingClick(i, i1, i2)}><i className='icon-delete text-primary'></i></Button>
                                             )}
                                         </Col>
                                     </Row>
                                 )
                             })}
-
-
-                            {/* <Row align="middle" justify="space-between" className='mb-12'>
-                                <Col span={9}>
-                                    <TimePicker format="h:mm A" use12Hours placeholder="hh:mm" className="text-capitalize rounded-10px h-38" />
-                                </Col>
-                                <Col span={2}>
-                                    <div className='text-center'>To</div>
-                                </Col>
-                                <Col span={9}>
-                                    <TimePicker format="h:mm A" use12Hours placeholder="hh:mm" className="text-capitalize rounded-10px h-38" />
-                                </Col>
-                                <Col span='auto'>
-                                    <Button className='btn-delete-prescription btn px-0'><i className='icon-delete text-primary'></i></Button>
-                                </Col>
-                            </Row>
-                            <button className='btn float-end mb-2 btn-text d-flex px-0'><i className='icon-delete fs-18 me-1'></i><span>Delete Shift</span></button> */}
                         </Form.Item>
                     )}
                 </>
@@ -217,6 +203,55 @@ function DWClinicProfile() {
         },
         [clinicProfile]
     );
+
+    const setImageRef = (el, i) => {
+        try {
+            if (el) {
+                inputImageUrls.current[i] = el;
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
+    const handleImageChange = (el, i) => {
+        if (el.target.files?.length > 0) {
+            const fileUrls = el.target.files;
+            const updatedData = Object.entries(fileUrls).reduce((acc, [key, fileUrl]) => {
+                if (fileUrl.size <= 5000000 && ['image/png', 'image/jpeg', 'image/jpg'].includes(fileUrl.type)) {
+                    acc.push({
+                        clinic_image_delete: 0,
+                        clinic_image_name: fileUrl.name,
+                        clinic_image_link: URL.createObjectURL(fileUrl),
+                        uploadFile: fileUrl
+                    });
+                } else {
+                    errorMessage('Some files were removed because only JPG, JPEG, or PNG files with a maximum size of 5MB are allowed for upload.');
+                }
+                return acc;
+            }, []);
+
+            clinicProfile[i]['clinic_photos'] = [...clinicProfile[i]['clinic_photos'], ...updatedData]
+            console.log(clinicProfile[i]['clinic_photos'])
+            setClinicProfile((prev) => { return [...prev] });
+        }
+    }
+
+
+    const onRemoveRow = (index) => {
+        clinicProfile.splice(index, 1);
+        setClinicProfile((prev) => { return [...prev] });
+    };
+
+    const onDeleteImage = (i, item, index) => {
+        if (item?.clinic_image_link?.startsWith('blob:')) {
+            clinicProfile[i]['clinic_photos'].splice(index, 1);
+        } else {
+            clinicProfile[i]['clinic_photos'][index]['clinic_image_delete'] = 1
+        }
+        setClinicProfile((prev) => { return [...prev] });
+    };
+
 
     const clinicItems = (e, i) => [
 
@@ -258,7 +293,6 @@ function DWClinicProfile() {
                             </div>
                             <Tabs defaultActiveKey={'1'} onChange={(key) => onTabChange(key, i)} items={TabsPrintSetting} className="print-tabs" />
                             {e?.selectedTab === TAB_ADDRESS ? (
-
                                 <Row gutter={20} className='px-10'>
                                     <Col span={12}>
                                         <Form.Item
@@ -315,7 +349,7 @@ function DWClinicProfile() {
                                 <>
                                     {e?.shift.map((e1, i1) => {
                                         return (
-                                            <div className='px-10 mb-2'>
+                                            <div key={i1} className='px-10 mb-2'>
                                                 <Collapse items={TimingItems(e1, i1, i)} defaultActiveKey={['1']} className='prescriptiontab-accordian timingTab' expandIconPosition={'end'} />
                                             </div>
                                         )
@@ -324,16 +358,32 @@ function DWClinicProfile() {
                                 </>
                             ) : e?.selectedTab === TAB_PHOTOS && (
                                 <div className='px-10'>
-                                    <div className="upload-headfoot mt-0" onClick={() => inputWatermarkFile.current?.click()}>
-                                        <input ref={inputWatermarkFile} className="image-upload-input" style={{ display: 'none' }} type="file" accept="image/png" />
-                                        <div className="fw-medium text-decoration-underline cursor-pointer">Upload Clinic Photos</div>
-                                        <div className="fs-12-1 fontroboto">  Only jpg, jpeg or png files with the max size 5mb.</div>
+                                    <div className='d-flex flex-wrap mb-3'>
+                                        {e?.clinic_photos && e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.map((item, index) => {
+                                            return (
+                                                <div key={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting-wrap' onClick={() => onDeleteImage(i, item, index)}>
+                                                    <img src={item?.clinic_image_link} alt={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting img-fluid' />
+                                                    <img src={CloseWithWhiteFill} alt='Close' className='close-clinic-img' />
+                                                </div>
+                                            )
+                                        })}
+                                        <div className='clinic-photo-setting-wrap d-flex align-items-center justify-content-center border cursor-pointer' onClick={() => inputImageUrls.current[i]?.click()}>
+                                            <input
+                                                key={i}
+                                                ref={el => setImageRef(el, i)}
+                                                style={{ display: 'none' }}
+                                                type="file"
+                                                multiple
+                                                accept="image/png"
+                                                onChange={(el) => handleImageChange(el, i)} />
+                                            <img src={AddPhotos} alt='Clinic Photos' className='img-fluid' />
+                                        </div>
                                     </div>
                                 </div>
                             )}
                         </Form>
                     </div>
-                    {/* <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3' disabled><i className='icon-delete fs-18 me-2'></i>Delete</Button> */}
+                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3 align-items-center d-flex justify-content-center' onClick={() => onRemoveRow(i)}><i className='icon-delete fs-18 me-2'></i>Delete</Button>
                 </div >,
         },
     ];
@@ -341,7 +391,7 @@ function DWClinicProfile() {
     const addClinicProfileClick = useCallback(
         () => {
             clinicProfile.push({
-                random_id: '',
+                random_id: Math.floor(1000000000 + Math.random() * 9999999999),
                 name: '',
                 contact_no: '',
                 address: {
@@ -370,7 +420,7 @@ function DWClinicProfile() {
                 <div className="text-greycolor fontroboto"> Add your clinic name, location, timings, and photos.</div>
                 {clinicProfile?.map((e, i) => {
                     return (
-                        <div className="border rounded-20px bg-white mt-3">
+                        <div key={i} className="border rounded-20px bg-white mt-3">
                             <Collapse items={clinicItems(e, i)} defaultActiveKey={['1']} className="prescriptiontab-accordian doctor-experience" expandIconPosition={'end'} />
                         </div>
                     )
