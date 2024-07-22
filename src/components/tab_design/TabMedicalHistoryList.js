@@ -112,7 +112,7 @@ function TabMedicalHistoryList(props) {
         }
     }, [medicalHistoryData]);
 
-    const hasGynecHistory = gynecHistory && Object.keys(gynecHistory).length > 2;
+    const hasGynecHistory = gynecHistory && Object.keys(gynecHistory).length > 0;
     const hasMedicalHistory = medicalHistoryData && medicalHistoryData.length > 0;
 
     return (

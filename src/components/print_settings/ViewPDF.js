@@ -2002,7 +2002,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     fontWeight: 500,
                                                                 }}
                                                             >
-                                                                {gynecHistoryData?.reproductiveLifeStages.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}&nbsp;(
+                                                                {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}&nbsp;(
                                                             </Text>
 
                                                             {gynecHistoryData?.ageAtMenopause && (
@@ -2053,7 +2053,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             fontWeight: 500,
                                                                         }}
                                                                     >
-                                                                        Type of {gynecHistoryData?.reproductiveLifeStages.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}&nbsp;:&nbsp;
+                                                                        Type of {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}&nbsp;:&nbsp;
                                                                     </Text>
                                                                     <Text
                                                                         style={{
@@ -2142,7 +2142,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     fontWeight: 500,
                                                                 }}
                                                             >
-                                                                Note&nbsp;:&nbsp;
+                                                                Menstruation note&nbsp;:&nbsp;
                                                             </Text>
                                                             <Text
                                                                 style={{
@@ -2797,7 +2797,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         fontWeight: 500,
                                                                     }}
                                                                 >
-                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;{gynecHistoryData?.reproductiveLifeStages.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}&nbsp;:&nbsp;
+                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;{gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}&nbsp;:&nbsp;
                                                                 </Text>
                                                             
                                                             
@@ -2849,7 +2849,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             fontWeight: 500,
                                                                         }}
                                                                     >
-                                                                        Type of {gynecHistoryData?.reproductiveLifeStages.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}&nbsp;:&nbsp;
+                                                                        Type of {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}&nbsp;:&nbsp;
                                                                     </Text>
                                                                     <Text
                                                                         style={{
@@ -2926,7 +2926,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     fontWeight: 500,
                                                                 }}
                                                             >
-                                                                &nbsp;{gynecListViewCounter++}.&nbsp;Notes&nbsp;:&nbsp;
+                                                                &nbsp;{gynecListViewCounter++}.&nbsp;Menstruation note&nbsp;:&nbsp;
                                                             </Text>
 
                                                             <Text
@@ -3574,7 +3574,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     }}
                                                     wrap={false}
                                                 >
-                                                    {gynecHistoryData?.reproductiveLifeStages.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}
+                                                    {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}
                                                 </Text>
                                                 <View style={[styles.table, { marginTop: 0 }]}>
                                                     <View
@@ -3609,7 +3609,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 },
                                                             ]}
                                                         >
-                                                            Type of {gynecHistoryData?.reproductiveLifeStages.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}
+                                                            Type of {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}
                                                         </Text>
                                                     </View>
                                                     
@@ -3704,7 +3704,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             }}
                                                             wrap={false}
                                                         >
-                                                            Notes
+                                                            Menstruation note
                                                         </Text>
                                                         <View style={[styles.table, { marginTop: 0 }]}>
                                                             <View
