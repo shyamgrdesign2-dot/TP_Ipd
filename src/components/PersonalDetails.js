@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { Form, Input, Button, Select, DatePicker, Radio, Row, Col, InputNumber } from "antd";
+import { Form, Input, Button, Select, DatePicker, Radio, Row, Col } from "antd";
 import dayjs from "dayjs";
 import moment from "moment";
 import { isMobile } from "react-device-detect";
@@ -22,7 +22,7 @@ function PersonalDetails({ form, mode = ADD, patient_data }) {
     const [ageYearsMonths, setAgeYearsMonths] = useState(null);
 
     const dispatch = useDispatch();
-    const { salutationData, patients_details, loading } = useSelector((state) => state.records);
+    const { salutationData, patients_details } = useSelector((state) => state.records);
 
     useEffect(() => {
         dispatch(listSalutation());

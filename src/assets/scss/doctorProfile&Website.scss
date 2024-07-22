@@ -44,12 +44,22 @@
 
 // Progress bar
 .ant-progress {
-    .ant-progress-circle-trail {
-        stroke: rgba(252, 90, 90, 0.2);
+    .ant-progress-outer {
+        margin: 0 !important;
+        padding: 0 !important;
     }
     .ant-progress-inner {
+        background-color: rgba(252, 90, 90, 0.2);
+        // For Round Circle progress bar
+        .ant-progress-circle-trail {
+            stroke: rgba(252, 90, 90, 0.2);
+        }
         .ant-progress-circle-path {
             stroke: $alerText !important;
+        }
+        // For Vertical progress bar
+        .ant-progress-bg {
+            background-color: $alerText !important;
         }
         .ant-progress-text {
             color: $alerText !important;
@@ -86,3 +96,65 @@
     color: $themesecondary;
 }
 
+// Doctor Website
+.handle-personal-details {
+    left: 0;
+    top: 0;
+    right: 16px;
+    bottom: 0;
+    z-index: 9;
+    position: absolute;
+    .show-count-textarea {
+        .ant-input-data-count {
+            bottom: -30px;
+        }
+        textarea {
+            font-family: 'roboto';
+        }
+    }
+}
+
+.language-chips {
+    border-color: $theme !important;
+    background-color: $theme !important;
+    div {
+        color: $white !important;
+    }
+}
+
+.days-width {
+    width: 40px;
+    height: 31px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &.active-days {
+        color: $theme !important;
+        border-color: $theme !important;
+        background-color: rgba(75, 74, 213, 0.05);
+    }
+    &.sunday-color {
+        color: $alerText !important;
+    }
+}
+.ant-picker-now-btn {
+    color: $theme;
+}
+
+// Santosh bhai
+.social {
+    span.ant-input-prefix {
+        width: 36px;
+        border-right: solid #E2E2EA 1px;
+        justify-content: center;
+        align-items: center;
+    }
+    .ant-input-affix-wrapper {
+        padding: 0px;
+        border: solid #E2E2EA 1px;
+        input {
+            padding:0px 10px 0 11px;
+        }
+        input::placeholder{color:#a2a2a8; font-size: 14px; opacity:1; font-weight:400;}
+    }
+}

@@ -11,6 +11,10 @@ export const TAB_PRESCRIPTION = 1;
 export const TAB_HEADER_FOOTER = 2;
 export const TAB_PAGE_FORMAT = 3;
 
+export const TAB_ADDRESS = '1';
+export const TAB_TIMINGS = '2';
+export const TAB_PHOTOS = '3';
+
 export const ADD = 'ADD'
 export const EDIT = 'EDIT'
 
