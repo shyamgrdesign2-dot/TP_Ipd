@@ -410,7 +410,10 @@ function TabPrescription() {
   const fetchGynecHistory = async () => {
       try {
           const data = await getGynecDetails(patient_data.patient_unique_id);
-          setUpdatedGynecHistory(data);
+          // Destructure to remove createdAt and createdBy
+          const { createdAt, createdBy, ...updatedData } = data;
+          
+          setUpdatedGynecHistory(updatedData);
       } catch (error) {
           console.error('Error fetching gynec history:', error);
       }

@@ -399,7 +399,10 @@ function Prescription() {
   const fetchGynecHistory = async () => {
       try {
         const data = await getGynecDetails(patient_data.patient_unique_id);
-        setUpdatedGynecHistory(data);
+        // Destructure to remove createdAt and createdBy
+        const { createdAt, createdBy, ...updatedData } = data;
+        
+        setUpdatedGynecHistory(updatedData);
       } catch (error) {
         console.error('Error fetching gynec history:', error);
       }
@@ -466,17 +469,17 @@ function Prescription() {
                         {" "}
                         <i
                           className={`${
-                            medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 2)
+                            medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)
                               ? "icon-Edit"
                               : "icon-Add"
                           } me-1 fs-5`}
                         ></i>{" "}
                         <span>{`${
-                          medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 2) ? "Edit" : "Add"
+                          medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ? "Edit" : "Add"
                         }`}</span>
                       </button>
                     </div>
-                    { (medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 2) ) &&  <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
+                    { (medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ) &&  <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
                   </div>
                 ) : 
                   e.tmdpm_id === 7 &&

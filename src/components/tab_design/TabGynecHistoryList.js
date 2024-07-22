@@ -56,7 +56,7 @@ function TabGynecHistoryList(props) {
                                     <div className="fontroboto text-history fw-normal">{gynecHistory.durationOfMenstrualFlow} days</div>
                                 </div>
                             )}
-                            {gynecHistory.clots !== undefined && (
+                            {gynecHistory.clots !== undefined && gynecHistory.clots !== '' && (
                                 <div key="clots" className="d-flex justify-content-between align-items-center my-2">
                                     <div className="text-history font-roboto fw-medium">Clots</div>
                                     <div className="semicolon">:</div>
@@ -98,9 +98,9 @@ function TabGynecHistoryList(props) {
                                     <div className="fontroboto text-history fw-normal">{gynecHistory.typeOfMenopause}</div>
                                 </div>
                             )}
-                             {gynecHistory.notes && (
+                            {gynecHistory.notes && (
                                 <div key="notes" className="my-2">
-                                    <div className="font-roboto fw-medium">Notes</div>
+                                    <div className="font-roboto fw-medium">Menstruation notes</div>
                                     <div className="border rounded px-2">{gynecHistory.notes}</div>
                                 </div>
                             )}

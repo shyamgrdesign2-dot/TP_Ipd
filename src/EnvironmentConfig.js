@@ -116,7 +116,7 @@ const prod = {
   firebaseMessagingSenderId: "601922359186",
   firebaseAppId: "1:601922359186:web:a3b9df05589faed1f5fb4b",
   growth_chart_api_url: `https://pm-prod-growth-chart.tatvacare.in`,
-  tatvaRedirect: "https://diginextloginprod.z10.web.core.windows.net/login/index.html#bypass_pedia=false",
+  tatvaRedirect: "https://health.tatvacare.in/#/content?auto=",
   gynec_api_url: "https://pm-medicalhistory-prod.tatvacare.in/api/v1/gynec-history",
 };
 
