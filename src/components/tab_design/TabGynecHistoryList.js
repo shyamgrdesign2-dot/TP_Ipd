@@ -100,7 +100,7 @@ function TabGynecHistoryList(props) {
                             )}
                             {gynecHistory.notes && (
                                 <div key="notes" className="my-2">
-                                    <div className="font-roboto fw-medium">Mensturation notes</div>
+                                    <div className="font-roboto fw-medium">Menstruation notes</div>
                                     <div className="border rounded px-2">{gynecHistory.notes}</div>
                                 </div>
                             )}

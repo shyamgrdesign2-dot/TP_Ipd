@@ -118,7 +118,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                     </div>
                                     <div className="my-2">
                                         {gynecHistory.notes && (
-                                            <> <span>Mensturation notes</span> : <label>{gynecHistory.notes}</label> </>
+                                            <> <span>Menstruation notes</span> : <label>{gynecHistory.notes}</label> </>
                                         )}
                                     </div>
                                 </div>
