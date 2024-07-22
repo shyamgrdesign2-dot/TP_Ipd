@@ -61,18 +61,18 @@ function GynecHistoryList(props) {
                                     <> <span> Pain note</span> : <label>{gynecHistory.painNotes}</label> | </>
                                 )}
                                 {gynecHistory.ageAtMenopause && (
-                                    <> <span>{gynecHistory?.reproductiveLifeStages} at</span> : <label>{gynecHistory.ageAtMenopause} years</label> |</>
+                                    <> <span>{gynecHistory?.reproductiveLifeStages} at</span> : <label>{gynecHistory.ageAtMenopause} years</label> | </>
                                 )}
                                 {gynecHistory.typeOfMenopause && (
-                                    <> <span>{gynecHistory?.reproductiveLifeStages} type</span> : <label>{gynecHistory.typeOfMenopause}</label> </>
+                                    <> <span>{gynecHistory?.reproductiveLifeStages} type</span> : <label>{gynecHistory.typeOfMenopause}</label> | </>
                                 )}
-                                {gynecHistory.menopauseNotes && (
-                                    <> <span>{gynecHistory?.reproductiveLifeStages} note</span> : <label>{gynecHistory.menopauseNotes}</label> </>
+                                {gynecHistory.reproductiveNotes && (
+                                    <> <span>{gynecHistory?.reproductiveLifeStages} note</span> : <label>{gynecHistory.reproductiveNotes}</label> </>
                                 )}
                             </div>
                             <div className="my-2">
                                 {gynecHistory.notes && (
-                                    <> <span>Mensuration Notes</span> : <label>{gynecHistory.notes}</label> </>
+                                    <> <span>Mensturation notes</span> : <label>{gynecHistory.notes}</label> </>
                                 )}
                             </div>
                         </div>
