@@ -1,11 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Button,
   Card,
@@ -16,9 +9,7 @@ import {
   Radio,
   Divider,
 } from "antd";
-import { errorMessage, onlyDecimalFormat } from "../../../../utils/utils";
-
-import CashManagerContext from "../../../../context/CashManagerContext";
+import { errorMessage } from "../../../../utils/utils";
 import moment from "moment";
 import SuccessPopup from "../../../growthChart/components/SuccessPopup";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,108 +18,10 @@ import { EllipsisOutlined, DeleteOutlined } from "@ant-design/icons";
 import { addObstetricData, updateObstetricData } from "../../service";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
+import dayjs from "dayjs";
 
-const dateFormat = "YYYY-MM-DD";
-const showDateFormat = "DD MMM, YY";
-
-const OBS = {
-  _id: "66867285cdbebbe52109f4d2",
-  patientId: 897,
-  lmp: "2023-01-01T00:00:00.000Z",
-  edd: "2023-10-08T00:00:00.000Z",
-  ceed: "2023-10-15T00:00:00.000Z",
-  gestationWeeks: 38,
-  gestationDays: 2,
-  blood: "A+",
-  husbandsBlood: "B+",
-  consang: true,
-  maritialStatus: "Married",
-  marriageDurationYears: 2,
-  marriageDurationMonths: 3,
-  conceptionType: "natural",
-  gravidity: 2,
-  parity: 2,
-  livingChildren: 2,
-  abortion: 1,
-  ectopicPregnancies: 1,
-  diagnosisNotes: "",
-  pregnancyHistory: [
-    {
-      gravidaNumber: 1,
-      termLength: "Term",
-      outcome: "Live",
-      deliveryMode: "NVD",
-      dateOfDelivery: "2021-09-15T00:00:00.000Z",
-      gender: "Male",
-      babysWeight: 3.5,
-      gestationPeriod: 2,
-      remarks: "Healthy baby",
-      createdAt: "2024-06-27T09:13:23.899Z",
-      createdBy: 64,
-      modifiedAt: "2024-06-27T09:13:23.899Z",
-      modifiedBy: 64,
-    },
-    {
-      gravidaNumber: 2,
-      termLength: "Preterm",
-      outcome: "Ectopic",
-      monthOfPregnancy: 4,
-      location: "Left Tube",
-      remarks: "Healthy baby",
-      createdAt: "2024-06-27T09:13:23.899Z",
-      createdBy: 64,
-      modifiedAt: "2024-06-27T09:13:23.899Z",
-      modifiedBy: 64,
-    },
-    {
-      gravidaNumber: 3,
-      termLength: "Pre-term",
-      outcome: "Abortion",
-      monthOfPregnancy: 3,
-      typeOfAbortion: "Inevitable",
-      modeOfAbortion: "Surgical",
-      remarks: "Had extreme pain for one week after the pregrancy.",
-      createdAt: "2024-06-27T09:13:23.899Z",
-      createdBy: 64,
-      modifiedAt: "2024-06-27T09:13:23.899Z",
-      modifiedBy: 64,
-    },
-  ],
-  examinationHistory: [
-    {
-      date: "2023-06-01T00:00:00.000Z",
-      pallor: false,
-      oedema: false,
-      mothersWeight: 70,
-      mothersHeight: 150,
-      mothersBMI: 25,
-      systolic: 120,
-      diastolic: 80,
-      heightOfFundus: 35,
-      heightOfFundusUnit: "cms",
-      presentation: "Cephalic",
-      foetalHeartRate: 140,
-      fluidIndex: 4,
-      notes: "Normal examination",
-      createdAt: "2024-06-27T09:13:23.899Z",
-      createdBy: 64,
-      modifiedAt: "2024-06-27T09:13:23.899Z",
-      modifiedBy: 64,
-    },
-  ],
-  createdAt: "2024-06-27T09:13:23.899Z",
-  createdBy: 64,
-  modifiedAt: "2024-06-27T09:13:23.899Z",
-  modifiedBy: 64,
-  deleted: false,
-  __v: 0,
-};
-
-function PastPregnancy({ close, obsDetails = OBS }) {
+function PastPregnancy({ close, editIndex }) {
   const scrollContainerRef = useRef(null);
-  const inputRef = useRef([]);
-
-  const { patient_data } = useContext(CashManagerContext);
   const [pastPregnancyData, setPastPregnancyData] = useState({
     gravidaNumber: "",
     termLength: "",
@@ -139,10 +32,16 @@ function PastPregnancy({ close, obsDetails = OBS }) {
     babysWeight: "",
     remarks: "",
   });
-  const [dateString, setDateString] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
-  const dispatch = useDispatch();
   const [loader, setLoader] = useState(false);
+  const { obstetricDetails } = useSelector((state) => state.obstetric);
+  const { pregnancyHistory } = obstetricDetails;
+
+  useEffect(() => {
+    if (editIndex >= 0) {
+      setPastPregnancyData({ ...pregnancyHistory[editIndex] });
+    }
+  }, [editIndex]);
 
   const handlePastPregnancyDataChange = (field, value) => {
     setPastPregnancyData((prevData) => {
@@ -155,7 +54,7 @@ function PastPregnancy({ close, obsDetails = OBS }) {
     });
   };
 
-  const deleteExaminationData = (index) => {
+  const deletePastPregnancyData = (index) => {
     setPastPregnancyData((prevData) => prevData.filter((_, i) => i !== index));
   };
 
@@ -173,21 +72,39 @@ function PastPregnancy({ close, obsDetails = OBS }) {
         console.log(e);
       }
     }
+    let newPastPregnancy = [...pregnancyHistory] || [];
+    if (pregnancyHistory?.length > 0) {
+      newPastPregnancy[editIndex] = {
+        ...pastPregnancyData,
+        modifiedAt: new Date().toISOString(),
+        modifiedBy: decodedToken?.result?.user_id,
+      };
+    } else {
+      newPastPregnancy = [
+        {
+          ...pastPregnancyData,
+          createdAt: new Date().toISOString(),
+          createdBy: decodedToken?.result?.user_id,
+          modifiedAt: new Date().toISOString(),
+          modifiedBy: decodedToken?.result?.user_id,
+        },
+      ];
+    }
     const payload = {
-      ...obsDetails,
-      ...pastPregnancyData,
-      createdAt: new Date().toISOString(),
-      createdBy: decodedToken?.result?.user_id,
-      modifiedAt: new Date().toISOString(),
-      modifiedBy: decodedToken?.result?.user_id,
+      ...(pregnancyHistory?.length > 0
+        ? {
+            modifiedAt: new Date().toISOString(),
+            modifiedBy: decodedToken?.result?.user_id,
+          }
+        : obstetricDetails),
+      pregnancyHistory: newPastPregnancy,
     };
     setLoader(true);
-    const addPastPregnancyRes = payload?._id
-      ? await updateObstetricData(payload?._id, payload)
+    const addPastPregnancyRes = obstetricDetails?._id
+      ? await updateObstetricData(obstetricDetails?.patientId, payload)
       : await addObstetricData(payload);
-    console.log({ addPastPregnancyRes });
     setLoader(false);
-    if ([200, 201].includes(addPastPregnancyRes?.status)) {
+    if (addPastPregnancyRes?.data) {
       setShowSuccess(true);
       setTimeout(() => {
         close();
@@ -209,7 +126,7 @@ function PastPregnancy({ close, obsDetails = OBS }) {
               title={
                 <div
                   className="tooltip-content"
-                  onClick={() => deleteExaminationData()}
+                  onClick={deletePastPregnancyData}
                 >
                   <DeleteOutlined style={{ marginRight: 8 }} />
                   <span>Delete</span>
@@ -246,6 +163,7 @@ function PastPregnancy({ close, obsDetails = OBS }) {
             ]}
             placeholder="Select"
             className="custom-select"
+            value={pastPregnancyData.outcome}
           />
         </div>
 
@@ -295,6 +213,7 @@ function PastPregnancy({ close, obsDetails = OBS }) {
                 ]}
                 placeholder="Select"
                 className="custom-select"
+                value={pastPregnancyData.deliveryMode}
               />
             </div>
             <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
@@ -307,6 +226,12 @@ function PastPregnancy({ close, obsDetails = OBS }) {
                 disabledDate={disabledDate}
                 style={{ width: "170px", height: "41px" }}
                 placement="bottom"
+                value={
+                  pastPregnancyData.dateOfDelivery
+                    ? dayjs(moment(pastPregnancyData.dateOfDelivery))
+                    : ""
+                }
+                allowClear={false}
               />
             </div>
             <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
@@ -386,6 +311,7 @@ function PastPregnancy({ close, obsDetails = OBS }) {
                   ]}
                   placeholder="Select"
                   className="custom-select"
+                  value={pastPregnancyData.location}
                 />
               </div>
             )}
@@ -404,6 +330,7 @@ function PastPregnancy({ close, obsDetails = OBS }) {
                   ]}
                   placeholder="Select"
                   className="custom-select"
+                  value={pastPregnancyData.typeOfAbortion}
                 />
               </div>
             )}

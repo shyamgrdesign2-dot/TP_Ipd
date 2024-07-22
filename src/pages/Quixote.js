@@ -22,6 +22,8 @@ function Quixote({ mode = NORMAL, ...props }) {
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
+    const { obstetricDetails } = useSelector((state) => state.obstetric);
+
     const initialRows = [
         {
             key: '1',
@@ -144,6 +146,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 fileSignature={fileSignature}
                 todayVaccines={props.todayVaccines}
                 growthChartDetails={props.growthChartDetails}
+                obsHistoryData={obstetricDetails}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
         }
@@ -164,7 +167,8 @@ function Quixote({ mode = NORMAL, ...props }) {
         fileWatermark,
         fileLogo,
         props.todayVaccines,
-        props.growthChartDetails
+        props.growthChartDetails,
+        obstetricDetails
     ]);
 
     const onDocumentLoadSuccess = ({ numPages }) => {

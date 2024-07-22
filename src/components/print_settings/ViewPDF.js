@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails } = props
+    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, obsHistoryData } = props
 
     const { growthChartData, growthChartImageData } = growthChartDetails || {};
     let growthChartImageChunks = []
@@ -1339,7 +1339,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     <Image
                                         src={smartRxFile}
                                     />
-                            ) : option?.id === 12 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
+                            ) : option?.id === 12 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     {growthChartData?.length > 0 && (
                                         option?.format === 'table' ? (
@@ -1387,6 +1387,3171 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 ))}
                                             </View>
                                         </>
+                                    )}
+                                </>
+                            ) : option?.id === 14 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
+                                <>
+                                    {obsHistoryData &&
+                                        (option?.format === "inline" ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15, lineHeight: PX_TO_PT * 2.5 }}>
+                                                <Text
+                                                    style={{
+                                                        color: "#171725",
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 700,
+                                                    }}
+                                                >
+                                                    Obstetric History&nbsp;:&nbsp;
+                                                </Text>
+
+                                                <Text style={{ marginTop: PX_TO_PT * 9 }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        1.&nbsp;Patient diagnosis&nbsp;(LMP&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {obsHistoryData?.lmp ? moment(obsHistoryData?.lmp).format("DD MMM YYYY") : `-`}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        &nbsp;|&nbsp;E.D.D.&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {obsHistoryData?.edd ? moment(obsHistoryData?.edd).format("DD MMM YYYY") : `-`}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        &nbsp;|&nbsp;C.E.D.D.&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {obsHistoryData?.ceed ? moment(obsHistoryData?.ceed).format("DD MMM YYYY") : `-`}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        &nbsp;|&nbsp;Gestation&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {obsHistoryData?.gestationWeeks ? `${obsHistoryData?.gestationWeeks}W` : ''}
+                                                        {obsHistoryData?.gestationWeeks ? `,` : ``}
+                                                        {obsHistoryData?.gestationDays ? `${obsHistoryData?.gestationDays}D` : ''}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        &nbsp;{"\n"}
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;Blood&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {obsHistoryData?.blood || `-`}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        &nbsp;|&nbsp;Husband's blood&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {obsHistoryData?.husbandsBlood || `-`}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        &nbsp;|&nbsp;Consanguineous&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {Boolean(obsHistoryData?.consang) ? `Yes` : `No`}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        &nbsp;|&nbsp;Marital status&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {obsHistoryData?.maritialStatus || `-`})
+                                                    </Text>
+                                                </Text>
+
+                                                <Text style={{ marginTop: PX_TO_PT * 9 }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        2.&nbsp;GPLAE&nbsp;(Gravida&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {obsHistoryData?.gravidity ? (obsHistoryData?.gravidity).toString().padStart(2, '0') : `-`}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        &nbsp;|&nbsp;Para&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {obsHistoryData?.parity ? (obsHistoryData?.parity).toString().padStart(2, '0') : `-`}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        &nbsp;|&nbsp;Living&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {obsHistoryData?.livingChildren ? (obsHistoryData?.livingChildren).toString().padStart(2, '0') : `-`}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        &nbsp;|&nbsp;Abortion&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {obsHistoryData?.abortion ? (obsHistoryData?.abortion).toString().padStart(2, '0') : `-`}
+                                                    </Text>
+
+                                                    {/* <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        &nbsp;|&nbsp;NND&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {obsHistoryData?.nnd ? (obsHistoryData?.nnd).toString().padStart(2, '0') : `-`}
+                                                    </Text> */}
+
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        &nbsp;|&nbsp;Ectopic&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 400,
+                                                        }}
+                                                    >
+                                                        {obsHistoryData?.ectopicPregnancies ? (obsHistoryData?.ectopicPregnancies).toString().padStart(2, '0') : `-`})
+                                                    </Text>
+                                                </Text>
+
+                                                <Text style={{ marginTop: PX_TO_PT * 9 }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        3.&nbsp;Pregancy history
+                                                    </Text>
+                                                    {obsHistoryData?.pregnancyHistory.map((item, i) => (
+                                                        <View key={i}>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                {i > 0 ?
+                                                                    <Text style={{ marginTop: 15 }}>
+                                                                        &nbsp;{`\n`}
+                                                                        &nbsp;&nbsp;&nbsp;&nbsp;(Gravida number&nbsp;:&nbsp;
+                                                                    </Text> :
+                                                                    <Text>
+                                                                        &nbsp;(Gravida number&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                }
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {item?.gravidaNumber ? (item?.gravidaNumber).toString().padStart(2, '0') : `-`}
+                                                            </Text>
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                &nbsp;|&nbsp;Outcome&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {item?.outcome || `-`}
+                                                            </Text>
+
+                                                            {
+                                                                item?.termLength && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 700,
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;Term length&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {item?.termLength || `-`}
+                                                                        </Text>
+                                                                    </>
+                                                                )
+                                                            }
+
+                                                            {
+                                                                item?.deliveryMode && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 700,
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;Mode of delivery&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {item?.deliveryMode || `-`}
+                                                                        </Text>
+                                                                    </>
+                                                                )
+                                                            }
+
+                                                            {
+                                                                item?.gestationPeriod && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 700,
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;Period of gestation&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {item?.gestationPeriod || `-`}
+                                                                        </Text>
+                                                                    </>
+                                                                )
+                                                            }
+
+                                                            {
+                                                                item?.location && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 700,
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;Location&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {item?.location || `-`}
+                                                                        </Text>
+                                                                    </>
+                                                                )
+                                                            }
+
+                                                            {
+                                                                item?.modeOfManagement && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 700,
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;Mode of management&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {item?.modeOfManagement || `-`}
+                                                                        </Text>
+                                                                    </>
+                                                                )
+                                                            }
+
+                                                            {
+                                                                item?.typeOfAbortion && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 700,
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;Type of abortion&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {item?.typeOfAbortion || `-`}
+                                                                        </Text>
+                                                                    </>
+                                                                )
+                                                            }
+
+                                                            {
+                                                                item?.modeOfAbortion && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 700,
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;Mode of abortion&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {item?.modeOfAbortion || `-`}
+                                                                        </Text>
+                                                                    </>
+                                                                )
+                                                            }
+
+                                                            {
+                                                                item?.dateOfDelivery && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 700,
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;{"\n"}
+                                                                            &nbsp;&nbsp;&nbsp;&nbsp;Date of delivery&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {item?.dateOfDelivery ? moment(item?.dateOfDelivery).format("DD MMM YYYY") : `-`}
+                                                                        </Text>
+                                                                    </>
+                                                                )
+                                                            }
+
+                                                            {
+                                                                item?.gender && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 700,
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;Gender&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {item?.gender || `-`}
+                                                                        </Text>
+                                                                    </>
+                                                                )
+                                                            }
+
+                                                            {
+                                                                item?.babysWeight && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 700,
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;Baby's weight&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {item?.babysWeight || ``}
+                                                                            {item?.babysWeight ? `kgs` : `-`}
+                                                                        </Text>
+                                                                    </>
+                                                                )
+                                                            }
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                &nbsp;|&nbsp;Remarks&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {item?.remarks || `-`})
+                                                            </Text>
+                                                        </View>
+                                                    ))}
+                                                </Text>
+
+                                                <Text style={{ marginTop: PX_TO_PT * 9 }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        4.&nbsp;Examination
+                                                    </Text>
+                                                    {obsHistoryData?.examinationHistory.map((item, i) => (
+                                                        <View key={i}>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                {i > 0 ?
+                                                                    <Text style={{ marginTop: 15 }}>
+                                                                        &nbsp;{`\n`}
+                                                                        &nbsp;&nbsp;&nbsp;&nbsp;(Visit&nbsp;:&nbsp;
+                                                                    </Text> :
+                                                                    <Text>
+                                                                        &nbsp;(Visit&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                }
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                <Text
+                                                                    key={i}
+                                                                >
+                                                                    {(i + 1).toString().padStart(2, '0')}
+                                                                </Text>
+                                                            </Text>
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                &nbsp;|&nbsp;Pallor&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {Boolean(item?.pallor) ? `Yes` : `No`}
+                                                            </Text>
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                &nbsp;|&nbsp;Oedema&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {Boolean(item?.oedema) ? `Yes` : `No`}
+                                                            </Text>
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                &nbsp;|&nbsp;Mother's BMI&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {item?.mothersBMI || ``}
+                                                                {item?.mothersBMI ? `kg/m2` : `-`})
+                                                            </Text>
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                ,&nbsp;(BP&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {item?.diastolic || ``}
+                                                                {item?.diastolic ? `/` : `-`}
+                                                                {item?.systolic || ``}
+                                                                {item?.diastolic ? ` mmHg` : ``}
+                                                            </Text>
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                &nbsp;{"\n"}
+                                                                &nbsp;&nbsp;&nbsp;&nbsp;Fundus height&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {item?.heightOfFundus || ``}
+                                                                {item?.heightOfFundusUnit || `-`}
+                                                            </Text>
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                &nbsp;|&nbsp;Presentation&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {item?.presentation || `-`}
+                                                            </Text>
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                &nbsp;|&nbsp;Fetal heart rate&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {item?.foetalHeartRate || ``}
+                                                                {item?.foetalHeartRate ? ` BPM` : `-`}
+                                                            </Text>
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                &nbsp;|&nbsp;Fluid index&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {item?.fluidIndex || ``}
+                                                                {item?.fluidIndex ? ` cm` : `-`}
+                                                            </Text>
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                &nbsp;|&nbsp;Note&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {item?.notes || `-`})
+                                                            </Text>
+                                                        </View>
+                                                    ))}
+                                                </Text>
+                                            </View>
+                                        ) : option?.format === "listview" ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15, lineHeight: PX_TO_PT * 2.5 }}>
+                                                <Text
+                                                    style={{
+                                                        color: "#171725",
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 700,
+                                                    }}
+                                                >
+                                                    Obstetric History&nbsp;:&nbsp;
+                                                </Text>
+
+                                                <Text
+                                                    style={{ marginTop: PX_TO_PT * 9 }}
+                                                >
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                                lineHeight: 1.4,
+                                                            }}
+                                                        >
+                                                            &nbsp;1.&nbsp;Patient diagnosis&nbsp;:
+                                                        </Text>
+
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;{"\n"}
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;Details (LMP&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {obsHistoryData?.lmp ? moment(obsHistoryData?.lmp).format("DD MMM YYYY") : `-`}
+                                                        </Text>
+
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;|&nbsp;E.D.D.&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {obsHistoryData?.edd ? moment(obsHistoryData?.edd).format("DD MMM YYYY") : `-`}
+                                                        </Text>
+
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;|&nbsp;C.E.D.D.&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {obsHistoryData?.ceed ? moment(obsHistoryData?.ceed).format("DD MMM YYYY") : `-`}
+                                                        </Text>
+
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;|&nbsp;Gestation&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {obsHistoryData?.gestationWeeks ? `${obsHistoryData?.gestationWeeks}W` : ''}
+                                                            {obsHistoryData?.gestationWeeks ? `,` : ``}
+                                                            {obsHistoryData?.gestationDays ? `${obsHistoryData?.gestationDays}D` : ''})
+                                                        </Text>
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;{"\n"}
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Blood&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {obsHistoryData?.blood || `-`}
+                                                        </Text>
+
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;|&nbsp;Husband's blood&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {obsHistoryData?.husbandsBlood || `-`}
+                                                        </Text>
+
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;|&nbsp;Consanguineous&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {Boolean(obsHistoryData?.consang) ? `Yes` : `No`}
+                                                        </Text>
+
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;|&nbsp;Martial status&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {obsHistoryData?.maritialStatus || `-`})
+                                                        </Text>
+                                                    </Text>
+                                                </Text>
+
+                                                <Text
+                                                    style={{ marginTop: PX_TO_PT * 9 }}
+                                                >
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                                lineHeight: 1.4,
+                                                            }}
+                                                        >
+                                                            &nbsp;2.&nbsp;GPLAE&nbsp;:
+                                                        </Text>
+
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;{"\n"}
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;Gravida&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {obsHistoryData?.gravidity ? (obsHistoryData?.gravidity).toString().padStart(2, '0') : `-`}
+                                                        </Text>
+
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;|&nbsp;Para&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {obsHistoryData?.parity ? (obsHistoryData?.parity).toString().padStart(2, '0') : `-`}
+                                                        </Text>
+
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;|&nbsp;Living&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {obsHistoryData?.livingChildren ? (obsHistoryData?.livingChildren).toString().padStart(2, '0') : `-`}
+                                                        </Text>
+
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;|&nbsp;Abortion&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {obsHistoryData?.abortion ? (obsHistoryData?.abortion).toString().padStart(2, '0') : `-`}
+                                                        </Text>
+
+                                                        {/* <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;|&nbsp;NND&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {obsHistoryData?.nnd ? (obsHistoryData?.nnd).toString().padStart(2, '0') : `-`}
+                                                        </Text> */}
+
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            &nbsp;|&nbsp;Ectopic&nbsp;:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                            }}
+                                                        >
+                                                            {obsHistoryData?.ectopicPregnancies ? (obsHistoryData?.ectopicPregnancies).toString().padStart(2, '0') : `-`}
+                                                        </Text>
+                                                    </Text>
+                                                </Text>
+
+                                                <Text
+                                                    style={{ marginTop: PX_TO_PT * 9 }}
+                                                >
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                                lineHeight: 1.4,
+                                                            }}
+                                                        >
+                                                            &nbsp;3.&nbsp;Pregnancy history&nbsp;:
+                                                        </Text>
+
+                                                        {obsHistoryData?.pregnancyHistory.map((item, i) => {                                                            
+                                                            return (
+                                                                <View key={i}>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 700,
+                                                                        }}
+                                                                    >
+                                                                        &nbsp;{"\n"}
+                                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(97+i)}.&nbsp;Gravida&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {item?.gravidaNumber ? (item?.gravidaNumber).toString().padStart(2, '0') : `-`}
+                                                                    </Text>
+                                                                    
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 700,
+                                                                        }}
+                                                                    >
+                                                                        &nbsp;|&nbsp;Outcome&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {item?.outcome || `-`}
+                                                                    </Text>
+                                                                    
+                                                                    {
+                                                                        item?.termLength && (
+                                                                            <>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 700,
+                                                                                    }}
+                                                                                >
+                                                                                    &nbsp;(Term length&nbsp;:&nbsp;
+                                                                                </Text>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 400,
+                                                                                    }}
+                                                                                >
+                                                                                    {item?.termLength || `-`}
+                                                                                </Text>
+                                                                            </>
+                                                                        )
+                                                                    }
+
+                                                                    {
+                                                                        item?.deliveryMode && (
+                                                                            <>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 700,
+                                                                                    }}
+                                                                                >
+                                                                                    &nbsp;|&nbsp;Mode of delivery&nbsp;:&nbsp;
+                                                                                </Text>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 400,
+                                                                                    }}
+                                                                                >
+                                                                                    {item?.deliveryMode || `-`}
+                                                                                </Text>
+                                                                            </>
+                                                                        )
+                                                                    }
+
+                                                                    {
+                                                                        item?.gestationPeriod && (
+                                                                            <>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 700,
+                                                                                    }}
+                                                                                >
+                                                                                    &nbsp;|&nbsp;Period of gestation&nbsp;:&nbsp;
+                                                                                </Text>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 400,
+                                                                                    }}
+                                                                                >
+                                                                                    {item?.gestationPeriod || `-`}
+                                                                                </Text>
+                                                                            </>
+                                                                        )
+                                                                    }
+
+                                                                    {
+                                                                        item?.location && (
+                                                                            <>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 700,
+                                                                                    }}
+                                                                                >
+                                                                                    &nbsp;|&nbsp;Location&nbsp;:&nbsp;
+                                                                                </Text>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 400,
+                                                                                    }}
+                                                                                >
+                                                                                    {item?.location || `-`}
+                                                                                </Text>
+                                                                            </>
+                                                                        )
+                                                                    }
+
+                                                                    {
+                                                                        item?.modeOfManagement && (
+                                                                            <>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 700,
+                                                                                    }}
+                                                                                >
+                                                                                    &nbsp;|&nbsp;Mode of management&nbsp;:&nbsp;
+                                                                                </Text>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 400,
+                                                                                    }}
+                                                                                >
+                                                                                    {item?.modeOfManagement || `-`}
+                                                                                </Text>
+                                                                            </>
+                                                                        )
+                                                                    }
+
+                                                                    {
+                                                                        item?.typeOfAbortion && (
+                                                                            <>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 700,
+                                                                                    }}
+                                                                                >
+                                                                                    &nbsp;|&nbsp;Type of abortion&nbsp;:&nbsp;
+                                                                                </Text>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 400,
+                                                                                    }}
+                                                                                >
+                                                                                    {item?.typeOfAbortion || `-`}
+                                                                                </Text>
+                                                                            </>
+                                                                        )
+                                                                    }
+
+                                                                    {
+                                                                        item?.modeOfAbortion && (
+                                                                            <>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 700,
+                                                                                    }}
+                                                                                >
+                                                                                    &nbsp;|&nbsp;Mode of abortion&nbsp;:&nbsp;
+                                                                                </Text>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 400,
+                                                                                    }}
+                                                                                >
+                                                                                    {item?.modeOfAbortion || `-`}
+                                                                                </Text>
+                                                                            </>
+                                                                        )
+                                                                    }
+
+                                                                    {
+                                                                        item?.dateOfDelivery && (
+                                                                            <>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 700,
+                                                                                    }}
+                                                                                >
+                                                                                    &nbsp;|&nbsp;Date of delivery&nbsp;:&nbsp;
+                                                                                </Text>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 400,
+                                                                                    }}
+                                                                                >
+                                                                                    {item?.dateOfDelivery ? moment(item?.dateOfDelivery).format("DD MMM YYYY") : `-`}
+                                                                                </Text>
+                                                                            </>
+                                                                        )
+                                                                    }
+
+                                                                    {
+                                                                        item?.gender && (
+                                                                            <>
+                                                                            <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 700,
+                                                                                    }}
+                                                                                >
+                                                                                    &nbsp;{`\n`}
+                                                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gender&nbsp;:&nbsp;
+                                                                                </Text>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 400,
+                                                                                    }}
+                                                                                >
+                                                                                    {item?.gender || `-`}
+                                                                                </Text>
+                                                                            </>
+                                                                        )
+                                                                    }
+
+                                                                    {
+                                                                        item?.babysWeight && (
+                                                                            <>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 700,
+                                                                                    }}
+                                                                                >
+                                                                                    &nbsp;|&nbsp;Baby's weight&nbsp;:&nbsp;
+                                                                                </Text>
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 400,
+                                                                                    }}
+                                                                                >
+                                                                                    {item?.babysWeight || ``}
+                                                                                    {item?.babysWeight ? `kgs` : `-`}
+                                                                                </Text>
+                                                                            </>
+                                                                        )
+                                                                    }
+
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 700,
+                                                                        }}
+                                                                    >
+                                                                        &nbsp;|&nbsp;Remarks&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {item?.remarks || `-`})
+                                                                    </Text>
+                                                                </View>
+                                                            )                                                                                                                        
+                                                        })}
+                                                    </Text>
+                                                </Text>
+
+                                                <Text
+                                                    style={{ marginTop: PX_TO_PT * 9 }}
+                                                >
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                                lineHeight: 1.4,
+                                                            }}
+                                                        >
+                                                            &nbsp;4.&nbsp;Examination&nbsp;:
+                                                        </Text>
+
+                                                        {obsHistoryData?.examinationHistory.map((item, i) => (
+                                                            <View key={i}>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 700,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;{"\n"}
+                                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Visit&nbsp;
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                    }}
+                                                                >
+                                                                    {i + 1}                                                                    
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 700,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;(Pallor&nbsp;:&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                    }}
+                                                                >
+                                                                    {Boolean(item?.pallor) ? `Yes` : `No`}
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 700,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;|&nbsp;Oedema&nbsp;:&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                    }}
+                                                                >
+                                                                    {Boolean(item?.oedema) ? `Yes` : `No`}
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 700,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;|&nbsp;Mother's BMI&nbsp;:&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                    }}
+                                                                >
+                                                                    {item?.mothersBMI || ``}
+                                                                    {item?.mothersBMI ? `kg/m2` : `-`})
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 700,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;|&nbsp;BP&nbsp;:&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                    }}
+                                                                >
+                                                                    {item?.diastolic || ``}
+                                                                    {item?.diastolic ? `/` : `-`}
+                                                                    {item?.systolic || ``}
+                                                                    {item?.diastolic ? ` mmHg` : ``}
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 700,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;{`\n`}
+                                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fundus height&nbsp;:&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                    }}
+                                                                >
+                                                                    {item?.heightOfFundus || ``}
+                                                                    {item?.heightOfFundusUnit || `-`}
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 700,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;|&nbsp;Presentation&nbsp;:&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                    }}
+                                                                >
+                                                                    {item?.presentation || `-`}
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 700,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;|&nbsp;Fetal heart rate&nbsp;:&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                    }}
+                                                                >
+                                                                    {item?.foetalHeartRate || ``}
+                                                                    {item?.foetalHeartRate ? ` BPM` : `-`}
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 700,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;|&nbsp;Fluid index&nbsp;:&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                    }}
+                                                                >
+                                                                    {item?.fluidIndex || ``}
+                                                                    {item?.fluidIndex ? ` cm` : `-`}
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 700,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;|&nbsp;Note&nbsp;:&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                    }}
+                                                                >
+                                                                    {item?.notes || `-`})
+                                                                </Text>
+                                                            </View>
+                                                        ))}
+                                                    </Text>
+                                                </Text>
+                                            </View>
+                                        ) : (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text
+                                                    style={{
+                                                        color: "#171725",
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 700,
+                                                    }}
+                                                >
+                                                    Obstetric History&nbsp;:&nbsp;
+                                                </Text>
+
+                                                <Text
+                                                    style={{
+                                                        color: "#000",
+                                                        marginTop: PX_TO_PT * 12,
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 500,
+                                                        padding: 6,
+                                                        borderTop: "1px solid #171725",
+                                                        borderLeft: "1px solid #171725",
+                                                        borderRight: "1px solid #171725",
+                                                        backgroundColor: "#E2E2EA",
+                                                    }}
+                                                >
+                                                    Patient diagnosis
+                                                </Text>
+
+                                                <View style={[styles.table, { marginTop: 0 }]}>
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",                                                                    
+                                                                },
+                                                                styles.minHeight32
+                                                            ]}
+                                                        >
+                                                            LMP
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",                                                                    
+                                                                },
+                                                                styles.minHeight32
+                                                            ]}
+                                                        >
+                                                            E.D.D.
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",                                                                    
+                                                                },
+                                                                styles.minHeight32
+                                                            ]}
+                                                        >
+                                                            C.E.E.D.
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",                                                                    
+                                                                },
+                                                                styles.minHeight32
+                                                            ]}
+                                                        >
+                                                            Gestation
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",                                                                    
+                                                                },
+                                                                styles.minHeight32
+                                                            ]}
+                                                        >
+                                                            Blood
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",                                                                
+                                                                },
+                                                                styles.minHeight32
+                                                            ]}
+                                                        >
+                                                            Husband's Blood
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",                                                                    
+                                                                },
+                                                                styles.minHeight32
+                                                            ]}
+                                                        >
+                                                            Consng
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",                                                                
+                                                                },
+                                                                styles.minHeight32
+                                                            ]}
+                                                        >
+                                                            Marital status
+                                                        </Text>
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {obsHistoryData?.lmp ? moment(obsHistoryData?.lmp).format("DD MMM YYYY") : `-`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {obsHistoryData?.edd ? moment(obsHistoryData?.edd).format("DD MMM YYYY") : `-`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {obsHistoryData?.ceed ? moment(obsHistoryData?.ceed).format("DD MMM YYYY") : `-`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {obsHistoryData?.gestationWeeks ? `${obsHistoryData?.gestationWeeks}W` : ''}
+                                                            {obsHistoryData?.gestationWeeks ? `,` : ``}
+                                                            {obsHistoryData?.gestationDays ? `${obsHistoryData?.gestationDays}D` : ''}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {obsHistoryData?.blood || `-`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {obsHistoryData?.husbandsBlood || `-`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {Boolean(obsHistoryData?.consang) ? `Yes` : `No`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {obsHistoryData?.maritialStatus || `-`}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+
+                                                <Text
+                                                    style={{
+                                                        color: "#000",
+                                                        marginTop: PX_TO_PT * 12,
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 500,
+                                                        padding: 6,
+                                                        borderTop: "1px solid #171725",
+                                                        borderLeft: "1px solid #171725",
+                                                        borderRight: "1px solid #171725",
+                                                        backgroundColor: "#E2E2EA",
+                                                    }}
+                                                >
+                                                    GPLAE
+                                                </Text>
+                                                <View style={[styles.table, { marginTop: 0 }]}>
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Gravida
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Para
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Living
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Abortion
+                                                        </Text>
+                                                        {/* <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            NND
+                                                        </Text> */}
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Ectopic
+                                                        </Text>
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {obsHistoryData?.gravidity ? (obsHistoryData?.gravidity).toString().padStart(2, '0') : `-`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {obsHistoryData?.parity ? (obsHistoryData?.parity).toString().padStart(2, '0') : `-`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {obsHistoryData?.livingChildren ? (obsHistoryData?.livingChildren).toString().padStart(2, '0') : `-`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {obsHistoryData?.abortion ? (obsHistoryData?.abortion).toString().padStart(2, '0') : `-`}
+                                                        </Text>
+                                                        {/* <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {obsHistoryData?.nnd ? (obsHistoryData?.nnd).toString().padStart(2, '0') : `-`}
+                                                        </Text> */}
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {obsHistoryData?.ectopicPregnancies ? (obsHistoryData?.ectopicPregnancies).toString().padStart(2, '0') : `-`}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+
+                                                <Text
+                                                    style={{
+                                                        color: "#000",
+                                                        marginTop: PX_TO_PT * 12,
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 500,
+                                                        padding: 6,
+                                                        borderTop: "1px solid #171725",
+                                                        borderLeft: "1px solid #171725",
+                                                        borderRight: "1px solid #171725",
+                                                        backgroundColor: "#E2E2EA",
+                                                    }}                                                    
+                                                >
+                                                    Pregnancy history
+                                                </Text>
+                                                
+                                                {obsHistoryData?.pregnancyHistory.map((item, i) => {
+                                                    return (
+                                                        <View key={i} wrap={false}>
+                                                            <View style={[styles.table, { marginTop: 0 }]}>
+                                                                <View
+                                                                    style={[
+                                                                        styles.row,
+                                                                        { alignItems: "center", justifyContent: "center" },
+                                                                    ]}
+                                                                >
+                                                                    <Text
+                                                                        style={[
+                                                                            styles.cell,
+                                                                            {
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                                color: "#000",
+                                                                                textAlign: "center",
+                                                                            },
+                                                                            styles.minHeight32
+                                                                        ]}
+                                                                    >
+                                                                        Gravida no
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={[
+                                                                            styles.cell,
+                                                                            {
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                                color: "#000",
+                                                                                textAlign: "center",
+                                                                            },
+                                                                            styles.minHeight32
+                                                                        ]}
+                                                                    >
+                                                                        Outcome
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={[
+                                                                            styles.cell,
+                                                                            {
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                                color: "#000",
+                                                                                textAlign: "center",
+                                                                            },
+                                                                            styles.minHeight32
+                                                                        ]}
+                                                                    >
+                                                                        Term length
+                                                                    </Text>
+                                                                    {item?.deliveryMode && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 500,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                                styles.minHeight32
+                                                                            ]}
+                                                                        >
+                                                                            Mode of delivery
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.gestationPeriod && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 500,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                                styles.minHeight32
+                                                                            ]}
+                                                                        >
+                                                                            Period of gestation
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.location && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 500,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                                styles.minHeight32
+                                                                            ]}
+                                                                        >
+                                                                            Location
+                                                                        </Text>
+                                                                    )}
+                                                                    
+                                                                    {item?.modeOfManagement && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 500,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                                styles.minHeight32
+                                                                            ]}
+                                                                        >
+                                                                            Mode of management
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.typeOfAbortion && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 500,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                                styles.minHeight32
+                                                                            ]}
+                                                                        >
+                                                                            Type of abortion
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.modeOfAbortion && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 500,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                                styles.minHeight32
+                                                                            ]}
+                                                                        >
+                                                                            Mode of abortion
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.dateOfDelivery && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 500,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                                styles.minHeight32
+                                                                            ]}
+                                                                        >
+                                                                            Delivery date
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.gender && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 500,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                                styles.minHeight32
+                                                                            ]}
+                                                                        >
+                                                                            Gender
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.babysWeight && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 500,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                                styles.minHeight32
+                                                                            ]}
+                                                                        >
+                                                                            Baby's weight
+                                                                        </Text>
+                                                                    )}
+                                                                </View>
+
+                                                                <View
+                                                                    style={[
+                                                                        styles.row,
+                                                                        { alignItems: "center", justifyContent: "center" },
+                                                                    ]}
+                                                                >
+                                                                    <Text
+                                                                        style={[
+                                                                            styles.cell,
+                                                                            {
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                color: "#000",
+                                                                                textAlign: "center",
+                                                                            },
+                                                                        ]}
+                                                                    >
+                                                                        {item?.gravidaNumber ? (item?.gravidaNumber).toString().padStart(2, '0') : `-`}
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={[
+                                                                            styles.cell,
+                                                                            {
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                color: "#000",
+                                                                                textAlign: "center",
+                                                                            },
+                                                                        ]}
+                                                                    >
+                                                                        {item?.outcome || `-`}
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={[
+                                                                            styles.cell,
+                                                                            {
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                color: "#000",
+                                                                                textAlign: "center",
+                                                                            },
+                                                                        ]}
+                                                                    >
+                                                                        {item?.termLength || `-`}
+                                                                    </Text>
+
+                                                                    {item?.deliveryMode && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                            ]}
+                                                                        >
+                                                                            {item?.deliveryMode || `-`}
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.gestationPeriod && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                            ]}
+                                                                        >
+                                                                            {item?.gestationPeriod || `-`}
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.location && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                            ]}
+                                                                        >
+                                                                            {item?.location || `-`}
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.modeOfManagement && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                            ]}
+                                                                        >
+                                                                            {item?.modeOfManagement || `-`}
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.typeOfAbortion && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                            ]}
+                                                                        >
+                                                                            {item?.typeOfAbortion || `-`}
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.modeOfAbortion && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                            ]}
+                                                                        >
+                                                                            {item?.modeOfAbortion || `-`}
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.dateOfDelivery && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                            ]}
+                                                                        >
+                                                                            {item?.dateOfDelivery ? moment(item?.dateOfDelivery).format("DD MMM YYYY") : `-`}
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.gender && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                            ]}
+                                                                        >
+                                                                            {item?.gender || `-`}
+                                                                        </Text>
+                                                                    )}
+
+                                                                    {item?.babysWeight && (
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    color: "#000",
+                                                                                    textAlign: "center",
+                                                                                },
+                                                                            ]}
+                                                                        >
+                                                                            {item?.babysWeight || ``}
+                                                                            {item?.babysWeight ? `kgs` : `-`}
+                                                                        </Text>
+                                                                    )}
+                                                                </View>
+                                                            </View>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#000",                                                                    
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    padding: 6,
+                                                                    borderBottom: "1px solid #171725",
+                                                                    borderLeft: "1px solid #171725",
+                                                                    borderRight: "1px solid #171725",
+                                                                }}                                                                
+                                                            >
+                                                                Remarks&nbsp;:&nbsp;{item?.remarks || `-`}
+                                                            </Text>
+                                                        </View>
+                                                    )}
+                                                )}                                                
+
+                                                <Text
+                                                    style={{
+                                                        color: "#000",
+                                                        marginTop: PX_TO_PT * 12,
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 500,
+                                                        padding: 6,
+                                                        borderTop: "1px solid #171725",
+                                                        borderLeft: "1px solid #171725",
+                                                        borderRight: "1px solid #171725",
+                                                        backgroundColor: "#E2E2EA",
+                                                    }}
+                                                >
+                                                    Examination
+                                                </Text>
+
+                                                {obsHistoryData?.examinationHistory.map((item, i) => (
+                                                    <View key={i}>
+                                                        <View style={[styles.table, { marginTop: 0 }]}>
+                                                            <View
+                                                                style={[
+                                                                    styles.row,
+                                                                    { alignItems: "center", justifyContent: "center" },
+                                                                ]}
+                                                            >
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    Rx
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    Pallor
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    Oedema
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    BMI
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    BP
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    Fundus
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    Presentation
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    Fluid
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    FHR
+                                                                </Text>
+                                                            </View>
+
+                                                            <View
+                                                                style={[
+                                                                    styles.row,
+                                                                    { alignItems: "center", justifyContent: "center" },
+                                                                ]}
+                                                            >
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    {i + 1}
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    {Boolean(item?.pallor) ? `Yes` : `No`}
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    {Boolean(item?.oedema) ? `Yes` : `No`}
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    {item?.mothersBMI || ``}
+                                                                    {item?.mothersBMI ? `kg/m2` : `-`}
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    {item?.diastolic || ``}
+                                                                    {item?.diastolic ? `/` : `-`}
+                                                                    {item?.systolic || ``}
+                                                                    {item?.diastolic ? ` mmHg` : ``}
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    {item?.heightOfFundus || ``}
+                                                                    {item?.heightOfFundusUnit || `-`}
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    {item?.presentation || `-`}
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    {item?.foetalHeartRate || ``}
+                                                                    {item?.foetalHeartRate ? ` BPM` : `-`}
+                                                                </Text>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        },
+                                                                        styles.minHeight32
+                                                                    ]}
+                                                                >
+                                                                    {item?.fluidIndex || ``}
+                                                                    {item?.fluidIndex ? ` cm` : `-`}
+                                                                </Text>
+                                                            </View>
+                                                        </View>
+                                                        <Text
+                                                            style={{
+                                                                color: "#000",                                                                
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                padding: 6,
+                                                                borderBottom: "1px solid #171725",
+                                                                borderLeft: "1px solid #171725",
+                                                                borderRight: "1px solid #171725",
+                                                            }}
+                                                        >
+                                                            Remarks&nbsp;:&nbsp;{item?.notes || `-`}
+                                                        </Text>
+                                                    </View>
+                                                ))}
+                                                
+                                            </View>
+                                        )
                                     )}
                                 </>
                             )

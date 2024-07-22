@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { ExaminationColumns } from "../../utils/ObstetricHelper";
 import ReadMore from "../../../../common/ReadMore";
 
-const Examination = () => {
+const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { examinationHistory } = obstetricDetails;
 
@@ -30,8 +30,8 @@ const Examination = () => {
   };
 
   const renderTableData = () => {
-    const onEdit = (item) => {
-      console.log("item", item);
+    const onEdit = (i) => {
+      setEditIndex(i);
     };
     return examinationHistory.map((item, i) => (
       <tr key={i}>
@@ -55,7 +55,7 @@ const Examination = () => {
           <ReadMore text={item.notes} textLimit={70} />
         </td>
         <td className="obstetricTcell">
-          <div className="editIcon" onClick={() => onEdit(item)}>
+          <div className="editIcon" onClick={() => onEdit(i)}>
             <i className={"icon-Edit me-1 fs-5"} />
             <span className="editText">Edit</span>
           </div>
@@ -97,6 +97,7 @@ const Examination = () => {
             style={{
               width: "180px",
             }}
+            onClick={handleExaminationDrawer}
           >
             <i className="icon-Add" />
             <span>Add Examination</span>

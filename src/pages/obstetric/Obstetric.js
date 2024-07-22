@@ -1,23 +1,49 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import VaccineHeader from "../vaccination/components/vaccineHeader/VaccineHeader";
-import Examination from "./components/Examination/Examination";
+import Examination from "./components/examination/Examination";
 import PastPregnancy from "./components/PastPregnancy/PastPregnancy";
 import "./Obstetric.scss";
 import PatientDiagnosis from "./components/patientDiagnosis/PatientDiagnosis";
 import PregnancyHistory from "./components/pregnancyHistory/PregnancyHistory";
-import Examination from "./components/examination/Examination";
+import AddExamination from "./components/AddExamination/AddExamination";
 import { Tabs } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import LmpPopup from "./components/lmpPopup/LmpPopup";
-import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Drawer } from "antd";
 
 const Obstetric = ({ handleDrawerObstetric }) => {
-  const [examinationDrawer, setExaminationDrawer] = useState(true);
+  const [examinationDrawer, setExaminationDrawer] = useState(false);
   const [pastPregnancyDrawer, setPastPregancyDrawer] = useState(false);
   const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const [showLmpPopup, setShowLmpPopup] = useState(!obstetricDetails?.lmp);
+  const [showLmpPopup, setShowLmpPopup] = useState(false);
+  const [examinationEditIndex, setExaminationEditIndex] = useState(-1);
+  const [pastPregnancyEditIndex, setPastPregnancyEditIndex] = useState(-1);
+
+  useEffect(() => {
+    if (examinationEditIndex >= 0) {
+      handleExaminationDrawer();
+    }
+    if (pastPregnancyEditIndex >= 0) {
+      handlePastPregnancyDrawer();
+    }
+  }, [examinationEditIndex, pastPregnancyEditIndex]);
+
+  const handleExaminationDrawer = () => {
+    setExaminationDrawer(!examinationDrawer);
+  };
+
+  const handlePastPregnancyDrawer = () => {
+    setPastPregancyDrawer(!pastPregnancyDrawer);
+  };
+
+  const resetExaminationEditIndex = () => {
+    setExaminationEditIndex(-1);
+  };
+
+  const resetPastPregnancyEditIndex = () => {
+    setPastPregnancyEditIndex(-1);
+  };
 
   return (
     <div className="vaccinationWrapper">
@@ -31,10 +57,16 @@ const Obstetric = ({ handleDrawerObstetric }) => {
 
         <Tabs defaultActiveKey="pregnancyHistory">
           <TabPane tab="Pregnancy History" key="pregnancyHistory">
-            <PregnancyHistory />
+            <PregnancyHistory
+              handlePastPregnancyDrawer={handlePastPregnancyDrawer}
+              setEditIndex={setPastPregnancyEditIndex}
+            />
           </TabPane>
           <TabPane tab="Examination" key="examination">
-            <Examination />
+            <Examination
+              handleExaminationDrawer={handleExaminationDrawer}
+              setEditIndex={setExaminationEditIndex}
+            />
           </TabPane>
         </Tabs>
       </div>
@@ -48,24 +80,36 @@ const Obstetric = ({ handleDrawerObstetric }) => {
         <Drawer
           closeIcon={false}
           placement="right"
-          onClose={() => setExaminationDrawer(false)}
+          onClose={handleExaminationDrawer}
           open={examinationDrawer}
           className="modalWidth-563"
           width="auto"
         >
-          <Examination close={() => setExaminationDrawer(false)} />
+          <AddExamination
+            editIndex={examinationEditIndex}
+            close={() => {
+              handleExaminationDrawer();
+              resetExaminationEditIndex();
+            }}
+          />
         </Drawer>
       )}
       {pastPregnancyDrawer && (
         <Drawer
           closeIcon={false}
           placement="right"
-          onClose={() => setPastPregancyDrawer(false)}
+          onClose={handlePastPregnancyDrawer}
           open={pastPregnancyDrawer}
           className="modalWidth-563"
           width="auto"
         >
-          <PastPregnancy close={() => setPastPregancyDrawer(false)} />
+          <PastPregnancy
+            editIndex={pastPregnancyEditIndex}
+            close={() => {
+              handlePastPregnancyDrawer();
+              resetPastPregnancyEditIndex();
+            }}
+          />
         </Drawer>
       )}
     </div>

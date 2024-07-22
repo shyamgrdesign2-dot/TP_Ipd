@@ -11,12 +11,12 @@ import {
   OutcomeOptions,
 } from "../../utils/ObstetricHelper";
 
-const PregnancyHistory = () => {
+const PregnancyHistory = ({ handlePastPregnancyDrawer, setEditIndex }) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { pregnancyHistory } = obstetricDetails;
-  const renderTableTitle = (gravidaItem) => {
+  const renderTableTitle = (gravidaItem, i) => {
     const onEdit = () => {
-      console.log("item", gravidaItem);
+      setEditIndex(i);
     };
     return (
       <div className="tcell theaderCellStyle tableTitle">
@@ -141,6 +141,7 @@ const PregnancyHistory = () => {
               style={{
                 width: "255px",
               }}
+              onClick={handlePastPregnancyDrawer}
             >
               <i className="icon-Add" />
               <span>Add past pregnancy details</span>
