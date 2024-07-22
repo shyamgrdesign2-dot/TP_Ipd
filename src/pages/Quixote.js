@@ -5,8 +5,9 @@ import { Spin } from "antd";
 import PrintSettingsContext from '../context/PrintSettingsContext';
 import moment from "moment";
 import { useSelector } from "react-redux";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
-import { NORMAL } from "../utils/constants";
+import { GB_GYNEC_HISTORY, NORMAL } from "../utils/constants";
 import ViewPDF from '../components/print_settings/ViewPDF';
 import { renderPDF } from '../components/print_settings/renderPDF';
 import { PDF } from '../components/print_settings/PDF';
@@ -21,6 +22,10 @@ function Quixote({ mode = NORMAL, ...props }) {
     const { smartRxFile, divWidth, caseManagerData, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
+
+    const isGynecHistoryAccessableFromGB = useFeatureIsOn(
+        GB_GYNEC_HISTORY
+    );
 
     const initialRows = [
         {
@@ -144,6 +149,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 fileSignature={fileSignature}
                 todayVaccines={props.todayVaccines}
                 growthChartDetails={props.growthChartDetails}
+                isGynecHistoryAccessableFromGB = {isGynecHistoryAccessableFromGB}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
         }

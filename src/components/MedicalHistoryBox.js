@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Button, Card, Row, Col, Form, Radio, AutoComplete, Checkbox, Input, Spin, Popover } from 'antd';
+import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
+import { Button, Card, Row, Col, Form, Radio, AutoComplete, Checkbox, Input, Spin, Popover, Tabs, DatePicker} from 'antd';
 
 import { isMobile } from 'react-device-detect';
 
@@ -15,22 +15,39 @@ import verticleUpDown from '../assets/images/verticle-up-down.svg';
 import ActiveverticleUpDown from '../assets/images/active-verticle-up-down.svg';
 import InActiveverticleUpDown from '../assets/images/inactive-verticle-up-down.svg';
 import NoHypertension from '../assets/images/no-hypertension.png';
+import moment from "moment";
+import dayjs from "dayjs";
 
 import {
     listSectionwithTag,
     addTag,
     searchTag
 } from "../redux/medicalhistorySlice";
+import { useLocation } from "react-router-dom";
+import { getGynecDetails, postGynecDetails, updateGynecDetails } from "../api/services/ApiGynec";
+import { GB_GYNEC_HISTORY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { jwtDecode } from "jwt-decode";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import { CLOTS_LIST, CYCLE_KEY_LIST, FLOW_LIST, GYNEC_SECTION_ENABLE_LIST, PAIN_LIST, PAIN_OCCURANCE_LIST, REPRODUCTIVE_LIFE_STAGES_LIST, TYPES_REPRODUCTIVE_STAGES } from "../utils/gynec_constants";
+
+const dateFormat = 'YYYY-MM-DD'
+const showDateFormat = 'DD-MM-YYYY'
 
 function MedicalHistoryBox(props) {
 
-    const { handleDrawerMedicalHistory, handleCollapsed } = props
+    const { handleDrawerMedicalHistory, handleCollapsed, onSave} = props
+    const { TabPane } = Tabs;
     const {
         searchList,
         defaultList,
         loading,
     } = useSelector((state) => state.medicalhistory);
+    const { profile } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
+
+    const isGynecHistoryAccessableFromGB = useFeatureIsOn(
+        GB_GYNEC_HISTORY
+    );
 
     const { medicalHistoryData, setMedicalHistoryData } = useContext(CashManagerContext);
     // const [ medicalHistoryData, setMedicalHistoryData] = useState([]);
@@ -68,6 +85,60 @@ function MedicalHistoryBox(props) {
     const [sinceValue, setSinceValue] = useState(1);
     const [inputSince, setInputSince] = useState('');
     const [sinceOptions, setSinceOptions] = useState([]);
+    const [gynecEditState, setGynecEditState] = useState("CREATE");
+    const [sectionState, setSectionState] = useState({ ...GYNEC_SECTION_ENABLE_LIST });
+
+    const [inputCycles, setInputCycles] = useState(null);
+    const [inputMenarche, setInputMenarche] = useState(null);
+    const [inputMenopause, setInputMenopause] = useState(null);
+    const [inputCyclesDays, setInputCyclesDays] = useState(null);
+    const [inputPadsNum, setInputPadsNum] = useState(null);
+    const { state } = useLocation();
+    const { patient_data, caseManagerData } = state;
+    const [gynecLoading, setGynecLoading] = useState(false);
+    const [gynecHistory, setGynecHistory] = useState({});
+
+    const datePickerRef = useRef(null);
+    // Function to handle custom input changes
+    const onChangeCustomInput = (type) => (e) => {
+        const value = onlyNumberFormat(e.target.value);;
+        if (type === "Cycle") {
+            setInputCycles(value);
+            handleGynecValueChange("intervalOfCycle", value);
+        }
+        if (type === "Menarche") {
+            setInputMenarche(value);
+            handleGynecValueChange("ageAtMenarche", value);
+        }
+        if (type === "Menopause") {
+            setInputMenopause(value);
+            handleGynecValueChange("ageAtMenopause", value);
+        }
+        if (type === "cyclesDays") {
+            setInputCyclesDays(value);
+            handleGynecValueChange("durationOfMenstrualFlow", value);
+        }
+        if (type === "padsNum") {
+            setInputPadsNum(value);
+            handleGynecValueChange("numberOfPadsPerDay", value);
+        }
+    };
+
+    // Common function to handle segment click changes
+    const onChangeSegmentedChild = (type, value, setInputFunction) => {
+        if (value === 'custom') {
+            setInputFunction(''); // Reset custom input value when clicked
+        } else {
+            handleGynecValueChange(type, value); // Handle predefined segment value
+        }
+    };
+
+    // handles for specific case
+    const onChangeSegmentedCyclesChild = (value) => onChangeSegmentedChild("intervalOfCycle", value, setInputCycles);
+    const onChangeSegmentedMenarcheChild = (value) => onChangeSegmentedChild("ageAtMenarche", value, setInputMenarche);
+    const onChangeSegmentedMenopauseChild = (value) => onChangeSegmentedChild("ageAtMenopause", value, setInputMenopause);
+    const onChangeSegmentedCyclesDaysChild = (value) => onChangeSegmentedChild("durationOfMenstrualFlow", value, setInputCyclesDays);
+    const onChangeSegmentedPadNumChild = (value) => onChangeSegmentedChild("numberOfPadsPerDay", value, setInputPadsNum);
 
     const SINCE_OPTIONS_WEB = [
         { value: "Hour", label: "Hour" },
@@ -86,9 +157,105 @@ function MedicalHistoryBox(props) {
         { value: "No", label: "No" },
     ];
 
+    const customCyclesValue = gynecHistory?.intervalOfCycle > 32 ? gynecHistory.intervalOfCycle : inputCycles;
+    const CYCLES_LIST = Array.from({ length: 11 }, (_, i) => ({
+        value: 22 + i,
+        label: (22 + i).toString()
+      })).concat({
+        value: -1,
+        label: (
+            <Input
+                className="w-100 custom-segment-input-gynec inputheight45 border-0"
+                placeholder="Custom"
+                value={customCyclesValue}
+                inputMode="numeric"
+                onChange={onChangeCustomInput("Cycle")}
+                onClick={() => onChangeSegmentedCyclesChild(-1)}
+            />
+        )
+    })
+    
+    const customMenarcheValue = gynecHistory?.ageAtMenarche > 17 ? gynecHistory.ageAtMenarche : inputMenarche;
+    const MENARCHE_LIST = Array.from({ length: 11 }, (_, i) => ({
+    value: 7 + i,
+    label: (7 + i).toString()
+    })).concat({
+        value: 'custom',
+        label: (
+            <Input
+                className="w-100 custom-segment-input-gynec inputheight45 border-0"
+                placeholder="Custom"
+                value={customMenarcheValue}
+                inputMode="numeric"
+                onChange={onChangeCustomInput("Menarche")}
+                onClick={() => onChangeSegmentedMenarcheChild('custom')}
+            />
+        )
+    });
+    
+    const customMenoPause = gynecHistory?.ageAtMenopause > 34 ? gynecHistory.ageAtMenopause : inputMenopause;
+    const MENOPAUSE_LIST = Array.from({ length: 5 }, (_, i) => ({
+        value: 30 + i,
+        label: (30 + i).toString()
+    })).concat({
+        value: 'custom',
+        label: (
+            <Input
+                className="w-100 custom-segment-input-gynec inputheight45 border-0"
+                placeholder="Custom"
+                value={customMenoPause}
+                inputMode="numeric"
+                onChange={onChangeCustomInput("Menopause")}
+                onClick={() => onChangeSegmentedMenopauseChild('custom')}
+            />
+        )
+    });
+
+    const customCyclesDaysValue = gynecHistory?.durationOfMenstrualFlow > 5 ? gynecHistory.durationOfMenstrualFlow : inputCyclesDays;
+    const DURATION_OF_CYCLE_LIST = Array.from({ length: 5 }, (_, i) => ({
+        value: 1 + i,
+        label: (1 + i).toString()
+        })).concat({
+            value: 'custom',
+            label: (
+                <Input
+                    className="w-100 custom-segment-input-gynec inputheight45 border-0"
+                    placeholder="Custom"
+                    value={customCyclesDaysValue}
+                    inputMode="numeric"
+                    onChange={onChangeCustomInput("cyclesDays")}
+                    onClick={() => onChangeSegmentedCyclesDaysChild('custom')}
+                />
+            )
+    });
+
+    const customPadNumValue = gynecHistory?.numberOfPadsPerDay > 5 ? gynecHistory.numberOfPadsPerDay : inputPadsNum;
+    const PAD_NUM_LIST = Array.from({ length: 5 }, (_, i) => ({
+        value: 1 + i,
+        label: (1 + i).toString()
+        })).concat({
+            value: 'custom',
+            label: (
+                <Input
+                    className="w-100 custom-segment-input-gynec inputheight45 border-0"
+                    placeholder="Custom"
+                    value={customPadNumValue}
+                    inputMode="numeric"
+                    onChange={onChangeCustomInput("padsNum")}
+                    onClick={() => onChangeSegmentedPadNumChild('custom')}
+                />
+            )
+    });
+
     const [popOver, setPopOver] = useState(false);
     const RELATIONSHIP_LIST = ['Father', 'Mother', 'Grandparents', 'Uncle', 'Aunty', 'Sibling', 'Relatives']
     const [selectedRelationship, setSelectedRelationship] = useState([]);
+    const [activeTab, setActiveTab] = useState('gynec');
+    const [tokenData, setTokenData] = useState(null);
+
+    const onTabChange = (key) => {
+        setActiveTab(key);
+    };
 
     // useEffect(() => {
     //     defaultList.length === 0 && dispatch(listSectionwithTag());
@@ -97,6 +264,16 @@ function MedicalHistoryBox(props) {
     useEffect(() => {
         dispatch(listSectionwithTag());
     }, []);
+
+    useEffect(() => {
+        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+          try {
+            var decoded = jwtDecode(token);
+            setTokenData(decoded.result)
+          } catch (e) {
+            console.error(e);
+          }
+      }, []);
 
     useEffect(() => {
         if (defaultList.length > 0) {
@@ -497,6 +674,7 @@ function MedicalHistoryBox(props) {
     }, [popOver, selectedRelationship]);
 
     const onSaveClicked = async () => {
+        handleSave();
         const medicalHistory = cloneMedicalHistoryData?.map((e) => {
             return {
                 title: e?.title,
@@ -514,303 +692,969 @@ function MedicalHistoryBox(props) {
         }
     }
 
+    const handleSelectionChange = (key, value) => {
+        
+        if (key === "pain" && value === "None") {
+            setGynecHistory(prevState => ({ ...prevState, ["occurrenceOfPain"]: null }));
+        }
+
+        if (key === "ageAtMenarche" && value === "number") {
+            setGynecHistory(prevState => ({ ...prevState, [key]: null }));
+        }
+
+        setGynecHistory(prevState => {
+            if (!prevState) {
+                return { [key]: value }; // Handle case when prevState is null or undefined
+            }
+            if (prevState[key] === value && activeMenstrualData === key) {
+
+                const updatedState = { ...prevState, [key]: null };
+
+                // Check for specific keys and set corresponding fields to null
+                if (key === "cycle") {
+                    updatedState.intervalOfCycle = null;
+                    setInputCycles('')
+                    updatedState.cycleNotes = null;
+                }
+                if (key === "flow") {
+                    updatedState.durationOfMenstrualFlow = null;
+                    setInputCyclesDays('')
+                    updatedState.clots = null;
+                    updatedState.numberOfPadsPerDay = null;
+                    setInputPadsNum('')
+                    updatedState.flowNotes = null;
+                }
+                if (key === "pain") {
+                    updatedState.occurrenceOfPain = null;
+                    updatedState.painNotes = null;
+                }
+                if (key === "reproductiveLifeStages") {
+                    updatedState.ageAtMenopause = null;
+                    setInputMenopause('')
+                    updatedState.typeOfMenopause = null;
+                    updatedState.note = null;
+                }
+                if (key === "ageAtMenarche") {
+                    updatedState.ageAtMenarche = null;
+                    setInputMenarche('')
+                }
+    
+                return updatedState;
+            } else {
+                return {
+                    ...prevState,
+                    [key]: value
+                };
+            }
+        });
+
+        setActiveMenstrualData(key);
+        switch (key) {
+            case 'cycle':
+                setRightPanelTitle('Cycle');
+                break;
+            case 'flow':
+                setRightPanelTitle('Flow');
+                break;
+            case 'pain':
+                setRightPanelTitle('Pain');
+                break;
+            case 'ageAtMenarche':
+                setRightPanelTitle('Age at menarche');
+                break;
+            case 'reproductiveLifeStages':
+                setRightPanelTitle(value);
+                break;
+            case 'notes':
+                setRightPanelTitle('Enter the notes');
+                break;
+            default:
+                setRightPanelTitle('No Data');
+                break;
+        }
+    };
+
+    const handleGynecValueChange = (key, value) => {
+        setGynecHistory(prevState => {
+            if (!prevState) {
+                return { [key]: value };
+            }
+            if (prevState[key] !== value) {
+                return { ...prevState, [key]: value };
+            } else {
+                return { ...prevState, [key]: '' };
+            }
+        });
+    };
+
+    const [activeMenstrualData, setActiveMenstrualData] = useState(null);
+    const [rightPanelTitle, setRightPanelTitle] = useState("No Record");
+    
+    const disabledDate = (current) => {
+        // Disable dates after today
+        return current && current > moment().endOf('day');
+    };
+
+    const formatDate = (dateString) => {
+        return dateString ? moment(dateString, showDateFormat).format(dateFormat) : '';
+    };
+
+    const onDateChanged = (date, dateString) => {
+        handleGynecValueChange("lmp", formatDate(dateString) )
+        setSelectedDate(formatDate(dateString))
+    };
+
+    const handleNoteChange = (key, value) => {
+        setGynecHistory(prevState => ({ ...prevState, [key]: value }));
+    };
+
+    const handleSave = () => {
+        const filteredGynecHistory = Object.keys(gynecHistory || {}).reduce((acc, key) => {
+            if (
+                key !== 'createdAt' && key !== 'createdBy' &&
+                gynecHistory[key] !== '' && gynecHistory[key] !== null &&
+                gynecHistory[key] !== 'custom' && gynecHistory[key] !== 'number'
+            ) {
+                acc[key] = gynecHistory[key];
+            }
+            return acc;
+        }, {});
+        onSave(filteredGynecHistory);
+        handleSaveClick()
+    };
+
+    const onExpandCollapseGynecClick = useCallback((key) => {
+        setSectionState(prevState => ({ ...prevState, [key]: !prevState[key] }));
+    }, []);
+
+    useEffect(() => {
+        fetchGynecHistory();
+    }, []);
+    
+    const fetchGynecHistory = async () => {
+        try {
+            const data = await getGynecDetails(patient_data.patient_unique_id);
+            if (data){
+                setGynecEditState("UPDATE");
+                setActiveMenstrualData("cycle")
+                setRightPanelTitle('Cycle')
+            }
+            setGynecHistory(data);
+            setGynecLoading(false);
+        } catch (error) {
+            console.error('Error fetching gynec history:', error);
+            setGynecLoading(false);
+        }
+    };
+    
+    // Function to check if gynecHistory has any meaningful entries except createdAt and createdBy
+    const hasGynecHistoryData = (gynecHistory) => {
+        if (!gynecHistory) return false;
+        const { createdAt, createdBy, ...rest } = gynecHistory;
+        return Object.keys(rest).length > 0;
+    };
+
+    const handleSaveClick = async () => {
+        setGynecEditState("UPDATE");
+        setGynecLoading(true);
+        const today = moment().toISOString();
+        const hasData = hasGynecHistoryData(gynecHistory);
+    
+        if (!hasData) {
+            setGynecLoading(false);
+            return;
+        }
+
+        // Filter out keys with empty string values
+        const filteredGynecHistory = Object.keys(gynecHistory).reduce((acc, key) => {
+            if (gynecHistory[key] !== '' && gynecHistory[key] !== null && gynecHistory[key] !== "custom" && gynecHistory[key] !== "number") {
+                acc[key] = gynecHistory[key];
+            }
+            return acc;
+        }, {});
+
+        setGynecHistory(filteredGynecHistory)
+        handleCollapsed(2)
+    
+        if (gynecEditState === "CREATE") {
+            const payload = {
+                patientId: patient_data.patient_unique_id,
+                timeline: [{
+                    ...filteredGynecHistory,
+                    createdAt: today,
+                    createdBy: tokenData?.user_id,
+                }],
+                createdAt: today,
+                createdBy: tokenData?.user_id,
+            };
+            try {
+                const response = await postGynecDetails(payload);
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage("Unable to create gynec history for you. please try again.")
+            } finally {
+                setGynecLoading(false);
+            }
+        } else {
+            const payload = {
+                ...filteredGynecHistory,
+                createdAt: today,
+                createdBy: tokenData?.user_id,
+            };
+            try {
+                const response = await updateGynecDetails(patient_data.patient_unique_id, payload);
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage("Unable able to update gynecdetail for you. please try again.")
+            } finally {
+                setGynecLoading(false);
+            }
+        }
+    };
+
+    const isCustomOrNumberOrUndefined = (value) => {
+        return value === undefined || value === '' || value === 'number' || value === 'custom' || value === null || value === -1;
+    };
+
+    const [selectedDate, setSelectedDate] = useState(null);
+    useEffect(() => {
+      if (gynecHistory?.lmp) {
+        setSelectedDate(moment(gynecHistory.lmp).format(showDateFormat));
+      }
+    }, [gynecHistory]);
+
     return (
         <>
             <Card bordered={false} className="search-modalCard">
-                <div>
-                    <div className='modalCard-header h-60 align-items-center justify-content-between d-flex'>
-                        <div className='align-items-center d-flex h-100'>
-                            <div className='border-end h-100 text-center me-3'>
-                                <div
-                                    onClick={onSaveClicked}
-                                    // onClick={handleDrawerMedicalHistory} 
-                                    className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
-                                    <i className='icon-right'></i>
-                                </div>
+                <div className='modalCard-header h-60 align-items-center justify-content-between d-flex'>
+                    <div className='align-items-center d-flex h-100'>
+                        <div className='border-end h-100 text-center me-3'>
+                            <div
+                                onClick={onSaveClicked}
+                                // onClick={handleDrawerMedicalHistory} 
+                                className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                                <i className='icon-right'></i>
                             </div>
-                            <div className="title-common">Medical History</div>
                         </div>
-                        <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={onSaveClicked}>
-                            Save
-                        </Button>
+                        <div className="title-common">
+                            { isGynecHistoryAccessableFromGB ? `Gynec History` :`Medical History`}
+                        </div>
                     </div>
+                    <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={onSaveClicked}>
+                        Save
+                    </Button>
                 </div>
-                <Row>
-                    <Col sm={15}>
-                        <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 61px)' }}>
-                            {cloneMedicalHistoryData.length > 0 ? (
-                                cloneMedicalHistoryData?.map((e, i) => {
-                                    return (
-                                        <div key={i} className="border-bottom px-4 pt-3 pb-2">
-                                            <div className="d-flex align-items-center justify-content-between mb-3">
-                                                <div className="d-flex align-items-center">
-                                                    <div className="titleprint">{e?.title}</div>
-                                                    <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseClick(i)}>
-                                                        <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${e?.isExpand ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                <Tabs defaultActiveKey="gynec" onChange={onTabChange}>
+                    { isGynecHistoryAccessableFromGB && 
+                        <TabPane tab="Menstrual History" key="gynec">
+                            <div style={{marginTop: "-1rem"}}>
+                                <Row>
+                                    <Col lg={12}>
+                                        <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(101vh - 110px)'}}>
+                                            <div className="border-bottom px-4 pt-3 pb-2">
+                                                    <div className="d-flex align-items-center lmp-gynec">
+                                                        <label className="pe-3">Last menstrual period :</label>
+                                                        <DatePicker
+                                                            style={{
+                                                            border: "1px solid #fff",
+                                                            borderRadius: "18px",
+                                                            }}
+                                                            placeholder={showDateFormat.toLowerCase()}
+                                                            value={
+                                                            selectedDate
+                                                                ? dayjs(selectedDate, "DD-MM-YYYY")
+                                                                : ""
+                                                            }
+                                                            format={{
+                                                                format: showDateFormat,
+                                                                type: 'mask',
+                                                            }}
+
+                                                            onChange={onDateChanged}
+                                                            disabledDate={disabledDate}
+                                                        />
+                                                    </div>
+                                            </div>
+
+                                            <div className="border-bottom px-4 pt-3 pb-2">
+                                                <div className="d-flex align-items-center justify-content-between mb-3">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="titleprint">Age at menarche</div>
+                                                        <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseGynecClick('ageAtMenarche')}>
+                                                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${sectionState.ageAtMenarche ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                                { sectionState.ageAtMenarche &&
+                                                    <div className="d-flex flex-wrap">
+                                                        <div key="regular" className={`history-badge gynec-history-badge ${ activeMenstrualData === "ageAtMenarche" && gynecHistory?.[activeMenstrualData] ? 'history-selected' : gynecHistory?.ageAtMenarche ? 'history-active' : ''}`}>
+                                                            <div onClick={() => handleSelectionChange('ageAtMenarche', gynecHistory?.ageAtMenarche || 'number')}>
+                                                                {isCustomOrNumberOrUndefined(gynecHistory?.ageAtMenarche) ? `+Add` : `${gynecHistory?.ageAtMenarche} years`}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }   
+                                            </div>
+
+                                            <div className="border-bottom px-4 pt-3 pb-2">
+                                                <div className="d-flex align-items-center justify-content-between mb-3">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="titleprint">Cycle</div>
+                                                        <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseGynecClick('cycle')}>
+                                                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${sectionState.cycle ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                                { sectionState.cycle &&
+                                                    <div className="d-flex flex-wrap">
+                                                        <div className="segement-static-gynec d-flex">
+                                                            {CYCLE_KEY_LIST.map((item, i) => (
+                                                                <button
+                                                                    key={i}
+                                                                    type="button"
+                                                                    // className={`btn p-0 ${ activeMenstrualData ==="cycle" && gynecHistory?.[activeMenstrualData] === item.value ? 'history-selected' : gynecHistory?.cycle === item.value ? 'history-active' : ''}`}
+                                                                    className={`btn p-0 ${ activeMenstrualData === "cycle" && gynecHistory?.[activeMenstrualData] === item.value ? 'history-selected' : gynecHistory?.cycle === item.value ? 'history-active' : ''}`}
+                                                                    onClick={() => handleSelectionChange('cycle', item.value)}
+                                                                >
+                                                                    {item.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+
+                                            <div className="border-bottom px-4 pt-3 pb-2">
+                                                <div className="d-flex align-items-center justify-content-between mb-3">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="titleprint">Flow</div>
+                                                        <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseGynecClick('flow')}>
+                                                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${sectionState.flow ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                                { sectionState.flow &&
+                                                    <div className="d-flex flex-wrap">
+                                                        <div className="segement-static-gynec d-flex">
+                                                            {FLOW_LIST.map((item, i) => (
+                                                                <button
+                                                                    key={i}
+                                                                    type="button"
+                                                                    className={`btn w-100 p-0 ${ activeMenstrualData ==="flow" && gynecHistory?.[activeMenstrualData] === item.value ? 'history-selected' : gynecHistory?.flow === item.value ? 'history-active' : ''}`}
+                                                                    onClick={() => handleSelectionChange('flow', item.value)}
+                                                                >
+                                                                    {item.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+
+                                            <div className="border-bottom px-4 pt-3 pb-2">
+                                                <div className="d-flex align-items-center justify-content-between mb-3">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="titleprint">Pain</div>
+                                                        <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseGynecClick('pain')}>
+                                                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${ sectionState.pain ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                                { sectionState.pain &&
+                                                    <div className="d-flex flex-wrap">
+                                                        <div className="segement-static-gynec d-flex">
+                                                            {PAIN_LIST.map((item, i) => (
+                                                                <button
+                                                                    key={i}
+                                                                    type="button"
+                                                                    className={`btn p-0 ${ activeMenstrualData ==="pain" && gynecHistory?.[activeMenstrualData] === item.value ? 'history-selected' : gynecHistory?.pain === item.value ? 'history-active' : ''}`}
+                                                                    onClick={() => handleSelectionChange('pain', item.value)}
+                                                                >
+                                                                    {item.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+
+                                            <div className="border-bottom px-4 pt-3 pb-2">
+                                                <div className="d-flex align-items-center justify-content-between mb-3">
+                                                    <div className="d-flex align-items-center">
+                                                    <div className="titleprint">Lifecycle Hormonal Changes</div>
+                                                    <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseGynecClick('reproductiveStages')}>
+                                                        <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${sectionState.reproductiveStages ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                                                     </Button>
+                                                    </div>
                                                 </div>
-                                                <div className="d-flex align-items-center">
-                                                    <Checkbox className="fontroboto" checked={e?.no_know_history} onChange={(e) => onNoKnownHistoryChange(e, i)}>No known history</Checkbox>
-                                                    <button className='btn d-flex ms-1 align-items-center btn-text pe-0' onClick={() => onAddEditClick(e)}>
-                                                        <i className="icon-setting me-2"></i> <span>Edit & Add</span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div className="d-flex flex-wrap">
-                                                {!e?.no_know_history && !e?.isExpand && e?.tags?.map((e1, i1) => {
-                                                    return (
-                                                        <div key={Math.random()} className={`history-badge ${e1?.enable !== undefined ? e1?.enable === "Y" ? 'history-active' : e1?.enable === "N" ? 'history-inactive' : '' : ''}`}>
-                                                            <div onClick={() => onTagClick(e?.tmmhs_id, e1?.tmmhst_id, i, i1)}>{e1?.title}</div>
-                                                            <span onClick={() => onEnableClick(e?.tmmhs_id, e1?.tmmhst_id, i, i1)}>{e1?.enable !== undefined ? e1?.enable : "-"}<img src={e1?.enable !== undefined ? e1?.enable === "Y" ? ActiveverticleUpDown : e1?.enable === "N" ? InActiveverticleUpDown : verticleUpDown : verticleUpDown} />
-                                                            </span>
+                                                { sectionState.reproductiveStages &&
+                                                    <div className="d-flex flex-wrap">
+                                                        <div className="segement-static-gynec d-flex">
+                                                            {REPRODUCTIVE_LIFE_STAGES_LIST.map((item, i) => (
+                                                                <button
+                                                                    key={i}
+                                                                    type="button"
+                                                                    className={`btn p-0 btn-padding ${ activeMenstrualData ==="reproductiveLifeStages" && gynecHistory?.[activeMenstrualData] === item.value ? 'history-selected' : gynecHistory?.reproductiveLifeStages === item.value ? 'history-active' : ''}`}
+                                                                    onClick={() => handleSelectionChange('reproductiveLifeStages', item.value)}
+                                                                >
+                                                                    {item.label}
+                                                                </button>
+                                                            ))}
                                                         </div>
-                                                    )
-                                                })}
-                                            </div>
-                                        </div>
-                                    )
-                                })
-                            ) : (
-                                <div className="d-flex align-items-center justify-content-center h-100">
-                                    <Spin />
-                                </div>
-                            )}
-                        </div>
-                    </Col>
-                    <Col sm={9}>
-                        <div className="bg-body overflow-y-auto" style={{ height: 'calc(100vh - 61px)' }}>
-                            {addEditData ? (
-                                <div>
-                                    <div className="selectedchip-header1 d-flex flex-column justify-content-center title px-20">
-                                        <span className="text-truncate">{addEditData?.title}</span>
-                                    </div>
-                                    <div className="p-3">
-                                        <div className="mt-1 mb-3">
-                                            <Input className="popinput" onChange={onSearch} value={searchQuery} placeholder={`Search ${addEditData?.title}`} prefix={<i className='icon-search me-2'></i>} allowClear />
-                                        </div>
-                                        <div className="d-flex flex-wrap">
-                                            {searchQuery.length > 0 ? (
-                                                searchOptions?.map((item, i) => {
-                                                    return (
-                                                        i === searchOptions.length - 1 ? (
-                                                            <Button
-                                                                key={i}
-                                                                type="text"
-                                                                className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height"
-                                                                onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                                                                "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a>
-                                                            </Button>
-                                                        ) : (
-                                                            <Button
-                                                                key={i}
-                                                                type="text"
-                                                                style={{ width: item.value.length > 26 && '250px' }}
-                                                                className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
-                                                                onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                                                                {item.value}
-                                                            </Button>
-                                                        )
-                                                    )
-                                                })
-                                            ) : (
-                                                addEditData?.tags?.filter(e => !e.delete).map((e, i) => {
-                                                    return (
-                                                        <div key={Math.random()} className="border rounded-10px px-2 py-1 d-flex align-items-center me-3 mb-2 bg-white fontroboto">
-                                                            {e?.title}
-                                                            <i className="ms-2 icon-Cross fs-18" onClick={() => onRemoveTag(e, i)}></i>
-                                                        </div>
-                                                    )
-                                                })
-                                            )}
-                                        </div>
-                                        <div className="d-flex justify-content-end align-items-center mt-4">
-                                            <Button className='btn btn-text me-4 p-0 shadow-none border-0' onClick={() => setAddEditData(null)}>
-                                                Cancel
-                                            </Button>
-                                            <Button className='btn btn-primary3 btn-41 px-4' onClick={onAddEditSaveClick} loading={loading}>
-                                                Save
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                selectData ? (
-                                    cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.enable == 'Y' ? (
-                                        <div>
-                                            <div className="selectedchip-header1 d-flex flex-column justify-content-center title px-20">
-                                                <span className="text-truncate">{cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title}</span>
+                                                    </div>
+                                                }
                                             </div>
 
-                                            <div className="p-3">
-                                                {isMobile ? (
-                                                    <>
-                                                        <div className="mt-2">
-                                                            <label className="title-common mb-1"> Since</label>
-                                                            <div className="segement-static d-flex">
-                                                                {SINCE_LIST.map((item, i) => {
-                                                                    return (
-                                                                        <button key={i}
-                                                                            type="button"
-                                                                            className={`btn w-100 p-0 ${sinceValue > 5 ? item.value == -1 && 'btn-segement custom-input-selected' : sinceValue == item.value && 'btn-segement'}`}
-                                                                            onClick={() => onChangeSegmentedSinceChild(item.value)}>
-                                                                            {item.label}
-                                                                        </button>
-                                                                    )
-                                                                })}
+                                            <div className="border-bottom px-4 pt-3 pb-2">
+                                                <div className="d-flex align-items-center justify-content-between mb-3">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="titleprint">Note</div>
+                                                        <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseGynecClick('note')}>
+                                                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${sectionState.note ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                                { sectionState.note ? !isCustomOrNumberOrUndefined(gynecHistory?.notes) ? (
+                                                        <div className="gynec-notes d-flex">
+                                                            <div className='pe-0'>
+                                                                {gynecHistory?.notes}
+                                                            </div>
+                                                            <button className='btn d-flex pe-0' onClick={() => handleSelectionChange('notes', gynecHistory?.notes || 'number')}>
+                                                                <span className="px-1">Edit</span><i className="icon-Edit" style={{fontSize:"18px"}}></i>
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="d-flex flex-wrap">
+                                                            <div key="regular" className={`history-badge gynec-history-badge ${ activeMenstrualData ==="notes" && isCustomOrNumberOrUndefined(gynecHistory?.notes)  ? 'history-selected' : gynecHistory?.notes ? 'history-active' : ''}`}>
+                                                                <div onClick={() => handleSelectionChange('notes', gynecHistory?.notes || 'number')}>
+                                                                    +Add
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div className="mt-3">
-                                                            <div className="segement-static d-flex">
-                                                                {sinceOptions.map((item, i) => {
-                                                                    return (
-                                                                        <button key={i}
-                                                                            type="button"
-                                                                            className={`btn w-100 ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since == item.value && 'btn-segement'}`}
-                                                                            onClick={() => onChangeSinceChild(item.value)}>
-                                                                            {item.label}
-                                                                        </button>
-                                                                    )
-                                                                })}
-                                                            </div>
+                                                    ) : (
+                                                        ""
+                                                    )
+                                                }
+                                            </div>
+                                        </div>
+                                    </Col>
+                                    {/* Options for the selected values */}
+                                    <Col lg={12}>
+                                        <div className="bg-body overflow-y-auto" style={{ height: 'calc(100vh - 61px)' }}>
+                                            <h4 className="border-bottom px-4 pt-3 pb-3">{(activeMenstrualData === "reproductiveLifeStages" && !gynecHistory?.reproductiveLifeStages) ? `Lifecycle Hormonal Changes` : rightPanelTitle}</h4>
+                                            <div className="mb-2 mx-4">
+                                                {/* Cycle Options */}
+                                                {activeMenstrualData === "cycle" && (
+                                                    <div>
+                                                        <h6 className="pb-1">Interval of cycle (in days)</h6>
+                                                        <div className="segement-static d-flex flex-wrap">
+                                                            {CYCLES_LIST.map((item, i) => {
+                                                                const isCustomButton = i === CYCLES_LIST.length-1;
+                                                                const isActive = gynecHistory?.intervalOfCycle === item.value || (isCustomButton && (gynecHistory?.intervalOfCycle === customCyclesValue || gynecHistory?.intervalOfCycle ===inputCycles));
+                                                                return (
+                                                                    <button
+                                                                        key={i}
+                                                                        type="button"
+                                                                        className={`btn cycles-intervals p-0 ${isActive ? 'btn-segement' : ''}`}
+                                                                        onClick={() => handleGynecValueChange("intervalOfCycle", item.value)}
+                                                                    >
+                                                                        {item.label}
+                                                                    </button>
+                                                                );
+                                                            })}
                                                         </div>
-                                                    </>
-                                                ) : (
-                                                    <Row gutter={20} className="mt-2">
-                                                        <Col sm={selectData?.tmmhs_id == 3 ? 12 : 24} >
-                                                            <label className="title-common mb-1"> Since</label>
-                                                            <AutoComplete
-                                                                defaultValue={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since}
-                                                                value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since}
-                                                                placeholder="Since"
-                                                                defaultOpen={false}
-                                                                onSearch={(query) => onSearchSinceChid(query)}
-                                                                onBlur={() => onBlurSinceChid()}
-                                                                options={sinceOptions}
-                                                                className="autocomplete-custom w-100"
-                                                                defaultActiveFirstOption={true}
-                                                                onSelect={(data) => onSelectSinceChild(data)}
+                                                        <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                            <label className="title-common mb-1">Note</label>
+                                                            
+                                                        </div>
+                                                        <Input.TextArea
+                                                            value={gynecHistory?.cycleNotes}
+                                                            placeholder="Enter any specific cycle notes here"
+                                                            className="textareaPlaceholder"
+                                                            rows={3}
+                                                            onChange={(e) => handleNoteChange('cycleNotes', e.target.value)}
+                                                        />
+                                                    </div>
+                                                )}
+                                                {/* Flow Options */}
+                                                {activeMenstrualData === "flow" && (
+                                                    <div>
+                                                        <h6 className="pb-1">Duration of menstrual flow (in days)</h6>
+                                                        <div className="segement-static d-flex mb-3">
+                                                            {DURATION_OF_CYCLE_LIST.map((item, i) => {
+                                                                const isCustomButton = i === DURATION_OF_CYCLE_LIST.length-1;
+                                                                const isActive = gynecHistory?.durationOfMenstrualFlow === item.value || (isCustomButton && (gynecHistory?.durationOfMenstrualFlow === customCyclesDaysValue || gynecHistory?.durationOfMenstrualFlow === inputCyclesDays));
+                                                                return (
+                                                                    <button
+                                                                        key={i}
+                                                                        type="button"
+                                                                        className={`btn cycles-intervals p-0 ${isActive ? 'btn-segement' : ''}`}
+                                                                        onClick={() => handleGynecValueChange('durationOfMenstrualFlow', item.value)}
+                                                                    >
+                                                                        {item.label}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                        <h6 className="pt-2 pb-1">Clots During Flow</h6>
+                                                        <div className="segement-static d-flex mb-3">
+                                                            {CLOTS_LIST.map((item, i) => (
+                                                                <button
+                                                                    key={i}
+                                                                    type="button"
+                                                                    className={`btn p-0 ${gynecHistory?.clots === item.value ? 'btn-segement' : ''}`}
+                                                                    onClick={() => handleGynecValueChange('clots', item.value)}
+                                                                >
+                                                                    {item.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                        <h6 className="pt-2 pb-1">Number of Pads Per Day</h6>
+                                                        <div className="segement-static d-flex">
+                                                            {PAD_NUM_LIST.map((item, i) => {
+                                                                const isCustomButton = i === PAD_NUM_LIST.length-1;
+                                                                const isActive = gynecHistory?.numberOfPadsPerDay === item.value || (isCustomButton && (gynecHistory?.numberOfPadsPerDay === customPadNumValue || gynecHistory?.numberOfPadsPerDay === inputPadsNum));
+                                                                return (
+                                                                    <button
+                                                                        key={i}
+                                                                        type="button"
+                                                                        className={`btn cycles-intervals p-0 ${isActive ? 'btn-segement' : ''}`}
+                                                                        onClick={() => handleGynecValueChange('numberOfPadsPerDay', item.value)}
+                                                                    >
+                                                                        {item.label}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                        <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                            <label className="title-common mb-1">Note</label>
+                                                            <Input.TextArea
+                                                                value={gynecHistory?.flowNotes}
+                                                                placeholder="Enter any specific flow notes here"
+                                                                className="textareaPlaceholder"
+                                                                rows={3}
+                                                                onChange={(e) => handleNoteChange('flowNotes', e.target.value)}
                                                             />
-                                                        </Col>
-                                                        {selectData?.tmmhs_id == 3 && (
-                                                            <Col sm={12}>
-                                                                <label className="title-common mb-1"> Relationship</label>
-                                                                <Popover
-                                                                    open={popOver}
-                                                                    onOpenChange={showHidePopover}
-                                                                    content={RELATIONSHIP_CONTENT}
-                                                                    trigger="click"
-                                                                    arrow={false}
-                                                                    overlayClassName="pp-0 poover-13"
-                                                                    placement="bottom">
-                                                                    <div>
-                                                                        <Input className="popinput input-tuncate" readOnly value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Select relationship" suffix={<i className='icon-right iconrotate270'></i>} />
-                                                                    </div>
-                                                                </Popover>
-                                                            </Col>
-                                                        )}
-                                                    </Row>
-
-                                                )}
-                                                {selectData?.tmmhs_id != 3 && (
-                                                    <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
-                                                        <label className="title-common mb-1">Status</label>
-                                                        {/* <div className="segement-static d-flex">
-                                                            {STATUS_LIST.map((item, i) => {
-                                                                return (
-                                                                    <button key={i}
-                                                                        type="button"
-                                                                        className={`btn w-100 ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status == item.value && 'btn-segement'}`}
-                                                                        onClick={() => onChangeStatus(item.value)}>
-                                                                        {item.label}
-                                                                    </button>
-                                                                )
-                                                            })}
-                                                        </div> */}
-                                                        <Form.Item className="form_addnewpatient">
-                                                            <Radio.Group
-                                                                className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`}
-                                                                value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status}>
-                                                                {STATUS_LIST.map((item, i) => {
-                                                                    return (
-                                                                        <Radio.Button key={i} className={`w-100 text-center ${isMobile ? 'segment-47' : 'text-segment'}`} value={item.value} onClick={() => onChangeStatus(item.value)}>{item.label}</Radio.Button>
-                                                                    )
-                                                                })}
-                                                            </Radio.Group>
-                                                        </Form.Item>
+                                                        </div>
                                                     </div>
                                                 )}
-                                                {selectData?.tmmhs_id == 2 && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status == 'Active' && (
-                                                    <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
-                                                        <label className="title-common mb-1"> Medication</label>
-                                                        {/* <div className="segement-static d-flex">
-                                                            {MEDICATION_LIST.map((item, i) => {
-                                                                return (
-                                                                    <button key={i}
-                                                                        type="button"
-                                                                        className={`btn w-100 ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication == item.value && 'btn-segement'}`}
-                                                                        onClick={() => onChangeMedication(item.value)}>
-                                                                        {item.label}
-                                                                    </button>
-                                                                )
-                                                            })}
-                                                        </div> */}
-                                                        <Form.Item className="form_addnewpatient">
-                                                            <Radio.Group
-                                                                className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`}
-                                                                value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication}>
-                                                                {MEDICATION_LIST.map((item, i) => {
-                                                                    return (
-                                                                        <Radio.Button key={i} className={`w-100 text-center ${isMobile ? 'segment-47' : 'text-segment'}`} value={item.value} onClick={() => onChangeMedication(item.value)}>{item.label}</Radio.Button>
-                                                                    )
-                                                                })}
-                                                            </Radio.Group>
-                                                        </Form.Item>
+                                                {/* Pain Options */}
+                                                {activeMenstrualData === "pain" && (
+                                                    <div>
+                                                        <h6 className="pb-1">Occurrence of pain</h6>
+                                                        <div className="segement-static d-flex flex-wrap">
+                                                            {PAIN_OCCURANCE_LIST.map((item, i) => (
+                                                                <button
+                                                                    key={i}
+                                                                    type="button"
+                                                                    className={`btn p-0 pain-occurance ${gynecHistory?.occurrenceOfPain === item.value ? 'btn-segement' : ''}
+                                                                    }`}
+                                                                    onClick={() => handleGynecValueChange('occurrenceOfPain', item.value)}
+                                                                >
+                                                                    {item.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                        <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                            <label className="title-common mb-1">Note</label>   
+                                                            <Input.TextArea
+                                                                value={gynecHistory?.painNotes}
+                                                                placeholder="Enter any specific pain notes here"
+                                                                className="textareaPlaceholder"
+                                                                rows={3}
+                                                                onChange={(e) => handleNoteChange('painNotes', e.target.value)}
+                                                            />
+                                                        </div>
                                                     </div>
                                                 )}
-                                                {selectData?.tmmhs_id == 3 && isMobile && (
-                                                    <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
-                                                        <label className="title-common mb-1"> Relationship</label>
-                                                        <Popover
-                                                            open={popOver}
-                                                            onOpenChange={showHidePopover}
-                                                            content={RELATIONSHIP_CONTENT}
-                                                            trigger="click"
-                                                            arrow={false}
-                                                            overlayClassName="poover-34 pp-0"
-                                                            placement="bottom">
-                                                            <div>
-                                                                <Input className="popinput" readOnly value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Select relationship" suffix={<i className='icon-right iconrotate270 ms-2'></i>} />
+                                                {/* Age at Menarche */}
+                                                {activeMenstrualData === "ageAtMenarche" && (
+                                                    <div>
+                                                        <h6 className="pb-1">Age at Menarche</h6>
+                                                        <div className="segement-static d-flex flex-wrap">
+                                                            {MENARCHE_LIST.map((item, i) => {
+                                                                const isCustomButton = i === MENARCHE_LIST.length-1;
+                                                                const isActive = gynecHistory?.ageAtMenarche === item.value || (isCustomButton && (gynecHistory?.ageAtMenarche === customMenarcheValue || gynecHistory?.ageAtMenarche === inputMenarche));
+                                                                return (
+                                                                    <button
+                                                                        key={i}
+                                                                        type="button"
+                                                                        className={`btn cycles-intervals p-0 ${isActive ? 'btn-segement' : ''}`}
+                                                                        onClick={() => handleGynecValueChange('ageAtMenarche', item.value)}
+                                                                    >
+                                                                        {item.label}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                        <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                            <label className="title-common mb-1">Note</label>  
+                                                            <Input.TextArea
+                                                                value={gynecHistory?.menarcheNotes}
+                                                                placeholder="Enter any specific menarche notes here"
+                                                                className="textareaPlaceholder"
+                                                                rows={3}
+                                                                onChange={(e) => handleNoteChange('menarcheNotes', e.target.value)}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {/* Reproductive Life stages*/}
+                                                {activeMenstrualData === "reproductiveLifeStages" && gynecHistory?.reproductiveLifeStages &&(
+                                                    <div>
+                                                        <h6 className="pb-1">Age at {gynecHistory?.reproductiveLifeStages}</h6>
+                                                        <div className="segement-static d-flex mb-2">
+                                                            {MENOPAUSE_LIST.map((item, i) => {
+                                                                const isCustomButton = i === MENOPAUSE_LIST.length-1;
+                                                                const isActive = gynecHistory?.ageAtMenopause === item.value || (isCustomButton && (gynecHistory?.ageAtMenopause === customMenoPause || gynecHistory?.ageAtMenopause === inputMenopause));
+                                                                return (
+                                                                    <button
+                                                                        key={i}
+                                                                        type="button"
+                                                                        className={`btn cycles-intervals p-0 ${isActive ? 'btn-segement' : ''}`}
+                                                                        onClick={() => handleGynecValueChange('ageAtMenopause', item.value)}
+                                                                    >
+                                                                        {item.label}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                        <h6 className="pt-4 pb-1">Type of {gynecHistory?.reproductiveLifeStages}</h6>
+                                                        <div className="segement-static d-flex flex-wrap">
+                                                            {TYPES_REPRODUCTIVE_STAGES.map((item, i) => (
+                                                                <button
+                                                                    key={i}
+                                                                    type="button"
+                                                                    className={`btn p-0 types-reproductive-stages ${gynecHistory?.typeOfMenopause === item.value ? 'btn-segement' : ''} ${
+                                                                    gynecHistory?.typeOfMenopause === 'custom' && item.value === 'custom' ? 'custom-input-selected' : ''
+                                                                    }`}
+                                                                    onClick={() => handleGynecValueChange('typeOfMenopause', item.value)}
+                                                                >
+                                                                    {item.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                        <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                            <label className="title-common mb-1">Note</label>
+                                                            <Input.TextArea
+                                                                value={gynecHistory?.reproductiveNotes}
+                                                                placeholder="Enter any specific reproductive notes here"
+                                                                className="textareaPlaceholder"
+                                                                rows={3}
+                                                                onChange={(e) => handleNoteChange('reproductiveNotes', e.target.value)}
+                                                            />   
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {activeMenstrualData === "notes" && (
+                                                    <div>
+                                                        <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                            <Input.TextArea
+                                                                value={!isCustomOrNumberOrUndefined(gynecHistory?.notes) ? `${gynecHistory?.notes}` : `` }
+                                                                placeholder="Write notes"
+                                                                className="textareaPlaceholder"
+                                                                rows={3}
+                                                                onChange={(e) => handleNoteChange('notes', e.target.value)}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                { !activeMenstrualData && (
+                                                    <div className="text-center">
+                                                        <img className="my-4" style={{ width: 194 }} src={noRecordFound} alt="No Result Found" />
+                                                        <div className="fontroboto text-main title-common"> No Records Found! </div>
+                                                        <div className="fontroboto text-main title fw-normal mt-2"> You haven’t added any gynec history. </div>
+                                                    </div>
+                                                )
+                                                }
+                                            </div>
+                                        </div>
+                                    </Col>
+                                </Row>
+                            </div>
+                        </TabPane>
+                    }
+                    <TabPane tab="Medical History" key="medical">
+                        <div style={{marginTop: "-1rem"}}>
+                            <Row>
+                                <Col lg={15}>
+                                    <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 61px)' }}>
+                                        {cloneMedicalHistoryData.length > 0 ? (
+                                            cloneMedicalHistoryData?.map((e, i) => {
+                                                return (
+                                                    <div key={i} className="border-bottom px-4 pt-3 pb-2">
+                                                        <div className="d-flex align-items-center justify-content-between mb-3">
+                                                            <div className="d-flex align-items-center">
+                                                                <div className="titleprint">{e?.title}</div>
+                                                                <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseClick(i)}>
+                                                                    <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${e?.isExpand ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                                                                </Button>
                                                             </div>
-                                                        </Popover>
+                                                            <div className="d-flex align-items-center">
+                                                                <Checkbox className="fontroboto" checked={e?.no_know_history} onChange={(e) => onNoKnownHistoryChange(e, i)}>No known history</Checkbox>
+                                                                <button className='btn d-flex ms-1 align-items-center btn-text pe-0' onClick={() => onAddEditClick(e)}>
+                                                                    <i className="icon-setting me-2"></i> <span>Edit & Add</span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div className="d-flex flex-wrap">
+                                                            {!e?.no_know_history && !e?.isExpand && e?.tags?.map((e1, i1) => {
+                                                                return (
+                                                                    <div key={Math.random()} className={`history-badge ${e1?.enable !== undefined ? e1?.enable === "Y" ? 'history-active' : e1?.enable === "N" ? 'history-inactive' : '' : ''}`}>
+                                                                        <div onClick={() => onTagClick(e?.tmmhs_id, e1?.tmmhst_id, i, i1)}>{e1?.title}</div>
+                                                                        <span onClick={() => onEnableClick(e?.tmmhs_id, e1?.tmmhst_id, i, i1)}>{e1?.enable !== undefined ? e1?.enable : "-"}<img src={e1?.enable !== undefined ? e1?.enable === "Y" ? ActiveverticleUpDown : e1?.enable === "N" ? InActiveverticleUpDown : verticleUpDown : verticleUpDown} />
+                                                                        </span>
+                                                                    </div>
+                                                                )
+                                                            })}
+                                                        </div>
                                                     </div>
-                                                )}
-                                                <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
-                                                    <label className="title-common mb-1">Note</label>
-                                                    <Input.TextArea value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note} placeholder="Enter any specific notes here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNote} />
+                                                )
+                                            })
+                                        ) : (
+                                            <div className="d-flex align-items-center justify-content-center h-100">
+                                                <Spin />
+                                            </div>
+                                        )}
+                                    </div>
+                                </Col>
+                                <Col lg={9}>
+                                    <div className="bg-body overflow-y-auto" style={{ height: 'calc(100vh - 61px)' }}>
+                                        {addEditData ? (
+                                            <div>
+                                                <div className="selectedchip-header1 d-flex flex-column justify-content-center title px-20">
+                                                    <span className="text-truncate">{addEditData?.title}</span>
+                                                </div>
+                                                <div className="p-3">
+                                                    <div className="mt-1 mb-3">
+                                                        <Input className="popinput" onChange={onSearch} value={searchQuery} placeholder={`Search ${addEditData?.title}`} prefix={<i className='icon-search me-2'></i>} allowClear />
+                                                    </div>
+                                                    <div className="d-flex flex-wrap">
+                                                        {searchQuery.length > 0 ? (
+                                                            searchOptions?.map((item, i) => {
+                                                                return (
+                                                                    i === searchOptions.length - 1 ? (
+                                                                        <Button
+                                                                            key={i}
+                                                                            type="text"
+                                                                            className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height"
+                                                                            onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
+                                                                            "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a>
+                                                                        </Button>
+                                                                    ) : (
+                                                                        <Button
+                                                                            key={i}
+                                                                            type="text"
+                                                                            style={{ width: item.value.length > 26 && '250px' }}
+                                                                            className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
+                                                                            onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
+                                                                            {item.value}
+                                                                        </Button>
+                                                                    )
+                                                                )
+                                                            })
+                                                        ) : (
+                                                            addEditData?.tags?.filter(e => !e.delete).map((e, i) => {
+                                                                return (
+                                                                    <div key={Math.random()} className="border rounded-10px px-2 py-1 d-flex align-items-center me-3 mb-2 bg-white fontroboto">
+                                                                        {e?.title}
+                                                                        <i className="ms-2 icon-Cross fs-18" onClick={() => onRemoveTag(e, i)}></i>
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        )}
+                                                    </div>
+                                                    <div className="d-flex justify-content-end align-items-center mt-4">
+                                                        <Button className='btn btn-text me-4 p-0 shadow-none border-0' onClick={() => setAddEditData(null)}>
+                                                            Cancel
+                                                        </Button>
+                                                        <Button className='btn btn-primary3 btn-41 px-4' onClick={onAddEditSaveClick} loading={loading}>
+                                                            Save
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ) : cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.enable == 'N' && (
-                                        <div className="text-center">
-                                            <img className="mt-4 mb-3" style={{ width: 135 }} src={NoHypertension} alt="No Result Found" />
-                                            <div className="title-hypertension">{`No ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title} !`}</div>
-                                            <div className="fontroboto text-main title fw-normal mt-2">
-                                                You have selected as patient does not <br />
-                                                have {cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title}
-                                            </div>
-                                        </div>
-                                    )
-                                ) : (
-                                    <div className="text-center">
-                                        <img className="my-4" style={{ width: 194 }} src={noRecordFound} alt="No Result Found" />
-                                        <div className="fontroboto text-main title-common"> No Records Found! </div>
-                                        <div className="fontroboto text-main title fw-normal mt-2"> You haven’t added any medical history. </div>
+                                        ) : (
+                                            selectData ? (
+                                                cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.enable == 'Y' ? (
+                                                    <div>
+                                                        <div className="selectedchip-header1 d-flex flex-column justify-content-center title px-20">
+                                                            <span className="text-truncate">{cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title}</span>
+                                                        </div>
+
+                                                        <div className="p-3">
+                                                            {isMobile ? (
+                                                                <>
+                                                                    <div className="mt-2">
+                                                                        <label className="title-common mb-1"> Since</label>
+                                                                        <div className="segement-static d-flex">
+                                                                            {SINCE_LIST.map((item, i) => {
+                                                                                return (
+                                                                                    <button key={i}
+                                                                                        type="button"
+                                                                                        className={`btn w-100 p-0 ${sinceValue > 5 ? item.value == -1 && 'btn-segement custom-input-selected' : sinceValue == item.value && 'btn-segement'}`}
+                                                                                        onClick={() => onChangeSegmentedSinceChild(item.value)}>
+                                                                                        {item.label}
+                                                                                    </button>
+                                                                                )
+                                                                            })}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="mt-3">
+                                                                        <div className="segement-static d-flex">
+                                                                            {sinceOptions.map((item, i) => {
+                                                                                return (
+                                                                                    <button key={i}
+                                                                                        type="button"
+                                                                                        className={`btn w-100 ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since == item.value && 'btn-segement'}`}
+                                                                                        onClick={() => onChangeSinceChild(item.value)}>
+                                                                                        {item.label}
+                                                                                    </button>
+                                                                                )
+                                                                            })}
+                                                                        </div>
+                                                                    </div>
+                                                                </>
+                                                            ) : (
+                                                                <Row gutter={20} className="mt-2">
+                                                                    <Col lg={selectData?.tmmhs_id == 3 ? 12 : 24} >
+                                                                        <label className="title-common mb-1"> Since</label>
+                                                                        <AutoComplete
+                                                                            defaultValue={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since}
+                                                                            value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since}
+                                                                            placeholder="Since"
+                                                                            defaultOpen={false}
+                                                                            onSearch={(query) => onSearchSinceChid(query)}
+                                                                            onBlur={() => onBlurSinceChid()}
+                                                                            options={sinceOptions}
+                                                                            className="autocomplete-custom w-100"
+                                                                            defaultActiveFirstOption={true}
+                                                                            onSelect={(data) => onSelectSinceChild(data)}
+                                                                        />
+                                                                    </Col>
+                                                                    {selectData?.tmmhs_id == 3 && (
+                                                                        <Col lg={12}>
+                                                                            <label className="title-common mb-1"> Relationship</label>
+                                                                            <Popover
+                                                                                open={popOver}
+                                                                                onOpenChange={showHidePopover}
+                                                                                content={RELATIONSHIP_CONTENT}
+                                                                                trigger="click"
+                                                                                arrow={false}
+                                                                                overlayClassName="pp-0 poover-13"
+                                                                                placement="bottom">
+                                                                                <div>
+                                                                                    <Input className="popinput input-tuncate" readOnly value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Select relationship" suffix={<i className='icon-right iconrotate270'></i>} />
+                                                                                </div>
+                                                                            </Popover>
+                                                                        </Col>
+                                                                    )}
+                                                                </Row>
+
+                                                            )}
+                                                            {selectData?.tmmhs_id != 3 && (
+                                                                <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                                    <label className="title-common mb-1">Status</label>
+                                                                    {/* <div className="segement-static d-flex">
+                                                                        {STATUS_LIST.map((item, i) => {
+                                                                            return (
+                                                                                <button key={i}
+                                                                                    type="button"
+                                                                                    className={`btn w-100 ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status == item.value && 'btn-segement'}`}
+                                                                                    onClick={() => onChangeStatus(item.value)}>
+                                                                                    {item.label}
+                                                                                </button>
+                                                                            )
+                                                                        })}
+                                                                    </div> */}
+                                                                    <Form.Item className="form_addnewpatient">
+                                                                        <Radio.Group
+                                                                            className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`}
+                                                                            value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status}>
+                                                                            {STATUS_LIST.map((item, i) => {
+                                                                                return (
+                                                                                    <Radio.Button key={i} className={`w-100 text-center ${isMobile ? 'segment-47' : 'text-segment'}`} value={item.value} onClick={() => onChangeStatus(item.value)}>{item.label}</Radio.Button>
+                                                                                )
+                                                                            })}
+                                                                        </Radio.Group>
+                                                                    </Form.Item>
+                                                                </div>
+                                                            )}
+                                                            {selectData?.tmmhs_id == 2 && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.status == 'Active' && (
+                                                                <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                                    <label className="title-common mb-1"> Medication</label>
+                                                                    {/* <div className="segement-static d-flex">
+                                                                        {MEDICATION_LIST.map((item, i) => {
+                                                                            return (
+                                                                                <button key={i}
+                                                                                    type="button"
+                                                                                    className={`btn w-100 ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication == item.value && 'btn-segement'}`}
+                                                                                    onClick={() => onChangeMedication(item.value)}>
+                                                                                    {item.label}
+                                                                                </button>
+                                                                            )
+                                                                        })}
+                                                                    </div> */}
+                                                                    <Form.Item className="form_addnewpatient">
+                                                                        <Radio.Group
+                                                                            className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`}
+                                                                            value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.medication}>
+                                                                            {MEDICATION_LIST.map((item, i) => {
+                                                                                return (
+                                                                                    <Radio.Button key={i} className={`w-100 text-center ${isMobile ? 'segment-47' : 'text-segment'}`} value={item.value} onClick={() => onChangeMedication(item.value)}>{item.label}</Radio.Button>
+                                                                                )
+                                                                            })}
+                                                                        </Radio.Group>
+                                                                    </Form.Item>
+                                                                </div>
+                                                            )}
+                                                            {selectData?.tmmhs_id == 3 && isMobile && (
+                                                                <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                                    <label className="title-common mb-1"> Relationship</label>
+                                                                    <Popover
+                                                                        open={popOver}
+                                                                        onOpenChange={showHidePopover}
+                                                                        content={RELATIONSHIP_CONTENT}
+                                                                        trigger="click"
+                                                                        arrow={false}
+                                                                        overlayClassName="poover-34 pp-0"
+                                                                        placement="bottom">
+                                                                        <div>
+                                                                            <Input className="popinput" readOnly value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship !== undefined ? cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.relationship : ''} placeholder="Select relationship" suffix={<i className='icon-right iconrotate270 ms-2'></i>} />
+                                                                        </div>
+                                                                    </Popover>
+                                                                </div>
+                                                            )}
+                                                            <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                                <label className="title-common mb-1">Note</label>
+                                                                <Input.TextArea value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note} placeholder="Enter any specific notes here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNote} />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ) : cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.enable == 'N' && (
+                                                    <div className="text-center">
+                                                        <img className="mt-4 mb-3" style={{ width: 135 }} src={NoHypertension} alt="No Result Found" />
+                                                        <div className="title-hypertension">{`No ${cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title} !`}</div>
+                                                        <div className="fontroboto text-main title fw-normal mt-2">
+                                                            You have selected as patient does not <br />
+                                                            have {cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.title}
+                                                        </div>
+                                                    </div>
+                                                )
+                                            ) : (
+                                                <div className="text-center">
+                                                    <img className="my-4" style={{ width: 194 }} src={noRecordFound} alt="No Result Found" />
+                                                    <div className="fontroboto text-main title-common"> No Records Found! </div>
+                                                    <div className="fontroboto text-main title fw-normal mt-2"> You haven’t added any medical history. </div>
+                                                </div>
+                                            )
+                                        )}
                                     </div>
-                                )
-                            )}
+                                </Col>
+                            </Row>
                         </div>
-                    </Col>
-                </Row>
+                    </TabPane>
+                </Tabs>
             </Card>
         </>
     );
