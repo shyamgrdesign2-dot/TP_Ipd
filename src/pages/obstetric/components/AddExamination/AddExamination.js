@@ -25,7 +25,7 @@ function AddExamination({ close, editIndex }) {
     systolic: "",
     diastolic: "",
     heightOfFundus: "",
-    heightOfFundusUnit: "",
+    heightOfFundusUnit: "weeks",
     fluidIndex: "",
     presentation: "",
     foetalHeartRate: "",
