@@ -114,7 +114,7 @@ function SidebarDoctor() {
                     <div className='mt-1 px-2'>Billings</div>
                 </NavLink> */}
 
-                {!isMobile && profile && profile?.module_data?.map((item, i) => {
+                {profile && profile?.module_data?.map((item, i) => {
                     return (
                         <NavLink key={i} onClick={() => clickOldModule(item.type)} replace={true} className={({ isActive, isPending }) =>
                             isPending ? "pending" : isActive ? "" : "active"
