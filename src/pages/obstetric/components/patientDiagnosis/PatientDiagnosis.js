@@ -193,10 +193,13 @@ export default function PatientDiagnosis() {
               Days
             </span>
           </div>
-          <div className="history-badge" style={{ width: "142px" }}>
+          <div
+            className="history-badge"
+            style={{ width: "160px", position: "relative" }}
+          >
             Blood :
             <DropdownButton
-              className="diagnosisSelect bloodDropdown"
+              className="diagnosisSelect bloodGroup"
               style={{ width: "40%" }}
               title={
                 <div
@@ -246,39 +249,6 @@ export default function PatientDiagnosis() {
               onSelect={(e) => handlePatientDiagnosis(e, "husbandsBlood")}
             >
               {BloodGroupOptions.map((option) => (
-                <Dropdown.Item
-                  key={option.value}
-                  eventKey={option.value}
-                  className="dropdown-item-custom"
-                >
-                  {option.label}
-                </Dropdown.Item>
-              ))}
-            </DropdownButton>
-          </div>
-          <div
-            className="history-badge"
-            style={{ width: "154px", position: "relative" }}
-          >
-            Consang :
-            <DropdownButton
-              className="diagnosisSelect consang"
-              style={{ width: "40%" }}
-              title={
-                <div
-                  style={{
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    display: "flex",
-                  }}
-                >
-                  {patientDiagnosisData.consang || "Select"}
-                  <i className="icon-right iconStyle" />
-                </div>
-              }
-              onSelect={(e) => handlePatientDiagnosis(e, "consang")}
-            >
-              {ConsangOptions.map((option) => (
                 <Dropdown.Item
                   key={option.value}
                   eventKey={option.value}
@@ -361,6 +331,39 @@ export default function PatientDiagnosis() {
             >
               Months
             </span>
+          </div>
+          <div
+            className="history-badge"
+            style={{ width: "160px", position: "relative" }}
+          >
+            Consang :
+            <DropdownButton
+              className="diagnosisSelect consang"
+              style={{ width: "40%" }}
+              title={
+                <div
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    display: "flex",
+                  }}
+                >
+                  {patientDiagnosisData.consang || "Select"}
+                  <i className="icon-right iconStyle" />
+                </div>
+              }
+              onSelect={(e) => handlePatientDiagnosis(e, "consang")}
+            >
+              {ConsangOptions.map((option) => (
+                <Dropdown.Item
+                  key={option.value}
+                  eventKey={option.value}
+                  className="dropdown-item-custom"
+                >
+                  {option.label}
+                </Dropdown.Item>
+              ))}
+            </DropdownButton>
           </div>
         </div>
       </div>

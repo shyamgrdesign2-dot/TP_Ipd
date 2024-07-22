@@ -12,7 +12,12 @@ import { useSelector } from "react-redux";
 const Obstetric = ({ handleDrawerObstetric }) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
 
+  const [activeTab, setActiveTab] = useState("pregnancyHistory");
   const [showLmpPopup, setShowLmpPopup] = useState(!obstetricDetails?.lmp);
+
+  const continueExaminationHandler = () => {
+    setActiveTab("examination");
+  };
 
   return (
     <div className="vaccinationWrapper">
@@ -24,9 +29,11 @@ const Obstetric = ({ handleDrawerObstetric }) => {
       <div className="scrollableContainer">
         <PatientDiagnosis />
 
-        <Tabs defaultActiveKey="pregnancyHistory">
+        <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)}>
           <TabPane tab="Pregnancy History" key="pregnancyHistory">
-            <PregnancyHistory />
+            <PregnancyHistory
+              continueExaminationHandler={continueExaminationHandler}
+            />
           </TabPane>
           <TabPane tab="Examination" key="examination">
             <Examination />
