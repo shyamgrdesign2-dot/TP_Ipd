@@ -46,6 +46,10 @@ body {
             td {
                 padding: 9px 16px;
                 border-bottom: 0;
+                // Sorting Color change issue solved
+                &.ant-table-column-sort {
+                    background-color: transparent;
+                }
             }
         }
     }
