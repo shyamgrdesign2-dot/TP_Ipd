@@ -33,35 +33,51 @@ const Examination = () => {
     const onEdit = (item) => {
       console.log("item", item);
     };
-    return examinationHistory.map((item, i) => (
-      <tr key={i}>
-        <td className="obstetricTcell">
-          Visit {i + 1}
-          <div className="visitStyle">
-            {item.createdAt ? moment(item.createdAt).format("DD MMM YYYY") : ""}
-          </div>
-        </td>
-        <td className="obstetricTcell">{item.pallor ? "Yes" : "No"}</td>
-        <td className="obstetricTcell">{item.oedema ? "Yes" : "No"}</td>
-        <td className="obstetricTcell">{item.mothersBMI + " kg/m2"}</td>
-        <td className="obstetricTcell">
-          {item.systolic + "/" + item.diastolic + " mmHg"}
-        </td>
-        <td className="obstetricTcell">{item.heightOfFundus + " cm"}</td>
-        <td className="obstetricTcell">{item.presentation}</td>
-        <td className="obstetricTcell">{item.fluidIndex}</td>
-        <td className="obstetricTcell">{item.foetalHeartRate + " BPM"}</td>
-        <td className="obstetricTcell">
-          <ReadMore text={item.notes} textLimit={70} />
-        </td>
-        <td className="obstetricTcell">
-          <div className="editIcon" onClick={() => onEdit(item)}>
-            <i className={"icon-Edit me-1 fs-5"} />
-            <span className="editText">Edit</span>
-          </div>
-        </td>
-      </tr>
-    ));
+    return examinationHistory.map((item, i) => {
+      const {
+        pallor,
+        oedema,
+        mothersBMI = "-",
+        systolic = "-",
+        diastolic = "-",
+        heightOfFundus = "-",
+        presentation = "-",
+        fluidIndex = "-",
+        foetalHeartRate = "-",
+        notes = "-",
+      } = item;
+      return (
+        <tr key={i}>
+          <td className="obstetricTcell">
+            Visit {i + 1}
+            <div className="visitStyle">
+              {item.createdAt
+                ? moment(item.createdAt).format("DD MMM YYYY")
+                : ""}
+            </div>
+          </td>
+          <td className="obstetricTcell">{pallor ? "Yes" : "No"}</td>
+          <td className="obstetricTcell">{oedema ? "Yes" : "No"}</td>
+          <td className="obstetricTcell">{mothersBMI + " kg/m2"}</td>
+          <td className="obstetricTcell">
+            {systolic + "/" + diastolic + " mmHg"}
+          </td>
+          <td className="obstetricTcell">{heightOfFundus + " cm"}</td>
+          <td className="obstetricTcell">{presentation}</td>
+          <td className="obstetricTcell">{fluidIndex}</td>
+          <td className="obstetricTcell">{foetalHeartRate + " BPM"}</td>
+          <td className="obstetricTcell">
+            <ReadMore text={notes} textLimit={70} />
+          </td>
+          <td className="obstetricTcell">
+            <div className="editIcon" onClick={() => onEdit(item)}>
+              <i className={"icon-Edit me-1 fs-5"} />
+              <span className="editText">Edit</span>
+            </div>
+          </td>
+        </tr>
+      );
+    });
   };
 
   return (

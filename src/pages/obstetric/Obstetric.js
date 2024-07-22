@@ -13,6 +13,7 @@ const Obstetric = ({ handleDrawerObstetric }) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
 
   const [activeTab, setActiveTab] = useState("pregnancyHistory");
+  const [lmpDate, setLmpDate] = useState("");
   const [showLmpPopup, setShowLmpPopup] = useState(!obstetricDetails?.lmp);
 
   const continueExaminationHandler = () => {
@@ -27,7 +28,7 @@ const Obstetric = ({ handleDrawerObstetric }) => {
       />
 
       <div className="scrollableContainer">
-        <PatientDiagnosis />
+        <PatientDiagnosis lmpDate={lmpDate} />
 
         <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)}>
           <TabPane tab="Pregnancy History" key="pregnancyHistory">
@@ -43,6 +44,8 @@ const Obstetric = ({ handleDrawerObstetric }) => {
       {showLmpPopup && (
         <LmpPopup
           handleDrawerObstetric={handleDrawerObstetric}
+          lmpDate={lmpDate}
+          setLmpDate={setLmpDate}
           setShowLmpPopup={setShowLmpPopup}
         />
       )}

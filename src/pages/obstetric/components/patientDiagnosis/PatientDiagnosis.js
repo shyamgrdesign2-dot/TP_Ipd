@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./PatientDiagnosis.scss";
 import { Col, Collapse, DatePicker, Drawer, Form, Input, Row } from "antd";
 import DiagnosisNotes from "../diagnosisNotes/DiagnosisNotes";
@@ -13,7 +13,7 @@ import {
 import dayjs from "dayjs";
 import moment from "moment";
 
-export default function PatientDiagnosis() {
+export default function PatientDiagnosis({ lmpDate }) {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const {
     gravidity,
@@ -59,6 +59,24 @@ export default function PatientDiagnosis() {
     { value: abortion, label: "A" },
     { value: ectopicPregnancies, label: "E" },
   ]);
+
+  useEffect(() => {
+    if (lmpDate) {
+      /**
+       * EDD Formula: LMP date + 1 year - 3 months + 7 days
+       */
+      setPatientDiagnosisData((prevState) => ({
+        ...prevState,
+        lmp: dayjs(lmpDate, "DD-MM-YYYY"),
+        edd: moment(lmpDate, "DD-MM-YYYY")
+          .clone()
+          .add(1, "year")
+          .subtract(3, "months")
+          .add(7, "days")
+          .format("DD MMM YYYY"),
+      }));
+    }
+  }, [lmpDate]);
 
   const handlePatientDiagnosis = (newValue, key, isValid = true) => {
     if (isValid) {

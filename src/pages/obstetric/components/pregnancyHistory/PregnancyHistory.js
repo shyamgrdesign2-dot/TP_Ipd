@@ -50,34 +50,46 @@ const PregnancyHistory = ({ continueExaminationHandler }) => {
   };
 
   const renderTableData = (gravidaItem) => {
+    const {
+      outcome,
+      dateOfDelivery,
+      deliveryMode = "-",
+      gender = "-",
+      babysWeight = "-",
+      remarks = "-",
+      monthOfPregnancy = "-",
+      location = "-",
+      modeOfAbortion = "-",
+      typeOfAbortion = "-",
+    } = gravidaItem;
     return (
       <>
-        {gravidaItem.outcome === OutcomeOptions.live ||
-        gravidaItem.outcome === OutcomeOptions.stillBirth ? (
+        {outcome === OutcomeOptions.live ||
+        outcome === OutcomeOptions.stillBirth ? (
           <tr>
-            <td className="obstetricTcell">{gravidaItem.deliveryMode}</td>
+            <td className="obstetricTcell">{deliveryMode}</td>
             <td className="obstetricTcell">
-              {gravidaItem.dateOfDelivery
-                ? moment(gravidaItem.dateOfDelivery).format("DD MMM YYYY")
-                : ""}
+              {dateOfDelivery
+                ? moment(dateOfDelivery).format("DD MMM YYYY")
+                : "-"}
             </td>
-            <td className="obstetricTcell">{gravidaItem.gender}</td>
-            <td className="obstetricTcell">{gravidaItem.babysWeight}</td>
-            <td className="obstetricTcell">{gravidaItem.remarks}</td>
+            <td className="obstetricTcell">{gender}</td>
+            <td className="obstetricTcell">{babysWeight}</td>
+            <td className="obstetricTcell">{remarks}</td>
           </tr>
-        ) : gravidaItem.outcome === OutcomeOptions.ectopic ? (
+        ) : outcome === OutcomeOptions.ectopic ? (
           <tr>
-            <td className="obstetricTcell">{gravidaItem.monthOfPregnancy}</td>
-            <td className="obstetricTcell">{gravidaItem.location}</td>
-            <td className="obstetricTcell">{gravidaItem.modeOfAbortion}</td>
-            <td className="obstetricTcell">{gravidaItem.remarks}</td>
+            <td className="obstetricTcell">{monthOfPregnancy}</td>
+            <td className="obstetricTcell">{location}</td>
+            <td className="obstetricTcell">{modeOfAbortion}</td>
+            <td className="obstetricTcell">{remarks}</td>
           </tr>
-        ) : gravidaItem.outcome === OutcomeOptions.abortion ? (
+        ) : outcome === OutcomeOptions.abortion ? (
           <tr>
-            <td className="obstetricTcell">{gravidaItem.monthOfPregnancy}</td>
-            <td className="obstetricTcell">{gravidaItem.typeOfAbortion}</td>
-            <td className="obstetricTcell">{gravidaItem.modeOfAbortion}</td>
-            <td className="obstetricTcell">{gravidaItem.remarks}</td>
+            <td className="obstetricTcell">{monthOfPregnancy}</td>
+            <td className="obstetricTcell">{typeOfAbortion}</td>
+            <td className="obstetricTcell">{modeOfAbortion}</td>
+            <td className="obstetricTcell">{remarks}</td>
           </tr>
         ) : null}
       </>
