@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import VaccineHeader from "../vaccination/components/vaccineHeader/VaccineHeader";
 import Examination from "./components/examination/Examination";
 import PastPregnancy from "./components/PastPregnancy/PastPregnancy";
-import "./Obstetric.scss";
 import PatientDiagnosis from "./components/patientDiagnosis/PatientDiagnosis";
 import PregnancyHistory from "./components/pregnancyHistory/PregnancyHistory";
 import AddExamination from "./components/AddExamination/AddExamination";
