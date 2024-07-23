@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, GB_GYNEC_HISTORY } from "../utils/constants";
+import { ADD, EDIT, GB_GYNEC_HISTORY, GYNAECOLOGY } from "../utils/constants";
 
 import { getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../redux/medicalhistorySlice";
@@ -45,7 +45,6 @@ import GrowthChart from "./growthChart/GrowthChart";
 import { viewPatient } from "../redux/appointmentsSlice";
 import { useAccess } from "./vaccination/useAccess";
 import { getGynecDetails } from "../api/services/ApiGynec";
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
 import { fetchAllObstetricDetails } from "./obstetric/service";
@@ -67,10 +66,6 @@ function Prescription() {
   );
   const { examinationHistory = [] } = obstetricDetails;
   const dispatch = useDispatch();
-
-  const isGynecHistoryAccessableFromGB = useFeatureIsOn(
-    GB_GYNEC_HISTORY
-  );
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
@@ -132,7 +127,7 @@ function Prescription() {
   const [growthDrawer, setGrowthDrawer] = useState(false);
   const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
   const [obstetricDrawer, setObstetricDrawer] = useState(false);
-  const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
+  const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     patient_data?.ageYears
   );
 
@@ -148,7 +143,7 @@ function Prescription() {
       patient_unique_id: patient_data?.patient_unique_id,
     };
     dispatch(viewPatient(sendData));
-    if (!isObstetricDetailsFetched) {
+    if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {
       getAllObstetricDetails();
     }
   }, []);
@@ -478,7 +473,7 @@ function Prescription() {
                           alt="Medical History"
                           className="me-3"
                         />
-                        <div className="title-common">{ isGynecHistoryAccessableFromGB ? `Gynec History` : `Medical History` }</div>
+                        <div className="title-common">{ isGynaecHistoryAccessable ? `Gynec History` : `Medical History` }</div>
                         {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
                             <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                           </Button> */}

@@ -155,7 +155,7 @@ export default function PatientDiagnosis({
                 handlePatientDiagnosis(
                   e.target.value,
                   "gestationWeeks",
-                  e.target.validity.valid
+                  e.target.validity.valid && e.target.value <= 50
                 )
               }
             />
@@ -169,7 +169,7 @@ export default function PatientDiagnosis({
                 handlePatientDiagnosis(
                   e.target.value,
                   "gestationDays",
-                  e.target.validity.valid
+                  e.target.validity.valid && e.target.value <= 6
                 )
               }
             />
@@ -294,7 +294,7 @@ export default function PatientDiagnosis({
                 handlePatientDiagnosis(
                   e.target.value,
                   "marriageDurationYears",
-                  e.target.validity.valid
+                  e.target.validity.valid && e.target.value <= 100
                 )
               }
             />
@@ -308,7 +308,7 @@ export default function PatientDiagnosis({
                 handlePatientDiagnosis(
                   e.target.value,
                   "marriageDurationMonths",
-                  e.target.validity.valid
+                  e.target.validity.valid && e.target.value <= 11
                 )
               }
             />
@@ -392,7 +392,7 @@ export default function PatientDiagnosis({
                       handleInputChange(
                         index,
                         e.target.value,
-                        e.target.validity.valid
+                        e.target.validity.valid && e.target.value <= 45
                       )
                     }
                     style={{ width: "40px", height: "28px" }}

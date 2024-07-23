@@ -11,7 +11,10 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { addObstetricDetails, patientDiagnosisUpdated } from "../../../../redux/obstetricSlice";
+import {
+  addObstetricDetails,
+  patientDiagnosisUpdated,
+} from "../../../../redux/obstetricSlice";
 
 const dateFormat = "YYYY-MM-DD";
 
@@ -82,20 +85,19 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
       }
     }
     let newExaminationHistory = [...examinationHistory] || [];
-    newExaminationHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+    const data = {};
+    Object.keys(examinationData).forEach((key) => {
+      if (![undefined, null, ""].includes(examinationData[key])) {
+        data[key] = examinationData[key];
+      }
+    });
     if (examinationHistory?.length > 0 && editIndex >= 0) {
       newExaminationHistory[editIndex] = {
-        ...examinationData,
+        ...data,
         modifiedAt: new Date().toISOString(),
         modifiedBy: decodedToken?.result?.user_id,
       };
     } else {
-      const data = {};
-      Object.keys(examinationData).forEach((key) => {
-        if (![undefined, null, ""].includes(examinationData[key])) {
-          data[key] = examinationData[key];
-        }
-      });
       newExaminationHistory = [
         ...examinationHistory,
         {
@@ -129,6 +131,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
     const addExaminationRes = obstetricDetails?._id
       ? await updateObstetricData(obstetricDetails?.patientId, payload)
       : await addObstetricData(payload);
+    console.log({ addExaminationRes });
     setLoader(false);
     if (addExaminationRes?.data) {
       getAllObstetricDetails();
@@ -152,7 +155,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
       }
     }
     let newExaminationHistory = [...examinationHistory];
-    newExaminationHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+    // newExaminationHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
     if (editIndex >= 0) {
       newExaminationHistory.splice(editIndex, 1);
     }

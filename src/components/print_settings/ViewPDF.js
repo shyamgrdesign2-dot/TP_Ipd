@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynecHistoryAccessableFromGB, obsHistoryData } = props
+    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData } = props
 
     const gynecHistoryData = caseManagerData?.gynecHistoryData 
     
@@ -1395,7 +1395,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </>
                             ) : option?.id === 13 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
-                                    { gynecHistoryData && isGynecHistoryAccessableFromGB &&
+                                    { gynecHistoryData && isGynaecHistoryAccessable &&
                                         (option?.format === "inline" ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
                                                 <Text
@@ -3735,7 +3735,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </>
                             ) : option?.id === 14 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
                                 <>
-                                    {obsHistoryData?._id && isGynecHistoryAccessableFromGB &&
+                                    {obsHistoryData?._id && isGynaecHistoryAccessable &&
                                         (option?.format === "inline" ? (
                                             <View style={{ marginTop: PX_TO_PT * 15, lineHeight: PX_TO_PT * 2.5 }}>
                                                 <Text

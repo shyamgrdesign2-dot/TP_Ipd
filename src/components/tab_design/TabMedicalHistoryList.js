@@ -5,6 +5,7 @@ import CashManagerContext from '../../context/CashManagerContext';
 import { GB_GYNEC_HISTORY } from "../../utils/constants";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import TabGynecHistoryList from "./TabGynecHistoryList";
+import { useAccess } from "../../pages/vaccination/useAccess";
 
 // Read More content
 const ReadMore = ({ children }) => {
@@ -32,9 +33,7 @@ function TabMedicalHistoryList(props) {
     const {gynecHistory} = props
     const [accordionItems, setAccordionItems] = useState([]);
 
-    const isGynecHistoryAccessableFromGB = useFeatureIsOn(
-        GB_GYNEC_HISTORY
-    );
+    const {isGynaecHistoryAccessable} = useAccess();
 
     useEffect(() => {
         if (medicalHistoryData.length > 0) {
@@ -129,9 +128,9 @@ function TabMedicalHistoryList(props) {
                         <i className='icon-Add me-2 fs-21'></i>
                         Add or Edit History
                     </Button>
-                    {((hasGynecHistory && isGynecHistoryAccessableFromGB) || hasMedicalHistory) && (
+                    {((hasGynecHistory && isGynaecHistoryAccessable) || hasMedicalHistory) && (
                         <div className="border rounded-3 bg-body mt-3 p-10">
-                            {hasGynecHistory && isGynecHistoryAccessableFromGB && (
+                            {hasGynecHistory && isGynaecHistoryAccessable && (
                                 <TabGynecHistoryList gynecHistory={gynecHistory} />
                             )}
                             {hasMedicalHistory && (

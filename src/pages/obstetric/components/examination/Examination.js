@@ -30,13 +30,13 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
   };
 
   const renderTableData = () => {
-    let sortedData = [...examinationHistory].sort(
-      (a, b) => new Date(b.date) - new Date(a.date)
-    );
+    // let sortedData = [...examinationHistory].sort(
+    //   (a, b) => new Date(b.date) - new Date(a.date)
+    // );
     const onEdit = (i) => {
       setEditIndex(i);
     };
-    return sortedData.map((item, i) => {
+    return examinationHistory.map((item, i) => {
       const {
         pallor,
         oedema,

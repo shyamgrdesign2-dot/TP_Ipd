@@ -42,6 +42,7 @@ function PatientDetails() {
     const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
       patient_data?.ageYears
     );
+    const {isGynaecHistoryAccessable} = useAccess();
 
     const [sidebarKey, setSidebarKey] = useState(1);
 
@@ -129,7 +130,7 @@ function PatientDetails() {
                                                 <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
                                                 {isVaccinationAccessable && <VisitVaccination />}
                                                 {isGrowthChartAccessable && <VisitGrowthChart />}
-                                                <VisitObstetric />
+                                                {isGynaecHistoryAccessable && <VisitObstetric />}
                                             </>
                                         }
                                         {/*   <LabParameters />

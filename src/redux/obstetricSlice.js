@@ -12,6 +12,12 @@ const obstetricSlice = createSlice({
   reducers: {
     resetObstetricState: () => initialState,
     addObstetricDetails: (state, action) => {
+      if (action.payload?.examinationHistory?.length > 0) {
+        let sortedData = [...action.payload.examinationHistory].sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        );
+        action.payload.examinationHistory = sortedData;
+      }
       state.obstetricDetails = action.payload;
       state.isObstetricDetailsFetched = true;
       state.isPatientDiagnosisUpdated = false;

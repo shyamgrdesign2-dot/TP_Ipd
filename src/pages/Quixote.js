@@ -5,13 +5,13 @@ import { Spin } from "antd";
 import PrintSettingsContext from '../context/PrintSettingsContext';
 import moment from "moment";
 import { useSelector } from "react-redux";
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
-import { GB_GYNEC_HISTORY, NORMAL } from "../utils/constants";
+import { NORMAL } from "../utils/constants";
 import ViewPDF from '../components/print_settings/ViewPDF';
 import { renderPDF } from '../components/print_settings/renderPDF';
 import { PDF } from '../components/print_settings/PDF';
 import { pdfjs, Document, Page } from "react-pdf";
+import { useAccess } from './vaccination/useAccess';
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
@@ -23,9 +23,7 @@ function Quixote({ mode = NORMAL, ...props }) {
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
-    const isGynecHistoryAccessableFromGB = useFeatureIsOn(
-        GB_GYNEC_HISTORY
-    );
+    const {isGynaecHistoryAccessable} = useAccess();
     const { obstetricDetails } = useSelector((state) => state.obstetric);
 
     const initialRows = [
@@ -150,7 +148,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 fileSignature={fileSignature}
                 todayVaccines={props.todayVaccines}
                 growthChartDetails={props.growthChartDetails}
-                isGynecHistoryAccessableFromGB = {isGynecHistoryAccessableFromGB}
+                isGynaecHistoryAccessable = {isGynaecHistoryAccessable}
                 obsHistoryData={obstetricDetails}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))

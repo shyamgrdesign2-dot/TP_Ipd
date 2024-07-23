@@ -20,7 +20,10 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
-import { addObstetricDetails, patientDiagnosisUpdated } from "../../../../redux/obstetricSlice";
+import {
+  addObstetricDetails,
+  patientDiagnosisUpdated,
+} from "../../../../redux/obstetricSlice";
 
 function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
   const dispatch = useDispatch();
@@ -65,19 +68,19 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
       }
     }
     let newPastPregnancy = [...pregnancyHistory] || [];
+    const data = {};
+    Object.keys(pastPregnancyData).forEach((key) => {
+      if (![undefined, null, ""].includes(pastPregnancyData[key])) {
+        data[key] = pastPregnancyData[key];
+      }
+    });
     if (pregnancyHistory?.length > 0 && editIndex >= 0) {
       newPastPregnancy[editIndex] = {
-        ...pastPregnancyData,
+        ...data,
         modifiedAt: new Date().toISOString(),
         modifiedBy: decodedToken?.result?.user_id,
       };
     } else {
-      const data = {};
-      Object.keys(pastPregnancyData).forEach((key) => {
-        if (![undefined, null, ""].includes(pastPregnancyData[key])) {
-          data[key] = pastPregnancyData[key];
-        }
-      });
       newPastPregnancy = [
         ...pregnancyHistory,
         {

@@ -96,7 +96,7 @@ function TabPrescription() {
   const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
   const [obstetricDrawer, setObstetricDrawer] = useState(false);
   const [isGrowthChart, setIsGrowthChart] = useState(false);
-  const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
+  const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
   const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);

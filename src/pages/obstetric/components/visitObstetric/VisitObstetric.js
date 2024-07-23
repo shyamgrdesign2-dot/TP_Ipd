@@ -136,7 +136,7 @@ export default function VisitObstetric() {
               </div>
               <div>{visitedMonth} Month</div>
               {measurementDetails()}
-              {previousVisit.notes.length ? (
+              {previousVisit?.notes?.length ? (
                 <div
                   className="cardbody-data mt-2 border visitItem"
                   style={{ borderRadius: "8px", padding: "16px" }}
