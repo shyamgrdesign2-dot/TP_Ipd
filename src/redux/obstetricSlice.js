@@ -4,6 +4,7 @@ const initialState = {
   obstetricDetails: {},
   isObstetricDetailsFetched: false,
   isPatientDiagnosisUpdated: false,
+  isObstetricDetailsUpdated: false,
 };
 
 const obstetricSlice = createSlice({
@@ -22,8 +23,9 @@ const obstetricSlice = createSlice({
       state.isObstetricDetailsFetched = true;
       state.isPatientDiagnosisUpdated = false;
     },
-    patientDiagnosisUpdated: (state, isPatientDiagnosisUpdated) => {
-      state.isPatientDiagnosisUpdated = isPatientDiagnosisUpdated;
+    patientDiagnosisUpdated: (state) => {
+      state.isPatientDiagnosisUpdated = true;
+      state.isObstetricDetailsUpdated = true;
     },
   },
 });

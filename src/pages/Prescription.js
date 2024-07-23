@@ -142,11 +142,14 @@ function Prescription() {
     const sendData = {
       patient_unique_id: patient_data?.patient_unique_id,
     };
-    dispatch(viewPatient(sendData));
+    dispatch(viewPatient(sendData));    
+  }, []);
+
+  useEffect(() => {
     if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {
       getAllObstetricDetails();
     }
-  }, []);
+  }, [isObstetricDetailsFetched, isGynaecHistoryAccessable]);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {

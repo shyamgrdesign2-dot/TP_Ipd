@@ -151,10 +151,13 @@ function TabPrescription() {
       patient_unique_id: patient_data?.patient_unique_id,
     };
     dispatch(viewPatient(sendData));
-    if (!isObstetricDetailsFetched) {
+  }, []);
+
+  useEffect(() => {
+    if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {
       getAllObstetricDetails();
     }
-  }, []);
+  }, [isObstetricDetailsFetched, isGynaecHistoryAccessable]);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
