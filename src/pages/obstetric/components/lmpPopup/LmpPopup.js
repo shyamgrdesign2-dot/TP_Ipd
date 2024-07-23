@@ -3,8 +3,8 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import "./LmpPopup.scss";
 
-const LmpPopup = ({ handleDrawerObstetric, setShowLmpPopup }) => {
-  const [lmpDate, setLmpDate] = useState("");
+const LmpPopup = ({ handleDrawerObstetric, lmpDate, setLmpDate, setShowLmpPopup }) => {
+  
   const [isContinueBtnDisabled, setContinueBtnDisabled] = useState(true);
 
   const continueBtnHandler = () => {
