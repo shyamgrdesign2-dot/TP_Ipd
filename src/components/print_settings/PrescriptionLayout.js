@@ -13,11 +13,13 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import PrintSettingsContext from "../../context/PrintSettingsContext";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import { isMobile } from "react-device-detect";
 import { useAccess } from "../../pages/vaccination/useAccess";
 import { graphsToPrintData } from "../../pages/growthChart/growthChartHelper";
 import { useSelector } from "react-redux";
+import { GB_GYNEC_HISTORY } from "../../utils/constants";
 
 // const CustomRow = ({ children, ...props }) => {
 //     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
@@ -150,6 +152,10 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
     caseManagerData?.patient_data?.patient_age
   );
   const { obstetricDetails } = useSelector((state) => state.obstetric);
+
+  const isGynecHistoryAccessableFromGB = useFeatureIsOn(
+    GB_GYNEC_HISTORY
+  );
 
   const onMainCaseOptionChange = useCallback(
     (e) => {
@@ -449,9 +455,10 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
                                                                         ({ ...option, key: option.id }) 
                                                                         :(caseManagerData.smart_prescription_filename && option.id === 11) ?
                                                                             ({ ...option, key: option.id }) 
-                                                                            :(isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartData?.length) ? ({...option, key: option.id})
-                                                                                :(option.id === 14 && obstetricDetails?._id) && ({...option, key: option.id})
-                                                                            
+                                                                            :(isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartData?.length) ? 
+                                                                              ({...option, key: option.id})
+                                                                              :(caseManagerData.gynecHistoryData && isGynecHistoryAccessableFromGB && option.id === 13) ? ({...option, key: option.id})
+                                                                                :(option.id === 14 && isGynecHistoryAccessableFromGB && obstetricDetails?._id) && ({...option, key: option.id})
               )}
               showHeader={false}
             />

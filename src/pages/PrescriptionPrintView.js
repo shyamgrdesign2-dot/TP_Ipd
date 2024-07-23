@@ -19,6 +19,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { viewCaseManager } from "../redux/caseManagerSlice";
 
 import { pdfjs, Document, Page } from "react-pdf";
+import { getGynecDetails } from "../api/services/ApiGynec";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -92,9 +93,24 @@ function PrescriptionPrintView() {
     const [numPages, setNumPages] = useState();
     const [printBlob, setPrintBlob] = useState(null);
 
+    const [gynecHistoryData, setGynecHistoryData] = useState(null);
+
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
+
+    useEffect(() => {
+        fetchGynecHistory();
+    }, []);
+    
+    const fetchGynecHistory = async () => {
+        try {
+            const data = await getGynecDetails(patient_data?.patient_unique_id);
+            setGynecHistoryData(data);
+        } catch (error) {
+            console.error('Error fetching gynec history:', error);
+        }
+    };
 
     // const printContent = useReactToPrint({
     //     content: () => printRef.current,
@@ -197,7 +213,7 @@ function PrescriptionPrintView() {
         }
         const action = await dispatch(viewCaseManager(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            navigate('/configure_print_setting', { state: { caseManagerData: {...action.payload, patient_data: {...action.payload.patient_data, pm_id: patient_data?.pm_id}} } })
+            navigate('/configure_print_setting', { state: { caseManagerData: {...action.payload, patient_data: {...action.payload.patient_data, pm_id: patient_data?.pm_id}, gynecHistoryData} } })
         } else {
             errorMessage(action.error)
         }
@@ -209,7 +225,7 @@ function PrescriptionPrintView() {
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
-                    <Col md={7} lg={7} xl={5}>
+                    <Col md={7} sm={7} xl={5}>
 
                         {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
                             <i className="icon-setting me-2"></i>
@@ -276,7 +292,7 @@ function PrescriptionPrintView() {
                             </div> */}
                         </div>
                     </Col>
-                    <Col md={17} lg={17} xl={12}>
+                    <Col md={17} sm={17} xl={12}>
                         <div className={isMobile ? 'p-20' : ''}>
                             <div className="d-flex align-itms-center justify-content-between">
                                 <div className="titleprint">Preview</div>

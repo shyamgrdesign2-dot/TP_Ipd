@@ -75,7 +75,7 @@ function PrivateNotesBox(props) {
                         </Button>
                         <div className="modal-title">{selectPrivateNotes?.id === undefined ? 'Add' : 'Edit' } Private Note</div>
                     </div>
-                    <Button onClick={onSave} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading}>
+                    <Button onClick={onSave} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading} disabled={note.length>0 ? false : true}>
                         Save
                     </Button>
                 </div>

@@ -112,8 +112,10 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, obsHistoryData } = props
+    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynecHistoryAccessableFromGB, obsHistoryData } = props
 
+    const gynecHistoryData = caseManagerData?.gynecHistoryData 
+    
     const { growthChartData, growthChartImageData } = growthChartDetails || {};
     let growthChartImageChunks = []
     if(growthChartImageData) {
@@ -161,6 +163,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         }
         return value
     }
+
+    let gynecListViewCounter = 1;
 
     return (
         <Document>
@@ -1389,9 +1393,2349 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         </>
                                     )}
                                 </>
+                            ) : option?.id === 13 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                <>
+                                    { gynecHistoryData && isGynecHistoryAccessableFromGB &&
+                                        (option?.format === "inline" ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text
+                                                    style={{
+                                                        color: "#171725",
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 700,
+                                                    }}
+                                                >
+                                                    Menstrual details&nbsp;:&nbsp;
+                                                </Text>
+
+                                                <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+                                                    {gynecHistoryData?.lmp && (
+                                                        <>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                LMP&nbsp;(Date&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {moment(gynecHistoryData?.lmp).format("DD MMM YYYY")}
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                ),&nbsp;
+                                                            </Text>
+                                                        </>
+                                                    )}
+
+                                                    {(gynecHistoryData?.cycle || gynecHistoryData?.intervalOfCycle || gynecHistoryData?.cycleNotes || gynecHistoryData?.cycleNotes) && (
+                                                        <>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                Cycle&nbsp;
+                                                            </Text>
+
+                                                            {gynecHistoryData?.cycle && (
+                                                                <>                                                            
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        (Type&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,  
+                                                                            textTransform: 'capitalize'                                                  
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.cycle}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.intervalOfCycle || gynecHistoryData?.cycleNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,  
+                                                                                textTransform: 'capitalize'                                                  
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}                                                                    
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.intervalOfCycle && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Interval of cycle&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.intervalOfCycle}&nbsp;
+                                                                        {Number(gynecHistoryData?.intervalOfCycle) > 1 ? `days` : `day`}
+                                                                    </Text>
+                                                                    {gynecHistoryData?.cycleNotes && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.cycleNotes && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Note&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.cycleNotes}
+                                                                    </Text>                                                            
+                                                                </>
+                                                            )}
+                                                        </> 
+                                                    )}
+
+                                                    {(gynecHistoryData?.flow || gynecHistoryData?.durationOfMenstrualFlow || gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                        <>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                ),&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                Flow&nbsp;(
+                                                            </Text>
+
+                                                            {gynecHistoryData?.flow && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Volume&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            textTransform: 'capitalize'
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.flow}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.durationOfMenstrualFlow || gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.durationOfMenstrualFlow && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Duration of menstrual flow&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.durationOfMenstrualFlow}&nbsp;
+                                                                        {Number(gynecHistoryData?.durationOfMenstrualFlow) > 1 ? `days` : `day`}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.clots && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Clots&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {Boolean(gynecHistoryData?.clots) ? `Yes` : `No`}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.numberOfPadsPerDay && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Number of pads per day&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.numberOfPadsPerDay}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.flowNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.flowNotes && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Note&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.flowNotes}
+                                                                    </Text>                                                            
+                                                                </>
+                                                            )}
+                                                        </>
+                                                    )}
+
+                                                    {(gynecHistoryData?.pain || gynecHistoryData?.occurrenceOfPain || gynecHistoryData?.painNotes) && (
+                                                        <>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                ),&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                Pain&nbsp;(
+                                                            </Text>
+
+                                                            {gynecHistoryData?.pain && (
+                                                                <>                                                                    
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Level&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            textTransform: 'capitalize'
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.pain}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.occurrenceOfPain || gynecHistoryData?.painNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.occurrenceOfPain && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Occurrence of pain&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            textTransform: 'capitalize'
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.occurrenceOfPain}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.painNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.painNotes && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Note&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.painNotes}
+                                                                    </Text>                                                    
+                                                                </>
+                                                            )}
+                                                        </>
+                                                    )}
+
+                                                    {(gynecHistoryData?.ageAtMenarche || gynecHistoryData?.menarcheNotes) && (
+                                                        <>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                ),&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                Menarche&nbsp;(
+                                                            </Text>
+
+                                                            {gynecHistoryData?.ageAtMenarche && (
+                                                                <>                                                                    
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Age at&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.ageAtMenarche} {`years`}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.menarcheNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.menarcheNotes && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Note&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.menarcheNotes}
+                                                                    </Text>                                                            
+                                                                </>
+                                                            )}
+                                                        </>
+                                                    )}
+
+                                                    {(gynecHistoryData?.ageAtMenopause || gynecHistoryData?.typeOfMenopause || gynecHistoryData?.reproductiveNotes) && (
+                                                        <>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                ),&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}&nbsp;(
+                                                            </Text>
+
+                                                            {gynecHistoryData?.ageAtMenopause && (
+                                                                <>                                                                    
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Age at&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.ageAtMenopause} {`years`}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.typeOfMenopause || gynecHistoryData?.reproductiveNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.typeOfMenopause && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Type of {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            textTransform: 'capitalize'
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.typeOfMenopause}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.reproductiveNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.reproductiveNotes && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Note&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.reproductiveNotes}
+                                                                    </Text>
+                                                                    
+                                                                    {!gynecHistoryData?.notes && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            {`)`}
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </>
+                                                    )}
+
+                                                    {gynecHistoryData?.notes && (
+                                                        <>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                ),&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                Menstruation note&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {gynecHistoryData?.notes}
+                                                            </Text>
+                                                        </>
+                                                    )}
+                                                </Text>
+                                            </View>
+                                        ) : option?.format === "listview" ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text
+                                                    style={{
+                                                        color: "#171725",
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 700,
+                                                    }}
+                                                >
+                                                    Menstrual details&nbsp;:&nbsp;
+                                                </Text>
+
+                                                {gynecHistoryData?.lmp && (
+                                                    <Text
+                                                        style={{ marginTop: 5, lineHeight: 1.4 }}
+                                                    >                                                    
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                            }}
+                                                        >
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,                                                                    
+                                                                }}
+                                                            >
+                                                                &nbsp;{gynecListViewCounter++}.&nbsp;LMP&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                Date&nbsp;:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {moment(gynecHistoryData?.lmp).format("DD MMM YYYY")}
+                                                            </Text>
+                                                        </Text>
+                                                    </Text>
+                                                )}    
+
+                                                {(gynecHistoryData?.cycle || gynecHistoryData?.intervalOfCycle || gynecHistoryData?.cycleNotes || gynecHistoryData?.cycleNotes) && (
+                                                    <Text
+                                                        style={{ lineHeight: 1.4 }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                            }}
+                                                        >
+                                                            
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                &nbsp;{gynecListViewCounter++}.&nbsp;Cycle&nbsp;:&nbsp;
+                                                            </Text>
+
+                                                            {gynecHistoryData?.cycle && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Type&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            textTransform: 'capitalize'
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.cycle}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.intervalOfCycle || gynecHistoryData?.cycleNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.intervalOfCycle && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Interval of cycle&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.intervalOfCycle || ``}&nbsp;
+                                                                        {Number(gynecHistoryData?.intervalOfCycle) > 1 ? `days` : `day`}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.cycleNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.cycleNotes && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Note&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.cycleNotes}
+                                                                    </Text>
+                                                                </>
+                                                            )}   
+                                                        </Text>
+                                                    </Text>
+                                                )}
+
+                                                {(gynecHistoryData?.flow || gynecHistoryData?.durationOfMenstrualFlow || gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                    <Text
+                                                        style={{ lineHeight: 1.4 }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                            }}
+                                                        >
+                                                            
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;Flow&nbsp;:&nbsp;
+                                                                </Text>
+                                                                                                                
+                                                            
+                                                            {gynecHistoryData?.flow && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Volume&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            textTransform: 'capitalize'
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.flow}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.durationOfMenstrualFlow || gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.durationOfMenstrualFlow && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Duration of mentrual flow&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.durationOfMenstrualFlow || ``}&nbsp;
+                                                                        {Number(gynecHistoryData?.durationOfMenstrualFlow) > 1 ? `days` : `day`}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.clots && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Clots&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {Boolean(gynecHistoryData?.clots) ? `Yes` : `No`}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.numberOfPadsPerDay && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Number of pads per day&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.numberOfPadsPerDay}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.flowNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.flowNotes && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Note&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.flowNotes}
+                                                                    </Text>
+                                                                </>
+                                                            )}                                                    
+                                                        </Text>
+                                                    </Text>
+                                                )}
+
+                                                {(gynecHistoryData?.pain || gynecHistoryData?.occurrenceOfPain || gynecHistoryData?.painNotes) && (
+                                                    <Text
+                                                        style={{ lineHeight: 1.4 }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                            }}
+                                                        >
+                                                            
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;Pain&nbsp;:&nbsp;
+                                                                </Text>
+                                                            
+                                                            
+                                                            {gynecHistoryData?.pain && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Level&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            textTransform: 'capitalize'
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.pain}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.occurrenceOfPain || gynecHistoryData?.painNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.occurrenceOfPain && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Occurrence of pain&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            textTransform: 'capitalize'
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.occurrenceOfPain}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.painNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.painNotes && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Note&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.painNotes}
+                                                                    </Text>
+                                                                </>
+                                                            )} 
+                                                        </Text>
+                                                    </Text>
+                                                )}
+
+                                                {(gynecHistoryData?.ageAtMenarche || gynecHistoryData?.menarcheNotes) && (
+                                                    <Text
+                                                        style={{ lineHeight: 1.4 }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                            }}
+                                                        >
+                                                            
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;Menarche&nbsp;:&nbsp;
+                                                                </Text>
+                                                            
+                                                            
+                                                            {gynecHistoryData?.ageAtMenarche && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                       Age at&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.ageAtMenarche} {`years`}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.menarcheNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.menarcheNotes && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Note&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.menarcheNotes}
+                                                                    </Text>
+                                                                </>
+                                                            )} 
+                                                        </Text>
+                                                    </Text>
+                                                )}
+
+                                                {(gynecHistoryData?.ageAtMenopause || gynecHistoryData?.typeOfMenopause || gynecHistoryData?.reproductiveNotes) && (
+                                                    <Text
+                                                        style={{ lineHeight: 1.4 }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                            }}
+                                                        >
+                                                            
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;{gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}&nbsp;:&nbsp;
+                                                                </Text>
+                                                            
+                                                            
+                                                            {gynecHistoryData?.ageAtMenopause && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Age at&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.ageAtMenopause} {`years`}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.typeOfMenopause || gynecHistoryData?.reproductiveNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.typeOfMenopause && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Type of {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            textTransform: 'capitalize'
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.typeOfMenopause}
+                                                                    </Text>
+                                                                    {(gynecHistoryData?.reproductiveNotes) && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            &nbsp;|&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {gynecHistoryData?.reproductiveNotes && (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        Note&nbsp;:&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        {gynecHistoryData?.reproductiveNotes}
+                                                                    </Text>
+                                                                </>
+                                                            )}                                                        
+                                                        </Text>
+                                                    </Text>
+                                                )}
+
+                                                {gynecHistoryData?.notes && (
+                                                    <Text
+                                                        style={{ lineHeight: 1.4 }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                            }}
+                                                        >
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                &nbsp;{gynecListViewCounter++}.&nbsp;Menstruation note&nbsp;:&nbsp;
+                                                            </Text>
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                }}
+                                                            >
+                                                                {gynecHistoryData?.notes}
+                                                            </Text>
+                                                        </Text>
+                                                    </Text>
+                                                )}
+                                            </View>
+                                        ) : (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text
+                                                    style={{
+                                                        color: "#171725",
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 700,
+                                                    }}
+                                                    wrap={false}
+                                                >
+                                                    Menstrual details&nbsp;:&nbsp;
+                                                </Text>
+
+                                                <Text
+                                                    style={{
+                                                        color: "#000",
+                                                        marginTop: PX_TO_PT * 12,
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 500,
+                                                        padding: 6,
+                                                        borderTop: "1px solid #171725",
+                                                        borderLeft: "1px solid #171725",
+                                                        borderRight: "1px solid #171725",
+                                                        backgroundColor: "#E2E2EA",
+                                                    }}
+                                                    wrap={false}
+                                                >
+                                                    LMP
+                                                </Text>
+                                                <View style={[styles.table, { marginTop: 0 }]}>
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                color: "#000",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Date
+                                                        </Text>
+                                                    </View>
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                                color: "#000",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {gynecHistoryData?.lmp ? moment(gynecHistoryData?.lmp).format("DD MMM YYYY") : `-`}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+
+                                                <Text
+                                                    style={{
+                                                        color: "#000",
+                                                        marginTop: PX_TO_PT * 12,
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 500,
+                                                        padding: 6,
+                                                        borderTop: "1px solid #171725",
+                                                        borderLeft: "1px solid #171725",
+                                                        borderRight: "1px solid #171725",
+                                                        backgroundColor: "#E2E2EA",
+                                                    }}
+                                                    wrap={false}
+                                                >
+                                                    Cycle
+                                                </Text>
+                                                <View style={[styles.table, { marginTop: 0 }]}>
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Type
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Interval
+                                                        </Text>                                                        
+                                                    </View>
+                                                    
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                textTransform: 'capitalize'
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {gynecHistoryData?.cycle || `-`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {gynecHistoryData?.intervalOfCycle || ``}&nbsp;
+                                                            {gynecHistoryData?.intervalOfCycle ? Number(gynecHistoryData?.intervalOfCycle) > 1 ? `days` : `day` : `-`}
+                                                        </Text>                                                        
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                Note&nbsp;:&nbsp;
+                                                            </Text>
+
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                {gynecHistoryData?.cycleNotes || `-`}
+                                                            </Text>                                                                                                                        
+                                                        </Text>
+                                                    </View>
+                                                </View>
+
+                                                <Text
+                                                    style={{
+                                                        color: "#000",
+                                                        marginTop: PX_TO_PT * 12,
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 500,
+                                                        padding: 6,
+                                                        borderTop: "1px solid #171725",
+                                                        borderLeft: "1px solid #171725",
+                                                        borderRight: "1px solid #171725",
+                                                        backgroundColor: "#E2E2EA",
+                                                    }}
+                                                    wrap={false}
+                                                >
+                                                    Flow
+                                                </Text>
+                                                <View style={[styles.table, { marginTop: 0 }]}>
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Volume
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Duration flow
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Clots
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Pads per day
+                                                        </Text>
+                                                    </View>
+                                                    
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                textTransform: 'capitalize'
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {gynecHistoryData?.flow || `-`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {gynecHistoryData?.durationOfMenstrualFlow || ``}&nbsp;
+                                                            {gynecHistoryData?.durationOfMenstrualFlow ? Number(gynecHistoryData?.durationOfMenstrualFlow) > 1
+                                                                ? `days`
+                                                                : `day` : `-`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {Boolean(gynecHistoryData?.clots) ? `Yes` : `No`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {gynecHistoryData?.numberOfPadsPerDay || `-`}
+                                                        </Text>
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                Note&nbsp;:&nbsp;
+                                                            </Text>
+
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                {gynecHistoryData?.flowNotes || `-`}
+                                                            </Text>                                                                                                                        
+                                                        </Text>
+                                                    </View>
+                                                </View>
+
+                                                <Text
+                                                    style={{
+                                                        color: "#000",
+                                                        marginTop: PX_TO_PT * 12,
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 500,
+                                                        padding: 6,
+                                                        borderTop: "1px solid #171725",
+                                                        borderLeft: "1px solid #171725",
+                                                        borderRight: "1px solid #171725",
+                                                        backgroundColor: "#E2E2EA",
+                                                    }}
+                                                    wrap={false}                                                    
+                                                >
+                                                    Pain
+                                                </Text>                                               
+                                                <View style={[styles.table, { marginTop: 0 }]}>
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}                                                        
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Level
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Occurrence
+                                                        </Text>
+                                                    </View>
+                                                    
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                textTransform: 'capitalize'
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {gynecHistoryData?.pain || `-`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {                                                               
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                textTransform: 'capitalize'
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {gynecHistoryData?.occurrenceOfPain || `-`}
+                                                        </Text>
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                Note&nbsp;:&nbsp;
+                                                            </Text>
+
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                {gynecHistoryData?.painNotes || `-`}
+                                                            </Text>                                                                                                                        
+                                                        </Text>
+                                                    </View>
+                                                </View>
+
+                                                <Text
+                                                    style={{
+                                                        color: "#000",
+                                                        marginTop: PX_TO_PT * 12,
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 500,
+                                                        padding: 6,
+                                                        borderTop: "1px solid #171725",
+                                                        borderLeft: "1px solid #171725",
+                                                        borderRight: "1px solid #171725",
+                                                        backgroundColor: "#E2E2EA",
+                                                    }}
+                                                    wrap={false}
+                                                >
+                                                    Menarche
+                                                </Text>
+                                                <View style={[styles.table, { marginTop: 0 }]}>
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                color: "#000",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Age at
+                                                        </Text>
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                                color: "#000",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {gynecHistoryData?.ageAtMenarche || ``} {gynecHistoryData?.ageAtMenarche ? `years` : `-`}
+                                                        </Text>
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell                                                                
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                Note&nbsp;:&nbsp;
+                                                            </Text>
+
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                {gynecHistoryData?.menarcheNotes || `-`}
+                                                            </Text>                                                                                                                        
+                                                        </Text>
+                                                    </View>
+                                                </View>
+
+                                                <Text
+                                                    style={{
+                                                        color: "#000",
+                                                        marginTop: PX_TO_PT * 12,
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 500,
+                                                        padding: 6,
+                                                        borderTop: "1px solid #171725",
+                                                        borderLeft: "1px solid #171725",
+                                                        borderRight: "1px solid #171725",
+                                                        backgroundColor: "#E2E2EA",
+                                                    }}
+                                                    wrap={false}
+                                                >
+                                                    {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}
+                                                </Text>
+                                                <View style={[styles.table, { marginTop: 0 }]}>
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Age
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Type of {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}
+                                                        </Text>
+                                                    </View>
+                                                    
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {gynecHistoryData?.ageAtMenopause || ``} {gynecHistoryData?.ageAtMenopause ? `years` : `-`}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400,
+                                                                color: "#000",
+                                                                textAlign: "center",
+                                                                textTransform: 'capitalize'
+                                                                },
+                                                            ]}
+                                                        >
+                                                            {gynecHistoryData?.typeOfMenopause || `-`}
+                                                        </Text>
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                Note&nbsp;:&nbsp;
+                                                            </Text>
+
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                    }
+                                                                ]}>
+                                                                {gynecHistoryData?.reproductiveNotes || `-`}
+                                                            </Text>                                                                                                                        
+                                                        </Text>
+                                                    </View>
+                                                </View>
+
+                                                {gynecHistoryData?.notes && (
+                                                    <>
+                                                        <Text
+                                                            style={{
+                                                                color: "#000",
+                                                                marginTop: PX_TO_PT * 12,
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                padding: 6,
+                                                                borderTop: "1px solid #171725",
+                                                                borderLeft: "1px solid #171725",
+                                                                borderRight: "1px solid #171725",
+                                                                backgroundColor: "#E2E2EA",
+                                                            }}
+                                                            wrap={false}
+                                                        >
+                                                            Menstruation note
+                                                        </Text>
+                                                        <View style={[styles.table, { marginTop: 0 }]}>
+                                                            <View
+                                                                style={[
+                                                                    styles.row
+                                                                ]}
+                                                            >
+                                                                <Text
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        },
+                                                                    ]}
+                                                                >
+                                                                    {gynecHistoryData?.notes || `-`}
+                                                                </Text>
+                                                            </View>
+                                                        </View>
+                                                    </>
+                                                )}                                                                                                
+                                            </View>
+                                        )
+                                    )}
+                                </>
                             ) : option?.id === 14 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
                                 <>
-                                    {obsHistoryData &&
+                                    {obsHistoryData?._id && isGynecHistoryAccessableFromGB &&
                                         (option?.format === "inline" ? (
                                             <View style={{ marginTop: PX_TO_PT * 15, lineHeight: PX_TO_PT * 2.5 }}>
                                                 <Text

@@ -221,6 +221,22 @@ body {
         align-items: center;
         display: flex;
         justify-content: center;
+        &.patientProfile90 {
+            width: 90px;
+            min-width: 90px;
+            height: 90px;
+            min-height: 90px;
+            font-size: 38px;
+            font-weight: 500;
+        }
+        &.patientProfile52 {
+            width: 52px;
+            min-width: 52px;
+            height: 52px;
+            min-height: 52px;
+            font-size: 21px;
+            font-weight: 500;
+        }
     }
     .patientName {
         color: $welcomecolor !important;

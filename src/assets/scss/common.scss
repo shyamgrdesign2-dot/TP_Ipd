@@ -474,6 +474,7 @@ body {
             transform: rotate(-90deg);
             font-size: 18px;
             line-height: 1.6;
+            background-color: $white;
         }
     }
     .ant-table-column-sorter-inner {
@@ -576,6 +577,12 @@ body {
             margin-right: 10px;
             margin-bottom: 14px;
             font-family: 'roboto' !important;
+            &.gynec-history-badge {
+                height: 32px;
+                padding: 5px 14px 5px 13px;
+                font-weight: 500;
+                transition: none;
+            }
             span {
                 border-radius: 100px;
                 height: 26px;
@@ -590,9 +597,16 @@ body {
             }
             &.history-active {
                 border-color: $theme;
-                span {
-                    background-color: #D1F1E4;
-                    color: #19BB7A !important;
+                background: rgba(75, 74, 213, 0.08) !important;
+                div {
+                    color:  #4B4AD5 !important;
+                }
+            }
+            &.history-selected {
+                border-color: $theme;
+                background-color: $theme;
+                div {
+                    color: #fff !important;
                 }
             }
             &.history-inactive {
@@ -602,6 +616,19 @@ body {
                 }
             }
         }
+    }
+    .lmp-gynec{
+        background: #FFF9F9;
+        padding: 5px 8px 5px 14px;
+        border: 1px solid rgba(252, 218, 218, 0.6);
+        border-radius: 1.3rem;
+        font-family: Poppins;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        letter-spacing: 0.1px;
+        width: 80%;
     }
     // rightside drawer css
     .ant-drawer-open {

@@ -812,7 +812,7 @@ function AppointmentData({ locationPath }) {
                 />
                 <div className="appointment-data">
                     <Row className="justify-content-between align-items-center my-3 px-4">
-                        <Col xl={4} lg={4}>
+                        <Col xl={4} sm={4}>
                             <Input
                                 value={searchQuery}
                                 placeholder="Search patient by name and mobile number"

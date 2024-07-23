@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT } from "../utils/constants";
+import { ADD, EDIT, GB_GYNEC_HISTORY } from "../utils/constants";
 
 import { getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../redux/medicalhistorySlice";
@@ -44,6 +44,8 @@ import Vaccination from "./vaccination/Vaccination";
 import GrowthChart from "./growthChart/GrowthChart";
 import { viewPatient } from "../redux/appointmentsSlice";
 import { useAccess } from "./vaccination/useAccess";
+import { getGynecDetails } from "../api/services/ApiGynec";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
 import { fetchAllObstetricDetails } from "./obstetric/service";
@@ -51,11 +53,13 @@ import { addObstetricDetails } from "../redux/obstetricSlice";
 
 function Prescription() {
   const {
+    profile,
     customizedPadLeftList,
     customizedPadRightList,
     frequencyList,
     timingList,
   } = useSelector((state) => state.doctors);
+
   const { selectedVitalsList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
   const { obstetricDetails, isObstetricDetailsFetched } = useSelector(
@@ -63,6 +67,10 @@ function Prescription() {
   );
   const { examinationHistory = [] } = obstetricDetails;
   const dispatch = useDispatch();
+
+  const isGynecHistoryAccessableFromGB = useFeatureIsOn(
+    GB_GYNEC_HISTORY
+  );
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
@@ -122,6 +130,7 @@ function Prescription() {
   const [selectPrivateNotes, setSelectPrivateNotes] = useState(null);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
+  const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
   const [obstetricDrawer, setObstetricDrawer] = useState(false);
   const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
     patient_data?.ageYears
@@ -400,11 +409,31 @@ function Prescription() {
       }
     }
   }, [privateNotesList]);
+  
+  const handleSaveGynecHistory = (updatedGynecHistory) => {
+    setUpdatedGynecHistory(updatedGynecHistory)
+  };
+
+  useEffect(() => {
+    fetchGynecHistory();
+  }, []);
+
+  const fetchGynecHistory = async () => {
+      try {
+        const data = await getGynecDetails(patient_data.patient_unique_id);
+        // Destructure to remove createdAt and createdBy
+        const { createdAt, createdBy, ...updatedData } = data;
+        
+        setUpdatedGynecHistory(updatedData);
+      } catch (error) {
+        console.error('Error fetching gynec history:', error);
+      }
+  };  
 
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
@@ -449,7 +478,7 @@ function Prescription() {
                           alt="Medical History"
                           className="me-3"
                         />
-                        <div className="title-common">Medical History</div>
+                        <div className="title-common">{ isGynecHistoryAccessableFromGB ? `Gynec History` : `Medical History` }</div>
                         {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
                             <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                           </Button> */}
@@ -462,17 +491,17 @@ function Prescription() {
                         {" "}
                         <i
                           className={`${
-                            medicalHistoryData.length > 0
+                            medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)
                               ? "icon-Edit"
                               : "icon-Add"
                           } me-1 fs-5`}
                         ></i>{" "}
                         <span>{`${
-                          medicalHistoryData.length > 0 ? "Edit" : "Add"
+                          medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ? "Edit" : "Add"
                         }`}</span>
                       </button>
                     </div>
-                    {medicalHistoryData.length > 0 && <MedicalHistoryList />}
+                    { (medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ) &&  <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
                   </div>
                 ) : 
                   e.tmdpm_id === 7 &&
@@ -639,6 +668,7 @@ function Prescription() {
           </Drawer>
         )}
         <Drawer
+          className="scroll-y-hidden"
           closeIcon={false}
           placement="right"
           onClose={handleDrawerMedicalHistory}
@@ -648,6 +678,7 @@ function Prescription() {
           <MedicalHistoryBox
             handleDrawerMedicalHistory={handleDrawerMedicalHistory}
             handleCollapsed={(flag) => handleCollapsed(flag)}
+            onSave={handleSaveGynecHistory}
           />
         </Drawer>
         <Drawer
