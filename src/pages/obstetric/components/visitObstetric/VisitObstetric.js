@@ -9,49 +9,7 @@ import moment from "moment";
 import { getOrdinalSuffix } from "../../../growthChart/growthChartHelper";
 import { useDispatch, useSelector } from "react-redux";
 import { addObstetricDetails } from "../../../../redux/obstetricSlice";
-
-const visitColumn = [
-  {
-    title: "Pallor",
-    key: "pallor",
-    siUnit: "",
-  },
-  {
-    title: "Oedema",
-    key: "oedema",
-    siUnit: "",
-  },
-  {
-    title: "Mother's BMI",
-    key: "mothersBMI",
-    siUnit: " kg/m2",
-  },
-  {
-    title: "Blood Pressure",
-    key: "bp",
-    siUnit: " mmHg",
-  },
-  {
-    title: "Fundus Height",
-    key: "heightOfFundus",
-    siUnit: " cm",
-  },
-  {
-    title: "Presentation",
-    key: "presentation",
-    siUnit: "",
-  },
-  {
-    title: "Fluid Index",
-    key: "fluidIndex",
-    siUnit: " cm",
-  },
-  {
-    title: "Fetal Heart Rate",
-    key: "foetalHeartRate",
-    siUnit: " bpm",
-  },
-];
+import { visitColumn } from "../../utils/ObstetricHelper";
 
 export default function VisitObstetric() {
   const navigate = useNavigate();
@@ -159,7 +117,7 @@ export default function VisitObstetric() {
                     })
                   }
                 >
-                  <span>See Chart</span>
+                  <span>See History</span>
                   <i
                     className="icon-right iconrotatehistory90"
                     style={{ display: "block", transform: `rotate(180deg)` }}

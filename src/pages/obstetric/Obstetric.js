@@ -13,12 +13,14 @@ import { useSelector } from "react-redux";
 import { Drawer } from "antd";
 
 const Obstetric = ({ handleDrawerObstetric }) => {
+  const { obstetricDetails } = useSelector((state) => state.obstetric);
   const [examinationDrawer, setExaminationDrawer] = useState(false);
   const [pastPregnancyDrawer, setPastPregancyDrawer] = useState(false);
-  const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const [showLmpPopup, setShowLmpPopup] = useState(false);
+  const [showLmpPopup, setShowLmpPopup] = useState(!obstetricDetails?.lmp);
   const [examinationEditIndex, setExaminationEditIndex] = useState(-1);
   const [pastPregnancyEditIndex, setPastPregnancyEditIndex] = useState(-1);
+  const [activeTab, setActiveTab] = useState("pregnancyHistory");
+  const [lmpDate, setLmpDate] = useState("");
 
   useEffect(() => {
     if (examinationEditIndex >= 0) {
@@ -45,6 +47,10 @@ const Obstetric = ({ handleDrawerObstetric }) => {
     setPastPregnancyEditIndex(-1);
   };
 
+  const continueExaminationHandler = () => {
+    setActiveTab("examination");
+  };
+
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader
@@ -53,11 +59,12 @@ const Obstetric = ({ handleDrawerObstetric }) => {
       />
 
       <div className="scrollableContainer">
-        <PatientDiagnosis />
+        <PatientDiagnosis lmpDate={lmpDate} />
 
-        <Tabs defaultActiveKey="pregnancyHistory">
+        <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)}>
           <TabPane tab="Pregnancy History" key="pregnancyHistory">
             <PregnancyHistory
+              continueExaminationHandler={continueExaminationHandler}
               handlePastPregnancyDrawer={handlePastPregnancyDrawer}
               setEditIndex={setPastPregnancyEditIndex}
             />
@@ -73,6 +80,8 @@ const Obstetric = ({ handleDrawerObstetric }) => {
       {showLmpPopup && (
         <LmpPopup
           handleDrawerObstetric={handleDrawerObstetric}
+          lmpDate={lmpDate}
+          setLmpDate={setLmpDate}
           setShowLmpPopup={setShowLmpPopup}
         />
       )}
