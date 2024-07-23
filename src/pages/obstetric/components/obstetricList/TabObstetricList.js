@@ -3,7 +3,7 @@ import { Button, Collapse, Divider } from "antd";
 import ReadMore from "../../../../common/ReadMore";
 import "./ObstetricList.scss";
 import { useSelector } from "react-redux";
-import { obstetricTabListColumns } from "../../utils/ObstetricHelper";
+import { obstetricTabListColumns } from "../../utils/constants";
 
 const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);

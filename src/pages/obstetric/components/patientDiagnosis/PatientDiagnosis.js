@@ -8,7 +8,7 @@ import {
   BloodGroupOptions,
   ConsangOptions,
   MaritalStatusOptions,
-} from "../../utils/ObstetricHelper";
+} from "../../utils/constants";
 import dayjs from "dayjs";
 import moment from "moment";
 import { patientDiagnosisUpdated } from "../../../../redux/obstetricSlice";

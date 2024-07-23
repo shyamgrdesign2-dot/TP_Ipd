@@ -9,7 +9,7 @@ import moment from "moment";
 import { getOrdinalSuffix } from "../../../growthChart/growthChartHelper";
 import { useDispatch, useSelector } from "react-redux";
 import { addObstetricDetails } from "../../../../redux/obstetricSlice";
-import { visitColumn } from "../../utils/ObstetricHelper";
+import { visitColumn } from "../../utils/constants";
 import { useAccess } from "../../../vaccination/useAccess";
 
 export default function VisitObstetric() {

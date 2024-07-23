@@ -4,7 +4,7 @@ import examination from "../../../../assets/images/obs-examination.svg";
 import "./Examination.scss";
 import moment from "moment";
 import { useSelector } from "react-redux";
-import { ExaminationColumns } from "../../utils/ObstetricHelper";
+import { ExaminationColumns } from "../../utils/constants";
 import ReadMore from "../../../../common/ReadMore";
 
 const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
@@ -30,9 +30,6 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
   };
 
   const renderTableData = () => {
-    // let sortedData = [...examinationHistory].sort(
-    //   (a, b) => new Date(b.date) - new Date(a.date)
-    // );
     const onEdit = (i) => {
       setEditIndex(i);
     };

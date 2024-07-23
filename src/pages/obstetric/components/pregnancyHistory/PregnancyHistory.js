@@ -9,7 +9,7 @@ import {
   EctopicColumns,
   LiveColumns,
   OutcomeOptions,
-} from "../../utils/ObstetricHelper";
+} from "../../utils/constants";
 
 const PregnancyHistory = ({
   continueExaminationHandler,
