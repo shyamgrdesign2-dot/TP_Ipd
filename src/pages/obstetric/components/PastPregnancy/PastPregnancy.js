@@ -19,8 +19,9 @@ import { addObstetricData, updateObstetricData } from "../../service";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
+import { useLocation } from "react-router-dom";
 
-function PastPregnancy({ close, editIndex }) {
+function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
   const scrollContainerRef = useRef(null);
   const [pastPregnancyData, setPastPregnancyData] = useState({
     gravidaNumber: "",
@@ -36,6 +37,8 @@ function PastPregnancy({ close, editIndex }) {
   const [loader, setLoader] = useState(false);
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { pregnancyHistory } = obstetricDetails;
+  const { state } = useLocation();
+  const { patient_data } = state;
 
   useEffect(() => {
     if (editIndex >= 0) {
@@ -73,16 +76,23 @@ function PastPregnancy({ close, editIndex }) {
       }
     }
     let newPastPregnancy = [...pregnancyHistory] || [];
-    if (pregnancyHistory?.length > 0) {
+    if (pregnancyHistory?.length > 0 && editIndex >= 0) {
       newPastPregnancy[editIndex] = {
         ...pastPregnancyData,
         modifiedAt: new Date().toISOString(),
         modifiedBy: decodedToken?.result?.user_id,
       };
     } else {
+      const data = {};
+      Object.keys(pastPregnancyData).forEach((key) => {
+        if (![undefined, null, ""].includes(pastPregnancyData[key])) {
+          data[key] = pastPregnancyData[key];
+        }
+      });
       newPastPregnancy = [
+        ...pregnancyHistory,
         {
-          ...pastPregnancyData,
+          ...data,
           createdAt: new Date().toISOString(),
           createdBy: decodedToken?.result?.user_id,
           modifiedAt: new Date().toISOString(),
@@ -91,6 +101,7 @@ function PastPregnancy({ close, editIndex }) {
       ];
     }
     const payload = {
+      patientId: patient_data.patient_unique_id,
       ...(pregnancyHistory?.length > 0
         ? {
             modifiedAt: new Date().toISOString(),
@@ -98,6 +109,14 @@ function PastPregnancy({ close, editIndex }) {
           }
         : obstetricDetails),
       pregnancyHistory: newPastPregnancy,
+      createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
+      createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
+      modifiedAt: pregnancyHistory?.length
+        ? new Date().toISOString()
+        : obstetricDetails?.modifiedAt,
+      modifiedBy: pregnancyHistory?.length
+        ? decodedToken?.result?.user_id
+        : obstetricDetails?.modifiedBy,
     };
     setLoader(true);
     const addPastPregnancyRes = obstetricDetails?._id
@@ -105,6 +124,7 @@ function PastPregnancy({ close, editIndex }) {
       : await addObstetricData(payload);
     setLoader(false);
     if (addPastPregnancyRes?.data) {
+      getAllObstetricDetails();
       setShowSuccess(true);
       setTimeout(() => {
         close();

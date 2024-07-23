@@ -11,7 +11,11 @@ import {
   OutcomeOptions,
 } from "../../utils/ObstetricHelper";
 
-const PregnancyHistory = ({ continueExaminationHandler, handlePastPregnancyDrawer, setEditIndex }) => {
+const PregnancyHistory = ({
+  continueExaminationHandler,
+  handlePastPregnancyDrawer,
+  setEditIndex,
+}) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { pregnancyHistory } = obstetricDetails;
   const renderTableTitle = (gravidaItem, i) => {
@@ -129,6 +133,7 @@ const PregnancyHistory = ({ continueExaminationHandler, handlePastPregnancyDrawe
               style={{
                 width: "255px",
               }}
+              onClick={handlePastPregnancyDrawer}
             >
               <i className="icon-Add" />
               <span>Add past pregnancy details</span>

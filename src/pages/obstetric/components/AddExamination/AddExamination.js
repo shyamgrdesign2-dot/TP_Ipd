@@ -169,8 +169,12 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
       examinationHistory: newExaminationHistory,
       createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
       createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
-      modifiedAt: obstetricDetails?.modifiedAt || new Date().toISOString(),
-      modifiedBy: obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
+      modifiedAt: examinationHistory?.length
+        ? new Date().toISOString()
+        : obstetricDetails?.modifiedAt,
+      modifiedBy: examinationHistory?.length
+        ? decodedToken?.result?.user_id
+        : obstetricDetails?.modifiedBy,
     };
     setLoader(true);
     const addExaminationRes = obstetricDetails?._id
