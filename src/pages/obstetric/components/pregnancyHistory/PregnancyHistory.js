@@ -71,29 +71,33 @@ const PregnancyHistory = ({
         {outcome === OutcomeOptions.live ||
         outcome === OutcomeOptions.stillBirth ? (
           <tr>
-            <td className="obstetricTcell">{deliveryMode}</td>
-            <td className="obstetricTcell">
+            <td className="obstetricTcell pregnancyTcell">{deliveryMode}</td>
+            <td className="obstetricTcell pregnancyTcell">
               {dateOfDelivery
                 ? moment(dateOfDelivery).format("DD MMM YYYY")
                 : "-"}
             </td>
-            <td className="obstetricTcell">{gender}</td>
-            <td className="obstetricTcell">{babysWeight}</td>
-            <td className="obstetricTcell">{remarks}</td>
+            <td className="obstetricTcell pregnancyTcell">{gender}</td>
+            <td className="obstetricTcell pregnancyTcell">{babysWeight}</td>
+            <td className="obstetricTcell pregnancyTcell">{remarks}</td>
           </tr>
         ) : outcome === OutcomeOptions.ectopic ? (
           <tr>
-            <td className="obstetricTcell">{monthOfPregnancy}</td>
-            <td className="obstetricTcell">{location}</td>
-            <td className="obstetricTcell">{modeOfAbortion}</td>
-            <td className="obstetricTcell">{remarks}</td>
+            <td className="obstetricTcell pregnancyTcell">
+              {monthOfPregnancy}
+            </td>
+            <td className="obstetricTcell pregnancyTcell">{location}</td>
+            <td className="obstetricTcell pregnancyTcell">{modeOfAbortion}</td>
+            <td className="obstetricTcell pregnancyTcell">{remarks}</td>
           </tr>
         ) : outcome === OutcomeOptions.abortion ? (
           <tr>
-            <td className="obstetricTcell">{monthOfPregnancy}</td>
-            <td className="obstetricTcell">{typeOfAbortion}</td>
-            <td className="obstetricTcell">{modeOfAbortion}</td>
-            <td className="obstetricTcell">{remarks}</td>
+            <td className="obstetricTcell pregnancyTcell">
+              {monthOfPregnancy}
+            </td>
+            <td className="obstetricTcell pregnancyTcell">{typeOfAbortion}</td>
+            <td className="obstetricTcell pregnancyTcell">{modeOfAbortion}</td>
+            <td className="obstetricTcell pregnancyTcell">{remarks}</td>
           </tr>
         ) : null}
       </>

@@ -20,8 +20,10 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
+import { addObstetricDetails, patientDiagnosisUpdated } from "../../../../redux/obstetricSlice";
 
 function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
+  const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
   const [pastPregnancyData, setPastPregnancyData] = useState({
     gravidaNumber: "",
@@ -124,6 +126,8 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
       : await addObstetricData(payload);
     setLoader(false);
     if (addPastPregnancyRes?.data) {
+      dispatch(addObstetricDetails(payload));
+      dispatch(patientDiagnosisUpdated());
       getAllObstetricDetails();
       setShowSuccess(true);
       setTimeout(() => {

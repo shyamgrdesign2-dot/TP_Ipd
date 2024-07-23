@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   obstetricDetails: {},
   isObstetricDetailsFetched: false,
+  isPatientDiagnosisUpdated: false,
 };
 
 const obstetricSlice = createSlice({
@@ -13,10 +14,17 @@ const obstetricSlice = createSlice({
     addObstetricDetails: (state, action) => {
       state.obstetricDetails = action.payload;
       state.isObstetricDetailsFetched = true;
+      state.isPatientDiagnosisUpdated = false;
+    },
+    patientDiagnosisUpdated: (state, isPatientDiagnosisUpdated) => {
+      state.isPatientDiagnosisUpdated = isPatientDiagnosisUpdated;
     },
   },
 });
 
-export const { resetObstetricState, addObstetricDetails } =
-  obstetricSlice.actions;
+export const {
+  resetObstetricState,
+  addObstetricDetails,
+  patientDiagnosisUpdated,
+} = obstetricSlice.actions;
 export default obstetricSlice.reducer;

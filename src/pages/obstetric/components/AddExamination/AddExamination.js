@@ -9,12 +9,14 @@ import { EllipsisOutlined, DeleteOutlined } from "@ant-design/icons";
 import { addObstetricData, updateObstetricData } from "../../service";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import { addObstetricDetails, patientDiagnosisUpdated } from "../../../../redux/obstetricSlice";
 
 const dateFormat = "YYYY-MM-DD";
 
 function AddExamination({ close, editIndex, getAllObstetricDetails }) {
+  const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
   const [examinationData, setExaminationData] = useState({
     date: moment().format(dateFormat),
@@ -109,6 +111,8 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
       : await addObstetricData(payload);
     setLoader(false);
     if (addExaminationRes?.data) {
+      dispatch(addObstetricDetails(payload));
+      dispatch(patientDiagnosisUpdated());
       getAllObstetricDetails();
       setShowSuccess(true);
       setTimeout(() => {

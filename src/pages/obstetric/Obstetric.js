@@ -11,13 +11,39 @@ import TabPane from "antd/es/tabs/TabPane";
 import LmpPopup from "./components/lmpPopup/LmpPopup";
 import { useSelector } from "react-redux";
 import { Drawer } from "antd";
-import { fetchAllObstetricDetails } from "./service";
+import { fetchAllObstetricDetails, updateObstetricData } from "./service";
 import { addObstetricDetails } from "../../redux/obstetricSlice";
 import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
+import dayjs from "dayjs";
+import moment from "moment";
 
 const Obstetric = ({ handleDrawerObstetric }) => {
-  const { obstetricDetails } = useSelector((state) => state.obstetric);
+  const dispatch = useDispatch();
+  const { state } = useLocation();
+  const { patient_data } = state;
+  const { obstetricDetails, isPatientDiagnosisUpdated } = useSelector(
+    (state) => state.obstetric
+  );
+  const {
+    gravidity,
+    parity,
+    livingChildren,
+    abortion,
+    ectopicPregnancies,
+    diagnosisNotes,
+    blood,
+    ceed,
+    lmp,
+    consang,
+    edd,
+    gestationDays,
+    gestationWeeks,
+    husbandsBlood,
+    maritialStatus,
+    marriageDurationYears,
+    marriageDurationMonths,
+  } = obstetricDetails || {};
   const [examinationDrawer, setExaminationDrawer] = useState(false);
   const [pastPregnancyDrawer, setPastPregancyDrawer] = useState(false);
   const [showLmpPopup, setShowLmpPopup] = useState(!obstetricDetails?.lmp);
@@ -25,9 +51,33 @@ const Obstetric = ({ handleDrawerObstetric }) => {
   const [pastPregnancyEditIndex, setPastPregnancyEditIndex] = useState(-1);
   const [activeTab, setActiveTab] = useState("pregnancyHistory");
   const [lmpDate, setLmpDate] = useState("");
-  const dispatch = useDispatch();
-  const { state } = useLocation();
-  const { patient_data } = state;
+
+  const [patientDiagnosisNotes, setPatientDiagnosisNotes] =
+    useState(diagnosisNotes);
+
+  const [patientDiagnosisData, setPatientDiagnosisData] = useState({
+    lmp: lmp ? dayjs(moment(lmp).format("DD-MM-YYYY"), "DD-MM-YYYY") : "",
+    edd: edd ?? undefined,
+    ceed: ceed
+      ? dayjs(moment(ceed).format("DD-MM-YYYY"), "DD-MM-YYYY")
+      : undefined,
+    gestationWeeks: gestationWeeks || 0,
+    gestationDays: gestationDays || 0,
+    blood: blood,
+    husbandsBlood: husbandsBlood,
+    consang: consang,
+    maritialStatus: maritialStatus,
+    marriageDurationYears: marriageDurationYears || 0,
+    marriageDurationMonths: marriageDurationMonths || 0,
+  });
+
+  const [pastPregnancyData, setPastPregnancyData] = useState([
+    { value: gravidity, label: "G", key: "gravidity" },
+    { value: parity, label: "P", key: "parity" },
+    { value: livingChildren, label: "L", key: "livingChildren" },
+    { value: abortion, label: "A", key: "abortion" },
+    { value: ectopicPregnancies, label: "E", key: "ectopicPregnancies" },
+  ]);
 
   useEffect(() => {
     if (examinationEditIndex >= 0) {
@@ -67,15 +117,40 @@ const Obstetric = ({ handleDrawerObstetric }) => {
     setActiveTab("examination");
   };
 
+  const obstetricSaveBtnHandler = async () => {
+    if (isPatientDiagnosisUpdated) {
+      const pastPregnancy = pastPregnancyData.reduce((acc, item) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {});
+      const payload = {
+        ...obstetricDetails,
+        ...patientDiagnosisData,
+        ...pastPregnancy,
+      };
+      dispatch(addObstetricDetails(payload));
+      await updateObstetricData(obstetricDetails?.patientId, payload);
+    }
+    handleDrawerObstetric();
+  };
+
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader
-        handleDrawerVaccination={handleDrawerObstetric}
+        handleDrawerVaccination={obstetricSaveBtnHandler}
         isObstetric={true}
       />
 
       <div className="scrollableContainer">
-        <PatientDiagnosis lmpDate={lmpDate} />
+        <PatientDiagnosis
+          lmpDate={lmpDate}
+          patientDiagnosisData={patientDiagnosisData}
+          pastPregnancyData={pastPregnancyData}
+          patientDiagnosisNotes={patientDiagnosisNotes}
+          setPatientDiagnosisData={setPatientDiagnosisData}
+          setPastPregnancyData={setPastPregnancyData}
+          setPatientDiagnosisNotes={setPatientDiagnosisNotes}
+        />
 
         <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)}>
           <TabPane tab="Pregnancy History" key="pregnancyHistory">
