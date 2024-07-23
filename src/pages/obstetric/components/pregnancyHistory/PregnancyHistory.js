@@ -61,10 +61,11 @@ const PregnancyHistory = ({
       gender = "-",
       babysWeight = "-",
       remarks = "-",
-      monthOfPregnancy = "-",
       location = "-",
       modeOfAbortion = "-",
       typeOfAbortion = "-",
+      gestationPeriod = "-",
+      modeOfManagement = "-",
     } = gravidaItem;
     return (
       <>
@@ -83,18 +84,16 @@ const PregnancyHistory = ({
           </tr>
         ) : outcome === OutcomeOptions.ectopic ? (
           <tr>
-            <td className="obstetricTcell pregnancyTcell">
-              {monthOfPregnancy}
-            </td>
+            <td className="obstetricTcell pregnancyTcell">{gestationPeriod}</td>
             <td className="obstetricTcell pregnancyTcell">{location}</td>
-            <td className="obstetricTcell pregnancyTcell">{modeOfAbortion}</td>
+            <td className="obstetricTcell pregnancyTcell">
+              {modeOfManagement}
+            </td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
           </tr>
         ) : outcome === OutcomeOptions.abortion ? (
           <tr>
-            <td className="obstetricTcell pregnancyTcell">
-              {monthOfPregnancy}
-            </td>
+            <td className="obstetricTcell pregnancyTcell">{gestationPeriod}</td>
             <td className="obstetricTcell pregnancyTcell">{typeOfAbortion}</td>
             <td className="obstetricTcell pregnancyTcell">{modeOfAbortion}</td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>

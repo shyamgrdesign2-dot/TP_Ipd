@@ -67,62 +67,6 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
     });
   };
 
-  const deleteExaminationData = async () => {
-    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-    let decodedToken;
-    if (token) {
-      try {
-        decodedToken = jwtDecode(token);
-      } catch (e) {
-        console.log(e);
-      }
-    }
-    let newExaminationHistory = [...examinationHistory] || [];
-    if (examinationHistory?.length > 0) {
-      newExaminationHistory[editIndex] = {
-        ...examinationData,
-        modifiedAt: new Date().toISOString(),
-        modifiedBy: decodedToken?.result?.user_id,
-      };
-    } else {
-      newExaminationHistory = [
-        {
-          ...examinationData,
-          createdAt: new Date().toISOString(),
-          createdBy: decodedToken?.result?.user_id,
-          modifiedAt: new Date().toISOString(),
-          modifiedBy: decodedToken?.result?.user_id,
-        },
-      ];
-    }
-    const payload = {
-      patientId: patient_data.patient_unique_id,
-      ...(examinationHistory?.length > 0
-        ? {
-            modifiedAt: new Date().toISOString(),
-            modifiedBy: decodedToken?.result?.user_id,
-          }
-        : obstetricDetails),
-      examinationHistory: newExaminationHistory,
-    };
-    setLoader(true);
-    const addExaminationRes = obstetricDetails?._id
-      ? await updateObstetricData(obstetricDetails?.patientId, payload)
-      : await addObstetricData(payload);
-    setLoader(false);
-    if (addExaminationRes?.data) {
-      dispatch(addObstetricDetails(payload));
-      dispatch(patientDiagnosisUpdated());
-      getAllObstetricDetails();
-      setShowSuccess(true);
-      setTimeout(() => {
-        close();
-      }, 1000);
-    } else {
-      errorMessage(addExaminationRes?.message || "Error while adding data");
-    }
-  };
-
   const disabledDate = (current) => {
     return current && current >= moment().add(1, "days").startOf("day");
   };
@@ -138,6 +82,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
       }
     }
     let newExaminationHistory = [...examinationHistory] || [];
+    newExaminationHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
     if (examinationHistory?.length > 0 && editIndex >= 0) {
       newExaminationHistory[editIndex] = {
         ...examinationData,
@@ -196,6 +141,48 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
     }
   };
 
+  const deleteExaminationData = async () => {
+    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+    let decodedToken;
+    if (token) {
+      try {
+        decodedToken = jwtDecode(token);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    let newExaminationHistory = [...examinationHistory];
+    newExaminationHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+    if (editIndex >= 0) {
+      newExaminationHistory.splice(editIndex, 1);
+    }
+    const payload = {
+      patientId: patient_data.patient_unique_id,
+      examinationHistory: newExaminationHistory,
+      createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
+      createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
+      modifiedAt: examinationHistory?.length
+        ? new Date().toISOString()
+        : obstetricDetails?.modifiedAt,
+      modifiedBy: examinationHistory?.length
+        ? decodedToken?.result?.user_id
+        : obstetricDetails?.modifiedBy,
+    };
+    const deleteExaminationRes = await updateObstetricData(
+      obstetricDetails?.patientId,
+      payload
+    );
+    if (deleteExaminationRes?.data) {
+      getAllObstetricDetails();
+      setShowSuccess(true);
+      setTimeout(() => {
+        close();
+      }, 1000);
+    } else {
+      errorMessage(deleteExaminationRes?.message || "Error while adding data");
+    }
+  };
+
   function calculate(H, W) {
     let height = 0,
       weight = 0,
@@ -224,27 +211,27 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
     return (
       <div className="examination-wrap-body examination-child-width">
         <div className="examination-head rounded-start-0 w-100">
-          Visit1
-          <div>
-            <Tooltip
-              trigger={"click"}
-              placement="bottom"
-              title={
-                <div
-                  className="tooltip-content"
-                  onClick={deleteExaminationData}
-                >
-                  <DeleteOutlined
-                    style={{ marginRight: 8, color: "#4B4AD51A !important" }}
-                  />
-                  <span>Delete</span>
-                </div>
-              }
-              overlayClassName="custom-tooltip"
-            >
-              <EllipsisOutlined className="vertical-dots" />
-            </Tooltip>
-          </div>
+          Visit
+          {editIndex >= 0 && (
+            <div>
+              <Tooltip
+                trigger={"click"}
+                placement="bottom"
+                title={
+                  <div
+                    className="tooltip-content"
+                    onClick={deleteExaminationData}
+                  >
+                    <DeleteOutlined className="delete-icon" />
+                    <span>Delete</span>
+                  </div>
+                }
+                overlayClassName="custom-tooltip"
+              >
+                <EllipsisOutlined className="vertical-dots" />
+              </Tooltip>
+            </div>
+          )}
         </div>
         <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5 w-100">
           <DatePicker
