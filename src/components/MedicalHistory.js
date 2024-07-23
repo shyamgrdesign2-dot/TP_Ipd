@@ -8,9 +8,8 @@ import arrowright from '../assets/images/arrow-box-right.svg';
 import heartBeat from '../assets/images/heartBeat.svg';
 import { useLocation } from 'react-router-dom';
 import { getGynecDetails } from '../api/services/ApiGynec';
-import { GB_GYNEC_HISTORY } from '../utils/constants';
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { errorMessage } from '../utils/utils';
+import { useAccess } from '../pages/vaccination/useAccess';
 
 function MedicalHistory({ loading, medicalHistoryData }) {
 
@@ -20,9 +19,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
     const { state } = useLocation();
     const { patient_data } = state
 
-    const isGynecHistoryAccessableFromGB = useFeatureIsOn(
-        GB_GYNEC_HISTORY
-    );
+    const {isGynaecHistoryAccessable} = useAccess();
 
     useEffect(() => {
         fetchGynecHistory();
@@ -48,7 +45,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                     <div className='d-flex align-items-center justify-content-between'>
                         <div>
                             <img src={MedicalHistoryicon} alt="Medical History" className='me-3' />
-                            {isGynecHistoryAccessableFromGB ? `Gynec History` : `Medical History`}
+                            {isGynaecHistoryAccessable ? `Gynec History` : `Medical History`}
                         </div>
                         {/* <a>
                             <img src={arrowright} alt="right" />
@@ -57,7 +54,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                 </Card.Header>
                 <div className='p-3'>
                     <div className={`${!isExpand ? 'overflow-hidden' : 'overflow-auto'}`} style={{ height: isExpand ? 529 : 190 }}>
-                        {(gynecHistory && Object.keys(gynecHistory).length > 2) && isGynecHistoryAccessableFromGB ? (
+                        {(gynecHistory && Object.keys(gynecHistory).length > 2) && isGynaecHistoryAccessable ? (
                             <>
                                 <div className="fw-semibold">Menstrual Details</div>
                                 <div className="cardbody-data border rounded px-2 my-2">
@@ -133,7 +130,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                     <div className='align-items-center text-center'>
                                         <img src={heartBeat} width={57} height={52} alt="No vital & body composition saved for the patient!" />
                                         <p className='mt-4 fontroboto'>
-                                            No {isGynecHistoryAccessableFromGB ? 'Gynec' : 'Medical'} History saved <br /> for the patient!
+                                            No {isGynaecHistoryAccessable ? 'Gynec' : 'Medical'} History saved <br /> for the patient!
                                         </p>
                                     </div>
                                 )}

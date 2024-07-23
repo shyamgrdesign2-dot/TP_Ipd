@@ -22,6 +22,7 @@ function VaccineHeader({
   printLoader,
   printPopupHandler,
   tablePrintHandler,
+  isObstetric,
 }) {
   const vaccinationVideo = {
     link: "https://www.youtube.com/embed/o6ALwX9hPMM",
@@ -220,7 +221,7 @@ function VaccineHeader({
                   Preview
                 </Button>
               )}
-              <Dropdown overlay={isVaccination ? vaccinePrint : growthPrint}>
+              {!isObstetric && <Dropdown overlay={isVaccination ? vaccinePrint : growthPrint}>
                 <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
                   <i className="icon-Print" />
                   <span className="btn-input">Print</span>
@@ -233,7 +234,7 @@ function VaccineHeader({
                     />
                   )}
                 </div>
-              </Dropdown>
+              </Dropdown>}
               <Button
                 type="button"
                 className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"

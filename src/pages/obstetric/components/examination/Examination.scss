@@ -1,0 +1,52 @@
+.examinationTableViewContainer {
+  margin: 20px 30px 30px;
+  gap: 24px;
+
+  @media only screen and (min-width: 1200px) {
+    margin: 20px 30px 30px;
+  }
+  .editIcon {
+    display: flex;
+    color: #4b4ad5 !important;
+    cursor: pointer;
+    align-items: center;
+
+    .editText {
+      font-size: 14px;
+      color: #4b4ad5 !important;
+      font-weight: 400;
+      text-decoration: underline;
+    }
+  }
+}
+
+.anotherVisit {
+  padding-left: 30px;
+
+  .anotherVisitBtn {
+    width: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.obstetricTcell {
+  border: 1px solid #ddd;
+  padding: 8px !important;
+  vertical-align: middle;
+  height: 48px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  background-color: #fff;
+
+  @media only screen and (min-width: 1200px) {
+    padding: 6px 20px !important;
+  }
+
+  .visitStyle {
+    font-size: 12px;
+    color: #a2a2a8 !important;
+  }
+}

@@ -1,10 +1,8 @@
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { checkToShowVaccination } from "./service";
+import { GB_GYNEC_HISTORY, GYNAECOLOGY, PAEDIATRICS } from "../../utils/constants";
 
 export const useAccess = (patientAge = 0) => {
-  const [isPediatric, setIsPediatric] = useState(false);
   const { profile } = useSelector((state) => state.doctors);
   const isVaccinationAccessableFromGB = useFeatureIsOn(
     "vaccination-new-design"
@@ -12,21 +10,14 @@ export const useAccess = (patientAge = 0) => {
   const isGrowthChartAccessableFromGB = useFeatureIsOn(
     "growth-chart-new-design"
   );
-
-  useEffect(() => {
-    checkForPediatric();
-  }, []);
-
-  const checkForPediatric = async () => {
-    if (profile?.doctor_unique_id) {
-      setIsPediatric(await checkToShowVaccination(profile.doctor_unique_id));
-    }
-  };
+  const isGynaecAccessableFromGB = useFeatureIsOn(
+    GB_GYNEC_HISTORY
+  );
 
   return {
-    isPediatric,
-    isVaccinationAccessable: isVaccinationAccessableFromGB || isPediatric,
+    isVaccinationAccessable: isVaccinationAccessableFromGB || profile?.dp_name === PAEDIATRICS,
     isGrowthChartAccessable:
-      (isGrowthChartAccessableFromGB || isPediatric) && patientAge <= 18,
+      (isGrowthChartAccessableFromGB || profile?.dp_name === PAEDIATRICS) && patientAge <= 18,
+    isGynaecHistoryAccessable: isGynaecAccessableFromGB || profile?.dp_name === GYNAECOLOGY,
   };
 };

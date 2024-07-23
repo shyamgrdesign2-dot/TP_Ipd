@@ -25,10 +25,10 @@ import {
 } from "../redux/medicalhistorySlice";
 import { useLocation } from "react-router-dom";
 import { getGynecDetails, postGynecDetails, updateGynecDetails } from "../api/services/ApiGynec";
-import { GB_GYNEC_HISTORY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { jwtDecode } from "jwt-decode";
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { CLOTS_LIST, CYCLE_KEY_LIST, FLOW_LIST, GYNEC_SECTION_ENABLE_LIST, PAIN_LIST, PAIN_OCCURANCE_LIST, REPRODUCTIVE_LIFE_STAGES_LIST, TYPES_REPRODUCTIVE_STAGES } from "../utils/gynec_constants";
+import { useAccess } from "../pages/vaccination/useAccess";
 
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD-MM-YYYY'
@@ -45,9 +45,7 @@ function MedicalHistoryBox(props) {
     const { profile } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
-    const isGynecHistoryAccessableFromGB = useFeatureIsOn(
-        GB_GYNEC_HISTORY
-    );
+    const {isGynaecHistoryAccessable} = useAccess();
 
     const { medicalHistoryData, setMedicalHistoryData } = useContext(CashManagerContext);
     // const [ medicalHistoryData, setMedicalHistoryData] = useState([]);
@@ -937,7 +935,7 @@ function MedicalHistoryBox(props) {
                             </div>
                         </div>
                         <div className="title-common">
-                            { isGynecHistoryAccessableFromGB ? `Gynec History` :`Medical History`}
+                            { isGynaecHistoryAccessable ? `Gynec History` :`Medical History`}
                         </div>
                     </div>
                     <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={onSaveClicked}>
@@ -945,7 +943,7 @@ function MedicalHistoryBox(props) {
                     </Button>
                 </div>
                 <Tabs defaultActiveKey="gynec" onChange={onTabChange}>
-                    { isGynecHistoryAccessableFromGB && 
+                    { isGynaecHistoryAccessable && 
                         <TabPane tab="Menstrual History" key="gynec">
                             <div style={{marginTop: "-1rem"}}>
                                 <Row>
