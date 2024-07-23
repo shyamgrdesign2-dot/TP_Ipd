@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import LanguageMoreModal from './LanguageMoreModal';
 
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
+import { onlyNumberFormat } from '../../utils/utils';
 
 function DWAboutDoctor() {
 
@@ -22,8 +23,31 @@ function DWAboutDoctor() {
 
     const onChangeInput = useCallback(
         (e, key) => {
-            aboutDoctor[key] = e.target.value;
+            if (key === 'years_experience') {
+                if (e.target.value.length < 3 && (!e.target.value || parseInt(e.target.value) <= 40)) {
+                    aboutDoctor[key] = onlyNumberFormat(e.target.value);
+                }
+            } else {
+                aboutDoctor[key] = e.target.value;
+            }
             setAboutDoctor((prev) => { return { ...prev } });
+        },
+        [aboutDoctor]
+    );
+
+    const decrement = useCallback(
+        () => {
+            if (!aboutDoctor?.years_experience || parseInt(aboutDoctor?.years_experience) > 0) {
+                setAboutDoctor((prev) => { return { ...prev, years_experience: prev?.years_experience ? parseInt(prev?.years_experience) - 1 : 1 } });
+            }
+        },
+        [aboutDoctor]
+    );
+    const increment = useCallback(
+        () => {
+            if (!aboutDoctor?.years_experience || parseInt(aboutDoctor?.years_experience) < 40) {
+                setAboutDoctor((prev) => { return { ...prev, years_experience: prev?.years_experience ? parseInt(prev?.years_experience) + 1 : 1 } });
+            }
         },
         [aboutDoctor]
     );
@@ -58,6 +82,10 @@ function DWAboutDoctor() {
                         className="text-capitalize rounded-10px h-38"
                         value={aboutDoctor?.years_experience}
                         onChange={(e) => onChangeInput(e, 'years_experience')} />
+                    <div className='position-absolute' style={{ top: 11, right: 11 }}>
+                        <i className='icon-minus fs-16 p-2 cursor-pointer' onClick={decrement}></i>
+                        <i className='icon-Add fs-16 p-2 cursor-pointer ms-4' onClick={increment}></i>
+                    </div>
                 </Form.Item>
             </Form>
             <hr className='mt-1' />

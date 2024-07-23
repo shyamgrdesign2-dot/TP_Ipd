@@ -2,14 +2,21 @@ import React, { useContext } from 'react';
 import { Button, Dropdown } from 'antd';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from "react-redux";
 
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
+import { saveDoctorWebsite } from "../../redux/doctorWebsiteSlice";
+import { errorMessage } from '../../utils/utils';
+
 function HeaderDoctorWebsite() {
+
+    const dispatch = useDispatch();
+    const { loading } = useSelector((state) => state.doctorWebsite);
 
     const navigate = useNavigate();
 
-    const { personalDetails, clinicProfile, aboutDoctor, doctorExperience, rewardRecognition, services, socialLinks, membership, educationTraining, otherSettings } = useContext(DoctorWebsiteSettingsContext);
+    const { personalDetails, clinicProfile, aboutDoctor, doctorExperience, services, educationTraining, membership, rewardRecognition, socialLinks, otherSettings } = useContext(DoctorWebsiteSettingsContext);
 
     const items = [
         {
@@ -19,16 +26,46 @@ function HeaderDoctorWebsite() {
     ];
 
     async function onPublishWebsiteClick() {
-        // console.log("personalDetails", personalDetails)
-        // console.log("aboutDoctor", aboutDoctor)
-        // console.log("doctorExperience", doctorExperience)
-        // console.log("rewardRecognition", rewardRecognition);
-        // console.log("membership", membership);
-        // console.log("socialLinks" ,socialLinks);
-        // console.log("services" ,services);
-        // console.log("educationTraining", educationTraining);
-        // console.log("otherSettings", otherSettings);
-        console.log("clinicProfile", clinicProfile);
+        let { uploadFile, ...updatePersonalDetails } = personalDetails
+
+        let makeClinicPhotosObject = {}
+        const updatedClinicProfile = clinicProfile?.map(e => {
+            const newObj = { ...e };
+
+            delete newObj['selectedTab'];
+            delete newObj['created_by'];
+
+            const updatedServerClinicPhotos = newObj?.clinic_photos?.filter(e1 => !e1.clinic_image_link.startsWith('blob:'))
+
+            const updatedLocalClinicPhotos = newObj?.clinic_photos?.filter(e1 => e1.clinic_image_link.startsWith('blob:'))
+            var fetchUploadFile = []
+            updatedLocalClinicPhotos?.map(e1 => fetchUploadFile.push(e1?.uploadFile))
+            makeClinicPhotosObject[`clinicpic_${newObj?.random_id}`] = fetchUploadFile
+
+            return { ...newObj, clinic_photos: [...updatedServerClinicPhotos] }
+        })
+
+        var sendData = {
+            personal_details: JSON.stringify(updatePersonalDetails),
+            hero_image: personalDetails?.uploadFile ? personalDetails?.uploadFile : '',
+            clinic_profile: JSON.stringify(updatedClinicProfile),
+            about_doctor: JSON.stringify(aboutDoctor),
+            doctor_experience: JSON.stringify(doctorExperience),
+            services: JSON.stringify(services.map(({ unique_id, ...rest }) => rest)),
+            education_training: JSON.stringify(educationTraining),
+            membership: JSON.stringify(membership.map(({ unique_id, ...rest }) => rest)),
+            reward_recognition: JSON.stringify(rewardRecognition),
+            social_links: JSON.stringify(socialLinks),
+            ...otherSettings,
+            ...makeClinicPhotosObject
+        }
+
+        const action = await dispatch(saveDoctorWebsite(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            navigate('/doctor_website_setting', { replace: true, state: { websiteData: { ...action.payload } } })
+        } else {
+            errorMessage(action.error)
+        }
     }
 
     return (
@@ -53,7 +90,7 @@ function HeaderDoctorWebsite() {
                             <button className='btn d-flex align-items-center btn-text me-14'>
                                 <i className="icon-Preview me-2"></i> <span>Your Website Preview</span>
                             </button>
-                            <Button type='button' className="btn-41 btn px-4 btn-primary3 align-items-center d-flex" onClick={onPublishWebsiteClick}>
+                            <Button type='button' className="btn-41 btn px-4 btn-primary3 align-items-center d-flex" loading={loading} onClick={onPublishWebsiteClick}>
                                 <i className="icon-New-Window me-2"></i> Publish Website
                             </Button>
                             <Dropdown className='btn btn-outline btn-more p-0 ms-3' menu={{ items }} trigger={['click']}>

@@ -35,9 +35,12 @@ function DWClinicProfile() {
     ];
 
     const onTabChange = useCallback(
-        (key, i) => {
-            clinicProfile[i]['selectedTab'] = key;
-            setClinicProfile((prev) => { return [...prev] });
+        (key, e) => {
+            const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+            if (index !== -1) {
+                clinicProfile[index]['selectedTab'] = key;
+                setClinicProfile((prev) => { return [...prev] });
+            }
         },
         [clinicProfile]
     );
@@ -45,74 +48,48 @@ function DWClinicProfile() {
 
 
     const onChangeInput = useCallback(
-        (e, key, i) => {
-            clinicProfile[i][key] = e.target.value;
-            setClinicProfile((prev) => { return [...prev] });
+        (el, key, e) => {
+            const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+            if (index !== -1) {
+                clinicProfile[index][key] = el.target.value;
+                setClinicProfile((prev) => { return [...prev] });
+            }
         },
         [clinicProfile]
     );
 
     const onChangeAddressInput = useCallback(
-        (e, key, i) => {
-            clinicProfile[i]['address'][key] = e.target.value;
-            setClinicProfile((prev) => { return [...prev] });
+        (el, key, e) => {
+            const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+            if (index !== -1) {
+                clinicProfile[index]['address'][key] = el.target.value;
+                setClinicProfile((prev) => { return [...prev] });
+            }
         },
         [clinicProfile]
     );
 
     const onDayClick = useCallback(
-        (e, i, i1) => {
-            var data = clinicProfile[i]['shift'][i1].hasOwnProperty('days') ? [...clinicProfile[i]['shift'][i1]['days']] : []
-            if (data.includes(e)) {
-                const index = data.indexOf(e);
-                if (index > -1) {
-                    data.splice(index, 1);
-                }
-                clinicProfile[i]['shift'][i1]['days'] = [...data];
-            } else {
-                data.push(e)
-                clinicProfile[i]['shift'][i1]['days'] = [...data];
-            }
-
-
-            if (data?.length > 0 && clinicProfile[i]['shift'][i1]['timing'].length === 0) {
-                clinicProfile[i]['shift'][i1]['timing'] = [{ from_time: '', end_time: '' }]
-            } else if (data?.length === 0) {
-                clinicProfile[i]['shift'][i1]['timing'] = []
-            }
-
-            setClinicProfile((prev) => { return [...prev] });
-        },
-        [clinicProfile]
-    );
-
-    const addTimingClick = useCallback(
-        (i, i1) => {
-            clinicProfile[i]['shift'][i1]['timing'].push({
-                from_time: '',
-                end_time: ''
-            })
-            setClinicProfile((prev) => { return [...prev] });
-        },
-        [clinicProfile]
-    );
-    const RemoveTimingClick = (i, i1, i2) => {
-        clinicProfile[i]['shift'][i1]['timing'].splice(i2, 1);
-        setClinicProfile((prev) => { return [...prev] });
-    };
-
-    const onTimeClick = useCallback(
-        (time, timeString, key, i, i1, i2) => {
-            if (timeString) {
-
-                if (key == 'from_time' && moment.duration(moment(moment(timeString, showDateFormat).format(dateFormat), "HH:mm:ss").diff(moment(clinicProfile[i]['shift'][i1]['timing'][i2]['end_time'], "HH:mm:ss"))).asMinutes() >= 0) {
-                    clinicProfile[i]['shift'][i1]['timing'][i2]['end_time'] = '';
-                    clinicProfile[i]['shift'][i1]['timing'][i2][key] = moment(timeString, showDateFormat).format(dateFormat);
-                } else if (key == 'end_time' && moment.duration(moment(moment(timeString, showDateFormat).format(dateFormat), "HH:mm:ss").diff(moment(clinicProfile[i]['shift'][i1]['timing'][i2]['from_time'], "HH:mm:ss"))).asMinutes() <= 0) {
-                    clinicProfile[i]['shift'][i1]['timing'][i2]['from_time'] = '';
-                    clinicProfile[i]['shift'][i1]['timing'][i2][key] = moment(timeString, showDateFormat).format(dateFormat);
+        (value, e, i1) => {
+            const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+            if (index !== -1) {
+                var data = clinicProfile[index]['shift'][i1].hasOwnProperty('days') ? [...clinicProfile[index]['shift'][i1]['days']] : []
+                if (data.includes(value)) {
+                    const index = data.indexOf(value);
+                    if (index > -1) {
+                        data.splice(index, 1);
+                    }
+                    clinicProfile[index]['shift'][i1]['days'] = [...data];
                 } else {
-                    clinicProfile[i]['shift'][i1]['timing'][i2][key] = moment(timeString, showDateFormat).format(dateFormat);
+                    data.push(value)
+                    clinicProfile[index]['shift'][i1]['days'] = [...data];
+                }
+
+
+                if (data?.length > 0 && clinicProfile[index]['shift'][i1]['timing'].length === 0) {
+                    clinicProfile[index]['shift'][i1]['timing'] = [{ from_time: '', end_time: '' }]
+                } else if (data?.length === 0) {
+                    clinicProfile[index]['shift'][i1]['timing'] = []
                 }
 
                 setClinicProfile((prev) => { return [...prev] });
@@ -121,7 +98,61 @@ function DWClinicProfile() {
         [clinicProfile]
     );
 
-    const TimingItems = (e1, i1, i) => [
+    const addTimingClick = useCallback(
+        (e, i1) => {
+            const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+            if (index !== -1) {
+                clinicProfile[index]['shift'][i1]['timing'].push({
+                    from_time: '',
+                    end_time: ''
+                })
+                setClinicProfile((prev) => { return [...prev] });
+            }
+        },
+        [clinicProfile]
+    );
+    const RemoveTimingClick = (e, i1, i2) => {
+        const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+        if (index !== -1) {
+            clinicProfile[index]['shift'][i1]['timing'].splice(i2, 1);
+            setClinicProfile((prev) => { return [...prev] });
+        }
+    };
+
+    const onTimeClick = useCallback(
+        (time, timeString, key, e, i1, i2) => {
+            if (timeString) {
+
+                const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+                if (index !== -1) {
+                    if (key == 'from_time' && moment.duration(moment(moment(timeString, showDateFormat).format(dateFormat), "HH:mm:ss").diff(moment(clinicProfile[index]['shift'][i1]['timing'][i2]['end_time'], "HH:mm:ss"))).asMinutes() >= 0) {
+                        clinicProfile[index]['shift'][i1]['timing'][i2]['end_time'] = '';
+                        clinicProfile[index]['shift'][i1]['timing'][i2][key] = moment(timeString, showDateFormat).format(dateFormat);
+                    } else if (key == 'end_time' && moment.duration(moment(moment(timeString, showDateFormat).format(dateFormat), "HH:mm:ss").diff(moment(clinicProfile[index]['shift'][i1]['timing'][i2]['from_time'], "HH:mm:ss"))).asMinutes() <= 0) {
+                        clinicProfile[index]['shift'][i1]['timing'][i2]['from_time'] = '';
+                        clinicProfile[index]['shift'][i1]['timing'][i2][key] = moment(timeString, showDateFormat).format(dateFormat);
+                    } else {
+                        clinicProfile[index]['shift'][i1]['timing'][i2][key] = moment(timeString, showDateFormat).format(dateFormat);
+                    }
+
+                    setClinicProfile((prev) => { return [...prev] });
+                }
+
+            }
+        },
+        [clinicProfile]
+    );
+
+
+    const removeShiftClick = (e, i1) => {
+        const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+        if (index !== -1) {
+            clinicProfile[index]['shift'].splice(i1, 1);
+            setClinicProfile((prev) => { return [...prev] });
+        }
+    };
+
+    const TimingItems = (e1, i1, e) => [
         {
             key: `${i1 + 1}`,
             label:
@@ -137,69 +168,71 @@ function DWClinicProfile() {
                             className='fw-medium mb-1'
                             required>
                             <div className='d-flex align-items-center justify-content-between'>
-                                <div onClick={() => onDayClick('sun', i, i1)} className={`${e1?.days && e1?.days?.includes('sun') && 'active-days'} days-width rounded-10px border sunday-color`}>S</div>
-                                <div onClick={() => onDayClick('mon', i, i1)} className={`${e1?.days && e1?.days?.includes('mon') && 'active-days'} days-width rounded-10px border`}>M</div>
-                                <div onClick={() => onDayClick('tue', i, i1)} className={`${e1?.days && e1?.days?.includes('tue') && 'active-days'} days-width rounded-10px border`}>T</div>
-                                <div onClick={() => onDayClick('wed', i, i1)} className={`${e1?.days && e1?.days?.includes('wed') && 'active-days'} days-width rounded-10px border`}>W</div>
-                                <div onClick={() => onDayClick('thu', i, i1)} className={`${e1?.days && e1?.days?.includes('thu') && 'active-days'} days-width rounded-10px border`}>T</div>
-                                <div onClick={() => onDayClick('fri', i, i1)} className={`${e1?.days && e1?.days?.includes('fri') && 'active-days'} days-width rounded-10px border`}>F</div>
-                                <div onClick={() => onDayClick('sat', i, i1)} className={`${e1?.days && e1?.days?.includes('sat') && 'active-days'} days-width rounded-10px border`}>S</div>
+                                <div onClick={() => onDayClick('sun', e, i1)} className={`${e1?.days && e1?.days?.includes('sun') && 'active-days'} days-width rounded-10px border sunday-color`}>S</div>
+                                <div onClick={() => onDayClick('mon', e, i1)} className={`${e1?.days && e1?.days?.includes('mon') && 'active-days'} days-width rounded-10px border`}>M</div>
+                                <div onClick={() => onDayClick('tue', e, i1)} className={`${e1?.days && e1?.days?.includes('tue') && 'active-days'} days-width rounded-10px border`}>T</div>
+                                <div onClick={() => onDayClick('wed', e, i1)} className={`${e1?.days && e1?.days?.includes('wed') && 'active-days'} days-width rounded-10px border`}>W</div>
+                                <div onClick={() => onDayClick('thu', e, i1)} className={`${e1?.days && e1?.days?.includes('thu') && 'active-days'} days-width rounded-10px border`}>T</div>
+                                <div onClick={() => onDayClick('fri', e, i1)} className={`${e1?.days && e1?.days?.includes('fri') && 'active-days'} days-width rounded-10px border`}>F</div>
+                                <div onClick={() => onDayClick('sat', e, i1)} className={`${e1?.days && e1?.days?.includes('sat') && 'active-days'} days-width rounded-10px border`}>S</div>
                             </div>
                         </Form.Item>
                     </div>
-                    {e1?.days?.length > 0 && (
-                        <Form.Item
-                            label="Set your shift timings"
-                            className='fw-medium p-10 pb-0 mb-0'
-                            required>
+                    <Form.Item
+                        label={e1?.days?.length > 0 ? "Set your shift timings" : ""}
+                        className='fw-medium p-10 pb-0 mb-0'
+                        required>
 
-                            {e1?.timing?.map((e2, i2) => {
-                                return (
-                                    <Row key={i2} align="middle" justify="space-between" className='mb-12'>
-                                        <Col span={9}>
-                                            <TimePicker
-                                                format={showDateFormat}
-                                                use12Hours
-                                                placeholder="hh:mm"
-                                                className="text-capitalize rounded-10px h-38"
-                                                value={e2?.from_time ? dayjs(moment(e2?.from_time, dateFormat).format(showDateFormat), showDateFormat) : ''}
-                                                onChange={(time, timeString) => onTimeClick(time, timeString, 'from_time', i, i1, i2)} />
-                                        </Col>
-                                        <Col span={2}>
-                                            <div className='text-center'>To</div>
-                                        </Col>
-                                        <Col span={9}>
-                                            <TimePicker
-                                                format={showDateFormat}
-                                                use12Hours
-                                                placeholder="hh:mm"
-                                                className="text-capitalize rounded-10px h-38"
-                                                value={e2?.end_time ? dayjs(moment(e2?.end_time, dateFormat).format(showDateFormat), showDateFormat) : ''}
-                                                onChange={(time, timeString) => onTimeClick(time, timeString, 'end_time', i, i1, i2)} />
-                                        </Col>
-                                        <Col span='auto'>
-                                            {i2 === 0 ? (
-                                                <Button className='btn-delete-prescription btn px-0' onClick={() => addTimingClick(i, i1)}><i className='icon-Add text-primary'></i></Button>
-                                            ) : (
-                                                <Button className='btn-delete-prescription btn px-0' onClick={() => RemoveTimingClick(i, i1, i2)}><i className='icon-delete text-primary'></i></Button>
-                                            )}
-                                        </Col>
-                                    </Row>
-                                )
-                            })}
-                        </Form.Item>
-                    )}
+                        {e1?.timing?.map((e2, i2) => {
+                            return (
+                                <Row key={i2} align="middle" justify="space-between" className='mb-12'>
+                                    <Col span={9}>
+                                        <TimePicker
+                                            format={showDateFormat}
+                                            use12Hours
+                                            placeholder="hh:mm"
+                                            className="text-capitalize rounded-10px h-38"
+                                            value={e2?.from_time ? dayjs(moment(e2?.from_time, dateFormat).format(showDateFormat), showDateFormat) : ''}
+                                            onChange={(time, timeString) => onTimeClick(time, timeString, 'from_time', e, i1, i2)} />
+                                    </Col>
+                                    <Col span={2}>
+                                        <div className='text-center'>To</div>
+                                    </Col>
+                                    <Col span={9}>
+                                        <TimePicker
+                                            format={showDateFormat}
+                                            use12Hours
+                                            placeholder="hh:mm"
+                                            className="text-capitalize rounded-10px h-38"
+                                            value={e2?.end_time ? dayjs(moment(e2?.end_time, dateFormat).format(showDateFormat), showDateFormat) : ''}
+                                            onChange={(time, timeString) => onTimeClick(time, timeString, 'end_time', e, i1, i2)} />
+                                    </Col>
+                                    <Col span='auto'>
+                                        {i2 === 0 ? (
+                                            <Button className='btn-delete-prescription btn px-0' onClick={() => addTimingClick(e, i1)}><i className='icon-Add text-primary'></i></Button>
+                                        ) : (
+                                            <Button className='btn-delete-prescription btn px-0' onClick={() => RemoveTimingClick(e, i1, i2)}><i className='icon-delete text-primary'></i></Button>
+                                        )}
+                                    </Col>
+                                </Row>
+                            )
+                        })}
+                        <button className='btn float-end mb-2 btn-text d-flex px-0' onClick={() => removeShiftClick(e, i1)}><i className='icon-delete fs-18 me-1'></i><span>Delete Shift</span></button>
+                    </Form.Item>
                 </>
         },
     ];
 
     const addShiftClick = useCallback(
-        (i) => {
-            clinicProfile[i]['shift'].push({
-                days: [],
-                timing: []
-            })
-            setClinicProfile((prev) => { return [...prev] });
+        (e) => {
+            const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+            if (index !== -1) {
+                clinicProfile[index]['shift'].push({
+                    days: [],
+                    timing: []
+                })
+                setClinicProfile((prev) => { return [...prev] });
+            }
         },
         [clinicProfile]
     );
@@ -214,12 +247,13 @@ function DWClinicProfile() {
         }
     };
 
-    const handleImageChange = (el, i) => {
+    const handleImageChange = (el, e) => {
         if (el.target.files?.length > 0) {
             const fileUrls = el.target.files;
             const updatedData = Object.entries(fileUrls).reduce((acc, [key, fileUrl]) => {
                 if (fileUrl.size <= 5000000 && ['image/png', 'image/jpeg', 'image/jpg'].includes(fileUrl.type)) {
                     acc.push({
+                        clinic_image_id: Math.floor(1000000000 + Math.random() * 9999999999),
                         clinic_image_delete: 0,
                         clinic_image_name: fileUrl.name,
                         clinic_image_link: URL.createObjectURL(fileUrl),
@@ -231,30 +265,44 @@ function DWClinicProfile() {
                 return acc;
             }, []);
 
-            clinicProfile[i]['clinic_photos'] = [...clinicProfile[i]['clinic_photos'], ...updatedData]
-            console.log(clinicProfile[i]['clinic_photos'])
-            setClinicProfile((prev) => { return [...prev] });
+            const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+            if (index !== -1) {
+                clinicProfile[index]['clinic_photos'] = [...clinicProfile[index]['clinic_photos'], ...updatedData]
+                setClinicProfile((prev) => { return [...prev] });
+            }
         }
     }
 
 
-    const onRemoveRow = (index) => {
-        clinicProfile.splice(index, 1);
-        setClinicProfile((prev) => { return [...prev] });
-    };
-
-    const onDeleteImage = (i, item, index) => {
-        if (item?.clinic_image_link?.startsWith('blob:')) {
-            clinicProfile[i]['clinic_photos'].splice(index, 1);
-        } else {
-            clinicProfile[i]['clinic_photos'][index]['clinic_image_delete'] = 1
+    const onRemoveRow = (e) => {
+        const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+        if (index !== -1) {
+            if (e?.created_by === 'local') {
+                clinicProfile.splice(index, 1);
+            } else {
+                clinicProfile[index]['clinic_delete'] = 1
+            }
         }
         setClinicProfile((prev) => { return [...prev] });
     };
 
+    const onDeleteImage = (e, item) => {
+        const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+        if (index !== -1) {
+            const index1 = clinicProfile[index]['clinic_photos'].findIndex(el => el.clinic_image_id === item.clinic_image_id)
+            if (index1 !== -1) {
+                if (item?.clinic_image_link?.startsWith('blob:')) {
+                    clinicProfile[index]['clinic_photos'].splice(index1, 1);
+                } else {
+                    clinicProfile[index]['clinic_photos'][index1]['clinic_image_delete'] = 1
+                }
+            }
+            setClinicProfile((prev) => { return [...prev] });
+        }
+    };
+
 
     const clinicItems = (e, i) => [
-
         {
             key: `${i + 1}`,
             label:
@@ -278,8 +326,7 @@ function DWClinicProfile() {
                                     <Input placeholder="Clinic Name"
                                         className="text-capitalize rounded-10px h-38"
                                         value={e?.name}
-                                        onChange={(e) => onChangeInput(e, 'name', i)}
-                                    />
+                                        onChange={(el) => onChangeInput(el, 'name', e)} />
                                 </Form.Item>
                                 <Form.Item
                                     label="Clinic Contact"
@@ -288,10 +335,10 @@ function DWClinicProfile() {
                                     <Input placeholder="Clinic Contact"
                                         className="text-capitalize rounded-10px h-38"
                                         value={e?.contact_no}
-                                        onChange={(e) => onChangeInput(e, 'contact_no', i)} />
+                                        onChange={(el) => onChangeInput(el, 'contact_no', e)} />
                                 </Form.Item>
                             </div>
-                            <Tabs defaultActiveKey={'1'} onChange={(key) => onTabChange(key, i)} items={TabsPrintSetting} className="print-tabs" />
+                            <Tabs activeKey={e?.selectedTab} onChange={(key) => onTabChange(key, e)} items={TabsPrintSetting} className="print-tabs" />
                             {e?.selectedTab === TAB_ADDRESS ? (
                                 <Row gutter={20} className='px-10'>
                                     <Col span={12}>
@@ -301,7 +348,7 @@ function DWClinicProfile() {
                                             required>
                                             <Input placeholder="Pincode" className="text-capitalize rounded-10px h-38"
                                                 value={e?.address?.pincode}
-                                                onChange={(e) => onChangeAddressInput(e, 'pincode', i)} />
+                                                onChange={(el) => onChangeAddressInput(el, 'pincode', e)} />
                                         </Form.Item>
                                     </Col>
                                     <Col span={12}>
@@ -312,7 +359,7 @@ function DWClinicProfile() {
                                             <Input placeholder="City"
                                                 className="text-capitalize rounded-10px h-38"
                                                 value={e?.address?.city}
-                                                onChange={(e) => onChangeAddressInput(e, 'city', i)} />
+                                                onChange={(el) => onChangeAddressInput(el, 'city', e)} />
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
@@ -323,7 +370,7 @@ function DWClinicProfile() {
                                             <Input placeholder="City"
                                                 className="text-capitalize rounded-10px h-38"
                                                 value={e?.address?.state}
-                                                onChange={(e) => onChangeAddressInput(e, 'state', i)} />
+                                                onChange={(el) => onChangeAddressInput(el, 'state', e)} />
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
@@ -332,7 +379,7 @@ function DWClinicProfile() {
                                             className='fw-medium mb-20'>
                                             <Input.TextArea placeholder="Address" rows={3} className="textareaPlaceholder text-capitalize rounded-10px"
                                                 value={e?.address?.address_line}
-                                                onChange={(e) => onChangeAddressInput(e, 'address_line', i)} />
+                                                onChange={(el) => onChangeAddressInput(el, 'address_line', e)} />
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
@@ -341,7 +388,7 @@ function DWClinicProfile() {
                                             className='fw-medium mb-20'>
                                             <Input placeholder="Copy and paste your clinic address link" className="text-capitalize rounded-10px h-38"
                                                 value={e?.address?.google_map}
-                                                onChange={(e) => onChangeAddressInput(e, 'google_map', i)} />
+                                                onChange={(el) => onChangeAddressInput(el, 'google_map', e)} />
                                         </Form.Item>
                                     </Col>
                                 </Row>
@@ -350,18 +397,18 @@ function DWClinicProfile() {
                                     {e?.shift.map((e1, i1) => {
                                         return (
                                             <div key={i1} className='px-10 mb-2'>
-                                                <Collapse items={TimingItems(e1, i1, i)} defaultActiveKey={['1']} className='prescriptiontab-accordian timingTab' expandIconPosition={'end'} />
+                                                <Collapse items={TimingItems(e1, i1, e)} defaultActiveKey={['1']} className='prescriptiontab-accordian timingTab' expandIconPosition={'end'} />
                                             </div>
                                         )
                                     })}
-                                    < button className='mt-2 btn btn-delete-experience text-primary' onClick={() => addShiftClick(i)}><i className='icon-Add fs-18 me-2'></i>Add More Shifts</button>
+                                    <button className='mt-2 btn btn-delete-experience text-primary' onClick={() => addShiftClick(e)}><i className='icon-Add fs-18 me-2'></i>Add More Shifts</button>
                                 </>
                             ) : e?.selectedTab === TAB_PHOTOS && (
                                 <div className='px-10'>
                                     <div className='d-flex flex-wrap mb-3'>
                                         {e?.clinic_photos && e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.map((item, index) => {
                                             return (
-                                                <div key={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting-wrap' onClick={() => onDeleteImage(i, item, index)}>
+                                                <div key={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting-wrap' onClick={() => onDeleteImage(e, item)}>
                                                     <img src={item?.clinic_image_link} alt={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting img-fluid' />
                                                     <img src={CloseWithWhiteFill} alt='Close' className='close-clinic-img' />
                                                 </div>
@@ -375,7 +422,7 @@ function DWClinicProfile() {
                                                 type="file"
                                                 multiple
                                                 accept="image/png"
-                                                onChange={(el) => handleImageChange(el, i)} />
+                                                onChange={(el) => handleImageChange(el, e)} />
                                             <img src={AddPhotos} alt='Clinic Photos' className='img-fluid' />
                                         </div>
                                     </div>
@@ -383,7 +430,7 @@ function DWClinicProfile() {
                             )}
                         </Form>
                     </div>
-                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3 align-items-center d-flex justify-content-center' onClick={() => onRemoveRow(i)}><i className='icon-delete fs-18 me-2'></i>Delete</Button>
+                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3 align-items-center d-flex justify-content-center' onClick={() => onRemoveRow(e)}><i className='icon-delete fs-18 me-2'></i>Delete</Button>
                 </div >,
         },
     ];
@@ -391,6 +438,7 @@ function DWClinicProfile() {
     const addClinicProfileClick = useCallback(
         () => {
             clinicProfile.push({
+                created_by: 'local',
                 random_id: Math.floor(1000000000 + Math.random() * 9999999999),
                 name: '',
                 contact_no: '',
@@ -418,7 +466,7 @@ function DWClinicProfile() {
         <div className="bg-white overflow-auto" style={{ height: 'calc(100vh - 120px)' }}>
             <div className='p-20'>
                 <div className="text-greycolor fontroboto"> Add your clinic name, location, timings, and photos.</div>
-                {clinicProfile?.map((e, i) => {
+                {clinicProfile?.filter(el => !el.clinic_delete)?.map((e, i) => {
                     return (
                         <div key={i} className="border rounded-20px bg-white mt-3">
                             <Collapse items={clinicItems(e, i)} defaultActiveKey={['1']} className="prescriptiontab-accordian doctor-experience" expandIconPosition={'end'} />

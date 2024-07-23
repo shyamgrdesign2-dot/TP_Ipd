@@ -23,7 +23,9 @@ function DWPersonalDetails() {
         if (e.target.files?.length > 0) {
             const fileUrl = e.target.files[0];
             if (fileUrl.size <= 2000000 && (fileUrl.type == 'image/png' || fileUrl.type == 'image/jpeg' || fileUrl.type == 'image/jpg')) {
-                personalDetails['hero_image'] = { imageShow: true, showFile: URL.createObjectURL(fileUrl), uploadFile: fileUrl }
+                personalDetails['hero_image_name'] = fileUrl.name
+                personalDetails['hero_image_link'] = URL.createObjectURL(fileUrl)
+                personalDetails['uploadFile'] = fileUrl
                 setPersonalDetails((prev) => { return { ...prev } });
             } else {
                 errorMessage('Please upload only jpg, jpeg or png files with the max size 2mb.')
@@ -96,13 +98,13 @@ function DWPersonalDetails() {
             <div className='title-common'>Hero Image</div>
             <div className='upload-headfoot p-2'>
                 <div className="d-flex align-items-center justify-content-between mx-auto">
-                    {personalDetails?.hero_image && personalDetails?.hero_image?.imageShow &&
+                    {personalDetails?.hero_image_link &&
                         <img
                             alt='hero_image'
                             style={{ height: 62, objectFit: 'contain', overflow: 'hidden', borderRadius: 8 }}
-                            src={personalDetails?.hero_image?.showFile} />
+                            src={personalDetails?.hero_image_link} />
                     }
-                    <div className={`${personalDetails?.hero_image && personalDetails?.hero_image?.imageShow && 'text-start ms-3'}`} onClick={() => inputImageUrl.current?.click()}>
+                    <div className={`${personalDetails?.hero_image_link && 'text-start ms-3'}`} onClick={() => inputImageUrl.current?.click()}>
                         <input
                             key={Math.random()}
                             ref={inputImageUrl}
@@ -110,7 +112,7 @@ function DWPersonalDetails() {
                             type="file"
                             accept="image/png"
                             onChange={handleImageChange} />
-                        <div className="fw-medium text-decoration-underline cursor-pointer">{personalDetails?.hero_image && personalDetails?.hero_image?.imageShow ? 'Change' : 'Upload'} Image</div>
+                        <div className="fw-medium text-decoration-underline cursor-pointer">{personalDetails?.hero_image_link ? 'Change' : 'Upload'} Image</div>
                         <div className="fs-12-1 fontroboto"> Only jpg, jpeg or png files with the max size 2mb.</div>
                     </div>
                 </div>

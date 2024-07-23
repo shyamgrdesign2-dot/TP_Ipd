@@ -60,14 +60,14 @@ function DoctorWebsiteSetting() {
         const makeData = async () => {
             const copy_personalDetails = JSON.parse(JSON.stringify({
                 ...websiteData.personal_details,
-                hero_image: websiteData?.personal_details?.hero_image_link ? { imageShow: true, showFile: websiteData?.personal_details?.hero_image_link } : null
+                uploadFile: null
             }))
 
             const updatedClinicProfile = websiteData?.clinic_profile?.map(e => {
                 const updatedClinicPhotos = e?.clinic_photos?.map(e1 => {
                     return { ...e1, clinic_image_link: e1?.clinic_image_link }
                 })
-                return { ...e, selectedTab: TAB_ADDRESS, clinic_photos: [...updatedClinicPhotos] }
+                return { ...e, created_by: 'server', selectedTab: TAB_ADDRESS, clinic_photos: [...updatedClinicPhotos] }
             })
             const copy_clinicProfile = JSON.parse(JSON.stringify([...updatedClinicProfile]))
 

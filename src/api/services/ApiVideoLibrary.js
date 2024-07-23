@@ -17,4 +17,8 @@ ApiVideoLibrary.listLanguage = function () {
   return api.get(`/api/v1/doctorwebsite/listLanguage`, baseUrl);
 };
 
+ApiVideoLibrary.saveDoctorWebsite = function (formData) {
+  return api.post(`/api/v1/doctorwebsite/saveDoctorWebsite`, formData, baseUrl);
+};
+
 export default ApiVideoLibrary;

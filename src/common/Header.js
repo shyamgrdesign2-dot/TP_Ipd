@@ -19,7 +19,7 @@ import videorotate from '../assets/images/videorotate.gif';
 
 import config from "../config";
 import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo } from "../redux/doctorsSlice";
-import { getDefaultDWsettings } from "../redux/doctorWebsiteSlice";
+import { viewDoctorWebsite } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
@@ -395,7 +395,7 @@ function Header({ locationPath }) {
   }, [popOverVideo]);
 
   const setUpWebsiteUrl = async () => {
-    const action = await dispatch(getDefaultDWsettings());
+    const action = await dispatch(viewDoctorWebsite());
     if (action.meta.requestStatus === "fulfilled") {
       navigate('/doctor_website_setting', { state: { websiteData: { ...action.payload } } })
     } else {
