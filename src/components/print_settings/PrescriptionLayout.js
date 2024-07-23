@@ -449,8 +449,8 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
                                                                         ({ ...option, key: option.id }) 
                                                                         :(caseManagerData.smart_prescription_filename && option.id === 11) ?
                                                                             ({ ...option, key: option.id }) 
-                                                                            // :(isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartData?.length) ? ({...option, key: option.id})
-                                                                                :(option.id === 12 && obstetricDetails?._id) && ({...option, key: option.id})
+                                                                            :(isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartData?.length) ? ({...option, key: option.id})
+                                                                                :(option.id === 14 && obstetricDetails?._id) && ({...option, key: option.id})
                                                                             
               )}
               showHeader={false}
