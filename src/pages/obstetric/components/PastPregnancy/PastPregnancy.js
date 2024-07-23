@@ -23,16 +23,7 @@ import { useLocation } from "react-router-dom";
 
 function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
   const scrollContainerRef = useRef(null);
-  const [pastPregnancyData, setPastPregnancyData] = useState({
-    gravidaNumber: "",
-    termLength: "",
-    outcome: "",
-    deliveryMode: "",
-    dateOfDelivery: "",
-    gender: "",
-    babysWeight: "",
-    remarks: "",
-  });
+  const [pastPregnancyData, setPastPregnancyData] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [loader, setLoader] = useState(false);
   const { obstetricDetails } = useSelector((state) => state.obstetric);
@@ -55,10 +46,6 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
       };
       return newData;
     });
-  };
-
-  const deletePastPregnancyData = (index) => {
-    setPastPregnancyData((prevData) => prevData.filter((_, i) => i !== index));
   };
 
   const disabledDate = (current) => {
@@ -102,12 +89,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
     }
     const payload = {
       patientId: patient_data.patient_unique_id,
-      ...(pregnancyHistory?.length > 0
-        ? {
-            modifiedAt: new Date().toISOString(),
-            modifiedBy: decodedToken?.result?.user_id,
-          }
-        : obstetricDetails),
+      ...(pregnancyHistory?.length > 0 ? {} : obstetricDetails),
       pregnancyHistory: newPastPregnancy,
       createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
       createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
@@ -134,36 +116,81 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
     }
   };
 
+  const deletePastPregnancyData = async () => {
+    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+    let decodedToken;
+    if (token) {
+      try {
+        decodedToken = jwtDecode(token);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    let newPastPregnancy = [...pregnancyHistory];
+    if (editIndex >= 0) {
+      newPastPregnancy.splice(editIndex, 1);
+    }
+    const payload = {
+      patientId: patient_data.patient_unique_id,
+      pregnancyHistory: newPastPregnancy,
+      createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
+      createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
+      modifiedAt: pregnancyHistory?.length
+        ? new Date().toISOString()
+        : obstetricDetails?.modifiedAt,
+      modifiedBy: pregnancyHistory?.length
+        ? decodedToken?.result?.user_id
+        : obstetricDetails?.modifiedBy,
+    };
+    const deletePastPregnancyRes = await updateObstetricData(
+      obstetricDetails?.patientId,
+      payload
+    );
+    if (deletePastPregnancyRes?.data) {
+      getAllObstetricDetails();
+      setShowSuccess(true);
+      setTimeout(() => {
+        close();
+      }, 1000);
+    } else {
+      errorMessage(
+        deletePastPregnancyRes?.message || "Error while adding data"
+      );
+    }
+  };
+
   const TABLE_PAST_PREGNANCY = useMemo(() => {
     return (
       <div className="past-pregnancy-wrap-body past-pregnancy-child-width">
         <div className="past-pregnancy-head rounded-start-0 w-100">
           Values
-          <div>
-            <Tooltip
-              trigger={"click"}
-              placement="bottom"
-              title={
-                <div
-                  className="tooltip-content"
-                  onClick={deletePastPregnancyData}
-                >
-                  <DeleteOutlined style={{ marginRight: 8 }} />
-                  <span>Delete</span>
-                </div>
-              }
-              overlayClassName="custom-tooltip"
-            >
-              <EllipsisOutlined className="vertical-dots" />
-            </Tooltip>
-          </div>
+          {editIndex >= 0 && (
+            <div>
+              <Tooltip
+                trigger={"click"}
+                placement="bottom"
+                title={
+                  <div
+                    className="tooltip-content"
+                    onClick={deletePastPregnancyData}
+                  >
+                    <DeleteOutlined className="delete-icon" />
+                    <span>Delete</span>
+                  </div>
+                }
+                overlayClassName="custom-tooltip"
+              >
+                <EllipsisOutlined className="vertical-dots" />
+              </Tooltip>
+            </div>
+          )}
         </div>
         <div className="past-pregnancy-row past-pregnancy-row-40 d-flex align-items-center px-2 py-5 w-100">
           <Input
             className="inputheight41-group"
             placeholder="Enter"
             inputMode="numeric"
-            value={pastPregnancyData.gravidaNumber}
+            value={pastPregnancyData?.gravidaNumber}
             onChange={(e) =>
               handlePastPregnancyDataChange("gravidaNumber", e.target.value)
             }
@@ -183,11 +210,11 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
             ]}
             placeholder="Select"
             className="custom-select"
-            value={pastPregnancyData.outcome}
+            value={pastPregnancyData?.outcome}
           />
         </div>
 
-        {["Live", "Still birth"].includes(pastPregnancyData.outcome) && (
+        {["Live", "Still birth"].includes(pastPregnancyData?.outcome) && (
           <>
             <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
               <Radio.Group value={pastPregnancyData.termLength}>
@@ -355,11 +382,22 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
               </div>
             )}
             <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
-              <Radio.Group value={pastPregnancyData.modeOfAbortion}>
+              <Radio.Group
+                value={
+                  pastPregnancyData.outcome === "Abortion"
+                    ? pastPregnancyData.modeOfAbortion
+                    : pastPregnancyData.modeOfManagement
+                }
+              >
                 <Radio.Button
                   value={"Medical"}
                   onClick={() =>
-                    handlePastPregnancyDataChange("modeOfAbortion", "Medical")
+                    handlePastPregnancyDataChange(
+                      pastPregnancyData.outcome === "Abortion"
+                        ? "modeOfAbortion"
+                        : "modeOfManagement",
+                      "Medical"
+                    )
                   }
                   style={{
                     height: "41px",
@@ -372,7 +410,12 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                 <Radio.Button
                   value={"Surgical"}
                   onClick={() =>
-                    handlePastPregnancyDataChange("modeOfAbortion", "Surgical")
+                    handlePastPregnancyDataChange(
+                      pastPregnancyData.outcome === "Abortion"
+                        ? "modeOfAbortion"
+                        : "modeOfManagement",
+                      "Surgical"
+                    )
                   }
                   style={{
                     height: "41px",
@@ -408,7 +451,11 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
             onClick={addPastPregnancyData}
             className="btn btn-primary3 btn-41 px-4 me-20"
             loading={loader}
-            disabled={loader}
+            disabled={
+              loader ||
+              !pastPregnancyData.gravidaNumber ||
+              !pastPregnancyData.outcome
+            }
           >
             Done
           </Button>
