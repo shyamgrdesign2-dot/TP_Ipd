@@ -40,13 +40,13 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
       const {
         pallor,
         oedema,
-        mothersBMI = "-",
-        systolic = "-",
-        diastolic = "-",
-        heightOfFundus = "-",
+        mothersBMI,
+        systolic,
+        diastolic,
+        heightOfFundus,
         presentation = "-",
         fluidIndex = "-",
-        foetalHeartRate = "-",
+        foetalHeartRate,
         notes = "-",
       } = item;
       return (
@@ -59,16 +59,22 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
           </td>
           <td className="obstetricTcell">{pallor ? "Yes" : "No"}</td>
           <td className="obstetricTcell">{oedema ? "Yes" : "No"}</td>
-          <td className="obstetricTcell">{mothersBMI + " kg/m2"}</td>
           <td className="obstetricTcell">
-            {systolic + "/" + diastolic + " mmHg"}
+            {mothersBMI ? mothersBMI + " kg/m2" : "-"}
           </td>
-          <td className="obstetricTcell">{heightOfFundus + " cm"}</td>
+          <td className="obstetricTcell">
+            {systolic && diastolic ? systolic + "/" + diastolic + " mmHg" : "-"}
+          </td>
+          <td className="obstetricTcell">
+            {heightOfFundus ? heightOfFundus + " cm" : "-"}
+          </td>
           <td className="obstetricTcell">{presentation}</td>
           <td className="obstetricTcell">{fluidIndex}</td>
-          <td className="obstetricTcell">{foetalHeartRate + " BPM"}</td>
           <td className="obstetricTcell">
-            <ReadMore text={notes} textLimit={70} />
+            {foetalHeartRate ? foetalHeartRate + " BPM" : "-"}
+          </td>
+          <td className="obstetricTcell">
+            <ReadMore text={notes || "-"} textLimit={70} />
           </td>
           <td className="obstetricTcell">
             <div className="editIcon" onClick={() => onEdit(i)}>

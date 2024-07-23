@@ -35,7 +35,7 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
                   }}
                 >
                   <span className="key">{visitItem.title}</span>
-                  <span style={{ position: "absolute", left: "52%" }}>
+                  <span style={{ position: "absolute", left: "49%" }}>
                     {visitItem.key !== "notes" ? ":" : ""}
                   </span>
 
@@ -62,8 +62,8 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
   };
 
   useEffect(() => {
-    const data = examinationHistory?.map((obsVisit, i) => ({
-      key: `${i + 1}`,
+    const accordionItemsData = examinationHistory?.map((obsVisit, i) => ({
+      key: i,
       label: (
         <div className="fw-semibold obstetricAccordianTitle">
           {`Visit ${examinationHistory.length - i}`}
@@ -85,7 +85,7 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
       ),
     }));
 
-    setAccordionItems(data);
+    setAccordionItems(accordionItemsData);
   }, [examinationHistory]);
 
   return (
@@ -117,11 +117,11 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
             style={{ padding: "16px" }}
           >
             <Collapse
-              defaultActiveKey={["1"]}
+              defaultActiveKey={[0]}
               className="prescriptiontab-accordian history-sider-box history-sider-box-white obstetricAccordian"
               expandIconPosition={"end"}
             >
-              {accordionItems.map((item, index) => (
+              {accordionItems?.map((item, index) => (
                 <React.Fragment key={item.key}>
                   <Collapse.Panel header={item.label} key={item.key}>
                     {item.content}
