@@ -51,9 +51,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
           <td className="obstetricTcell">
             Visit {examinationHistory.length - i}
             <div className="visitStyle">
-              {item.createdAt
-                ? moment(item.createdAt).format("DD MMM YYYY")
-                : ""}
+              {item.date ? moment(item.date).format("DD MMM YYYY") : ""}
             </div>
           </td>
           <td className="obstetricTcell">{pallor ? "Yes" : "No"}</td>
@@ -94,6 +92,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
             <Button
               type="button"
               className="btn-41 btn ant-btn-text btn-input anotherVisitBtn"
+              onClick={handleExaminationDrawer}
             >
               <i className="icon-Add" />
               <span>Add another visit</span>

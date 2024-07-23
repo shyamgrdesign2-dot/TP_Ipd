@@ -10,15 +10,16 @@ import { addObstetricData, updateObstetricData } from "../../service";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 const dateFormat = "YYYY-MM-DD";
 
-function AddExamination({ close, editIndex }) {
+function AddExamination({ close, editIndex, getAllObstetricDetails }) {
   const scrollContainerRef = useRef(null);
   const [examinationData, setExaminationData] = useState({
     date: moment().format(dateFormat),
-    pallor: false,
-    oedema: false,
+    pallor: "",
+    oedema: "",
     mothersWeight: "",
     mothersHeight: "",
     mothersBMI: "",
@@ -34,7 +35,9 @@ function AddExamination({ close, editIndex }) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [loader, setLoader] = useState(false);
   const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const { examinationHistory } = obstetricDetails;
+  const { examinationHistory = [] } = obstetricDetails;
+  const { state } = useLocation();
+  const { patient_data } = state;
 
   useEffect(() => {
     if (editIndex >= 0) {
@@ -91,6 +94,7 @@ function AddExamination({ close, editIndex }) {
       ];
     }
     const payload = {
+      patientId: patient_data.patient_unique_id,
       ...(examinationHistory?.length > 0
         ? {
             modifiedAt: new Date().toISOString(),
@@ -105,6 +109,7 @@ function AddExamination({ close, editIndex }) {
       : await addObstetricData(payload);
     setLoader(false);
     if (addExaminationRes?.data) {
+      getAllObstetricDetails();
       setShowSuccess(true);
       setTimeout(() => {
         close();
@@ -129,16 +134,23 @@ function AddExamination({ close, editIndex }) {
       }
     }
     let newExaminationHistory = [...examinationHistory] || [];
-    if (examinationHistory?.length > 0) {
+    if (examinationHistory?.length > 0 && editIndex >= 0) {
       newExaminationHistory[editIndex] = {
         ...examinationData,
         modifiedAt: new Date().toISOString(),
         modifiedBy: decodedToken?.result?.user_id,
       };
     } else {
+      const data = {};
+      Object.keys(examinationData).forEach((key) => {
+        if (![undefined, null, ""].includes(examinationData[key])) {
+          data[key] = examinationData[key];
+        }
+      });
       newExaminationHistory = [
+        ...examinationHistory,
         {
-          ...examinationData,
+          ...data,
           createdAt: new Date().toISOString(),
           createdBy: decodedToken?.result?.user_id,
           modifiedAt: new Date().toISOString(),
@@ -147,6 +159,7 @@ function AddExamination({ close, editIndex }) {
       ];
     }
     const payload = {
+      patientId: patient_data.patient_unique_id,
       ...(examinationHistory?.length > 0
         ? {
             modifiedAt: new Date().toISOString(),
@@ -154,6 +167,10 @@ function AddExamination({ close, editIndex }) {
           }
         : obstetricDetails),
       examinationHistory: newExaminationHistory,
+      createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
+      createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
+      modifiedAt: obstetricDetails?.modifiedAt || new Date().toISOString(),
+      modifiedBy: obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
     };
     setLoader(true);
     const addExaminationRes = obstetricDetails?._id
@@ -161,6 +178,7 @@ function AddExamination({ close, editIndex }) {
       : await addObstetricData(payload);
     setLoader(false);
     if (addExaminationRes?.data) {
+      getAllObstetricDetails();
       setShowSuccess(true);
       setTimeout(() => {
         close();

@@ -11,6 +11,10 @@ import TabPane from "antd/es/tabs/TabPane";
 import LmpPopup from "./components/lmpPopup/LmpPopup";
 import { useSelector } from "react-redux";
 import { Drawer } from "antd";
+import { fetchAllObstetricDetails } from "./service";
+import { addObstetricDetails } from "../../redux/obstetricSlice";
+import { useDispatch } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 const Obstetric = ({ handleDrawerObstetric }) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
@@ -21,6 +25,9 @@ const Obstetric = ({ handleDrawerObstetric }) => {
   const [pastPregnancyEditIndex, setPastPregnancyEditIndex] = useState(-1);
   const [activeTab, setActiveTab] = useState("pregnancyHistory");
   const [lmpDate, setLmpDate] = useState("");
+  const dispatch = useDispatch();
+  const { state } = useLocation();
+  const { patient_data } = state;
 
   useEffect(() => {
     if (examinationEditIndex >= 0) {
@@ -30,6 +37,15 @@ const Obstetric = ({ handleDrawerObstetric }) => {
       handlePastPregnancyDrawer();
     }
   }, [examinationEditIndex, pastPregnancyEditIndex]);
+
+  const getAllObstetricDetails = async () => {
+    const obstetricResponse = await fetchAllObstetricDetails(
+      patient_data.patient_unique_id
+    );
+    if (obstetricResponse) {
+      dispatch(addObstetricDetails(obstetricResponse));
+    }
+  };
 
   const handleExaminationDrawer = () => {
     setExaminationDrawer(!examinationDrawer);
@@ -100,6 +116,7 @@ const Obstetric = ({ handleDrawerObstetric }) => {
               handleExaminationDrawer();
               resetExaminationEditIndex();
             }}
+            getAllObstetricDetails={getAllObstetricDetails}
           />
         </Drawer>
       )}
@@ -118,6 +135,7 @@ const Obstetric = ({ handleDrawerObstetric }) => {
               handlePastPregnancyDrawer();
               resetPastPregnancyEditIndex();
             }}
+            getAllObstetricDetails={getAllObstetricDetails}
           />
         </Drawer>
       )}
