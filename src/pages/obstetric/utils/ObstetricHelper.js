@@ -252,7 +252,7 @@ export const MaritalStatusOptions = [
 
 export const OutcomeOptions = {
   live: "Live",
-  stillBirth: "Still Birth",
+  stillBirth: "Still birth",
   abortion: "Abortion",
   ectopic: "Ectopic",
 };

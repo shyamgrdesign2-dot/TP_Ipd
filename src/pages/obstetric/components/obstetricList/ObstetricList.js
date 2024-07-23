@@ -9,8 +9,8 @@ const ObstetricList = () => {
   const [accordionItems, setAccordionItems] = useState([]);
 
   useEffect(() => {
-    const data = examinationHistory?.map((visitItem, i) => ({
-      key: `${i}`,
+    const accordionItemsData = examinationHistory?.map((visitItem, i) => ({
+      key: i,
       label: (
         <div className="fw-semibold">
           {`Visit ${examinationHistory.length - i}`}
@@ -99,7 +99,7 @@ const ObstetricList = () => {
       ),
     }));
 
-    setAccordionItems(data);
+    setAccordionItems(accordionItemsData);
   }, [examinationHistory]);
 
   return (
@@ -108,12 +108,12 @@ const ObstetricList = () => {
       style={{ maxHeight: "661px", padding: "10px 10px 0px" }}
     >
       <Collapse
-        defaultActiveKey={["0"]}
+        defaultActiveKey={[0]}
         className="prescriptiontab-accordian history-sider-box history-sider-box-white"
         expandIconPosition={"end"}
       >
-        {accordionItems.map((item, index) => (
-          <React.Fragment key={item.key}>
+        {accordionItems?.map((item, index) => (
+          <React.Fragment key={index}>
             <Collapse.Panel header={item.label} key={item.key}>
               {item.content}
             </Collapse.Panel>

@@ -4,7 +4,6 @@ import { Col, Collapse, DatePicker, Drawer, Form, Input, Row } from "antd";
 import DiagnosisNotes from "../diagnosisNotes/DiagnosisNotes";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import ReadMore from "../../../../common/ReadMore";
-import { useSelector } from "react-redux";
 import {
   BloodGroupOptions,
   ConsangOptions,
@@ -12,53 +11,20 @@ import {
 } from "../../utils/ObstetricHelper";
 import dayjs from "dayjs";
 import moment from "moment";
+import { patientDiagnosisUpdated } from "../../../../redux/obstetricSlice";
+import { useDispatch } from "react-redux";
 
-export default function PatientDiagnosis({ lmpDate }) {
-  const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const {
-    gravidity,
-    parity,
-    livingChildren,
-    abortion,
-    ectopicPregnancies,
-    diagnosisNotes,
-    blood,
-    ceed,
-    lmp,
-    consang,
-    edd,
-    gestationDays,
-    gestationWeeks,
-    husbandsBlood,
-    maritialStatus,
-    marriageDurationYears,
-    marriageDurationMonths,
-  } = obstetricDetails || {};
+export default function PatientDiagnosis({
+  lmpDate,
+  patientDiagnosisData,
+  pastPregnancyData,
+  patientDiagnosisNotes,
+  setPatientDiagnosisData,
+  setPastPregnancyData,
+  setPatientDiagnosisNotes,
+}) {
+  const dispatch = useDispatch();
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
-  const [patientDiagnosisNotes, setPatientDiagnosisNotes] =
-    useState(diagnosisNotes);
-
-  const [patientDiagnosisData, setPatientDiagnosisData] = useState({
-    lmp: lmp ? dayjs(moment(lmp).format("DD-MM-YYYY"), "DD-MM-YYYY") : "",
-    edd: edd ? moment(edd).format("DD MMM YYYY") : "",
-    ceed: ceed ? dayjs(moment(ceed).format("DD-MM-YYYY"), "DD-MM-YYYY") : "",
-    gestationWeeks: gestationWeeks || 0,
-    gestationDays: gestationDays || 0,
-    blood: blood,
-    husbandsBlood: husbandsBlood,
-    consang: typeof consang === "boolean" ? (consang ? "Yes" : "No") : "",
-    maritialStatus: maritialStatus,
-    marriageDurationYears: marriageDurationYears || 0,
-    marriageDurationMonths: marriageDurationMonths || 0,
-  });
-
-  const [pastPregnancyData, setPastPregnancyData] = useState([
-    { value: gravidity, label: "G" },
-    { value: parity, label: "P" },
-    { value: livingChildren, label: "L" },
-    { value: abortion, label: "A" },
-    { value: ectopicPregnancies, label: "E" },
-  ]);
 
   useEffect(() => {
     if (lmpDate) {
@@ -73,8 +39,10 @@ export default function PatientDiagnosis({ lmpDate }) {
           .add(1, "year")
           .subtract(3, "months")
           .add(7, "days")
-          .format("DD MMM YYYY"),
+          .toDate()
+          .toISOString(),
       }));
+      dispatch(patientDiagnosisUpdated());
     }
   }, [lmpDate]);
 
@@ -84,6 +52,7 @@ export default function PatientDiagnosis({ lmpDate }) {
         ...prevState,
         [key]: newValue,
       }));
+      dispatch(patientDiagnosisUpdated());
     }
   };
 
@@ -96,6 +65,7 @@ export default function PatientDiagnosis({ lmpDate }) {
       const updatedData = [...pastPregnancyData];
       updatedData[index].value = newValue;
       setPastPregnancyData(updatedData);
+      dispatch(patientDiagnosisUpdated());
     }
   };
 
@@ -143,7 +113,9 @@ export default function PatientDiagnosis({ lmpDate }) {
           >
             E.D.D :{" "}
             <span className="spanStyle" style={{ marginLeft: "8px" }}>
-              {patientDiagnosisData.edd}
+              {patientDiagnosisData.edd
+                ? moment(patientDiagnosisData.edd).format("DD MMM YYYY")
+                : ""}
             </span>
           </div>
           <div className="history-badge" style={{ width: "188px" }}>
@@ -366,11 +338,17 @@ export default function PatientDiagnosis({ lmpDate }) {
                     display: "flex",
                   }}
                 >
-                  {patientDiagnosisData.consang || "Select"}
+                  {typeof patientDiagnosisData.consang === "boolean"
+                    ? patientDiagnosisData.consang
+                      ? "Yes"
+                      : "No"
+                    : "Select"}
                   <i className="icon-right iconStyle" />
                 </div>
               }
-              onSelect={(e) => handlePatientDiagnosis(e, "consang")}
+              onSelect={(e) =>
+                handlePatientDiagnosis(e === "yes" ? true : false, "consang")
+              }
             >
               {ConsangOptions.map((option) => (
                 <Dropdown.Item

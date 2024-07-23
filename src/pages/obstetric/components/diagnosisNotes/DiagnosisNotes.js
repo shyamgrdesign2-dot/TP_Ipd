@@ -3,12 +3,15 @@ import { Button, Card, Input } from "antd";
 
 import alertIcon from "../../../../assets/images/alertIcon.svg";
 import CommonModal from "../../../../common/CommonModal";
+import { patientDiagnosisUpdated } from "../../../../redux/obstetricSlice";
+import { useDispatch } from "react-redux";
 
 const DiagnosisNotes = ({
   handleDrawerDiagnosisNotes,
   diagnosisNotes,
   setDiagnosisNotes,
 }) => {
+  const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState("");
 
   const showHideModal = useCallback(() => {
@@ -17,6 +20,7 @@ const DiagnosisNotes = ({
 
   const onSave = async () => {
     handleDrawerDiagnosisNotes();
+    dispatch(patientDiagnosisUpdated());
   };
 
   const onChange = useCallback(
@@ -29,6 +33,7 @@ const DiagnosisNotes = ({
   const onDeleteClicked = async () => {
     setDiagnosisNotes("");
     handleDrawerDiagnosisNotes();
+    dispatch(patientDiagnosisUpdated());
   };
 
   return (
