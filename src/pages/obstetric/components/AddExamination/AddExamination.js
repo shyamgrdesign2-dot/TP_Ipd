@@ -156,7 +156,6 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
       }
     }
     let newExaminationHistory = [...examinationHistory];
-    // newExaminationHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
     if (editIndex >= 0) {
       newExaminationHistory.splice(editIndex, 1);
     }
