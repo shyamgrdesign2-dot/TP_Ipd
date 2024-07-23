@@ -134,6 +134,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
     console.log({ addExaminationRes });
     setLoader(false);
     if (addExaminationRes?.data) {
+      dispatch(patientDiagnosisUpdated());
       getAllObstetricDetails();
       setShowSuccess(true);
       setTimeout(() => {

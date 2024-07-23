@@ -111,7 +111,6 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
       : await addObstetricData(payload);
     setLoader(false);
     if (addPastPregnancyRes?.data) {
-      dispatch(addObstetricDetails(payload));
       dispatch(patientDiagnosisUpdated());
       getAllObstetricDetails();
       setShowSuccess(true);
