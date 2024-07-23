@@ -10,6 +10,7 @@ import { getOrdinalSuffix } from "../../../growthChart/growthChartHelper";
 import { useDispatch, useSelector } from "react-redux";
 import { addObstetricDetails } from "../../../../redux/obstetricSlice";
 import { visitColumn } from "../../utils/ObstetricHelper";
+import { useAccess } from "../../../vaccination/useAccess";
 
 export default function VisitObstetric() {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function VisitObstetric() {
   );
   const { state } = useLocation();
   const { patient_data } = state;
+  const { isGynaecHistoryAccessable } = useAccess();
 
   const [obstetricData, setObstetricData] = useState(visitColumn);
   const [viewMore, setViewMore] = useState(false);
@@ -39,10 +41,10 @@ export default function VisitObstetric() {
   }, [viewMore]);
 
   useEffect(() => {
-    if (!isObstetricDetailsFetched) {
+    if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {
       getAllObstetricDetails();
     }
-  }, []);
+  }, [isObstetricDetailsFetched, isGynaecHistoryAccessable]);
 
   useEffect(() => {
     if (obstetricDetails?.examinationHistory?.[0]) {

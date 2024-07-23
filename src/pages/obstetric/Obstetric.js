@@ -127,6 +127,7 @@ const Obstetric = ({ handleDrawerObstetric }) => {
         ...obstetricDetails,
         ...patientDiagnosisData,
         ...pastPregnancy,
+        diagnosisNotes: patientDiagnosisNotes,
       };
       dispatch(addObstetricDetails(payload));
       await updateObstetricData(obstetricDetails?.patientId, payload);
