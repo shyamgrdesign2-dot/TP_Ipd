@@ -32,6 +32,7 @@ function DoctorWebsiteSetting() {
     const { state } = useLocation();
     const { websiteData } = state
 
+    const [score, setScore] = useState(0);
     const [personalDetails, setPersonalDetails] = useState(null);
     const [clinicProfile, setClinicProfile] = useState([]);
     const [aboutDoctor, setAboutDoctor] = useState(null);
@@ -43,7 +44,7 @@ function DoctorWebsiteSetting() {
     const [socialLinks, setSocialLinks] = useState(null);
     const [otherSettings, setOtherSettings] = useState(null);
 
-    const [isVisible, setIsVisible] = useState();
+    const [isVisible, setIsVisible] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState(null);
 
     const contextApi = { personalDetails, setPersonalDetails, clinicProfile, setClinicProfile, aboutDoctor, setAboutDoctor, doctorExperience, setDoctorExperience, rewardRecognition, setRewardRecognition, membership, setMembership, socialLinks, setSocialLinks, services, setServices, educationTraining, setEducationTraining, otherSettings, setOtherSettings };
@@ -112,6 +113,133 @@ function DoctorWebsiteSetting() {
         makeData()
     }, [websiteData]);
 
+    useEffect(() => {
+        if (!isVisible) {
+            let cal = 0
+            //Personal Details
+            if (personalDetails?.first_name) {
+                cal += 3.703
+            }
+            if (personalDetails?.last_name) {
+                cal += 3.703
+            }
+            if (personalDetails?.education) {
+                cal += 3.703
+            }
+
+            //About Doctor
+            if (aboutDoctor?.years_experience) {
+                cal += 5.555
+            }
+            if (aboutDoctor?.language?.length > 0) {
+                cal += 5.555
+            }
+
+            //Clinic Profile
+            if (clinicProfile?.filter(el => !el.clinic_delete)?.length > 0) {
+                const firstClinic = clinicProfile?.filter(el => !el.clinic_delete)[0]
+                if (firstClinic?.name) {
+                    cal += 1.587
+                }
+                if (firstClinic?.contact_no) {
+                    cal += 1.587
+                }
+                if (firstClinic?.address?.pincode) {
+                    cal += 1.587
+                }
+                if (firstClinic?.address?.city) {
+                    cal += 1.587
+                }
+                if (firstClinic?.address?.state) {
+                    cal += 1.587
+                }
+                if (firstClinic?.address?.address_line) {
+                    cal += 1.587
+                }
+                if (firstClinic?.shift?.length > 0) {
+                    cal += 1.587
+                }
+            }
+
+            //Doctor Experience
+            if (doctorExperience?.length > 0 && otherSettings?.enable_doctor_experience) {
+                const firstDoctorExp = doctorExperience[0]
+                if (firstDoctorExp?.title) {
+                    cal += 3.703
+                }
+                if (firstDoctorExp?.hospital) {
+                    cal += 3.703
+                }
+                if (firstDoctorExp?.city) {
+                    cal += 3.703
+                }
+            }
+
+            //Services
+            if (services?.length > 0 && otherSettings?.enable_services) {
+                const firstServices = services[0]
+                if (firstServices?.title) {
+                    cal += 11.111
+                }
+            }
+
+            //Education & Training
+            if (educationTraining?.length > 0 && otherSettings?.enable_education_training) {
+                const firstEduTraining = educationTraining[0]
+                if (firstEduTraining?.title) {
+                    cal += 3.703
+                }
+                if (firstEduTraining?.degree) {
+                    cal += 3.703
+                }
+                if (firstEduTraining?.city) {
+                    cal += 3.703
+                }
+            }
+
+            //Memberships
+            if (membership?.length > 0 && otherSettings?.enable_membership) {
+                const firstMembership = membership[0]
+                if (firstMembership?.title) {
+                    cal += 11.111
+                }
+            }
+
+            //Rewards & Recognition
+            if (rewardRecognition?.length > 0 && otherSettings?.enable_reward_recognition) {
+                const firstRewardRecognition = rewardRecognition[0]
+                if (firstRewardRecognition?.title) {
+                    cal += 5.555
+                }
+                if (firstRewardRecognition?.year) {
+                    cal += 5.555
+                }
+            }
+
+            //Social Links
+            if (otherSettings?.enable_social_links) {
+                if (socialLinks?.facebook) {
+                    cal += 2.222
+                }
+                if (socialLinks?.instagram) {
+                    cal += 2.222
+                }
+                if (socialLinks?.linkedin) {
+                    cal += 2.222
+                }
+                if (socialLinks?.twitter) {
+                    cal += 2.222
+                }
+                if (socialLinks?.youtube) {
+                    cal += 2.222
+                }
+            }
+
+            const finalScore = cal > 99 ? 100 : cal
+            setScore(finalScore)
+        }
+    }, [isVisible, personalDetails, clinicProfile, aboutDoctor, doctorExperience, rewardRecognition, membership, socialLinks, services, educationTraining, otherSettings]);
+
     const handlePersonalDetails = useCallback((value, name) => {
         setSelectedMenu({ value: value, name: name })
         showHide();
@@ -139,7 +267,12 @@ function DoctorWebsiteSetting() {
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                                 <div className="p-20">
                                     <div className="ms-5 fontroboto" style={{ fontSize: window.innerWidth / 80 }}>Website Setup Score</div>
-                                    <Progress className="profile-website-setting mb-1" size="small" percent={11} />
+                                    <Progress
+                                        className={`profile-website-setting mb-1 ${score > 91 ? 'profile-website-setting-green' : score > 41 && 'profile-website-setting-yellow'}`}
+                                        size="small"
+                                        strokeColor={score > 91 ? '#19BB7A' : score > 41 ? '#FF9431' : '#FC5A5A'}
+                                        trailColor={score > 91 ? 'rgba(25, 187, 122, 0.2)' : score > 41 ? 'rgba(255, 148, 49, 0.2)' : 'rgba(252, 90, 90, 0.2)'}
+                                        percent={score.toFixed(0)} />
 
                                     {/* Personal Details */}
                                     <div className="border-bottom py-3 cursor-pointer" onClick={() => handlePersonalDetails(1, 'Personal Details')}>
@@ -147,7 +280,12 @@ function DoctorWebsiteSetting() {
                                             <div className="d-flex align-items-center">
                                                 <div className="titleprint">Personal Details</div>
                                                 <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mendatory</div>
-                                                <img className="ms-2" src={mendatoryTick} alt="Mendatory" />
+                                                {personalDetails?.first_name
+                                                    && personalDetails?.last_name
+                                                    && personalDetails?.education
+                                                    && (
+                                                        <img className="ms-2" src={mendatoryTick} alt="Mendatory" />
+                                                    )}
                                             </div>
                                             <i className="icon-right iconrotate180"></i>
                                         </div>
@@ -160,7 +298,11 @@ function DoctorWebsiteSetting() {
                                             <div className="d-flex align-items-center">
                                                 <div className="titleprint">About Doctor</div>
                                                 <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mendatory</div>
-                                                <img className="ms-2" src={mendatoryTick} alt="Mendatory" />
+                                                {aboutDoctor?.years_experience
+                                                    && aboutDoctor?.language?.length > 0
+                                                    && (
+                                                        <img className="ms-2" src={mendatoryTick} alt="Mendatory" />
+                                                    )}
                                             </div>
                                             <i className="icon-right iconrotate180"></i>
                                         </div>
@@ -173,7 +315,16 @@ function DoctorWebsiteSetting() {
                                             <div className="d-flex align-items-center">
                                                 <div className="titleprint">Clinic Profile</div>
                                                 <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mendatory</div>
-                                                <img className="ms-2" src={mendatoryTick} alt="Mendatory" />
+                                                {clinicProfile?.filter(el => !el.clinic_delete)?.length > 0
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.name
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.contact_no
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.pincode
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.city
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.address_line
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.shift?.length > 0
+                                                    && (
+                                                        <img className="ms-2" src={mendatoryTick} alt="Mendatory" />
+                                                    )}
                                             </div>
                                             <i className="icon-right iconrotate180"></i>
                                         </div>
