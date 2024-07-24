@@ -181,7 +181,11 @@ const PregnancyHistory = ({
           </div>
           <div className="shortDescription">Or</div>
 
-          <div className="continueBtn" onClick={continueExaminationHandler}>
+          <div
+            className="continueBtn"
+            style={{ paddingBottom: "20px" }}
+            onClick={continueExaminationHandler}
+          >
             <div className="continueText">Continue to Examination</div>
             <img src={arrow} alt="arrow" />
           </div>
