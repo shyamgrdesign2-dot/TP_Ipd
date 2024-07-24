@@ -59,12 +59,12 @@ const PregnancyHistory = ({
       dateOfDelivery,
       deliveryMode = "-",
       gender = "-",
-      babysWeight = "-",
+      babysWeight,
       remarks = "-",
       location = "-",
       modeOfAbortion = "-",
       typeOfAbortion = "-",
-      gestationPeriod = "-",
+      gestationPeriod,
       modeOfManagement = "-",
     } = gravidaItem;
     return (
@@ -79,12 +79,16 @@ const PregnancyHistory = ({
                 : "-"}
             </td>
             <td className="obstetricTcell pregnancyTcell">{gender}</td>
-            <td className="obstetricTcell pregnancyTcell">{babysWeight}</td>
+            <td className="obstetricTcell pregnancyTcell">
+              {babysWeight ? babysWeight + " Kg" : "-"}
+            </td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
           </tr>
         ) : outcome === OutcomeOptions.ectopic ? (
           <tr>
-            <td className="obstetricTcell pregnancyTcell">{gestationPeriod}</td>
+            <td className="obstetricTcell pregnancyTcell">
+              {gestationPeriod ? gestationPeriod + " weeks" : "-"}
+            </td>
             <td className="obstetricTcell pregnancyTcell">{location}</td>
             <td className="obstetricTcell pregnancyTcell">
               {modeOfManagement}
@@ -93,7 +97,9 @@ const PregnancyHistory = ({
           </tr>
         ) : outcome === OutcomeOptions.abortion ? (
           <tr>
-            <td className="obstetricTcell pregnancyTcell">{gestationPeriod}</td>
+            <td className="obstetricTcell pregnancyTcell">
+              {gestationPeriod ? gestationPeriod + " Weeks" : "-"}
+            </td>
             <td className="obstetricTcell pregnancyTcell">{typeOfAbortion}</td>
             <td className="obstetricTcell pregnancyTcell">{modeOfAbortion}</td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
@@ -129,7 +135,13 @@ const PregnancyHistory = ({
               </div>
             );
           })}
-          <div style={{ display: "flex", columnGap: "32px" }}>
+          <div
+            style={{
+              display: "flex",
+              columnGap: "32px",
+              paddingBottom: "20px",
+            }}
+          >
             <Button
               type="button"
               className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between"

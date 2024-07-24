@@ -1,12 +1,12 @@
 .patientDiagnosisContainer {
-  padding: 24px 40px;
+  padding: 24px 10px;
   background: url("../../../../assets/images/obstetric-bg.svg") no-repeat;
   background-size: cover;
   height: 100%;
   width: 100%;
 
-  @media only screen and (max-width: 1200px) {
-    padding: 24px 10px;
+  @media only screen and (min-width: 1100px) {
+    padding: 24px 40px;
   }
 
   .patientDiagnosisAccordian {
@@ -22,10 +22,6 @@
           padding: 0px;
           line-height: 24px;
           width: 164px;
-
-          @media only screen and (max-width: 1200px) {
-            margin-left: 30px;
-          }
 
           .ant-collapse-expand-icon:after {
             width: 22px;
@@ -62,6 +58,16 @@
     .rowContainer {
       display: flex;
       justify-content: space-between;
+
+      @media only screen and (min-width: 1200px) {
+        justify-content: flex-start;
+        column-gap: 10px;
+      }
+
+      @media only screen and (min-width: 1300px) {
+        justify-content: flex-start;
+        column-gap: 24px;
+      }
 
       .history-badge {
         border: 1px solid #e2e2ea;
@@ -199,23 +205,66 @@
     }
   }
 }
-
-.husbandBlood .dropdown-menu {
-  margin-left: -135px !important;
-  margin-top: 3px;
+.husbandBloodStyleContainer {
   width: 220px !important;
+  @media only screen and (min-width: 1200px) {
+    width: 260px !important;
+  }
+
+  .husbandBlood {
+    width: 40%;
+
+    @media only screen and (min-width: 1200px) {
+      width: 20%;
+    }
+    .dropdown-menu {
+      margin-left: -135px !important;
+      margin-top: 3px;
+      width: 220px !important;
+    }
+  }
 }
 
-.bloodGroup .dropdown-menu {
-  margin-right: -50px !important;
-  margin-top: 3px;
-  width: 80px !important;
+.patientBloodStyleContainer {
+  width: 160px !important;
+  position: relative;
+  @media only screen and (min-width: 1200px) {
+    width: 235px !important;
+  }
+
+  .bloodGroup {
+    width: 40%;
+
+    @media only screen and (min-width: 1200px) {
+      width: 15%;
+    }
+    .dropdown-menu {
+      margin-right: -50px !important;
+      margin-top: 3px;
+      width: 80px !important;
+    }
+  }
 }
 
-.consang .dropdown-menu {
-  margin-right: -20px !important;
-  margin-top: 3px;
-  width: 60px !important;
+.consangStyleContainer {
+  width: 160px !important;
+  position: relative;
+  @media only screen and (min-width: 1200px) {
+    width: 215px !important;
+  }
+
+  .consang {
+    width: 40%;
+
+    @media only screen and (min-width: 1200px) {
+      width: 15%;
+    }
+    .dropdown-menu {
+      margin-right: -20px !important;
+      margin-top: 3px;
+      width: 60px !important;
+    }
+  }
 }
 
 .marritalStatus .dropdown-menu {
