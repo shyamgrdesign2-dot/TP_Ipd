@@ -75,9 +75,9 @@ function DWClinicProfile() {
             if (index !== -1) {
                 var data = clinicProfile[index]['shift'][i1].hasOwnProperty('days') ? [...clinicProfile[index]['shift'][i1]['days']] : []
                 if (data.includes(value)) {
-                    const index = data.indexOf(value);
-                    if (index > -1) {
-                        data.splice(index, 1);
+                    const index1 = data.indexOf(value);
+                    if (index1 > -1) {
+                        data.splice(index1, 1);
                     }
                     clinicProfile[index]['shift'][i1]['days'] = [...data];
                 } else {
