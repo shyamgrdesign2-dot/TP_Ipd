@@ -75,14 +75,14 @@ const Obstetric = ({ handleDrawerObstetric }) => {
     ceed: ceed
       ? dayjs(moment(ceed).format("DD-MM-YYYY"), "DD-MM-YYYY")
       : undefined,
-    gestationWeeks: gestationWeeks || 0,
-    gestationDays: gestationDays || 0,
+    gestationWeeks: gestationWeeks,
+    gestationDays: gestationDays,
     blood: blood,
     husbandsBlood: husbandsBlood,
     consang: consang,
     maritialStatus: maritialStatus,
-    marriageDurationYears: marriageDurationYears || 0,
-    marriageDurationMonths: marriageDurationMonths || 0,
+    marriageDurationYears: marriageDurationYears,
+    marriageDurationMonths: marriageDurationMonths,
   });
 
   const [pastPregnancyData, setPastPregnancyData] = useState([

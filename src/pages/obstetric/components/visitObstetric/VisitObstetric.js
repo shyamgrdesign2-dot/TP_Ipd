@@ -22,14 +22,14 @@ export default function VisitObstetric() {
   const { patient_data } = state;
   const { isGynaecHistoryAccessable } = useAccess();
 
+  const [viewMore, setViewMore] = useState(false);
+  const [previousVisit, setPreviousVisit] = useState({});
+
   const currentDate = moment();
   const visitDate = moment(previousVisit.createdAt);
   const visitedMonth = getOrdinalSuffix(
     currentDate.diff(visitDate, "months") + 1
   );
-
-  const [viewMore, setViewMore] = useState(false);
-  const [previousVisit, setPreviousVisit] = useState({});
 
   useEffect(() => {
     if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {

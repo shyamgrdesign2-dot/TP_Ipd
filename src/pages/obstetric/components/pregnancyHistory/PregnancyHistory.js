@@ -98,7 +98,7 @@ const PregnancyHistory = ({
         ) : outcome === OutcomeOptions.abortion ? (
           <tr>
             <td className="obstetricTcell pregnancyTcell">
-              {gestationPeriod ? gestationPeriod + " Weeks" : "-"}
+              {gestationPeriod ? gestationPeriod + " weeks" : "-"}
             </td>
             <td className="obstetricTcell pregnancyTcell">{typeOfAbortion}</td>
             <td className="obstetricTcell pregnancyTcell">{modeOfAbortion}</td>
