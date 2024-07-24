@@ -90,7 +90,23 @@ function HeaderDoctorWebsite() {
                             <button className='btn d-flex align-items-center btn-text me-14'>
                                 <i className="icon-Preview me-2"></i> <span>Your Website Preview</span>
                             </button>
-                            <Button type='button' className="btn-41 btn px-4 btn-primary3 align-items-center d-flex" loading={loading} onClick={onPublishWebsiteClick}>
+                            <Button
+                                type='button'
+                                className="btn-41 btn px-4 btn-primary3 align-items-center d-flex"
+                                loading={loading}
+                                disabled={personalDetails?.first_name
+                                    && personalDetails?.last_name
+                                    && personalDetails?.education
+                                    && aboutDoctor?.years_experience
+                                    && aboutDoctor?.language?.length > 0
+                                    && clinicProfile?.filter(el => !el.clinic_delete)?.length > 0
+                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.name
+                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.contact_no
+                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.pincode
+                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.city
+                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.address_line
+                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.shift?.length > 0 ? false : true}
+                                onClick={onPublishWebsiteClick} >
                                 <i className="icon-New-Window me-2"></i> Publish Website
                             </Button>
                             <Dropdown className='btn btn-outline btn-more p-0 ms-3' menu={{ items }} trigger={['click']}>
