@@ -10,12 +10,19 @@ import TabPane from "antd/es/tabs/TabPane";
 import LmpPopup from "./components/lmpPopup/LmpPopup";
 import { useSelector } from "react-redux";
 import { Drawer } from "antd";
-import { fetchAllObstetricDetails, updateObstetricData } from "./service";
+import {
+  addObstetricData,
+  fetchAllObstetricDetails,
+  updateObstetricData,
+} from "./service";
 import { addObstetricDetails } from "../../redux/obstetricSlice";
 import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import moment from "moment";
+import { jwtDecode } from "jwt-decode";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
+import { errorMessage } from "../../utils/utils";
 
 const Obstetric = ({ handleDrawerObstetric }) => {
   const dispatch = useDispatch();
@@ -50,6 +57,7 @@ const Obstetric = ({ handleDrawerObstetric }) => {
   const [pastPregnancyEditIndex, setPastPregnancyEditIndex] = useState(-1);
   const [activeTab, setActiveTab] = useState("pregnancyHistory");
   const [lmpDate, setLmpDate] = useState("");
+  const [tokenData, setTokenData] = useState(null);
 
   const [patientDiagnosisNotes, setPatientDiagnosisNotes] =
     useState(diagnosisNotes);
@@ -86,6 +94,16 @@ const Obstetric = ({ handleDrawerObstetric }) => {
       handlePastPregnancyDrawer();
     }
   }, [examinationEditIndex, pastPregnancyEditIndex]);
+
+  useEffect(() => {
+    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+    try {
+      var decoded = jwtDecode(token);
+      setTokenData(decoded.result);
+    } catch (e) {
+      console.error("Error while token decoding: ", e);
+    }
+  }, []);
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
@@ -126,10 +144,22 @@ const Obstetric = ({ handleDrawerObstetric }) => {
         ...obstetricDetails,
         ...patientDiagnosisData,
         ...pastPregnancy,
+        patientId: patient_data.patient_unique_id,
         diagnosisNotes: patientDiagnosisNotes,
+        createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
+        createdBy: obstetricDetails?.createdBy || tokenData?.user_id,
+        modifiedAt: new Date().toISOString(),
+        modifiedBy: tokenData?.user_id,
       };
       dispatch(addObstetricDetails(payload));
-      await updateObstetricData(obstetricDetails?.patientId, payload);
+      const obstetricResponse = obstetricDetails?._id
+        ? await updateObstetricData(obstetricDetails?.patientId, payload)
+        : await addObstetricData(payload);
+      if (obstetricResponse?.data) {
+        getAllObstetricDetails();
+      } else {
+        errorMessage(obstetricResponse?.message || "Error while adding data");
+      }
     }
     handleDrawerObstetric();
   };

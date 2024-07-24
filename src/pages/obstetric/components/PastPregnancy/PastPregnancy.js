@@ -32,7 +32,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [loader, setLoader] = useState(false);
   const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const { pregnancyHistory } = obstetricDetails;
+  const { pregnancyHistory = [] } = obstetricDetails;
   const { state } = useLocation();
   const { patient_data } = state;
 
