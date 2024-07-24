@@ -12,6 +12,7 @@ import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 import { obstetricDetailsUpdated } from "../../../../redux/obstetricSlice";
+import { isNumberCheck } from "../../utils/helper";
 
 function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
   const dispatch = useDispatch();
@@ -34,7 +35,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
     setPastPregnancyData((prevData) => {
       const newData = {
         ...prevData,
-        [field]: value,
+        [field]: value === prevData[field] ? undefined : value,
         modifiedAt: new Date().toISOString(),
       };
       return newData;
@@ -186,6 +187,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
             inputMode="numeric"
             value={pastPregnancyData?.gravidaNumber}
             onChange={(e) =>
+              isNumberCheck(e) &&
               handlePastPregnancyDataChange("gravidaNumber", e.target.value)
             }
           />
@@ -205,6 +207,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
             placeholder="Select"
             className="custom-select"
             value={pastPregnancyData?.outcome}
+            allowClear
           />
         </div>
 
@@ -255,15 +258,20 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                 placeholder="Select"
                 className="custom-select"
                 value={pastPregnancyData.deliveryMode}
+                allowClear
               />
             </div>
             <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
               <DatePicker
                 key={"dateOfDelivery"}
                 inputReadOnly
-                onChange={(_, dateString) =>
-                  handlePastPregnancyDataChange("dateOfDelivery", dateString)
-                }
+                onChange={(date) => {
+                  const formattedDate = date.format("YYYY-MM-DD");
+                  handlePastPregnancyDataChange(
+                    "dateOfDelivery",
+                    formattedDate
+                  );
+                }}
                 disabledDate={disabledDate}
                 style={{ width: "170px", height: "41px" }}
                 placement="bottom"
@@ -273,6 +281,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                     : ""
                 }
                 allowClear={false}
+                format={"DD MMM YYYY"}
               />
             </div>
             <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
@@ -315,6 +324,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                 value={pastPregnancyData.babysWeight}
                 addonAfter={"Kgs"}
                 onChange={(e) =>
+                  isNumberCheck(e) &&
                   handlePastPregnancyDataChange("babysWeight", e.target.value)
                 }
               />
@@ -331,6 +341,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                 value={pastPregnancyData.gestationPeriod}
                 addonAfter={"weeks"}
                 onChange={(e) =>
+                  isNumberCheck(e) &&
                   handlePastPregnancyDataChange(
                     "gestationPeriod",
                     e.target.value
@@ -353,6 +364,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                   placeholder="Select"
                   className="custom-select"
                   value={pastPregnancyData.location}
+                  allowClear
                 />
               </div>
             )}
@@ -372,6 +384,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                   placeholder="Select"
                   className="custom-select"
                   value={pastPregnancyData.typeOfAbortion}
+                  allowClear
                 />
               </div>
             )}
