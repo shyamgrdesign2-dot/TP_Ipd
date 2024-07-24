@@ -12,6 +12,7 @@ import { jwtDecode } from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { obstetricDetailsUpdated } from "../../../../redux/obstetricSlice";
+import { isNumberCheck } from "../../utils/helper";
 
 const dateFormat = "YYYY-MM-DD";
 
@@ -45,7 +46,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
     setExaminationData((prevData) => {
       const newData = {
         ...prevData,
-        [field]: value,
+        [field]: value === prevData[field] ? undefined : value,
         ...(["mothersWeight", "mothersHeight"].includes(field) && {
           ...bmi,
         }),
@@ -116,7 +117,6 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
     const addExaminationRes = obstetricDetails?._id
       ? await updateObstetricData(obstetricDetails?.patientId, payload)
       : await addObstetricData(payload);
-    console.log({ addExaminationRes });
     setLoader(false);
     if (addExaminationRes?.data) {
       dispatch(obstetricDetailsUpdated());
@@ -224,15 +224,17 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
         <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5 w-100">
           <DatePicker
             key={"date"}
-            onChange={(_, dateString) =>
-              handleExaminationDataChange("date", dateString)
-            }
+            onChange={(date) => {
+              const formattedDate = date.format("YYYY-MM-DD");
+              handleExaminationDataChange("date", formattedDate);
+            }}
             disabledDate={disabledDate}
             value={
               examinationData.date ? dayjs(moment(examinationData.date)) : ""
             }
             style={{ width: "170px", height: "41px" }}
             allowClear={false}
+            format={"DD MMM YYYY"}
           />
         </div>
         <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5 w-100">
@@ -296,11 +298,12 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             className="inputheight41-group"
             placeholder="Enter"
             inputMode="numeric"
-            value={examinationData.mothersHeight}
+            value={examinationData.mothersHeight || ""}
             addonAfter={"Cms"}
-            onChange={(e) =>
-              handleExaminationDataChange("mothersHeight", e.target.value)
-            }
+            onChange={(e) => {
+              isNumberCheck(e) &&
+                handleExaminationDataChange("mothersHeight", e.target.value);
+            }}
           />
         </div>
         <div className="examination-row examination-row-40 d-flex align-items-center px-2 py-5 w-100">
@@ -308,9 +311,10 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             className="inputheight41-group"
             placeholder="Enter"
             inputMode="numeric"
-            value={examinationData.mothersWeight}
+            value={examinationData.mothersWeight || ""}
             addonAfter={"Kgs"}
             onChange={(e) =>
+              isNumberCheck(e) &&
               handleExaminationDataChange("mothersWeight", e.target.value)
             }
           />
@@ -329,9 +333,10 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             className="inputheight41-group"
             placeholder="Enter"
             inputMode="numeric"
-            value={examinationData.systolic}
+            value={examinationData.systolic || ""}
             addonAfter={"mmHg"}
             onChange={(e) =>
+              isNumberCheck(e) &&
               handleExaminationDataChange("systolic", e.target.value)
             }
           />
@@ -341,9 +346,10 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             className="inputheight41-group"
             placeholder="Enter"
             inputMode="numeric"
-            value={examinationData.diastolic}
+            value={examinationData.diastolic || ""}
             addonAfter={"mmHg"}
             onChange={(e) =>
+              isNumberCheck(e) &&
               handleExaminationDataChange("diastolic", e.target.value)
             }
           />
@@ -353,8 +359,9 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             className="inputheight41"
             placeholder="Enter"
             inputMode="numeric"
-            value={examinationData.heightOfFundus}
+            value={examinationData.heightOfFundus || ""}
             onChange={(e) =>
+              isNumberCheck(e) &&
               handleExaminationDataChange("heightOfFundus", e.target.value)
             }
           />
@@ -392,6 +399,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             placeholder="Select"
             className="custom-select"
             value={examinationData.presentation}
+            allowClear
           />
         </div>
         <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5 w-100">
@@ -402,6 +410,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             value={examinationData.fluidIndex}
             addonAfter={"Cms"}
             onChange={(e) =>
+              isNumberCheck(e) &&
               handleExaminationDataChange("fluidIndex", e.target.value)
             }
           />
@@ -414,6 +423,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             value={examinationData.foetalHeartRate}
             addonAfter={"Bpm"}
             onChange={(e) =>
+              isNumberCheck(e) &&
               handleExaminationDataChange("foetalHeartRate", e.target.value)
             }
           />
