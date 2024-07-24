@@ -55,7 +55,11 @@ const Obstetric = ({ handleDrawerObstetric }) => {
   const [showLmpPopup, setShowLmpPopup] = useState(!obstetricDetails?.lmp);
   const [examinationEditIndex, setExaminationEditIndex] = useState(-1);
   const [pastPregnancyEditIndex, setPastPregnancyEditIndex] = useState(-1);
-  const [activeTab, setActiveTab] = useState("pregnancyHistory");
+  const [activeTab, setActiveTab] = useState(
+    obstetricDetails?.examinationHistory?.length
+      ? "examination"
+      : "pregnancyHistory"
+  );
   const [lmpDate, setLmpDate] = useState("");
   const [tokenData, setTokenData] = useState(null);
 
