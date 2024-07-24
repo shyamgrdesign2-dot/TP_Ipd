@@ -29,6 +29,7 @@ export default function PatientDiagnosis({
 }) {
   const dispatch = useDispatch();
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
+  const isMobile = window.innerWidth < 1200;
 
   useEffect(() => {
     if (lmpDate) {
@@ -193,14 +194,10 @@ export default function PatientDiagnosis({
               Days
             </span>
           </div>
-          <div
-            className="history-badge"
-            style={{ width: "160px", position: "relative" }}
-          >
-            Blood :
+          <div className="history-badge patientBloodStyleContainer">
+            {isMobile ? "Blood :" : "Patient Blood Group :"}
             <DropdownButton
               className="diagnosisSelect bloodGroup"
-              style={{ width: "40%" }}
               title={
                 <div
                   style={{
@@ -229,11 +226,10 @@ export default function PatientDiagnosis({
         </div>
 
         <div className="rowContainer">
-          <div className="history-badge" style={{ width: "220px" }}>
-            Husband's blood :
+          <div className="history-badge husbandBloodStyleContainer">
+            {isMobile ? "Husband's blood :" : "Husband's Blood Group :"}
             <DropdownButton
               className="diagnosisSelect husbandBlood"
-              style={{ width: "40%" }}
               title={
                 <div
                   style={{
@@ -261,7 +257,7 @@ export default function PatientDiagnosis({
           </div>
           <div
             className="history-badge"
-            style={{ width: "212px", position: "relative" }}
+            style={{ width: "214px", position: "relative" }}
           >
             Marital status :
             <DropdownButton
@@ -332,14 +328,10 @@ export default function PatientDiagnosis({
               Months
             </span>
           </div>
-          <div
-            className="history-badge"
-            style={{ width: "160px", position: "relative" }}
-          >
-            Consang :
+          <div className="history-badge consangStyleContainer">
+            {isMobile ? "Consang :" : "Consanguineous : "}
             <DropdownButton
               className="diagnosisSelect consang"
-              style={{ width: "40%" }}
               title={
                 <div
                   style={{
