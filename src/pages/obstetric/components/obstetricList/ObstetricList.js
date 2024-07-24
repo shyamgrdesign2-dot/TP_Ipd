@@ -27,7 +27,7 @@ const ObstetricList = () => {
                 <>
                   <span>Polar : </span>
                   <label>{`${visitItem.pallor ? " Yes " : " No "}`}</label>
-                  {visitItem.oedema ? " | " : ""}
+                  {visitItem.oedema || visitItem.mothersBMI ? " | " : ""}
                 </>
               ) : null}
               {typeof visitItem.oedema === "boolean" ? (

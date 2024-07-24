@@ -11,7 +11,7 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { patientDiagnosisUpdated } from "../../../../redux/obstetricSlice";
+import { obstetricDetailsUpdated } from "../../../../redux/obstetricSlice";
 
 const dateFormat = "YYYY-MM-DD";
 
@@ -119,7 +119,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
     console.log({ addExaminationRes });
     setLoader(false);
     if (addExaminationRes?.data) {
-      dispatch(patientDiagnosisUpdated());
+      dispatch(obstetricDetailsUpdated());
       getAllObstetricDetails();
       setShowSuccess(true);
       setTimeout(() => {
