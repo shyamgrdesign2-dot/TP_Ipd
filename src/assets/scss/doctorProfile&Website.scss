@@ -190,3 +190,9 @@
         cursor: pointer;
     }
 }
+
+.website-publish-modal {
+    .ant-modal-close {
+        display: none;
+    }
+}

@@ -1,8 +1,11 @@
-import React, { useContext } from 'react';
-import { Button, Dropdown } from 'antd';
+import React, { useContext, useState, } from 'react';
+import { Button, Dropdown, Modal, Progress, Space, Input } from 'antd';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
+
+import stopPublishing from '../../assets/images/stop-publishing.svg';
+import LinkIcon from '../../assets/images/Link.svg';
 
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
@@ -10,6 +13,8 @@ import { saveDoctorWebsite } from "../../redux/doctorWebsiteSlice";
 import { errorMessage } from '../../utils/utils';
 
 function HeaderDoctorWebsite() {
+
+    const [modalOpen, setModalOpen] = useState(false);
 
     const dispatch = useDispatch();
     const { loading } = useSelector((state) => state.doctorWebsite);
@@ -26,6 +31,8 @@ function HeaderDoctorWebsite() {
     ];
 
     async function onPublishWebsiteClick() {
+        setModalOpen(true)
+
         let { uploadFile, ...updatePersonalDetails } = personalDetails
 
         let makeClinicPhotosObject = {}
@@ -106,9 +113,45 @@ function HeaderDoctorWebsite() {
                                     && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.city
                                     && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.address_line
                                     && clinicProfile?.filter(el => !el.clinic_delete)[0]?.shift?.length > 0 ? false : true}
-                                onClick={onPublishWebsiteClick} >
+                                onClick={onPublishWebsiteClick}>
                                 <i className="icon-New-Window me-2"></i> Publish Website
                             </Button>
+                            <Modal
+                                open={modalOpen}
+                                centered
+                                footer={null}
+                                className="text-center website-publish-modal"
+                                onCancel={false}>
+                                <div className='p-3'>
+                                    <Progress type="circle" percent={10} size={100} />
+                                    {/* <div className="title-hypertension text-welcome mt-4 mb-2">Publishing Website...</div> */}
+                                    <div className="title-hypertension text-welcome mt-4 mb-2">Successfully published</div>
+                                    {/* <div className='title-common'>Please wait a while, Your website is being published.</div> */}
+                                    <div className='title-common'>Your website has been published successfully.</div>
+                                    {/* <Button className="lh-lg btn btn-clear btn-41 px-4 mt-4">
+                                        <img className='me-3' src={stopPublishing} alt="Warning" /> <span>Stop Publishing</span>
+                                    </Button> */}
+                                    <div className='text-start mt-4'>
+                                        <label className='fw-medium mb-1'>Live website URL</label>
+                                        <Space.Compact className='h-45' style={{ width: '100%' }}>
+                                            <Input className='fontroboto' defaultValue="https://tatvacare.in/ahmedabad/aksharclinic/MBBS MD-anaesthesiology/dr-kunal-shah" />
+                                            <Button className='h-45 bg-selected border'><img className='me-2' src={LinkIcon} alt="Warning" /> Copy</Button>
+                                        </Space.Compact>
+                                    </div>
+
+                                    <div className="d-flex align-items-center mt-4">
+                                        <Button type="text" className="btn btn-primary2 align-items-center d-flex btn-41 w-50"
+                                            icon={<i className="icon-New-Window"></i>} >
+                                            Live Preview
+                                        </Button>
+                                        <Button type="text" className="btn btn-primary3 align-items-center d-flex btn-41 w-50 ms-4"
+                                            icon={<i className="icon-right iconrotate180 ms-auto"></i>}>
+                                            Back to Profile
+                                        </Button>
+                                    </div>
+                                </div>
+
+                            </Modal>
                             <Dropdown className='btn btn-outline btn-more p-0 ms-3' menu={{ items }} trigger={['click']}>
                                 <a onClick={(e) => e.preventDefault()}>
                                     <i className='icon-More'></i>
@@ -117,8 +160,8 @@ function HeaderDoctorWebsite() {
                         </div>
                     </Col>
                 </Row>
-            </Container>
-        </Navbar>
+            </Container >
+        </Navbar >
     );
 }
 
