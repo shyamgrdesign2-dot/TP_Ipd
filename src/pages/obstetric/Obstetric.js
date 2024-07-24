@@ -15,7 +15,10 @@ import {
   fetchAllObstetricDetails,
   updateObstetricData,
 } from "./service";
-import { addObstetricDetails } from "../../redux/obstetricSlice";
+import {
+  addObstetricDetails,
+  resetUpdatedPatientDiagnosis,
+} from "../../redux/obstetricSlice";
 import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
@@ -156,6 +159,7 @@ const Obstetric = ({ handleDrawerObstetric }) => {
         modifiedBy: tokenData?.user_id,
       };
       dispatch(addObstetricDetails(payload));
+      dispatch(resetUpdatedPatientDiagnosis());
       const obstetricResponse = obstetricDetails?._id
         ? await updateObstetricData(obstetricDetails?.patientId, payload)
         : await addObstetricData(payload);
@@ -181,6 +185,7 @@ const Obstetric = ({ handleDrawerObstetric }) => {
           patientDiagnosisData={patientDiagnosisData}
           pastPregnancyData={pastPregnancyData}
           patientDiagnosisNotes={patientDiagnosisNotes}
+          setLmpDate={setLmpDate}
           setPatientDiagnosisData={setPatientDiagnosisData}
           setPastPregnancyData={setPastPregnancyData}
           setPatientDiagnosisNotes={setPatientDiagnosisNotes}
