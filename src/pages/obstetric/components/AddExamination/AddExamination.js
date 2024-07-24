@@ -23,19 +23,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
   const scrollContainerRef = useRef(null);
   const [examinationData, setExaminationData] = useState({
     date: moment().format(dateFormat),
-    pallor: "",
-    oedema: "",
-    mothersWeight: "",
-    mothersHeight: "",
-    mothersBMI: "",
-    systolic: "",
-    diastolic: "",
-    heightOfFundus: "",
     heightOfFundusUnit: "weeks",
-    fluidIndex: "",
-    presentation: "",
-    foetalHeartRate: "",
-    notes: "",
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [loader, setLoader] = useState(false);
