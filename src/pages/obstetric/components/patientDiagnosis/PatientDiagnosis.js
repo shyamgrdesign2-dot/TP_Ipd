@@ -387,7 +387,6 @@ export default function PatientDiagnosis({
                 <Form.Item label={item.label} style={{ marginBottom: "10px" }}>
                   <Input
                     value={item.value}
-                    pattern="[0-9]*"
                     onChange={(e) =>
                       handleInputChange(
                         index,
@@ -395,6 +394,9 @@ export default function PatientDiagnosis({
                         e.target.validity.valid && e.target.value <= 45
                       )
                     }
+                    onInput={(e) => {
+                      e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                    }}
                     style={{ width: "40px", height: "28px" }}
                   />
                 </Form.Item>

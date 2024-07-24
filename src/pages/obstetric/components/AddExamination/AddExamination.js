@@ -11,10 +11,7 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import {
-  addObstetricDetails,
-  patientDiagnosisUpdated,
-} from "../../../../redux/obstetricSlice";
+import { patientDiagnosisUpdated } from "../../../../redux/obstetricSlice";
 
 const dateFormat = "YYYY-MM-DD";
 
@@ -23,19 +20,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
   const scrollContainerRef = useRef(null);
   const [examinationData, setExaminationData] = useState({
     date: moment().format(dateFormat),
-    pallor: "",
-    oedema: "",
-    mothersWeight: "",
-    mothersHeight: "",
-    mothersBMI: "",
-    systolic: "",
-    diastolic: "",
-    heightOfFundus: "",
     heightOfFundusUnit: "weeks",
-    fluidIndex: "",
-    presentation: "",
-    foetalHeartRate: "",
-    notes: "",
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [loader, setLoader] = useState(false);
@@ -122,10 +107,10 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
       createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
       modifiedAt: examinationHistory?.length
         ? new Date().toISOString()
-        : obstetricDetails?.modifiedAt,
+        : obstetricDetails?.modifiedAt || new Date().toISOString(),
       modifiedBy: examinationHistory?.length
         ? decodedToken?.result?.user_id
-        : obstetricDetails?.modifiedBy,
+        : obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
     };
     setLoader(true);
     const addExaminationRes = obstetricDetails?._id
@@ -166,10 +151,10 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
       createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
       modifiedAt: examinationHistory?.length
         ? new Date().toISOString()
-        : obstetricDetails?.modifiedAt,
+        : obstetricDetails?.modifiedAt || new Date().toISOString(),
       modifiedBy: examinationHistory?.length
         ? decodedToken?.result?.user_id
-        : obstetricDetails?.modifiedBy,
+        : obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
     };
     const deleteExaminationRes = await updateObstetricData(
       obstetricDetails?.patientId,
