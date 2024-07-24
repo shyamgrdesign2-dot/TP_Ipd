@@ -100,10 +100,10 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
       createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
       modifiedAt: pregnancyHistory?.length
         ? new Date().toISOString()
-        : obstetricDetails?.modifiedAt,
+        : obstetricDetails?.modifiedAt || new Date().toISOString(),
       modifiedBy: pregnancyHistory?.length
         ? decodedToken?.result?.user_id
-        : obstetricDetails?.modifiedBy,
+        : obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
     };
     setLoader(true);
     const addPastPregnancyRes = obstetricDetails?._id
@@ -143,10 +143,10 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
       createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
       modifiedAt: pregnancyHistory?.length
         ? new Date().toISOString()
-        : obstetricDetails?.modifiedAt,
+        : obstetricDetails?.modifiedAt || new Date().toISOString(),
       modifiedBy: pregnancyHistory?.length
         ? decodedToken?.result?.user_id
-        : obstetricDetails?.modifiedBy,
+        : obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
     };
     const deletePastPregnancyRes = await updateObstetricData(
       obstetricDetails?.patientId,
