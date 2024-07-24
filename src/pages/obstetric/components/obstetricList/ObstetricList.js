@@ -26,13 +26,15 @@ const ObstetricList = () => {
               {typeof visitItem.pallor === "boolean" ? (
                 <>
                   <span>Polar : </span>
-                  <label>{`${visitItem.pallor ? " Yes " : " No "} | `}</label>{" "}
+                  <label>{`${visitItem.pallor ? " Yes " : " No "}`}</label>
+                  {visitItem.oedema || visitItem.mothersBMI ? " | " : ""}
                 </>
               ) : null}
               {typeof visitItem.oedema === "boolean" ? (
                 <>
                   <span>Oedema : </span>
-                  <label>{`${visitItem.oedema ? " Yes " : " No "} | `}</label>{" "}
+                  <label>{`${visitItem.oedema ? " Yes " : " No "}`}</label>
+                  {visitItem.mothersBMI ? " | " : ""}
                 </>
               ) : null}
               {visitItem.mothersBMI ? (
@@ -46,7 +48,8 @@ const ObstetricList = () => {
               {visitItem.systolic ? (
                 <>
                   <span>Systolic : </span>
-                  <label>{visitItem.systolic} mmHg | </label>{" "}
+                  <label>{visitItem.systolic} mmHg</label>
+                  {visitItem.diastolic ? " | " : ""}
                 </>
               ) : null}
               {visitItem.diastolic ? (
@@ -61,13 +64,13 @@ const ObstetricList = () => {
                 <>
                   <span>Fundus : </span>
                   <label>{visitItem.heightOfFundus} cm</label>
-                  {" | "}
+                  {visitItem.presentation ? " | " : ""}
                 </>
               ) : null}
               {visitItem.presentation ? (
                 <>
                   <span>Presentation : </span>
-                  <label>{visitItem.presentation}</label>{" "}
+                  <label>{visitItem.presentation}</label>
                 </>
               ) : null}
             </div>
@@ -76,7 +79,7 @@ const ObstetricList = () => {
                 <>
                   <span>Fluid index : </span>
                   <label>{visitItem.fluidIndex} cm</label>
-                  {" | "}
+                  {visitItem.foetalHeartRate ? " | " : ""}
                 </>
               ) : null}
               {visitItem.foetalHeartRate ? (

@@ -11,7 +11,10 @@ import {
 } from "../../utils/constants";
 import dayjs from "dayjs";
 import moment from "moment";
-import { patientDiagnosisUpdated } from "../../../../redux/obstetricSlice";
+import {
+  obstetricDetailsUpdated,
+  patientDiagnosisUpdated,
+} from "../../../../redux/obstetricSlice";
 import { useDispatch } from "react-redux";
 
 export default function PatientDiagnosis({
@@ -19,6 +22,7 @@ export default function PatientDiagnosis({
   patientDiagnosisData,
   pastPregnancyData,
   patientDiagnosisNotes,
+  setLmpDate,
   setPatientDiagnosisData,
   setPastPregnancyData,
   setPatientDiagnosisNotes,
@@ -43,6 +47,7 @@ export default function PatientDiagnosis({
           .toISOString(),
       }));
       dispatch(patientDiagnosisUpdated());
+      dispatch(obstetricDetailsUpdated());
     }
   }, [lmpDate]);
 
@@ -53,6 +58,7 @@ export default function PatientDiagnosis({
         [key]: newValue,
       }));
       dispatch(patientDiagnosisUpdated());
+      dispatch(obstetricDetailsUpdated());
     }
   };
 
@@ -66,6 +72,7 @@ export default function PatientDiagnosis({
       updatedData[index].value = newValue;
       setPastPregnancyData(updatedData);
       dispatch(patientDiagnosisUpdated());
+      dispatch(obstetricDetailsUpdated());
     }
   };
 
@@ -96,6 +103,7 @@ export default function PatientDiagnosis({
                   dayjs(moment(d).format("DD-MM-YYYY"), "DD-MM-YYYY"),
                   "lmp"
                 );
+                setLmpDate(dayjs(d).format("DD-MM-YYYY"));
               }}
               style={{
                 height: "34px",
@@ -387,7 +395,6 @@ export default function PatientDiagnosis({
                 <Form.Item label={item.label} style={{ marginBottom: "10px" }}>
                   <Input
                     value={item.value}
-                    pattern="[0-9]*"
                     onChange={(e) =>
                       handleInputChange(
                         index,
@@ -395,6 +402,9 @@ export default function PatientDiagnosis({
                         e.target.validity.valid && e.target.value <= 45
                       )
                     }
+                    onInput={(e) => {
+                      e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                    }}
                     style={{ width: "40px", height: "28px" }}
                   />
                 </Form.Item>

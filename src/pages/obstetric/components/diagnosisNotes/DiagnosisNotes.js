@@ -3,7 +3,10 @@ import { Button, Card, Input } from "antd";
 
 import alertIcon from "../../../../assets/images/alertIcon.svg";
 import CommonModal from "../../../../common/CommonModal";
-import { patientDiagnosisUpdated } from "../../../../redux/obstetricSlice";
+import {
+  obstetricDetailsUpdated,
+  patientDiagnosisUpdated,
+} from "../../../../redux/obstetricSlice";
 import { useDispatch } from "react-redux";
 
 const DiagnosisNotes = ({
@@ -21,6 +24,7 @@ const DiagnosisNotes = ({
   const onSave = async () => {
     handleDrawerDiagnosisNotes();
     dispatch(patientDiagnosisUpdated());
+    dispatch(obstetricDetailsUpdated());
   };
 
   const onChange = useCallback(
@@ -34,6 +38,7 @@ const DiagnosisNotes = ({
     setDiagnosisNotes("");
     handleDrawerDiagnosisNotes();
     dispatch(patientDiagnosisUpdated());
+    dispatch(obstetricDetailsUpdated());
   };
 
   return (

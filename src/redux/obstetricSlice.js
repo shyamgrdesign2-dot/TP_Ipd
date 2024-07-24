@@ -21,10 +21,14 @@ const obstetricSlice = createSlice({
       }
       state.obstetricDetails = action.payload;
       state.isObstetricDetailsFetched = true;
-      state.isPatientDiagnosisUpdated = false;
     },
     patientDiagnosisUpdated: (state) => {
       state.isPatientDiagnosisUpdated = true;
+    },
+    resetUpdatedPatientDiagnosis: (state) => {
+      state.isPatientDiagnosisUpdated = false;
+    },
+    obstetricDetailsUpdated: (state) => {
       state.isObstetricDetailsUpdated = true;
     },
   },
@@ -34,5 +38,7 @@ export const {
   resetObstetricState,
   addObstetricDetails,
   patientDiagnosisUpdated,
+  resetUpdatedPatientDiagnosis,
+  obstetricDetailsUpdated,
 } = obstetricSlice.actions;
 export default obstetricSlice.reducer;

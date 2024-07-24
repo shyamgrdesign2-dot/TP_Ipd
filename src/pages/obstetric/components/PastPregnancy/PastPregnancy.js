@@ -1,14 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import {
-  Button,
-  Card,
-  DatePicker,
-  Input,
-  Tooltip,
-  Select,
-  Radio,
-  Divider,
-} from "antd";
+import { Button, Card, DatePicker, Input, Tooltip, Select, Radio } from "antd";
 import { errorMessage } from "../../../../utils/utils";
 import moment from "moment";
 import SuccessPopup from "../../../growthChart/components/SuccessPopup";
@@ -20,10 +11,7 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
-import {
-  addObstetricDetails,
-  patientDiagnosisUpdated,
-} from "../../../../redux/obstetricSlice";
+import { obstetricDetailsUpdated } from "../../../../redux/obstetricSlice";
 
 function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
   const dispatch = useDispatch();
@@ -32,7 +20,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [loader, setLoader] = useState(false);
   const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const { pregnancyHistory } = obstetricDetails;
+  const { pregnancyHistory = [] } = obstetricDetails;
   const { state } = useLocation();
   const { patient_data } = state;
 
@@ -111,7 +99,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
       : await addObstetricData(payload);
     setLoader(false);
     if (addPastPregnancyRes?.data) {
-      dispatch(patientDiagnosisUpdated());
+      dispatch(obstetricDetailsUpdated());
       getAllObstetricDetails();
       setShowSuccess(true);
       setTimeout(() => {
