@@ -113,6 +113,7 @@ export default function PatientDiagnosis({
                 padding: "0 10px 0 10px",
               }}
               allowClear={false}
+              disabledDate={(current) => current && current > dayjs()}
             />
           </div>
           <div
@@ -148,6 +149,7 @@ export default function PatientDiagnosis({
                 padding: "0 10px 0 10px",
               }}
               allowClear={false}
+              disabledDate={(current) => current <= patientDiagnosisData.lmp}
             />
           </div>
           <div className="history-badge">

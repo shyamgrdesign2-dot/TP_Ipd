@@ -54,8 +54,12 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
               {item.date ? moment(item.date).format("DD MMM YYYY") : ""}
             </div>
           </td>
-          <td className="obstetricTcell">{pallor ? "Yes" : "No"}</td>
-          <td className="obstetricTcell">{oedema ? "Yes" : "No"}</td>
+          <td className="obstetricTcell">
+            {typeof pallor === "boolean" ? (pallor ? "Yes" : "No") : "-"}
+          </td>
+          <td className="obstetricTcell">
+            {typeof oedema === "boolean" ? oedema ? "Yes" : "No" : "-"}
+          </td>
           <td className="obstetricTcell">
             {mothersBMI ? mothersBMI + " kg/m2" : "-"}
           </td>
