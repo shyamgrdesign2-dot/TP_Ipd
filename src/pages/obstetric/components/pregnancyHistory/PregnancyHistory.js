@@ -19,11 +19,6 @@ const PregnancyHistory = ({
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { pregnancyHistory } = obstetricDetails;
 
-  const addPastPregnancy = () => {
-    setEditIndex(-1);
-    handlePastPregnancyDrawer();
-  };
-
   const renderTableTitle = (gravidaItem, i) => {
     const onEdit = () => {
       setEditIndex(i);
@@ -154,7 +149,7 @@ const PregnancyHistory = ({
               style={{
                 width: "255px",
               }}
-              onClick={addPastPregnancy}
+              onClick={handlePastPregnancyDrawer}
             >
               <i className="icon-Add" />
               <span>Add past pregnancy details</span>
@@ -179,7 +174,7 @@ const PregnancyHistory = ({
               style={{
                 width: "255px",
               }}
-              onClick={addPastPregnancy}
+              onClick={handlePastPregnancyDrawer}
             >
               <i className="icon-Add" />
               <span>Add past pregnancy details</span>
