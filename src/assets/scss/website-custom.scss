@@ -1,10 +1,99 @@
+
 @import 'variables.scss';
 
+// Common
 .rounded-18 {
     border-radius: 18px !important;
 }
+h1, .h1 {
+    &.web-h1 {
+        font-size: 48px !important;
+        font-weight: 500;
+        line-height: normal;
+        @media only screen and (max-width: 1100px)  {
+            font-size: 32px !important;
+        }
+    }
+}
+body .ant-btn.btn-48 {
+    height: 48px !important;
+    font-weight: 600 !important;
+    span {
+        font-weight: 600 !important;
+    }
+}
+.text-truncate-fourlines {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.row-80 {
+    height: 100%;
+    align-items: center;
+    width: 80%;
+    margin: 0 auto;
+    @media only screen and (max-width: 1200px) and (min-width: 1100px)  {
+        width: 90%;
+    }
+    @media only screen and (max-width: 1100px)  {
+        width: 100%;
+    }
+}
+.website-section {
+    padding: 50px 0;
+    &:last-child {
+        padding-bottom: 0;
+    }
+}
+.bg-icon-common {
+    border-radius: 18px;
+    background-color: #F6EFFB;
+    min-width: 52px;
+    min-height: 52px;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &.bg-icon-white {
+        background-color: $white;
+    }
+    &.bg-icon-sm {
+        min-width: 24px;
+        min-height: 24px;
+        width: 24px;
+        height: 24px;
+        border-radius: 8px;
+    }
+    &.bg-icon-sm2 {
+        min-width: 42px;
+        min-height: 42px;
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+    }
+    &.bg-icon-32 {
+        min-width: 32px;
+        min-height: 32px;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        margin: 0 10px;
+        background-color: transparent;
+        border: 1px solid rgba(#4B4AD5, 0.2);
+    }
+    &.bg-icon-xl {
+        min-width: 110px;
+        min-height: 110px;
+        width: 110px;
+        height: 110px;
+        border-radius: 40px;
+    }
+}
+
+// Page
 .website-wrapper {
-    padding: 24.88px;
     position: relative;
     overflow: hidden;
     z-index: 0;
@@ -21,23 +110,9 @@
         top: -280px;
         z-index: -1;
     }
-    &:before {
-        position: absolute;
-        content: "";
-        border-radius: 442.775px;
-        opacity: 0.4;
-        background: #FED15E;
-        filter: blur(124.375px);
-        width: 442.775px;
-        height: 442.775px;
-        right: -120px;
-        bottom: -169px;
-        z-index: -1;
-    }
-
+    
     // Header Section
     .website-header {
-        background-color: $white;
         padding: 8.292px 8.292px 8.292px 16.583px;
         border-radius: 16.583px;
         background-color: rgba(255, 255, 255, 0.40);
@@ -62,10 +137,6 @@
     .website-banner {
         position: relative;
         .ant-row {
-            height: 100%;
-            align-items: center;
-            width: 80%;
-            margin: 0 auto;
             .ant-col {
                 &:first-child {
                     position: relative;
@@ -84,16 +155,31 @@
                 }
             }
         }
-
+        &:before {
+            position: absolute;
+            content: "";
+            border-radius: 442.775px;
+            opacity: 0.4;
+            background: #FED15E;
+            filter: blur(124.375px);
+            width: 442.775px;
+            height: 442.775px;
+            right: -173px;
+            bottom: -120px;
+            z-index: -1;
+        }
         .hi {
             font-size: 28px;
             font-weight: 400;
+            @media only screen and (max-width: 1100px)  {
+                font-size: 22px;
+            }
         }
-
-        .doctor-name {
-            font-size: 48px;
-            font-weight: 500;
-            line-height: normal;
+        .education-speciality {
+            font-size: 18px;
+            @media only screen and (max-width: 1100px)  {
+                font-size: 14px;
+            }
         }
         .location-contact {
             display: flex;
@@ -101,6 +187,7 @@
             border: 1px solid $bordercolor;
             border-radius: 6px;
             padding: 6px 10px;
+            height: 33px;
             img {
                 margin-right: 10px;
             }
@@ -143,6 +230,527 @@
             align-items: center;
             justify-content: center;
             clip-path: path("M86.6177 40.0625C86.6177 17.9711 104.526 0.0625 126.618 0.0625H399.451C421.543 0.0625 439.451 17.9711 439.451 40.0625V303.508C439.451 325.599 421.543 343.508 399.451 343.508H395.047C372.955 343.508 355.047 361.416 355.047 383.508V427.713C355.047 449.804 337.138 467.712 315.047 467.712H40.8223C18.7309 467.712 0.822266 449.804 0.822266 427.713V165.267C0.822266 143.175 18.7309 125.267 40.8223 125.267H46.6177C68.7091 125.267 86.6177 107.358 86.6177 85.2667V40.0625Z");
+        }
+    }
+
+    // About Section
+    .website-about {
+        .about-after {
+            position: relative;
+            &:after {
+                position: absolute;
+                content: "";
+                left: 0;
+                top: 0;
+                width: 4px;
+                height: 45px;
+                border-radius: 20px;
+                background-color: $themesecondarylight;
+            }
+        }
+    }
+
+    // Clinic Section
+    .website-clinic {
+        position: relative;
+        &:before {
+            position: absolute;
+            content: "";
+            border-radius: 442.775px;
+            opacity: 0.4;
+            background: $themesecondary;
+            filter: blur(124.375px);
+            width: 442.775px;
+            height: 442.775px;
+            left: -300px;
+            top: -22px;
+            z-index: -1;
+        }
+        .clinic-box {
+            width: 100%;
+            // height: 433px;
+            border-radius: 40px;
+            background-color: $welcomecolor;
+            position: relative;
+            overflow: hidden;
+            z-index: 0;
+            padding: 20px 20px 20px 50px;
+            @media only screen and (max-width: 1100px)  {
+                padding: 20px;
+            }
+            &:after {
+                position: absolute;
+                content: "";
+                background-color: $themesecondary;
+                opacity: 0.6;
+                border-radius: 462.675px;
+                filter: blur(124.375px);
+                width: 462.675px;
+                height: 443.316px;
+                left: -230px;
+                top: -240px;
+                z-index: -1;
+            }
+            &:before {
+                position: absolute;
+                content: "";
+                background-color: $theme;
+                opacity: 0.6;
+                border-radius: 462.675px;
+                filter: blur(124.375px);
+                width: 462.675px;
+                height: 443.316px;
+                right: -40px;
+                bottom: -280px;
+                z-index: -1;
+            }
+            .clinic-address {
+                color: $white !important;
+                opacity: 0.8;
+                margin-top: 20px;
+            }
+            .clinic-photo {
+                width: 60px;
+                height: 60px;
+                overflow: hidden;
+                border-radius: 14px;
+                margin-right: 10px;
+                &:last-child {
+                    position: relative;
+                    background-color: rgba(255, 255, 255, 0.10);
+                }
+            }
+            .clinic-btn {
+                .ant-btn {
+                    border-radius: 16px;
+                    display: flex;
+                    align-items: center;
+                    padding: 12.5px 24px;
+                    height: 100%;
+                    width: auto;
+                    margin-right: 20px;
+                    margin-bottom: 0;
+                    @media only screen and (max-width: 767px)  {
+                        width: 100%;
+                        margin-right: 0px;
+                        margin-bottom: 20px;
+                        &:last-child {
+                            margin-bottom: 30px;
+                        }
+                    }
+                }
+            }
+            .slide-count {
+                position: absolute;
+                bottom: 0px;
+                right: 15px;
+                span {
+                    color: $white !important;
+                    &:last-child {
+                        color: $grayColor !important;
+                    }
+                }
+                &.slide-count-left {
+                    left: 100px;
+                }
+            }
+            .timingshape {
+                width: 337px;
+                height: 393px;
+                background-repeat: no-repeat;
+                background-image: url(../images/website-images/clinic-timing.svg);
+            }
+        }
+        .slick-slider {
+            &.clinic-slider {
+                .slick-slide {
+                    padding: 0 62px 0 20px;
+                    @media only screen and (max-width: 1100px)  {
+                        padding: 0;
+                    }
+                }
+                .slick-dots {
+                    li {
+                        button {
+                            &:before {
+                                font-size: 9px;
+                                width: 8px;
+                                height: 8px;
+                            }
+                        }
+                        &.slick-active {
+                            button {
+                                &:before {
+                                    width: 14px;
+                                    height: 9px;
+                                    background-color: $theme;
+                                    color: transparent;
+                                    top: 4px;
+                                    border-radius: 5px;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        &.website-experience {
+            &:before {
+                content: inherit;
+            }
+            .slick-slide {
+                padding: 0px 20px !important;
+            }
+            .border-shape-right {
+                position: absolute;
+                content: "";
+                right: 0;
+                bottom: 0;
+                width: 01px;
+                height: 112px;
+                background-color: #fff;
+                z-index: 9;
+            }
+            .border-shape-bottom {
+                position: absolute;
+                content: "";
+                right: 0;
+                bottom: 0;
+                width: 91px;
+                height: 1px;
+                background-color: #fff;
+                z-index: 9;
+            }
+            .timingshape {
+                border: 1px solid $bordercolor;
+                background-image: none;
+                height: 381px;
+                background-color: $white;
+                border-top-left-radius: 40px;
+                border-bottom-left-radius: 40px;
+                border-top-right-radius: 40px;
+                position: relative;
+                z-index: 0;
+                width: 100% !important;
+                overflow: hidden;
+                &:before {
+                    position: absolute;
+                    content: "";
+                    height: 50px;
+                    width: 50px;
+                    z-index: 999;
+                    background-repeat: no-repeat;
+                    background-image: url(../images/website-images/Curve-white.svg);
+                    right: -16px;
+                    bottom: 73px;
+                }
+                &:after {
+                    position: absolute;
+                    content: "";
+                    height: 50px;
+                    width: 50px;
+                    z-index: 999;
+                    background-repeat: no-repeat;
+                    background-image: url(../images/website-images/Curve-white.svg);
+                    right: 51px;
+                    bottom: -16px;
+                }
+                .shape-education {
+                    background-color: $white;
+                    width: 68px;
+                    height: 90px;
+                    border-top-left-radius: 40px;
+                    position: absolute;
+                    bottom: -1px;
+                    right: -1px;
+                    z-index: 99;
+                    border: 1px solid $bordercolor;
+                }
+                .round-shape-top-education {
+                    position: absolute;
+                    content: "";
+                    border-radius: 442.775px;
+                    opacity: 0.4;
+                    background: #FED15E;
+                    filter: blur(124.375px);
+                    width: 442.775px;
+                    height: 442.775px;
+                    right: -250px;
+                    bottom: 126px;
+                    z-index: -1;
+                    &.round-education-pink {
+                        background-color: $themesecondary;
+                    }
+                }
+            }
+            .round-experience-shape {
+                margin-left: 50%;
+            }
+            .experiance-round-after {
+                width: 10px;
+                height: 10px;
+                background-color: $themesecondary;
+                border-radius: 100%;
+            }
+            .slick-arrow  {
+                top: 253px;
+                left: -420px !important;
+                &.slick-prev {
+                    left: -490px !important;
+                    &:before {
+                        right: 10px; 
+                        background-color: $white;
+                        color: #000;
+                        border-radius: 50px;
+                        font-family: initial;
+                        content: url(../images/website-images/right-arrow-slider.svg);
+                        width: 42px;
+                        height: 42px;
+                        display: block;
+                        line-height: 2.7;    
+                        transform: rotate(180deg);
+                        border: 1px solid $bordercolor;
+                    }  
+                }
+                &.slick-next {
+                    left: 55px;
+                    &:before {
+                        right: 10px; 
+                        background-color: $white;
+                        color: #000;
+                        border-radius: 50px;
+                        font-family: initial;
+                        content: url(../images/website-images/right-arrow-slider.svg);
+                        width: 42px;
+                        height: 42px;
+                        display: block;
+                        line-height: 2.7;                            
+                        border: 1px solid $bordercolor;
+                    }  
+                }
+            }
+            .slide-count { 
+                top: 253px;
+                position: absolute;
+                left: 170px;
+                span {
+                    color: $maincolor !important;
+                    &:last-child {
+                        color: $grayColor !important;
+                    }
+                }
+            }
+            .slick-track {
+                left: 1px;
+            }
+            &.website-rewards {
+                .timingshape {
+                    height: 250px;
+                }
+            }
+        }
+        &.website-education {
+            .clinic-box {
+                padding: 0 50px;
+                &:before {
+                    content: inherit;
+                }
+                .slick-slide {
+                    padding: 0px;
+                    overflow: hidden;
+                    border-top-right-radius: 20px;
+                }
+                .timingshape {
+                    background-image: none;
+                    height: 300px;
+                    background-color: $white;
+                    border-top-left-radius: 40px;
+                    border-bottom-left-radius: 40px;
+                    border-top-right-radius: 40px;
+                    position: relative;
+                    z-index: 0;
+                    width: 82% !important;
+                    overflow: hidden;
+                    &:before {
+                        position: absolute;
+                        content: "";
+                        height: 50px;
+                        width: 50px;
+                        z-index: 0;
+                        background-repeat: no-repeat;
+                        background-image: url(../images/website-images/Curve.svg);
+                        right: -15px;
+                        bottom: 75px;
+                    }
+                    &:after {
+                        position: absolute;
+                        content: "";
+                        height: 50px;
+                        width: 50px;
+                        z-index: 0;
+                        background-repeat: no-repeat;
+                        background-image: url(../images/website-images/Curve.svg);
+                        right: 52px;
+                        bottom: -15px;
+                    }
+                    .shape-education {
+                        background-color: $welcomecolor;
+                        width: 68px;
+                        height: 90px;
+                        border-top-left-radius: 40px;
+                        position: absolute;
+                        bottom: 0;
+                        right: -1px;
+                        z-index: 99;
+                    }
+                    .round-shape-top-education {
+                        position: absolute;
+                        content: "";
+                        border-radius: 442.775px;
+                        opacity: 0.4;
+                        background: #FED15E;
+                        filter: blur(124.375px);
+                        width: 442.775px;
+                        height: 442.775px;
+                        right: -250px;
+                        bottom: 126px;
+                        z-index: -1;
+                        &.round-education-pink {
+                            background-color: $themesecondary;
+                        }
+                    }
+                }
+                .clinic-slider {
+                    .slick-arrow  {
+                        top: 356px;
+                        &.slick-prev {
+                            left: inherit;
+                            right: 68px;   
+                            &:before {
+                                right: 10px; 
+                                background-color: $white;
+                                color: #000;
+                                border-radius: 50px;
+                                font-family: initial;
+                                content: url(../images/website-images/right-arrow-slider.svg);
+                                width: 42px;
+                                height: 42px;
+                                display: block;
+                                line-height: 2.7;    
+                                transform: rotate(180deg);
+                            }  
+                        }
+                        &.slick-next {
+                            right: 10px; 
+                            &:before {
+                                right: 10px; 
+                                background-color: $white;
+                                color: #000;
+                                border-radius: 50px;
+                                font-family: initial;
+                                content: url(../images/website-images/right-arrow-slider.svg);
+                                width: 42px;
+                                height: 42px;
+                                display: block;
+                                line-height: 2.7;                            
+                            }  
+                        }
+                    }
+                    .slick-track {
+                        left: 1px;
+                    }
+                }
+                .slide-count { 
+                    top: 590px;
+                    display: inline-table;
+                }
+            }
+        }
+    }
+
+    // Memberships
+    .website-membership {
+        .membership-slide {
+            width: 82px;
+            height: 82px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            .membership-yellow-blur-box {
+                position: absolute;
+                content: "";
+                background: #FED15E;
+                opacity: 0.6;
+                filter: blur(50px);
+                right: -44px;
+                top: -44px;
+                width: 82px;
+                height: 82px;
+            }
+            .membership-pink-blur-box {
+                position: absolute;
+                content: "";
+                background: $themesecondary;
+                opacity: 0.6;
+                filter: blur(50px);
+                right: -44px;
+                top: -44px;
+                width: 82px;
+                height: 82px;
+            }
+        }
+        .slick-arrow  {
+            top: 253px;
+            &.slick-prev {
+                left: 0;
+                &:before {
+                    right: 10px; 
+                    background-color: $white;
+                    color: #000;
+                    border-radius: 50px;
+                    font-family: initial;
+                    content: url(../images/website-images/right-arrow-slider.svg);
+                    width: 42px;
+                    height: 42px;
+                    display: block;
+                    line-height: 2.7;    
+                    transform: rotate(180deg);
+                    border: 1px solid $bordercolor;
+                }  
+            }
+            &.slick-next {
+                left: 55px;
+                &:before {
+                    right: 10px; 
+                    background-color: $white;
+                    color: #000;
+                    border-radius: 50px;
+                    font-family: initial;
+                    content: url(../images/website-images/right-arrow-slider.svg);
+                    width: 42px;
+                    height: 42px;
+                    display: block;
+                    line-height: 2.7;                            
+                    border: 1px solid $bordercolor;
+                }  
+            }
+        }
+        .slick-list {
+            height: 200px !important;
+        }
+        .slide-count { 
+            top: 426px;
+            position: absolute;
+            left: 150px;
+            span {
+                color: $maincolor !important;
+                &:last-child {
+                    color: $grayColor !important;
+                }
+            }
         }
     }
 }
