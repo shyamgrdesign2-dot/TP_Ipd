@@ -387,7 +387,7 @@ export default function PatientDiagnosis({
         </Collapse>
       </div>
       <div className="pastPregnancyContainer">
-        <Row gutter={20} style={{ padding: "26px 0px 0px 40px" }}>
+        <Row gutter={30} style={{ padding: "26px 0px 0px 40px" }}>
           {pastPregnancyData.map((item, index) => {
             return (
               <Col key={index}>

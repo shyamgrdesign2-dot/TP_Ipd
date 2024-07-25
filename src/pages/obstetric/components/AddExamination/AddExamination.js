@@ -299,7 +299,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             placeholder="Enter"
             inputMode="numeric"
             value={examinationData.mothersHeight || ""}
-            addonAfter={"Cms"}
+            addonAfter={"Cm"}
             onChange={(e) => {
               isNumberCheck(e) &&
                 handleExaminationDataChange("mothersHeight", e.target.value);
@@ -376,10 +376,10 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
               className="radio-button first-radio-button"
               value="cm"
             >
-              cms
+              Cm
             </Radio.Button>
             <Radio.Button className="radio-button" value="weeks">
-              weeks
+              Weeks
             </Radio.Button>
           </Radio.Group>
         </div>
@@ -408,7 +408,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             placeholder="Enter"
             inputMode="numeric"
             value={examinationData.fluidIndex}
-            addonAfter={"Cms"}
+            addonAfter={"Cm"}
             onChange={(e) =>
               isNumberCheck(e) &&
               handleExaminationDataChange("fluidIndex", e.target.value)

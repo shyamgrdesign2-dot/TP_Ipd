@@ -21,7 +21,10 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
                 : "No"
               : obsVisit[visitItem.key];
           if (value) {
-            value += visitItem.siUnit;
+            value +=
+              visitItem.key === "heightOfFundus"
+                ? " " + obsVisit.heightOfFundusUnit ?? ""
+                : visitItem.siUnit;
             return (
               <React.Fragment key={index}>
                 <div
