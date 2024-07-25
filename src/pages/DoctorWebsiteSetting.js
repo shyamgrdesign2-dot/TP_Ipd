@@ -460,7 +460,7 @@ function DoctorWebsiteSetting() {
                                     <div> <img src={cloudSaved} alt="Saved" className="me-1" /> Saved</div>
                                 </div>
                                 <div className="rounded-20px bg-white mt-2 overflow-hidden">
-                                    <div className="position-relative printheight d-flex align-items-center justify-content-center fs-2 fw-normal">
+                                    <div className="printheight">
                                         <Homepage />
                                     </div>
                                 </div>
