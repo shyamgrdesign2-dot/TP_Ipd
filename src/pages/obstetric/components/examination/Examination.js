@@ -11,6 +11,11 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { examinationHistory } = obstetricDetails;
 
+  const addExamination = () => {
+    setEditIndex(-1);
+    handleExaminationDrawer();
+  };
+
   const renderTableHeader = () => {
     return (
       <tr>
@@ -105,7 +110,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
             <Button
               type="button"
               className="btn-41 btn ant-btn-text btn-input anotherVisitBtn"
-              onClick={handleExaminationDrawer}
+              onClick={addExamination}
             >
               <i className="icon-Add" />
               <span>Add another visit</span>
@@ -125,7 +130,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
             style={{
               width: "180px",
             }}
-            onClick={handleExaminationDrawer}
+            onClick={addExamination}
           >
             <i className="icon-Add" />
             <span>Add Examination</span>
