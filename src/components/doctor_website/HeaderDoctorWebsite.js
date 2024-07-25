@@ -3,6 +3,7 @@ import { Button, Dropdown, Modal, Progress, Space, Input } from 'antd';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
+import axios from 'axios';
 
 import stopPublishing from '../../assets/images/stop-publishing.svg';
 import LinkIcon from '../../assets/images/Link.svg';
@@ -23,6 +24,8 @@ function HeaderDoctorWebsite() {
 
     const { personalDetails, clinicProfile, aboutDoctor, doctorExperience, services, educationTraining, membership, rewardRecognition, socialLinks, otherSettings } = useContext(DoctorWebsiteSettingsContext);
 
+    const [progress, setProgress] = useState(0);
+
     const items = [
         {
             label: <div>Unpublish Website</div>,
@@ -31,7 +34,9 @@ function HeaderDoctorWebsite() {
     ];
 
     async function onPublishWebsiteClick() {
-        setModalOpen(true)
+        // setModalOpen(true)
+
+        // setInterval(() => setProgress((prev) => prev += 10), 500)
 
         let { uploadFile, ...updatePersonalDetails } = personalDetails
 
@@ -67,13 +72,33 @@ function HeaderDoctorWebsite() {
             ...makeClinicPhotosObject
         }
 
-        const action = await dispatch(saveDoctorWebsite(sendData));
+
+
+        const formData = new FormData();
+        Object.keys(sendData).forEach((key) => {
+            if (key.startsWith('clinicpic')) {
+                sendData[key].forEach((item, index) => {
+                    formData.append(key, item);
+                });
+            } else {
+                formData.append(key, sendData[key]);
+            }
+        });
+
+        const action = await dispatch(saveDoctorWebsite({ data: sendData, onDownloadProgress: onDownloadProgress }));
         if (action.meta.requestStatus === "fulfilled") {
             navigate('/doctor_website_setting', { replace: true, state: { websiteData: { ...action.payload } } })
         } else {
             errorMessage(action.error)
         }
     }
+
+    const onDownloadProgress = (progressEvent) => {
+        const total = progressEvent.total
+        const current = progressEvent.loaded
+        const percentage = Math.round((current / total) * 100);
+        console.log(percentage);
+    };
 
     return (
         <Navbar className="justify-content-between headerprescription p-0">
@@ -121,34 +146,42 @@ function HeaderDoctorWebsite() {
                                 centered
                                 footer={null}
                                 className="text-center website-publish-modal"
-                                onCancel={false}>
-                                <div className='p-3'>
-                                    <Progress type="circle" percent={10} size={100} />
-                                    {/* <div className="title-hypertension text-welcome mt-4 mb-2">Publishing Website...</div> */}
-                                    <div className="title-hypertension text-welcome mt-4 mb-2">Successfully published</div>
-                                    {/* <div className='title-common'>Please wait a while, Your website is being published.</div> */}
-                                    <div className='title-common'>Your website has been published successfully.</div>
-                                    {/* <Button className="lh-lg btn btn-clear btn-41 px-4 mt-4">
-                                        <img className='me-3' src={stopPublishing} alt="Warning" /> <span>Stop Publishing</span>
-                                    </Button> */}
-                                    <div className='text-start mt-4'>
-                                        <label className='fw-medium mb-1'>Live website URL</label>
-                                        <Space.Compact className='h-45' style={{ width: '100%' }}>
-                                            <Input className='fontroboto' defaultValue="https://tatvacare.in/ahmedabad/aksharclinic/MBBS MD-anaesthesiology/dr-kunal-shah" />
-                                            <Button className='h-45 bg-selected border'><img className='me-2' src={LinkIcon} alt="Warning" /> Copy</Button>
-                                        </Space.Compact>
-                                    </div>
+                                onCancel={null}>
+                                <div className='p-3 web-publish'>
+                                    {progress >= 100 ? (
+                                        <>
+                                            <Button style={{ minWidth: 100, minHeight: 100, backgroundColor: "#19BB7A", border: 'none' }} shape="circle" icon={<i style={{ fontSize: 50 }} className="icon-check text-white"></i>} />
+                                            <div className="title-hypertension text-welcome mt-4 mb-2">Successfully published</div>
+                                            <div className='title-common'>Your website has been published successfully.</div>
+                                            <div className='text-start mt-4'>
+                                                <label className='fw-medium mb-1'>Live website URL</label>
+                                                <Space.Compact className='h-45' style={{ width: '100%' }}>
+                                                    <Input className='fontroboto' defaultValue="https://tatvacare.in/ahmedabad/aksharclinic/MBBS MD-anaesthesiology/dr-kunal-shah" />
+                                                    <Button className='h-45 bg-selected border'><img className='me-2' src={LinkIcon} alt="Warning" /> Copy</Button>
+                                                </Space.Compact>
+                                            </div>
 
-                                    <div className="d-flex align-items-center mt-4">
-                                        <Button type="text" className="btn btn-primary2 align-items-center d-flex btn-41 w-50"
-                                            icon={<i className="icon-New-Window"></i>} >
-                                            Live Preview
-                                        </Button>
-                                        <Button type="text" className="btn btn-primary3 align-items-center d-flex btn-41 w-50 ms-4"
-                                            icon={<i className="icon-right iconrotate180 ms-auto"></i>}>
-                                            Back to Profile
-                                        </Button>
-                                    </div>
+                                            <div className="d-flex align-items-center mt-4">
+                                                <Button type="text" className="btn btn-primary2 align-items-center d-flex btn-41 w-50"
+                                                    icon={<i className="icon-New-Window"></i>} >
+                                                    Live Preview
+                                                </Button>
+                                                <Button type="text" className="btn btn-primary3 align-items-center d-flex btn-41 w-50 ms-4"
+                                                    icon={<i className="icon-right iconrotate180 ms-auto"></i>}>
+                                                    Back to Profile
+                                                </Button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Progress type="circle" format={(number) => ''} percent={progress} size={100} />
+                                            <div className="title-hypertension text-welcome mt-4 mb-2">Publishing Website...</div>
+                                            <div className='title-common'>Please wait a while, Your website is being published.</div>
+                                            <Button className="lh-lg btn btn-clear btn-41 px-4 mt-4">
+                                                <img className='me-3' src={stopPublishing} alt="Warning" /> <span>Stop Publishing</span>
+                                            </Button>
+                                        </>
+                                    )}
                                 </div>
 
                             </Modal>
