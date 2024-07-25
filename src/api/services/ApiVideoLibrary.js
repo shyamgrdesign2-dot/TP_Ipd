@@ -17,8 +17,13 @@ ApiVideoLibrary.listLanguage = function () {
   return api.get(`/api/v1/doctorwebsite/listLanguage`, baseUrl);
 };
 
-ApiVideoLibrary.saveDoctorWebsite = function (formData) {
-  return api.post(`/api/v1/doctorwebsite/saveDoctorWebsite`, formData, baseUrl);
+ApiVideoLibrary.saveDoctorWebsite = function (formData, onDownloadProgress) {
+  return api.post(`/api/v1/doctorwebsite/saveDoctorWebsite`,
+    formData,
+    {
+      ...baseUrl,
+      onDownloadProgress: onDownloadProgress,
+    });
 };
 
 export default ApiVideoLibrary;

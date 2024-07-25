@@ -56,7 +56,7 @@ function DoctorProfile() {
             </div>
             <div className="p-20 rounded-20px rounded-top-0 bg-white">
               <div className="d-flex align-items-center justify-content-between">
-                <div className="d-flex align-items-center">
+                <div className="d-flex align-items-center web-progress-custom">
                   <Flex gap="small" wrap>
                     <Progress type="circle" size="small" percent={11} />
                   </Flex>
