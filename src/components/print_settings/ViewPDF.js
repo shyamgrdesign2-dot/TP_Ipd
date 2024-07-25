@@ -3741,11 +3741,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {isGynaecHistoryAccessable && obsHistoryData &&
                                         Object.keys(obsHistoryData).length > 2 &&
                                         (option?.format === "inline" ? (
-                                            <ObsHistoryInlineView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} obsHistoryData={obsHistoryData} />
+                                            <ObsHistoryInlineView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
                                         ) : option?.format === "listview" ? (
-                                            <ObsHistoryListView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} obsHistoryData={obsHistoryData} />
+                                            <ObsHistoryListView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
                                         ) : (
-                                            <ObsHistoryTableView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} obsHistoryData={obsHistoryData} />
+                                            <ObsHistoryTableView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
                                         ))
                                     }
                                 </>
