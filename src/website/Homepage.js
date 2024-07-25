@@ -12,6 +12,7 @@ import Location from '../assets/images/website-images/location.svg'
 import locationGrey from '../assets/images/website-images/location-grey.svg'
 import Mail from '../assets/images/website-images/mail.svg'
 import Plus from '../assets/images/website-images/plus.svg'
+import Minus from '../assets/images/website-images/minus.svg'
 import Direction from '../assets/images/website-images/direction.svg'
 import Call from '../assets/images/website-images/call.svg'
 import Clock from '../assets/images/website-images/clock.svg'
@@ -41,6 +42,25 @@ const slideData = [1, 2, 3, 4]
 function Homepage() {
 
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Read More content
+  const ReadMore = ({ children }) => {
+    const text = children;
+    const [isReadMore, setIsReadMore] = useState(true);
+    const toggleReadMore = () => {
+      setIsReadMore(!isReadMore);
+    };
+    return (
+      <p className="text mb-0 lh-base">
+        {isReadMore && text.length > 285 ? text.slice(0, 285) : text}
+        <span onClick={toggleReadMore} className="read-or-hide">
+          {text.length > 285 ? isReadMore ? "... Read More" : " Show Less" : ""}
+          {/* <br />
+          {text.length > 285 ? isReadMore ? (<div className="title-common text-primary cursor-pointer d-inline"><Image src={Plus} alt="Read More" /> Read More</div>) : (<div className="title-common text-primary cursor-pointer d-inline"><Image src={Minus} alt="Show Less" /> Show Less</div>) : ""} */}
+        </span>
+      </p>
+    );
+  };
 
   const settings = {
     className: "center",
@@ -193,7 +213,7 @@ function Homepage() {
 
         {/* About Section */}
         <div className="website-section website-about">
-          <Row className='row-80'>
+          <Row className='row-80 align-items-start'>
             <Col lg={{ order: 2, span: 12 }}>
               <div className='bg-icon-common mb-20'>
                 <img src={AboutIcon} alt="Doctor Profile" />
@@ -209,9 +229,9 @@ function Homepage() {
                   <div>Languages</div>
                 </div>
               </div>
-              <p className='title-common mb-20 text-truncate-fourlines'>
-                Dr. Kunal Jhaveri is a Spine and Pain Specialist, Pain Management Specialist and Nerve Pain Specialist in Satellite Road, Ahmedabad and has an experience of 6 years in these fields. Dr. Kunal Shah practices at Karnavati Pain Clinic in Satellite
-              </p>
+              <ReadMore class="title-common">
+                Dr. Kunal Jhaveri is a Spine and Pain Specialist, Pain Management Specialist and Nerve Pain Specialist in Satellite Road, Ahmedabad and has an experience of 6 years in these fields. Dr. Kunal Shah practices at Karnavati Pain Clinic in Satellite Dr. Kunal Jhaveri is a Spine and Pain Specialist, Pain Management Specialist and Nerve Pain Specialist in Satellite Road, Ahmedabad and has an experience of 6 years in these fields. Dr. Kunal Shah practices at Karnavati Pain Clinic in Satellite
+              </ReadMore>
               <div className="title-common text-primary cursor-pointer d-inline"><img src={Plus} alt="Read More" /> Read More</div>
             </Col>
             <Col sm={24} lg={12} className='mt-5 mt-lg-0'>

@@ -715,6 +715,8 @@ body .ant-btn.btn-48 {
         .membership-slide {
             width: 82px;
             height: 82px;
+            min-width: 82px;
+            min-height: 82px;
             border-radius: 12px;
             display: flex;
             align-items: center;
