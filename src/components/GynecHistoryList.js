@@ -6,8 +6,15 @@ function GynecHistoryList(props) {
     const {gynecHistory} = props
     const [accordionItems, setAccordionItems] = useState([]);
 
+    const filteredGynecHistory = Object.keys(gynecHistory || {}).reduce((acc, key) => {
+        if ( key !== 'reproductiveLifeStages' ) {
+            acc[key] = gynecHistory[key];
+        }
+        return acc;
+    }, {});
+
     useEffect(() => {
-        if (gynecHistory && Object.keys(gynecHistory).length > 0) {
+        if (gynecHistory && Object.keys(filteredGynecHistory).length > 0) {
             const data = [];
             const updateData = {
                 key: `${1}`,

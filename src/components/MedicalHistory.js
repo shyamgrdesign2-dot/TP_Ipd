@@ -22,8 +22,10 @@ function MedicalHistory({ loading, medicalHistoryData }) {
     const {isGynaecHistoryAccessable} = useAccess();
 
     useEffect(() => {
-        fetchGynecHistory();
-    }, []);
+        if(isGynaecHistoryAccessable){
+            fetchGynecHistory();
+        }
+    }, [isGynaecHistoryAccessable]);
     
     const fetchGynecHistory = async () => {
         try {
@@ -37,6 +39,15 @@ function MedicalHistory({ loading, medicalHistoryData }) {
     const manageExpand = useCallback(() => {
         setIsExpand(!isExpand)
     }, [isExpand])
+
+    const filteredGynecHistory = Object.keys(gynecHistory || {}).reduce((acc, key) => {
+        if (
+            key !== 'createdAt' && key !== 'createdBy' && key !== 'reproductiveLifeStages'
+        ) {
+            acc[key] = gynecHistory[key];
+        }
+        return acc;
+    }, {});
 
     return (
         <div className="appointment-wrap PatientDetailswrap m-0">
@@ -54,7 +65,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                 </Card.Header>
                 <div className='p-3'>
                     <div className={`${!isExpand ? 'overflow-hidden' : 'overflow-auto'}`} style={{ height: isExpand ? 529 : 190 }}>
-                        {(gynecHistory && Object.keys(gynecHistory).length > 2) && isGynaecHistoryAccessable ? (
+                        {(gynecHistory && Object.keys(filteredGynecHistory).length > 0) && isGynaecHistoryAccessable ? (
                             <>
                                 <div className="fw-semibold">Menstrual Details</div>
                                 <div className="cardbody-data border rounded px-2 my-2">

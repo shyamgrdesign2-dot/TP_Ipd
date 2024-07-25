@@ -435,8 +435,10 @@ function TabPrescription() {
   };
 
   useEffect(() => {
-    fetchGynecHistory();
-  }, []);
+    if(isGynaecHistoryAccessable){
+        fetchGynecHistory();
+    }
+  }, [isGynaecHistoryAccessable]);
 
   const fetchGynecHistory = async () => {
       try {

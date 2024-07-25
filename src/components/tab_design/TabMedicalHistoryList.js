@@ -111,7 +111,16 @@ function TabMedicalHistoryList(props) {
         }
     }, [medicalHistoryData]);
 
-    const hasGynecHistory = gynecHistory && Object.keys(gynecHistory).length > 0;
+    const filteredGynecHistory = Object.keys(gynecHistory || {}).reduce((acc, key) => {
+        if (
+            key !== 'createdAt' && key !== 'createdBy' && key !== 'reproductiveLifeStages'
+        ) {
+            acc[key] = gynecHistory[key];
+        }
+        return acc;
+    }, {});
+
+    const hasGynecHistory = gynecHistory && Object.keys(filteredGynecHistory).length > 0;
     const hasMedicalHistory = medicalHistoryData && medicalHistoryData.length > 0;
 
     return (
