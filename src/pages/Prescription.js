@@ -543,7 +543,7 @@ function Prescription() {
                         <i className={`icon-Add me-1 fs-5`}></i> <span>Add</span>
                       </button></div></div>
                   )
-                 : e.tmdpm_id === 8 && e.tmdpm_status === 0 && (
+                 : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm p-14">
                       <div className="d-flex align-items-center justify-content-between">
                         <div className="d-flex align-items-center">
@@ -568,37 +568,39 @@ function Prescription() {
                       )}
                     </div>
                   )
+                  : e.tmdpm_id === 17 && e.tmdpm_status === 0 && isGynaecHistoryAccessable && (
+                    <div className="prescription-box-sm p-14">
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center">
+                          <img
+                            src={obstetricImg}
+                            alt="obstetric"
+                            className="me-3"
+                          />
+                          <div className="title-common">Obstetric History</div>
+                        </div>
+                        <button
+                          className="btn d-flex align-items-center btn-text"
+                          onClick={handleDrawerObstetric}
+                        >
+                          <i
+                            className={`${
+                              examinationHistory.length > 0
+                                ? "icon-Edit"
+                                : "icon-Add"
+                            } me-1 fs-5`}
+                          ></i>
+                          <span>{`${
+                            examinationHistory.length > 0 ? "Edit" : "Add"
+                          }`}</span>
+                        </button>
+                      </div>
+                      {examinationHistory?.length > 0 && (
+                        <ObstetricList />
+                      )}
+                    </div>
+                  )
               })}
-              <div className="prescription-box-sm p-14">
-                <div className="d-flex align-items-center justify-content-between">
-                  <div className="d-flex align-items-center">
-                    <img
-                      src={obstetricImg}
-                      alt="obstetric"
-                      className="me-3"
-                    />
-                    <div className="title-common">Obstetric History</div>
-                  </div>
-                  <button
-                    className="btn d-flex align-items-center btn-text"
-                    onClick={handleDrawerObstetric}
-                  >
-                    <i
-                      className={`${
-                        examinationHistory.length > 0
-                          ? "icon-Edit"
-                          : "icon-Add"
-                      } me-1 fs-5`}
-                    ></i>
-                    <span>{`${
-                      examinationHistory.length > 0 ? "Edit" : "Add"
-                    }`}</span>
-                  </button>
-                </div>
-                {examinationHistory?.length > 0 && (
-                  <ObstetricList />
-                )}
-              </div>
 
               {/* <div>
                 <button className="btn btn-parameters mx-auto w-100">

@@ -567,11 +567,9 @@ function TabPrescription() {
                   </button>
                   )
                  : 
-                  (
                   e.tmdpm_id === 16 &&
                   e.tmdpm_status === 0 &&
-                  isGrowthChartAccessable && (
-                    <>
+                  isGrowthChartAccessable ? (
                       <button
                         type="button"
                         className="mb-3 text-center btn btn-action"
@@ -593,31 +591,35 @@ function TabPrescription() {
                         </div>
                         <label className="text-white mt-1">Growth</label>
                       </button>
-                      <button
-                        type="button"
-                        className="mb-3 text-center btn btn-action"
-                        style={{padding: "0px"}}
-                        onClick={() => examinationHistory.length === 0 ? handleDrawerObstetric() : openCollapsed(6)}
-                      >
-                        <div
-                          className={`prescription-tab-button rounded-10px ${
-                            collapsedFlag === 6 && "active"
-                          }`}
-                        >
-                          <img
-                            src={
-                              collapsedFlag === 6
-                                ? obstetricDark
-                                : obstetricWhite
-                            }
-                            alt="Growth"
-                          />
-                        </div>
-                        <label className="text-white mt-1">Obstetric</label>
-                      </button>
-                    </>
                   )
-                );
+                  :
+                  e.tmdpm_id === 17 &&
+                    e.tmdpm_status === 0 &&
+                    isGynaecHistoryAccessable && (
+                        <button
+                          type="button"
+                          className="mb-3 text-center btn btn-action"
+                          style={{padding: "0px"}}
+                          onClick={() => examinationHistory.length === 0 ? handleDrawerObstetric() : openCollapsed(6)}
+                        >
+                          <div
+                            className={`prescription-tab-button rounded-10px ${
+                              collapsedFlag === 6 && "active"
+                            }`}
+                          >
+                            <img
+                              src={
+                                collapsedFlag === 6
+                                  ? obstetricDark
+                                  : obstetricWhite
+                              }
+                              alt="Obstetric"
+                            />
+                          </div>
+                          <label className="text-white mt-1">Obstetric</label>
+                        </button>
+                    )
+                ;
               })}
               {/* <button type='button' className="mb-3 text-center btn btn-action">
                                 <div className="prescription-tab-button rounded-10px">

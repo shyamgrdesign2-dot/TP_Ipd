@@ -144,6 +144,25 @@ const checkboxOptions = [
   },
 ];
 
+const obsHistoryCheckboxOptions = [
+  {
+    label: "Diagnosis",
+    value: "diagnosis",
+  },
+  {
+    label: "GPLAE",
+    value: "gplae",
+  },
+  {
+    label: "History",
+    value: "history",
+  },
+  {
+    label: "Examination",
+    value: "examination",
+  },
+];
+
 function PrescriptionLayout({todayVaccines, growthChartDetails}) {
   const { caseManagerData, printSettings, setPrintSettings } = useContext(PrintSettingsContext);
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
@@ -211,6 +230,15 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
    const onGrowthChartOptionChange = (checkedValues, i) => {
     setPrintSettings((prev) => {
       prev.prescription.case_option[i].growth_chart_option = checkedValues;
+      return {
+        ...prev,
+      };
+    });
+   };
+
+   const onObsHistoryOptionChange = (checkedValues, i) => {
+    setPrintSettings((prev) => {
+      prev.prescription.case_option[i].obs_history_option = checkedValues;
       return {
         ...prev,
       };
@@ -288,6 +316,31 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
     },
   ];
 
+  const obsHistoryAccordionItems = (record, i) => [
+    {
+      key: "1",
+      label: (
+        <div className="text-start">
+          <div className="fw-semibold">Customise Options</div>
+          <div className="subtitle-customize">
+            Selected/deselect the paramters need to be printed
+          </div>
+        </div>
+      ),
+      children: (
+          <div className="d-flex align-items-center">
+            <Checkbox.Group
+              options={obsHistoryCheckboxOptions}
+              value={record?.obs_history_option}
+              onChange={(checkedValues) =>
+                onObsHistoryOptionChange(checkedValues, i)
+              }
+            />
+          </div>
+      ),
+    },
+  ];
+
   //Display Patient Info
   const caseOptionTable = [
     {
@@ -358,6 +411,20 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
                 <div className="border mt-3 rounded-4 p-3 bg-white ">
                   <Collapse
                     items={growthChartAccordionItems(record, printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
+                    defaultActiveKey={["1"]}
+                    className="prescriptiontab-accordian"
+                    expandIconPosition={"end"}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          {record.id === 14 && (
+            <div style={{ marginLeft: -40, display: "flex" }}>
+              <div style={{ flex: 1 }}>
+                <div className="border mt-3 rounded-4 p-3 bg-white ">
+                  <Collapse
+                    items={obsHistoryAccordionItems(record, printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
                     defaultActiveKey={["1"]}
                     className="prescriptiontab-accordian"
                     expandIconPosition={"end"}
