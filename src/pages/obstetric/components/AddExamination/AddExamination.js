@@ -31,8 +31,8 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
   const { patient_data } = state;
 
   useEffect(() => {
-    if (editIndex >= 0) {
-      setExaminationData({ ...examinationHistory[editIndex] });
+    if (editIndex >= 0 && examinationHistory?.toReversed()?.[editIndex]) {
+      setExaminationData({ ...examinationHistory?.toReversed()?.[editIndex] });
     }
   }, [editIndex]);
 
@@ -70,7 +70,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
         console.log(e);
       }
     }
-    let newExaminationHistory = [...examinationHistory] || [];
+    let newExaminationHistory = [...examinationHistory].toReversed() || [];
     const data = {};
     Object.keys(examinationData).forEach((key) => {
       if (![undefined, null, ""].includes(examinationData[key])) {
@@ -140,7 +140,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
         console.log(e);
       }
     }
-    let newExaminationHistory = [...examinationHistory];
+    let newExaminationHistory = [...examinationHistory].toReversed();
     if (editIndex >= 0) {
       newExaminationHistory.splice(editIndex, 1);
     }
