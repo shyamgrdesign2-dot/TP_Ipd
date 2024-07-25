@@ -3,8 +3,12 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import "./LmpPopup.scss";
 
-const LmpPopup = ({ handleDrawerObstetric, lmpDate, setLmpDate, setShowLmpPopup }) => {
-  
+const LmpPopup = ({
+  handleDrawerObstetric,
+  lmpDate,
+  setLmpDate,
+  setShowLmpPopup,
+}) => {
   const [isContinueBtnDisabled, setContinueBtnDisabled] = useState(true);
 
   const continueBtnHandler = () => {
@@ -41,7 +45,6 @@ const LmpPopup = ({ handleDrawerObstetric, lmpDate, setLmpDate, setShowLmpPopup 
             </label>
             <DatePicker
               placeholder="Select Date"
-              dropdownClassName="addDOB-picker-dropdown"
               onChange={(_, d) => {
                 setLmpDate(d);
                 setContinueBtnDisabled(false);
