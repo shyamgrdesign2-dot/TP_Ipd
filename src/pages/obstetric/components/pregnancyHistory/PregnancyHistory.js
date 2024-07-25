@@ -98,7 +98,7 @@ const PregnancyHistory = ({
         ) : outcome === OutcomeOptions.abortion ? (
           <tr>
             <td className="obstetricTcell pregnancyTcell">
-              {gestationPeriod ? gestationPeriod + " Weeks" : "-"}
+              {gestationPeriod ? gestationPeriod + " weeks" : "-"}
             </td>
             <td className="obstetricTcell pregnancyTcell">{typeOfAbortion}</td>
             <td className="obstetricTcell pregnancyTcell">{modeOfAbortion}</td>
@@ -181,7 +181,11 @@ const PregnancyHistory = ({
           </div>
           <div className="shortDescription">Or</div>
 
-          <div className="continueBtn" onClick={continueExaminationHandler}>
+          <div
+            className="continueBtn"
+            style={{ paddingBottom: "20px" }}
+            onClick={continueExaminationHandler}
+          >
             <div className="continueText">Continue to Examination</div>
             <img src={arrow} alt="arrow" />
           </div>

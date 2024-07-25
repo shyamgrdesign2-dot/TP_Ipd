@@ -170,7 +170,12 @@ export default function PatientDiagnosis({
                 )
               }
             />
-            <span className="timeInterval spanStyle">Weeks</span>
+            <span
+              className="timeInterval spanStyle"
+              style={{ paddingRight: "5px" }}
+            >
+              Weeks
+            </span>
             <Input
               className="timeIntervalValue"
               placeholder="Ex : 2"

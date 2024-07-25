@@ -33,7 +33,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
     const onEdit = (i) => {
       setEditIndex(i);
     };
-    return examinationHistory.map((item, i) => {
+    return examinationHistory.toReversed().map((item, i) => {
       const {
         pallor,
         oedema,
@@ -41,6 +41,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
         systolic,
         diastolic,
         heightOfFundus,
+        heightOfFundusUnit,
         presentation = "-",
         fluidIndex = "-",
         foetalHeartRate,
@@ -49,7 +50,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
       return (
         <tr key={i}>
           <td className="obstetricTcell">
-            Visit {examinationHistory.length - i}
+            Visit {i + 1}
             <div className="visitStyle">
               {item.date ? moment(item.date).format("DD MMM YYYY") : ""}
             </div>
@@ -58,7 +59,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
             {typeof pallor === "boolean" ? (pallor ? "Yes" : "No") : "-"}
           </td>
           <td className="obstetricTcell">
-            {typeof oedema === "boolean" ? oedema ? "Yes" : "No" : "-"}
+            {typeof oedema === "boolean" ? (oedema ? "Yes" : "No") : "-"}
           </td>
           <td className="obstetricTcell">
             {mothersBMI ? mothersBMI + " kg/m2" : "-"}
@@ -67,7 +68,9 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
             {systolic && diastolic ? systolic + "/" + diastolic + " mmHg" : "-"}
           </td>
           <td className="obstetricTcell">
-            {heightOfFundus ? heightOfFundus + " cm" : "-"}
+            {heightOfFundus
+              ? heightOfFundus + " " + heightOfFundusUnit ?? ""
+              : "-"}
           </td>
           <td className="obstetricTcell">{presentation}</td>
           <td className="obstetricTcell">{fluidIndex}</td>

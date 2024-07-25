@@ -61,7 +61,7 @@
 
       @media only screen and (min-width: 1200px) {
         justify-content: flex-start;
-        column-gap: 10px;
+        column-gap: 18px;
       }
 
       @media only screen and (min-width: 1300px) {
@@ -157,17 +157,17 @@
         .timeInterval {
           background-color: #fafafb;
           margin-left: 0px;
-          padding-left: 10px;
+          padding-left: 5px;
           height: 36px;
         }
         .timeIntervalValue {
           border: solid 1px #eaecf0;
           border-top: none;
           border-bottom: none;
-          padding: 8px 10px;
+          padding: 8px 4px;
           margin-left: 0px;
           height: 36px;
-          width: 56px;
+          width: 44px;
           text-align: center;
           border-radius: 0 !important;
         }

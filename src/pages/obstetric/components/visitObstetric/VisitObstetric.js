@@ -22,7 +22,6 @@ export default function VisitObstetric() {
   const { patient_data } = state;
   const { isGynaecHistoryAccessable } = useAccess();
 
-  const [obstetricData, setObstetricData] = useState(visitColumn);
   const [viewMore, setViewMore] = useState(false);
   const [previousVisit, setPreviousVisit] = useState({});
 
@@ -31,14 +30,6 @@ export default function VisitObstetric() {
   const visitedMonth = getOrdinalSuffix(
     currentDate.diff(visitDate, "months") + 1
   );
-
-  useEffect(() => {
-    if (viewMore) {
-      setObstetricData(visitColumn);
-    } else {
-      setObstetricData(visitColumn.slice(0, 3));
-    }
-  }, [viewMore]);
 
   useEffect(() => {
     if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {
@@ -62,33 +53,39 @@ export default function VisitObstetric() {
   };
 
   const measurementDetails = () => {
+    const getValue = (visitItem) => {
+      let value =
+        visitItem.key === "bp"
+          ? previousVisit.systolic / previousVisit.diastolic
+          : typeof previousVisit[visitItem.key] === "boolean"
+          ? previousVisit[visitItem.key]
+            ? "Yes"
+            : "No"
+          : previousVisit[visitItem.key];
+      return value ? value + visitItem.siUnit : null;
+    };
+
+    const validItems = visitColumn
+      .map((visitItem) => ({
+        ...visitItem,
+        value: getValue(visitItem),
+      }))
+      .filter((visitItem) => visitItem.value);
+
     return (
       <div className="detailContainer">
-        {obstetricData.map((visitItem, index) => {
-          let value =
-            visitItem.key === "bp"
-              ? previousVisit.systolic / previousVisit.diastolic
-              : typeof previousVisit[visitItem.key] === "boolean"
-              ? previousVisit[visitItem.key]
-                ? "Yes"
-                : "No"
-              : previousVisit[visitItem.key];
-          if (value) {
-            value += visitItem.siUnit;
-            return (
-              <React.Fragment key={index}>
-                <div className="measurementItem">
-                  <span className="key">{visitItem.title}</span>
-                  <span className="colon">:</span>
-                  <span className="value">{value}</span>
-                </div>
-                {index !== Object.entries(obstetricData).length - 1 && (
-                  <div className="dottedLineStyle" />
-                )}
-              </React.Fragment>
-            );
-          }
-        })}
+        {validItems.map((visitItem, index) => (
+          <React.Fragment key={index}>
+            <div className="measurementItem">
+              <span className="key">{visitItem.title}</span>
+              <span className="colon">:</span>
+              <span className="value">{visitItem.value}</span>
+            </div>
+            {index !== validItems.length - 1 && (
+              <div className="dottedLineStyle" />
+            )}
+          </React.Fragment>
+        ))}
       </div>
     );
   };
@@ -97,7 +94,11 @@ export default function VisitObstetric() {
     <>
       {!Object.keys(previousVisit)?.length ? null : (
         <div className="appointment-wrap PatientDetailswrap m-0">
-          <Card>
+          <Card
+            style={{
+              maxHeight: viewMore ? "fit-content" : "370px",
+            }}
+          >
             <Card.Header className="bg-white py-3">
               <div className="d-flex align-items-center justify-content-between">
                 <div>
@@ -122,7 +123,11 @@ export default function VisitObstetric() {
                   <span>See History</span>
                   <i
                     className="icon-right iconrotatehistory90"
-                    style={{ display: "block", transform: `rotate(180deg)` }}
+                    style={{
+                      display: "block",
+                      transform: `rotate(180deg)`,
+                      marginTop: "-1px",
+                    }}
                   />
                 </Button>
               </div>
