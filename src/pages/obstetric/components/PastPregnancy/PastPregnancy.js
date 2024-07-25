@@ -12,7 +12,7 @@ import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 import { obstetricDetailsUpdated } from "../../../../redux/obstetricSlice";
-import { isNumberCheck } from "../../utils/helper";
+import { isDecimalCheck, isNumberCheck } from "../../utils/helper";
 
 function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
   const dispatch = useDispatch();
@@ -324,7 +324,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                 value={pastPregnancyData.babysWeight}
                 addonAfter={"Kgs"}
                 onChange={(e) =>
-                  isNumberCheck(e) &&
+                  isDecimalCheck(e) &&
                   handlePastPregnancyDataChange("babysWeight", e.target.value)
                 }
               />
