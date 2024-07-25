@@ -226,7 +226,10 @@ const Obstetric = ({ handleDrawerObstetric }) => {
         <Drawer
           closeIcon={false}
           placement="right"
-          onClose={handleExaminationDrawer}
+          onClose={() => {
+            setExaminationEditIndex(-1);
+            handleExaminationDrawer();
+          }}
           open={examinationDrawer}
           className="modalWidth-563"
           width="auto"
@@ -245,7 +248,10 @@ const Obstetric = ({ handleDrawerObstetric }) => {
         <Drawer
           closeIcon={false}
           placement="right"
-          onClose={handlePastPregnancyDrawer}
+          onClose={() => {
+            setPastPregnancyEditIndex(-1);
+            handlePastPregnancyDrawer();
+          }}
           open={pastPregnancyDrawer}
           className="modalWidth-563"
           width="auto"
