@@ -26,7 +26,7 @@ export default function VisitObstetric() {
   const [previousVisit, setPreviousVisit] = useState({});
 
   const currentDate = moment();
-  const visitDate = moment(previousVisit.createdAt);
+  const visitDate = moment(previousVisit.modifiedAt);
   const visitedMonth = getOrdinalSuffix(
     currentDate.diff(visitDate, "months") + 1
   );
@@ -55,14 +55,26 @@ export default function VisitObstetric() {
   const measurementDetails = () => {
     const getValue = (visitItem) => {
       let value =
-        visitItem.key === "bp"
-          ? previousVisit.systolic / previousVisit.diastolic
+        visitItem.key === "bp" &&
+        previousVisit.systolic &&
+        previousVisit.diastolic
+          ? previousVisit.systolic + "/" + previousVisit.diastolic
           : typeof previousVisit[visitItem.key] === "boolean"
           ? previousVisit[visitItem.key]
             ? "Yes"
             : "No"
           : previousVisit[visitItem.key];
-      return value ? value + visitItem.siUnit : null;
+      if (value) {
+        if (visitItem.key === "heightOfFundus") {
+          value =
+            previousVisit[visitItem.key] +
+            " " +
+            previousVisit.heightOfFundusUnit;
+        } else {
+          value += visitItem.siUnit;
+        }
+        return value;
+      }
     };
 
     const validItems = visitColumn
@@ -132,11 +144,11 @@ export default function VisitObstetric() {
                 </Button>
               </div>
             </Card.Header>
-            <div className="visitBody overflow-auto visitObstetricContainer">
+            <div className="visitBody visitObstetricContainer">
               <div className="rowContainer">
                 <span className="previousText">Previous visit</span>
                 <span className="updatedText">
-                  {previousVisit.createdAt
+                  {previousVisit.modifiedAt
                     ? "Updated on : " + visitDate.format("DD MMM YYYY")
                     : ""}
                 </span>
