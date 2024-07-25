@@ -97,10 +97,13 @@ const Obstetric = ({ handleDrawerObstetric }) => {
     if (examinationEditIndex >= 0) {
       handleExaminationDrawer();
     }
+  }, [examinationEditIndex]);
+
+  useEffect(() => {
     if (pastPregnancyEditIndex >= 0) {
       handlePastPregnancyDrawer();
     }
-  }, [examinationEditIndex, pastPregnancyEditIndex]);
+  }, [pastPregnancyEditIndex]);
 
   useEffect(() => {
     const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
