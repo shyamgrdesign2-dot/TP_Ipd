@@ -220,6 +220,11 @@
       margin-left: -135px !important;
       margin-top: 3px;
       width: 220px !important;
+
+      @media only screen and (min-width: 1200px) {
+        margin-left: -180px !important;
+        width: 260px !important;
+      }
     }
   }
 }
@@ -241,6 +246,11 @@
       margin-right: -50px !important;
       margin-top: 3px;
       width: 80px !important;
+
+      @media only screen and (min-width: 1200px) {
+        margin-left: -155px !important;
+        width: 234px !important;
+      }
     }
   }
 }
@@ -259,9 +269,14 @@
       width: 15%;
     }
     .dropdown-menu {
-      margin-right: -20px !important;
+      margin-right: -28px !important;
       margin-top: 3px;
       width: 60px !important;
+
+      @media only screen and (min-width: 1200px) {
+        margin-left: -136px !important;
+        width: 215px !important;
+      }
     }
   }
 }
