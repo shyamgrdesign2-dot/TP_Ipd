@@ -191,7 +191,11 @@ const Obstetric = ({ handleDrawerObstetric }) => {
           setPatientDiagnosisNotes={setPatientDiagnosisNotes}
         />
 
-        <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)}>
+        <Tabs
+          className="obstetricTab"
+          activeKey={activeTab}
+          onChange={(key) => setActiveTab(key)}
+        >
           <TabPane tab="Pregnancy History" key="pregnancyHistory">
             <PregnancyHistory
               continueExaminationHandler={continueExaminationHandler}
