@@ -1,10 +1,7 @@
 .examinationTableViewContainer {
-  margin: 20px 30px 30px;
+  padding: 20px 40px;
   gap: 24px;
 
-  @media only screen and (min-width: 1200px) {
-    margin: 20px 30px 30px;
-  }
   .editIcon {
     display: flex;
     color: #4b4ad5 !important;

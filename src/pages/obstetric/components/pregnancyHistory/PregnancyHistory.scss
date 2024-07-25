@@ -62,3 +62,9 @@
     text-decoration: underline;
   }
 }
+
+.obstetricTab {
+  &.ant-tabs > .ant-tabs-nav {
+    padding-left: 12px;
+  }
+}
