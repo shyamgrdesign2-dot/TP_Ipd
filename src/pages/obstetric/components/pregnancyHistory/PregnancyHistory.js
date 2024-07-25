@@ -160,7 +160,7 @@ const PregnancyHistory = ({
           </div>
         </div>
       ) : (
-        <div className="emptyDataContainer">
+        <div className="emptyDataContainer" style={{ marginTop: "-18px" }}>
           <img src={pregnancyHistoryImg} alt="examination" />
           <div className="shortDescription">
             Add previous pregnancy details such as Type of birth, DOB, Sex,
