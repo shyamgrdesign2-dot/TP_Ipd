@@ -250,10 +250,9 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                   handlePastPregnancyDataChange("deliveryMode", value)
                 }
                 options={[
+                  { value: "CSEC", label: "CSEC" },
                   { value: "NVD", label: "NVD" },
                   { value: "AVD", label: "AVD" },
-                  { value: "CSEC", label: "CSEC" },
-                  { value: "Others", label: "Others" },
                 ]}
                 placeholder="Select"
                 className="custom-select"
@@ -264,7 +263,6 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
             <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
               <DatePicker
                 key={"dateOfDelivery"}
-                inputReadOnly
                 onChange={(date) => {
                   const formattedDate = date.format("YYYY-MM-DD");
                   handlePastPregnancyDataChange(
@@ -274,14 +272,13 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                 }}
                 disabledDate={disabledDate}
                 style={{ width: "170px", height: "41px" }}
-                placement="bottom"
                 value={
                   pastPregnancyData.dateOfDelivery
                     ? dayjs(moment(pastPregnancyData.dateOfDelivery))
                     : ""
                 }
                 allowClear={false}
-                format={"DD MMM YYYY"}
+                format={"DD-MM-YYYY"}
               />
             </div>
             <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">

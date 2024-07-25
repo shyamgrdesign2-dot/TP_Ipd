@@ -234,7 +234,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             }
             style={{ width: "170px", height: "41px" }}
             allowClear={false}
-            format={"DD MMM YYYY"}
+            format={"DD-MM-YYYY"}
           />
         </div>
         <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5 w-100">
