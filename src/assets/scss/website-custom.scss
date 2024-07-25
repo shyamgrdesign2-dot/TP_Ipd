@@ -547,6 +547,48 @@ body .ant-btn.btn-48 {
                 .timingshape {
                     height: 250px;
                 }
+                .slick-arrow  {
+                    top: -85px;
+                    left: inherit !important;
+                    right: 100px;
+                    &.slick-prev {
+                        left: inherit !important;
+                        right: 170px;
+                        &:before {
+                            background-color: $white;
+                            color: #000;
+                            border-radius: 50px;
+                            font-family: initial;
+                            content: url(../images/website-images/right-arrow-slider.svg);
+                            width: 42px;
+                            height: 42px;
+                            display: block;
+                            line-height: 2.7;    
+                            transform: rotate(180deg);
+                            border: 1px solid $bordercolor;
+                        }  
+                    }
+                    &.slick-next {
+                        left: 55px;
+                        &:before {
+                            background-color: $white;
+                            color: #000;
+                            border-radius: 50px;
+                            font-family: initial;
+                            content: url(../images/website-images/right-arrow-slider.svg);
+                            width: 42px;
+                            height: 42px;
+                            display: block;
+                            line-height: 2.7;                            
+                            border: 1px solid $bordercolor;
+                        }  
+                    }
+                }
+                .slide-count {
+                    top: inherit;
+                    position: relative;
+                    left: inherit;
+                }
             }
         }
         &.website-education {

@@ -749,15 +749,15 @@ function Homepage() {
         <div className="website-section website-clinic website-experience website-rewards">
           <div className='row-80 align-items-start'>
             <Row className='align-items-start'>
-              <Col sm={24} lg={12}>
+              <Col sm={24} lg={16}>
                 <div className='bg-icon-common mb-20'>
                   <img src={rewardsIcon} alt="Doctor Experience" />
                 </div>
                 <h2 className="doctor-name h1 web-h1 text-welcome mb-28">Rewards & Recognitions</h2>
               </Col>
-              <Col sm={24} lg={12}>
+              <Col sm={24} lg={8}>
                 <div className='py-5 mt-5'>
-                  <p className='slide-count'><span>0{currentSlide + 1} -</span> <span> 0{slideData.length}</span></p>
+                  <p className='slide-count text-end'><span>0{currentSlide + 1} -</span> <span> 0{slideData.length}</span></p>
                 </div>
               </Col>
             </Row>
