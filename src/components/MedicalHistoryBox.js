@@ -691,23 +691,45 @@ function MedicalHistoryBox(props) {
     }
 
     const handleSelectionChange = (key, value) => {
-        
         if (key === "pain" && value === "None") {
             setGynecHistory(prevState => ({ ...prevState, ["occurrenceOfPain"]: null }));
-        }
-
-        if (key === "ageAtMenarche" && value === "number") {
-            setGynecHistory(prevState => ({ ...prevState, [key]: null }));
         }
 
         setGynecHistory(prevState => {
             if (!prevState) {
                 return { [key]: value }; // Handle case when prevState is null or undefined
             }
+
+            setPrevActiveMentrualData(activeMenstrualData)
+
             if (prevState[key] === value && activeMenstrualData === key) {
-
+                setActiveMenstrualData(prevActiveMentrualData);
+                switch (prevActiveMentrualData) {
+                    case 'cycle':
+                        setRightPanelTitle('Cycle');
+                        break;
+                    case 'flow':
+                        setRightPanelTitle('Flow');
+                        break;
+                    case 'pain':
+                        setRightPanelTitle('Pain');
+                        break;
+                    case 'ageAtMenarche':
+                        setRightPanelTitle('Age at menarche');
+                        break;
+                    case 'reproductiveLifeStages':
+                        setRightPanelTitle("Lifecycle Hormonal Changes");
+                        break;
+                    case 'notes':
+                        setRightPanelTitle('Enter the notes');
+                        break;
+                    default:
+                        setRightPanelTitle('No Data');
+                        break;
+                }
+                
                 const updatedState = { ...prevState, [key]: null };
-
+                
                 // Check for specific keys and set corresponding fields to null
                 if (key === "cycle") {
                     updatedState.intervalOfCycle = null;
@@ -730,46 +752,46 @@ function MedicalHistoryBox(props) {
                     updatedState.ageAtMenopause = null;
                     setInputMenopause('')
                     updatedState.typeOfMenopause = null;
-                    updatedState.note = null;
+                    updatedState.reproductiveNotes = null;
                 }
                 if (key === "ageAtMenarche") {
                     updatedState.ageAtMenarche = null;
+                    updatedState.menarcheNotes = null
                     setInputMenarche('')
                 }
     
                 return updatedState;
             } else {
+                setActiveMenstrualData(key);
+                switch (key) {
+                    case 'cycle':
+                        setRightPanelTitle('Cycle');
+                        break;
+                    case 'flow':
+                        setRightPanelTitle('Flow');
+                        break;
+                    case 'pain':
+                        setRightPanelTitle('Pain');
+                        break;
+                    case 'ageAtMenarche':
+                        setRightPanelTitle('Age at menarche');
+                        break;
+                    case 'reproductiveLifeStages':
+                        setRightPanelTitle("Lifecycle Hormonal Changes");
+                        break;
+                    case 'notes':
+                        setRightPanelTitle('Enter the notes');
+                        break;
+                    default:
+                        setRightPanelTitle('No Data');
+                        break;
+                }
                 return {
                     ...prevState,
                     [key]: value
                 };
             }
         });
-
-        setActiveMenstrualData(key);
-        switch (key) {
-            case 'cycle':
-                setRightPanelTitle('Cycle');
-                break;
-            case 'flow':
-                setRightPanelTitle('Flow');
-                break;
-            case 'pain':
-                setRightPanelTitle('Pain');
-                break;
-            case 'ageAtMenarche':
-                setRightPanelTitle('Age at menarche');
-                break;
-            case 'reproductiveLifeStages':
-                setRightPanelTitle(value);
-                break;
-            case 'notes':
-                setRightPanelTitle('Enter the notes');
-                break;
-            default:
-                setRightPanelTitle('No Data');
-                break;
-        }
     };
 
     const handleGynecValueChange = (key, value) => {
@@ -786,6 +808,7 @@ function MedicalHistoryBox(props) {
     };
 
     const [activeMenstrualData, setActiveMenstrualData] = useState(null);
+    const [prevActiveMentrualData, setPrevActiveMentrualData] = useState("cycle");
     const [rightPanelTitle, setRightPanelTitle] = useState("No Record");
     
     const disabledDate = (current) => {
@@ -826,16 +849,20 @@ function MedicalHistoryBox(props) {
     }, []);
 
     useEffect(() => {
-        fetchGynecHistory();
-    }, []);
+        if(isGynaecHistoryAccessable){
+            fetchGynecHistory();
+        }
+    }, [isGynaecHistoryAccessable]);
     
     const fetchGynecHistory = async () => {
         try {
             const data = await getGynecDetails(patient_data.patient_unique_id);
             if (data){
                 setGynecEditState("UPDATE");
-                setActiveMenstrualData("cycle")
-                setRightPanelTitle('Cycle')
+                if (Object.keys(data).length > 2){
+                    setActiveMenstrualData("cycle")
+                    setRightPanelTitle('Cycle')
+                }
             }
             setGynecHistory(data);
             setGynecLoading(false);

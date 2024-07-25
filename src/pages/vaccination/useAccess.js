@@ -18,6 +18,6 @@ export const useAccess = (patientAge = 0) => {
     isVaccinationAccessable: isVaccinationAccessableFromGB || profile?.dp_name === PAEDIATRICS,
     isGrowthChartAccessable:
       (isGrowthChartAccessableFromGB || profile?.dp_name === PAEDIATRICS) && patientAge <= 18,
-    isGynaecHistoryAccessable: isGynaecAccessableFromGB || profile?.dp_name === GYNAECOLOGY,
+    isGynaecHistoryAccessable: isGynaecAccessableFromGB || profile?.dp_id === 8,
   };
 };
