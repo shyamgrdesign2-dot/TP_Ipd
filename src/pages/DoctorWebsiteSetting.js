@@ -266,7 +266,7 @@ function DoctorWebsiteSetting() {
                         <Col xl={8} sm={10} className="pe-3">
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                                 <div className="p-20">
-                                    <div className="ms-5 fontroboto" style={{ fontSize: window.innerWidth / 80 }}>Website Setup Score</div>
+                                    <div className="ms-5 fontroboto">Website Setup Score</div>
                                     <Progress
                                         className={`profile-website-setting mb-1 ${score > 91 ? 'profile-website-setting-green' : score > 41 && 'profile-website-setting-yellow'}`}
                                         size="small"
