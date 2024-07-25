@@ -222,7 +222,7 @@ export const visitColumn = [
   {
     title: "Fetal Heart Rate",
     key: "foetalHeartRate",
-    siUnit: " bpm",
+    siUnit: " BPM",
   },
 ];
 

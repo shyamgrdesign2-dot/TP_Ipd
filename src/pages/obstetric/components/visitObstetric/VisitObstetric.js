@@ -24,9 +24,10 @@ export default function VisitObstetric() {
 
   const [viewMore, setViewMore] = useState(false);
   const [previousVisit, setPreviousVisit] = useState({});
+  const [lmpDate, setLmpDate] = useState("");
 
   const currentDate = moment();
-  const visitDate = moment(previousVisit.modifiedAt);
+  const visitDate = lmpDate ? moment(lmpDate) : null;
   const visitedMonth = getOrdinalSuffix(
     currentDate.diff(visitDate, "months") + 1
   );
@@ -39,6 +40,7 @@ export default function VisitObstetric() {
 
   useEffect(() => {
     if (obstetricDetails?.examinationHistory?.[0]) {
+      setLmpDate(obstetricDetails.lmp);
       setPreviousVisit(obstetricDetails.examinationHistory[0]);
     }
   }, [obstetricDetails]);

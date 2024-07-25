@@ -90,7 +90,7 @@ const ObstetricList = () => {
               {visitItem.foetalHeartRate ? (
                 <>
                   <span>FHR : </span>
-                  <label>{visitItem.foetalHeartRate} bpm</label>
+                  <label>{visitItem.foetalHeartRate} BPM</label>
                 </>
               ) : null}
             </div>

@@ -43,7 +43,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
         heightOfFundus,
         heightOfFundusUnit,
         presentation = "-",
-        fluidIndex = "-",
+        fluidIndex,
         foetalHeartRate,
         notes = "-",
       } = item;
@@ -73,7 +73,9 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
               : "-"}
           </td>
           <td className="obstetricTcell">{presentation}</td>
-          <td className="obstetricTcell">{fluidIndex}</td>
+          <td className="obstetricTcell">
+            {fluidIndex ? fluidIndex + " cm" : "-"}
+          </td>
           <td className="obstetricTcell">
             {foetalHeartRate ? foetalHeartRate + " BPM" : "-"}
           </td>
@@ -96,10 +98,18 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
       {examinationHistory?.length ? (
         <>
           <div className="examinationTableViewContainer">
-            <table className="tableView" style={{ tableLayout: "fixed" }}>
-              <thead>{renderTableHeader()}</thead>
-              <tbody>{renderTableData()}</tbody>
-            </table>
+            <div className="tableWrappwer">
+              <table
+                className="tableView"
+                style={{
+                  tableLayout: "fixed",
+                  overflow: "hidden",
+                }}
+              >
+                <thead>{renderTableHeader()}</thead>
+                <tbody>{renderTableData()}</tbody>
+              </table>
+            </div>
           </div>
           <div className="anotherVisit">
             <Button
