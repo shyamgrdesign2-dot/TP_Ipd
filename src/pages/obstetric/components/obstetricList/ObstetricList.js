@@ -27,7 +27,9 @@ const ObstetricList = () => {
                 <>
                   <span>Polar : </span>
                   <label>{`${visitItem.pallor ? " Yes " : " No "}`}</label>
-                  {visitItem.oedema || visitItem.mothersBMI ? " | " : ""}
+                  {typeof visitItem.oedema === "boolean" || visitItem.mothersBMI
+                    ? " | "
+                    : ""}
                 </>
               ) : null}
               {typeof visitItem.oedema === "boolean" ? (
@@ -63,7 +65,10 @@ const ObstetricList = () => {
               {visitItem.heightOfFundus ? (
                 <>
                   <span>Fundus : </span>
-                  <label>{visitItem.heightOfFundus} cm</label>
+                  <label>
+                    {visitItem.heightOfFundus}{" "}
+                    {visitItem.heightOfFundusUnit ?? ""}
+                  </label>
                   {visitItem.presentation ? " | " : ""}
                 </>
               ) : null}

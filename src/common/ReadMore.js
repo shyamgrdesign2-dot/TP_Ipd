@@ -6,7 +6,10 @@ const ReadMore = ({ text, textLimit, textSize }) => {
     setIsReadMore(!isReadMore);
   };
   return (
-    <p className="text mb-0 fontroboto lh-base">
+    <div
+      className="text mb-0 fontroboto lh-base"
+      style={{ wordBreak: "break-word" }}
+    >
       {isReadMore && text.length > textLimit ? text.slice(0, textLimit) : text}
       <span
         onClick={toggleReadMore}
@@ -15,11 +18,11 @@ const ReadMore = ({ text, textLimit, textSize }) => {
       >
         {text.length > textLimit
           ? isReadMore
-            ? "... View More"
-            : " View Less"
+            ? "... view more"
+            : " view less"
           : ""}
       </span>
-    </p>
+    </div>
   );
 };
 
