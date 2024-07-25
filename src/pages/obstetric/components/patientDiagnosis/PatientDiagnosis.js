@@ -159,9 +159,10 @@ export default function PatientDiagnosis({
               className="timeIntervalValue"
               style={{ marginLeft: "10px" }}
               placeholder="Ex : 3"
-              inputMode="numeric"
-              pattern="[0-9]*"
               value={patientDiagnosisData.gestationWeeks}
+              onInput={(e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, "");
+              }}
               onChange={(e) =>
                 handlePatientDiagnosis(
                   e.target.value,
@@ -179,8 +180,10 @@ export default function PatientDiagnosis({
             <Input
               className="timeIntervalValue"
               placeholder="Ex : 2"
-              pattern="[0-9]*"
               value={patientDiagnosisData.gestationDays}
+              onInput={(e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, "");
+              }}
               onChange={(e) =>
                 handlePatientDiagnosis(
                   e.target.value,
@@ -299,8 +302,10 @@ export default function PatientDiagnosis({
               className="timeIntervalValue"
               style={{ marginLeft: "10px" }}
               placeholder="Ex : 3"
-              pattern="[0-9]*"
               value={patientDiagnosisData.marriageDurationYears}
+              onInput={(e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, "");
+              }}
               onChange={(e) =>
                 handlePatientDiagnosis(
                   e.target.value,
@@ -313,8 +318,10 @@ export default function PatientDiagnosis({
             <Input
               className="timeIntervalValue"
               placeholder="Ex : 2"
-              pattern="[0-9]*"
               value={patientDiagnosisData.marriageDurationMonths}
+              onInput={(e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, "");
+              }}
               onChange={(e) =>
                 handlePatientDiagnosis(
                   e.target.value,
