@@ -407,7 +407,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             className="inputheight41-group"
             placeholder="Enter"
             inputMode="numeric"
-            value={examinationData.fluidIndex}
+            value={examinationData.fluidIndex || ""}
             addonAfter={"Cm"}
             onChange={(e) =>
               isNumberCheck(e) &&
@@ -420,7 +420,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             className="inputheight41-group"
             placeholder="Enter"
             inputMode="numeric"
-            value={examinationData.foetalHeartRate}
+            value={examinationData.foetalHeartRate || ""}
             addonAfter={"Bpm"}
             onChange={(e) =>
               isNumberCheck(e) &&

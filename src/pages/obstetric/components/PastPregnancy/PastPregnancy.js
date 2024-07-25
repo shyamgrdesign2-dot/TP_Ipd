@@ -185,7 +185,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
             className="inputheight41-group"
             placeholder="Enter"
             inputMode="numeric"
-            value={pastPregnancyData?.gravidaNumber}
+            value={pastPregnancyData?.gravidaNumber || ""}
             onChange={(e) =>
               isNumberCheck(e) &&
               handlePastPregnancyDataChange("gravidaNumber", e.target.value)
@@ -321,7 +321,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                 className="inputheight41-group"
                 placeholder="Enter"
                 inputMode="numeric"
-                value={pastPregnancyData.babysWeight}
+                value={pastPregnancyData.babysWeight || ""}
                 addonAfter={"Kgs"}
                 onChange={(e) =>
                   isDecimalCheck(e) &&
@@ -338,7 +338,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                 className="inputheight41-group"
                 placeholder="Enter"
                 inputMode="numeric"
-                value={pastPregnancyData.gestationPeriod}
+                value={pastPregnancyData.gestationPeriod || ""}
                 addonAfter={"weeks"}
                 onChange={(e) =>
                   isNumberCheck(e) &&
