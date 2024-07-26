@@ -8,7 +8,10 @@ import { fetchAllObstetricDetails } from "../../service";
 import moment from "moment";
 import { getOrdinalSuffix } from "../../../growthChart/growthChartHelper";
 import { useDispatch, useSelector } from "react-redux";
-import { addObstetricDetails } from "../../../../redux/obstetricSlice";
+import {
+  addObstetricDetails,
+  navigateToObstetric,
+} from "../../../../redux/obstetricSlice";
 import { visitColumn } from "../../utils/constants";
 import { useAccess } from "../../../vaccination/useAccess";
 
@@ -106,6 +109,15 @@ export default function VisitObstetric() {
     );
   };
 
+  const obstetricNavigate = () => {
+    navigate("/prescription", {
+      state: {
+        patient_data: patient_data,
+      },
+    });
+    dispatch(navigateToObstetric());
+  };
+
   return (
     <>
       {!Object.keys(previousVisit)?.length ? null : (
@@ -127,14 +139,7 @@ export default function VisitObstetric() {
                 </div>
                 <Button
                   className="btn btn-input d-flex align-items-center gap-1"
-                  onClick={() =>
-                    navigate("/prescription", {
-                      state: {
-                        patient_data: patient_data,
-                        chartType: "obstetric",
-                      },
-                    })
-                  }
+                  onClick={obstetricNavigate}
                 >
                   <span>See History</span>
                   <i
