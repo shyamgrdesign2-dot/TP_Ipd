@@ -8,7 +8,10 @@ import { fetchAllObstetricDetails } from "../../service";
 import moment from "moment";
 import { getOrdinalSuffix } from "../../../growthChart/growthChartHelper";
 import { useDispatch, useSelector } from "react-redux";
-import { addObstetricDetails } from "../../../../redux/obstetricSlice";
+import {
+  addObstetricDetails,
+  navigateToObstetric,
+} from "../../../../redux/obstetricSlice";
 import { visitColumn } from "../../utils/constants";
 import { useAccess } from "../../../vaccination/useAccess";
 
@@ -24,6 +27,7 @@ export default function VisitObstetric() {
 
   const [viewMore, setViewMore] = useState(false);
   const [previousVisit, setPreviousVisit] = useState({});
+  const [validVisitDetails, setValidVisitDetails] = useState([]);
   const [lmpDate, setLmpDate] = useState("");
 
   const currentDate = moment();
@@ -45,6 +49,38 @@ export default function VisitObstetric() {
     }
   }, [obstetricDetails]);
 
+  useEffect(() => {
+    const validItems = visitColumn
+      .map((visitItem) => ({
+        ...visitItem,
+        value: getValue(visitItem),
+      }))
+      .filter((visitItem) => visitItem.value);
+    setValidVisitDetails(validItems);
+  }, [previousVisit]);
+
+  const getValue = (visitItem) => {
+    let value =
+      visitItem.key === "bp" &&
+      previousVisit.systolic &&
+      previousVisit.diastolic
+        ? previousVisit.systolic + "/" + previousVisit.diastolic
+        : typeof previousVisit[visitItem.key] === "boolean"
+        ? previousVisit[visitItem.key]
+          ? "Yes"
+          : "No"
+        : previousVisit[visitItem.key];
+    if (value) {
+      if (visitItem.key === "heightOfFundus") {
+        value =
+          previousVisit[visitItem.key] + " " + previousVisit.heightOfFundusUnit;
+      } else {
+        value += visitItem.siUnit;
+      }
+      return value;
+    }
+  };
+
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
       patient_data.patient_unique_id
@@ -55,53 +91,31 @@ export default function VisitObstetric() {
   };
 
   const measurementDetails = () => {
-    const getValue = (visitItem) => {
-      let value =
-        visitItem.key === "bp" &&
-        previousVisit.systolic &&
-        previousVisit.diastolic
-          ? previousVisit.systolic + "/" + previousVisit.diastolic
-          : typeof previousVisit[visitItem.key] === "boolean"
-          ? previousVisit[visitItem.key]
-            ? "Yes"
-            : "No"
-          : previousVisit[visitItem.key];
-      if (value) {
-        if (visitItem.key === "heightOfFundus") {
-          value =
-            previousVisit[visitItem.key] +
-            " " +
-            previousVisit.heightOfFundusUnit;
-        } else {
-          value += visitItem.siUnit;
-        }
-        return value;
-      }
-    };
-
-    const validItems = visitColumn
-      .map((visitItem) => ({
-        ...visitItem,
-        value: getValue(visitItem),
-      }))
-      .filter((visitItem) => visitItem.value);
-
     return (
       <div className="detailContainer">
-        {validItems.map((visitItem, index) => (
+        {validVisitDetails.map((visitItem, index) => (
           <React.Fragment key={index}>
             <div className="measurementItem">
               <span className="key">{visitItem.title}</span>
               <span className="colon">:</span>
               <span className="value">{visitItem.value}</span>
             </div>
-            {index !== validItems.length - 1 && (
+            {index !== validVisitDetails.length - 1 && (
               <div className="dottedLineStyle" />
             )}
           </React.Fragment>
         ))}
       </div>
     );
+  };
+
+  const obstetricNavigate = () => {
+    navigate("/prescription", {
+      state: {
+        patient_data: patient_data,
+      },
+    });
+    dispatch(navigateToObstetric());
   };
 
   return (
@@ -125,14 +139,7 @@ export default function VisitObstetric() {
                 </div>
                 <Button
                   className="btn btn-input d-flex align-items-center gap-1"
-                  onClick={() =>
-                    navigate("/prescription", {
-                      state: {
-                        patient_data: patient_data,
-                        chartType: "obstetric",
-                      },
-                    })
-                  }
+                  onClick={obstetricNavigate}
                 >
                   <span>See History</span>
                   <i
@@ -166,12 +173,14 @@ export default function VisitObstetric() {
                 </div>
               ) : null}
             </div>
-            <Card.Footer
-              className="bg-white py-3 viewLessOrMore"
-              onClick={() => setViewMore(!viewMore)}
-            >
-              View {viewMore ? "less" : "more"}
-            </Card.Footer>
+            {validVisitDetails.length > 2 && (
+              <Card.Footer
+                className="bg-white py-3 viewLessOrMore"
+                onClick={() => setViewMore(!viewMore)}
+              >
+                View {viewMore ? "less" : "more"}
+              </Card.Footer>
+            )}
           </Card>
         </div>
       )}

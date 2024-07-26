@@ -182,7 +182,7 @@ export default function PatientDiagnosis({
               placeholder="Ex : 2"
               value={patientDiagnosisData.gestationDays}
               onInput={(e) => {
-                e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                e.target.value = e.target.value.replace(/[^0-6]/g, "");
               }}
               onChange={(e) =>
                 handlePatientDiagnosis(

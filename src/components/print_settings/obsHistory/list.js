@@ -29,14 +29,18 @@ function ObsHistoryListView({
             {("lmp" in obsHistoryData ||
               "edd" in obsHistoryData ||
               "ceed" in obsHistoryData ||
-              "gestationWeeks" in obsHistoryData ||
-              "gestationDays" in obsHistoryData ||
+              ("gestationWeeks" in obsHistoryData &&
+                obsHistoryData?.gestationWeeks != null) ||
+              ("gestationDays" in obsHistoryData &&
+                obsHistoryData?.gestationDays != null) ||
               "blood" in obsHistoryData ||
               "husbandsBlood" in obsHistoryData ||
               "consang" in obsHistoryData ||
               "maritialStatus" in obsHistoryData ||
-              "marriageDurationYears" in obsHistoryData ||
-              "marriageDurationMonths" in obsHistoryData) && (
+              ("marriageDurationYears" in obsHistoryData &&
+                obsHistoryData?.marriageDurationYears != null) ||
+              ("marriageDurationMonths" in obsHistoryData &&
+                obsHistoryData?.marriageDurationMonths != null)) && (
               <>
                 <Text
                   style={{
@@ -87,14 +91,18 @@ function ObsHistoryListView({
 
                     {("edd" in obsHistoryData ||
                       "ceed" in obsHistoryData ||
-                      "gestationWeeks" in obsHistoryData ||
-                      "gestationDays" in obsHistoryData ||
+                      ("gestationWeeks" in obsHistoryData &&
+                        obsHistoryData?.gestationWeeks != null) ||
+                      ("gestationDays" in obsHistoryData &&
+                        obsHistoryData?.gestationDays != null) ||
                       "blood" in obsHistoryData ||
                       "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
                       "maritialStatus" in obsHistoryData ||
-                      "marriageDurationYears" in obsHistoryData ||
-                      "marriageDurationMonths" in obsHistoryData) && (
+                      ("marriageDurationYears" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationYears != null) ||
+                      ("marriageDurationMonths" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationMonths != null)) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -135,14 +143,18 @@ function ObsHistoryListView({
                       {moment(obsHistoryData?.edd).format("DD MMM YYYY")}
                     </Text>
                     {("ceed" in obsHistoryData ||
-                      "gestationWeeks" in obsHistoryData ||
-                      "gestationDays" in obsHistoryData ||
+                      ("gestationWeeks" in obsHistoryData &&
+                        obsHistoryData?.gestationWeeks != null) ||
+                      ("gestationDays" in obsHistoryData &&
+                        obsHistoryData?.gestationDays != null) ||
                       "blood" in obsHistoryData ||
                       "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
                       "maritialStatus" in obsHistoryData ||
-                      "marriageDurationYears" in obsHistoryData ||
-                      "marriageDurationMonths" in obsHistoryData) && (
+                      ("marriageDurationYears" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationYears != null) ||
+                      ("marriageDurationMonths" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationMonths != null)) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -182,14 +194,18 @@ function ObsHistoryListView({
                     >
                       {moment(obsHistoryData?.ceed).format("DD MMM YYYY")}
                     </Text>
-                    {("gestationWeeks" in obsHistoryData ||
-                      "gestationDays" in obsHistoryData ||
+                    {(("gestationWeeks" in obsHistoryData &&
+                      obsHistoryData?.gestationWeeks != null) ||
+                      ("gestationDays" in obsHistoryData &&
+                        obsHistoryData?.gestationDays != null) ||
                       "blood" in obsHistoryData ||
                       "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
                       "maritialStatus" in obsHistoryData ||
-                      "marriageDurationYears" in obsHistoryData ||
-                      "marriageDurationMonths" in obsHistoryData) && (
+                      ("marriageDurationYears" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationYears != null) ||
+                      ("marriageDurationMonths" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationMonths != null)) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -205,8 +221,10 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {("gestationWeeks" in obsHistoryData ||
-                  "gestationDays" in obsHistoryData) && (
+                {(("gestationWeeks" in obsHistoryData &&
+                  obsHistoryData?.gestationWeeks != null) ||
+                  ("gestationDays" in obsHistoryData &&
+                    obsHistoryData?.gestationDays != null)) && (
                   <>
                     <Text
                       style={{
@@ -228,14 +246,18 @@ function ObsHistoryListView({
                         fontWeight: 400,
                       }}
                     >
-                      {"gestationWeeks" in obsHistoryData
+                      {"gestationWeeks" in obsHistoryData &&
+                      obsHistoryData?.gestationWeeks != null
                         ? `${obsHistoryData?.gestationWeeks}W`
                         : ""}
                       {"gestationWeeks" in obsHistoryData &&
-                      "gestationDays" in obsHistoryData
+                      obsHistoryData?.gestationWeeks != null &&
+                      "gestationDays" in obsHistoryData &&
+                      obsHistoryData?.gestationDays != null
                         ? `,`
                         : ``}
-                      {"gestationDays" in obsHistoryData
+                      {"gestationDays" in obsHistoryData &&
+                      obsHistoryData?.gestationDays != null
                         ? `${obsHistoryData?.gestationDays}D`
                         : ""}
                     </Text>
@@ -271,8 +293,10 @@ function ObsHistoryListView({
                     {("husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
                       "maritialStatus" in obsHistoryData ||
-                      "marriageDurationYears" in obsHistoryData ||
-                      "marriageDurationMonths" in obsHistoryData) && (
+                      ("marriageDurationYears" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationYears != null) ||
+                      ("marriageDurationMonths" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationMonths != null)) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -314,8 +338,10 @@ function ObsHistoryListView({
                     </Text>
                     {("consang" in obsHistoryData ||
                       "maritialStatus" in obsHistoryData ||
-                      "marriageDurationYears" in obsHistoryData ||
-                      "marriageDurationMonths" in obsHistoryData) && (
+                      ("marriageDurationYears" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationYears != null) ||
+                      ("marriageDurationMonths" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationMonths != null)) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -356,8 +382,10 @@ function ObsHistoryListView({
                       {Boolean(obsHistoryData?.consang) ? `Yes` : `No`}
                     </Text>
                     {("maritialStatus" in obsHistoryData ||
-                      "marriageDurationYears" in obsHistoryData ||
-                      "marriageDurationMonths" in obsHistoryData) && (
+                      ("marriageDurationYears" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationYears != null) ||
+                      ("marriageDurationMonths" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationMonths != null)) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -397,8 +425,10 @@ function ObsHistoryListView({
                     >
                       {obsHistoryData?.maritialStatus}
                     </Text>
-                    {("marriageDurationYears" in obsHistoryData ||
-                      "marriageDurationMonths" in obsHistoryData) && (
+                    {(("marriageDurationYears" in obsHistoryData &&
+                      obsHistoryData?.marriageDurationYears != null) ||
+                      ("marriageDurationMonths" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationMonths != null)) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -414,8 +444,10 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {("marriageDurationYears" in obsHistoryData ||
-                  "marriageDurationMonths" in obsHistoryData) && (
+                {(("marriageDurationYears" in obsHistoryData &&
+                  obsHistoryData?.marriageDurationYears != null) ||
+                  ("marriageDurationMonths" in obsHistoryData &&
+                    obsHistoryData?.marriageDurationMonths != null)) && (
                   <>
                     <Text
                       style={{
@@ -437,27 +469,38 @@ function ObsHistoryListView({
                         fontWeight: 400,
                       }}
                     >
-                      {"marriageDurationYears" in obsHistoryData
+                      {"marriageDurationYears" in obsHistoryData &&
+                      obsHistoryData?.marriageDurationYears != null
                         ? obsHistoryData?.marriageDurationYears
                         : ``}
                       {"marriageDurationYears" in obsHistoryData &&
-                      "marriageDurationMonths" in obsHistoryData
+                      obsHistoryData?.marriageDurationYears != null &&
+                      "marriageDurationMonths" in obsHistoryData &&
+                      obsHistoryData?.marriageDurationMonths != null
                         ? `.`
                         : ``}
-                      {"marriageDurationMonths" in obsHistoryData
+                      {"marriageDurationMonths" in obsHistoryData &&
+                      obsHistoryData?.marriageDurationMonths != null
                         ? obsHistoryData?.marriageDurationMonths
                         : ``}
                       {"marriageDurationYears" in obsHistoryData &&
-                      "marriageDurationMonths" in obsHistoryData
+                      obsHistoryData?.marriageDurationYears != null &&
+                      "marriageDurationMonths" in obsHistoryData &&
+                      obsHistoryData?.marriageDurationMonths != null
                         ? ` years`
                         : "marriageDurationYears" in obsHistoryData &&
-                          !obsHistoryData.hasOwnProperty(
+                          obsHistoryData?.marriageDurationYears != null &&
+                          (!obsHistoryData.hasOwnProperty(
                             "marriageDurationMonths"
-                          )
+                          ) ||
+                            obsHistoryData?.marriageDurationMonths == null)
                         ? ` years`
-                        : !obsHistoryData.hasOwnProperty(
+                        : (!obsHistoryData.hasOwnProperty(
                             "marriageDurationYears"
-                          ) && "marriageDurationMonths" in obsHistoryData
+                          ) ||
+                            obsHistoryData?.marriageDurationYears == null) &&
+                          "marriageDurationMonths" in obsHistoryData &&
+                          obsHistoryData?.marriageDurationMonths != null
                         ? ` months`
                         : ``}
                     </Text>
@@ -483,12 +526,17 @@ function ObsHistoryListView({
       {options?.includes("gplae") && (
         <View>
           <Text style={{ lineHeight: 1.4 }}>
-            {("gravidity" in obsHistoryData ||
-              "parity" in obsHistoryData ||
-              "livingChildren" in obsHistoryData ||
-              "abortion" in obsHistoryData ||
-              "ectopicPregnancies" in obsHistoryData ||
-              "diagnosisNotes" in obsHistoryData) && (
+            {(("gravidity" in obsHistoryData &&
+              obsHistoryData?.gravidity != null) ||
+              ("parity" in obsHistoryData && obsHistoryData?.parity != null) ||
+              ("livingChildren" in obsHistoryData &&
+                obsHistoryData?.livingChildren != null) ||
+              ("abortion" in obsHistoryData &&
+                obsHistoryData?.abortion != null) ||
+              ("ectopicPregnancies" in obsHistoryData &&
+                obsHistoryData?.ectopicPregnancies != null) ||
+              ("diagnosisNotes" in obsHistoryData &&
+                obsHistoryData?.diagnosisNotes != null)) && (
               <>
                 <Text
                   style={{
@@ -512,35 +560,20 @@ function ObsHistoryListView({
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;
                 </Text>
 
-                {"gravidity" in obsHistoryData && (
-                  <>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 500,
-                      }}
-                    >
-                      Gravida&nbsp;:&nbsp;
-                    </Text>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 400,
-                      }}
-                    >
-                      {(obsHistoryData?.gravidity)?.toString().padStart(2, "0")}
-                    </Text>
-                    {("parity" in obsHistoryData ||
-                      "livingChildren" in obsHistoryData ||
-                      "abortion" in obsHistoryData ||
-                      "ectopicPregnancies" in obsHistoryData ||
-                      "diagnosisNotes" in obsHistoryData) && (
+                {"gravidity" in obsHistoryData &&
+                  obsHistoryData?.gravidity != null && (
+                    <>
+                      <Text
+                        style={{
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 500,
+                        }}
+                      >
+                        Gravida&nbsp;:&nbsp;
+                      </Text>
                       <Text
                         style={{
                           color: "#171725",
@@ -550,40 +583,47 @@ function ObsHistoryListView({
                           fontWeight: 400,
                         }}
                       >
-                        &nbsp;|&nbsp;
+                        {obsHistoryData?.gravidity?.toString().padStart(2, "0")}
                       </Text>
-                    )}
-                  </>
-                )}
+                      {(("parity" in obsHistoryData &&
+                        obsHistoryData?.parity != null) ||
+                        ("livingChildren" in obsHistoryData &&
+                          obsHistoryData?.livingChildren != null) ||
+                        ("abortion" in obsHistoryData &&
+                          obsHistoryData?.abortion != null) ||
+                        ("ectopicPregnancies" in obsHistoryData &&
+                          obsHistoryData?.ectopicPregnancies != null) ||
+                        ("diagnosisNotes" in obsHistoryData &&
+                          obsHistoryData?.diagnosisNotes != null)) && (
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                          }}
+                        >
+                          &nbsp;|&nbsp;
+                        </Text>
+                      )}
+                    </>
+                  )}
 
-                {"parity" in obsHistoryData && (
-                  <>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 500,
-                      }}
-                    >
-                      Para&nbsp;:&nbsp;
-                    </Text>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 400,
-                      }}
-                    >
-                      {(obsHistoryData?.parity)?.toString().padStart(2, "0")}
-                    </Text>
-                    {("livingChildren" in obsHistoryData ||
-                      "abortion" in obsHistoryData ||
-                      "ectopicPregnancies" in obsHistoryData ||
-                      "diagnosisNotes" in obsHistoryData) && (
+                {"parity" in obsHistoryData &&
+                  obsHistoryData?.parity != null && (
+                    <>
+                      <Text
+                        style={{
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 500,
+                        }}
+                      >
+                        Para&nbsp;:&nbsp;
+                      </Text>
                       <Text
                         style={{
                           color: "#171725",
@@ -593,41 +633,45 @@ function ObsHistoryListView({
                           fontWeight: 400,
                         }}
                       >
-                        &nbsp;|&nbsp;
+                        {obsHistoryData?.parity?.toString().padStart(2, "0")}
                       </Text>
-                    )}
-                  </>
-                )}
+                      {(("livingChildren" in obsHistoryData &&
+                        obsHistoryData?.livingChildren != null) ||
+                        ("abortion" in obsHistoryData &&
+                          obsHistoryData?.abortion != null) ||
+                        ("ectopicPregnancies" in obsHistoryData &&
+                          obsHistoryData?.ectopicPregnancies != null) ||
+                        ("diagnosisNotes" in obsHistoryData &&
+                          obsHistoryData?.diagnosisNotes != null)) && (
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                          }}
+                        >
+                          &nbsp;|&nbsp;
+                        </Text>
+                      )}
+                    </>
+                  )}
 
-                {"livingChildren" in obsHistoryData && (
-                  <>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 500,
-                      }}
-                    >
-                      Living&nbsp;:&nbsp;
-                    </Text>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 400,
-                      }}
-                    >
-                      {(obsHistoryData?.livingChildren)
-                        ?.toString()
-                        .padStart(2, "0")}
-                    </Text>
-                    {("abortion" in obsHistoryData ||
-                      "ectopicPregnancies" in obsHistoryData ||
-                      "diagnosisNotes" in obsHistoryData) && (
+                {"livingChildren" in obsHistoryData &&
+                  obsHistoryData?.livingChildren != null && (
+                    <>
+                      <Text
+                        style={{
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 500,
+                        }}
+                      >
+                        Living&nbsp;:&nbsp;
+                      </Text>
                       <Text
                         style={{
                           color: "#171725",
@@ -637,38 +681,45 @@ function ObsHistoryListView({
                           fontWeight: 400,
                         }}
                       >
-                        &nbsp;|&nbsp;
+                        {obsHistoryData?.livingChildren
+                          ?.toString()
+                          .padStart(2, "0")}
                       </Text>
-                    )}
-                  </>
-                )}
+                      {(("abortion" in obsHistoryData &&
+                        obsHistoryData?.abortion != null) ||
+                        ("ectopicPregnancies" in obsHistoryData &&
+                          obsHistoryData?.ectopicPregnancies != null) ||
+                        ("diagnosisNotes" in obsHistoryData &&
+                          obsHistoryData?.diagnosisNotes != null)) && (
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                          }}
+                        >
+                          &nbsp;|&nbsp;
+                        </Text>
+                      )}
+                    </>
+                  )}
 
-                {"abortion" in obsHistoryData && (
-                  <>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 500,
-                      }}
-                    >
-                      Abortion&nbsp;:&nbsp;
-                    </Text>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 400,
-                      }}
-                    >
-                      {(obsHistoryData?.abortion)?.toString().padStart(2, "0")}
-                    </Text>
-                    {("ectopicPregnancies" in obsHistoryData ||
-                      "diagnosisNotes" in obsHistoryData) && (
+                {"abortion" in obsHistoryData &&
+                  obsHistoryData?.abortion != null && (
+                    <>
+                      <Text
+                        style={{
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 500,
+                        }}
+                      >
+                        Abortion&nbsp;:&nbsp;
+                      </Text>
                       <Text
                         style={{
                           color: "#171725",
@@ -678,39 +729,41 @@ function ObsHistoryListView({
                           fontWeight: 400,
                         }}
                       >
-                        &nbsp;|&nbsp;
+                        {obsHistoryData?.abortion?.toString().padStart(2, "0")}
                       </Text>
-                    )}
-                  </>
-                )}
+                      {(("ectopicPregnancies" in obsHistoryData &&
+                        obsHistoryData?.ectopicPregnancies != null) ||
+                        ("diagnosisNotes" in obsHistoryData &&
+                          obsHistoryData?.diagnosisNotes != null)) && (
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                          }}
+                        >
+                          &nbsp;|&nbsp;
+                        </Text>
+                      )}
+                    </>
+                  )}
 
-                {"ectopicPregnancies" in obsHistoryData && (
-                  <>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 500,
-                      }}
-                    >
-                      Ectopic&nbsp;:&nbsp;
-                    </Text>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 400,
-                      }}
-                    >
-                      {(obsHistoryData?.ectopicPregnancies)
-                        ?.toString()
-                        .padStart(2, "0")}
-                    </Text>
-                    {"diagnosisNotes" in obsHistoryData && (
+                {"ectopicPregnancies" in obsHistoryData &&
+                  obsHistoryData?.ectopicPregnancies != null && (
+                    <>
+                      <Text
+                        style={{
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 500,
+                        }}
+                      >
+                        Ectopic&nbsp;:&nbsp;
+                      </Text>
                       <Text
                         style={{
                           color: "#171725",
@@ -720,37 +773,55 @@ function ObsHistoryListView({
                           fontWeight: 400,
                         }}
                       >
-                        &nbsp;|&nbsp;
+                        {obsHistoryData?.ectopicPregnancies
+                          ?.toString()
+                          .padStart(2, "0")}
                       </Text>
-                    )}
-                  </>
-                )}
-                {"diagnosisNotes" in obsHistoryData && (
-                  <>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 500,
-                      }}
-                    >
-                      Notes&nbsp;:&nbsp;
-                    </Text>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 400,
-                      }}
-                    >
-                      {obsHistoryData?.diagnosisNotes}
-                    </Text>
-                  </>
-                )}
+                      {"diagnosisNotes" in obsHistoryData &&
+                        obsHistoryData?.diagnosisNotes != null && (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                            }}
+                          >
+                            &nbsp;|&nbsp;
+                          </Text>
+                        )}
+                    </>
+                  )}
+                {"diagnosisNotes" in obsHistoryData &&
+                  obsHistoryData?.diagnosisNotes != null && (
+                    <>
+                      <Text
+                        style={{
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 500,
+                        }}
+                      >
+                        Notes&nbsp;:&nbsp;
+                      </Text>
+                      <Text
+                        style={{
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                        }}
+                      >
+                        {obsHistoryData?.diagnosisNotes}
+                      </Text>
+                    </>
+                  )}
               </>
             )}
           </Text>
@@ -831,7 +902,7 @@ function ObsHistoryListView({
                                   fontWeight: 400,
                                 }}
                               >
-                                {(item?.gravidaNumber)
+                                {item?.gravidaNumber
                                   ?.toString()
                                   .padStart(2, "0")}
                               </Text>

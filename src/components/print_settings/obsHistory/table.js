@@ -254,14 +254,18 @@ function ObsHistoryTableView({
                   styles.minHeight38,
                 ]}
               >
-                {"gestationWeeks" in obsHistoryData
+                {"gestationWeeks" in obsHistoryData &&
+                obsHistoryData?.gestationWeeks != null
                   ? `${obsHistoryData?.gestationWeeks}W`
                   : ""}
                 {"gestationWeeks" in obsHistoryData &&
-                "gestationDays" in obsHistoryData
+                obsHistoryData?.gestationWeeks != null &&
+                "gestationDays" in obsHistoryData &&
+                obsHistoryData?.gestationDays != null
                   ? `,`
                   : `-`}
-                {"gestationDays" in obsHistoryData
+                {"gestationDays" in obsHistoryData &&
+                obsHistoryData?.gestationDays != null
                   ? `${obsHistoryData?.gestationDays}D`
                   : ""}
               </Text>
@@ -342,24 +346,34 @@ function ObsHistoryTableView({
                   styles.minHeight38,
                 ]}
               >
-                {"marriageDurationYears" in obsHistoryData
+                {"marriageDurationYears" in obsHistoryData &&
+                obsHistoryData?.marriageDurationYears != null
                   ? obsHistoryData?.marriageDurationYears
                   : ``}
                 {"marriageDurationYears" in obsHistoryData &&
-                "marriageDurationMonths" in obsHistoryData
+                obsHistoryData?.marriageDurationYears != null &&
+                "marriageDurationMonths" in obsHistoryData &&
+                obsHistoryData?.marriageDurationMonths != null
                   ? `.`
                   : ``}
-                {"marriageDurationMonths" in obsHistoryData
+                {"marriageDurationMonths" in obsHistoryData &&
+                obsHistoryData?.marriageDurationMonths != null
                   ? obsHistoryData?.marriageDurationMonths
                   : ``}
                 {"marriageDurationYears" in obsHistoryData &&
-                "marriageDurationMonths" in obsHistoryData
+                obsHistoryData?.marriageDurationYears != null &&
+                "marriageDurationMonths" in obsHistoryData &&
+                obsHistoryData?.marriageDurationMonths != null
                   ? ` years`
                   : "marriageDurationYears" in obsHistoryData &&
-                    !obsHistoryData.hasOwnProperty("marriageDurationMonths")
+                    obsHistoryData?.marriageDurationYears != null &&
+                    (!obsHistoryData.hasOwnProperty("marriageDurationMonths") ||
+                      obsHistoryData?.marriageDurationMonths == null)
                   ? ` years`
-                  : !obsHistoryData.hasOwnProperty("marriageDurationYears") &&
-                    "marriageDurationMonths" in obsHistoryData
+                  : (!obsHistoryData.hasOwnProperty("marriageDurationYears") ||
+                      obsHistoryData?.marriageDurationYears == null) &&
+                    "marriageDurationMonths" in obsHistoryData &&
+                    obsHistoryData?.marriageDurationMonths != null
                   ? ` months`
                   : ``}
               </Text>
@@ -484,7 +498,7 @@ function ObsHistoryTableView({
                 ]}
               >
                 {"gravidity" in obsHistoryData
-                  ? (obsHistoryData?.gravidity)?.toString().padStart(2, "0")
+                  ? obsHistoryData?.gravidity?.toString().padStart(2, "0")
                   : `-`}
               </Text>
               <Text
@@ -500,7 +514,7 @@ function ObsHistoryTableView({
                 ]}
               >
                 {"parity" in obsHistoryData
-                  ? (obsHistoryData?.parity)?.toString().padStart(2, "0")
+                  ? obsHistoryData?.parity?.toString().padStart(2, "0")
                   : `-`}
               </Text>
               <Text
@@ -516,7 +530,7 @@ function ObsHistoryTableView({
                 ]}
               >
                 {"livingChildren" in obsHistoryData
-                  ? (obsHistoryData?.livingChildren)?.toString().padStart(2, "0")
+                  ? obsHistoryData?.livingChildren?.toString().padStart(2, "0")
                   : `-`}
               </Text>
               <Text
@@ -532,7 +546,7 @@ function ObsHistoryTableView({
                 ]}
               >
                 {"abortion" in obsHistoryData
-                  ? (obsHistoryData?.abortion)?.toString().padStart(2, "0")
+                  ? obsHistoryData?.abortion?.toString().padStart(2, "0")
                   : `-`}
               </Text>
               <Text
@@ -548,9 +562,10 @@ function ObsHistoryTableView({
                 ]}
               >
                 {"ectopicPregnancies" in obsHistoryData
-                  ? (obsHistoryData?.ectopicPregnancies)
-                      ?.toString()
-                      .padStart(2, "0")
+                  ? obsHistoryData?.ectopicPregnancies?.toString().padStart(
+                      2,
+                      "0"
+                    )
                   : `-`}
               </Text>
             </View>
@@ -842,7 +857,7 @@ function ObsHistoryTableView({
                       ]}
                     >
                       {"gravidaNumber" in item
-                        ? (item?.gravidaNumber)?.toString().padStart(2, "0")
+                        ? item?.gravidaNumber?.toString().padStart(2, "0")
                         : `-`}
                     </Text>
                     <Text
