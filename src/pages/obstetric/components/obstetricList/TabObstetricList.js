@@ -7,7 +7,7 @@ import { obstetricTabListColumns } from "../../utils/constants";
 
 const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const { examinationHistory } = obstetricDetails;
+  const { examinationHistory = [] } = obstetricDetails;
   const [accordionItems, setAccordionItems] = useState([]);
 
   const measurementDetails = (obsVisit) => {
