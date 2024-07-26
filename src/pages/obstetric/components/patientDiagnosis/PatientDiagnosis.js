@@ -165,7 +165,7 @@ export default function PatientDiagnosis({
               }}
               onChange={(e) =>
                 handlePatientDiagnosis(
-                  e.target.value,
+                  e.target.value || null,
                   "gestationWeeks",
                   e.target.validity.valid && e.target.value <= 50
                 )
@@ -186,7 +186,7 @@ export default function PatientDiagnosis({
               }}
               onChange={(e) =>
                 handlePatientDiagnosis(
-                  e.target.value,
+                  e.target.value || null,
                   "gestationDays",
                   e.target.validity.valid && e.target.value <= 6
                 )
@@ -207,13 +207,7 @@ export default function PatientDiagnosis({
             <DropdownButton
               className="diagnosisSelect bloodGroup"
               title={
-                <div
-                  style={{
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    display: "flex",
-                  }}
-                >
+                <div className="bloodGroupText">
                   {patientDiagnosisData.blood || "Select"}
                   <i className="icon-right iconStyle" />
                 </div>
@@ -308,7 +302,7 @@ export default function PatientDiagnosis({
               }}
               onChange={(e) =>
                 handlePatientDiagnosis(
-                  e.target.value,
+                  e.target.value || null,
                   "marriageDurationYears",
                   e.target.validity.valid && e.target.value <= 100
                 )
@@ -324,7 +318,7 @@ export default function PatientDiagnosis({
               }}
               onChange={(e) =>
                 handlePatientDiagnosis(
-                  e.target.value,
+                  e.target.value || null,
                   "marriageDurationMonths",
                   e.target.validity.valid && e.target.value <= 11
                 )
@@ -350,6 +344,7 @@ export default function PatientDiagnosis({
                     fontSize: "14px",
                     fontWeight: "500",
                     display: "flex",
+                    width: "70px",
                   }}
                 >
                   {typeof patientDiagnosisData.consang === "boolean"

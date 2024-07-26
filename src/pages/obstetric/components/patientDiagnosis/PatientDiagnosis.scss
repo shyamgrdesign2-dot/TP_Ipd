@@ -236,6 +236,17 @@
     width: 235px !important;
   }
 
+  .bloodGroupText {
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    width: 94px;
+
+    @media only screen and (min-width: 1200px) {
+      width: 70px;
+    }
+  }
+
   .bloodGroup {
     width: 40%;
 
@@ -243,7 +254,6 @@
       width: 15%;
     }
     .dropdown-menu {
-      margin-right: -50px !important;
       margin-top: 3px;
       width: 80px !important;
 
@@ -269,7 +279,6 @@
       width: 15%;
     }
     .dropdown-menu {
-      margin-right: -28px !important;
       margin-top: 3px;
       width: 60px !important;
 
