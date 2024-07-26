@@ -229,7 +229,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
             <Col sm={24} lg={12}>
               <div className='round-pink'></div>
               <div className='doctor-photo'>
-                <img src={personalDetails?.hero_image_link ? personalDetails?.hero_image_link : DoctorDefault} alt="Doctor Profile" className={`${personalDetails?.hero_image_link}? 'img-fluid h-100' : '' `} />
+                <img src={personalDetails?.hero_image_link ? personalDetails?.hero_image_link : DoctorDefault} alt="Doctor Profile" className={`${personalDetails?.hero_image_link ? 'img-fluid h-100' : ''} `} />
               </div>
               <div className='square-yellow'></div>
             </Col>
@@ -360,7 +360,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                             </div>
                           </div>
                         )}
-                        <p className='slide-count'><span>{String(currentSlide + 1).padStart(2, "0")}/{String(doctorExperience.length).padStart(2, "0")}</span></p>
+                        <p className='slide-count'><span>{String(currentSlide + 1).padStart(2, "0")}/{String(clinicProfile?.filter(el => !el.clinic_delete)?.length).padStart(2, "0")}</span></p>
                       </Col>
                     </Row>
                   </div>
