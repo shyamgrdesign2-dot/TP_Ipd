@@ -323,7 +323,7 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
         <div className="text-start">
           <div className="fw-semibold">Customise Options</div>
           <div className="subtitle-customize">
-            Selected/deselect the paramters need to be printed
+            Select/deselect the parameters need to be printed
           </div>
         </div>
       ),

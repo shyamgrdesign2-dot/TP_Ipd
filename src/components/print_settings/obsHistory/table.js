@@ -57,7 +57,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight38,
+                  styles.minHeight50,
                 ]}
               >
                 LMP
@@ -72,7 +72,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight38,
+                  styles.minHeight50,
                 ]}
               >
                 E.D.D.
@@ -87,7 +87,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight38,
+                  styles.minHeight50,
                 ]}
               >
                 C.E.E.D.
@@ -102,7 +102,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight38,
+                  styles.minHeight50,
                 ]}
               >
                 Gestation
@@ -117,7 +117,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight38,
+                  styles.minHeight50,
                 ]}
               >
                 Blood group
@@ -132,7 +132,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight38,
+                  styles.minHeight50,
                 ]}
               >
                 Husband's blood group
@@ -147,7 +147,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight38,
+                  styles.minHeight50,
                 ]}
               >
                 Consang
@@ -162,10 +162,25 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight38,
+                  styles.minHeight50,
                 ]}
               >
                 Marital status
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight50,
+                ]}
+              >
+                Marriage duration
               </Text>
             </View>
 
@@ -185,9 +200,10 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
+                  styles.minHeight38,
                 ]}
               >
-                {obsHistoryData?.lmp
+                {"lmp" in obsHistoryData
                   ? moment(obsHistoryData?.lmp).format("DD MMM YYYY")
                   : `-`}
               </Text>
@@ -201,9 +217,10 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
+                  styles.minHeight38,
                 ]}
               >
-                {obsHistoryData?.edd
+                {"edd" in obsHistoryData
                   ? moment(obsHistoryData?.edd).format("DD MMM YYYY")
                   : `-`}
               </Text>
@@ -217,9 +234,10 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
+                  styles.minHeight38,
                 ]}
               >
-                {obsHistoryData?.ceed
+                {"ceed" in obsHistoryData
                   ? moment(obsHistoryData?.ceed).format("DD MMM YYYY")
                   : `-`}
               </Text>
@@ -233,15 +251,17 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
+                  styles.minHeight38,
                 ]}
               >
-                {obsHistoryData?.gestationWeeks
+                {"gestationWeeks" in obsHistoryData
                   ? `${obsHistoryData?.gestationWeeks}W`
                   : ""}
-                {obsHistoryData?.gestationWeeks && obsHistoryData?.gestationDays
+                {"gestationWeeks" in obsHistoryData &&
+                "gestationDays" in obsHistoryData
                   ? `,`
                   : `-`}
-                {obsHistoryData?.gestationDays
+                {"gestationDays" in obsHistoryData
                   ? `${obsHistoryData?.gestationDays}D`
                   : ""}
               </Text>
@@ -255,9 +275,10 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
+                  styles.minHeight38,
                 ]}
               >
-                {obsHistoryData?.blood || `-`}
+                {"blood" in obsHistoryData ? obsHistoryData?.blood : `-`}
               </Text>
               <Text
                 style={[
@@ -269,9 +290,12 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
+                  styles.minHeight38,
                 ]}
               >
-                {obsHistoryData?.husbandsBlood || `-`}
+                {"husbandsBlood" in obsHistoryData
+                  ? obsHistoryData?.husbandsBlood
+                  : `-`}
               </Text>
               <Text
                 style={[
@@ -283,6 +307,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
+                  styles.minHeight38,
                 ]}
               >
                 {Boolean(obsHistoryData?.consang) ? `Yes` : `No`}
@@ -297,9 +322,46 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
+                  styles.minHeight38,
                 ]}
               >
-                {obsHistoryData?.maritialStatus || `-`}
+                {"maritialStatus" in obsHistoryData
+                  ? obsHistoryData?.maritialStatus
+                  : `-`}
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight38,
+                ]}
+              >
+                {"marriageDurationYears" in obsHistoryData
+                  ? obsHistoryData?.marriageDurationYears
+                  : ``}
+                {"marriageDurationYears" in obsHistoryData &&
+                "marriageDurationMonths" in obsHistoryData
+                  ? `.`
+                  : ``}
+                {"marriageDurationMonths" in obsHistoryData
+                  ? obsHistoryData?.marriageDurationMonths
+                  : ``}
+                {"marriageDurationYears" in obsHistoryData &&
+                "marriageDurationMonths" in obsHistoryData
+                  ? ` years`
+                  : "marriageDurationYears" in obsHistoryData &&
+                    !obsHistoryData.hasOwnProperty("marriageDurationMonths")
+                  ? ` years`
+                  : !obsHistoryData.hasOwnProperty("marriageDurationYears") &&
+                    "marriageDurationMonths" in obsHistoryData
+                  ? ` months`
+                  : ``}
               </Text>
             </View>
           </View>
@@ -421,7 +483,7 @@ function ObsHistoryTableView({
                   },
                 ]}
               >
-                {obsHistoryData?.gravidity
+                {"gravidity" in obsHistoryData
                   ? (obsHistoryData?.gravidity)?.toString().padStart(2, "0")
                   : `-`}
               </Text>
@@ -437,7 +499,7 @@ function ObsHistoryTableView({
                   },
                 ]}
               >
-                {obsHistoryData?.parity
+                {"parity" in obsHistoryData
                   ? (obsHistoryData?.parity)?.toString().padStart(2, "0")
                   : `-`}
               </Text>
@@ -453,7 +515,7 @@ function ObsHistoryTableView({
                   },
                 ]}
               >
-                {obsHistoryData?.livingChildren
+                {"livingChildren" in obsHistoryData
                   ? (obsHistoryData?.livingChildren)?.toString().padStart(2, "0")
                   : `-`}
               </Text>
@@ -469,7 +531,7 @@ function ObsHistoryTableView({
                   },
                 ]}
               >
-                {obsHistoryData?.abortion
+                {"abortion" in obsHistoryData
                   ? (obsHistoryData?.abortion)?.toString().padStart(2, "0")
                   : `-`}
               </Text>
@@ -485,7 +547,7 @@ function ObsHistoryTableView({
                   },
                 ]}
               >
-                {obsHistoryData?.ectopicPregnancies
+                {"ectopicPregnancies" in obsHistoryData
                   ? (obsHistoryData?.ectopicPregnancies)
                       ?.toString()
                       .padStart(2, "0")
@@ -515,7 +577,9 @@ function ObsHistoryTableView({
                   },
                 ]}
               >
-                {obsHistoryData?.diagnosisNotes || `-`}
+                {"diagnosisNotes" in obsHistoryData
+                  ? obsHistoryData?.diagnosisNotes
+                  : `-`}
               </Text>
             </Text>
           </View>
@@ -777,7 +841,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {item?.gravidaNumber
+                      {"gravidaNumber" in item
                         ? (item?.gravidaNumber)?.toString().padStart(2, "0")
                         : `-`}
                     </Text>
@@ -794,7 +858,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {item?.outcome || `-`}
+                      {"outcome" in item ? item?.outcome : `-`}
                     </Text>
                     <Text
                       style={[
@@ -809,7 +873,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {item?.termLength || `-`}
+                      {"termLength" in item ? item?.termLength : `-`}
                     </Text>
 
                     {"deliveryMode" in item && (
@@ -826,7 +890,7 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        {item?.deliveryMode || `-`}
+                        {"deliveryMode" in item ? item?.deliveryMode : `-`}
                       </Text>
                     )}
 
@@ -844,9 +908,11 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        {item?.gestationPeriod
-                          ? `${item.gestationPeriod} ${
-                              item.gestationPeriod > 1 ? "weeks" : "week"
+                        {"gestationPeriod" in item
+                          ? `${item?.gestationPeriod} ${
+                              Number(item?.gestationPeriod) > 1
+                                ? "weeks"
+                                : "week"
                             }`
                           : "-"}
                       </Text>
@@ -866,7 +932,7 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        {item?.location || `-`}
+                        {"location" in item ? item?.location : `-`}
                       </Text>
                     )}
 
@@ -884,7 +950,9 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        {item?.modeOfManagement || `-`}
+                        {"modeOfManagement" in item
+                          ? item?.modeOfManagement
+                          : `-`}
                       </Text>
                     )}
 
@@ -902,7 +970,7 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        {item?.typeOfAbortion || `-`}
+                        {"typeOfAbortion" in item ? item?.typeOfAbortion : `-`}
                       </Text>
                     )}
 
@@ -920,7 +988,7 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        {item?.modeOfAbortion || `-`}
+                        {"modeOfAbortion" in item ? item?.modeOfAbortion : `-`}
                       </Text>
                     )}
 
@@ -938,7 +1006,7 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        {item?.dateOfDelivery
+                        {"dateOfDelivery" in item
                           ? moment(item?.dateOfDelivery).format("DD MMM YYYY")
                           : `-`}
                       </Text>
@@ -958,7 +1026,7 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        {item?.gender || `-`}
+                        {"gender" in item ? item?.gender : `-`}
                       </Text>
                     )}
 
@@ -976,8 +1044,8 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        {item?.babysWeight || ``}
-                        {item?.babysWeight ? `kgs` : `-`}
+                        {"babysWeight" in item ? item?.babysWeight : ``}
+                        {"babysWeight" in item ? `kgs` : `-`}
                       </Text>
                     )}
                   </View>
@@ -1007,7 +1075,7 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {item?.remarks || `-`}
+                    {"remarks" in item ? item?.remarks : `-`}
                   </Text>
                 </Text>
               </View>
@@ -1258,8 +1326,8 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {item?.mothersBMI || ``}
-                    {item?.mothersBMI ? `kg/m2` : `-`}
+                    {"mothersBMI" in item ? item?.mothersBMI : ``}
+                    {"mothersBMI" in item ? `kg/m2` : `-`}
                   </Text>
                   <Text
                     style={[
@@ -1275,10 +1343,10 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {item?.diastolic || ``}
-                    {item?.diastolic ? `/` : `-`}
-                    {item?.systolic || ``}
-                    {item?.diastolic ? ` mmHg` : ``}
+                    {"diastolic" in item ? item?.diastolic : ``}
+                    {"diastolic" in item && "systolic" in item ? `/` : `-`}
+                    {"systolic" in item ? item?.systolic : ``}
+                    {"diastolic" in item || "systolic" in item ? ` mmHg` : ``}
                   </Text>
                   <Text
                     style={[
@@ -1294,8 +1362,10 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {item?.heightOfFundus || ``}
-                    {item?.heightOfFundusUnit || `-`}
+                    {"heightOfFundus" in item ? item?.heightOfFundus : ``}
+                    {"heightOfFundus" in item && "heightOfFundusUnit" in item
+                      ? item?.heightOfFundusUnit
+                      : `-`}
                   </Text>
                   <Text
                     style={[
@@ -1311,7 +1381,7 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {item?.presentation || `-`}
+                    {"presentation" in item ? item?.presentation : `-`}
                   </Text>
                   <Text
                     style={[
@@ -1327,8 +1397,8 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {item?.fluidIndex || ``}
-                    {item?.fluidIndex ? ` cm` : `-`}
+                    {"fluidIndex" in item ? item?.fluidIndex : ``}
+                    {"fluidIndex" in item ? ` cm` : `-`}
                   </Text>
                   <Text
                     style={[
@@ -1344,8 +1414,8 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {item?.foetalHeartRate || ``}
-                    {item?.foetalHeartRate ? ` BPM` : `-`}
+                    {"foetalHeartRate" in item ? item?.foetalHeartRate : ``}
+                    {"foetalHeartRate" in item ? ` BPM` : `-`}
                   </Text>
                 </View>
               </View>
@@ -1374,7 +1444,7 @@ function ObsHistoryTableView({
                     },
                   ]}
                 >
-                  {item?.notes || `-`}
+                  {"notes" in item ? item?.notes : `-`}
                 </Text>
               </Text>
             </View>

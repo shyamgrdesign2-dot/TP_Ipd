@@ -110,6 +110,12 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 6,
         borderRight: '1px solid #171725',
+    },
+    minHeight50: {
+        minHeight: 50
+    },
+    minHeight38: {
+        minHeight: 38
     }
 });
 
