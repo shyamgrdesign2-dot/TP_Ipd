@@ -116,7 +116,13 @@ function HeaderDoctorWebsite() {
         const total = progressEvent.total
         const current = progressEvent.loaded
         const percentage = Math.round((current / total) * 100);
-        setProgress(percentage);
+        if (percentage < 100) {
+            setProgress(percentage);
+        } else {
+            setTimeout(() => {
+                setProgress(percentage);
+            }, 1000);
+        }
     };
 
     const handleCancelUpload = () => {

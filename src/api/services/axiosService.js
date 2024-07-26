@@ -5,7 +5,7 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from '../../utils/constants';
 
 const instance = axios.create({
     // baseURL: config.appointment_api_url, // Replace with your API base URL
-    timeout: 300000, // Set the timeout for requests
+    timeout: 20000, // Set the timeout for requests
 });
 
 // Request interceptor

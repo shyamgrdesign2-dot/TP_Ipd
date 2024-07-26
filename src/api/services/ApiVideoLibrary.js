@@ -23,6 +23,7 @@ ApiVideoLibrary.saveDoctorWebsite = function (formData, onUploadProgress, cancel
     {
       ...baseUrl,
       onUploadProgress: onUploadProgress,
+      timeout: 300000,
       cancelToken: cancelToken,
     });
 };
