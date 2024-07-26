@@ -26,15 +26,15 @@ function ObsHistoryListView({
       {options?.includes("diagnosis") && (
         <View>
           <Text style={{ marginTop: 5, lineHeight: 1.4 }}>
-            {(obsHistoryData?.lmp ||
-              obsHistoryData?.edd ||
-              obsHistoryData?.ceed ||
-              obsHistoryData?.gestationWeeks ||
-              obsHistoryData?.gestationDays ||
-              obsHistoryData?.blood ||
-              obsHistoryData?.husbandsBlood ||
+            {("lmp" in obsHistoryData ||
+              "edd" in obsHistoryData ||
+              "ceed" in obsHistoryData ||
+              "gestationWeeks" in obsHistoryData ||
+              "gestationDays" in obsHistoryData ||
+              "blood" in obsHistoryData ||
+              "husbandsBlood" in obsHistoryData ||
               "consang" in obsHistoryData ||
-              obsHistoryData?.maritialStatus) && (
+              "maritialStatus" in obsHistoryData) && (
               <>
                 <Text
                   style={{
@@ -58,7 +58,7 @@ function ObsHistoryListView({
                   &nbsp;{"\n"}
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;Details&nbsp;(
                 </Text>
-                {obsHistoryData?.lmp && (
+                {"lmp" in obsHistoryData && (
                   <>
                     <Text
                       style={{
@@ -83,14 +83,14 @@ function ObsHistoryListView({
                       {moment(obsHistoryData?.lmp).format("DD MMM YYYY")}
                     </Text>
 
-                    {(obsHistoryData?.edd ||
-                      obsHistoryData?.ceed ||
-                      obsHistoryData?.gestationWeeks ||
-                      obsHistoryData?.gestationDays ||
-                      obsHistoryData?.blood ||
-                      obsHistoryData?.husbandsBlood ||
+                    {("edd" in obsHistoryData ||
+                      "ceed" in obsHistoryData ||
+                      "gestationWeeks" in obsHistoryData ||
+                      "gestationDays" in obsHistoryData ||
+                      "blood" in obsHistoryData ||
+                      "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
-                      obsHistoryData?.maritialStatus) && (
+                      "maritialStatus" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -106,7 +106,7 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {obsHistoryData?.edd && (
+                {"edd" in obsHistoryData && (
                   <>
                     <Text
                       style={{
@@ -130,13 +130,13 @@ function ObsHistoryListView({
                     >
                       {moment(obsHistoryData?.edd).format("DD MMM YYYY")}
                     </Text>
-                    {(obsHistoryData?.ceed ||
-                      obsHistoryData?.gestationWeeks ||
-                      obsHistoryData?.gestationDays ||
-                      obsHistoryData?.blood ||
-                      obsHistoryData?.husbandsBlood ||
+                    {("ceed" in obsHistoryData ||
+                      "gestationWeeks" in obsHistoryData ||
+                      "gestationDays" in obsHistoryData ||
+                      "blood" in obsHistoryData ||
+                      "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
-                      obsHistoryData?.maritialStatus) && (
+                      "maritialStatus" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -152,7 +152,7 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {obsHistoryData?.ceed && (
+                {"ceed" in obsHistoryData && (
                   <>
                     <Text
                       style={{
@@ -176,12 +176,12 @@ function ObsHistoryListView({
                     >
                       {moment(obsHistoryData?.ceed).format("DD MMM YYYY")}
                     </Text>
-                    {(obsHistoryData?.gestationWeeks ||
-                      obsHistoryData?.gestationDays ||
-                      obsHistoryData?.blood ||
-                      obsHistoryData?.husbandsBlood ||
+                    {("gestationWeeks" in obsHistoryData ||
+                      "gestationDays" in obsHistoryData ||
+                      "blood" in obsHistoryData ||
+                      "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
-                      obsHistoryData?.maritialStatus) && (
+                      "maritialStatus" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -197,8 +197,8 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {(Boolean(obsHistoryData?.gestationWeeks) ||
-                  Boolean(obsHistoryData?.gestationDays)) && (
+                {("gestationWeeks" in obsHistoryData ||
+                  "gestationDays" in obsHistoryData) && (
                   <>
                     <Text
                       style={{
@@ -234,7 +234,7 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {obsHistoryData?.blood && (
+                {"blood" in obsHistoryData && (
                   <>
                     <Text
                       style={{
@@ -260,9 +260,9 @@ function ObsHistoryListView({
                     >
                       {obsHistoryData?.blood}
                     </Text>
-                    {(obsHistoryData?.husbandsBlood ||
+                    {("husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
-                      obsHistoryData?.maritialStatus) && (
+                      "maritialStatus" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -278,7 +278,7 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {obsHistoryData?.husbandsBlood && (
+                {"husbandsBlood" in obsHistoryData && (
                   <>
                     <Text
                       style={{
@@ -303,7 +303,7 @@ function ObsHistoryListView({
                       {obsHistoryData?.husbandsBlood}
                     </Text>
                     {("consang" in obsHistoryData ||
-                      obsHistoryData?.maritialStatus) && (
+                      "maritialStatus" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -343,7 +343,7 @@ function ObsHistoryListView({
                     >
                       {Boolean(obsHistoryData?.consang) ? `Yes` : `No`}
                     </Text>
-                    {obsHistoryData?.maritialStatus && (
+                    {"maritialStatus" in obsHistoryData && (
                       <Text
                         style={{
                           color: "#171725",
@@ -359,7 +359,7 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {obsHistoryData?.maritialStatus && (
+                {"maritialStatus" in obsHistoryData && (
                   <>
                     <Text
                       style={{
@@ -405,11 +405,12 @@ function ObsHistoryListView({
       {options?.includes("gplae") && (
         <View>
           <Text style={{ lineHeight: 1.4 }}>
-            {(obsHistoryData?.gravidity ||
-              obsHistoryData?.parity ||
-              obsHistoryData?.livingChildren ||
-              obsHistoryData?.abortion ||
-              obsHistoryData?.ectopicPregnancies) && (
+            {("gravidity" in obsHistoryData ||
+              "parity" in obsHistoryData ||
+              "livingChildren" in obsHistoryData ||
+              "abortion" in obsHistoryData ||
+              "ectopicPregnancies" in obsHistoryData ||
+              "diagnosisNotes" in obsHistoryData) && (
               <>
                 <Text
                   style={{
@@ -433,7 +434,7 @@ function ObsHistoryListView({
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;
                 </Text>
 
-                {obsHistoryData?.gravidity && (
+                {"gravidity" in obsHistoryData && (
                   <>
                     <Text
                       style={{
@@ -455,12 +456,13 @@ function ObsHistoryListView({
                         fontWeight: 400,
                       }}
                     >
-                      {(obsHistoryData?.gravidity).toString().padStart(2, "0")}
+                      {(obsHistoryData?.gravidity)?.toString().padStart(2, "0")}
                     </Text>
-                    {(obsHistoryData?.parity ||
-                      obsHistoryData?.livingChildren ||
-                      obsHistoryData?.abortion ||
-                      obsHistoryData?.ectopicPregnancies) && (
+                    {("parity" in obsHistoryData ||
+                      "livingChildren" in obsHistoryData ||
+                      "abortion" in obsHistoryData ||
+                      "ectopicPregnancies" in obsHistoryData ||
+                      "diagnosisNotes" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -476,7 +478,7 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {obsHistoryData?.parity && (
+                {"parity" in obsHistoryData && (
                   <>
                     <Text
                       style={{
@@ -498,11 +500,12 @@ function ObsHistoryListView({
                         fontWeight: 400,
                       }}
                     >
-                      {(obsHistoryData?.parity).toString().padStart(2, "0")}
+                      {(obsHistoryData?.parity)?.toString().padStart(2, "0")}
                     </Text>
-                    {(obsHistoryData?.livingChildren ||
-                      obsHistoryData?.abortion ||
-                      obsHistoryData?.ectopicPregnancies) && (
+                    {("livingChildren" in obsHistoryData ||
+                      "abortion" in obsHistoryData ||
+                      "ectopicPregnancies" in obsHistoryData ||
+                      "diagnosisNotes" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -518,7 +521,7 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {obsHistoryData?.livingChildren && (
+                {"livingChildren" in obsHistoryData && (
                   <>
                     <Text
                       style={{
@@ -541,11 +544,12 @@ function ObsHistoryListView({
                       }}
                     >
                       {(obsHistoryData?.livingChildren)
-                        .toString()
+                        ?.toString()
                         .padStart(2, "0")}
                     </Text>
-                    {(obsHistoryData?.abortion ||
-                      obsHistoryData?.ectopicPregnancies) && (
+                    {("abortion" in obsHistoryData ||
+                      "ectopicPregnancies" in obsHistoryData ||
+                      "diagnosisNotes" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -561,7 +565,7 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {obsHistoryData?.abortion && (
+                {"abortion" in obsHistoryData && (
                   <>
                     <Text
                       style={{
@@ -583,9 +587,10 @@ function ObsHistoryListView({
                         fontWeight: 400,
                       }}
                     >
-                      {(obsHistoryData?.abortion).toString().padStart(2, "0")}
+                      {(obsHistoryData?.abortion)?.toString().padStart(2, "0")}
                     </Text>
-                    {obsHistoryData?.ectopicPregnancies && (
+                    {("ectopicPregnancies" in obsHistoryData ||
+                      "diagnosisNotes" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -601,7 +606,7 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {obsHistoryData?.ectopicPregnancies && (
+                {"ectopicPregnancies" in obsHistoryData && (
                   <>
                     <Text
                       style={{
@@ -624,10 +629,10 @@ function ObsHistoryListView({
                       }}
                     >
                       {(obsHistoryData?.ectopicPregnancies)
-                        .toString()
+                        ?.toString()
                         .padStart(2, "0")}
                     </Text>
-                    {obsHistoryData?.diagnosisNotes && (
+                    {"diagnosisNotes" in obsHistoryData && (
                       <Text
                         style={{
                           color: "#171725",
@@ -642,7 +647,7 @@ function ObsHistoryListView({
                     )}
                   </>
                 )}
-                {obsHistoryData?.diagnosisNotes && (
+                {"diagnosisNotes" in obsHistoryData && (
                   <>
                     <Text
                       style={{
@@ -693,18 +698,18 @@ function ObsHistoryListView({
                 {obsHistoryData?.pregnancyHistory.map((item, i) => {
                   return (
                     <View key={i}>
-                      {(item?.outcome ||
-                        item?.termLength ||
-                        item?.deliveryMode ||
-                        item?.gestationPeriod ||
-                        item?.location ||
-                        item?.modeOfManagement ||
-                        item?.typeOfAbortion ||
-                        item?.modeOfAbortion ||
-                        item?.dateOfDelivery ||
-                        item?.gender ||
-                        item?.babysWeight ||
-                        item?.remarks) && (
+                      {("outcome" in item ||
+                        "termLength" in item ||
+                        "deliveryMode" in item ||
+                        "gestationPeriod" in item ||
+                        "location" in item ||
+                        "modeOfManagement" in item ||
+                        "typeOfAbortion" in item ||
+                        "modeOfAbortion" in item ||
+                        "dateOfDelivery" in item ||
+                        "gender" in item ||
+                        "babysWeight" in item ||
+                        "remarks" in item) && (
                         <>
                           <Text
                             style={{
@@ -722,7 +727,7 @@ function ObsHistoryListView({
                             {String.fromCharCode(97 + i)}.&nbsp;
                           </Text>
 
-                          {item?.gravidaNumber && (
+                          {"gravidaNumber" in item && (
                             <>
                               <Text
                                 style={{
@@ -749,40 +754,27 @@ function ObsHistoryListView({
                                 }}
                               >
                                 {(item?.gravidaNumber)
-                                  .toString()
+                                  ?.toString()
                                   .padStart(2, "0")}
                               </Text>
                             </>
                           )}
 
-                          {(item?.outcome ||
-                            item?.termLength ||
-                            item?.deliveryMode ||
-                            item?.gestationPeriod ||
-                            item?.location ||
-                            item?.modeOfManagement ||
-                            item?.typeOfAbortion ||
-                            item?.modeOfAbortion ||
-                            item?.dateOfDelivery ||
-                            item?.gender ||
-                            item?.babysWeight ||
-                            item?.remarks) && (
-                            <Text
-                              style={{
-                                color: "#171725",
-                                fontFamily:
-                                  printSettings?.page_format?.font_family,
-                                fontSize:
-                                  PX_TO_PT *
-                                  printSettings?.page_format?.font_size,
-                                fontWeight: 500,
-                              }}
-                            >
-                              &nbsp;(
-                            </Text>
-                          )}
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            &nbsp;(
+                          </Text>
 
-                          {item?.outcome && (
+                          {"outcome" in item && (
                             <>
                               <Text
                                 style={{
@@ -810,17 +802,17 @@ function ObsHistoryListView({
                               >
                                 {item?.outcome}
                               </Text>
-                              {(item?.termLength ||
-                                item?.deliveryMode ||
-                                item?.gestationPeriod ||
-                                item?.location ||
-                                item?.modeOfManagement ||
-                                item?.typeOfAbortion ||
-                                item?.modeOfAbortion ||
-                                item?.dateOfDelivery ||
-                                item?.gender ||
-                                item?.babysWeight ||
-                                item?.remarks) && (
+                              {("termLength" in item ||
+                                "deliveryMode" in item ||
+                                "gestationPeriod" in item ||
+                                "location" in item ||
+                                "modeOfManagement" in item ||
+                                "typeOfAbortion" in item ||
+                                "modeOfAbortion" in item ||
+                                "dateOfDelivery" in item ||
+                                "gender" in item ||
+                                "babysWeight" in item ||
+                                "remarks" in item) && (
                                 <Text
                                   style={{
                                     color: "#171725",
@@ -838,7 +830,7 @@ function ObsHistoryListView({
                             </>
                           )}
 
-                          {item?.termLength && (
+                          {"termLength" in item && (
                             <>
                               <Text
                                 style={{
@@ -866,16 +858,16 @@ function ObsHistoryListView({
                               >
                                 {item?.termLength}
                               </Text>
-                              {(item?.deliveryMode ||
-                                item?.gestationPeriod ||
-                                item?.location ||
-                                item?.modeOfManagement ||
-                                item?.typeOfAbortion ||
-                                item?.modeOfAbortion ||
-                                item?.dateOfDelivery ||
-                                item?.gender ||
-                                obsHistoryData?.babysWeight ||
-                                item?.remarks) && (
+                              {("deliveryMode" in item ||
+                                "gestationPeriod" in item ||
+                                "location" in item ||
+                                "modeOfManagement" in item ||
+                                "typeOfAbortion" in item ||
+                                "modeOfAbortion" in item ||
+                                "dateOfDelivery" in item ||
+                                "gender" in item ||
+                                "babysWeight" in item ||
+                                "remarks" in item) && (
                                 <Text
                                   style={{
                                     color: "#171725",
@@ -893,7 +885,7 @@ function ObsHistoryListView({
                             </>
                           )}
 
-                          {item?.deliveryMode && (
+                          {"deliveryMode" in item && (
                             <>
                               <Text
                                 style={{
@@ -921,15 +913,15 @@ function ObsHistoryListView({
                               >
                                 {item?.deliveryMode}
                               </Text>
-                              {(item?.gestationPeriod ||
-                                item?.location ||
-                                item?.modeOfManagement ||
-                                item?.typeOfAbortion ||
-                                item?.modeOfAbortion ||
-                                item?.dateOfDelivery ||
-                                item?.gender ||
-                                item?.babysWeight ||
-                                item?.remarks) && (
+                              {("gestationPeriod" in item ||
+                                "location" in item ||
+                                "modeOfManagement" in item ||
+                                "typeOfAbortion" in item ||
+                                "modeOfAbortion" in item ||
+                                "dateOfDelivery" in item ||
+                                "gender" in item ||
+                                "babysWeight" in item ||
+                                "remarks" in item) && (
                                 <Text
                                   style={{
                                     color: "#171725",
@@ -947,7 +939,7 @@ function ObsHistoryListView({
                             </>
                           )}
 
-                          {item?.gestationPeriod && (
+                          {"gestationPeriod" in item && (
                             <>
                               <Text
                                 style={{
@@ -976,14 +968,14 @@ function ObsHistoryListView({
                                 {item?.gestationPeriod}{" "}
                                 {item?.gestationPeriod > 1 ? `weeks` : `week`}
                               </Text>
-                              {(item?.location ||
-                                item?.modeOfManagement ||
-                                item?.typeOfAbortion ||
-                                item?.modeOfAbortion ||
-                                item?.dateOfDelivery ||
-                                item?.gender ||
-                                item?.babysWeight ||
-                                item?.remarks) && (
+                              {("location" in item ||
+                                "modeOfManagement" in item ||
+                                "typeOfAbortion" in item ||
+                                "modeOfAbortion" in item ||
+                                "dateOfDelivery" in item ||
+                                "gender" in item ||
+                                "babysWeight" in item ||
+                                "remarks" in item) && (
                                 <Text
                                   style={{
                                     color: "#171725",
@@ -1001,7 +993,7 @@ function ObsHistoryListView({
                             </>
                           )}
 
-                          {item?.location && (
+                          {"location" in item && (
                             <>
                               <Text
                                 style={{
@@ -1029,13 +1021,13 @@ function ObsHistoryListView({
                               >
                                 {item?.location}
                               </Text>
-                              {(item?.modeOfManagement ||
-                                item?.typeOfAbortion ||
-                                item?.modeOfAbortion ||
-                                item?.dateOfDelivery ||
-                                item?.gender ||
-                                item?.babysWeight ||
-                                item?.remarks) && (
+                              {("modeOfManagement" in item ||
+                                "typeOfAbortion" in item ||
+                                "modeOfAbortion" in item ||
+                                "dateOfDelivery" in item ||
+                                "gender" in item ||
+                                "babysWeight" in item ||
+                                "remarks" in item) && (
                                 <Text
                                   style={{
                                     color: "#171725",
@@ -1053,7 +1045,7 @@ function ObsHistoryListView({
                             </>
                           )}
 
-                          {item?.modeOfManagement && (
+                          {"modeOfManagement" in item && (
                             <>
                               <Text
                                 style={{
@@ -1081,12 +1073,12 @@ function ObsHistoryListView({
                               >
                                 {item?.modeOfManagement}
                               </Text>
-                              {(item?.typeOfAbortion ||
-                                item?.modeOfAbortion ||
-                                item?.dateOfDelivery ||
-                                item?.gender ||
-                                item?.babysWeight ||
-                                item?.remarks) && (
+                              {("typeOfAbortion" in item ||
+                                "modeOfAbortion" in item ||
+                                "dateOfDelivery" in item ||
+                                "gender" in item ||
+                                "babysWeight" in item ||
+                                "remarks" in item) && (
                                 <Text
                                   style={{
                                     color: "#171725",
@@ -1104,7 +1096,7 @@ function ObsHistoryListView({
                             </>
                           )}
 
-                          {item?.typeOfAbortion && (
+                          {"typeOfAbortion" in item && (
                             <>
                               <Text
                                 style={{
@@ -1132,11 +1124,11 @@ function ObsHistoryListView({
                               >
                                 {item?.typeOfAbortion}
                               </Text>
-                              {(item?.modeOfAbortion ||
-                                item?.dateOfDelivery ||
-                                item?.gender ||
-                                item?.babysWeight ||
-                                item?.remarks) && (
+                              {("modeOfAbortion" in item ||
+                                "dateOfDelivery" in item ||
+                                "gender" in item ||
+                                "babysWeight" in item ||
+                                "remarks" in item) && (
                                 <Text
                                   style={{
                                     color: "#171725",
@@ -1154,7 +1146,7 @@ function ObsHistoryListView({
                             </>
                           )}
 
-                          {item?.modeOfAbortion && (
+                          {"modeOfAbortion" in item && (
                             <>
                               <Text
                                 style={{
@@ -1182,10 +1174,10 @@ function ObsHistoryListView({
                               >
                                 {item?.modeOfAbortion}
                               </Text>
-                              {(item?.dateOfDelivery ||
-                                item?.gender ||
-                                item?.babysWeight ||
-                                item?.remarks) && (
+                              {("dateOfDelivery" in item ||
+                                "gender" in item ||
+                                "babysWeight" in item ||
+                                "remarks" in item) && (
                                 <Text
                                   style={{
                                     color: "#171725",
@@ -1203,7 +1195,7 @@ function ObsHistoryListView({
                             </>
                           )}
 
-                          {item?.dateOfDelivery && (
+                          {"dateOfDelivery" in item && (
                             <>
                               <Text
                                 style={{
@@ -1235,9 +1227,9 @@ function ObsHistoryListView({
                                   "DD MMM YYYY"
                                 )}
                               </Text>
-                              {(item?.gender ||
-                                item?.babysWeight ||
-                                item?.remarks) && (
+                              {("gender" in item ||
+                                "babysWeight" in item ||
+                                "remarks" in item) && (
                                 <Text
                                   style={{
                                     color: "#171725",
@@ -1255,7 +1247,7 @@ function ObsHistoryListView({
                             </>
                           )}
 
-                          {item?.gender && (
+                          {"gender" in item && (
                             <>
                               <Text
                                 style={{
@@ -1283,7 +1275,7 @@ function ObsHistoryListView({
                               >
                                 {item?.gender}
                               </Text>
-                              {(item?.babysWeight || item?.remarks) && (
+                              {("babysWeight" in item || "remarks" in item) && (
                                 <Text
                                   style={{
                                     color: "#171725",
@@ -1301,7 +1293,7 @@ function ObsHistoryListView({
                             </>
                           )}
 
-                          {item?.babysWeight && (
+                          {"babysWeight" in item && (
                             <>
                               <Text
                                 style={{
@@ -1330,7 +1322,7 @@ function ObsHistoryListView({
                                 {item?.babysWeight}
                                 {`kgs`}
                               </Text>
-                              {item?.remarks && (
+                              {"remarks" in item && (
                                 <Text
                                   style={{
                                     color: "#171725",
@@ -1348,7 +1340,7 @@ function ObsHistoryListView({
                             </>
                           )}
 
-                          {item?.remarks && (
+                          {"remarks" in item && (
                             <>
                               <Text
                                 style={{
@@ -1421,14 +1413,14 @@ function ObsHistoryListView({
               <View key={i}>
                 {("pallor" in item ||
                   "oedema" in item ||
-                  item?.mothersBMI ||
-                  item?.diastolic ||
-                  item?.systolic ||
-                  item?.heightOfFundus ||
-                  item?.presentation ||
-                  item?.foetalHeartRate ||
-                  item?.fluidIndex ||
-                  item?.notes) && (
+                  "mothersBMI" in item ||
+                  "diastolic" in item ||
+                  "systolic" in item ||
+                  "heightOfFundus" in item ||
+                  "presentation" in item ||
+                  "foetalHeartRate" in item ||
+                  "fluidIndex" in item ||
+                  "notes" in item) && (
                   <>
                     <Text
                       style={{
@@ -1468,7 +1460,7 @@ function ObsHistoryListView({
 
                     {("pallor" in item ||
                       "oedema" in item ||
-                      item?.mothersBMI) && (
+                      "mothersBMI" in item) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -1506,7 +1498,7 @@ function ObsHistoryListView({
                         >
                           {Boolean(item?.pallor) ? `Yes` : `No`}
                         </Text>
-                        {("oedema" in item || item?.mothersBMI) && (
+                        {("oedema" in item || "mothersBMI" in item) && (
                           <Text
                             style={{
                               color: "#171725",
@@ -1548,7 +1540,7 @@ function ObsHistoryListView({
                         >
                           {Boolean(item?.oedema) ? `Yes` : `No`}
                         </Text>
-                        {item?.mothersBMI && (
+                        {"mothersBMI" in item && (
                           <Text
                             style={{
                               color: "#171725",
@@ -1566,7 +1558,7 @@ function ObsHistoryListView({
                       </>
                     )}
 
-                    {item?.mothersBMI && (
+                    {"mothersBMI" in item && (
                       <>
                         <Text
                           style={{
@@ -1596,7 +1588,7 @@ function ObsHistoryListView({
 
                     {("pallor" in item ||
                       "oedema" in item ||
-                      item?.mothersBMI) && (
+                      "mothersBMI" in item) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -1610,13 +1602,13 @@ function ObsHistoryListView({
                       </Text>
                     )}
 
-                    {(item?.diastolic ||
-                      item?.systolic ||
-                      item?.heightOfFundus ||
-                      item?.presentation ||
-                      item?.foetalHeartRate ||
-                      item?.fluidIndex ||
-                      item?.notes) && (
+                    {("diastolic" in item ||
+                      "systolic" in item ||
+                      "heightOfFundus" in item ||
+                      "presentation" in item ||
+                      "foetalHeartRate" in item ||
+                      "fluidIndex" in item ||
+                      "notes" in item) && (
                       <>
                         <Text
                           style={{
@@ -1630,7 +1622,7 @@ function ObsHistoryListView({
                           ,&nbsp;(
                         </Text>
 
-                        {(item?.diastolic || item?.systolic) && (
+                        {("diastolic" in item || "systolic" in item) && (
                           <>
                             <Text
                               style={{
@@ -1664,7 +1656,7 @@ function ObsHistoryListView({
                           </>
                         )}
 
-                        {item?.heightOfFundus && (
+                        {"heightOfFundus" in item && (
                           <>
                             <Text
                               style={{
@@ -1695,10 +1687,10 @@ function ObsHistoryListView({
                               {item?.heightOfFundus}
                               {item?.heightOfFundusUnit}
                             </Text>
-                            {(item?.presentation ||
-                              item?.foetalHeartRate ||
-                              item?.fluidIndex ||
-                              item?.notes) && (
+                            {("presentation" in item ||
+                              "foetalHeartRate" in item ||
+                              "fluidIndex" in item ||
+                              "notes" in item) && (
                               <Text
                                 style={{
                                   color: "#171725",
@@ -1716,7 +1708,7 @@ function ObsHistoryListView({
                           </>
                         )}
 
-                        {item?.presentation && (
+                        {"presentation" in item && (
                           <>
                             <Text
                               style={{
@@ -1744,9 +1736,9 @@ function ObsHistoryListView({
                             >
                               {item?.presentation}
                             </Text>
-                            {(item?.foetalHeartRate ||
-                              item?.fluidIndex ||
-                              item?.notes) && (
+                            {("foetalHeartRate" in item ||
+                              "fluidIndex" in item ||
+                              "notes" in item) && (
                               <Text
                                 style={{
                                   color: "#171725",
@@ -1764,7 +1756,7 @@ function ObsHistoryListView({
                           </>
                         )}
 
-                        {item?.foetalHeartRate && (
+                        {"foetalHeartRate" in item && (
                           <>
                             <Text
                               style={{
@@ -1793,7 +1785,7 @@ function ObsHistoryListView({
                               {item?.foetalHeartRate}
                               {` BPM`}
                             </Text>
-                            {(item?.fluidIndex || item?.notes) && (
+                            {("fluidIndex" in item || "notes" in item) && (
                               <Text
                                 style={{
                                   color: "#171725",
@@ -1811,7 +1803,7 @@ function ObsHistoryListView({
                           </>
                         )}
 
-                        {item?.fluidIndex && (
+                        {"fluidIndex" in item && (
                           <>
                             <Text
                               style={{
@@ -1840,7 +1832,7 @@ function ObsHistoryListView({
                               {item?.fluidIndex}
                               {`cm`}
                             </Text>
-                            {item?.notes && (
+                            {"notes" in item && (
                               <Text
                                 style={{
                                   color: "#171725",
@@ -1858,7 +1850,7 @@ function ObsHistoryListView({
                           </>
                         )}
 
-                        {item?.notes && (
+                        {"notes" in item && (
                           <>
                             <Text
                               style={{

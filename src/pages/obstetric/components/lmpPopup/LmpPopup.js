@@ -57,6 +57,7 @@ const LmpPopup = ({
               }}
               allowClear={false}
               disabledDate={(current) => current && current > dayjs()}
+              inputReadOnly
             />
           </div>
         </div>
