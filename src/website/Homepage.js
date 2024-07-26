@@ -631,19 +631,19 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
             {otherSettings?.enable_social_links ? (
               <div className='d-flex align-items-center justify-content-center mt-5'>
                 {socialLinks?.facebook && (
-                  <div className='bg-icon-common bg-icon-32'><img src={websiteFacebook} alt="Email" /></div>
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.facebook)}><img src={websiteFacebook} alt="Email" /></div>
                 )}
                 {socialLinks?.instagram && (
-                  <div className='bg-icon-common bg-icon-32'><img src={websiteInstagram} alt="Email" /></div>
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.instagram)} ><img src={websiteInstagram} alt="Email" /></div>
                 )}
                 {socialLinks?.linkedin && (
-                  <div className='bg-icon-common bg-icon-32'><img src={websiteLinkedin} alt="Email" /></div>
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.linkedin)}><img src={websiteLinkedin} alt="Email" /></div>
                 )}
                 {socialLinks?.twitter && (
-                  <div className='bg-icon-common bg-icon-32'><img src={websiteTwitter} alt="Email" /></div>
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.twitter)}><img src={websiteTwitter} alt="Email" /></div>
                 )}
                 {socialLinks?.youtube && (
-                  <div className='bg-icon-common bg-icon-32'><img src={websiteYoutube} alt="Email" /></div>
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.youtube)}><img src={websiteYoutube} alt="Email" /></div>
                 )}
               </div>
             ) : null}
