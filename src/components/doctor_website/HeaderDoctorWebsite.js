@@ -102,6 +102,7 @@ function HeaderDoctorWebsite() {
         const action = await dispatch(saveDoctorWebsite({
             data: sendData,
             onUploadProgress: onUploadProgress,
+            onDownloadProgress: onDownloadProgress,
             cancelToken: cancelTokenSource.current.token
         }));
         if (action.meta.requestStatus === "fulfilled") {
@@ -111,17 +112,20 @@ function HeaderDoctorWebsite() {
             errorMessage(action.error)
         }
     }
-
+    const onDownloadProgress = (progressEvent) => {
+        const total = progressEvent.total
+        const current = progressEvent.loaded
+        const percentage = Math.round((current / total) * 100);
+        if (percentage > 95) {
+            setProgress(percentage);
+        }
+    };
     const onUploadProgress = (progressEvent) => {
         const total = progressEvent.total
         const current = progressEvent.loaded
         const percentage = Math.round((current / total) * 100);
-        if (percentage < 100) {
+        if (percentage < 95) {
             setProgress(percentage);
-        } else {
-            setTimeout(() => {
-                setProgress(percentage);
-            }, 1000);
         }
     };
 

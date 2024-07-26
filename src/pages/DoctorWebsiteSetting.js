@@ -458,7 +458,7 @@ function DoctorWebsiteSetting() {
                             <div className="mx-auto overflow-y-auto " style={{ width: isMobile ? 580 : '97%' }} >
                                 <div className="mt-20 d-flex align-items-center justify-content-between">
                                     <div className="titleprint">Preview</div>
-                                    <div> <img src={cloudSaved} alt="Saved" className="me-1" /> Saved</div>
+                                    {/* <div> <img src={cloudSaved} alt="Saved" className="me-1" />Saved</div> */}
                                 </div>
                                 <div className="rounded-20px bg-white mt-2 overflow-hidden">
                                     <div className="printheight">
