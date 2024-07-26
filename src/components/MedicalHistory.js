@@ -65,7 +65,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                 </Card.Header>
                 <div className='p-3'>
                     <div className={`${!isExpand ? 'overflow-hidden' : 'overflow-auto'}`} style={{ height: isExpand ? 529 : 190 }}>
-                        {(gynecHistory && Object.keys(filteredGynecHistory).length > 0) && isGynaecHistoryAccessable ? (
+                        {(gynecHistory && Object.keys(filteredGynecHistory).length > 0) && isGynaecHistoryAccessable && (
                             <>
                                 <div className="fw-semibold">Menstrual Details</div>
                                 <div className="cardbody-data border rounded px-2 my-2">
@@ -131,23 +131,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                     </div>
                                 </div>
                             </>
-                        ) : (
-                            <div className='d-flex flex-column justify-content-center' style={{ minHeight: "190px" }}>
-                                {loading ? (
-                                    <div className='align-items-center text-center'>
-                                        <Spin />
-                                    </div>
-                                ) : (
-                                    <div className='align-items-center text-center'>
-                                        <img src={heartBeat} width={57} height={52} alt="No vital & body composition saved for the patient!" />
-                                        <p className='mt-4 fontroboto'>
-                                            No {isGynaecHistoryAccessable ? 'Gynec' : 'Medical'} History saved <br /> for the patient!
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
                         )}
-
                         {medicalHistoryData && medicalHistoryData.length > 0 && (
                             medicalHistoryData.map((e, i) => {
                                 return (
@@ -207,9 +191,24 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                             })
                         )}
                     </div>
-                    {((medicalHistoryData && medicalHistoryData.length > 0) || (gynecHistory && Object.keys(gynecHistory).length > 2)) && (
+                    {((medicalHistoryData && medicalHistoryData.length > 0) || (gynecHistory && Object.keys(gynecHistory).length > 2)) ? (
                         <div className='py-2 text-center text-primary fw-medium cursor-pointer' onClick={manageExpand}>
                             {isExpand ? 'View less' : 'View more'}
+                        </div>
+                    ):(
+                        <div className='d-flex flex-column justify-content-center' style={{ minHeight: "190px" }}>
+                            {loading ? (
+                                <div className='align-items-center text-center'>
+                                    <Spin />
+                                </div>
+                            ) : (
+                                <div className='align-items-center text-center'>
+                                    <img src={heartBeat} width={57} height={52} alt="No vital & body composition saved for the patient!" />
+                                    <p className='mt-4 fontroboto'>
+                                        No {isGynaecHistoryAccessable ? 'Gynec' : 'Medical'} History saved <br /> for the patient!
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

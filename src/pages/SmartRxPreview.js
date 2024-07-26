@@ -176,7 +176,6 @@ function SmartRxPreview() {
 
     const handleUpdateMobileNoClick = () => {
         setIsUpdateMobileNoModalOpen(!isUpdateMobileNoModalOpen)
-        console.log("")
     };
 
     const handleSendToWhatsapp = async () => {
@@ -214,6 +213,26 @@ function SmartRxPreview() {
         }
     };
 
+    const handleEditRxClick = async() => {
+        var sendData = {
+            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            tcm_id: state.tcm_id
+        }
+        const action = await dispatch(viewCaseManager(sendData));
+      
+        if (action.meta.requestStatus === "fulfilled") {
+            navigate("/smart-prescription", {
+                state: {
+                  patient_data: patient_data,
+                  caseManagerData: action.payload,
+                  smartRxFile: smartRxFile,
+                },
+            });
+        } else {
+            errorMessage(action.error)
+        }
+    };
+
     return (
         <>
             <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} />
@@ -242,6 +261,16 @@ function SmartRxPreview() {
                                 >
                                     <span className="fw-semibold">Download</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
+                                </Button>
+                                <Button
+                                        type="text"
+                                        className="btn btn-input btnicon20 align-items-center d-flex mb-3  btn-41 w-100"
+                                        icon={<i className="icon-Edit"></i>}
+                                        onClick={handleEditRxClick}
+                                        loading={loading}
+                                    >
+                                        <span className="fw-semibold">Edit Prescription</span>
+                                        <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                             </div>
                             <div className="bg-body d-flex p-3 rounded-10px border">
