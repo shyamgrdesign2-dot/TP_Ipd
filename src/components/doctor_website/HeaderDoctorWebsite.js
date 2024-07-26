@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import axios from 'axios';
 
 import Homepage from '../../website/Homepage';
+import DemoHomepage from '../../website/DemoHomepage';
 import stopPublishing from '../../assets/images/stop-publishing.svg';
 import LinkIcon from '../../assets/images/Link.svg';
 
@@ -20,11 +21,16 @@ function HeaderDoctorWebsite() {
     const { save_loading, publish_loading } = useSelector((state) => state.doctorWebsite);
 
     const [childDrawer, setChildDrawer] = useState(false);
+    const [childDrawer1, setChildDrawer1] = useState(false);
 
     // Handle Child Drawer
     const handleDrawerChild = useCallback(() => {
         setChildDrawer(!childDrawer);
-    },[childDrawer]);
+    }, [childDrawer]);
+
+    const handleDrawerChild1 = useCallback(() => {
+        setChildDrawer1(!childDrawer1);
+    }, [childDrawer1]);
 
     const navigate = useNavigate();
 
@@ -151,7 +157,7 @@ function HeaderDoctorWebsite() {
                         </Col>
                         <Col sm="auto">
                             <div className='align-items-center d-flex'>
-                                <button className='btn d-flex align-items-center btn-text me-14'>
+                                <button onClick={handleDrawerChild1} className='btn d-flex align-items-center btn-text me-14'>
                                     <i className="icon-New-Window me-2"></i> <span>Live Reference Demo</span>
                                 </button>
                                 <button onClick={handleDrawerChild} className='btn d-flex align-items-center btn-text me-14'>
@@ -257,18 +263,61 @@ function HeaderDoctorWebsite() {
                 </div>
             </Modal>
             <Drawer closeIcon={false} placement="right" onClose={handleDrawerChild} open={childDrawer} width="100%">
-                <Homepage
-                    personalDetails={personalDetails}
-                    aboutDoctor={aboutDoctor}
-                    clinicProfile={clinicProfile}
-                    services={services}
-                    rewardRecognition={rewardRecognition}
-                    educationTraining={educationTraining}
-                    doctorExperience={doctorExperience}
-                    membership={membership}
-                    otherSettings={otherSettings}
-                    socialLinks={socialLinks}
-                />
+
+                <Navbar className="justify-content-between headerprescription p-0">
+                    <Container fluid className='h-100 gx-0 w-100'>
+                        <Row className='h-100 align-items-center w-100 justify-content-between'>
+                            <Col sm="auto" className='h-100'>
+                                <div className='align-items-center d-flex h-100'>
+                                    <div className='border-end h-100 text-center'>
+                                        <div onClick={handleDrawerChild} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                                            <i className='icon-right'></i>
+                                        </div>
+                                    </div>
+                                    <div className='ms-3 title-common'>Back to editor</div>
+                                </div>
+                            </Col>
+                            <Col sm="auto">
+                                <Button
+                                    type='button'
+                                    className="btn-41 btn px-4 btn-primary3 align-items-center d-flex">
+                                    <i className="icon-New-Window me-2"></i> Publish Website
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Container >
+                </Navbar>
+                <div className="overflow-auto" style={{ height: 'calc(100vh - 60px)' }}>
+                    <Homepage
+                        personalDetails={personalDetails}
+                        aboutDoctor={aboutDoctor}
+                        clinicProfile={clinicProfile}
+                        services={services}
+                        rewardRecognition={rewardRecognition}
+                        educationTraining={educationTraining}
+                        doctorExperience={doctorExperience}
+                        membership={membership}
+                        otherSettings={otherSettings}
+                        socialLinks={socialLinks}
+                    />
+                </div>
+            </Drawer>
+            <Drawer closeIcon={false} placement="right" onClose={handleDrawerChild1} open={childDrawer1} width="100%">
+                <Navbar className="justify-content-between headerprescription p-0">
+                    <Container fluid className='h-100 gx-0 w-100'>
+                        <div className='align-items-center d-flex h-100'>
+                            <div className='border-end h-100 text-center'>
+                                <div onClick={handleDrawerChild1} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                                    <i className='icon-right'></i>
+                                </div>
+                            </div>
+                            <div className='ms-3 title-common'>Live Reference Demo</div>
+                        </div>
+                    </Container >
+                </Navbar>
+                <div className="overflow-auto" style={{ height: 'calc(100vh - 60px)' }}>
+                    <DemoHomepage />
+                </div>
             </Drawer>
         </>
     );

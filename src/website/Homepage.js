@@ -41,6 +41,8 @@ import websiteTwitter from '../assets/images/website-images/website-twitter.svg'
 import websiteYoutube from '../assets/images/website-images/website-youtube.svg'
 
 const slideData = [1, 2, 3, 4]
+const dateFormat = 'HH:mm:ss'
+const showDateFormat = 'h:mm A'
 
 function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewardRecognition, educationTraining, doctorExperience, membership, otherSettings, socialLinks }) {
 
@@ -296,23 +298,23 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                           {e?.name && (
                             <div className='d-flex align-items-center'>
                               <div className='bg-icon-common bg-icon-white'><img src={LocationClinic} alt="Clinic Address & Hours" /></div>
-                              <div className='ms-3 title-hypertension text-white'>{e.name}</div>
+                              <div className='ms-3 title-hypertension text-white'>{e?.name}</div>
                             </div>
                           )}
                           {e?.address && (
-                            <p className='clinic-address'>{`${e.address.address_line}, ${e.address.city}, ${e.address.state}, ${e.address.pincode}`}</p>
+                            <p className='clinic-address'>{`${e?.address.address_line}, ${e?.address.city}, ${e?.address.state}, ${e?.address.pincode}`}</p>
                           )}
                         </div>
                         {e?.clinic_photos?.length > 0 && (
                           <div className='d-flex'>
-                            {e?.clinic_photos && e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.slice(0, 3)?.map((item, index) => {
+                            {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.slice(0, 3)?.map((item, index) => {
                               return (
                                 <div key={index} className='clinic-photo'>
                                   <img className='img-fluid h-100' src={item?.clinic_image_link} alt={item?.clinic_image_name} />
                                 </div>
                               )
                             })}
-                            {e?.clinic_photos && e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.length > 3 && (
+                            {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.length > 3 && (
                               <div className='clinic-photo d-flex align-items-center justify-content-center'>
                                 <div className='title-common text-white'>{`${e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.length - 3}+`}</div>
                               </div>
@@ -326,31 +328,39 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                             </Button>
                           )}
                           {e?.contact_no && (
-                            <Button type="button" className="btn btn-primary3 btn-48">
+                            <Button type="button" onClick={() => window.location.href = (`tel:${e.contact_no}`)} className="btn btn-primary3 btn-48">
                               <img src={Call} alt="Call" /> Call Clinic
                             </Button>
                           )}
                         </div>
                       </Col>
                       <Col sm={24} lg={12}>
-                        <div class="me-lg-0 mx-auto timingshape">
-                          <div className='p-30'>
-                            <div className='d-flex align-items-center justify-content-between'>
-                              <div className='title-hypertension fw-medium text-welcome'>Timings</div>
-                              <div className='bg-icon-common bg-icon-white'><img src={Clock} alt="Clinic Address & Hours" /></div>
-                            </div>
-                            <div className='mt-4'>
-                              <div className='text-welcome fw-medium fs-16'>Mon - Sat</div>
-                              <div className='text-welcome fs-16'>09:00 AM - 04:45 PM </div>
-                              <div className='text-welcome fs-16'>09:00 AM - 04:45 PM</div>
-                            </div>
-                            <div className='mt-4'>
-                              <div className='text-welcome fw-medium fs-16'>Sun</div>
-                              <div className='text-welcome fs-16'>09:00 AM - 01:00 PM</div>
+                        {e?.shift?.length > 0 && (
+                          <div class="me-lg-0 mx-auto timingshape">
+                            <div className='p-30'>
+                              <div className='d-flex align-items-center justify-content-between'>
+                                <div className='title-hypertension fw-medium text-welcome'>Timings</div>
+                                <div className='bg-icon-common bg-icon-white'><img src={Clock} alt="Clinic Address & Hours" /></div>
+                              </div>
+                              {e?.shift?.map((e1, i1) => (
+                                <div key={i1} className='mt-4'>
+                                  {e1?.days?.length > 0 && e1?.timing?.length && (
+                                    <>
+                                      <div className='text-welcome fw-medium fs-16 text-capitalize'>{`${e1?.days?.length > 1 ? e1?.days[0] + ' - ' + e1?.days[e1?.days?.length - 1] : e1?.days[0]}`}</div>
+
+                                      {e1?.timing?.map((e2, i2) => (
+                                        <div key={i2} className='text-welcome fs-16'>
+                                          {`${e2?.from_time && e2?.end_time ? moment(e2?.from_time, dateFormat).format(showDateFormat) + ' - ' + moment(e2?.end_time, dateFormat).format(showDateFormat) : ''}`}
+                                        </div>
+                                      ))}
+                                    </>
+                                  )}
+                                </div>
+                              ))}
                             </div>
                           </div>
-                        </div>
-                        <p className='slide-count'><span>0{currentSlide + 1}</span> <span>/ 0{slideData.length}</span></p>
+                        )}
+                        <p className='slide-count'><span>{String(currentSlide + 1).padStart(2, "0")}/{String(doctorExperience.length).padStart(2, "0")}</span></p>
                       </Col>
                     </Row>
                   </div>
@@ -374,7 +384,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                 <Row >
                   {services?.map((e, i) => {
                     return (
-                      <Col sm={24} lg={12}>
+                      <Col key={i} sm={24} lg={12}>
                         {e?.title && (
                           <div className='d-flex align-items-center text-welcome text-start fs-16 p-14'> <div className='bg-icon-common bg-icon-sm me-3'><img src={CheckIcon} alt="Our Services" /></div> {e?.title}</div>
                         )}
@@ -396,9 +406,9 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                   <img src={ExperienceIcon} alt="Doctor Experience" />
                 </div>
                 <h2 className="doctor-name h1 web-h1 text-welcome mb-28">Doctor Experience</h2>
-                {doctorExperience.length > 2 && (
+                {doctorExperience?.length > 2 && (
                   <div className='py-5 mt-5'>
-                    <p className='slide-count'><span>0{currentSlide + 1} -</span> <span> 0{doctorExperience.length}</span></p>
+                    <p className='slide-count'><span>{String(currentSlide + 1).padStart(2, "0")} - {String(doctorExperience?.length).padStart(2, "0")}</span></p>
                   </div>
                 )}
               </Col>
@@ -481,12 +491,12 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                             <div>
                               <div>{`${e.start_year} - ${e.end_year}`}</div>
                               <div className='titleprint'>{e.title}</div>
-                              {e.degree && (
-                                <div className='rounded border bg-white d-inline-block py-1 px-2 mt-2'>{e.degree}</div>
+                              {e?.degree && (
+                                <div className='rounded border bg-white d-inline-block py-1 px-2 mt-2'>{e?.degree}</div>
                               )}
                             </div>
-                            {e.city && (
-                              <div className="text-welcome d-flex align-items-center"> <img src={locationGrey} className='me-2' width={18} height={18} alt="Location" /> {e.city}</div>
+                            {e?.city && (
+                              <div className="text-welcome d-flex align-items-center"> <img src={locationGrey} className='me-2' width={18} height={18} alt="Location" /> {e?.city}</div>
                             )}
                           </div>
                           <div className={`round-shape-top-education ${i % 2 === 1 && 'round-education-pink'}`}></div>
@@ -495,9 +505,9 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                       )
                     })}
                   </Slider>
-                  {doctorExperience.length > 3 && (
+                  {educationTraining?.length > 3 && (
                     <div className='py-5 mt-5'>
-                      <p className='slide-count slide-count-left'><span>0{currentSlide + 1} -</span> <span> 0{educationTraining.length}</span></p>
+                      <p className='slide-count slide-count-left'><span>{String(currentSlide + 1).padStart(2, "0")} - {String(educationTraining?.length).padStart(2, "0")}</span></p>
                     </div>
                   )}
                 </div>
@@ -524,7 +534,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                   className='clinic-slider'>
                   {membership?.map((e, i) => {
                     return (
-                      <div className='d-flex align-items-center mb-3'>
+                      <div key={i} className='d-flex align-items-center mb-3'>
                         {e.title && (
                           <>
                             <div className='border membership-slide'>
@@ -532,7 +542,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                               <div className={`membership-yellow-blur-box ${i % 2 === 1 && 'membership-pink-blur-box'}`}></div>
                             </div>
                             <div className='ms-3 title-common'>
-                              {e.title}
+                              {e?.title}
                             </div>
                           </>
                         )}
@@ -540,9 +550,9 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                     )
                   })}
                 </Slider>
-                {membership.length > 2 && (
+                {membership?.length > 2 && (
                   <div className='py-5 mt-5'>
-                    <p className='slide-count'><span>0{currentSlide + 1} -</span> <span> 0{membership.length}</span></p>
+                    <p className='slide-count'><span>{String(currentSlide + 1).padStart(2, "0")} - {String(membership?.length).padStart(2, "0")}</span></p>
                   </div>
                 )}
               </Col>
@@ -565,26 +575,28 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                   <h2 className="doctor-name h1 web-h1 text-welcome mb-28">Rewards & Recognitions</h2>
                 </Col>
                 <Col sm={24} lg={8}>
-                  <div className='py-5 mt-5'>
-                    <p className='slide-count text-end'><span>0{currentSlide + 1} -</span> <span> 0{rewardRecognition.length}</span></p>
-                  </div>
+                  {rewardRecognition?.length && (
+                    <div className='py-5 mt-5'>
+                      <p className='slide-count text-end'><span>{String(currentSlide + 1).padStart(2, "0")} - {String(rewardRecognition?.length).padStart(2, "0")}</span></p>
+                    </div>
+                  )}
                 </Col>
               </Row>
               <Slider
                 {...commonSettings}
-                slidesToShow={rewardRecognition.length <= 3 ? rewardRecognition?.length : 3}
+                slidesToShow={rewardRecognition?.length <= 3 ? rewardRecognition?.length : 3}
                 arrows={rewardRecognition?.length >= 4 ? true : false}
                 className='clinic-slider'>
                 {rewardRecognition?.map((e, i) => {
                   return (
-                    <div className='position-relative'>
+                    <div key={i} className='position-relative'>
                       <div className='border-shape-right'></div>
                       <div className='border-shape-bottom'></div>
                       <div class="timingshape">
                         <div className='h-100 d-flex flex-column justify-content-between p-30'>
                           {(!e?.title && !e?.year) && 'No any rewards & recognitions added'}
-                          <div className='titleprint mt-3'>{e.title}</div>
-                          <div className="text-welcome d-flex align-items-center"> {e.year}</div>
+                          <div className='titleprint mt-3'>{e?.title}</div>
+                          <div className="text-welcome d-flex align-items-center"> {e?.year}</div>
                         </div>
                         <div className={`round-shape-top-education ${i % 2 === 1 && 'round-education-pink'}`}></div>
                         <div className='shape-education'></div>
@@ -663,6 +675,40 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
         <Row className='mt-4'>
           <Col sm={24} lg={16}>
             <Slider {...settingsAppointment} className='clinic-slider'>
+              <div class="timingshape">
+                <div className='h-100 d-flex flex-column justify-content-between appt-30'>
+                  <div>
+                    <div className='d-flex align-items-center'>
+                      <div className='appointment-dp'>
+                        <img src={DoctorProfile} className='img-fluid' alt="Doctor Profile" />
+                      </div>
+                      <div className='ms-3'>
+                        <div className='appt-drname text-welcome'>Dr. Kunal Shah</div>
+                        <div className='appt-dreducation text-welcome'>MBBS, MD - Anaesthesiology</div>
+                      </div>
+                    </div>
+                    <Row className='mt-4'>
+                      <Col sm={24} lg={4}>
+                        <div className='bg-icon-common bg-icon-sm2 mb-2 bg-white border'><img src={LocationClinic} alt="Clinic Address & Hours" /></div>
+                      </Col>
+                      <Col sm={24} lg={20}>
+                        <div className='model-subtitle text-welcome fw-medium'>Aayushyam Clinic Centre LLP</div>
+                        <div>Ground Floor, Sheetal Varsha Complex,
+                          Landmark: Near Shivranjani Cross Road,
+                          Ahmedabad, Gujarat 380015</div>
+                      </Col>
+                    </Row>
+                  </div>
+                  <div>
+                    <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18">
+                      <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img src={Call} className='me-2' alt="Call" /> Call +91 7894561230</a>
+                    </Button>
+                  </div>
+                </div>
+                <div className='round-shape-top-education round'></div>
+                <div className='shape-education'></div>
+                <p className='mb-0 position-absolute slide-count slide-count-left' style={{ bottom: 33, zIndex: 99, right: 5 }}><span className='text-welcome'>0{currentSlide + 1} / </span> <span className='text-greycolor'> 0{slideData.length}</span></p>
+              </div>
               <div class="timingshape">
                 <div className='h-100 d-flex flex-column justify-content-between appt-30'>
                   <div>
