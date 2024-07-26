@@ -70,7 +70,7 @@ export default function PatientDiagnosis({
   const handleInputChange = (index, newValue, isValid) => {
     if (isValid) {
       const updatedData = [...pastPregnancyData];
-      updatedData[index].value = newValue;
+      updatedData[index].value = newValue !== "" ? newValue : null;
       setPastPregnancyData(updatedData);
       dispatch(patientDiagnosisUpdated());
       dispatch(obstetricDetailsUpdated());
