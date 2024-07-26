@@ -31,6 +31,7 @@ function DoctorWebsiteSetting() {
 
     const { state } = useLocation();
     const { websiteData } = state
+    const tmdwm_id = websiteData !== undefined ? websiteData.tmdwm_id : 0;
 
     const [score, setScore] = useState(0);
     const [personalDetails, setPersonalDetails] = useState(null);
@@ -47,7 +48,7 @@ function DoctorWebsiteSetting() {
     const [isVisible, setIsVisible] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState(null);
 
-    const contextApi = { personalDetails, setPersonalDetails, clinicProfile, setClinicProfile, aboutDoctor, setAboutDoctor, doctorExperience, setDoctorExperience, rewardRecognition, setRewardRecognition, membership, setMembership, socialLinks, setSocialLinks, services, setServices, educationTraining, setEducationTraining, otherSettings, setOtherSettings };
+    const contextApi = { tmdwm_id, personalDetails, setPersonalDetails, clinicProfile, setClinicProfile, aboutDoctor, setAboutDoctor, doctorExperience, setDoctorExperience, rewardRecognition, setRewardRecognition, membership, setMembership, socialLinks, setSocialLinks, services, setServices, educationTraining, setEducationTraining, otherSettings, setOtherSettings };
 
 
     useEffect(() => {
@@ -461,7 +462,18 @@ function DoctorWebsiteSetting() {
                                 </div>
                                 <div className="rounded-20px bg-white mt-2 overflow-hidden">
                                     <div className="printheight">
-                                        <Homepage />
+                                        <Homepage
+                                            personalDetails={personalDetails}
+                                            aboutDoctor={aboutDoctor}
+                                            clinicProfile={clinicProfile}
+                                            services={services}
+                                            rewardRecognition={rewardRecognition}
+                                            educationTraining={educationTraining}
+                                            doctorExperience={doctorExperience}
+                                            membership={membership}
+                                            otherSettings={otherSettings}
+                                            socialLinks={socialLinks}
+                                        />
                                     </div>
                                 </div>
                             </div>
