@@ -126,7 +126,7 @@ function AddExamination({
     if (addExaminationRes?.data) {
       dispatch(obstetricDetailsUpdated());
       getAllObstetricDetails();
-      handleCollapsed();
+      handleCollapsed && handleCollapsed();
       setShowSuccess(true);
       setTimeout(() => {
         close();
