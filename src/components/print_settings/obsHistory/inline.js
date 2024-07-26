@@ -32,7 +32,9 @@ function ObsHistoryInlineView({
               "blood" in obsHistoryData ||
               "husbandsBlood" in obsHistoryData ||
               "consang" in obsHistoryData ||
-              "maritialStatus" in obsHistoryData) && (
+              "maritialStatus" in obsHistoryData ||
+              "marriageDurationYears" in obsHistoryData ||
+              "marriageDurationMonths" in obsHistoryData) && (
               <>
                 <Text
                   style={{
@@ -86,7 +88,9 @@ function ObsHistoryInlineView({
                       "blood" in obsHistoryData ||
                       "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
-                      "maritialStatus" in obsHistoryData) && (
+                      "maritialStatus" in obsHistoryData ||
+                      "marriageDurationYears" in obsHistoryData ||
+                      "marriageDurationMonths" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -132,7 +136,9 @@ function ObsHistoryInlineView({
                       "blood" in obsHistoryData ||
                       "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
-                      "maritialStatus" in obsHistoryData) && (
+                      "maritialStatus" in obsHistoryData ||
+                      "marriageDurationYears" in obsHistoryData ||
+                      "marriageDurationMonths" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -177,7 +183,9 @@ function ObsHistoryInlineView({
                       "blood" in obsHistoryData ||
                       "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
-                      "maritialStatus" in obsHistoryData) && (
+                      "maritialStatus" in obsHistoryData ||
+                      "marriageDurationYears" in obsHistoryData ||
+                      "marriageDurationMonths" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -216,21 +224,23 @@ function ObsHistoryInlineView({
                         fontWeight: 400,
                       }}
                     >
-                      {obsHistoryData?.gestationWeeks
+                      {"gestationWeeks" in obsHistoryData
                         ? `${obsHistoryData?.gestationWeeks}W`
                         : ""}
-                      {obsHistoryData?.gestationWeeks &&
-                      obsHistoryData?.gestationDays
+                      {"gestationWeeks" in obsHistoryData &&
+                      "gestationDays" in obsHistoryData
                         ? `,`
                         : ``}
-                      {obsHistoryData?.gestationDays
+                      {"gestationDays" in obsHistoryData
                         ? `${obsHistoryData?.gestationDays}D`
                         : ""}
                     </Text>
                     {("blood" in obsHistoryData ||
                       "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
-                      "maritialStatus" in obsHistoryData) && (
+                      "maritialStatus" in obsHistoryData ||
+                      "marriageDurationYears" in obsHistoryData ||
+                      "marriageDurationMonths" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -272,7 +282,9 @@ function ObsHistoryInlineView({
                     </Text>
                     {("husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
-                      "maritialStatus" in obsHistoryData) && (
+                      "maritialStatus" in obsHistoryData ||
+                      "marriageDurationYears" in obsHistoryData ||
+                      "marriageDurationMonths" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -313,7 +325,9 @@ function ObsHistoryInlineView({
                       {obsHistoryData?.husbandsBlood}
                     </Text>
                     {("consang" in obsHistoryData ||
-                      "maritialStatus" in obsHistoryData) && (
+                      "maritialStatus" in obsHistoryData ||
+                      "marriageDurationYears" in obsHistoryData ||
+                      "marriageDurationMonths" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -353,7 +367,9 @@ function ObsHistoryInlineView({
                     >
                       {Boolean(obsHistoryData?.consang) ? `Yes` : `No`}
                     </Text>
-                    {"maritialStatus" in obsHistoryData && (
+                    {("maritialStatus" in obsHistoryData ||
+                      "marriageDurationYears" in obsHistoryData ||
+                      "marriageDurationMonths" in obsHistoryData) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -392,6 +408,70 @@ function ObsHistoryInlineView({
                       }}
                     >
                       {obsHistoryData?.maritialStatus}
+                    </Text>
+                    {("marriageDurationYears" in obsHistoryData ||
+                      "marriageDurationMonths" in obsHistoryData) && (
+                      <Text
+                        style={{
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                        }}
+                      >
+                        &nbsp;|&nbsp;
+                      </Text>
+                    )}
+                  </>
+                )}
+
+                {("marriageDurationYears" in obsHistoryData ||
+                  "marriageDurationMonths" in obsHistoryData) && (
+                  <>
+                    <Text
+                      style={{
+                        color: "#171725",
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                      }}
+                    >
+                      Marriage duration&nbsp;:&nbsp;
+                    </Text>
+                    <Text
+                      style={{
+                        color: "#171725",
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                      }}
+                    >
+                      {"marriageDurationYears" in obsHistoryData
+                        ? obsHistoryData?.marriageDurationYears
+                        : ``}
+                      {"marriageDurationYears" in obsHistoryData &&
+                      "marriageDurationMonths" in obsHistoryData
+                        ? `.`
+                        : ``}
+                      {"marriageDurationMonths" in obsHistoryData
+                        ? obsHistoryData?.marriageDurationMonths
+                        : ``}
+                      {"marriageDurationYears" in obsHistoryData &&
+                      "marriageDurationMonths" in obsHistoryData
+                        ? ` years`
+                        : "marriageDurationYears" in obsHistoryData &&
+                          !obsHistoryData.hasOwnProperty(
+                            "marriageDurationMonths"
+                          )
+                        ? ` years`
+                        : !obsHistoryData.hasOwnProperty(
+                            "marriageDurationYears"
+                          ) && "marriageDurationMonths" in obsHistoryData
+                        ? ` months`
+                        : ``}
                     </Text>
                   </>
                 )}
@@ -465,7 +545,7 @@ function ObsHistoryInlineView({
                         fontWeight: 400,
                       }}
                     >
-                      {(obsHistoryData?.gravidity)?.toString().padStart(2, "0")}
+                      {obsHistoryData?.gravidity?.toString().padStart(2, "0")}
                     </Text>
                     {("parity" in obsHistoryData ||
                       "livingChildren" in obsHistoryData ||
@@ -509,7 +589,7 @@ function ObsHistoryInlineView({
                         fontWeight: 400,
                       }}
                     >
-                      {(obsHistoryData?.parity)?.toString().padStart(2, "0")}
+                      {obsHistoryData?.parity?.toString().padStart(2, "0")}
                     </Text>
                     {("livingChildren" in obsHistoryData ||
                       "abortion" in obsHistoryData ||
@@ -552,7 +632,7 @@ function ObsHistoryInlineView({
                         fontWeight: 400,
                       }}
                     >
-                      {(obsHistoryData?.livingChildren)
+                      {obsHistoryData?.livingChildren
                         ?.toString()
                         .padStart(2, "0")}
                     </Text>
@@ -596,7 +676,7 @@ function ObsHistoryInlineView({
                         fontWeight: 400,
                       }}
                     >
-                      {(obsHistoryData?.abortion)?.toString().padStart(2, "0")}
+                      {obsHistoryData?.abortion?.toString().padStart(2, "0")}
                     </Text>
                     {("ectopicPregnancies" in obsHistoryData ||
                       "diagnosisNotes" in obsHistoryData) && (
@@ -637,7 +717,7 @@ function ObsHistoryInlineView({
                         fontWeight: 400,
                       }}
                     >
-                      {(obsHistoryData?.ectopicPregnancies)
+                      {obsHistoryData?.ectopicPregnancies
                         ?.toString()
                         .padStart(2, "0")}
                     </Text>
@@ -778,9 +858,7 @@ function ObsHistoryInlineView({
                                 fontWeight: 400,
                               }}
                             >
-                              {(item?.gravidaNumber)
-                                ?.toString()
-                                .padStart(2, "0")}
+                              {item?.gravidaNumber?.toString().padStart(2, "0")}
                             </Text>
                             {("outcome" in item ||
                               "termLength" in item ||
@@ -1003,7 +1081,9 @@ function ObsHistoryInlineView({
                               }}
                             >
                               {item?.gestationPeriod}{" "}
-                              {item?.gestationPeriod > 1 ? `weeks` : `week`}
+                              {Number(item?.gestationPeriod) > 1
+                                ? `weeks`
+                                : `week`}
                             </Text>
                             {("location" in item ||
                               "modeOfManagement" in item ||
@@ -1710,7 +1790,9 @@ function ObsHistoryInlineView({
                                   }}
                                 >
                                   {item?.diastolic}
-                                  {item?.diastolic && item?.systolic ? `/` : ``}
+                                  {"diastolic" in item && "systolic" in item
+                                    ? `/`
+                                    : ``}
                                   {item?.systolic}
                                   {` mmHg`}
                                 </Text>

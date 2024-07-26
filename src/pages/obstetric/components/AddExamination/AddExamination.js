@@ -205,7 +205,7 @@ function AddExamination({
     return (
       <div className="examination-wrap-body examination-child-width">
         <div className="examination-head rounded-start-0 w-100">
-          Visit
+          Visit {editIndex >= 0 && editIndex + 1}
           {editIndex >= 0 && (
             <div>
               <Tooltip
