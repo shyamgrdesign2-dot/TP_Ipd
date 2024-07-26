@@ -703,8 +703,9 @@ function MedicalHistoryBox(props) {
             setPrevActiveMentrualData(activeMenstrualData)
 
             if (prevState[key] === value && activeMenstrualData === key) {
-                setActiveMenstrualData(prevActiveMentrualData);
-                switch (prevActiveMentrualData) {
+                setActiveMenstrualData("");
+             
+                switch (activeMenstrualData) {
                     case 'cycle':
                         setRightPanelTitle('Cycle');
                         break;
@@ -724,7 +725,7 @@ function MedicalHistoryBox(props) {
                         setRightPanelTitle('Enter the notes');
                         break;
                     default:
-                        setRightPanelTitle('No Data');
+                        setRightPanelTitle('Please select data from left pan');
                         break;
                 }
                 
@@ -1369,6 +1370,13 @@ function MedicalHistoryBox(props) {
                                                                 onChange={(e) => handleNoteChange('reproductiveNotes', e.target.value)}
                                                             />   
                                                         </div>
+                                                    </div>
+                                                )}
+                                                { gynecHistory && activeMenstrualData === "reproductiveLifeStages" && !gynecHistory?.[activeMenstrualData] && (
+                                                    <div className="text-center">
+                                                        <img className="my-4" style={{ width: 194 }} src={noRecordFound} alt="No Result Found" />
+                                                        <div className="fontroboto text-main title-common"> No selected data Found! </div>
+                                                        <div className="fontroboto text-main title fw-normal mt-2"> Please select data from the left panel. </div>
                                                     </div>
                                                 )}
                                                 {activeMenstrualData === "notes" && (
