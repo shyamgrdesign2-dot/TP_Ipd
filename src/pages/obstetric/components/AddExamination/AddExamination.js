@@ -16,7 +16,12 @@ import { isNumberCheck } from "../../utils/helper";
 
 const dateFormat = "YYYY-MM-DD";
 
-function AddExamination({ close, editIndex, getAllObstetricDetails }) {
+function AddExamination({
+  close,
+  editIndex,
+  getAllObstetricDetails,
+  handleCollapsed,
+}) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
   const [examinationData, setExaminationData] = useState({
@@ -121,6 +126,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
     if (addExaminationRes?.data) {
       dispatch(obstetricDetailsUpdated());
       getAllObstetricDetails();
+      handleCollapsed();
       setShowSuccess(true);
       setTimeout(() => {
         close();
@@ -234,7 +240,10 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             }
             style={{ width: "170px", height: "41px" }}
             allowClear={false}
-            format={"DD-MM-YYYY"}
+            format={{
+              format: "DD-MM-YYYY",
+              type: "mask",
+            }}
           />
         </div>
         <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5 w-100">

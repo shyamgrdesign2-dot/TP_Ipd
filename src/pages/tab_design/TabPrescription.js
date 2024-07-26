@@ -335,6 +335,12 @@ function TabPrescription() {
     }
   }, [chartType]);
 
+  useEffect(() => {
+    if (collapsedFlag === 6 && examinationHistory.length === 0) {
+      setCollapsed(false);
+    }
+  }, [collapsedFlag, collapsed])
+
   //Handle Sider
   const openCollapsed = useCallback(
     (flag) => {
@@ -805,7 +811,9 @@ function TabPrescription() {
             width="100%"
             push={false}
           >
-            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
+            <Obstetric
+              handleDrawerObstetric={handleDrawerObstetric}
+              handleCollapsed={(flag) => handleCollapsed(flag)} />
           </Drawer>
         )}
       </>

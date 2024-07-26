@@ -27,7 +27,7 @@ import { jwtDecode } from "jwt-decode";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import { errorMessage } from "../../utils/utils";
 
-const Obstetric = ({ handleDrawerObstetric }) => {
+const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
   const { patient_data } = state;
@@ -241,6 +241,7 @@ const Obstetric = ({ handleDrawerObstetric }) => {
               resetExaminationEditIndex();
             }}
             getAllObstetricDetails={getAllObstetricDetails}
+            handleCollapsed={handleCollapsed}
           />
         </Drawer>
       )}
