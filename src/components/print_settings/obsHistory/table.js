@@ -150,7 +150,7 @@ function ObsHistoryTableView({
                   styles.minHeight38,
                 ]}
               >
-                Consng
+                Consang
               </Text>
               <Text
                 style={[
@@ -422,7 +422,7 @@ function ObsHistoryTableView({
                 ]}
               >
                 {obsHistoryData?.gravidity
-                  ? (obsHistoryData?.gravidity).toString().padStart(2, "0")
+                  ? (obsHistoryData?.gravidity)?.toString().padStart(2, "0")
                   : `-`}
               </Text>
               <Text
@@ -438,7 +438,7 @@ function ObsHistoryTableView({
                 ]}
               >
                 {obsHistoryData?.parity
-                  ? (obsHistoryData?.parity).toString().padStart(2, "0")
+                  ? (obsHistoryData?.parity)?.toString().padStart(2, "0")
                   : `-`}
               </Text>
               <Text
@@ -454,7 +454,7 @@ function ObsHistoryTableView({
                 ]}
               >
                 {obsHistoryData?.livingChildren
-                  ? (obsHistoryData?.livingChildren).toString().padStart(2, "0")
+                  ? (obsHistoryData?.livingChildren)?.toString().padStart(2, "0")
                   : `-`}
               </Text>
               <Text
@@ -470,7 +470,7 @@ function ObsHistoryTableView({
                 ]}
               >
                 {obsHistoryData?.abortion
-                  ? (obsHistoryData?.abortion).toString().padStart(2, "0")
+                  ? (obsHistoryData?.abortion)?.toString().padStart(2, "0")
                   : `-`}
               </Text>
               <Text
@@ -487,7 +487,7 @@ function ObsHistoryTableView({
               >
                 {obsHistoryData?.ectopicPregnancies
                   ? (obsHistoryData?.ectopicPregnancies)
-                      .toString()
+                      ?.toString()
                       .padStart(2, "0")
                   : `-`}
               </Text>
@@ -503,7 +503,20 @@ function ObsHistoryTableView({
                 borderRight: "1px solid #171725",
               }}
             >
-              Remarks&nbsp;:&nbsp;{obsHistoryData?.diagnosisNotes || `-`}
+              Remarks&nbsp;:&nbsp;
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                  },
+                ]}
+              >
+                {obsHistoryData?.diagnosisNotes || `-`}
+              </Text>
             </Text>
           </View>
         </View>
@@ -582,7 +595,7 @@ function ObsHistoryTableView({
                     >
                       Term length
                     </Text>
-                    {item?.deliveryMode && (
+                    {"deliveryMode" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -600,7 +613,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.gestationPeriod && (
+                    {"gestationPeriod" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -618,7 +631,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.location && (
+                    {"location" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -636,7 +649,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.modeOfManagement && (
+                    {"modeOfManagement" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -654,7 +667,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.typeOfAbortion && (
+                    {"typeOfAbortion" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -672,7 +685,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.modeOfAbortion && (
+                    {"modeOfAbortion" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -690,7 +703,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.dateOfDelivery && (
+                    {"dateOfDelivery" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -708,7 +721,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.gender && (
+                    {"gender" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -726,7 +739,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.babysWeight && (
+                    {"babysWeight" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -765,7 +778,7 @@ function ObsHistoryTableView({
                       ]}
                     >
                       {item?.gravidaNumber
-                        ? (item?.gravidaNumber).toString().padStart(2, "0")
+                        ? (item?.gravidaNumber)?.toString().padStart(2, "0")
                         : `-`}
                     </Text>
                     <Text
@@ -799,7 +812,7 @@ function ObsHistoryTableView({
                       {item?.termLength || `-`}
                     </Text>
 
-                    {item?.deliveryMode && (
+                    {"deliveryMode" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -817,7 +830,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.gestationPeriod && (
+                    {"gestationPeriod" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -839,7 +852,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.location && (
+                    {"location" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -857,7 +870,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.modeOfManagement && (
+                    {"modeOfManagement" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -875,7 +888,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.typeOfAbortion && (
+                    {"typeOfAbortion" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -893,7 +906,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.modeOfAbortion && (
+                    {"modeOfAbortion" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -911,7 +924,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.dateOfDelivery && (
+                    {"dateOfDelivery" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -931,7 +944,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.gender && (
+                    {"gender" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -949,7 +962,7 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
-                    {item?.babysWeight && (
+                    {"babysWeight" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -981,7 +994,21 @@ function ObsHistoryTableView({
                     borderRight: "1px solid #171725",
                   }}
                 >
-                  Remarks&nbsp;:&nbsp;{item?.remarks || `-`}
+                  Remarks&nbsp;:&nbsp;
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                      },
+                    ]}
+                  >
+                    {item?.remarks || `-`}
+                  </Text>
                 </Text>
               </View>
             );
@@ -1334,7 +1361,21 @@ function ObsHistoryTableView({
                   borderRight: "1px solid #171725",
                 }}
               >
-                Remarks&nbsp;:&nbsp;{item?.notes || `-`}
+                Remarks&nbsp;:&nbsp;
+                <Text
+                  style={[
+                    styles.cell,
+                    {
+                      fontFamily: printSettings?.page_format?.font_family,
+                      fontSize:
+                        PX_TO_PT * printSettings?.page_format?.font_size,
+                      fontWeight: 400,
+                      color: "#000",
+                    },
+                  ]}
+                >
+                  {item?.notes || `-`}
+                </Text>
               </Text>
             </View>
           ))}

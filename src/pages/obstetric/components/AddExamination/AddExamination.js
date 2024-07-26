@@ -435,7 +435,14 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
   return (
     <>
       <Card bordered={false} className="search-modalCard">
-        <div className="modalCard-header h-60 align-items-center justify-content-between d-flex">
+        <div
+          className="modalCard-header h-60 align-items-center justify-content-between d-flex"
+          style={{
+            position: "sticky",
+            top: "0px",
+            zIndex: 2,
+          }}
+        >
           <div className="align-items-center d-flex">
             <Button
               type="text"
