@@ -248,29 +248,37 @@ function DWClinicProfile() {
     };
 
     const handleImageChange = (el, e) => {
-        if (el.target.files?.length > 0) {
-            const fileUrls = el.target.files;
-            const updatedData = Object.entries(fileUrls).reduce((acc, [key, fileUrl]) => {
-                if (fileUrl.size <= 5000000 && ['image/png', 'image/jpeg', 'image/jpg'].includes(fileUrl.type)) {
-                    acc.push({
-                        clinic_image_id: Math.floor(1000000000 + Math.random() * 9999999999),
-                        clinic_image_delete: 0,
-                        clinic_image_name: fileUrl.name,
-                        clinic_image_link: URL.createObjectURL(fileUrl),
-                        uploadFile: fileUrl
-                    });
-                } else {
-                    errorMessage('Some files were removed because only JPG, JPEG, or PNG files with a maximum size of 5MB are allowed for upload.');
-                }
-                return acc;
-            }, []);
+        const checkFiles = e?.clinic_photos?.filter(x => x.uploadFile)?.length
+        if (checkFiles === 0 || checkFiles < 5) {
+            if (el.target.files?.length > 0) {
+                const files = Array.from(el.target.files);
+                const selectedImages = files.filter(file => file.type.startsWith('image/')).slice(0, 6 - checkFiles);
+                const fileUrls = selectedImages;
+                const updatedData = Object.entries(fileUrls).reduce((acc, [key, fileUrl]) => {
+                    if (fileUrl.size <= 2000000 && ['image/png', 'image/jpeg', 'image/jpg'].includes(fileUrl.type)) {
+                        acc.push({
+                            clinic_image_id: Math.floor(1000000000 + Math.random() * 9999999999),
+                            clinic_image_delete: 0,
+                            clinic_image_name: fileUrl.name,
+                            clinic_image_link: URL.createObjectURL(fileUrl),
+                            uploadFile: fileUrl
+                        });
+                    } else {
+                        errorMessage('Some files were removed because only JPG, JPEG, or PNG files with a maximum size of 2MB are allowed for upload.');
+                    }
+                    return acc;
+                }, []);
 
-            const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
-            if (index !== -1) {
-                clinicProfile[index]['clinic_photos'] = [...clinicProfile[index]['clinic_photos'], ...updatedData]
-                setClinicProfile((prev) => { return [...prev] });
+                const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+                if (index !== -1) {
+                    clinicProfile[index]['clinic_photos'] = [...clinicProfile[index]['clinic_photos'], ...updatedData]
+                    setClinicProfile((prev) => { return [...prev] });
+                }
             }
+        } else {
+            errorMessage('Maximum 5 images upload');
         }
+
     }
 
 
@@ -408,9 +416,9 @@ function DWClinicProfile() {
                                     <div className='d-flex flex-wrap mb-3'>
                                         {e?.clinic_photos && e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.map((item, index) => {
                                             return (
-                                                <div key={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting-wrap' onClick={() => onDeleteImage(e, item)}>
+                                                <div key={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting-wrap'>
                                                     <img src={item?.clinic_image_link} alt={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting img-fluid' />
-                                                    <img src={CloseWithWhiteFill} alt='Close' className='close-clinic-img' />
+                                                    <img src={CloseWithWhiteFill} alt='Close' className='close-clinic-img' onClick={() => onDeleteImage(e, item)} />
                                                 </div>
                                             )
                                         })}
@@ -421,7 +429,7 @@ function DWClinicProfile() {
                                                 style={{ display: 'none' }}
                                                 type="file"
                                                 multiple
-                                                accept="image/png"
+                                                accept="image/png, image/jpeg, image/jpg"
                                                 onChange={(el) => handleImageChange(el, e)} />
                                             <img src={AddPhotos} alt='Clinic Photos' className='img-fluid' />
                                         </div>

@@ -13,6 +13,7 @@ function DoctorProfile() {
 
   const navigate = useNavigate();
   const { profile } = useSelector((state) => state.doctors);
+  
   return (
     <>
       <Navbar className="justify-content-between headerprescription p-0">

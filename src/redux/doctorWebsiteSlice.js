@@ -3,7 +3,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import ApiVideoLibrary from "../api/services/ApiVideoLibrary";
 
 const initialState = {
-    loading: false,
+    save_loading: false,
+    publish_loading: false,
     error: null,
     languageList: []
 };
@@ -36,7 +37,7 @@ export const listLanguage = createAsyncThunk(
 
 export const saveDoctorWebsite = createAsyncThunk(
     "videoLibrary/saveDoctorWebsite",
-    async ({ data, onDownloadProgress }) => {
+    async ({ data, onUploadProgress, cancelToken }) => {
         const formData = new FormData();
         Object.keys(data).forEach((key) => {
             if (key.startsWith('clinicpic')) {
@@ -49,7 +50,7 @@ export const saveDoctorWebsite = createAsyncThunk(
         });
 
         try {
-            const result = await ApiVideoLibrary.saveDoctorWebsite(formData, onDownloadProgress);
+            const result = await ApiVideoLibrary.saveDoctorWebsite(formData, onUploadProgress, cancelToken);
             if (result.status) {
                 return result.data;
             } else {
@@ -57,6 +58,18 @@ export const saveDoctorWebsite = createAsyncThunk(
             }
         } catch (error) {
             throw Error(error);
+        }
+    }
+);
+
+export const publishDoctorWebsite = createAsyncThunk(
+    "videoLibrary/publishDoctorWebsite",
+    async (data) => {
+        const result = await ApiVideoLibrary.publishDoctorWebsite(data);
+        if (result.status) {
+            return result.data;
+        } else {
+            throw Error(result.error);
         }
     }
 );
@@ -76,21 +89,28 @@ const doctorWebsiteSlice = createSlice({
                 state.loading = false;
             })
             .addCase(listLanguage.fulfilled, (state, action) => {
-                state.loading = false;
                 state.languageList = action.payload
             })
             .addCase(listLanguage.rejected, (state) => {
-                state.loading = false;
                 state.languageList = []
             })
             .addCase(saveDoctorWebsite.pending, (state) => {
-                state.loading = true;
+                state.save_loading = true;
             })
             .addCase(saveDoctorWebsite.fulfilled, (state, action) => {
-                state.loading = false;
+                state.save_loading = false;
             })
             .addCase(saveDoctorWebsite.rejected, (state) => {
-                state.loading = false;
+                state.save_loading = false;
+            })
+            .addCase(publishDoctorWebsite.pending, (state) => {
+                state.publish_loading = true;
+            })
+            .addCase(publishDoctorWebsite.fulfilled, (state, action) => {
+                state.publish_loading = false;
+            })
+            .addCase(publishDoctorWebsite.rejected, (state) => {
+                state.publish_loading = false;
             });
     },
 });
