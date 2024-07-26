@@ -278,7 +278,10 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                     : ""
                 }
                 allowClear={false}
-                format={"DD-MM-YYYY"}
+                format={{
+                  format: "DD-MM-YYYY",
+                  type: "mask",
+                }}
               />
             </div>
             <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
