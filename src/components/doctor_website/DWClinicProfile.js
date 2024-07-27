@@ -384,7 +384,8 @@ function DWClinicProfile() {
                                     <Col span={24}>
                                         <Form.Item
                                             label="Address"
-                                            className='fw-medium mb-20'>
+                                            className='fw-medium mb-20'
+                                            required>
                                             <Input.TextArea placeholder="Address" rows={3} className="textareaPlaceholder text-capitalize rounded-10px"
                                                 value={e?.address?.address_line}
                                                 onChange={(el) => onChangeAddressInput(el, 'address_line', e)} />

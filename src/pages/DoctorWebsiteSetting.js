@@ -11,7 +11,7 @@ import HeaderDoctorWebsite from "../components/doctor_website/HeaderDoctorWebsit
 
 import { listLanguage } from "../redux/doctorWebsiteSlice";
 
-import mendatoryTick from "../../src/assets/images/mendatory-tick.svg";
+import mandatoryTick from "../../src/assets/images/mandatory-tick.svg";
 import cloudSaved from "../../src/assets/images/cloud-saved.svg";
 import DWAboutDoctor from "../components/doctor_website/DWAboutDoctor";
 import DWPersonalDetails from "../components/doctor_website/DWPersonalDetails";
@@ -280,12 +280,12 @@ function DoctorWebsiteSetting() {
                                         <div className="d-flex align-items-center justify-content-between">
                                             <div className="d-flex align-items-center">
                                                 <div className="titleprint">Personal Details</div>
-                                                <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mendatory</div>
+                                                <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mandatory</div>
                                                 {personalDetails?.first_name
                                                     && personalDetails?.last_name
                                                     && personalDetails?.education
                                                     && (
-                                                        <img className="ms-2" src={mendatoryTick} alt="Mendatory" />
+                                                        <img className="ms-2" src={mandatoryTick} alt="Mandatory" />
                                                     )}
                                             </div>
                                             <i className="icon-right iconrotate180"></i>
@@ -298,11 +298,11 @@ function DoctorWebsiteSetting() {
                                         <div className="d-flex align-items-center justify-content-between">
                                             <div className="d-flex align-items-center">
                                                 <div className="titleprint">About Doctor</div>
-                                                <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mendatory</div>
+                                                <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mandatory</div>
                                                 {aboutDoctor?.years_experience
                                                     && aboutDoctor?.language?.length > 0
                                                     && (
-                                                        <img className="ms-2" src={mendatoryTick} alt="Mendatory" />
+                                                        <img className="ms-2" src={mandatoryTick} alt="Mandatory" />
                                                     )}
                                             </div>
                                             <i className="icon-right iconrotate180"></i>
@@ -315,7 +315,7 @@ function DoctorWebsiteSetting() {
                                         <div className="d-flex align-items-center justify-content-between">
                                             <div className="d-flex align-items-center">
                                                 <div className="titleprint">Clinic Profile</div>
-                                                <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mendatory</div>
+                                                <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mandatory</div>
                                                 {clinicProfile?.filter(el => !el.clinic_delete)?.length > 0
                                                     && clinicProfile?.filter(el => !el.clinic_delete)[0]?.name
                                                     && clinicProfile?.filter(el => !el.clinic_delete)[0]?.contact_no
@@ -324,7 +324,7 @@ function DoctorWebsiteSetting() {
                                                     && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.address_line
                                                     && clinicProfile?.filter(el => !el.clinic_delete)[0]?.shift?.length > 0
                                                     && (
-                                                        <img className="ms-2" src={mendatoryTick} alt="Mendatory" />
+                                                        <img className="ms-2" src={mandatoryTick} alt="Mandatory" />
                                                     )}
                                             </div>
                                             <i className="icon-right iconrotate180"></i>
@@ -438,7 +438,7 @@ function DoctorWebsiteSetting() {
                                                 <i className='icon-Cross'></i>
                                             </div>
                                             <div className="titleprint">{selectedMenu ? selectedMenu?.name : ''}</div>
-                                            <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1 bg-white">Mendatory</div>
+                                            <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1 bg-white">Mandatory</div>
                                         </div>
                                         {selectedMenu
                                             && selectedMenu?.value === 1 ? <DWPersonalDetails />
