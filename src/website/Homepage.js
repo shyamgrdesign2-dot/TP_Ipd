@@ -263,7 +263,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                   <ReadMore class="title-common">
                     {aboutDoctor?.about}
                   </ReadMore>
-                  <div className="title-common text-primary cursor-pointer d-inline"><img src={Plus} alt="Read More" /> Read More</div>
+                  {/* <div className="title-common text-primary cursor-pointer d-inline"><img src={Plus} alt="Read More" /> Read More</div> */}
                 </>
               )}
             </Col>
