@@ -1411,8 +1411,7 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {"liquor" in item ? item?.liquor : ``}
-                    {"liquor" in item ? ` cm` : `-`}
+                    {"liquor" in item ? item?.liquor : `-`}
                   </Text>
                   <Text
                     style={[
