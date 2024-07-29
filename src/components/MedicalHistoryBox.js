@@ -1176,7 +1176,7 @@ function MedicalHistoryBox(props) {
                                                         <div className="segement-static d-flex flex-wrap">
                                                             {CYCLES_LIST.map((item, i) => {
                                                                 const isCustomButton = i === CYCLES_LIST.length-1;
-                                                                const isActive = gynecHistory?.intervalOfCycle === item.value || (isCustomButton && (gynecHistory?.intervalOfCycle === customCyclesValue || gynecHistory?.intervalOfCycle ===inputCycles));
+                                                                const isActive = gynecHistory?.intervalOfCycle === item.value || (isCustomButton && gynecHistory?.intervalOfCycle !== "" && (gynecHistory?.intervalOfCycle === customCyclesValue || gynecHistory?.intervalOfCycle ===inputCycles));
                                                                 return (
                                                                     <button
                                                                         key={i}
@@ -1209,7 +1209,7 @@ function MedicalHistoryBox(props) {
                                                         <div className="segement-static d-flex mb-3">
                                                             {DURATION_OF_CYCLE_LIST.map((item, i) => {
                                                                 const isCustomButton = i === DURATION_OF_CYCLE_LIST.length-1;
-                                                                const isActive = gynecHistory?.durationOfMenstrualFlow === item.value || (isCustomButton && (gynecHistory?.durationOfMenstrualFlow === customCyclesDaysValue || gynecHistory?.durationOfMenstrualFlow === inputCyclesDays));
+                                                                const isActive = gynecHistory?.durationOfMenstrualFlow === item.value || (isCustomButton && gynecHistory?.durationOfMenstrualFlow !== "" && (gynecHistory?.durationOfMenstrualFlow === customCyclesDaysValue || gynecHistory?.durationOfMenstrualFlow === inputCyclesDays));
                                                                 return (
                                                                     <button
                                                                         key={i}
@@ -1239,7 +1239,7 @@ function MedicalHistoryBox(props) {
                                                         <div className="segement-static d-flex">
                                                             {PAD_NUM_LIST.map((item, i) => {
                                                                 const isCustomButton = i === PAD_NUM_LIST.length-1;
-                                                                const isActive = gynecHistory?.numberOfPadsPerDay === item.value || (isCustomButton && (gynecHistory?.numberOfPadsPerDay === customPadNumValue || gynecHistory?.numberOfPadsPerDay === inputPadsNum));
+                                                                const isActive = gynecHistory?.numberOfPadsPerDay === item.value || (isCustomButton && gynecHistory?.numberOfPadsPerDay !== "" && (gynecHistory?.numberOfPadsPerDay === customPadNumValue || gynecHistory?.numberOfPadsPerDay === inputPadsNum));
                                                                 return (
                                                                     <button
                                                                         key={i}
@@ -1300,7 +1300,7 @@ function MedicalHistoryBox(props) {
                                                         <div className="segement-static d-flex flex-wrap">
                                                             {MENARCHE_LIST.map((item, i) => {
                                                                 const isCustomButton = i === MENARCHE_LIST.length-1;
-                                                                const isActive = gynecHistory?.ageAtMenarche === item.value || (isCustomButton && (gynecHistory?.ageAtMenarche === customMenarcheValue || gynecHistory?.ageAtMenarche === inputMenarche));
+                                                                const isActive = gynecHistory?.ageAtMenarche === item.value || (isCustomButton && gynecHistory?.ageAtMenarche !== "" && (gynecHistory?.ageAtMenarche === customMenarcheValue || gynecHistory?.ageAtMenarche === inputMenarche));
                                                                 return (
                                                                     <button
                                                                         key={i}
@@ -1332,7 +1332,7 @@ function MedicalHistoryBox(props) {
                                                         <div className="segement-static d-flex mb-2">
                                                             {MENOPAUSE_LIST.map((item, i) => {
                                                                 const isCustomButton = i === MENOPAUSE_LIST.length-1;
-                                                                const isActive = gynecHistory?.ageAtMenopause === item.value || (isCustomButton && (gynecHistory?.ageAtMenopause === customMenoPause || gynecHistory?.ageAtMenopause === inputMenopause));
+                                                                const isActive = gynecHistory?.ageAtMenopause === item.value || (isCustomButton && gynecHistory?.ageAtMenopause !== "" && (gynecHistory?.ageAtMenopause === customMenoPause || gynecHistory?.ageAtMenopause === inputMenopause));
                                                                 return (
                                                                     <button
                                                                         key={i}

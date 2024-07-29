@@ -33,7 +33,7 @@ export const REPRODUCTIVE_LIFE_STAGES_LIST = [
 export const TYPES_REPRODUCTIVE_STAGES = [
     { value: "Normal", label: "Normal" },
     { value: "Surgical", label: "Surgical" },
-    { value: "Chemotherapy-induced", label: "Chemotherapy-induced" },
+    { value: "Chemotherapy - induced", label: "Chemotherapy - induced" },
     { value: "Primary ovarian sufficiency", label: "Primary Ovarian Sufficiency" },
     { value: "Other", label: "Other" },
 ];
