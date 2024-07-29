@@ -17,7 +17,14 @@ import { isNumberCheck } from "../../utils/helper";
 
 const dateFormat = "YYYY-MM-DD";
 
-function AddExamination({ close, editIndex, handleCollapsed }) {
+function AddExamination({
+  close,
+  editIndex,
+  handleCollapsed,
+  toggleDeletePopup,
+  isDataAddedOrEdited,
+  setIsDataAddedOrEdited,
+}) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
   const [examinationData, setExaminationData] = useState({
@@ -53,6 +60,7 @@ function AddExamination({ close, editIndex, handleCollapsed }) {
       };
       return newData;
     });
+    setIsDataAddedOrEdited(true);
   };
 
   const disabledDate = (current) => {
@@ -102,6 +110,7 @@ function AddExamination({ close, editIndex, handleCollapsed }) {
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
     dispatch(obstetricDetailsUpdated());
+    setIsDataAddedOrEdited(false);
     close();
     handleCollapsed && handleCollapsed();
   };
@@ -119,6 +128,7 @@ function AddExamination({ close, editIndex, handleCollapsed }) {
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
     dispatch(obstetricDetailsUpdated());
+    setIsDataAddedOrEdited(false);
     close();
   };
 
@@ -403,6 +413,13 @@ function AddExamination({ close, editIndex, handleCollapsed }) {
       !examinationData.liquor
     );
   };
+  const closeBtnHandler = () => {
+    if (isDataAddedOrEdited) {
+      toggleDeletePopup();
+    } else {
+      close();
+    }
+  };
 
   return (
     <>
@@ -419,7 +436,7 @@ function AddExamination({ close, editIndex, handleCollapsed }) {
             <Button
               type="text"
               className="btn btn-delete-prescription px-3 focus-none h-100"
-              onClick={close}
+              onClick={closeBtnHandler}
             >
               <i className="icon-Cross fs-3"></i>
             </Button>
