@@ -34,6 +34,7 @@ import DoctorProfile from '../assets/images/website-images/doctor-img.png'
 import DoctorDefault from '../assets/images/website-images/doctor-default.png'
 import avatarDoctor from '../assets/images/website-images/avatar-doctor.svg'
 import websiteLogo from '../assets/images/website-images/logo.png'
+import MenuImg from '../assets/images/website-images/menu.svg'
 import websiteFacebook from '../assets/images/website-images/website-facebook.svg'
 import websiteInstagram from '../assets/images/website-images/website-instagram.svg'
 import websiteLinkedin from '../assets/images/website-images/website-linkedin.svg'
@@ -69,16 +70,23 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
     className: "center",
     centerMode: true,
     infinite: false,
-    centerPadding: "60px",
+    // centerPadding: "60px",
     arrows: false,
     speed: 500,
     dots: true,
+    arrows: false,
     adaptiveHeight: true,
     afterChange: (current) => setCurrentSlide(current),
     autoplay: false,
     responsive: [
       {
         breakpoint: 1024,
+        settings: {
+          // centerMode: false,
+        }
+      },
+      {
+        breakpoint: 600,
         settings: {
           centerMode: false,
         }
@@ -173,210 +181,239 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
     setIsModalOpen(false);
   };
 
+  // Navbar
+
+  const [showNavbar, setShowNavbar] = React.useState(false);
+
+  const handleShowNavbar = () => {
+    setShowNavbar(!showNavbar);
+  };
+
   return (
     <div className="website-wrapper">
-      <div style={{ padding: 24.88 }}>
-
-        {/* Header Section */}
-        <div className='website-section website-header'>
-          <Row className='align-items-center' justify="space-between">
-            <Col span={18}>
-              <div className='d-flex align-items-center justify-content-between'>
-                <img src={websiteLogo} width={151.29} height={35} alt="Logo" />
-                <ul className='mb-0'>
+      {/* Header Section */}
+      <div class="container-fluid mt-14">
+        <div className={`website-section website-header ${showNavbar && "website-header-responsive"}`}>
+          <nav className="navbar">
+            <div className='d-flex align-items-center justify-content-between w-100'>
+              <div className="logo">
+                <img src={websiteLogo} width={151.29} height={34} alt="Logo" />
+              </div>
+              <div className="menu-icon" onClick={handleShowNavbar}>
+                <img src={MenuImg} alt="Doctor Website Navbar" />
+              </div>
+              <div className={`nav-elements d-lg-flex ${showNavbar && "active text-center"}`}>
+                <ul className='mb-0 mt-4 mt-lg-0 p-0'>
                   <li>
-                    <a href='#'>About</a>
+                    <a href='#aboutSection'>About</a>
                   </li>
                   <li>
-                    <a href='#'>Clinic</a>
+                    <a href='#clinicSection'>Clinic</a>
                   </li>
                   <li>
-                    <a href='#'>Services</a>
+                    <a href='#servicesSection'>Services</a>
                   </li>
                   <li>
-                    <a href='#'>Experience</a>
+                    <a href='#experienceSection'>Experience</a>
+                  </li>
+                  <li>
+                    <a href='#educationSection'>Education</a>
+                  </li>
+                  <li>
+                    <a href='#membershipSection'>Membership</a>
+                  </li>
+                  <li>
+                    <a href='#awardsSection'>Awards</a>
                   </li>
                 </ul>
+                <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mx-lg-3 mt-5 mt-lg-0">
+                  Book Appointment
+                </Button>
               </div>
-            </Col>
-            <Col>
-              <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18">
-                Book Appointment
-              </Button>
-            </Col>
-          </Row>
+            </div>
+          </nav>
         </div>
+      </div>
+
+      <div className='outer-round-big'>
 
         {/* Banner Section */}
         <div className="website-section website-banner">
-          <Row className='row-80'>
-            <Col sm={24} lg={12}>
-              <div className="hi text-welcome">Hi, I'm</div>
-              <h1 className="doctor-name mb-20 web-h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h1>
-              <div className="education-speciality mb-15 text-welcome">{`${personalDetails?.education} - ${personalDetails?.specialty}`}</div>
-              <div className="d-flex flex-wrap mb-lg-5 mb-28">
-                {/* <div className="location-contact text-welcome mb-2"> <img src={Location} width={18} height={18} alt="Location" /> Ahmedabad</div> */}
-                {personalDetails?.email_id && (
-                  <div className="location-contact text-welcome"> <img src={Mail} width={18} height={18} alt="Location" />
-                    <a href={`mailto:${personalDetails?.email_id}`} className='text-main'>{personalDetails?.email_id}</a>
-                  </div>
-                )}
-              </div>
-              <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18">
-                Book Appointment
-              </Button>
-            </Col>
-            <Col sm={24} lg={12}>
-              <div className='round-pink'></div>
-              <div className='doctor-photo'>
-                <img src={personalDetails?.hero_image_link ? personalDetails?.hero_image_link : DoctorDefault} alt="Doctor Profile" className={`${personalDetails?.hero_image_link ? 'img-fluid h-100' : ''} `} />
-              </div>
-              <div className='square-yellow'></div>
-            </Col>
-          </Row>
+          <div class="container">
+            <Row className='row-80'>
+              <Col sm={24} lg={12}>
+                <div className="hi text-welcome">Hi, I'm</div>
+                <h1 className="doctor-name mb-20 web-h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h1>
+                <div className="education-speciality mb-15 text-welcome">{`${personalDetails?.education} - ${personalDetails?.specialty}`}</div>
+                <div className="d-flex flex-wrap mb-lg-5 mb-28">
+                  {/* <div className="location-contact text-welcome mb-2"> <img src={Location} width={18} height={18} alt="Location" /> Ahmedabad</div> */}
+                  {personalDetails?.email_id && (
+                    <div className="location-contact text-welcome"> <img src={Mail} width={18} height={18} alt="Location" />
+                      <a href={`mailto:${personalDetails?.email_id}`} className='text-main'>{personalDetails?.email_id}</a>
+                    </div>
+                  )}
+                </div>
+                <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18">
+                  Book Appointment
+                </Button>
+              </Col>
+              <Col sm={24} lg={12}>
+                <div className='round-pink'></div>
+                <div className='doctor-photo'>
+                  <img src={personalDetails?.hero_image_link ? personalDetails?.hero_image_link : DoctorDefault} alt="Doctor Profile" className={`${personalDetails?.hero_image_link ? 'img-fluid h-100' : ''} `} />
+                </div>
+                <div className='square-yellow'></div>
+              </Col>
+            </Row>
+          </div>
         </div>
 
         {/* About Section */}
-        <div className="website-section website-about">
-          <Row className='row-80 align-items-start'>
-            <Col lg={{ order: 2, span: 12 }}>
-              <div className='bg-icon-common mb-20'>
-                <img src={AboutIcon} alt="Doctor Profile" />
-              </div>
-              <h2 className="doctor-name h1 web-h1 text-welcome mb-28">About The Doctor</h2>
-              <div className='d-flex align-items-center mb-28'>
-                {aboutDoctor?.years_experience && aboutDoctor?.years_experience?.length > 0 && (
-                  <div className='about-after ps-3 me-5'>
-                    <div className='fs-18 text-welcome fw-medium'>{`${aboutDoctor?.years_experience} Years`}</div>
-                    <div>Overall Experience</div>
-                  </div>
+        <div id='aboutSection' className="website-section website-about">
+          <div class="container">
+            <Row className='row-80 align-items-start'>
+              <Col lg={{ order: 2, span: 12 }}>
+                <div className='bg-icon-common mb-20'>
+                  <img src={AboutIcon} alt="Doctor Profile" />
+                </div>
+                <h2 className="doctor-name h1 web-h1 text-welcome mb-28">About The Doctor</h2>
+                <div className='d-flex align-items-center mb-28'>
+                  {aboutDoctor?.years_experience && aboutDoctor?.years_experience?.length > 0 && (
+                    <div className='about-after ps-3 me-5'>
+                      <div className='fs-18 text-welcome fw-medium'>{`${aboutDoctor?.years_experience} Years`}</div>
+                      <div>Overall Experience</div>
+                    </div>
+                  )}
+                  {aboutDoctor?.language && aboutDoctor?.language?.length > 0 && (
+                    <div className='about-after ps-3'>
+                      <div className='fs-18 text-welcome fw-medium'>{aboutDoctor?.language.join(', ')}</div>
+                      <div>Languages</div>
+                    </div>
+                  )}
+                </div>
+                {aboutDoctor?.about && (
+                  <>
+                    <ReadMore class="title-common">
+                      {aboutDoctor?.about}
+                    </ReadMore>
+                    {/* <div className="title-common text-primary cursor-pointer d-inline"><img src={Plus} alt="Read More" /> Read More</div> */}
+                  </>
                 )}
-                {aboutDoctor?.language && aboutDoctor?.language?.length > 0 && (
-                  <div className='about-after ps-3'>
-                    <div className='fs-18 text-welcome fw-medium'>{aboutDoctor?.language.join(', ')}</div>
-                    <div>Languages</div>
-                  </div>
-                )}
-              </div>
-              {aboutDoctor?.about && (
-                <>
-                  <ReadMore class="title-common">
-                    {aboutDoctor?.about}
-                  </ReadMore>
-                  {/* <div className="title-common text-primary cursor-pointer d-inline"><img src={Plus} alt="Read More" /> Read More</div> */}
-                </>
-              )}
-            </Col>
-            <Col sm={24} lg={12} className='mt-5 mt-lg-0'>
-              <img src={AboutImg} className='img-fluid' alt="About The Doctor" />
-            </Col>
-          </Row>
+              </Col>
+              <Col sm={24} lg={12} className='mt-5 mt-lg-0'>
+                <img src={AboutImg} className='img-fluid' alt="About The Doctor" />
+              </Col>
+            </Row>
+          </div>
         </div>
+
       </div>
 
       {/* Clinic Section */}
       {clinicProfile?.filter(el => !el.clinic_delete)?.length > 0 ? (
-        <div className="website-section website-clinic">
+        <div id='clinicSection' className="website-section website-clinic">
           <div className='text-center'>
             <div className='bg-icon-common mx-auto mb-20'>
               <img src={ClinicIcon} alt="Clinic Address & Hours" />
             </div>
             <h3 className="doctor-name h1 web-h1 text-welcome mb-lg-5 mb-28">Clinic Address & Hours</h3>
           </div>
-          <div className="slider-container">
-            <Slider
-              {...settings}
-              slidesToShow={1}
-              arrows={false}
-              className='clinic-slider'>
-              {clinicProfile?.filter(el => !el.clinic_delete)?.map((e, i) => {
-                return (
-                  <div key={Math.random()} className='clinic-box'>
-                    <Row justify="space-between">
-                      <Col sm={24} lg={12}>
-                        <div className='py-lg-4 py-3'>
-                          {e?.name && (
-                            <div className='d-flex align-items-center'>
-                              <div className='bg-icon-common bg-icon-white'><img src={LocationClinic} alt="Clinic Address & Hours" /></div>
-                              <div className='ms-3 title-hypertension text-white'>{e?.name}</div>
-                            </div>
-                          )}
-                          {e?.address && (
-                            <p className='clinic-address'>{`${e?.address.address_line}, ${e?.address.city}, ${e?.address.state}, ${e?.address.pincode}`}</p>
-                          )}
-                        </div>
-                        {e?.clinic_photos?.length > 0 && (
-                          <div className='d-flex'>
-                            {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.slice(0, 3)?.map((item, index) => {
-                              return (
-                                <div key={index} className='clinic-photo'>
-                                  <img className='img-fluid h-100' src={item?.clinic_image_link} alt={item?.clinic_image_name} />
-                                </div>
-                              )
-                            })}
-                            {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.length > 3 && (
-                              <div className='clinic-photo d-flex align-items-center justify-content-center'>
-                                <div className='title-common text-white'>{`${e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.length - 3}+`}</div>
+          <div class="container-lg p-0">
+            <div className="slider-container">
+              <Slider
+                {...settings}
+                slidesToShow={1}
+                arrows={false}
+                className='clinic-slider'>
+                {clinicProfile?.filter(el => !el.clinic_delete)?.map((e, i) => {
+                  return (
+                    <div key={Math.random()} className='clinic-box'>
+                      <Row justify="space-between">
+                        <Col sm={24} lg={12}>
+                          <div className='py-lg-4 py-3'>
+                            {e?.name && (
+                              <div className='d-flex align-items-center'>
+                                <div className='bg-icon-common bg-icon-white'><img src={LocationClinic} alt="Clinic Address & Hours" /></div>
+                                <div className='ms-3 title-hypertension text-white'>{e?.name}</div>
                               </div>
                             )}
+                            {e?.address && (
+                              <p className='clinic-address'>{`${e?.address.address_line}, ${e?.address.city}, ${e?.address.state}, ${e?.address.pincode}`}</p>
+                            )}
                           </div>
-                        )}
-                        <div className='d-flex flex-wrap mt-4 mt-lg-5 clinic-btn'>
-                          {e?.address?.google_map && (
-                            <Button type="button" onClick={() => window.open(e?.address?.google_map)} className="btn btn-primary3 btn-48">
-                              <img src={Direction} alt="Direction" /> Direction to Clinic
-                            </Button>
-                          )}
-                          {e?.contact_no && (
-                            <Button type="button" onClick={() => window.location.href = (`tel:${e.contact_no}`)} className="btn btn-primary3 btn-48">
-                              <img src={Call} alt="Call" /> Call Clinic
-                            </Button>
-                          )}
-                        </div>
-                      </Col>
-                      <Col sm={24} lg={12}>
-                        {e?.shift?.length > 0 && (
-                          <div class="me-lg-0 mx-auto timingshape">
-                            <div className='p-30'>
-                              <div className='d-flex align-items-center justify-content-between'>
-                                <div className='title-hypertension fw-medium text-welcome'>Timings</div>
-                                <div className='bg-icon-common bg-icon-white'><img src={Clock} alt="Clinic Address & Hours" /></div>
-                              </div>
-                              {e?.shift?.map((e1, i1) => (
-                                <div key={i1} className='mt-4'>
-                                  {e1?.days?.length > 0 && e1?.timing?.length && (
-                                    <>
-                                      <div className='text-welcome fw-medium fs-16 text-capitalize'>{`${e1?.days?.length > 1 ? e1?.days[0] + ' - ' + e1?.days[e1?.days?.length - 1] : e1?.days[0]}`}</div>
-
-                                      {e1?.timing?.map((e2, i2) => (
-                                        <div key={i2} className='text-welcome fs-16'>
-                                          {`${e2?.from_time && e2?.end_time ? moment(e2?.from_time, dateFormat).format(showDateFormat) + ' - ' + moment(e2?.end_time, dateFormat).format(showDateFormat) : ''}`}
-                                        </div>
-                                      ))}
-                                    </>
-                                  )}
+                          {e?.clinic_photos?.length > 0 && (
+                            <div className='d-flex'>
+                              {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.slice(0, 3)?.map((item, index) => {
+                                return (
+                                  <div key={index} className='clinic-photo'>
+                                    <img className='img-fluid h-100' src={item?.clinic_image_link} alt={item?.clinic_image_name} />
+                                  </div>
+                                )
+                              })}
+                              {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.length > 3 && (
+                                <div className='clinic-photo d-flex align-items-center justify-content-center'>
+                                  <div className='title-common text-white'>{`${e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.length - 3}+`}</div>
                                 </div>
-                              ))}
+                              )}
                             </div>
+                          )}
+                          <div className='d-flex flex-wrap mt-4 mt-lg-5 clinic-btn'>
+                            {e?.address?.google_map && (
+                              <Button type="button" onClick={() => window.open(e?.address?.google_map)} className="btn btn-primary3 btn-48">
+                                <img src={Direction} alt="Direction" /> Direction to Clinic
+                              </Button>
+                            )}
+                            {e?.contact_no && (
+                              <Button type="button" onClick={() => window.location.href = (`tel:${e.contact_no}`)} className="btn btn-primary3 btn-48">
+                                <img src={Call} alt="Call" /> Call Clinic
+                              </Button>
+                            )}
                           </div>
-                        )}
-                        <p className='slide-count'><span>{String(currentSlide + 1).padStart(2, "0")}/{String(clinicProfile?.filter(el => !el.clinic_delete)?.length).padStart(2, "0")}</span></p>
-                      </Col>
-                    </Row>
-                  </div>
-                )
-              })}
-            </Slider>
+                        </Col>
+                        <Col sm={24} lg={12}>
+                          {e?.shift?.length > 0 && (
+                            <div class="me-lg-0 mx-auto timingshape">
+                              <div className='p-30'>
+                                <div className='d-flex align-items-center justify-content-between'>
+                                  <div className='title-hypertension fw-medium text-welcome'>Timings</div>
+                                  <div className='bg-icon-common bg-icon-white'><img src={Clock} alt="Clinic Address & Hours" /></div>
+                                </div>
+                                {e?.shift?.map((e1, i1) => (
+                                  <div key={i1} className='mt-4'>
+                                    {e1?.days?.length > 0 && e1?.timing?.length && (
+                                      <>
+                                        <div className='text-welcome fw-medium fs-16 text-capitalize'>{`${e1?.days?.length > 1 ? e1?.days[0] + ' - ' + e1?.days[e1?.days?.length - 1] : e1?.days[0]}`}</div>
+
+                                        {e1?.timing?.map((e2, i2) => (
+                                          <div key={i2} className='text-welcome fs-16'>
+                                            {`${e2?.from_time && e2?.end_time ? moment(e2?.from_time, dateFormat).format(showDateFormat) + ' - ' + moment(e2?.end_time, dateFormat).format(showDateFormat) : ''}`}
+                                          </div>
+                                        ))}
+                                      </>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          <p className='slide-count'><span>{String(currentSlide + 1).padStart(2, "0")}/{String(clinicProfile?.filter(el => !el.clinic_delete)?.length).padStart(2, "0")}</span></p>
+                        </Col>
+                      </Row>
+                    </div>
+                  )
+                })}
+              </Slider>
+            </div>
           </div>
         </div>
       ) : null}
 
-      <div style={{ padding: 24.88 }}>
-        {/* Service Section */}
-        {services?.length > 0 && otherSettings?.enable_services ? (
-          <div className="website-section mt-2 mt-lg-5">
+      {/* Service Section */}
+      {services?.length > 0 && otherSettings?.enable_services ? (
+        <div id='servicesSection' className="website-section mt-2 mt-lg-5">
+          <div class="container">
             <div className='row-80'>
-              <div className='text-center border bg-body p-5' style={{ borderRadius: 40 }}>
+              <div className='text-center border bg-body p-lg-5 p-2' style={{ borderRadius: 40 }}>
                 <div className='bg-icon-common mx-auto mb-20'>
                   <img src={ServicecIcon} alt="Our Services" />
                 </div>
@@ -395,24 +432,26 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
               </div>
             </div>
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
-        {/* Doctor Experience Section */}
-        {doctorExperience?.length > 0 && otherSettings?.enable_doctor_experience ? (
-          <div className="website-section website-clinic website-experience">
+      {/* Doctor Experience Section */}
+      {doctorExperience?.length > 0 && otherSettings?.enable_doctor_experience ? (
+        <div id='experienceSection' className="website-section website-clinic website-experience">
+          <div class="container">
             <Row className='row-80 align-items-start'>
               <Col sm={24} lg={8}>
                 <div className='bg-icon-common mb-20'>
                   <img src={ExperienceIcon} alt="Doctor Experience" />
                 </div>
-                <h2 className="doctor-name h1 web-h1 text-welcome mb-28">Doctor Experience</h2>
+                <h2 className="doctor-name h1 web-h1 text-welcome">Doctor Experience</h2>
                 {doctorExperience?.length > 2 && (
-                  <div className='py-5 mt-5'>
+                  <div className='py-5 mt-lg-5 mt-0'>
                     <p className='slide-count'><span>{String(currentSlide + 1).padStart(2, "0")} - {String(doctorExperience?.length).padStart(2, "0")}</span></p>
                   </div>
                 )}
               </Col>
-              <Col sm={24} lg={16} className='mt-5 mt-lg-0'>
+              <Col sm={24} lg={16}>
                 <Slider  {...commonSettings}
                   slidesToShow={doctorExperience?.length <= 2 ? doctorExperience?.length : 2}
                   arrows={doctorExperience?.length >= 3 ? true : false}
@@ -462,11 +501,13 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
               </Col>
             </Row>
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
-        {/* Education & Training */}
-        {educationTraining?.length > 0 && otherSettings?.enable_education_training ? (
-          <div className="website-section website-clinic website-education">
+      {/* Education & Training */}
+      {educationTraining?.length > 0 && otherSettings?.enable_education_training ? (
+        <div id='educationSection' className="website-section website-clinic website-education">
+          <div class="container p-0">
             <div className='row-80'>
               <div className="slider-container">
                 <div className='clinic-box'>
@@ -514,11 +555,13 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
               </div>
             </div>
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
-        {/* Memberships Section */}
-        {membership?.length > 0 && otherSettings?.enable_membership ? (
-          <div className="website-section website-membership">
+      {/* Memberships Section */}
+      {membership?.length > 0 && otherSettings?.enable_membership ? (
+        <div id='membershipSection' className="website-section website-membership">
+          <div class="container">
             <Row className='row-80'>
               <Col lg={{ order: 2, span: 12 }}>
                 <div className='bg-icon-common mb-20'>
@@ -556,28 +599,30 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                   </div>
                 )}
               </Col>
-              <Col sm={24} lg={12} className='mt-5 mt-lg-0'>
+              <Col sm={24} lg={12}>
                 <img src={MembershipsImg} className='img-fluid' alt="About The Doctor" />
               </Col>
             </Row>
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
-        {/* Rewards & Recognitions Section */}
-        {rewardRecognition?.length > 0 && otherSettings?.enable_reward_recognition ? (
-          <div className="website-section website-clinic website-experience website-rewards">
+      {/* Rewards & Recognitions Section */}
+      {rewardRecognition?.length > 0 && otherSettings?.enable_reward_recognition ? (
+        <div id='awardsSection' className="website-section website-clinic website-experience website-rewards">
+          <div class="container">
             <div className='row-80 align-items-start'>
               <Row className='align-items-start'>
                 <Col sm={24} lg={16}>
                   <div className='bg-icon-common mb-20'>
                     <img src={rewardsIcon} alt="Doctor Experience" />
                   </div>
-                  <h2 className="doctor-name h1 web-h1 text-welcome mb-28">Rewards & Recognitions</h2>
+                  <h2 className="doctor-name h1 web-h1 text-welcome">Rewards & Recognitions</h2>
                 </Col>
                 <Col sm={24} lg={8}>
                   {rewardRecognition?.length && (
-                    <div className='py-5 mt-5'>
-                      <p className='slide-count text-end'><span>{String(currentSlide + 1).padStart(2, "0")} - {String(rewardRecognition?.length).padStart(2, "0")}</span></p>
+                    <div className='py-5 mt-lg-5 mt-0'>
+                      <p className='slide-count text-start text-lg-end'><span>{String(currentSlide + 1).padStart(2, "0")} - {String(rewardRecognition?.length).padStart(2, "0")}</span></p>
                     </div>
                   )}
                 </Col>
@@ -607,51 +652,55 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
               </Slider>
             </div>
           </div>
-        ) : null}
-
-        {/* Profile and Social Media Links */}
-        <div className="website-section mt-2 mt-lg-5">
-          <div className='row-80 text-center'>
-            <div className='bg-icon-common bg-icon-xl mx-auto mb-20'>
-              <img src={avatarDoctor} alt="Doctor Profile" />
-            </div>
-            <h3 className="doctor-name h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h3>
-            <div className='fs-18 text-welcome fw-medium mt-1'>{`${personalDetails?.education}, - ${personalDetails?.specialty}`}</div>
-            <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mt-4 px-4 mb-5">
-              Book Appointment
-            </Button>
-            <hr className='mx-auto' style={{ width: 200 }} />
-            {personalDetails?.email_id && (
-              <div className='border rounded-4 d-flex align-items-center mx-auto d-inline-flex mt-5 pe-3 py-2' style={{ borderRadius: 25 }}>
-                <div className='bg-icon-common bg-icon-sm2 mx-2'><img src={Mail} alt="Email" /></div>
-                <a href={`mailto:${personalDetails?.email_id}`} className='text-main'>{personalDetails?.email_id}</a>
-              </div>
-            )}
-            <br />
-            {otherSettings?.enable_social_links ? (
-              <div className='d-flex align-items-center justify-content-center mt-5'>
-                {socialLinks?.facebook && (
-                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.facebook)}><img src={websiteFacebook} alt="Email" /></div>
-                )}
-                {socialLinks?.instagram && (
-                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.instagram)} ><img src={websiteInstagram} alt="Email" /></div>
-                )}
-                {socialLinks?.linkedin && (
-                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.linkedin)}><img src={websiteLinkedin} alt="Email" /></div>
-                )}
-                {socialLinks?.twitter && (
-                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.twitter)}><img src={websiteTwitter} alt="Email" /></div>
-                )}
-                {socialLinks?.youtube && (
-                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.youtube)}><img src={websiteYoutube} alt="Email" /></div>
-                )}
-              </div>
-            ) : null}
-          </div>
         </div>
+      ) : null}
 
-        {/* Footer Section */}
-        <div className="website-section website-clinic">
+      {/* Profile and Social Media Links */}
+      <div className="website-section mt-2 mt-lg-5">
+      <div class="container">
+        <div className='row-80 text-center'>
+          <div className='bg-icon-common bg-icon-xl mx-auto mb-20'>
+            <img src={avatarDoctor} alt="Doctor Profile" />
+          </div>
+          <h3 className="doctor-name h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h3>
+          <div className='fs-18 text-welcome fw-medium mt-1'>{`${personalDetails?.education}, - ${personalDetails?.specialty}`}</div>
+          <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mt-4 px-4 mb-5">
+            Book Appointment
+          </Button>
+          <hr className='mx-auto' style={{ width: 200 }} />
+          {personalDetails?.email_id && (
+            <div className='border rounded-4 d-flex align-items-center mx-auto d-inline-flex mt-5 pe-3 py-2' style={{ borderRadius: 25 }}>
+              <div className='bg-icon-common bg-icon-sm2 mx-2'><img src={Mail} alt="Email" /></div>
+              <a href={`mailto:${personalDetails?.email_id}`} className='text-main'>{personalDetails?.email_id}</a>
+            </div>
+          )}
+          <br />
+          {otherSettings?.enable_social_links ? (
+            <div className='d-flex align-items-center justify-content-center mt-5'>
+              {socialLinks?.facebook && (
+                <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.facebook)}><img src={websiteFacebook} alt="Email" /></div>
+              )}
+              {socialLinks?.instagram && (
+                <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.instagram)} ><img src={websiteInstagram} alt="Email" /></div>
+              )}
+              {socialLinks?.linkedin && (
+                <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.linkedin)}><img src={websiteLinkedin} alt="Email" /></div>
+              )}
+              {socialLinks?.twitter && (
+                <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.twitter)}><img src={websiteTwitter} alt="Email" /></div>
+              )}
+              {socialLinks?.youtube && (
+                <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.youtube)}><img src={websiteYoutube} alt="Email" /></div>
+              )}
+            </div>
+          ) : null}
+        </div>
+        </div>
+      </div>
+
+      {/* Footer Section */}
+      <div class="container-fluid mb-3">
+        <div className="website-section website-clinic website-footer">
           <div className="slider-container">
             <div className='clinic-box p-4'>
               <div className='d-flex flex-wrap align-items-center justify-content-center justify-content-lg-between'>
