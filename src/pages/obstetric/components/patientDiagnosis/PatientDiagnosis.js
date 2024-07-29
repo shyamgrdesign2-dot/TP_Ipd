@@ -34,7 +34,7 @@ export default function PatientDiagnosis({
   useEffect(() => {
     if (lmpDate) {
       const today = moment();
-      const lmp = moment(lmpDate, "DD-MM-YYYY");
+      const lmp = moment(lmpDate);
       const gestationInWeeks = today.diff(lmp, "weeks");
       const tempDate = lmp.clone().add(gestationInWeeks, "weeks");
       const gestationInDays = today.diff(tempDate, "days");
@@ -43,8 +43,8 @@ export default function PatientDiagnosis({
        */
       setPatientDiagnosisData((prevState) => ({
         ...prevState,
-        lmp: dayjs(lmpDate, "DD-MM-YYYY"),
-        edd: moment(lmpDate, "DD-MM-YYYY")
+        lmp: lmpDate,
+        edd: moment(lmpDate)
           .clone()
           .add(1, "year")
           .subtract(3, "months")
@@ -104,21 +104,29 @@ export default function PatientDiagnosis({
               className="datePickerStyle"
               placeholder="Select Date"
               dropdownClassName="addDOB-picker-dropdown lmpStyle"
-              format="DD MMM YYYY"
-              value={patientDiagnosisData.lmp}
-              onChange={(_, d) => {
+              format={{
+                format: "DD-MM-YYYY",
+                type: "mask",
+              }}
+              value={
+                patientDiagnosisData.lmp
+                  ? dayjs(patientDiagnosisData.lmp)
+                  : null
+              }
+              onChange={(_, dateString) => {
                 handlePatientDiagnosis(
-                  dayjs(moment(d).format("DD-MM-YYYY"), "DD-MM-YYYY"),
+                  dayjs(dateString, "DD-MM-YYYY").toISOString(),
                   "lmp"
                 );
-                setLmpDate(dayjs(d).format("DD-MM-YYYY"));
+                setLmpDate(dayjs(dateString, "DD-MM-YYYY").toISOString());
               }}
               style={{
                 height: "34px",
+                width: "75%",
                 border: "none",
                 borderTopRightRadius: "10px",
                 borderBottomRightRadius: "10px",
-                padding: "0 10px 0 10px",
+                padding: "0 4px 0 4px",
               }}
               allowClear={false}
               disabledDate={(current) => current && current > dayjs()}
@@ -131,7 +139,7 @@ export default function PatientDiagnosis({
             E.D.D :{" "}
             <span className="spanStyle" style={{ marginLeft: "8px" }}>
               {patientDiagnosisData.edd
-                ? moment(patientDiagnosisData.edd).format("DD MMM YYYY")
+                ? moment(patientDiagnosisData.edd).format("DD-MM-YYYY")
                 : ""}
             </span>
           </div>
@@ -141,23 +149,35 @@ export default function PatientDiagnosis({
               placeholder="Select Date"
               className="datePickerStyle"
               dropdownClassName="addDOB-picker-dropdown ceddStyle"
-              format="DD MMM YYYY"
-              value={patientDiagnosisData.ceed}
-              onChange={(_, d) => {
+              format={{
+                format: "DD-MM-YYYY",
+                type: "mask",
+              }}
+              value={
+                patientDiagnosisData.ceed
+                  ? dayjs(patientDiagnosisData.ceed)
+                  : null
+              }
+              onChange={(_, dateString) => {
                 handlePatientDiagnosis(
-                  dayjs(moment(d).format("DD-MM-YYYY"), "DD-MM-YYYY"),
+                  dayjs(dateString, "DD-MM-YYYY").toISOString(),
                   "ceed"
                 );
               }}
               style={{
                 height: "34px",
+                width: "66%",
                 border: "none",
                 borderTopRightRadius: "10px",
                 borderBottomRightRadius: "10px",
-                padding: "0 10px 0 10px",
+                padding: patientDiagnosisData.ceed
+                  ? "0 10px 0 10px"
+                  : "0 4px 0 4px",
               }}
               allowClear={false}
-              disabledDate={(current) => current <= patientDiagnosisData.lmp}
+              disabledDate={(current) =>
+                current <= dayjs(patientDiagnosisData.lmp)
+              }
             />
           </div>
           <div className="history-badge">
