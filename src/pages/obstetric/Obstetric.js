@@ -158,7 +158,9 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   };
 
   const continueExaminationHandler = () => {
-    setActiveTab("examination");
+    if (obstetricDetails?.examinationHistory?.length)
+      setActiveTab("examination");
+    else handleExaminationDrawer();
   };
 
   const obstetricSaveBtnHandler = async () => {
