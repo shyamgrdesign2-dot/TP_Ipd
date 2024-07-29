@@ -1,25 +1,24 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Button, Card, DatePicker, Input, Tooltip, Select, Radio } from "antd";
-import { errorMessage } from "../../../../utils/utils";
 import moment from "moment";
-import SuccessPopup from "../../../growthChart/components/SuccessPopup";
 import { useDispatch, useSelector } from "react-redux";
 import "./pastPregnancy.scss";
 import { EllipsisOutlined, DeleteOutlined } from "@ant-design/icons";
-import { addObstetricData, updateObstetricData } from "../../service";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
-import { obstetricDetailsUpdated } from "../../../../redux/obstetricSlice";
+import {
+  addObstetricDetails,
+  obstetricDetailsUpdated,
+  patientDiagnosisUpdated,
+} from "../../../../redux/obstetricSlice";
 import { isDecimalCheck, isNumberCheck } from "../../utils/helper";
 
-function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
+function PastPregnancy({ close, editIndex }) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
   const [pastPregnancyData, setPastPregnancyData] = useState({});
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [loader, setLoader] = useState(false);
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { pregnancyHistory = [] } = obstetricDetails;
   const { state } = useLocation();
@@ -82,76 +81,30 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
       ];
     }
     const payload = {
+      ...obstetricDetails,
       patientId: patient_data.patient_unique_id,
-      ...(pregnancyHistory?.length > 0 ? {} : obstetricDetails),
       pregnancyHistory: newPastPregnancy,
-      createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
-      createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
-      modifiedAt: pregnancyHistory?.length
-        ? new Date().toISOString()
-        : obstetricDetails?.modifiedAt || new Date().toISOString(),
-      modifiedBy: pregnancyHistory?.length
-        ? decodedToken?.result?.user_id
-        : obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
     };
-    setLoader(true);
-    const addPastPregnancyRes = obstetricDetails?._id
-      ? await updateObstetricData(obstetricDetails?.patientId, payload)
-      : await addObstetricData(payload);
-    setLoader(false);
-    if (addPastPregnancyRes?.data) {
-      dispatch(obstetricDetailsUpdated());
-      getAllObstetricDetails();
-      setShowSuccess(true);
-      setTimeout(() => {
-        close();
-      }, 1000);
-    } else {
-      errorMessage(addPastPregnancyRes?.message || "Error while adding data");
-    }
+    dispatch(addObstetricDetails(payload));
+    dispatch(obstetricDetailsUpdated());
+    dispatch(patientDiagnosisUpdated());
+    close();
   };
 
   const deletePastPregnancyData = async () => {
-    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-    let decodedToken;
-    if (token) {
-      try {
-        decodedToken = jwtDecode(token);
-      } catch (e) {
-        console.log(e);
-      }
-    }
     let newPastPregnancy = [...pregnancyHistory];
     if (editIndex >= 0) {
       newPastPregnancy.splice(editIndex, 1);
     }
     const payload = {
+      ...obstetricDetails,
       patientId: patient_data.patient_unique_id,
       pregnancyHistory: newPastPregnancy,
-      createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
-      createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
-      modifiedAt: pregnancyHistory?.length
-        ? new Date().toISOString()
-        : obstetricDetails?.modifiedAt || new Date().toISOString(),
-      modifiedBy: pregnancyHistory?.length
-        ? decodedToken?.result?.user_id
-        : obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
     };
-    const deletePastPregnancyRes = await updateObstetricData(
-      obstetricDetails?.patientId,
-      payload
-    );
-    if (deletePastPregnancyRes?.data) {
-      getAllObstetricDetails();
-      setShowSuccess(true);
-      setTimeout(() => {
-        close();
-      }, 1000);
-    } else {
-      errorMessage(
-        deletePastPregnancyRes?.message || "Error while adding data"
-      );
-    }
+    dispatch(addObstetricDetails(payload));
+    dispatch(obstetricDetailsUpdated());
+    dispatch(patientDiagnosisUpdated());
+    close();
   };
 
   const TABLE_PAST_PREGNANCY = useMemo(() => {
@@ -464,9 +417,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
           <Button
             onClick={addPastPregnancyData}
             className="btn btn-primary3 btn-41 px-4 me-20"
-            loading={loader}
             disabled={
-              loader ||
               !pastPregnancyData.gravidaNumber ||
               !pastPregnancyData.outcome
             }
@@ -553,7 +504,6 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
           )}
         </div>
       </Card>
-      <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
     </>
   );
 }

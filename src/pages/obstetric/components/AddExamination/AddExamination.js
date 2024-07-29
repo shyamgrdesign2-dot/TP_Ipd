@@ -1,17 +1,18 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Button, Card, DatePicker, Input, Tooltip, Select, Radio } from "antd";
-import { errorMessage } from "../../../../utils/utils";
 import dayjs from "dayjs";
 import moment from "moment";
-import SuccessPopup from "../../../growthChart/components/SuccessPopup";
 import "./addExamination.scss";
 import { EllipsisOutlined, DeleteOutlined } from "@ant-design/icons";
-import { addObstetricData, updateObstetricData } from "../../service";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { obstetricDetailsUpdated } from "../../../../redux/obstetricSlice";
+import {
+  addObstetricDetails,
+  obstetricDetailsUpdated,
+  patientDiagnosisUpdated,
+} from "../../../../redux/obstetricSlice";
 import { isNumberCheck } from "../../utils/helper";
 
 const dateFormat = "YYYY-MM-DD";
@@ -19,7 +20,6 @@ const dateFormat = "YYYY-MM-DD";
 function AddExamination({
   close,
   editIndex,
-  getAllObstetricDetails,
   handleCollapsed,
 }) {
   const dispatch = useDispatch();
@@ -28,8 +28,6 @@ function AddExamination({
     date: moment().format(dateFormat),
     heightOfFundusUnit: "weeks",
   });
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [loader, setLoader] = useState(false);
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { examinationHistory = [] } = obstetricDetails;
   const { state } = useLocation();
@@ -101,80 +99,31 @@ function AddExamination({
       ];
     }
     const payload = {
+      ...obstetricDetails,
       patientId: patient_data.patient_unique_id,
-      ...(examinationHistory?.length > 0
-        ? {
-            modifiedAt: new Date().toISOString(),
-            modifiedBy: decodedToken?.result?.user_id,
-          }
-        : obstetricDetails),
       examinationHistory: newExaminationHistory,
-      createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
-      createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
-      modifiedAt: examinationHistory?.length
-        ? new Date().toISOString()
-        : obstetricDetails?.modifiedAt || new Date().toISOString(),
-      modifiedBy: examinationHistory?.length
-        ? decodedToken?.result?.user_id
-        : obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
     };
-    setLoader(true);
-    const addExaminationRes = obstetricDetails?._id
-      ? await updateObstetricData(obstetricDetails?.patientId, payload)
-      : await addObstetricData(payload);
-    setLoader(false);
-    if (addExaminationRes?.data) {
-      dispatch(obstetricDetailsUpdated());
-      getAllObstetricDetails();
-      handleCollapsed && handleCollapsed();
-      setShowSuccess(true);
-      setTimeout(() => {
-        close();
-      }, 1000);
-    } else {
-      errorMessage(addExaminationRes?.message || "Error while adding data");
-    }
+    dispatch(addObstetricDetails(payload));
+    dispatch(patientDiagnosisUpdated());
+    dispatch(obstetricDetailsUpdated());
+    close();
+    handleCollapsed && handleCollapsed();
   };
 
   const deleteExaminationData = async () => {
-    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-    let decodedToken;
-    if (token) {
-      try {
-        decodedToken = jwtDecode(token);
-      } catch (e) {
-        console.log(e);
-      }
-    }
     let newExaminationHistory = [...examinationHistory].toReversed();
     if (editIndex >= 0) {
       newExaminationHistory.splice(editIndex, 1);
     }
     const payload = {
+      ...obstetricDetails,
       patientId: patient_data.patient_unique_id,
       examinationHistory: newExaminationHistory,
-      createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
-      createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
-      modifiedAt: examinationHistory?.length
-        ? new Date().toISOString()
-        : obstetricDetails?.modifiedAt || new Date().toISOString(),
-      modifiedBy: examinationHistory?.length
-        ? decodedToken?.result?.user_id
-        : obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
     };
-    const deleteExaminationRes = await updateObstetricData(
-      obstetricDetails?.patientId,
-      payload
-    );
-    if (deleteExaminationRes?.data) {
-      getAllObstetricDetails();
-      setShowSuccess(true);
-      setTimeout(() => {
-        close();
-      }, 1000);
-    } else {
-      errorMessage(deleteExaminationRes?.message || "Error while adding data");
-    }
+    dispatch(addObstetricDetails(payload));
+    dispatch(patientDiagnosisUpdated());
+    dispatch(obstetricDetailsUpdated());
+    close();
   };
 
   function calculate(H, W) {
@@ -465,8 +414,6 @@ function AddExamination({
           <Button
             onClick={addExaminationData}
             className="btn btn-primary3 btn-41 px-4 me-20"
-            loading={loader}
-            disabled={loader}
           >
             Done
           </Button>
@@ -540,7 +487,6 @@ function AddExamination({
           </div>
         </div>
       </Card>
-      <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
     </>
   );
 }
