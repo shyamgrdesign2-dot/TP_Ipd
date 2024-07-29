@@ -114,11 +114,13 @@ export default function PatientDiagnosis({
                   : null
               }
               onChange={(_, dateString) => {
-                handlePatientDiagnosis(
-                  dayjs(dateString, "DD-MM-YYYY").toISOString(),
-                  "lmp"
-                );
-                setLmpDate(dayjs(dateString, "DD-MM-YYYY").toISOString());
+                if (dateString) {
+                  handlePatientDiagnosis(
+                    dayjs(dateString, "DD-MM-YYYY").toISOString(),
+                    "lmp"
+                  );
+                  setLmpDate(dayjs(dateString, "DD-MM-YYYY").toISOString());
+                }
               }}
               style={{
                 height: "34px",
@@ -128,7 +130,6 @@ export default function PatientDiagnosis({
                 borderBottomRightRadius: "10px",
                 padding: "0 4px 0 4px",
               }}
-              allowClear={false}
               disabledDate={(current) => current && current > dayjs()}
             />
           </div>
@@ -159,22 +160,21 @@ export default function PatientDiagnosis({
                   : null
               }
               onChange={(_, dateString) => {
-                handlePatientDiagnosis(
-                  dayjs(dateString, "DD-MM-YYYY").toISOString(),
-                  "ceed"
-                );
+                if (dateString) {
+                  handlePatientDiagnosis(
+                    dayjs(dateString, "DD-MM-YYYY").toISOString(),
+                    "ceed"
+                  );
+                }
               }}
               style={{
                 height: "34px",
-                width: "66%",
+                width: "68%",
                 border: "none",
                 borderTopRightRadius: "10px",
                 borderBottomRightRadius: "10px",
-                padding: patientDiagnosisData.ceed
-                  ? "0 10px 0 10px"
-                  : "0 4px 0 4px",
+                padding: "0 6px 0 6px",
               }}
-              allowClear={false}
               disabledDate={(current) =>
                 current <= dayjs(patientDiagnosisData.lmp)
               }

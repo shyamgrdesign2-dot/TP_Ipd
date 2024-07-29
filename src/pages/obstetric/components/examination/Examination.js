@@ -73,9 +73,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex, bottomRef }) => {
               : "-"}
           </td>
           <td className="obstetricTcell">{presentation}</td>
-          <td className="obstetricTcell">
-            {liquor ? liquor + " cm" : "-"}
-          </td>
+          <td className="obstetricTcell">{liquor || "-"}</td>
           <td className="obstetricTcell">
             {foetalHeartRate ? foetalHeartRate + " BPM" : "-"}
           </td>
