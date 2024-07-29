@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useContext, useRef } from 'react';
-import { Button, Collapse, Form, Input, Tabs, Row, Col, TimePicker } from 'antd';
+import { Button, Collapse, Form, Input, Tabs, Row, Col, TimePicker, Image } from 'antd';
 import moment from 'moment';
 import dayjs from "dayjs";
 
@@ -18,6 +18,7 @@ function DWClinicProfile() {
     const inputImageUrls = useRef([]);
 
     const { clinicProfile, setClinicProfile } = useContext(DoctorWebsiteSettingsContext);
+    const [imageIndex, setImageIndex] = useState(0);
 
     const TabsPrintSetting = [
         {
@@ -415,14 +416,46 @@ function DWClinicProfile() {
                             ) : e?.selectedTab === TAB_PHOTOS && (
                                 <div className='px-10'>
                                     <div className='d-flex flex-wrap mb-3'>
-                                        {e?.clinic_photos && e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.map((item, index) => {
-                                            return (
-                                                <div key={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting-wrap'>
-                                                    <img src={item?.clinic_image_link} alt={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting img-fluid' />
-                                                    <img src={CloseWithWhiteFill} alt='Close' className='close-clinic-img' onClick={() => onDeleteImage(e, item)} />
-                                                </div>
-                                            )
-                                        })}
+                                        <Image.PreviewGroup
+                                            preview={{
+                                                closeIcon: null,
+                                                // closeIcon: <div className='d-flex align-items-center'><Button className='bg-transparent border-0 text-white me-4 px-1   ' onClick={() => onDeleteImage(e, e?.clinic_photos?.filter(el => !el.clinic_image_delete)[imageIndex])} ><i className='icon-delete'></i></Button> <Button className='btn btn-41 px-4 btn-primary3'>Close</Button></div>,
+                                                onChange: (current, prevCurrent) => setImageIndex(current),
+                                                toolbarRender: () => null,
+                                                countRender: () => null,
+                                                imageRender: (originalNode, info) => (
+                                                    <div className='d-block'>
+                                                        <div className='d-flex align-items-center w-100 justify-content-between'>
+                                                            <div className='d-flex align-items-center'>
+                                                                <Button className='bg-transparent border-0 text-white me-4 px-1'>
+                                                                    <i className='icon-delete'></i>
+                                                                </Button>
+                                                                <div className='text-white'>Clinic Photos</div>
+                                                            </div>
+                                                            <div>
+                                                                <Button className='bg-transparent border-0 text-white me-4 px-1'
+                                                                    onClick={() => onDeleteImage(e, e?.clinic_photos?.filter(el => !el.clinic_image_delete)[imageIndex])}>
+                                                                    <i className='icon-delete'></i>
+                                                                </Button>
+                                                                <Button className='btn btn-41 px-4 btn-primary3'>Close</Button>
+                                                            </div>
+                                                        </div>
+
+                                                        <img src={originalNode.props.src} style={{ width: 800 }} />
+                                                    </div>
+                                                )
+                                            }}
+
+                                        >
+                                            {e?.clinic_photos && e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.map((item, index) => {
+                                                return (
+                                                    <div key={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting-wrap'>
+                                                        <Image src={item?.clinic_image_link} alt={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting img-fluid' onClick={() => setImageIndex(index)} />
+                                                        <img src={CloseWithWhiteFill} alt='Close' className='close-clinic-img' onClick={() => onDeleteImage(e, item)} />
+                                                    </div>
+                                                )
+                                            })}
+                                        </Image.PreviewGroup>
                                         <div className='clinic-photo-setting-wrap d-flex align-items-center justify-content-center border cursor-pointer' onClick={() => inputImageUrls.current[i]?.click()}>
                                             <input
                                                 key={i}
@@ -438,7 +471,7 @@ function DWClinicProfile() {
                                 </div>
                             )}
                         </Form>
-                    </div>
+                    </div >
                     <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3 align-items-center d-flex justify-content-center' onClick={() => onRemoveRow(e)}><i className='icon-delete fs-18 me-2'></i>Delete</Button>
                 </div >,
         },
