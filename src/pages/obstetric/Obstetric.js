@@ -46,8 +46,6 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
     lmp,
     consang,
     edd,
-    gestationDays,
-    gestationWeeks,
     husbandsBlood,
     maritialStatus,
     marriageDurationYears,
@@ -70,6 +68,12 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
 
   const [patientDiagnosisNotes, setPatientDiagnosisNotes] =
     useState(diagnosisNotes);
+
+  const today = moment();
+  const lmpValue = moment(lmp);
+  const gestationWeeks = today.diff(lmpValue, "weeks");
+  const tempDate = lmpValue.clone().add(gestationWeeks, "weeks");
+  const gestationDays = today.diff(tempDate, "days");
 
   const [patientDiagnosisData, setPatientDiagnosisData] = useState({
     lmp: lmp ? dayjs(moment(lmp).format("DD-MM-YYYY"), "DD-MM-YYYY") : "",
