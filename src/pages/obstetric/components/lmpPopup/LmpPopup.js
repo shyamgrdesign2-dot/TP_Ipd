@@ -11,7 +11,7 @@ const LmpPopup = ({
   setShowLmpPopup,
 }) => {
   const [isContinueBtnDisabled, setContinueBtnDisabled] = useState(true);
-console.log({isBrowser});
+
   const continueBtnHandler = () => {
     if (!isContinueBtnDisabled) {
       setShowLmpPopup(false);
