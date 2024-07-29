@@ -524,6 +524,7 @@ function DoctorWebsiteSetting() {
                                 <div className="rounded-20px bg-white mt-2 overflow-hidden">
                                     <div className="printheight">
                                         <Homepage
+                                            scrollId={selectedMenu ? selectedMenu?.value : null}
                                             personalDetails={personalDetails}
                                             aboutDoctor={aboutDoctor}
                                             clinicProfile={clinicProfile}

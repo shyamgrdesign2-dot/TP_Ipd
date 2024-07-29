@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button, Col, Row, Modal } from "antd";
 
 import "../assets/scss/website-custom.scss";
@@ -45,10 +45,19 @@ const slideData = [1, 2, 3, 4]
 const dateFormat = 'HH:mm:ss'
 const showDateFormat = 'h:mm A'
 
-function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewardRecognition, educationTraining, doctorExperience, membership, otherSettings, socialLinks }) {
+function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, services, rewardRecognition, educationTraining, doctorExperience, membership, otherSettings, socialLinks }) {
+
+  const personalSectionRef = useRef(null);
+  const aboutSectionRef = useRef(null);
+  const clinicSectionRef = useRef(null);
+  const servicesSectionRef = useRef(null);
+  const experienceSectionRef = useRef(null);
+  const educationSectionRef = useRef(null);
+  const membershipSectionRef = useRef(null);
+  const awardsSectionRef = useRef(null);
+  const socialSectionRef = useRef(null);
 
   const [currentSlide, setCurrentSlide] = useState(0);
-
   // Read More content
   const ReadMore = ({ children }) => {
     const text = children;
@@ -65,6 +74,35 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
       </p>
     );
   };
+  const scrollToSection = () => {
+    try {
+      if (scrollId == 1) {
+        personalSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (scrollId == 2) {
+        aboutSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (scrollId == 3) {
+        clinicSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (scrollId == 4) {
+        experienceSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (scrollId == 5) {
+        servicesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (scrollId == 6) {
+        educationSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (scrollId == 7) {
+        membershipSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (scrollId == 8) {
+        awardsSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      } else if (scrollId == 9) {
+        socialSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  };
+
+  useEffect(() => {
+    scrollToSection()
+  }, [scrollId]);
 
   const settings = {
     className: "center",
@@ -238,7 +276,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
       <div className='outer-round-big'>
 
         {/* Banner Section */}
-        <div className="website-section website-banner">
+        <div id='personalSection' ref={personalSectionRef} className="website-section website-banner">
           <div class="container">
             <Row className='row-80'>
               <Col sm={24} lg={12}>
@@ -269,7 +307,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
         </div>
 
         {/* About Section */}
-        <div id='aboutSection' className="website-section website-about">
+        <div id='aboutSection' ref={aboutSectionRef} className="website-section website-about">
           <div class="container">
             <Row className='row-80 align-items-start'>
               <Col lg={{ order: 2, span: 12 }}>
@@ -311,7 +349,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
 
       {/* Clinic Section */}
       {clinicProfile?.filter(el => !el.clinic_delete)?.length > 0 ? (
-        <div id='clinicSection' className="website-section website-clinic">
+        <div id='clinicSection' ref={clinicSectionRef} className="website-section website-clinic">
           <div className='text-center'>
             <div className='bg-icon-common mx-auto mb-20'>
               <img src={ClinicIcon} alt="Clinic Address & Hours" />
@@ -337,25 +375,27 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                                 <div className='ms-3 title-hypertension text-white'>{e?.name}</div>
                               </div>
                             )}
-                            {e?.address && (
-                              <p className='clinic-address'>{`${e?.address.address_line}, ${e?.address.city}, ${e?.address.state}, ${e?.address.pincode}`}</p>
-                            )}
                           </div>
-                          {e?.clinic_photos?.length > 0 && (
-                            <div className='d-flex'>
-                              {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.slice(0, 3)?.map((item, index) => {
-                                return (
-                                  <div key={index} className='clinic-photo'>
-                                    <img className='img-fluid h-100' src={item?.clinic_image_link} alt={item?.clinic_image_name} />
+                          {(e?.address.address_line || e?.address.city || e?.address.state || e?.address.pincode || e?.clinic_photos?.length > 0) ? (
+                            <>
+                              <div className='clinic-address'>{`${Object.values(Object.fromEntries(Object.entries((({ address_line, city, state, pincode }) => ({ address_line, city, state, pincode }))(e?.address)).filter(([_, v]) => v))).join(', ')}`}</div>
+                              <div className='d-flex'>
+                                {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.slice(0, 3)?.map((item, index) => {
+                                  return (
+                                    <div key={index} className='clinic-photo'>
+                                      <img className='img-fluid h-100' src={item?.clinic_image_link} alt={item?.clinic_image_name} />
+                                    </div>
+                                  )
+                                })}
+                                {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.length > 3 && (
+                                  <div className='clinic-photo d-flex align-items-center justify-content-center'>
+                                    <div className='title-common text-white'>{`${e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.length - 3}+`}</div>
                                   </div>
-                                )
-                              })}
-                              {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.length > 3 && (
-                                <div className='clinic-photo d-flex align-items-center justify-content-center'>
-                                  <div className='title-common text-white'>{`${e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.length - 3}+`}</div>
-                                </div>
-                              )}
-                            </div>
+                                )}
+                              </div>
+                            </>
+                          ) : (
+                            <div className='clinic-address'>{'No Address Details & Photos'}</div>
                           )}
                           <div className='d-flex flex-wrap mt-4 mt-lg-5 clinic-btn'>
                             {e?.address?.google_map && (
@@ -373,6 +413,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                         <Col sm={24} lg={12}>
                           {e?.shift?.length > 0 && (
                             <div class="me-lg-0 mx-auto timingshape">
+
                               <div className='p-30'>
                                 <div className='d-flex align-items-center justify-content-between'>
                                   <div className='title-hypertension fw-medium text-welcome'>Timings</div>
@@ -380,7 +421,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                                 </div>
                                 {e?.shift?.map((e1, i1) => (
                                   <div key={i1} className='mt-4'>
-                                    {e1?.days?.length > 0 && e1?.timing?.length && (
+                                    {e1?.days?.length > 0 && e1?.timing?.length ? (
                                       <>
                                         <div className='text-welcome fw-medium fs-16 text-capitalize'>{`${e1?.days?.length > 1 ? e1?.days[0] + ' - ' + e1?.days[e1?.days?.length - 1] : e1?.days[0]}`}</div>
 
@@ -390,7 +431,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                                           </div>
                                         ))}
                                       </>
-                                    )}
+                                    ) : 'No Timings details'}
                                   </div>
                                 ))}
                               </div>
@@ -409,8 +450,8 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
       ) : null}
 
       {/* Service Section */}
-      {services?.length > 0 && otherSettings?.enable_services ? (
-        <div id='servicesSection' className="website-section mt-2 mt-lg-5">
+      {otherSettings?.enable_services ? (
+        <div id='servicesSection' ref={servicesSectionRef} className="website-section mt-2 mt-lg-5">
           <div class="container">
             <div className='row-80'>
               <div className='text-center border bg-body p-lg-5 p-2' style={{ borderRadius: 40 }}>
@@ -418,17 +459,19 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                   <img src={ServicecIcon} alt="Our Services" />
                 </div>
                 <h3 className="doctor-name h1 web-h1 text-welcome mb-lg-5 mb-28">Our Services</h3>
-                <Row >
-                  {services?.map((e, i) => {
-                    return (
-                      <Col key={i} sm={24} lg={12}>
-                        {e?.title && (
-                          <div className='d-flex align-items-center text-welcome text-start fs-16 p-14'> <div className='bg-icon-common bg-icon-sm me-3'><img src={CheckIcon} alt="Our Services" /></div> {e?.title}</div>
-                        )}
-                      </Col>
-                    )
-                  })}
-                </Row>
+                {services?.length > 0 ? (
+                  <Row >
+                    {services?.map((e, i) => {
+                      return (
+                        <Col key={i} sm={24} lg={services.length == 1 ? 24 : 12}>
+                          {e?.title && (
+                            <div className={`d-flex ${services.length == 1 && 'justify-content-center'} align-items-center text-welcome text-start fs-16 p-14`}> <div className='bg-icon-common bg-icon-sm me-3'><img src={CheckIcon} alt="Our Services" /></div> {e?.title}</div>
+                          )}
+                        </Col>
+                      )
+                    })}
+                  </Row>
+                ) : 'No any services added'}
               </div>
             </div>
           </div>
@@ -437,7 +480,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
 
       {/* Doctor Experience Section */}
       {doctorExperience?.length > 0 && otherSettings?.enable_doctor_experience ? (
-        <div id='experienceSection' className="website-section website-clinic website-experience">
+        <div id='experienceSection' ref={experienceSectionRef} className="website-section website-clinic website-experience">
           <div class="container">
             <Row className='row-80 align-items-start'>
               <Col sm={24} lg={8}>
@@ -506,7 +549,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
 
       {/* Education & Training */}
       {educationTraining?.length > 0 && otherSettings?.enable_education_training ? (
-        <div id='educationSection' className="website-section website-clinic website-education">
+        <div id='educationSection' ref={educationSectionRef} className="website-section website-clinic website-education">
           <div class="container p-0">
             <div className='row-80'>
               <div className="slider-container">
@@ -537,7 +580,8 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                               )}
                             </div>
                             {e?.city && (
-                              <div className="text-welcome d-flex align-items-center"> <img src={locationGrey} className='me-2' width={18} height={18} alt="Location" /> {e?.city}</div>
+                              <div className="text-welcome d-flex align-items-center">
+                                <img src={locationGrey} className='me-2' width={18} height={18} alt="Location" /> {e?.city}</div>
                             )}
                           </div>
                           <div className={`round-shape-top-education ${i % 2 === 1 && 'round-education-pink'}`}></div>
@@ -559,8 +603,8 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
       ) : null}
 
       {/* Memberships Section */}
-      {membership?.length > 0 && otherSettings?.enable_membership ? (
-        <div id='membershipSection' className="website-section website-membership">
+      {otherSettings?.enable_membership ? (
+        <div id='membershipSection' ref={membershipSectionRef} className="website-section website-membership">
           <div class="container">
             <Row className='row-80'>
               <Col lg={{ order: 2, span: 12 }}>
@@ -575,6 +619,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                   vertical={true}
                   verticalSwiping={true}
                   className='clinic-slider'>
+                  <div> {!membership.length > 0 && 'no data'}</div>
                   {membership?.map((e, i) => {
                     return (
                       <div key={i} className='d-flex align-items-center mb-3'>
@@ -609,7 +654,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
 
       {/* Rewards & Recognitions Section */}
       {rewardRecognition?.length > 0 && otherSettings?.enable_reward_recognition ? (
-        <div id='awardsSection' className="website-section website-clinic website-experience website-rewards">
+        <div id='awardsSection' ref={awardsSectionRef} className="website-section website-clinic website-experience website-rewards">
           <div class="container">
             <div className='row-80 align-items-start'>
               <Row className='align-items-start'>
@@ -620,7 +665,7 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
                   <h2 className="doctor-name h1 web-h1 text-welcome">Rewards & Recognitions</h2>
                 </Col>
                 <Col sm={24} lg={8}>
-                  {rewardRecognition?.length && (
+                  {rewardRecognition?.length > 3 && (
                     <div className='py-5 mt-lg-5 mt-0'>
                       <p className='slide-count text-start text-lg-end'><span>{String(currentSlide + 1).padStart(2, "0")} - {String(rewardRecognition?.length).padStart(2, "0")}</span></p>
                     </div>
@@ -657,44 +702,44 @@ function Homepage({ personalDetails, aboutDoctor, clinicProfile, services, rewar
 
       {/* Profile and Social Media Links */}
       <div className="website-section mt-2 mt-lg-5">
-      <div class="container">
-        <div className='row-80 text-center'>
-          <div className='bg-icon-common bg-icon-xl mx-auto mb-20'>
-            <img src={avatarDoctor} alt="Doctor Profile" />
+        <div class="container" id='socialSection' ref={socialSectionRef}>
+          <div className='row-80 text-center'>
+            <div className='bg-icon-common bg-icon-xl mx-auto mb-20'>
+              <img src={avatarDoctor} alt="Doctor Profile" />
+            </div>
+            <h3 className="doctor-name h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h3>
+            <div className='fs-18 text-welcome fw-medium mt-1'>{`${personalDetails?.education}, - ${personalDetails?.specialty}`}</div>
+            <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mt-4 px-4 mb-5">
+              Book Appointment
+            </Button>
+            <hr className='mx-auto' style={{ width: 200 }} />
+            {personalDetails?.email_id && (
+              <div className='border rounded-4 d-flex align-items-center mx-auto d-inline-flex mt-5 pe-3 py-2' style={{ borderRadius: 25 }}>
+                <div className='bg-icon-common bg-icon-sm2 mx-2'><img src={Mail} alt="Email" /></div>
+                <a href={`mailto:${personalDetails?.email_id}`} className='text-main'>{personalDetails?.email_id}</a>
+              </div>
+            )}
+            <br />
+            {otherSettings?.enable_social_links ? (
+              <div className='d-flex align-items-center justify-content-center mt-5'>
+                {socialLinks?.facebook && (
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.facebook)}><img src={websiteFacebook} alt="Email" /></div>
+                )}
+                {socialLinks?.instagram && (
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.instagram)} ><img src={websiteInstagram} alt="Email" /></div>
+                )}
+                {socialLinks?.linkedin && (
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.linkedin)}><img src={websiteLinkedin} alt="Email" /></div>
+                )}
+                {socialLinks?.twitter && (
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.twitter)}><img src={websiteTwitter} alt="Email" /></div>
+                )}
+                {socialLinks?.youtube && (
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.youtube)}><img src={websiteYoutube} alt="Email" /></div>
+                )}
+              </div>
+            ) : null}
           </div>
-          <h3 className="doctor-name h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h3>
-          <div className='fs-18 text-welcome fw-medium mt-1'>{`${personalDetails?.education}, - ${personalDetails?.specialty}`}</div>
-          <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mt-4 px-4 mb-5">
-            Book Appointment
-          </Button>
-          <hr className='mx-auto' style={{ width: 200 }} />
-          {personalDetails?.email_id && (
-            <div className='border rounded-4 d-flex align-items-center mx-auto d-inline-flex mt-5 pe-3 py-2' style={{ borderRadius: 25 }}>
-              <div className='bg-icon-common bg-icon-sm2 mx-2'><img src={Mail} alt="Email" /></div>
-              <a href={`mailto:${personalDetails?.email_id}`} className='text-main'>{personalDetails?.email_id}</a>
-            </div>
-          )}
-          <br />
-          {otherSettings?.enable_social_links ? (
-            <div className='d-flex align-items-center justify-content-center mt-5'>
-              {socialLinks?.facebook && (
-                <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.facebook)}><img src={websiteFacebook} alt="Email" /></div>
-              )}
-              {socialLinks?.instagram && (
-                <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.instagram)} ><img src={websiteInstagram} alt="Email" /></div>
-              )}
-              {socialLinks?.linkedin && (
-                <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.linkedin)}><img src={websiteLinkedin} alt="Email" /></div>
-              )}
-              {socialLinks?.twitter && (
-                <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.twitter)}><img src={websiteTwitter} alt="Email" /></div>
-              )}
-              {socialLinks?.youtube && (
-                <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.youtube)}><img src={websiteYoutube} alt="Email" /></div>
-              )}
-            </div>
-          ) : null}
-        </div>
         </div>
       </div>
 
