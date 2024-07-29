@@ -113,7 +113,7 @@ const ObstetricList = () => {
   return (
     <div
       className="overflow-y-auto"
-      style={{ maxHeight: "661px", padding: "10px 10px 0px" }}
+      style={{ maxHeight: "300px", padding: "10px 10px 0px" }}
     >
       <Collapse
         defaultActiveKey={[0]}

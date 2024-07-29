@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import VaccineHeader from "../vaccination/components/vaccineHeader/VaccineHeader";
 import Examination from "./components/examination/Examination";
 import PastPregnancy from "./components/PastPregnancy/PastPregnancy";
@@ -8,7 +8,7 @@ import AddExamination from "./components/AddExamination/AddExamination";
 import { Tabs } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import LmpPopup from "./components/lmpPopup/LmpPopup";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Drawer } from "antd";
 import {
   addObstetricData,
@@ -19,13 +19,13 @@ import {
   addObstetricDetails,
   resetUpdatedPatientDiagnosis,
 } from "../../redux/obstetricSlice";
-import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import moment from "moment";
 import { jwtDecode } from "jwt-decode";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import { errorMessage } from "../../utils/utils";
+import SuccessPopup from "../growthChart/components/SuccessPopup";
 
 const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   const dispatch = useDispatch();
@@ -53,6 +53,8 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
     marriageDurationYears,
     marriageDurationMonths,
   } = obstetricDetails || {};
+  const [loader, setLoader] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [examinationDrawer, setExaminationDrawer] = useState(false);
   const [pastPregnancyDrawer, setPastPregancyDrawer] = useState(false);
   const [showLmpPopup, setShowLmpPopup] = useState(!obstetricDetails?.lmp);
@@ -93,6 +95,9 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
     { value: ectopicPregnancies, label: "E", key: "ectopicPregnancies" },
   ]);
 
+  const pregnancyRef = useRef(null);
+  const examinationRef = useRef(null);
+
   useEffect(() => {
     if (examinationEditIndex >= 0) {
       handleExaminationDrawer();
@@ -108,12 +113,24 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   useEffect(() => {
     const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
     try {
-      var decoded = jwtDecode(token);
+      const decoded = jwtDecode(token);
       setTokenData(decoded.result);
     } catch (e) {
       console.error("Error while token decoding: ", e);
     }
   }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, []);
+
+  const scrollToBottom = () => {
+    if (activeTab === "pregnancyHistory") {
+      pregnancyRef.current?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      examinationRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
@@ -163,22 +180,41 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
       };
       dispatch(addObstetricDetails(payload));
       dispatch(resetUpdatedPatientDiagnosis());
+      setLoader(true);
       const obstetricResponse = obstetricDetails?._id
         ? await updateObstetricData(obstetricDetails?.patientId, payload)
         : await addObstetricData(payload);
+      setLoader(false);
       if (obstetricResponse?.data) {
+        setShowSuccess(true);
         getAllObstetricDetails();
       } else {
         errorMessage(obstetricResponse?.message || "Error while adding data");
       }
     }
+    setTimeout(() => {
+      handleDrawerObstetric();
+    }, 1000);
+  };
+
+  const clearObstetricData = () => {
     handleDrawerObstetric();
+    getAllObstetricDetails();
+    dispatch(resetUpdatedPatientDiagnosis());
+  };
+
+  const tabChangeHandler = (key) => {
+    setActiveTab(key);
+    scrollToBottom();
   };
 
   return (
     <div className="vaccinationWrapper">
       <VaccineHeader
         handleDrawerVaccination={obstetricSaveBtnHandler}
+        handleObstetricBackBtn={handleDrawerObstetric}
+        clearObstetricData={clearObstetricData}
+        loader={loader}
         isObstetric={true}
       />
 
@@ -197,19 +233,21 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
         <Tabs
           className="obstetricTab"
           activeKey={activeTab}
-          onChange={(key) => setActiveTab(key)}
+          onChange={(key) => tabChangeHandler(key)}
         >
           <TabPane tab="Pregnancy History" key="pregnancyHistory">
             <PregnancyHistory
               continueExaminationHandler={continueExaminationHandler}
               handlePastPregnancyDrawer={handlePastPregnancyDrawer}
               setEditIndex={setPastPregnancyEditIndex}
+              bottomRef={pregnancyRef}
             />
           </TabPane>
           <TabPane tab="Examination" key="examination">
             <Examination
               handleExaminationDrawer={handleExaminationDrawer}
               setEditIndex={setExaminationEditIndex}
+              bottomRef={examinationRef}
             />
           </TabPane>
         </Tabs>
@@ -240,7 +278,6 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
               handleExaminationDrawer();
               resetExaminationEditIndex();
             }}
-            getAllObstetricDetails={getAllObstetricDetails}
             handleCollapsed={handleCollapsed}
           />
         </Drawer>
@@ -263,10 +300,10 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
               handlePastPregnancyDrawer();
               resetPastPregnancyEditIndex();
             }}
-            getAllObstetricDetails={getAllObstetricDetails}
           />
         </Drawer>
       )}
+      <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
     </div>
   );
 };
