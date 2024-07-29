@@ -691,20 +691,20 @@ function MedicalHistoryBox(props) {
     }
 
     const handleSelectionChange = (key, value) => {
+        setActiveMenstrualData(key)
         if (key === "pain" && value === "None") {
             setGynecHistory(prevState => ({ ...prevState, ["occurrenceOfPain"]: null }));
         }
-
+   
         setGynecHistory(prevState => {
             if (!prevState) {
                 return { [key]: value }; // Handle case when prevState is null or undefined
             }
 
             setPrevActiveMentrualData(activeMenstrualData)
-
             if (prevState[key] === value && activeMenstrualData === key) {
                 setActiveMenstrualData("");
-             
+                
                 switch (activeMenstrualData) {
                     case 'cycle':
                         setRightPanelTitle('Cycle');
