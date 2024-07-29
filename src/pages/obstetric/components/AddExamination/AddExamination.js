@@ -21,6 +21,9 @@ function AddExamination({
   close,
   editIndex,
   handleCollapsed,
+  toggleDeletePopup,
+  isDataAddedOrEdited,
+  setIsDataAddedOrEdited,
 }) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
@@ -57,6 +60,7 @@ function AddExamination({
       };
       return newData;
     });
+    setIsDataAddedOrEdited(true);
   };
 
   const disabledDate = (current) => {
@@ -106,6 +110,7 @@ function AddExamination({
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
     dispatch(obstetricDetailsUpdated());
+    setIsDataAddedOrEdited(false);
     close();
     handleCollapsed && handleCollapsed();
   };
@@ -123,6 +128,7 @@ function AddExamination({
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
     dispatch(obstetricDetailsUpdated());
+    setIsDataAddedOrEdited(false);
     close();
   };
 
@@ -390,6 +396,14 @@ function AddExamination({
     );
   }, [examinationData]);
 
+  const closeBtnHandler = () => {
+    if (isDataAddedOrEdited) {
+      toggleDeletePopup();
+    } else {
+      close();
+    }
+  };
+
   return (
     <>
       <Card bordered={false} className="search-modalCard">
@@ -405,7 +419,7 @@ function AddExamination({
             <Button
               type="text"
               className="btn btn-delete-prescription px-3 focus-none h-100"
-              onClick={close}
+              onClick={closeBtnHandler}
             >
               <i className="icon-Cross fs-3"></i>
             </Button>

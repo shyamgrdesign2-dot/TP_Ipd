@@ -15,7 +15,13 @@ import {
 } from "../../../../redux/obstetricSlice";
 import { isDecimalCheck, isNumberCheck } from "../../utils/helper";
 
-function PastPregnancy({ close, editIndex }) {
+function PastPregnancy({
+  close,
+  editIndex,
+  toggleDeletePopup,
+  isDataAddedOrEdited,
+  setIsDataAddedOrEdited,
+}) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
   const [pastPregnancyData, setPastPregnancyData] = useState({});
@@ -39,6 +45,7 @@ function PastPregnancy({ close, editIndex }) {
       };
       return newData;
     });
+    setIsDataAddedOrEdited(true);
   };
 
   const disabledDate = (current) => {
@@ -88,6 +95,7 @@ function PastPregnancy({ close, editIndex }) {
     dispatch(addObstetricDetails(payload));
     dispatch(obstetricDetailsUpdated());
     dispatch(patientDiagnosisUpdated());
+    setIsDataAddedOrEdited(false);
     close();
   };
 
@@ -104,6 +112,7 @@ function PastPregnancy({ close, editIndex }) {
     dispatch(addObstetricDetails(payload));
     dispatch(obstetricDetailsUpdated());
     dispatch(patientDiagnosisUpdated());
+    setIsDataAddedOrEdited(false);
     close();
   };
 
@@ -393,6 +402,14 @@ function PastPregnancy({ close, editIndex }) {
     );
   }, [pastPregnancyData]);
 
+  const closeBtnHandler = () => {
+    if (isDataAddedOrEdited) {
+      toggleDeletePopup();
+    } else {
+      close();
+    }
+  };
+
   return (
     <>
       <Card bordered={false} className="search-modalCard">
@@ -408,7 +425,7 @@ function PastPregnancy({ close, editIndex }) {
             <Button
               type="text"
               className="btn btn-delete-prescription px-3 focus-none h-100"
-              onClick={close}
+              onClick={closeBtnHandler}
             >
               <i className="icon-Cross fs-3"></i>
             </Button>
@@ -418,8 +435,7 @@ function PastPregnancy({ close, editIndex }) {
             onClick={addPastPregnancyData}
             className="btn btn-primary3 btn-41 px-4 me-20"
             disabled={
-              !pastPregnancyData.gravidaNumber ||
-              !pastPregnancyData.outcome
+              !pastPregnancyData.gravidaNumber || !pastPregnancyData.outcome
             }
           >
             Done

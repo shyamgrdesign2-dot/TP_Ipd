@@ -5,7 +5,8 @@ import PastPregnancy from "./components/PastPregnancy/PastPregnancy";
 import PatientDiagnosis from "./components/patientDiagnosis/PatientDiagnosis";
 import PregnancyHistory from "./components/pregnancyHistory/PregnancyHistory";
 import AddExamination from "./components/AddExamination/AddExamination";
-import { Tabs } from "antd";
+import alertIcon from "./../../assets/images/alertIcon.svg";
+import { Button, Tabs } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import LmpPopup from "./components/lmpPopup/LmpPopup";
 import { useSelector, useDispatch } from "react-redux";
@@ -26,6 +27,7 @@ import { jwtDecode } from "jwt-decode";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import { errorMessage } from "../../utils/utils";
 import SuccessPopup from "../growthChart/components/SuccessPopup";
+import CommonModal from "../../common/CommonModal";
 
 const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   const dispatch = useDispatch();
@@ -55,6 +57,8 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [examinationDrawer, setExaminationDrawer] = useState(false);
   const [pastPregnancyDrawer, setPastPregancyDrawer] = useState(false);
+  const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+  const [isDataAddedOrEdited, setIsDataAddedOrEdited] = useState(false);
   const [showLmpPopup, setShowLmpPopup] = useState(!obstetricDetails?.lmp);
   const [examinationEditIndex, setExaminationEditIndex] = useState(-1);
   const [pastPregnancyEditIndex, setPastPregnancyEditIndex] = useState(-1);
@@ -165,6 +169,10 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
     setActiveTab("examination");
   };
 
+  const toggleDeletePopup = () => {
+    setShowDeletePopup((prev) => !prev);
+  };
+
   const obstetricSaveBtnHandler = async () => {
     if (isPatientDiagnosisUpdated) {
       const pastPregnancy = pastPregnancyData.reduce((acc, item) => {
@@ -269,8 +277,12 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
           closeIcon={false}
           placement="right"
           onClose={() => {
-            setExaminationEditIndex(-1);
-            handleExaminationDrawer();
+            if (isDataAddedOrEdited) {
+              toggleDeletePopup();
+            } else {
+              setExaminationEditIndex(-1);
+              handleExaminationDrawer();
+            }
           }}
           open={examinationDrawer}
           className="modalWidth-563"
@@ -283,6 +295,9 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
               resetExaminationEditIndex();
             }}
             handleCollapsed={handleCollapsed}
+            toggleDeletePopup={toggleDeletePopup}
+            isDataAddedOrEdited={isDataAddedOrEdited}
+            setIsDataAddedOrEdited={setIsDataAddedOrEdited}
           />
         </Drawer>
       )}
@@ -291,8 +306,12 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
           closeIcon={false}
           placement="right"
           onClose={() => {
-            setPastPregnancyEditIndex(-1);
-            handlePastPregnancyDrawer();
+            if (isDataAddedOrEdited) {
+              toggleDeletePopup();
+            } else {
+              setPastPregnancyEditIndex(-1);
+              handlePastPregnancyDrawer();
+            }
           }}
           open={pastPregnancyDrawer}
           className="modalWidth-563"
@@ -304,10 +323,59 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
               handlePastPregnancyDrawer();
               resetPastPregnancyEditIndex();
             }}
+            toggleDeletePopup={toggleDeletePopup}
+            isDataAddedOrEdited={isDataAddedOrEdited}
+            setIsDataAddedOrEdited={setIsDataAddedOrEdited}
           />
         </Drawer>
       )}
       <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
+      <CommonModal
+        isModalOpen={shouldShowDeletePopup}
+        onCancel={toggleDeletePopup}
+        modalWidth={500}
+        title={"You may lose your data"}
+        modalBody={
+          <>
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className="me-3" src={alertIcon} alt="Warning" />
+                <span>
+                  Are you sure you want to leave? <br />
+                  You will permanently lose your
+                  {examinationDrawer ? " Examination" : " Past pregnancy"} data.
+                </span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div
+                  onClick={() => {
+                    if (examinationDrawer) {
+                      handleExaminationDrawer();
+                      resetExaminationEditIndex();
+                    } else {
+                      handlePastPregnancyDrawer();
+                      resetPastPregnancyEditIndex();
+                    }
+                    setIsDataAddedOrEdited(false);
+                    toggleDeletePopup();
+                  }}
+                  className="me-4 text-decoration-underline btn p-0 text-main"
+                >
+                  Yes Leave
+                </div>
+                <Button
+                  onClick={toggleDeletePopup}
+                  className="lh-lg btn btn-primary3 btn-41 px-4"
+                >
+                  <span>No, Stay</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
     </div>
   );
 };
