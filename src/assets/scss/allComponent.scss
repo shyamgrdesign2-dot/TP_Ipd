@@ -1180,6 +1180,12 @@ body {
     width: 44%;
     word-break: break-word;
     align-content: center;
+    &.fs-13{
+        font-size: 12px;
+    }
+    &.t-bold{
+        font-weight: 600;
+    }
 }
 
 .gynec-history-list .semicolon {
