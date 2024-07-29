@@ -186,7 +186,7 @@ function AddExamination({
           <DatePicker
             key={"date"}
             onChange={(date) => {
-              const formattedDate = date.format("YYYY-MM-DD");
+              const formattedDate = date?.format("YYYY-MM-DD");
               handleExaminationDataChange("date", formattedDate);
             }}
             disabledDate={disabledDate}
@@ -194,7 +194,6 @@ function AddExamination({
               examinationData.date ? dayjs(moment(examinationData.date)) : ""
             }
             style={{ width: "170px", height: "41px" }}
-            allowClear={false}
             format={{
               format: "DD-MM-YYYY",
               type: "mask",
@@ -400,17 +399,18 @@ function AddExamination({
 
   const specificKeysFilled = () => {
     return (
-      !examinationData.foetalHeartRate &&
-      !examinationData.mothersHeight &&
-      !examinationData.mothersWeight &&
-      !examinationData.notes &&
-      examinationData.oedema === undefined &&
-      examinationData.pallor === undefined &&
-      !examinationData.systolic &&
-      !examinationData.diastolic &&
-      !examinationData.heightOfFundus &&
-      !examinationData.presentation &&
-      !examinationData.liquor
+      !examinationData.date ||
+      (!examinationData.foetalHeartRate &&
+        !examinationData.mothersHeight &&
+        !examinationData.mothersWeight &&
+        !examinationData.notes &&
+        examinationData.oedema === undefined &&
+        examinationData.pallor === undefined &&
+        !examinationData.systolic &&
+        !examinationData.diastolic &&
+        !examinationData.heightOfFundus &&
+        !examinationData.presentation &&
+        !examinationData.liquor)
     );
   };
   const closeBtnHandler = () => {

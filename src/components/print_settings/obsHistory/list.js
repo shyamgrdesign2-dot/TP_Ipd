@@ -1983,7 +1983,6 @@ function ObsHistoryListView({
                               }}
                             >
                               {item?.liquor}
-                              {`cm`}
                             </Text>
                             {"notes" in item && (
                               <Text

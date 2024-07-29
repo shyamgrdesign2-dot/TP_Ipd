@@ -47,7 +47,7 @@ const LmpPopup = ({
             <DatePicker
               placeholder="Select Date"
               onChange={(_, d) => {
-                setLmpDate(dayjs(d, "DD-MM-YYYY").toISOString());
+                setLmpDate(d ? dayjs(d, "DD-MM-YYYY").toISOString() : "");
                 setContinueBtnDisabled(false);
               }}
               format={{
@@ -59,7 +59,6 @@ const LmpPopup = ({
                 height: "38px",
                 width: "374px",
               }}
-              allowClear={false}
               disabledDate={(current) => current && current > dayjs()}
               inputReadOnly={!isBrowser}
             />
