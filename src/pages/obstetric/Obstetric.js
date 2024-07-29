@@ -80,11 +80,9 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   const gestationDays = today.diff(tempDate, "days");
 
   const [patientDiagnosisData, setPatientDiagnosisData] = useState({
-    lmp: lmp ? dayjs(moment(lmp).format("DD-MM-YYYY"), "DD-MM-YYYY") : "",
+    lmp: lmp,
     edd: edd ?? undefined,
-    ceed: ceed
-      ? dayjs(moment(ceed).format("DD-MM-YYYY"), "DD-MM-YYYY")
-      : undefined,
+    ceed: ceed ?? undefined,
     gestationWeeks: gestationWeeks,
     gestationDays: gestationDays,
     blood: blood,
