@@ -157,7 +157,9 @@ function DWServices() {
                         </SortableContext>
                     </DndContext>
                 </div>
-                <Button className='btn btn-input w-100 btn-41 d-flex align-items-center justify-content-center mt-3' onClick={addServicesClick} ><i className='icon-Add fs-18 me-2'></i>Add Service</Button>
+                {services?.length < 8 && (
+                    <Button className='btn btn-input w-100 btn-41 d-flex align-items-center justify-content-center mt-3' onClick={addServicesClick} ><i className='icon-Add fs-18 me-2'></i>Add Service</Button>
+                )}
             </div>
         </div>
     );
