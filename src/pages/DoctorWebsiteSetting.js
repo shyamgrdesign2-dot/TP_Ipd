@@ -516,7 +516,7 @@ function DoctorWebsiteSetting() {
                             </div>
                         </Col>
                         <Col xl={16} sm={14}>
-                            <div className="mx-auto overflow-y-auto " style={{ width: isMobile ? 580 : '97%' }} >
+                            <div className="mx-auto overflow-y-auto">
                                 <div className="mt-20 d-flex align-items-center justify-content-between">
                                     <div className="titleprint">Preview</div>
                                     {/* <div> <img src={cloudSaved} alt="Saved" className="me-1" />Saved</div> */}
