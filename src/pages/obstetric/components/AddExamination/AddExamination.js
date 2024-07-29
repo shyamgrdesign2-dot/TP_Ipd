@@ -492,7 +492,7 @@ function AddExamination({
                 Presentation
               </div>
               <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5">
-                Amniotic fluid index
+                Liquor
               </div>
               <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5">
                 Fetal heart rate

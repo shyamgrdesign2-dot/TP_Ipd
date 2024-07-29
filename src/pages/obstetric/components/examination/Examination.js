@@ -43,7 +43,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex, bottomRef }) => {
         heightOfFundus,
         heightOfFundusUnit,
         presentation = "-",
-        fluidIndex,
+        liquor,
         foetalHeartRate,
         notes = "-",
       } = item;
@@ -74,7 +74,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex, bottomRef }) => {
           </td>
           <td className="obstetricTcell">{presentation}</td>
           <td className="obstetricTcell">
-            {fluidIndex ? fluidIndex + " cm" : "-"}
+            {liquor ? liquor + " cm" : "-"}
           </td>
           <td className="obstetricTcell">
             {foetalHeartRate ? foetalHeartRate + " BPM" : "-"}

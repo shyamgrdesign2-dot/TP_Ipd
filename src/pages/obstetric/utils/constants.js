@@ -36,7 +36,7 @@ export const ExaminationColumns = [
   },
   {
     title: "Fluid Index",
-    key: "fluidIndex",
+    key: "liquor",
     width: "6%",
   },
   {
@@ -93,8 +93,8 @@ export const obstetricTabListColumns = [
     siUnit: "",
   },
   {
-    title: "Fluid Index",
-    key: "fluidIndex",
+    title: "Liquor",
+    key: "liquor",
     siUnit: " cm",
   },
   {
@@ -216,7 +216,7 @@ export const visitColumn = [
   },
   {
     title: "Fluid Index",
-    key: "fluidIndex",
+    key: "liquor",
     siUnit: " cm",
   },
   {

@@ -562,10 +562,9 @@ function ObsHistoryTableView({
                 ]}
               >
                 {"ectopicPregnancies" in obsHistoryData
-                  ? obsHistoryData?.ectopicPregnancies?.toString().padStart(
-                      2,
-                      "0"
-                    )
+                  ? obsHistoryData?.ectopicPregnancies
+                      ?.toString()
+                      .padStart(2, "0")
                   : `-`}
               </Text>
             </View>
@@ -1412,8 +1411,8 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {"fluidIndex" in item ? item?.fluidIndex : ``}
-                    {"fluidIndex" in item ? ` cm` : `-`}
+                    {"liquor" in item ? item?.liquor : ``}
+                    {"liquor" in item ? ` cm` : `-`}
                   </Text>
                   <Text
                     style={[
