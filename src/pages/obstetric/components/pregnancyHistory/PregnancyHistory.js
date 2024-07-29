@@ -15,6 +15,7 @@ const PregnancyHistory = ({
   continueExaminationHandler,
   handlePastPregnancyDrawer,
   setEditIndex,
+  bottomRef,
 }) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { pregnancyHistory } = obstetricDetails;
@@ -142,6 +143,7 @@ const PregnancyHistory = ({
               columnGap: "32px",
               paddingBottom: "20px",
             }}
+            ref={bottomRef}
           >
             <Button
               type="button"
