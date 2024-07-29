@@ -33,6 +33,11 @@ export default function PatientDiagnosis({
 
   useEffect(() => {
     if (lmpDate) {
+      const today = moment();
+      const lmp = moment(lmpDate, "DD-MM-YYYY");
+      const gestationInWeeks = today.diff(lmp, "weeks");
+      const tempDate = lmp.clone().add(gestationInWeeks, "weeks");
+      const gestationInDays = today.diff(tempDate, "days");
       /**
        * EDD Formula: LMP date + 1 year - 3 months + 7 days
        */
@@ -46,6 +51,8 @@ export default function PatientDiagnosis({
           .add(7, "days")
           .toDate()
           .toISOString(),
+        gestationWeeks: gestationInWeeks,
+        gestationDays: gestationInDays,
       }));
       dispatch(patientDiagnosisUpdated());
       dispatch(obstetricDetailsUpdated());
