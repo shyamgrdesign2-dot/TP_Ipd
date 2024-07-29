@@ -80,10 +80,10 @@ const ObstetricList = () => {
               ) : null}
             </div>
             <div className="my-2">
-              {visitItem.fluidIndex ? (
+              {visitItem.liquor ? (
                 <>
-                  <span>Fluid index : </span>
-                  <label>{visitItem.fluidIndex} cm</label>
+                  <span>Liquor : </span>
+                  <label>{visitItem.liquor} cm</label>
                   {visitItem.foetalHeartRate ? " | " : ""}
                 </>
               ) : null}
