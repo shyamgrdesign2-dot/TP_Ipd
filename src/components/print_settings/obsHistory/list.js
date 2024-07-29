@@ -1570,7 +1570,7 @@ function ObsHistoryListView({
                   "heightOfFundus" in item ||
                   "presentation" in item ||
                   "foetalHeartRate" in item ||
-                  "fluidIndex" in item ||
+                  "liquor" in item ||
                   "notes" in item) && (
                   <>
                     <Text
@@ -1758,7 +1758,7 @@ function ObsHistoryListView({
                       "heightOfFundus" in item ||
                       "presentation" in item ||
                       "foetalHeartRate" in item ||
-                      "fluidIndex" in item ||
+                      "liquor" in item ||
                       "notes" in item) && (
                       <>
                         <Text
@@ -1842,7 +1842,7 @@ function ObsHistoryListView({
                             </Text>
                             {("presentation" in item ||
                               "foetalHeartRate" in item ||
-                              "fluidIndex" in item ||
+                              "liquor" in item ||
                               "notes" in item) && (
                               <Text
                                 style={{
@@ -1890,7 +1890,7 @@ function ObsHistoryListView({
                               {item?.presentation}
                             </Text>
                             {("foetalHeartRate" in item ||
-                              "fluidIndex" in item ||
+                              "liquor" in item ||
                               "notes" in item) && (
                               <Text
                                 style={{
@@ -1938,7 +1938,7 @@ function ObsHistoryListView({
                               {item?.foetalHeartRate}
                               {` BPM`}
                             </Text>
-                            {("fluidIndex" in item || "notes" in item) && (
+                            {("liquor" in item || "notes" in item) && (
                               <Text
                                 style={{
                                   color: "#171725",
@@ -1956,7 +1956,7 @@ function ObsHistoryListView({
                           </>
                         )}
 
-                        {"fluidIndex" in item && (
+                        {"liquor" in item && (
                           <>
                             <Text
                               style={{
@@ -1969,7 +1969,7 @@ function ObsHistoryListView({
                                 fontWeight: 500,
                               }}
                             >
-                              Fluid index&nbsp;:&nbsp;
+                              Liquor&nbsp;:&nbsp;
                             </Text>
                             <Text
                               style={{
@@ -1982,7 +1982,7 @@ function ObsHistoryListView({
                                 fontWeight: 400,
                               }}
                             >
-                              {item?.fluidIndex}
+                              {item?.liquor}
                               {`cm`}
                             </Text>
                             {"notes" in item && (
