@@ -2,6 +2,7 @@ import { Button, DatePicker, Modal } from "antd";
 import { useState } from "react";
 import dayjs from "dayjs";
 import "./LmpPopup.scss";
+import { isBrowser } from "react-device-detect";
 
 const LmpPopup = ({
   handleDrawerObstetric,
@@ -60,7 +61,7 @@ const LmpPopup = ({
               }}
               allowClear={false}
               disabledDate={(current) => current && current > dayjs()}
-              inputReadOnly
+              inputReadOnly={!isBrowser}
             />
           </div>
         </div>
