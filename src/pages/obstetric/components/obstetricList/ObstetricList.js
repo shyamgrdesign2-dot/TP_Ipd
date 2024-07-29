@@ -82,7 +82,7 @@ const ObstetricList = () => {
             <div className="my-2">
               {visitItem.liquor ? (
                 <>
-                  <span>Fluid index : </span>
+                  <span>Liquor : </span>
                   <label>{visitItem.liquor} cm</label>
                   {visitItem.foetalHeartRate ? " | " : ""}
                 </>

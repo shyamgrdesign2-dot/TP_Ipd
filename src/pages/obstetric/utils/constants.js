@@ -35,7 +35,7 @@ export const ExaminationColumns = [
     width: "11%",
   },
   {
-    title: "Fluid Index",
+    title: "Liquor",
     key: "liquor",
     width: "6%",
   },
@@ -215,7 +215,7 @@ export const visitColumn = [
     siUnit: "",
   },
   {
-    title: "Fluid Index",
+    title: "Liquor",
     key: "liquor",
     siUnit: " cm",
   },

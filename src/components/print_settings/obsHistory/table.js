@@ -1252,7 +1252,7 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    Fluid
+                    Liquor
                   </Text>
                   <Text
                     style={[

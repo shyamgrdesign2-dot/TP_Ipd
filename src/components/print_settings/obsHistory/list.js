@@ -1969,7 +1969,7 @@ function ObsHistoryListView({
                                 fontWeight: 500,
                               }}
                             >
-                              Fluid index&nbsp;:&nbsp;
+                              Liquor&nbsp;:&nbsp;
                             </Text>
                             <Text
                               style={{
