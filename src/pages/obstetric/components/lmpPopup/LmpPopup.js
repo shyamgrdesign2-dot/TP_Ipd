@@ -46,11 +46,14 @@ const LmpPopup = ({
             <DatePicker
               placeholder="Select Date"
               onChange={(_, d) => {
-                setLmpDate(d);
+                setLmpDate(dayjs(d, "DD-MM-YYYY").toISOString());
                 setContinueBtnDisabled(false);
               }}
-              format="DD-MM-YYYY"
-              value={lmpDate ? dayjs(lmpDate, "DD-MM-YYYY") : ""}
+              format={{
+                format: "DD-MM-YYYY",
+                type: "mask",
+              }}
+              value={lmpDate ? dayjs(lmpDate) : ""}
               style={{
                 height: "38px",
                 width: "374px",
