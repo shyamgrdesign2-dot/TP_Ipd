@@ -522,7 +522,7 @@ function DoctorWebsiteSetting() {
                                     {/* <div> <img src={cloudSaved} alt="Saved" className="me-1" />Saved</div> */}
                                 </div>
                                 <div className="rounded-20px bg-white mt-2 overflow-hidden">
-                                    <div className="printheight">
+                                    <div className="printheight" style={{height: 'calc(100vh - 124px)'}}>
                                         <Homepage
                                             scrollId={selectedMenu ? selectedMenu?.value : null}
                                             personalDetails={personalDetails}

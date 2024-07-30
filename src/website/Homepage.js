@@ -283,8 +283,10 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
               <Col sm={24} lg={12}>
                 <div className='round-pink'></div>
                 <div className='doctor-photo'>
-                  <img fill src={personalDetails?.hero_image_link ? personalDetails?.hero_image_link : DoctorDefault} alt="Doctor Profile" style={{ objectFit: personalDetails?.hero_image_link ? 'cover' : 'none',
-                    position: 'absolute', height: '100%', width: '100%', inset: 0, color: 'transparent'}} />
+                  <img fill src={personalDetails?.hero_image_link ? personalDetails?.hero_image_link : DoctorDefault} alt="Doctor Profile" style={{
+                    objectFit: personalDetails?.hero_image_link ? 'cover' : 'none',
+                    position: 'absolute', height: '100%', width: '100%', inset: 0, color: 'transparent'
+                  }} />
                 </div>
                 <div className='square-yellow'></div>
               </Col>
@@ -712,64 +714,64 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
           </div>
         </div>
       ) : null}
-
-      {/* Profile and Social Media Links */}
-      <div className="website-section mt-2 mt-lg-5">
-        <div class="container" id='socialSection' ref={socialSectionRef}>
-          <div className='row-80 text-center'>
-            <div className='bg-icon-common bg-icon-xl mx-auto mb-20'>
-              <img width={50.313} height={71.669} src={avatarDoctor} alt="Doctor Profile" />
-            </div>
-            <h3 className="doctor-name h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h3>
-            <div className='fs-18 text-welcome fw-medium mt-1'>{`${personalDetails?.education}, - ${personalDetails?.specialty}`}</div>
-            <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mt-4 px-4 mb-5">
-              Book Appointment
-            </Button>
-            <hr className='mx-auto' style={{ width: 200 }} />
-            {personalDetails?.email_id && (
-              <div className='border rounded-4 d-flex align-items-center mx-auto d-inline-flex mt-5 pe-3 py-2' style={{ borderRadius: 25 }}>
-                <div className='bg-icon-common bg-icon-sm2 mx-2'><img width={22} height={22} src={Mail} alt="Email" /></div>
-                <a href={`mailto:${personalDetails?.email_id}`} className='text-main'>{personalDetails?.email_id}</a>
+      <div className='outer-round-big'>
+        {/* Profile and Social Media Links */}
+        <div className="website-section mt-2 mt-lg-5">
+          <div class="container" id='socialSection' ref={socialSectionRef}>
+            <div className='row-80 text-center'>
+              <div className='bg-icon-common bg-icon-xl mx-auto mb-20'>
+                <img width={50.313} height={71.669} src={avatarDoctor} alt="Doctor Profile" />
               </div>
-            )}
-            <br />
-            {otherSettings?.enable_social_links ? (
-              <div className='d-flex align-items-center justify-content-center mt-5'>
-                {socialLinks?.facebook && (
-                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.facebook)}><img width={14.769} height={14.769} src={websiteFacebook} alt="Email" /></div>
-                )}
-                {socialLinks?.instagram && (
-                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.instagram)} ><img width={14.769} height={14.769} src={websiteInstagram} alt="Email" /></div>
-                )}
-                {socialLinks?.linkedin && (
-                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.linkedin)}><img width={14.769} height={14.769} src={websiteLinkedin} alt="Email" /></div>
-                )}
-                {socialLinks?.twitter && (
-                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.twitter)}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
-                )}
-                {socialLinks?.youtube && (
-                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.youtube)}><img width={14.769} height={14.769} src={websiteYoutube} alt="Email" /></div>
-                )}
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </div>
-
-      {/* Footer Section */}
-      <div class="container-fluid mb-3">
-        <div className="website-section website-clinic website-footer">
-          <div className="slider-container">
-            <div className='clinic-box p-4'>
-              <div className='d-flex flex-wrap align-items-center justify-content-center justify-content-lg-between'>
-                <img style={{ filter: 'brightness(0) invert(1)' }} src={websiteLogo} width={151.29} height={34} alt="Footer Logo" />
-                <div className='text-white mt-4 mt-lg-0'>© {(new Date().getFullYear())} TatvaPractice. All rights reserved</div>
-              </div>
+              <h3 className="doctor-name h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h3>
+              <div className='fs-18 text-welcome fw-medium mt-1'>{`${personalDetails?.education}, - ${personalDetails?.specialty}`}</div>
+              <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mt-4 px-4 mb-5">
+                Book Appointment
+              </Button>
+              <hr className='mx-auto' style={{ width: 200 }} />
+              {personalDetails?.email_id && (
+                <div className='border rounded-4 d-flex align-items-center mx-auto d-inline-flex mt-5 pe-3 py-2' style={{ borderRadius: 25 }}>
+                  <div className='bg-icon-common bg-icon-sm2 mx-2'><img width={22} height={22} src={Mail} alt="Email" /></div>
+                  <a href={`mailto:${personalDetails?.email_id}`} className='text-main'>{personalDetails?.email_id}</a>
+                </div>
+              )}
+              <br />
+              {otherSettings?.enable_social_links ? (
+                <div className='d-flex align-items-center justify-content-center mt-5'>
+                  {socialLinks?.facebook && (
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.facebook)}><img width={14.769} height={14.769} src={websiteFacebook} alt="Email" /></div>
+                  )}
+                  {socialLinks?.instagram && (
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.instagram)} ><img width={14.769} height={14.769} src={websiteInstagram} alt="Email" /></div>
+                  )}
+                  {socialLinks?.linkedin && (
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.linkedin)}><img width={14.769} height={14.769} src={websiteLinkedin} alt="Email" /></div>
+                  )}
+                  {socialLinks?.twitter && (
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.twitter)}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
+                  )}
+                  {socialLinks?.youtube && (
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.youtube)}><img width={14.769} height={14.769} src={websiteYoutube} alt="Email" /></div>
+                  )}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
-      </div>
 
+        {/* Footer Section */}
+        <div class="container-fluid mb-3">
+          <div className="website-section website-clinic website-footer">
+            <div className="slider-container">
+              <div className='clinic-box p-4'>
+                <div className='d-flex flex-wrap align-items-center justify-content-center justify-content-lg-between'>
+                  <img style={{ filter: 'brightness(0) invert(1)' }} src={websiteLogo} width={151.29} height={34} alt="Footer Logo" />
+                  <div className='text-white mt-4 mt-lg-0'>© {(new Date().getFullYear())} TatvaPractice. All rights reserved</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       {/* Common Model */}
       <Modal
         open={isModalOpen}
