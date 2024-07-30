@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Button, Col, Row, Modal } from "antd";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { Button, Col, Row, Modal, Tooltip } from "antd";
 
 import "../assets/scss/website-custom.scss";
 import 'slick-carousel/slick/slick.css';
@@ -44,6 +44,8 @@ import websiteYoutube from '../assets/images/website-images/website-youtube.svg'
 const slideData = [1, 2, 3, 4]
 const dateFormat = 'HH:mm:ss'
 const showDateFormat = 'h:mm A'
+const languages = <span>prompt text</span>;
+const buttonWidth = 80;
 
 function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, services, rewardRecognition, educationTraining, doctorExperience, membership, otherSettings, socialLinks }) {
 
@@ -68,13 +70,35 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
     return (
       <p className="text mb-0 lh-base">
         {isReadMore && text.length > 285 ? text.slice(0, 285) : text}
-        <span onClick={toggleReadMore} className="read-or-hide">
-          {text.length > 285 ? isReadMore ? "... Read More" : " Show Less" : ""}
+        <span className="d-inline-block mb-2 read-or-hide">
+          {text.length > 285 ? isReadMore && "... " : ""}
         </span>
+        <br />
+        {text.length > 285 && (
+          <div onClick={toggleReadMore} className="title-common text-primary cursor-pointer d-inline">
+            {isReadMore ? (
+              <img src={Plus} alt="Read More" />
+            ) : <img src={Minus} alt="Read More" />}
+            {isReadMore ? 'Read More' : 'View Less'}</div>
+        )}
       </p>
     );
   };
-  const scrollToSection = () => {
+
+  const [arrow, setArrow] = useState('Show');
+  const mergedArrow = useMemo(() => {
+    if (arrow === 'Hide') {
+      return false;
+    }
+    if (arrow === 'Show') {
+      return true;
+    }
+    return {
+      pointAtCenter: true,
+    };
+  }, [arrow]);
+
+  const scrollToSection = (scrollId) => {
     try {
       if (scrollId == 1) {
         personalSectionRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -101,7 +125,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
   };
 
   useEffect(() => {
-    scrollToSection()
+    scrollToSection(scrollId)
   }, [scrollId]);
 
   const settings = {
@@ -243,26 +267,36 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
               <div className={`nav-elements d-lg-flex ${showNavbar && "active text-center"}`}>
                 <ul className='mb-0 mt-4 mt-lg-0 p-0'>
                   <li>
-                    <a href='#aboutSection'>About</a>
+                    <a onClick={() => scrollToSection(2)}>About</a>
                   </li>
                   <li>
-                    <a href='#clinicSection'>Clinic</a>
+                    <a onClick={() => scrollToSection(3)}>Clinic</a>
                   </li>
-                  <li>
-                    <a href='#servicesSection'>Services</a>
-                  </li>
-                  <li>
-                    <a href='#experienceSection'>Experience</a>
-                  </li>
-                  <li>
-                    <a href='#educationSection'>Education</a>
-                  </li>
-                  <li>
-                    <a href='#membershipSection'>Membership</a>
-                  </li>
-                  <li>
-                    <a href='#awardsSection'>Awards</a>
-                  </li>
+                  {otherSettings?.enable_services ? (
+                    <li>
+                      <a onClick={() => scrollToSection(5)}>Services</a>
+                    </li>
+                  ) : null}
+                  {otherSettings?.enable_doctor_experience ? (
+                    <li>
+                      <a onClick={() => scrollToSection(4)}>Experience</a>
+                    </li>
+                  ) : null}
+                  {otherSettings?.enable_education_training ? (
+                    <li>
+                      <a onClick={() => scrollToSection(6)}>Education</a>
+                    </li>
+                  ) : null}
+                  {otherSettings?.enable_membership ? (
+                    <li>
+                      <a onClick={() => scrollToSection(7)}>Membership</a>
+                    </li>
+                  ) : null}
+                  {otherSettings?.enable_reward_recognition ? (
+                    <li>
+                      <a onClick={() => scrollToSection(8)}>Awards</a>
+                    </li>
+                  ) : null}
                 </ul>
                 <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mx-lg-3 mt-5 mt-lg-0">
                   Book Appointment
@@ -324,7 +358,19 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                   )}
                   {aboutDoctor?.language && aboutDoctor?.language?.length > 0 && (
                     <div className='about-after ps-3'>
-                      <div className='fs-18 text-welcome fw-medium'>{aboutDoctor?.language.join(', ')}</div>
+                      <div className='d-flex'>
+                        <div className='fs-18 text-welcome fw-medium'>
+                          {aboutDoctor?.language?.slice(0, 2).join(', ')}
+                        </div>
+                        <div>
+                          <Tooltip placement="top"
+
+                            title={aboutDoctor?.language.slice(2).join(' , ')}
+                            arrow={mergedArrow}>
+                            <div className="ms-2 text-primary px-2 py-1 rounded-5 fw-medium" style={{ backgroundColor: 'rgba(75, 74, 213, 0.10)' }}>{`${aboutDoctor?.language?.length - 2}+`}</div>
+                          </Tooltip>
+                        </div>
+                      </div>
                       <div>Languages</div>
                     </div>
                   )}
@@ -334,7 +380,6 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                     <ReadMore class="title-common">
                       {aboutDoctor?.about}
                     </ReadMore>
-                    {/* <div className="title-common text-primary cursor-pointer d-inline"><img src={Plus} alt="Read More" /> Read More</div> */}
                   </>
                 )}
               </Col>
@@ -376,39 +421,48 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                               </div>
                             )}
                           </div>
-                          {(e?.address.address_line || e?.address.city || e?.address.state || e?.address.pincode || e?.clinic_photos?.length > 0) ? (
-                            <>
-                              <div className='clinic-address'>{`${Object.values(Object.fromEntries(Object.entries((({ address_line, city, state, pincode }) => ({ address_line, city, state, pincode }))(e?.address)).filter(([_, v]) => v))).join(', ')}`}</div>
-                              <div className='d-flex'>
-                                {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.slice(0, 3)?.map((item, index) => {
-                                  return (
-                                    <div key={index} className='clinic-photo'>
-                                      <img className='img-fluid h-100' src={item?.clinic_image_link} alt={item?.clinic_image_name} />
-                                    </div>
-                                  )
-                                })}
-                                {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.length > 3 && (
-                                  <div className='clinic-photo d-flex align-items-center justify-content-center'>
-                                    <div className='title-common text-white'>{`${e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.length - 3}+`}</div>
+                          <div className='d-flex flex-column h-75 justify-content-between'>
+                            <div>
+                              {(e?.address.address_line || e?.address.city || e?.address.state || e?.address.pincode || e?.clinic_photos?.length > 0) ? (
+                                <>
+                                  <div className='clinic-address'>{`${Object.values(Object.fromEntries(Object.entries((({ address_line, city, state, pincode }) => ({ address_line, city, state, pincode }))(e?.address)).filter(([_, v]) => v))).join(', ')}`}</div>
+                                  <div className='d-flex mt-4'>
+                                    {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.slice(0, 3)?.map((item, index) => {
+                                      return (
+                                        <div key={index} className='clinic-photo'>
+                                          <img className='img-fluid h-100' src={item?.clinic_image_link} alt={item?.clinic_image_name} />
+                                        </div>
+                                      )
+                                    })}
+                                    {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.length > 3 && (
+                                      <div className='clinic-photo d-flex align-items-center justify-content-center'>
+                                        <div className='title-common text-white'>{`${e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.length - 3}+`}</div>
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                              </div>
-                            </>
-                          ) : (
-                            <div className='clinic-address'>{'No Address Details & Photos'}</div>
-                          )}
-                          <div className='d-flex flex-wrap mt-4 mt-lg-5 clinic-btn'>
-                            {e?.address?.google_map && (
-                              <Button type="button" onClick={() => window.open(e?.address?.google_map)} className="btn btn-primary3 btn-48">
-                                <img src={Direction} alt="Direction" /> Direction to Clinic
-                              </Button>
-                            )}
-                            {e?.contact_no && (
-                              <Button type="button" onClick={() => window.location.href = (`tel:${e.contact_no}`)} className="btn btn-primary3 btn-48">
-                                <img src={Call} alt="Call" /> Call Clinic
-                              </Button>
-                            )}
+                                </>
+                              ) : (
+                                <div className='clinic-address'>{'No Address Details & Photos'}</div>
+                              )}
+                            </div>
+                            <div className='d-flex flex-wrap clinic-btn mb-4'>
+                              {e?.address?.google_map && (
+                                <Button type="button" onClick={() => window.open(e?.address?.google_map)} className="btn btn-primary3 btn-48">
+                                  <img src={Direction} alt="Direction" /> Direction to Clinic
+                                </Button>
+                              )}
+                              {e?.contact_no && (
+                                <Button type="button" onClick={() => window.location.href = (`tel:${e.contact_no}`)} className="btn btn-primary3 btn-48">
+                                  <img src={Call} alt="Call" /> Call Clinic
+                                </Button>
+                              )}
+                            </div>
                           </div>
+
+
+
+
+
                         </Col>
                         <Col sm={24} lg={12}>
                           {e?.shift?.length > 0 && (
@@ -571,10 +625,17 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                       return (
                         <div class="timingshape">
                           <div className='h-100 d-flex flex-column justify-content-between p-30'>
-                            {(!e?.title && !e?.degree && !e?.city && !e?.start_year && !e?.end_year) && 'No education details added'}
                             <div>
-                              <div>{`${e.start_year} - ${e.end_year}`}</div>
+                              {!e?.title && !e?.degree && !e?.city && !e?.start_year && !e?.end_year ? (
+                                <div>
+                                  {'No education details added'}
+                                </div>
+                              ) : (
+                                <div>{`${e.start_year} - ${e.end_year}`}</div>
+                              )}
+
                               <div className='titleprint'>{e.title}</div>
+
                               {e?.degree && (
                                 <div className='rounded border bg-white d-inline-block py-1 px-2 mt-2'>{e?.degree}</div>
                               )}
@@ -619,7 +680,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                   vertical={true}
                   verticalSwiping={true}
                   className='clinic-slider'>
-                  <div> {!membership.length > 0 && 'no data'}</div>
+                  <div> {!membership.length > 0 && 'No any memberships added'}</div>
                   {membership?.map((e, i) => {
                     return (
                       <div key={i} className='d-flex align-items-center mb-3'>
