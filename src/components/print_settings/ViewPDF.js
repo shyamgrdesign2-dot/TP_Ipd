@@ -163,8 +163,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     const medical_history_title = (id) => {
         var value = ''
-        if (id == 2 || id == 3) {
-            value = `Issue : `
+        if (id == 2 ) {
+            value = `Condition : `
+        } else if (id == 3) {
+            value = `History : `
         } else if (id == 4) {
             value = `Allergies to : `
         } else if (id == 1) {
