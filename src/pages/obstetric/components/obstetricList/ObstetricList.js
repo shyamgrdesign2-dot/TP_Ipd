@@ -83,7 +83,7 @@ const ObstetricList = () => {
               {visitItem.liquor ? (
                 <>
                   <span>Liquor : </span>
-                  <label>{visitItem.liquor} cm</label>
+                  <label>{visitItem.liquor}</label>
                   {visitItem.foetalHeartRate ? " | " : ""}
                 </>
               ) : null}
