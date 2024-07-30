@@ -395,6 +395,9 @@ function HeaderDoctorWebsite() {
                         </div>
                     </Container >
                 </Navbar>
+                <div className='w-100 px-3 py-2 fontroboto d-flex align-items-center' style={{backgroundColor: '#FFE8AE'}}>
+                <i className='icon-info fs-18 me-3'></i> This is a demonstration website with sample data to show how it will look once you fill it.
+                </div>
                 <div className="overflow-auto" style={{ height: 'calc(100vh - 60px)' }}>
                     <DemoHomepage />
                 </div>
