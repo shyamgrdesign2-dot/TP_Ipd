@@ -394,10 +394,13 @@ function Header({ locationPath }) {
     );
   }, [popOverVideo]);
 
-  const setUpWebsiteUrl = async () => {
+  const setUpWebsiteUrl = async (flag) => {
     const action = await dispatch(viewDoctorWebsite());
     if (action.meta.requestStatus === "fulfilled") {
-      navigate('/doctor_website_setting', { state: { websiteData: { ...action.payload } } })
+      flag === 1 ?
+        navigate('/doctor_profile', { state: { websiteData: { ...action.payload } } })
+        :
+        navigate('/doctor_website_setting', { state: { websiteData: { ...action.payload } } })
     } else {
       errorMessage(action.error)
     }
@@ -432,7 +435,7 @@ function Header({ locationPath }) {
     },
     {
       label:
-        <a onClick={() => navigate('/doctor_profile')}>
+        <a onClick={() => setUpWebsiteUrl(1)}>
           <div className="title-common me-5 d-flex align-items-center"><i className="icon-profile me-3"></i>My Profile</div>
           <i className="icon-right iconrotate180"></i>
         </a>,
@@ -440,7 +443,7 @@ function Header({ locationPath }) {
     },
     {
       label:
-        <a onClick={setUpWebsiteUrl}>
+        <a onClick={() => setUpWebsiteUrl(2)}>
           <div className="title-common me-5 d-flex align-items-center"><i className="icon-group me-3"></i>Setup My Website</div>
           <i className="icon-right iconrotate180"></i>
         </a>,
