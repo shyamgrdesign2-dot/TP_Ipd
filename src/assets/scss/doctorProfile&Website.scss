@@ -204,50 +204,10 @@
         top: -6px;
         cursor: pointer;
     }
-    .ant-image {
-        height: 100%;
-        width: 100%;
-        .ant-image-mask {
-            opacity: 0;
-        }
-    }
 }
 
 .website-publish-modal {
     .ant-modal-close {
         display: none;
     }
-}
-.ant-image-preview-root {
-    .ant-image-preview-mask {
-        background-color: rgba(0, 0, 0, 0.8);
-    }
-}
-.ant-image-preview-operations-wrapper {
-    .ant-image-preview-switch-left {
-        border: 1px solid rgba(255, 255, 255, 0.7);
-        background-color: rgba(0, 0, 0, 0.95);
-        .anticon {
-            color: $white !important;
-        }
-        &.ant-image-preview-switch-left-disabled {
-            opacity: 0.3;
-        }
-    }
-    .ant-image-preview-switch-right {
-        border: 1px solid rgba(255, 255, 255, 0.7);
-        background-color: rgba(0, 0, 0, 0.95);
-        .anticon {
-            color: $white !important;
-        }
-        &.ant-image-preview-switch-right-disabled {
-            opacity: 0.3;
-        }
-    } 
-    .ant-image-preview-close {
-        background-color: transparent;
-        &:hover {
-            background-color: transparent;
-        }
-    }       
 }
