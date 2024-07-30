@@ -11,7 +11,7 @@ import HeaderDoctorWebsite from "../components/doctor_website/HeaderDoctorWebsit
 
 import { listLanguage } from "../redux/doctorWebsiteSlice";
 
-import mendatoryTick from "../../src/assets/images/mendatory-tick.svg";
+import mandatoryTick from "../../src/assets/images/mandatory-tick.svg";
 import cloudSaved from "../../src/assets/images/cloud-saved.svg";
 import DWAboutDoctor from "../components/doctor_website/DWAboutDoctor";
 import DWPersonalDetails from "../components/doctor_website/DWPersonalDetails";
@@ -48,7 +48,7 @@ function DoctorWebsiteSetting() {
     const [isVisible, setIsVisible] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState(null);
 
-    const contextApi = { tmdwm_id, personalDetails, setPersonalDetails, clinicProfile, setClinicProfile, aboutDoctor, setAboutDoctor, doctorExperience, setDoctorExperience, rewardRecognition, setRewardRecognition, membership, setMembership, socialLinks, setSocialLinks, services, setServices, educationTraining, setEducationTraining, otherSettings, setOtherSettings };
+    const contextApi = { websiteData, tmdwm_id, personalDetails, setPersonalDetails, clinicProfile, setClinicProfile, aboutDoctor, setAboutDoctor, doctorExperience, setDoctorExperience, rewardRecognition, setRewardRecognition, membership, setMembership, socialLinks, setSocialLinks, services, setServices, educationTraining, setEducationTraining, otherSettings, setOtherSettings };
 
 
     useEffect(() => {
@@ -258,6 +258,26 @@ function DoctorWebsiteSetting() {
         [otherSettings]
     );
 
+    const onInnerSwitchChange = useCallback(
+        (checked, value) => {
+            if (value === 4) {
+                otherSettings['enable_doctor_experience'] = checked ? 1 : 0;
+            } else if (value === 5) {
+                otherSettings['enable_services'] = checked ? 1 : 0;
+            } else if (value === 6) {
+                otherSettings['enable_education_training'] = checked ? 1 : 0;
+            } else if (value === 7) {
+                otherSettings['enable_membership'] = checked ? 1 : 0;
+            } else if (value === 8) {
+                otherSettings['enable_reward_recognition'] = checked ? 1 : 0;
+            } else if (value === 9) {
+                otherSettings['enable_social_links'] = checked ? 1 : 0;
+            }
+            setOtherSettings((prev) => { return { ...prev } });
+        },
+        [otherSettings]
+    );
+
     return (
         <DoctorWebsiteSettingsContext.Provider value={contextApi}>
             <>
@@ -280,12 +300,12 @@ function DoctorWebsiteSetting() {
                                         <div className="d-flex align-items-center justify-content-between">
                                             <div className="d-flex align-items-center">
                                                 <div className="titleprint">Personal Details</div>
-                                                <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mendatory</div>
+                                                <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mandatory</div>
                                                 {personalDetails?.first_name
                                                     && personalDetails?.last_name
                                                     && personalDetails?.education
                                                     && (
-                                                        <img className="ms-2" src={mendatoryTick} alt="Mendatory" />
+                                                        <img className="ms-2" src={mandatoryTick} alt="Mandatory" />
                                                     )}
                                             </div>
                                             <i className="icon-right iconrotate180"></i>
@@ -298,11 +318,11 @@ function DoctorWebsiteSetting() {
                                         <div className="d-flex align-items-center justify-content-between">
                                             <div className="d-flex align-items-center">
                                                 <div className="titleprint">About Doctor</div>
-                                                <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mendatory</div>
+                                                <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mandatory</div>
                                                 {aboutDoctor?.years_experience
                                                     && aboutDoctor?.language?.length > 0
                                                     && (
-                                                        <img className="ms-2" src={mendatoryTick} alt="Mendatory" />
+                                                        <img className="ms-2" src={mandatoryTick} alt="Mandatory" />
                                                     )}
                                             </div>
                                             <i className="icon-right iconrotate180"></i>
@@ -315,7 +335,7 @@ function DoctorWebsiteSetting() {
                                         <div className="d-flex align-items-center justify-content-between">
                                             <div className="d-flex align-items-center">
                                                 <div className="titleprint">Clinic Profile</div>
-                                                <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mendatory</div>
+                                                <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mandatory</div>
                                                 {clinicProfile?.filter(el => !el.clinic_delete)?.length > 0
                                                     && clinicProfile?.filter(el => !el.clinic_delete)[0]?.name
                                                     && clinicProfile?.filter(el => !el.clinic_delete)[0]?.contact_no
@@ -324,7 +344,7 @@ function DoctorWebsiteSetting() {
                                                     && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.address_line
                                                     && clinicProfile?.filter(el => !el.clinic_delete)[0]?.shift?.length > 0
                                                     && (
-                                                        <img className="ms-2" src={mendatoryTick} alt="Mendatory" />
+                                                        <img className="ms-2" src={mandatoryTick} alt="Mandatory" />
                                                     )}
                                             </div>
                                             <i className="icon-right iconrotate180"></i>
@@ -429,6 +449,7 @@ function DoctorWebsiteSetting() {
                                             className="mt-2"
                                             checked={otherSettings?.enable_social_links ? true : false}
                                             onChange={(checked) => onSwitchChange(checked, 'enable_social_links')} />
+
                                     </div>
                                 </div>
                                 {isVisible &&
@@ -437,8 +458,48 @@ function DoctorWebsiteSetting() {
                                             <div onClick={showHide} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
                                                 <i className='icon-Cross'></i>
                                             </div>
-                                            <div className="titleprint">{selectedMenu ? selectedMenu?.name : ''}</div>
-                                            <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1 bg-white">Mendatory</div>
+                                            <div className="titleprint" style={{
+                                                flex: selectedMenu &&
+                                                    selectedMenu?.value !== 1 && selectedMenu?.value !== 2 && selectedMenu?.value !== 3 ? 1 : null
+                                            }}>{selectedMenu ? selectedMenu?.name : ''}</div>
+                                            {selectedMenu && (
+                                                (selectedMenu?.value === 1 || selectedMenu?.value === 2 || selectedMenu?.value === 3) ? (
+                                                    <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1 bg-white">Mandatory</div>
+                                                ) : (
+                                                    <div>
+                                                        <span className="fw-medium me-2 text-greycolor fs-16">
+                                                            {selectedMenu?.value === 4 ?
+                                                                otherSettings?.enable_doctor_experience ? 'Show' : ''
+                                                                : selectedMenu?.value === 5 ?
+                                                                    otherSettings?.enable_services ? 'Show' : ''
+                                                                    : selectedMenu?.value === 6 ?
+                                                                        otherSettings?.enable_education_training ? 'Show' : ''
+                                                                        : selectedMenu?.value === 7 ?
+                                                                            otherSettings?.enable_membership ? 'Show' : ''
+                                                                            : selectedMenu?.value === 8 ?
+                                                                                otherSettings?.enable_reward_recognition ? 'Show' : ''
+                                                                                : selectedMenu?.value === 9 ?
+                                                                                    otherSettings?.enable_social_links ? 'Show' : ''
+                                                                                    : ''}
+                                                        </span>
+                                                        <Switch
+                                                            checked={selectedMenu?.value === 4 ?
+                                                                otherSettings?.enable_doctor_experience ? true : false
+                                                                : selectedMenu?.value === 5 ?
+                                                                    otherSettings?.enable_services ? true : false
+                                                                    : selectedMenu?.value === 6 ?
+                                                                        otherSettings?.enable_education_training ? true : false
+                                                                        : selectedMenu?.value === 7 ?
+                                                                            otherSettings?.enable_membership ? true : false
+                                                                            : selectedMenu?.value === 8 ?
+                                                                                otherSettings?.enable_reward_recognition ? true : false
+                                                                                : selectedMenu?.value === 9 ?
+                                                                                    otherSettings?.enable_social_links ? true : false
+                                                                                    : false}
+                                                            onChange={(checked) => onInnerSwitchChange(checked, selectedMenu?.value)} />
+                                                    </div>
+                                                )
+                                            )}
                                         </div>
                                         {selectedMenu
                                             && selectedMenu?.value === 1 ? <DWPersonalDetails />
@@ -455,14 +516,15 @@ function DoctorWebsiteSetting() {
                             </div>
                         </Col>
                         <Col xl={16} sm={14}>
-                            <div className="mx-auto overflow-y-auto " style={{ width: isMobile ? 580 : '97%' }} >
+                            <div className="mx-auto overflow-y-auto">
                                 <div className="mt-20 d-flex align-items-center justify-content-between">
                                     <div className="titleprint">Preview</div>
-                                    <div> <img src={cloudSaved} alt="Saved" className="me-1" /> Saved</div>
+                                    {/* <div> <img src={cloudSaved} alt="Saved" className="me-1" />Saved</div> */}
                                 </div>
                                 <div className="rounded-20px bg-white mt-2 overflow-hidden">
-                                    <div className="printheight">
+                                    <div className="printheight" style={{ height: 'calc(100vh - 124px)' }}>
                                         <Homepage
+                                            scrollId={selectedMenu ? selectedMenu?.value : null}
                                             personalDetails={personalDetails}
                                             aboutDoctor={aboutDoctor}
                                             clinicProfile={clinicProfile}

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useContext, useRef } from 'react';
-import { Button, Collapse, Form, Input, Tabs, Row, Col, TimePicker } from 'antd';
+import { Button, Collapse, Form, Input, Tabs, Row, Col, TimePicker, Image } from 'antd';
 import moment from 'moment';
 import dayjs from "dayjs";
 
@@ -18,6 +18,8 @@ function DWClinicProfile() {
     const inputImageUrls = useRef([]);
 
     const { clinicProfile, setClinicProfile } = useContext(DoctorWebsiteSettingsContext);
+    const [imageIndex, setImageIndex] = useState(0);
+    const [visible, setVisible] = useState(false);
 
     const TabsPrintSetting = [
         {
@@ -164,7 +166,7 @@ function DWClinicProfile() {
                 <>
                     <div className='p-10 pt-3'>
                         <Form.Item
-                            label="Select multiple days for create the shift"
+                            label="Select multiple days to create the shift."
                             className='fw-medium mb-1'
                             required>
                             <div className='d-flex align-items-center justify-content-between'>
@@ -309,6 +311,10 @@ function DWClinicProfile() {
         }
     };
 
+    const showHide = useCallback(() => {
+        setVisible(!visible);
+    }, [visible]);
+
 
     const clinicItems = (e, i) => [
         {
@@ -384,7 +390,8 @@ function DWClinicProfile() {
                                     <Col span={24}>
                                         <Form.Item
                                             label="Address"
-                                            className='fw-medium mb-20'>
+                                            className='fw-medium mb-20'
+                                            required>
                                             <Input.TextArea placeholder="Address" rows={3} className="textareaPlaceholder text-capitalize rounded-10px"
                                                 value={e?.address?.address_line}
                                                 onChange={(el) => onChangeAddressInput(el, 'address_line', e)} />
@@ -414,14 +421,46 @@ function DWClinicProfile() {
                             ) : e?.selectedTab === TAB_PHOTOS && (
                                 <div className='px-10'>
                                     <div className='d-flex flex-wrap mb-3'>
-                                        {e?.clinic_photos && e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.map((item, index) => {
-                                            return (
-                                                <div key={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting-wrap'>
-                                                    <img src={item?.clinic_image_link} alt={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting img-fluid' />
-                                                    <img src={CloseWithWhiteFill} alt='Close' className='close-clinic-img' onClick={() => onDeleteImage(e, item)} />
-                                                </div>
-                                            )
-                                        })}
+                                        <Image.PreviewGroup
+                                            preview={{
+                                                visible,
+                                                closeIcon: null,
+                                                toolbarRender: () => null,
+                                                countRender: () => null,
+                                                imageRender: (originalNode, info) => (
+                                                    <div className='d-block'>
+                                                        <div className='d-flex align-items-center justify-content-between preview-header'>
+                                                            <div className='d-flex align-items-center'>
+                                                                <Button className='bg-transparent border-0 text-white mx-3 px-1' onClick={showHide}>
+                                                                    <i className='icon-right'></i>
+                                                                </Button>
+                                                                <div className='text-white fs-16 fw-medium'>Clinic Photos</div>
+                                                            </div>
+                                                            <div className='d-flex align-items-center'>
+                                                                <Button className='bg-transparent border-0 text-white px-1'
+                                                                    onClick={() => {
+                                                                        onDeleteImage(e, e?.clinic_photos?.filter(el => !el.clinic_image_delete)[info.current])
+                                                                        showHide()
+                                                                    }}>
+                                                                    <i className='icon-delete'></i>
+                                                                </Button>
+                                                                <Button onClick={showHide} className='btn btn-41 px-4 btn-primary3 mx-3'>Close</Button>
+                                                            </div>
+                                                        </div>
+
+                                                        <img src={originalNode.props.src} style={{ maxWidth: 600 }} />
+                                                    </div>
+                                                )
+                                            }}>
+                                            {e?.clinic_photos && e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.map((item, index) => {
+                                                return (
+                                                    <div key={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting-wrap'>
+                                                        <Image src={item?.clinic_image_link} alt={`${item.clinic_image_name + "-" + index}`} className='clinic-photo-setting img-fluid' onClick={showHide} />
+                                                        <img src={CloseWithWhiteFill} alt='Close' className='close-clinic-img' onClick={() => onDeleteImage(e, item)} />
+                                                    </div>
+                                                )
+                                            })}
+                                        </Image.PreviewGroup>
                                         <div className='clinic-photo-setting-wrap d-flex align-items-center justify-content-center border cursor-pointer' onClick={() => inputImageUrls.current[i]?.click()}>
                                             <input
                                                 key={i}
@@ -437,7 +476,7 @@ function DWClinicProfile() {
                                 </div>
                             )}
                         </Form>
-                    </div>
+                    </div >
                     <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3 align-items-center d-flex justify-content-center' onClick={() => onRemoveRow(e)}><i className='icon-delete fs-18 me-2'></i>Delete</Button>
                 </div >,
         },

@@ -110,7 +110,7 @@ function DWPersonalDetails() {
                             ref={inputImageUrl}
                             style={{ display: 'none' }}
                             type="file"
-                            accept="image/png"
+                            accept="image/png, image/jpeg, image/jpg"
                             onChange={handleImageChange} />
                         <div className="fw-medium text-decoration-underline cursor-pointer">{personalDetails?.hero_image_link ? 'Change' : 'Upload'} Image</div>
                         <div className="fs-12-1 fontroboto"> Only jpg, jpeg or png files with the max size 2mb.</div>

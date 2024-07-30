@@ -37,7 +37,7 @@ export const listLanguage = createAsyncThunk(
 
 export const saveDoctorWebsite = createAsyncThunk(
     "videoLibrary/saveDoctorWebsite",
-    async ({ data, onUploadProgress, cancelToken }) => {
+    async ({ data, onUploadProgress, onDownloadProgress, cancelToken }) => {
         const formData = new FormData();
         Object.keys(data).forEach((key) => {
             if (key.startsWith('clinicpic')) {
@@ -50,7 +50,7 @@ export const saveDoctorWebsite = createAsyncThunk(
         });
 
         try {
-            const result = await ApiVideoLibrary.saveDoctorWebsite(formData, onUploadProgress, cancelToken);
+            const result = await ApiVideoLibrary.saveDoctorWebsite(formData, onUploadProgress, onDownloadProgress, cancelToken);
             if (result.status) {
                 return result.data;
             } else {

@@ -95,7 +95,7 @@ function DWMembership() {
             dataIndex: 'title',
             key: 'title',
             render: (text, record, i) =>
-                <Input placeholder="12"
+                <Input placeholder="Memberships Name"
                     className="text-capitalize rounded-10px h-38"
                     value={text}
                     onChange={(e) => onChangeInput(e, 'title', i)} />

@@ -17,12 +17,13 @@ ApiVideoLibrary.listLanguage = function () {
   return api.get(`/api/v1/doctorwebsite/listLanguage`, baseUrl);
 };
 
-ApiVideoLibrary.saveDoctorWebsite = function (formData, onUploadProgress, cancelToken) {
+ApiVideoLibrary.saveDoctorWebsite = function (formData, onUploadProgress, onDownloadProgress, cancelToken) {
   return api.post(`/api/v1/doctorwebsite/saveDoctorWebsite`,
     formData,
     {
       ...baseUrl,
       onUploadProgress: onUploadProgress,
+      onDownloadProgress: onDownloadProgress,
       timeout: 300000,
       cancelToken: cancelToken,
     });
