@@ -175,15 +175,31 @@
     }
   }
 }
+.fixPastPregnancy {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  background-color: #fafafb;
+  box-shadow: 0px -1px 2px 0px #e2e2ea inset;
+}
 .pastPregnancyContainer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 20px 0px 20px 40px;
+
+  .pastPregnancyItem {
+    &.ant-form-item {
+      margin-bottom: 0px;
+    }
+  }
 
   .diagnosisNotesStyle {
     width: 50%;
     display: flex;
-    padding: 15px 40px 0px 0px;
+    padding-right: 40px;
     align-items: flex-start;
     justify-content: flex-end;
     column-gap: 14px;

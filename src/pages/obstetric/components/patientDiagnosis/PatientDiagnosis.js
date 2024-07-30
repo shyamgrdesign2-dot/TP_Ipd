@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 import "./PatientDiagnosis.scss";
-import { Col, Collapse, DatePicker, Drawer, Form, Input, Row } from "antd";
+import {
+  Col,
+  Collapse,
+  DatePicker,
+  Divider,
+  Drawer,
+  Form,
+  Input,
+  Row,
+} from "antd";
 import DiagnosisNotes from "../diagnosisNotes/DiagnosisNotes";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import ReadMore from "../../../../common/ReadMore";
@@ -26,6 +35,7 @@ export default function PatientDiagnosis({
   setPatientDiagnosisData,
   setPastPregnancyData,
   setPatientDiagnosisNotes,
+  isFixed,
 }) {
   const dispatch = useDispatch();
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
@@ -404,7 +414,10 @@ export default function PatientDiagnosis({
 
   return (
     <div>
-      <div className="patientDiagnosisContainer">
+      <div
+        className="patientDiagnosisContainer"
+        style={{ marginTop: isFixed ? "75px" : "0px" }}
+      >
         <Collapse
           defaultActiveKey={["0"]}
           className="prescriptiontab-accordian  patientDiagnosisAccordian"
@@ -415,12 +428,16 @@ export default function PatientDiagnosis({
           </Collapse.Panel>
         </Collapse>
       </div>
-      <div className="pastPregnancyContainer">
-        <Row gutter={30} style={{ padding: "26px 0px 0px 40px" }}>
+      <div
+        className={`pastPregnancyContainer ${
+          isFixed ? "fixPastPregnancy" : ""
+        }`}
+      >
+        <Row gutter={30}>
           {pastPregnancyData.map((item, index) => {
             return (
               <Col key={index}>
-                <Form.Item label={item.label} style={{ marginBottom: "10px" }}>
+                <Form.Item label={item.label} className="pastPregnancyItem">
                   <Input
                     value={item.value}
                     onChange={(e) =>
@@ -463,7 +480,14 @@ export default function PatientDiagnosis({
           </button>
         )}
       </div>
-      <hr />
+      <Divider
+        dashed
+        style={{
+          borderTop: "1px solid #EAECF0",
+          margin: "0px",
+          width: "100%",
+        }}
+      />
       {diagnosisNotesDrawer && (
         <Drawer
           closeIcon={false}

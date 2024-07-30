@@ -62,6 +62,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   const [showLmpPopup, setShowLmpPopup] = useState(!obstetricDetails?.lmp);
   const [examinationEditIndex, setExaminationEditIndex] = useState(-1);
   const [pastPregnancyEditIndex, setPastPregnancyEditIndex] = useState(-1);
+  const [isFixed, setIsFixed] = useState(false);
   const [activeTab, setActiveTab] = useState(
     obstetricDetails?.examinationHistory?.length
       ? "examination"
@@ -173,6 +174,15 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
     setShowDeletePopup((prev) => !prev);
   };
 
+  const handleScroll = (e) => {
+    const scrollTop = e.target.scrollTop;
+    if (scrollTop > 185) {
+      setIsFixed(true);
+    } else {
+      setIsFixed(false);
+    }
+  };
+
   const obstetricSaveBtnHandler = async () => {
     if (isPatientDiagnosisUpdated) {
       const pastPregnancy = pastPregnancyData.reduce((acc, item) => {
@@ -230,7 +240,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
         isObstetric={true}
       />
 
-      <div className="scrollableContainer">
+      <div className="scrollableContainer" onScroll={handleScroll}>
         <PatientDiagnosis
           lmpDate={lmpDate}
           patientDiagnosisData={patientDiagnosisData}
@@ -240,6 +250,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
           setPatientDiagnosisData={setPatientDiagnosisData}
           setPastPregnancyData={setPastPregnancyData}
           setPatientDiagnosisNotes={setPatientDiagnosisNotes}
+          isFixed={isFixed}
         />
 
         <Tabs
