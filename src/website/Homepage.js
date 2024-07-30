@@ -205,7 +205,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
   return (
     <div className="website-wrapper">
       {/* Header Section */}
-      <div class="container-fluid mt-14">
+      <div className="container-fluid mt-14">
         <div className={`website-section website-header ${showNavbar && "website-header-responsive"}`}>
           <nav className="navbar">
             <div className='d-flex align-items-center justify-content-between w-100'>
@@ -262,7 +262,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
 
         {/* Banner Section */}
         <div id='personalSection' ref={personalSectionRef} className="website-section website-banner">
-          <div class="container">
+          <div className="container">
             <Row className='row-80'>
               <Col sm={24} lg={12}>
                 <div className="hi text-welcome">Hi, I'm</div>
@@ -296,7 +296,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
 
         {/* About Section */}
         <div id='aboutSection' ref={aboutSectionRef} className="website-section website-about">
-          <div class="container">
+          <div className="container">
             <Row className='row-80 align-items-start'>
               <Col lg={{ order: 2, span: 12 }}>
                 <div className='bg-icon-common mb-20'>
@@ -331,7 +331,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                 </div>
                 {aboutDoctor?.about && (
                   <>
-                    <ReadMore class="title-common">
+                    <ReadMore className="title-common">
                       {aboutDoctor?.about}
                     </ReadMore>
                   </>
@@ -355,7 +355,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
             </div>
             <h3 className="doctor-name h1 web-h1 text-welcome mb-lg-5 mb-28">Clinic Address & Hours</h3>
           </div>
-          {/* <div class="container-lg p-0"> */}
+          {/* <div className="container-lg p-0"> */}
           <div className="slider-container">
             <Slider
               {...settings}
@@ -420,7 +420,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                       </Col>
                       <Col sm={24} lg={12}>
                         {e?.shift?.length > 0 && (
-                          <div class="me-lg-0 mx-auto timingshape">
+                          <div className="me-lg-0 mx-auto timingshape">
 
                             <div className='p-30'>
                               <div className='d-flex align-items-center justify-content-between'>
@@ -460,7 +460,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
       {/* Service Section */}
       {otherSettings?.enable_services ? (
         <div id='servicesSection' ref={servicesSectionRef} className="website-section mt-2 mt-lg-5">
-          <div class="container">
+          <div className="container">
             <div className='row-80'>
               <div className='text-center border bg-body p-lg-5 p-2' style={{ borderRadius: 40 }}>
                 <div className='bg-icon-common mx-auto mb-20'>
@@ -489,7 +489,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
       {/* Doctor Experience Section */}
       {doctorExperience?.length > 0 && otherSettings?.enable_doctor_experience ? (
         <div id='experienceSection' ref={experienceSectionRef} className="website-section website-clinic website-experience">
-          <div class="container">
+          <div className="container">
             <Row className='row-80 align-items-start'>
               <Col sm={24} lg={8}>
                 <div className='bg-icon-common mb-20'>
@@ -513,7 +513,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                         <div className='position-relative'>
                           <div className='border-shape-right'></div>
                           <div className='border-shape-bottom'></div>
-                          <div class="timingshape">
+                          <div className="timingshape">
                             <div className='h-100 d-flex flex-column justify-content-between p-30'>
                               {(!e?.title && !e?.hospital && !e?.city && (!e?.start_month || !e?.start_year) && (!e?.end_month || !e?.end_year)) && 'No details added'}
                               <div>
@@ -558,7 +558,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
       {/* Education & Training */}
       {educationTraining?.length > 0 && otherSettings?.enable_education_training ? (
         <div id='educationSection' ref={educationSectionRef} className="website-section website-clinic website-education">
-          <div class="container p-0">
+          <div className="container p-0">
             <div className='row-80'>
               <div className="slider-container">
                 <div className='clinic-box'>
@@ -577,7 +577,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                     className='clinic-slider'>
                     {educationTraining?.map((e, i) => {
                       return (
-                        <div class="timingshape">
+                        <div className="timingshape">
                           <div className='h-100 d-flex flex-column justify-content-between p-30'>
                             <div>
                               {!e?.title && !e?.degree && !e?.city && !e?.start_year && !e?.end_year ? (
@@ -620,7 +620,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
       {/* Memberships Section */}
       {otherSettings?.enable_membership ? (
         <div id='membershipSection' ref={membershipSectionRef} className="website-section website-membership">
-          <div class="container">
+          <div className="container">
             <Row className='row-80'>
               <Col lg={{ order: 2, span: 12 }}>
                 <div className='bg-icon-common mb-20'>
@@ -670,7 +670,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
       {/* Rewards & Recognitions Section */}
       {rewardRecognition?.length > 0 && otherSettings?.enable_reward_recognition ? (
         <div id='awardsSection' ref={awardsSectionRef} className="website-section website-clinic website-experience website-rewards">
-          <div class="container">
+          <div className="container">
             <div className='row-80 align-items-start'>
               <Row className='align-items-start'>
                 <Col sm={24} lg={16}>
@@ -697,7 +697,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                     <div key={i} className='position-relative'>
                       <div className='border-shape-right'></div>
                       <div className='border-shape-bottom'></div>
-                      <div class="timingshape">
+                      <div className="timingshape">
                         <div className='h-100 d-flex flex-column justify-content-between p-30'>
                           {(!e?.title && !e?.year) && 'No any rewards & recognitions added'}
                           <div className='titleprint mt-3'>{e?.title}</div>
@@ -717,7 +717,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
       <div className='outer-round-big'>
         {/* Profile and Social Media Links */}
         <div className="website-section mt-2 mt-lg-5">
-          <div class="container" id='socialSection' ref={socialSectionRef}>
+          <div className="container" id='socialSection' ref={socialSectionRef}>
             <div className='row-80 text-center'>
               <div className='bg-icon-common bg-icon-xl mx-auto mb-20'>
                 <img width={50.313} height={71.669} src={avatarDoctor} alt="Doctor Profile" />
@@ -759,7 +759,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
         </div>
 
         {/* Footer Section */}
-        <div class="container-fluid mb-3">
+        <div className="container-fluid mb-3">
           <div className="website-section website-clinic website-footer">
             <div className="slider-container">
               <div className='clinic-box p-4'>
@@ -784,7 +784,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
         <Row className='mt-4'>
           <Col sm={24} lg={16}>
             <Slider {...settingsAppointment} className='clinic-slider'>
-              <div class="timingshape">
+              <div className="timingshape">
                 <div className='h-100 d-flex flex-column justify-content-between appt-30'>
                   <div>
                     <div className='d-flex align-items-center'>
@@ -818,7 +818,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                 <div className='shape-education'></div>
                 <p className='mb-0 position-absolute slide-count slide-count-left' style={{ bottom: 33, zIndex: 99, right: 5 }}><span className='text-welcome'>0{currentSlide + 1} / </span> <span className='text-greycolor'> 0{slideData.length}</span></p>
               </div>
-              <div class="timingshape">
+              <div className="timingshape">
                 <div className='h-100 d-flex flex-column justify-content-between appt-30'>
                   <div>
                     <div className='d-flex align-items-center'>
