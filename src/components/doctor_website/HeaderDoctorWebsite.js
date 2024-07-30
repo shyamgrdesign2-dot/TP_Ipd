@@ -36,7 +36,7 @@ function HeaderDoctorWebsite() {
 
     const navigate = useNavigate();
 
-    const { tmdwm_id, personalDetails, clinicProfile, aboutDoctor, doctorExperience, services, educationTraining, membership, rewardRecognition, socialLinks, otherSettings } = useContext(DoctorWebsiteSettingsContext);
+    const { websiteData, tmdwm_id, personalDetails, clinicProfile, aboutDoctor, doctorExperience, services, educationTraining, membership, rewardRecognition, socialLinks, otherSettings } = useContext(DoctorWebsiteSettingsContext);
 
     const [loaderModal, setLoaderModal] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -244,8 +244,11 @@ function HeaderDoctorWebsite() {
                             </div>
 
                             <div className="d-flex align-items-center justify-content-center mt-4">
-                                <Button type="text" className="btn btn-primary3 align-items-center justify-content-center d-flex btn-41 w-50 ms-4"
-                                    icon={<i className="icon-right iconrotate180 ms-auto"></i>}>
+                                <Button
+                                    type="text"
+                                    className="btn btn-primary3 align-items-center justify-content-center d-flex btn-41 w-50 ms-4"
+                                    icon={<i className="icon-right iconrotate180 ms-auto"></i>}
+                                    onClick={() => navigate('/doctor_profile', { replace: true, state: { websiteData: { ...websiteData } } })}>
                                     Back to Profile
                                 </Button>
                             </div>
@@ -270,11 +273,13 @@ function HeaderDoctorWebsite() {
 
                                         <div className="d-flex align-items-center mt-4">
                                             <Button type="text" className="btn btn-primary2 align-items-center justify-content-center d-flex btn-41 w-50"
-                                                icon={<i className="icon-New-Window"></i>} >
+                                                icon={<i className="icon-New-Window"></i>}
+                                                onClick={() => window.open(publishUrl)}>
                                                 Live Preview
                                             </Button>
                                             <Button type="text" className="btn btn-primary3 align-items-center justify-content-center d-flex btn-41 w-50 ms-4"
-                                                icon={<i className="icon-right iconrotate180 ms-auto"></i>}>
+                                                icon={<i className="icon-right iconrotate180 ms-auto"></i>}
+                                                onClick={() => navigate('/doctor_profile', { replace: true, state: { websiteData: { ...websiteData } } })}>
                                                 Back to Profile
                                             </Button>
                                         </div>
@@ -395,8 +400,8 @@ function HeaderDoctorWebsite() {
                         </div>
                     </Container >
                 </Navbar>
-                <div className='w-100 px-3 py-2 fontroboto d-flex align-items-center' style={{backgroundColor: '#FFE8AE'}}>
-                <i className='icon-info fs-18 me-3'></i> This is a demonstration website with sample data to show how it will look once you fill it.
+                <div className='w-100 px-3 py-2 fontroboto d-flex align-items-center' style={{ backgroundColor: '#FFE8AE' }}>
+                    <i className='icon-info fs-18 me-3'></i> This is a demonstration website with sample data to show how it will look once you fill it.
                 </div>
                 <div className="overflow-auto" style={{ height: 'calc(100vh - 60px)' }}>
                     <DemoHomepage />

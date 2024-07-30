@@ -48,7 +48,7 @@ function DoctorWebsiteSetting() {
     const [isVisible, setIsVisible] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState(null);
 
-    const contextApi = { tmdwm_id, personalDetails, setPersonalDetails, clinicProfile, setClinicProfile, aboutDoctor, setAboutDoctor, doctorExperience, setDoctorExperience, rewardRecognition, setRewardRecognition, membership, setMembership, socialLinks, setSocialLinks, services, setServices, educationTraining, setEducationTraining, otherSettings, setOtherSettings };
+    const contextApi = { websiteData, tmdwm_id, personalDetails, setPersonalDetails, clinicProfile, setClinicProfile, aboutDoctor, setAboutDoctor, doctorExperience, setDoctorExperience, rewardRecognition, setRewardRecognition, membership, setMembership, socialLinks, setSocialLinks, services, setServices, educationTraining, setEducationTraining, otherSettings, setOtherSettings };
 
 
     useEffect(() => {
@@ -522,7 +522,7 @@ function DoctorWebsiteSetting() {
                                     {/* <div> <img src={cloudSaved} alt="Saved" className="me-1" />Saved</div> */}
                                 </div>
                                 <div className="rounded-20px bg-white mt-2 overflow-hidden">
-                                    <div className="printheight" style={{height: 'calc(100vh - 124px)'}}>
+                                    <div className="printheight" style={{ height: 'calc(100vh - 124px)' }}>
                                         <Homepage
                                             scrollId={selectedMenu ? selectedMenu?.value : null}
                                             personalDetails={personalDetails}
