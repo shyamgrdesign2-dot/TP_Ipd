@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { Flex, Progress, Button } from 'antd';
-import { makeDefaultLogo } from "../utils/utils";
+import { handleCopy, makeDefaultLogo } from "../utils/utils";
 import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
@@ -277,12 +277,12 @@ function DoctorProfile() {
                     </div>
                   ) : profile?.website_publish ? (
                     <div className="ms-3">
-                      <div className="title-common text-welcome">Website Status: <span className="badge bdg-primary" style={{backgroundColor: 'rgb(25, 187, 122, 0.1)'}}>Published</span></div>
-                      <div className="fs-14 d-flex align-items-center"><div className="text-truncate" style={{width: 400}}>{profile?.publish_url}</div> <button type="button" className="align-items-center btn d-flex"><img className="me-1" src={Link1} /> <span className="text-primary">Copy</span></button></div>
+                      <div className="title-common text-welcome">Website Status: <span className="badge bdg-primary" style={{ backgroundColor: 'rgb(25, 187, 122, 0.1)' }}>Published</span></div>
+                      <div className="fs-14 d-flex align-items-center"><div className="text-truncate" style={{ width: 400 }}>{profile?.publish_url}</div> <button type="button" className="align-items-center btn d-flex" onClick={() => handleCopy(profile?.publish_url)}><img className="me-1" src={Link1} /> <span className="text-primary">Copy</span></button></div>
                     </div>
                   ) : (
                     <div className="ms-3">
-                      <div className="title-common text-welcome">Website Status: <span className="badge bdg-danger" style={{backgroundColor: 'rgba(252, 90, 90, 0.1)', color: '#FC5A5A !important'}}>Unpublished</span></div>
+                      <div className="title-common text-welcome">Website Status: <span className="badge bdg-danger" style={{ backgroundColor: 'rgba(252, 90, 90, 0.1)', color: '#FC5A5A !important' }}>Unpublished</span></div>
                       <div className="fs-14">Your live website URL has been expired.</div>
                     </div>
                   )}

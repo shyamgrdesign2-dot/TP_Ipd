@@ -13,7 +13,7 @@ import LinkIcon from '../../assets/images/Link.svg';
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
 import { saveDoctorWebsite, publishDoctorWebsite } from "../../redux/doctorWebsiteSlice";
-import { errorMessage } from '../../utils/utils';
+import { errorMessage, handleCopy } from '../../utils/utils';
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 
@@ -267,7 +267,7 @@ function HeaderDoctorWebsite() {
                                             <label className='fw-medium mb-1'>Live website URL</label>
                                             <Space.Compact className='h-45' style={{ width: '100%' }}>
                                                 <Input className='fontroboto' defaultValue={publishUrl} />
-                                                <Button className='h-45 bg-selected border'><img className='me-2' src={LinkIcon} alt="Warning" /> Copy</Button>
+                                                <Button className='h-45 bg-selected border'><img className='me-2' src={LinkIcon} alt="Warning" onClick={() => handleCopy(publishUrl)} /> Copy</Button>
                                             </Space.Compact>
                                         </div>
 

@@ -162,6 +162,15 @@ export const errorMessage = async (error) => {
   }
 };
 
+export const handleCopy = async (url) => {
+  try {
+    await navigator.clipboard.writeText(url);
+    errorMessage('Copied')
+  } catch (err) {
+    console.error('Failed to copy:', err);
+  }
+};
+
 export const inputToLabel = (htmlString) => {
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = htmlString;
