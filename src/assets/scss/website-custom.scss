@@ -40,9 +40,9 @@ body .ant-btn.btn-48 {
 }
 .website-section {
     padding: 50px 0;
-    &:last-child {
-        padding-bottom: 0;
-    }
+    // &:last-child {
+    //     padding-bottom: 0;
+    // }
 }
 .m-wrap {
     margin: 24.88px;
@@ -445,6 +445,7 @@ body .ant-btn.btn-48 {
             &:before {
                 display: none;
             }
+            padding-bottom: 0;
         }
         position: relative;
         &:before {
@@ -834,7 +835,7 @@ body .ant-btn.btn-48 {
             .clinic-box {
                 padding: 0 50px 50px;
                 @media only screen and (max-width: 1100px)  {
-                    padding: 0 20px !important;
+                    padding: 0 20px 50px !important;
                 }
                 &:before {
                     content: inherit;
@@ -1039,7 +1040,7 @@ body .ant-btn.btn-48 {
             }
         }
         .slick-list {
-            height: 200px !important;
+            height: 235px !important;
         }
         .slide-count { 
             top: inherit;
