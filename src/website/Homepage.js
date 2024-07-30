@@ -652,7 +652,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                     })}
                   </Slider>
                   {educationTraining?.length > 3 && (
-                    <div className='py-5 mt-5'>
+                    <div className='pb-4 mt-5'>
                       <p className='slide-count slide-count-left'><span>{String(currentSlide + 1).padStart(2, "0")} - {String(educationTraining?.length).padStart(2, "0")}</span></p>
                     </div>
                   )}
