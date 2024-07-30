@@ -37,7 +37,7 @@ export const ExaminationColumns = [
   {
     title: "Liquor",
     key: "liquor",
-    width: "6%",
+    width: "7%",
   },
   {
     title: "Fetal Heart Rate",
@@ -47,7 +47,7 @@ export const ExaminationColumns = [
   {
     title: "Note",
     key: "note",
-    width: "21%",
+    width: "20%",
   },
   {
     title: "Action",
@@ -95,7 +95,7 @@ export const obstetricTabListColumns = [
   {
     title: "Liquor",
     key: "liquor",
-    siUnit: " cm",
+    siUnit: "",
   },
   {
     title: "FHR",
@@ -217,7 +217,7 @@ export const visitColumn = [
   {
     title: "Liquor",
     key: "liquor",
-    siUnit: " cm",
+    siUnit: "",
   },
   {
     title: "Fetal Heart Rate",
