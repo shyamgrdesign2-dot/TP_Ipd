@@ -7,6 +7,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 
 import defaultprofile from "../assets/images/default-profile.svg";
+import Link1 from "../assets/images/link1.svg";
 
 import ProfilePersonalDetailsView from "../components/doctor_profile/ProfilePersonalDetailsView";
 import ProfileClinicView from "../components/doctor_profile/ProfileClinicView";
@@ -261,21 +262,35 @@ function DoctorProfile() {
                 <div className="d-flex align-items-center web-progress-custom">
                   <Flex gap="small" wrap>
                     <Progress
-                      // className={`profile-website-setting mb-1 ${score > 91 ? 'profile-website-setting-green' : score > 41 && 'profile-website-setting-yellow'}`}
+                      className={`profile-progress-setting mb-1 ${score > 91 ? 'profile-progress-setting-green' : score > 41 && 'profile-progress-setting-yellow'}`}
+                      // className="profile-progress-setting"
                       type="circle"
                       size="small"
                       strokeColor={score > 91 ? '#19BB7A' : score > 41 ? '#FF9431' : '#FC5A5A'}
                       trailColor={score > 91 ? 'rgba(25, 187, 122, 0.2)' : score > 41 ? 'rgba(255, 148, 49, 0.2)' : 'rgba(252, 90, 90, 0.2)'}
                       percent={score.toFixed(0)} />
                   </Flex>
-                  <div className="ms-3">
-                    <div className="title-common text-welcome">Let's setup your website</div>
-                    <div className="fs-14">Start showcasing your sites by completing your details.</div>
-                  </div>
+                  {!profile?.publish_url ? (
+                    <div className="ms-3">
+                      <div className="title-common text-welcome">Let's setup your website</div>
+                      <div className="fs-14">Start showcasing your sites by completing your details.</div>
+                    </div>
+                  ) : profile?.website_publish ? (
+                    <div className="ms-3">
+                      <div className="title-common text-welcome">Website Status: <span className="badge bdg-primary" style={{backgroundColor: 'rgb(25, 187, 122, 0.1)'}}>Published</span></div>
+                      <div className="fs-14 d-flex align-items-center"><div className="text-truncate" style={{width: 400}}>{profile?.publish_url}</div> <button type="button" className="align-items-center btn d-flex"><img className="me-1" src={Link1} /> <span className="text-primary">Copy</span></button></div>
+                    </div>
+                  ) : (
+                    <div className="ms-3">
+                      <div className="title-common text-welcome">Website Status: <span className="badge bdg-danger" style={{backgroundColor: 'rgba(252, 90, 90, 0.1)', color: '#FC5A5A !important'}}>Unpublished</span></div>
+                      <div className="fs-14">Your live website URL has been expired.</div>
+                    </div>
+                  )}
+
                 </div>
                 <div>
                   <Button type="text" onClick={() => navigate('/doctor_website_setting', { state: { websiteData: { ...websiteData } } })} className="btn btn-input align-items-center d-flex btn-41 w-100" icon={<i className="icon-group fs-21" />}>
-                    Setup Website
+                    {`${profile?.website_publish && profile?.publish_url ? 'Edit' : 'Setup'} Website`}
                     <i className="icon-right iconrotate180 ms-4" />
                   </Button>
                 </div>

@@ -166,7 +166,7 @@ function DWClinicProfile() {
                 <>
                     <div className='p-10 pt-3'>
                         <Form.Item
-                            label="Select multiple days for create the shift"
+                            label="Select multiple days to create the shift."
                             className='fw-medium mb-1'
                             required>
                             <div className='d-flex align-items-center justify-content-between'>

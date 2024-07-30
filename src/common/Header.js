@@ -444,7 +444,7 @@ function Header({ locationPath }) {
     {
       label:
         <a onClick={() => setUpWebsiteUrl(2)}>
-          <div className="title-common me-5 d-flex align-items-center"><i className="icon-group me-3"></i>Setup My Website</div>
+          <div className="title-common me-5 d-flex align-items-center"><i className="icon-group me-3"></i>{`${profile?.website_publish && profile?.publish_url ? 'Visit' : 'Setup'} My Website`}</div>
           <i className="icon-right iconrotate180"></i>
         </a>,
       key: '3',
