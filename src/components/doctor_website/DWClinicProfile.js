@@ -425,23 +425,23 @@ function DWClinicProfile() {
                                                 countRender: () => null,
                                                 imageRender: (originalNode, info) => (
                                                     <div className='d-block'>
-                                                        <div className='d-flex align-items-center w-100 justify-content-between'>
+                                                        <div className='d-flex align-items-center justify-content-between preview-header'>
                                                             <div className='d-flex align-items-center'>
-                                                                <Button className='bg-transparent border-0 text-white me-4 px-1'>
-                                                                    <i className='icon-delete'></i>
+                                                                <Button className='bg-transparent border-0 text-white mx-3 px-1'>
+                                                                    <i className='icon-right'></i>
                                                                 </Button>
-                                                                <div className='text-white'>Clinic Photos</div>
+                                                                <div className='text-white fs-16 fw-medium'>Clinic Photos</div>
                                                             </div>
-                                                            <div>
-                                                                <Button className='bg-transparent border-0 text-white me-4 px-1'
+                                                            <div className='d-flex align-items-center'>
+                                                                <Button className='bg-transparent border-0 text-white px-1'
                                                                     onClick={() => onDeleteImage(e, e?.clinic_photos?.filter(el => !el.clinic_image_delete)[imageIndex])}>
                                                                     <i className='icon-delete'></i>
                                                                 </Button>
-                                                                <Button className='btn btn-41 px-4 btn-primary3'>Close</Button>
+                                                                <Button destroyOnClose={true} className='btn btn-41 px-4 btn-primary3 mx-3'>Close</Button>
                                                             </div>
                                                         </div>
 
-                                                        <img src={originalNode.props.src} style={{ width: 800 }} />
+                                                        <img src={originalNode.props.src} style={{ maxWidth: 600 }} />
                                                     </div>
                                                 )
                                             }}
