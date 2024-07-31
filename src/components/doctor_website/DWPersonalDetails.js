@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { Row, Col, Form, Input } from 'antd';
 
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
-import { errorMessage } from '../../utils/utils';
+import { errorMessage, removeWhiteSpace } from '../../utils/utils';
 
 function DWPersonalDetails() {
 
@@ -12,7 +12,11 @@ function DWPersonalDetails() {
 
     const onChangeInput = useCallback(
         (e, key) => {
-            personalDetails[key] = e.target.value;
+            if (key === 'email_id') {
+                personalDetails[key] = removeWhiteSpace(e.target.value);
+            } else {
+                personalDetails[key] = e.target.value;
+            }
             setPersonalDetails((prev) => { return { ...prev } });
         },
         [personalDetails]

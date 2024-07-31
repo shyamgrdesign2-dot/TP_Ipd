@@ -31,6 +31,10 @@ export const removeBeforeWhiteSpace = (text) => {
   return text.replace(/^[ ]+/g, "")
 };
 
+export const removeWhiteSpace = (text) => {
+  return text.replace(/[ ]+/g, "")
+};
+
 export const frequencyFormat = (str) => {
   return /^(?!-)[\d.\s-]+$/.test(str);
 };
