@@ -976,7 +976,7 @@ function MedicalHistoryBox(props) {
                             <div style={{marginTop: "-1rem"}}>
                                 <Row>
                                     <Col lg={12}>
-                                        <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(101vh - 110px)'}}>
+                                        <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 115px)'}}>
                                             <div className="border-bottom px-4 pt-3 pb-2">
                                                     <div className="d-flex align-items-center lmp-gynec">
                                                         <label className="pe-3">Last menstrual period :</label>
@@ -1411,7 +1411,7 @@ function MedicalHistoryBox(props) {
                         <div style={{marginTop: "-1rem"}}>
                             <Row>
                                 <Col lg={15}>
-                                    <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(101vh - 110px)' }}>
+                                    <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 115px)' }}>
                                         {cloneMedicalHistoryData.length > 0 ? (
                                             cloneMedicalHistoryData?.map((e, i) => {
                                                 return (
