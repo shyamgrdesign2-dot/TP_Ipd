@@ -85,7 +85,8 @@ function DWPersonalDetails() {
                     <Col span={24}>
                         <Form.Item
                             label="Email"
-                            className='fw-medium mb-20'>
+                            className='fw-medium mb-20'
+                            required>
                             <Input placeholder="Email"
                                 className="text-capitalize rounded-10px h-38"
                                 value={personalDetails?.email_id}
