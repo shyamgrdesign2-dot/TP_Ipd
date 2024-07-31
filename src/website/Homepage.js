@@ -339,12 +339,13 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                           {aboutDoctor?.language?.slice(0, 2).join(', ')}
                         </div>
                         <div>
-                          <Tooltip placement="top"
-
-                            title={aboutDoctor?.language.slice(2).join(' , ')}
-                            arrow={mergedArrow}>
-                            <div className="ms-2 text-primary px-2 py-1 rounded-5 fw-medium" style={{ backgroundColor: 'rgba(75, 74, 213, 0.10)' }}>{`${aboutDoctor?.language?.length - 2}+`}</div>
-                          </Tooltip>
+                          {aboutDoctor?.language?.length > 2 && (
+                            <Tooltip placement="top"
+                              title={aboutDoctor?.language.slice(2).join(' , ')}
+                              arrow={mergedArrow}>
+                              <div className="ms-2 text-primary px-2 py-1 rounded-5 fw-medium" style={{ backgroundColor: 'rgba(75, 74, 213, 0.10)' }}>{`${aboutDoctor?.language?.length - 2}+`}</div>
+                            </Tooltip>
+                          )}
                         </div>
                       </div>
                       <div>Languages</div>
