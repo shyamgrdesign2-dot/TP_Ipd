@@ -133,7 +133,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
     className: "center",
     centerMode: true,
     infinite: false,
-    centerPadding: "200px",
+    centerPadding: "50px",
     arrows: false,
     speed: 500,
     dots: true,
@@ -146,7 +146,6 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
         breakpoint: 1024,
         settings: {
           // centerMode: false,
-          centerPadding: "50px",
         }
       },
       {
