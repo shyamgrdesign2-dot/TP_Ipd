@@ -165,9 +165,9 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   };
 
   const continueExaminationHandler = () => {
-    if (obstetricDetails?.examinationHistory?.length)
-      setActiveTab("examination");
-    else handleExaminationDrawer();
+    setActiveTab("examination");
+    if (!obstetricDetails?.examinationHistory?.length)
+      handleExaminationDrawer();
   };
 
   const toggleDeletePopup = () => {
