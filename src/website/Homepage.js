@@ -734,7 +734,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
       ) : null}
       <div className='outer-round-big'>
         {/* Profile and Social Media Links */}
-        <div className="website-section mt-2 mt-lg-5">
+        <div className="website-section">
           <div className="container" id='socialSection' ref={socialSectionRef}>
             <div className='row-80 text-center'>
               <div className='bg-icon-common bg-icon-xl mx-auto mb-20'>
