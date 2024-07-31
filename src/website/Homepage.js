@@ -526,7 +526,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                   className='clinic-slider'>
                   {doctorExperience?.map((e, i) => {
                     return (
-                      <div>
+                      <div key={i}>
                         <div className='position-relative'>
                           <div className='border-shape-right'></div>
                           <div className='border-shape-bottom'></div>
@@ -594,7 +594,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                     className='clinic-slider'>
                     {educationTraining?.map((e, i) => {
                       return (
-                        <div className="timingshape">
+                        <div key={i} className="timingshape">
                           <div className='h-100 d-flex flex-column justify-content-between p-30'>
                             <div>
                               {!e?.title && !e?.degree && !e?.city && !e?.start_year && !e?.end_year ? (
