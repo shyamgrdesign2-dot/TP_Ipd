@@ -647,12 +647,12 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                 <Slider
                   {...commonSettings}
                   slidesToShow={membership?.length <= 2 ? membership?.length : 2}
-                  arrows={membership?.length >= 3 ? true : false}
+                  arrows={membership?.filter(el => el.title)?.length >= 3 ? true : false}
                   vertical={true}
                   verticalSwiping={true}
                   className='clinic-slider'>
                   <div> {!membership.length > 0 && 'No any memberships added'}</div>
-                  {membership?.map((e, i) => {
+                  {membership?.filter(el => el.title)?.map((e, i) => {
                     return (
                       <div key={i} className='d-flex align-items-center mb-3'>
                         {e.title && (
@@ -670,9 +670,9 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                     )
                   })}
                 </Slider>
-                {membership?.length > 2 && (
+                {membership?.filter(el => el.title)?.length > 2 && (
                   <div className='py-5 mt-5'>
-                    <p className='slide-count'><span>{String(currentSlide + 1).padStart(2, "0")} - {String(membership?.length).padStart(2, "0")}</span></p>
+                    <p className='slide-count'><span>{String(currentSlide + 1).padStart(2, "0")} - {String(membership?.filter(el => el.title)?.length).padStart(2, "0")}</span></p>
                   </div>
                 )}
               </Col>
