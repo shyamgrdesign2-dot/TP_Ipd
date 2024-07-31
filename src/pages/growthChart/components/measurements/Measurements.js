@@ -22,7 +22,7 @@ const showDateFormat = "DD MMM, YY";
 function Measurements(props) {
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
-
+  const { profile } = useSelector((state) => state.doctors);
   const {
     handleDrawerMeasurements,
     measurementsToEdit,
@@ -32,6 +32,7 @@ function Measurements(props) {
   } = props;
 
   const { patient_data } = useContext(CashManagerContext);
+  console.log({ patient_data });
   const [measurementsData, setMeasurementsData] = useState([
     {
       date: moment().format(dateFormat),
@@ -196,6 +197,11 @@ function Measurements(props) {
             )
           : await addGrowthChartParam(payload);
       if (addMeasurementsRes?.tcbc_id || addMeasurementsRes?.status === 204) {
+        window.Moengage.track_event("TP_Growth_Chart_updated", {
+          doctor_id: profile?.doctor_unique_id,
+          patient_number: patient_data?.pm_contact_no,
+          patient_id: patient_data?.patient_unique_id,
+        });
         dispatch(
           addMeasurements({ ...payload, tcbc_id: addMeasurementsRes?.tcbc_id })
         );

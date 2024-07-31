@@ -14,6 +14,7 @@ import {
   patientDiagnosisUpdated,
 } from "../../../../redux/obstetricSlice";
 import { isNumberCheck } from "../../utils/helper";
+import { getDecodedToken } from "../../../../utils/localStorage";
 
 const dateFormat = "YYYY-MM-DD";
 
@@ -35,6 +36,8 @@ function AddExamination({
   const { examinationHistory = [] } = obstetricDetails;
   const { state } = useLocation();
   const { patient_data } = state;
+  const { profile } = useSelector((state) => state.doctors);
+  console.log({ patient_data, profile });
 
   useEffect(() => {
     if (editIndex >= 0 && examinationHistory?.toReversed()?.[editIndex]) {
@@ -107,6 +110,12 @@ function AddExamination({
       patientId: patient_data.patient_unique_id,
       examinationHistory: newExaminationHistory,
     };
+    window.Moengage.track_event("TP_obs_examination_updated", {
+      doctor_id: profile?.doctor_unique_id,
+      clinic_name: getDecodedToken()?.result?.clinic_name,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+    });
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
     dispatch(obstetricDetailsUpdated());

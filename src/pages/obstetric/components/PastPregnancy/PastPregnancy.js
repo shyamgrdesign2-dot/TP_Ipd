@@ -29,6 +29,7 @@ function PastPregnancy({
   const { pregnancyHistory = [] } = obstetricDetails;
   const { state } = useLocation();
   const { patient_data } = state;
+  const {profile} = useSelector((state) => state.doctors);
 
   useEffect(() => {
     if (editIndex >= 0) {
@@ -92,6 +93,11 @@ function PastPregnancy({
       patientId: patient_data.patient_unique_id,
       pregnancyHistory: newPastPregnancy,
     };
+    window.Moengage.track_event("TP_Past_pregnancy_updated", {
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+    });
     dispatch(addObstetricDetails(payload));
     dispatch(obstetricDetailsUpdated());
     dispatch(patientDiagnosisUpdated());

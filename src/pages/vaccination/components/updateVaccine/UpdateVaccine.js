@@ -24,7 +24,7 @@ import {
   addDueVaccines,
   addGivenVaccines,
 } from "../../../../redux/vaccineSlice.js";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const UpdateVaccine = ({
   show,
@@ -38,6 +38,7 @@ const UpdateVaccine = ({
   setCardClicked,
   setLoading,
 }) => {
+  console.log({ patientDetails });
   const dispatch = useDispatch();
   const { TextArea } = Input;
   const [changeDate, setChangeDate] = useState(false);
@@ -64,6 +65,8 @@ const UpdateVaccine = ({
   const { state } = useLocation();
   const { patient_data } = state;
   const formRef = useRef(null);
+  const { profile } = useSelector((state) => state.doctors);
+  console.log({ profile });
 
   const handleFocus = (index, isFocused = false) => {
     setIsOpen((prev) => {
@@ -143,6 +146,11 @@ const UpdateVaccine = ({
       const result = updateVaccine(payload);
       const resultStatus = await result;
       if (resultStatus?.status === 201) {
+        window.Moengage.track_event("TP_vaccination_updated", {
+          doctor_id: profile?.doctor_unique_id,
+          patient_number: patientDetails?.vac_contact_no,
+          patient_id: patientDetails?.patient_unique_id,
+        });
         dispatch(addGivenVaccines({ payload, vaccine }));
       }
       return result;
@@ -202,6 +210,11 @@ const UpdateVaccine = ({
       const result = updateDueDate(payload);
       const resultStatus = await result;
       if (resultStatus?.status === 200) {
+        window.Moengage.track_event("TP_vaccination_updated", {
+          doctor_id: profile?.doctor_unique_id,
+          patient_number: patientDetails?.vac_contact_no,
+          patient_id: patientDetails?.patient_unique_id,
+        });
         dispatch(addDueVaccines({ payload, vaccine }));
       }
       return result;

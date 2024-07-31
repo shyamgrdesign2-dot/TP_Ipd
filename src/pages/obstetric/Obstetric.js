@@ -104,6 +104,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
 
   const pregnancyRef = useRef(null);
   const examinationRef = useRef(null);
+  const {profile} = useSelector((state) => state.doctors);
 
   useEffect(() => {
     if (examinationEditIndex >= 0) {
@@ -208,6 +209,11 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
         : await addObstetricData(payload);
       setLoader(false);
       if (obstetricResponse?.data) {
+        window.Moengage.track_event("TP_Obs_history_updated", {
+          doctor_id: profile?.doctor_unique_id,
+          patient_number: patient_data?.pm_contact_no,
+          patient_id: patient_data?.patient_unique_id,
+        });
         setShowSuccess(true);
         getAllObstetricDetails();
       } else {

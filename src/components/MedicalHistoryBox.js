@@ -915,6 +915,13 @@ function MedicalHistoryBox(props) {
             };
             try {
                 const response = await postGynecDetails(payload);
+                if(response?.data){
+                    window.Moengage.track_event("TP_Gynec_history_updated", {
+                        doctor_id: profile?.doctor_unique_id,
+                        patient_number: patient_data?.pm_contact_no,
+                        patient_id: patient_data?.patient_unique_id,
+                    })
+                }
             } catch (error) {
                 console.error('Error:', error);
                 errorMessage("Unable to create gynec history for you. please try again.")
@@ -929,6 +936,13 @@ function MedicalHistoryBox(props) {
             };
             try {
                 const response = await updateGynecDetails(patient_data.patient_unique_id, payload);
+                if(response?.data){
+                    window.Moengage.track_event("TP_Gynec_history_updated", {
+                        doctor_id: profile?.doctor_unique_id,
+                        patient_number: patient_data?.pm_contact_no,
+                        patient_id: patient_data?.patient_unique_id,
+                    })
+                }
             } catch (error) {
                 console.error('Error:', error);
                 errorMessage("Unable able to update gynecdetail for you. please try again.")

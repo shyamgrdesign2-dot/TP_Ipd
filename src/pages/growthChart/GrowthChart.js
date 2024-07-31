@@ -102,6 +102,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     OFC: new Array(6).fill(true),
     HeightVsWeight: new Array(6).fill(true),
   });
+  const { profile } = useSelector((state) => state.doctors);
 
   useEffect(() => {
     if (patients_details) {
@@ -121,6 +122,12 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   });
 
   const handlePrint = () => {
+    window.Moengage.track_event("TP_Growth_Chart_Print", {
+      print_type: isTableprint ? "Table" : "Graph",
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+    });
     setDisplay("block");
     setTimeout(() => {
       handlePrintClick(
