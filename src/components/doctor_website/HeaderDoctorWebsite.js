@@ -47,6 +47,7 @@ function HeaderDoctorWebsite() {
 
 
     async function onSaveWebsiteClick() {
+        setPublishUrl(null)
         setProgress(0);
         setUnpublishStatus(false)
         setLoaderModal(true)
@@ -267,7 +268,7 @@ function HeaderDoctorWebsite() {
                                             <label className='fw-medium mb-1'>Live website URL</label>
                                             <Space.Compact className='h-45' style={{ width: '100%' }}>
                                                 <Input className='fontroboto' defaultValue={publishUrl} />
-                                                <Button className='h-45 bg-selected border'><img className='me-2' src={LinkIcon} alt="Warning" onClick={() => handleCopy(publishUrl)} /> Copy</Button>
+                                                <Button onClick={() => handleCopy(publishUrl)} className='h-45 bg-selected border'><img className='me-2' src={LinkIcon} alt="Warning" /> Copy</Button>
                                             </Space.Compact>
                                         </div>
 
