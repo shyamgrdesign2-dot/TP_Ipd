@@ -2,6 +2,8 @@ import React, { useState, useCallback, useContext, useRef } from 'react';
 import { Button, Collapse, Form, Input, Tabs, Row, Col, TimePicker, Image } from 'antd';
 import moment from 'moment';
 import dayjs from "dayjs";
+import { useDispatch } from "react-redux";
+import { searchPincode } from "../../redux/appointmentsSlice";
 
 import CloseWithWhiteFill from "../../../src/assets/images/close-with-white-fill.svg";
 import AddPhotos from "../../../src/assets/images/add-photos.svg";
@@ -14,6 +16,8 @@ const dateFormat = 'HH:mm:ss'
 const showDateFormat = 'h:mm A'
 
 function DWClinicProfile() {
+
+    const dispatch = useDispatch();
 
     const inputImageUrls = useRef([]);
 
@@ -66,6 +70,19 @@ function DWClinicProfile() {
             if (index !== -1) {
                 clinicProfile[index]['address'][key] = el.target.value;
                 setClinicProfile((prev) => { return [...prev] });
+                if (key === 'pincode') {
+                    setTimeout(() => {
+                        const fetchPincode = async (pincode) => {
+                            const action = await dispatch(searchPincode(pincode));
+                            if (action.meta.requestStatus === "fulfilled") {
+                                clinicProfile[index]['address']['city'] = action.payload.city;
+                                clinicProfile[index]['address']['state'] = action.payload.state;
+                                setClinicProfile((prev) => { return [...prev] });
+                            }
+                        }
+                        el.target.value?.length === 6 && fetchPincode(el.target.value)
+                    }, 500);
+                }
             }
         },
         [clinicProfile]
@@ -416,7 +433,7 @@ function DWClinicProfile() {
                                             </div>
                                         )
                                     })}
-                                    <button className='mt-2 btn btn-delete-experience text-primary' onClick={() => addShiftClick(e)}><i className='icon-Add fs-18 me-2'></i>Add More Shifts</button>
+                                    <button className='mb-2 btn btn-delete-experience btn-delete-experience1 text-primary' onClick={() => addShiftClick(e)}><i className='icon-Add fs-18 me-2'></i>Add More Shifts</button>
                                 </>
                             ) : e?.selectedTab === TAB_PHOTOS && (
                                 <div className='px-10'>
@@ -477,7 +494,7 @@ function DWClinicProfile() {
                             )}
                         </Form>
                     </div >
-                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3 align-items-center d-flex justify-content-center' onClick={() => onRemoveRow(e)}><i className='icon-delete fs-18 me-2'></i>Delete</Button>
+                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 align-items-center d-flex justify-content-center' onClick={() => onRemoveRow(e)}><i className='icon-delete fs-18 me-2'></i>Delete</Button>
                 </div >,
         },
     ];
