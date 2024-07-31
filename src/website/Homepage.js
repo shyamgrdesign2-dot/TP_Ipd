@@ -746,7 +746,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                 Book Appointment
               </Button>
               <hr className='mx-auto' style={{ width: 200 }} />
-              {personalDetails?.email_id && (
+              {personalDetails?.email_id && validateEmail(personalDetails?.email_id) && (
                 <div className='border rounded-4 d-flex align-items-center mx-auto d-inline-flex mt-5 pe-3 py-2' style={{ borderRadius: 25 }}>
                   <div className='bg-icon-common bg-icon-sm2 mx-2'><img width={22} height={22} src={Mail} alt="Email" /></div>
                   <a href={`mailto:${personalDetails?.email_id}`} className='text-main'>{personalDetails?.email_id}</a>
