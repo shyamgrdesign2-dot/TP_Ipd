@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { ExaminationColumns } from "../../utils/constants";
 import ReadMore from "../../../../common/ReadMore";
 
-const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
+const Examination = ({ handleExaminationDrawer, setEditIndex, bottomRef }) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { examinationHistory } = obstetricDetails;
 
@@ -43,7 +43,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
         heightOfFundus,
         heightOfFundusUnit,
         presentation = "-",
-        fluidIndex = "-",
+        liquor,
         foetalHeartRate,
         notes = "-",
       } = item;
@@ -73,7 +73,7 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
               : "-"}
           </td>
           <td className="obstetricTcell">{presentation}</td>
-          <td className="obstetricTcell">{fluidIndex}</td>
+          <td className="obstetricTcell">{liquor || "-"}</td>
           <td className="obstetricTcell">
             {foetalHeartRate ? foetalHeartRate + " BPM" : "-"}
           </td>
@@ -96,16 +96,25 @@ const Examination = ({ handleExaminationDrawer, setEditIndex }) => {
       {examinationHistory?.length ? (
         <>
           <div className="examinationTableViewContainer">
-            <table className="tableView" style={{ tableLayout: "fixed" }}>
-              <thead>{renderTableHeader()}</thead>
-              <tbody>{renderTableData()}</tbody>
-            </table>
+            <div className="tableWrappwer">
+              <table
+                className="tableView"
+                style={{
+                  tableLayout: "fixed",
+                  overflow: "hidden",
+                }}
+              >
+                <thead>{renderTableHeader()}</thead>
+                <tbody>{renderTableData()}</tbody>
+              </table>
+            </div>
           </div>
           <div className="anotherVisit">
             <Button
               type="button"
               className="btn-41 btn ant-btn-text btn-input anotherVisitBtn"
               onClick={handleExaminationDrawer}
+              ref={bottomRef}
             >
               <i className="icon-Add" />
               <span>Add another visit</span>

@@ -1,38 +1,44 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Button, Card, DatePicker, Input, Tooltip, Select, Radio } from "antd";
-import { errorMessage } from "../../../../utils/utils";
 import dayjs from "dayjs";
 import moment from "moment";
-import SuccessPopup from "../../../growthChart/components/SuccessPopup";
 import "./addExamination.scss";
 import { EllipsisOutlined, DeleteOutlined } from "@ant-design/icons";
-import { addObstetricData, updateObstetricData } from "../../service";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { obstetricDetailsUpdated } from "../../../../redux/obstetricSlice";
+import {
+  addObstetricDetails,
+  obstetricDetailsUpdated,
+  patientDiagnosisUpdated,
+} from "../../../../redux/obstetricSlice";
 import { isNumberCheck } from "../../utils/helper";
 
 const dateFormat = "YYYY-MM-DD";
 
-function AddExamination({ close, editIndex, getAllObstetricDetails }) {
+function AddExamination({
+  close,
+  editIndex,
+  handleCollapsed,
+  toggleDeletePopup,
+  isDataAddedOrEdited,
+  setIsDataAddedOrEdited,
+}) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
   const [examinationData, setExaminationData] = useState({
     date: moment().format(dateFormat),
     heightOfFundusUnit: "weeks",
   });
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [loader, setLoader] = useState(false);
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { examinationHistory = [] } = obstetricDetails;
   const { state } = useLocation();
   const { patient_data } = state;
 
   useEffect(() => {
-    if (editIndex >= 0) {
-      setExaminationData({ ...examinationHistory[editIndex] });
+    if (editIndex >= 0 && examinationHistory?.toReversed()?.[editIndex]) {
+      setExaminationData({ ...examinationHistory?.toReversed()?.[editIndex] });
     }
   }, [editIndex]);
 
@@ -54,6 +60,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
       };
       return newData;
     });
+    setIsDataAddedOrEdited(true);
   };
 
   const disabledDate = (current) => {
@@ -70,7 +77,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
         console.log(e);
       }
     }
-    let newExaminationHistory = [...examinationHistory] || [];
+    let newExaminationHistory = [...examinationHistory].toReversed() || [];
     const data = {};
     Object.keys(examinationData).forEach((key) => {
       if (![undefined, null, ""].includes(examinationData[key])) {
@@ -96,79 +103,33 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
       ];
     }
     const payload = {
+      ...obstetricDetails,
       patientId: patient_data.patient_unique_id,
-      ...(examinationHistory?.length > 0
-        ? {
-            modifiedAt: new Date().toISOString(),
-            modifiedBy: decodedToken?.result?.user_id,
-          }
-        : obstetricDetails),
       examinationHistory: newExaminationHistory,
-      createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
-      createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
-      modifiedAt: examinationHistory?.length
-        ? new Date().toISOString()
-        : obstetricDetails?.modifiedAt || new Date().toISOString(),
-      modifiedBy: examinationHistory?.length
-        ? decodedToken?.result?.user_id
-        : obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
     };
-    setLoader(true);
-    const addExaminationRes = obstetricDetails?._id
-      ? await updateObstetricData(obstetricDetails?.patientId, payload)
-      : await addObstetricData(payload);
-    setLoader(false);
-    if (addExaminationRes?.data) {
-      dispatch(obstetricDetailsUpdated());
-      getAllObstetricDetails();
-      setShowSuccess(true);
-      setTimeout(() => {
-        close();
-      }, 1000);
-    } else {
-      errorMessage(addExaminationRes?.message || "Error while adding data");
-    }
+    dispatch(addObstetricDetails(payload));
+    dispatch(patientDiagnosisUpdated());
+    dispatch(obstetricDetailsUpdated());
+    setIsDataAddedOrEdited(false);
+    close();
+    handleCollapsed && handleCollapsed();
   };
 
   const deleteExaminationData = async () => {
-    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-    let decodedToken;
-    if (token) {
-      try {
-        decodedToken = jwtDecode(token);
-      } catch (e) {
-        console.log(e);
-      }
-    }
-    let newExaminationHistory = [...examinationHistory];
+    let newExaminationHistory = [...examinationHistory].toReversed();
     if (editIndex >= 0) {
       newExaminationHistory.splice(editIndex, 1);
     }
     const payload = {
+      ...obstetricDetails,
       patientId: patient_data.patient_unique_id,
       examinationHistory: newExaminationHistory,
-      createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
-      createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
-      modifiedAt: examinationHistory?.length
-        ? new Date().toISOString()
-        : obstetricDetails?.modifiedAt || new Date().toISOString(),
-      modifiedBy: examinationHistory?.length
-        ? decodedToken?.result?.user_id
-        : obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
     };
-    const deleteExaminationRes = await updateObstetricData(
-      obstetricDetails?.patientId,
-      payload
-    );
-    if (deleteExaminationRes?.data) {
-      getAllObstetricDetails();
-      setShowSuccess(true);
-      setTimeout(() => {
-        close();
-      }, 1000);
-    } else {
-      errorMessage(deleteExaminationRes?.message || "Error while adding data");
-    }
+    dispatch(addObstetricDetails(payload));
+    dispatch(patientDiagnosisUpdated());
+    dispatch(obstetricDetailsUpdated());
+    setIsDataAddedOrEdited(false);
+    close();
   };
 
   function calculate(H, W) {
@@ -199,7 +160,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
     return (
       <div className="examination-wrap-body examination-child-width">
         <div className="examination-head rounded-start-0 w-100">
-          Visit
+          Visit {editIndex >= 0 && editIndex + 1}
           {editIndex >= 0 && (
             <div>
               <Tooltip
@@ -225,7 +186,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
           <DatePicker
             key={"date"}
             onChange={(date) => {
-              const formattedDate = date.format("YYYY-MM-DD");
+              const formattedDate = date?.format("YYYY-MM-DD");
               handleExaminationDataChange("date", formattedDate);
             }}
             disabledDate={disabledDate}
@@ -233,8 +194,10 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
               examinationData.date ? dayjs(moment(examinationData.date)) : ""
             }
             style={{ width: "170px", height: "41px" }}
-            allowClear={false}
-            format={"DD MMM YYYY"}
+            format={{
+              format: "DD-MM-YYYY",
+              type: "mask",
+            }}
           />
         </div>
         <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5 w-100">
@@ -299,7 +262,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             placeholder="Enter"
             inputMode="numeric"
             value={examinationData.mothersHeight || ""}
-            addonAfter={"Cms"}
+            addonAfter={"Cm"}
             onChange={(e) => {
               isNumberCheck(e) &&
                 handleExaminationDataChange("mothersHeight", e.target.value);
@@ -376,10 +339,10 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
               className="radio-button first-radio-button"
               value="cm"
             >
-              cms
+              Cm
             </Radio.Button>
             <Radio.Button className="radio-button" value="weeks">
-              weeks
+              Weeks
             </Radio.Button>
           </Radio.Group>
         </div>
@@ -403,16 +366,18 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
           />
         </div>
         <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5 w-100">
-          <Input
-            className="inputheight41-group"
-            placeholder="Enter"
-            inputMode="numeric"
-            value={examinationData.fluidIndex}
-            addonAfter={"Cms"}
-            onChange={(e) =>
-              isNumberCheck(e) &&
-              handleExaminationDataChange("fluidIndex", e.target.value)
-            }
+          <Select
+            style={{ width: 170, height: 40 }}
+            onChange={(value) => handleExaminationDataChange("liquor", value)}
+            options={[
+              { value: "Normal", label: "Normal" },
+              { value: "Less", label: "Less" },
+              { value: "More", label: "More" },
+            ]}
+            placeholder="Select"
+            className="custom-select"
+            value={examinationData.liquor}
+            allowClear
           />
         </div>
         <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5 w-100">
@@ -420,7 +385,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
             className="inputheight41-group"
             placeholder="Enter"
             inputMode="numeric"
-            value={examinationData.foetalHeartRate}
+            value={examinationData.foetalHeartRate || ""}
             addonAfter={"Bpm"}
             onChange={(e) =>
               isNumberCheck(e) &&
@@ -432,15 +397,46 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
     );
   }, [examinationData]);
 
+  const specificKeysFilled = () => {
+    return (
+      !examinationData.date ||
+      (!examinationData.foetalHeartRate &&
+        !examinationData.mothersHeight &&
+        !examinationData.mothersWeight &&
+        !examinationData.notes &&
+        examinationData.oedema === undefined &&
+        examinationData.pallor === undefined &&
+        !examinationData.systolic &&
+        !examinationData.diastolic &&
+        !examinationData.heightOfFundus &&
+        !examinationData.presentation &&
+        !examinationData.liquor)
+    );
+  };
+  const closeBtnHandler = () => {
+    if (isDataAddedOrEdited) {
+      toggleDeletePopup();
+    } else {
+      close();
+    }
+  };
+
   return (
     <>
       <Card bordered={false} className="search-modalCard">
-        <div className="modalCard-header h-60 align-items-center justify-content-between d-flex">
+        <div
+          className="modalCard-header h-60 align-items-center justify-content-between d-flex"
+          style={{
+            position: "sticky",
+            top: "0px",
+            zIndex: 2,
+          }}
+        >
           <div className="align-items-center d-flex">
             <Button
               type="text"
               className="btn btn-delete-prescription px-3 focus-none h-100"
-              onClick={close}
+              onClick={closeBtnHandler}
             >
               <i className="icon-Cross fs-3"></i>
             </Button>
@@ -449,8 +445,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
           <Button
             onClick={addExaminationData}
             className="btn btn-primary3 btn-41 px-4 me-20"
-            loading={loader}
-            disabled={loader}
+            disabled={specificKeysFilled()}
           >
             Done
           </Button>
@@ -497,7 +492,7 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
                 Presentation
               </div>
               <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5">
-                Amniotic fluid index
+                Liquor
               </div>
               <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5">
                 Fetal heart rate
@@ -524,7 +519,6 @@ function AddExamination({ close, editIndex, getAllObstetricDetails }) {
           </div>
         </div>
       </Card>
-      <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
     </>
   );
 }

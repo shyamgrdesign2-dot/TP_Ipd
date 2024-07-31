@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 import "./PatientDiagnosis.scss";
-import { Col, Collapse, DatePicker, Drawer, Form, Input, Row } from "antd";
+import {
+  Col,
+  Collapse,
+  DatePicker,
+  Divider,
+  Drawer,
+  Form,
+  Input,
+  Row,
+} from "antd";
 import DiagnosisNotes from "../diagnosisNotes/DiagnosisNotes";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import ReadMore from "../../../../common/ReadMore";
@@ -26,6 +35,7 @@ export default function PatientDiagnosis({
   setPatientDiagnosisData,
   setPastPregnancyData,
   setPatientDiagnosisNotes,
+  isFixed,
 }) {
   const dispatch = useDispatch();
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
@@ -33,19 +43,26 @@ export default function PatientDiagnosis({
 
   useEffect(() => {
     if (lmpDate) {
+      const today = moment();
+      const lmp = moment(lmpDate);
+      const gestationInWeeks = today.diff(lmp, "weeks");
+      const tempDate = lmp.clone().add(gestationInWeeks, "weeks");
+      const gestationInDays = today.diff(tempDate, "days");
       /**
        * EDD Formula: LMP date + 1 year - 3 months + 7 days
        */
       setPatientDiagnosisData((prevState) => ({
         ...prevState,
-        lmp: dayjs(lmpDate, "DD-MM-YYYY"),
-        edd: moment(lmpDate, "DD-MM-YYYY")
+        lmp: lmpDate,
+        edd: moment(lmpDate)
           .clone()
           .add(1, "year")
           .subtract(3, "months")
           .add(7, "days")
           .toDate()
           .toISOString(),
+        gestationWeeks: gestationInWeeks,
+        gestationDays: gestationInDays,
       }));
       dispatch(patientDiagnosisUpdated());
       dispatch(obstetricDetailsUpdated());
@@ -70,7 +87,7 @@ export default function PatientDiagnosis({
   const handleInputChange = (index, newValue, isValid) => {
     if (isValid) {
       const updatedData = [...pastPregnancyData];
-      updatedData[index].value = newValue;
+      updatedData[index].value = newValue !== "" ? newValue : null;
       setPastPregnancyData(updatedData);
       dispatch(patientDiagnosisUpdated());
       dispatch(obstetricDetailsUpdated());
@@ -97,23 +114,32 @@ export default function PatientDiagnosis({
               className="datePickerStyle"
               placeholder="Select Date"
               dropdownClassName="addDOB-picker-dropdown lmpStyle"
-              format="DD MMM YYYY"
-              value={patientDiagnosisData.lmp}
-              onChange={(_, d) => {
-                handlePatientDiagnosis(
-                  dayjs(moment(d).format("DD-MM-YYYY"), "DD-MM-YYYY"),
-                  "lmp"
-                );
-                setLmpDate(dayjs(d).format("DD-MM-YYYY"));
+              format={{
+                format: "DD-MM-YYYY",
+                type: "mask",
+              }}
+              value={
+                patientDiagnosisData.lmp
+                  ? dayjs(patientDiagnosisData.lmp)
+                  : null
+              }
+              onChange={(_, dateString) => {
+                if (dateString) {
+                  handlePatientDiagnosis(
+                    dayjs(dateString, "DD-MM-YYYY").toISOString(),
+                    "lmp"
+                  );
+                  setLmpDate(dayjs(dateString, "DD-MM-YYYY").toISOString());
+                }
               }}
               style={{
                 height: "34px",
+                width: "75%",
                 border: "none",
                 borderTopRightRadius: "10px",
                 borderBottomRightRadius: "10px",
-                padding: "0 10px 0 10px",
+                padding: "0 4px 0 4px",
               }}
-              allowClear={false}
               disabledDate={(current) => current && current > dayjs()}
             />
           </div>
@@ -124,7 +150,7 @@ export default function PatientDiagnosis({
             E.D.D :{" "}
             <span className="spanStyle" style={{ marginLeft: "8px" }}>
               {patientDiagnosisData.edd
-                ? moment(patientDiagnosisData.edd).format("DD MMM YYYY")
+                ? moment(patientDiagnosisData.edd).format("DD-MM-YYYY")
                 : ""}
             </span>
           </div>
@@ -134,23 +160,34 @@ export default function PatientDiagnosis({
               placeholder="Select Date"
               className="datePickerStyle"
               dropdownClassName="addDOB-picker-dropdown ceddStyle"
-              format="DD MMM YYYY"
-              value={patientDiagnosisData.ceed}
-              onChange={(_, d) => {
-                handlePatientDiagnosis(
-                  dayjs(moment(d).format("DD-MM-YYYY"), "DD-MM-YYYY"),
-                  "ceed"
-                );
+              format={{
+                format: "DD-MM-YYYY",
+                type: "mask",
+              }}
+              value={
+                patientDiagnosisData.ceed
+                  ? dayjs(patientDiagnosisData.ceed)
+                  : null
+              }
+              onChange={(_, dateString) => {
+                if (dateString) {
+                  handlePatientDiagnosis(
+                    dayjs(dateString, "DD-MM-YYYY").toISOString(),
+                    "ceed"
+                  );
+                }
               }}
               style={{
                 height: "34px",
+                width: "68%",
                 border: "none",
                 borderTopRightRadius: "10px",
                 borderBottomRightRadius: "10px",
-                padding: "0 10px 0 10px",
+                padding: "0 6px 0 6px",
               }}
-              allowClear={false}
-              disabledDate={(current) => current <= patientDiagnosisData.lmp}
+              disabledDate={(current) =>
+                current <= dayjs(patientDiagnosisData.lmp)
+              }
             />
           </div>
           <div className="history-badge">
@@ -159,12 +196,13 @@ export default function PatientDiagnosis({
               className="timeIntervalValue"
               style={{ marginLeft: "10px" }}
               placeholder="Ex : 3"
-              inputMode="numeric"
-              pattern="[0-9]*"
               value={patientDiagnosisData.gestationWeeks}
+              onInput={(e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, "");
+              }}
               onChange={(e) =>
                 handlePatientDiagnosis(
-                  e.target.value,
+                  e.target.value || null,
                   "gestationWeeks",
                   e.target.validity.valid && e.target.value <= 50
                 )
@@ -179,11 +217,13 @@ export default function PatientDiagnosis({
             <Input
               className="timeIntervalValue"
               placeholder="Ex : 2"
-              pattern="[0-9]*"
               value={patientDiagnosisData.gestationDays}
+              onInput={(e) => {
+                e.target.value = e.target.value.replace(/[^0-6]/g, "");
+              }}
               onChange={(e) =>
                 handlePatientDiagnosis(
-                  e.target.value,
+                  e.target.value || null,
                   "gestationDays",
                   e.target.validity.valid && e.target.value <= 6
                 )
@@ -204,13 +244,7 @@ export default function PatientDiagnosis({
             <DropdownButton
               className="diagnosisSelect bloodGroup"
               title={
-                <div
-                  style={{
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    display: "flex",
-                  }}
-                >
+                <div className="bloodGroupText">
                   {patientDiagnosisData.blood || "Select"}
                   <i className="icon-right iconStyle" />
                 </div>
@@ -299,11 +333,13 @@ export default function PatientDiagnosis({
               className="timeIntervalValue"
               style={{ marginLeft: "10px" }}
               placeholder="Ex : 3"
-              pattern="[0-9]*"
               value={patientDiagnosisData.marriageDurationYears}
+              onInput={(e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, "");
+              }}
               onChange={(e) =>
                 handlePatientDiagnosis(
-                  e.target.value,
+                  e.target.value || null,
                   "marriageDurationYears",
                   e.target.validity.valid && e.target.value <= 100
                 )
@@ -313,11 +349,13 @@ export default function PatientDiagnosis({
             <Input
               className="timeIntervalValue"
               placeholder="Ex : 2"
-              pattern="[0-9]*"
               value={patientDiagnosisData.marriageDurationMonths}
+              onInput={(e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, "");
+              }}
               onChange={(e) =>
                 handlePatientDiagnosis(
-                  e.target.value,
+                  e.target.value || null,
                   "marriageDurationMonths",
                   e.target.validity.valid && e.target.value <= 11
                 )
@@ -343,6 +381,7 @@ export default function PatientDiagnosis({
                     fontSize: "14px",
                     fontWeight: "500",
                     display: "flex",
+                    width: "70px",
                   }}
                 >
                   {typeof patientDiagnosisData.consang === "boolean"
@@ -375,7 +414,10 @@ export default function PatientDiagnosis({
 
   return (
     <div>
-      <div className="patientDiagnosisContainer">
+      <div
+        className="patientDiagnosisContainer"
+        style={{ marginTop: isFixed ? "75px" : "0px" }}
+      >
         <Collapse
           defaultActiveKey={["0"]}
           className="prescriptiontab-accordian  patientDiagnosisAccordian"
@@ -386,12 +428,16 @@ export default function PatientDiagnosis({
           </Collapse.Panel>
         </Collapse>
       </div>
-      <div className="pastPregnancyContainer">
-        <Row gutter={20} style={{ padding: "26px 0px 0px 40px" }}>
+      <div
+        className={`pastPregnancyContainer ${
+          isFixed ? "fixPastPregnancy" : ""
+        }`}
+      >
+        <Row gutter={30}>
           {pastPregnancyData.map((item, index) => {
             return (
               <Col key={index}>
-                <Form.Item label={item.label} style={{ marginBottom: "10px" }}>
+                <Form.Item label={item.label} className="pastPregnancyItem">
                   <Input
                     value={item.value}
                     onChange={(e) =>
@@ -434,7 +480,14 @@ export default function PatientDiagnosis({
           </button>
         )}
       </div>
-      <hr />
+      <Divider
+        dashed
+        style={{
+          borderTop: "1px solid #EAECF0",
+          margin: "0px",
+          width: "100%",
+        }}
+      />
       {diagnosisNotesDrawer && (
         <Drawer
           closeIcon={false}

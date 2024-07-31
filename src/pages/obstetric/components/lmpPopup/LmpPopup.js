@@ -2,9 +2,14 @@ import { Button, DatePicker, Modal } from "antd";
 import { useState } from "react";
 import dayjs from "dayjs";
 import "./LmpPopup.scss";
+import { isBrowser } from "react-device-detect";
 
-const LmpPopup = ({ handleDrawerObstetric, lmpDate, setLmpDate, setShowLmpPopup }) => {
-  
+const LmpPopup = ({
+  handleDrawerObstetric,
+  lmpDate,
+  setLmpDate,
+  setShowLmpPopup,
+}) => {
   const [isContinueBtnDisabled, setContinueBtnDisabled] = useState(true);
 
   const continueBtnHandler = () => {
@@ -41,19 +46,21 @@ const LmpPopup = ({ handleDrawerObstetric, lmpDate, setLmpDate, setShowLmpPopup 
             </label>
             <DatePicker
               placeholder="Select Date"
-              dropdownClassName="addDOB-picker-dropdown"
               onChange={(_, d) => {
-                setLmpDate(d);
+                setLmpDate(d ? dayjs(d, "DD-MM-YYYY").toISOString() : "");
                 setContinueBtnDisabled(false);
               }}
-              format="DD-MM-YYYY"
-              value={lmpDate ? dayjs(lmpDate, "DD-MM-YYYY") : ""}
+              format={{
+                format: "DD-MM-YYYY",
+                type: "mask",
+              }}
+              value={lmpDate ? dayjs(lmpDate) : ""}
               style={{
                 height: "38px",
                 width: "374px",
               }}
-              allowClear={false}
               disabledDate={(current) => current && current > dayjs()}
+              inputReadOnly={!isBrowser}
             />
           </div>
         </div>

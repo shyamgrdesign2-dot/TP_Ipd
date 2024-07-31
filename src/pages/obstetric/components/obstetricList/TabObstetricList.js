@@ -7,7 +7,7 @@ import { obstetricTabListColumns } from "../../utils/constants";
 
 const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const { examinationHistory } = obstetricDetails;
+  const { examinationHistory = [] } = obstetricDetails;
   const [accordionItems, setAccordionItems] = useState([]);
 
   const measurementDetails = (obsVisit) => {
@@ -21,7 +21,10 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
                 : "No"
               : obsVisit[visitItem.key];
           if (value) {
-            value += visitItem.siUnit;
+            value +=
+              visitItem.key === "heightOfFundus"
+                ? " " + obsVisit.heightOfFundusUnit ?? ""
+                : visitItem.siUnit;
             return (
               <React.Fragment key={index}>
                 <div

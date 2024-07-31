@@ -35,9 +35,9 @@ export const ExaminationColumns = [
     width: "11%",
   },
   {
-    title: "Fluid Index",
-    key: "fluidIndex",
-    width: "6%",
+    title: "Liquor",
+    key: "liquor",
+    width: "7%",
   },
   {
     title: "Fetal Heart Rate",
@@ -47,7 +47,7 @@ export const ExaminationColumns = [
   {
     title: "Note",
     key: "note",
-    width: "21%",
+    width: "20%",
   },
   {
     title: "Action",
@@ -93,9 +93,9 @@ export const obstetricTabListColumns = [
     siUnit: "",
   },
   {
-    title: "Fluid Index",
-    key: "fluidIndex",
-    siUnit: " cm",
+    title: "Liquor",
+    key: "liquor",
+    siUnit: "",
   },
   {
     title: "FHR",
@@ -215,14 +215,14 @@ export const visitColumn = [
     siUnit: "",
   },
   {
-    title: "Fluid Index",
-    key: "fluidIndex",
-    siUnit: " cm",
+    title: "Liquor",
+    key: "liquor",
+    siUnit: "",
   },
   {
     title: "Fetal Heart Rate",
     key: "foetalHeartRate",
-    siUnit: " bpm",
+    siUnit: " BPM",
   },
 ];
 

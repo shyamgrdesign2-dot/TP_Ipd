@@ -27,7 +27,9 @@ const ObstetricList = () => {
                 <>
                   <span>Polar : </span>
                   <label>{`${visitItem.pallor ? " Yes " : " No "}`}</label>
-                  {visitItem.oedema || visitItem.mothersBMI ? " | " : ""}
+                  {typeof visitItem.oedema === "boolean" || visitItem.mothersBMI
+                    ? " | "
+                    : ""}
                 </>
               ) : null}
               {typeof visitItem.oedema === "boolean" ? (
@@ -63,7 +65,10 @@ const ObstetricList = () => {
               {visitItem.heightOfFundus ? (
                 <>
                   <span>Fundus : </span>
-                  <label>{visitItem.heightOfFundus} cm</label>
+                  <label>
+                    {visitItem.heightOfFundus}{" "}
+                    {visitItem.heightOfFundusUnit ?? ""}
+                  </label>
                   {visitItem.presentation ? " | " : ""}
                 </>
               ) : null}
@@ -75,17 +80,17 @@ const ObstetricList = () => {
               ) : null}
             </div>
             <div className="my-2">
-              {visitItem.fluidIndex ? (
+              {visitItem.liquor ? (
                 <>
-                  <span>Fluid index : </span>
-                  <label>{visitItem.fluidIndex} cm</label>
+                  <span>Liquor : </span>
+                  <label>{visitItem.liquor}</label>
                   {visitItem.foetalHeartRate ? " | " : ""}
                 </>
               ) : null}
               {visitItem.foetalHeartRate ? (
                 <>
                   <span>FHR : </span>
-                  <label>{visitItem.foetalHeartRate} bpm</label>
+                  <label>{visitItem.foetalHeartRate} BPM</label>
                 </>
               ) : null}
             </div>
@@ -108,7 +113,7 @@ const ObstetricList = () => {
   return (
     <div
       className="overflow-y-auto"
-      style={{ maxHeight: "661px", padding: "10px 10px 0px" }}
+      style={{ maxHeight: "300px", padding: "10px 10px 0px" }}
     >
       <Collapse
         defaultActiveKey={[0]}

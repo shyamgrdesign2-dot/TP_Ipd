@@ -175,19 +175,34 @@
     }
   }
 }
+.fixPastPregnancy {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  background-color: #fafafb;
+  box-shadow: 0px -1px 2px 0px #e2e2ea inset;
+}
 .pastPregnancyContainer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 20px 0px 20px 40px;
+
+  .pastPregnancyItem {
+    &.ant-form-item {
+      margin-bottom: 0px;
+    }
+  }
 
   .diagnosisNotesStyle {
-    width: 40%;
+    width: 50%;
     display: flex;
-    padding: 15px 40px 0px 0px;
-
+    padding-right: 40px;
     align-items: flex-start;
     justify-content: flex-end;
-    column-gap: 6px;
+    column-gap: 14px;
 
     .editStyle {
       display: flex;
@@ -221,6 +236,11 @@
       margin-left: -135px !important;
       margin-top: 3px;
       width: 220px !important;
+
+      @media only screen and (min-width: 1200px) {
+        margin-left: -180px !important;
+        width: 260px !important;
+      }
     }
   }
 }
@@ -232,6 +252,17 @@
     width: 235px !important;
   }
 
+  .bloodGroupText {
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    width: 94px;
+
+    @media only screen and (min-width: 1200px) {
+      width: 70px;
+    }
+  }
+
   .bloodGroup {
     width: 40%;
 
@@ -239,9 +270,15 @@
       width: 15%;
     }
     .dropdown-menu {
-      margin-right: -50px !important;
       margin-top: 3px;
       width: 80px !important;
+
+      @media only screen and (min-width: 1200px) {
+        width: 234px !important;
+      }
+      @media only screen and (min-width: 1300px) {
+        margin-left: -155px !important;
+      }
     }
   }
 }
@@ -260,9 +297,15 @@
       width: 15%;
     }
     .dropdown-menu {
-      margin-right: -20px !important;
       margin-top: 3px;
       width: 60px !important;
+
+      @media only screen and (min-width: 1200px) {
+        width: 215px !important;
+      }
+      @media only screen and (min-width: 1300px) {
+        margin-left: -136px !important;
+      }
     }
   }
 }

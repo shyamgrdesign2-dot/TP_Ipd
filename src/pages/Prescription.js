@@ -48,7 +48,7 @@ import { getGynecDetails } from "../api/services/ApiGynec";
 import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
 import { fetchAllObstetricDetails } from "./obstetric/service";
-import { addObstetricDetails } from "../redux/obstetricSlice";
+import { addObstetricDetails, navigateToObstetric } from "../redux/obstetricSlice";
 
 function Prescription() {
   const {
@@ -61,9 +61,8 @@ function Prescription() {
 
   const { selectedVitalsList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
-  const { obstetricDetails, isObstetricDetailsFetched } = useSelector(
-    (state) => state.obstetric
-  );
+  const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
+    useSelector((state) => state.obstetric);
   const { examinationHistory = [] } = obstetricDetails;
   const dispatch = useDispatch();
 
@@ -329,10 +328,15 @@ function Prescription() {
       handleDrawerVaccination();
     } else if (chartType === "growthChart") {
       handleDrawerGrowth();
-    } else if (chartType === "obstetric") {
-      handleDrawerObstetric();
     }
   }, [chartType]);
+
+  useEffect(() => {
+    if (isNavigateToObstetric) {
+      handleDrawerObstetric();
+      dispatch(navigateToObstetric());
+    }
+  }, [isNavigateToObstetric]);
 
   //Handle Sider
   const handleCollapsed = useCallback(

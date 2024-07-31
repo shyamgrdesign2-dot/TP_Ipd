@@ -19,6 +19,7 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: none;
+    border-radius: 10px 10px 0px 0px;
 
     .editIcon {
       display: flex;
@@ -36,7 +37,7 @@
 .emptyDataContainer {
   display: flex;
   flex-direction: column;
-  row-gap: 10px;
+  row-gap: 9px;
   align-items: center;
   margin: auto;
   width: 450px;
@@ -60,5 +61,11 @@
     font-size: 14px;
     font-weight: 500;
     text-decoration: underline;
+  }
+}
+
+.obstetricTab {
+  &.ant-tabs > .ant-tabs-nav {
+    padding-left: 12px;
   }
 }

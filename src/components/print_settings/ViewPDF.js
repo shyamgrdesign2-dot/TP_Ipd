@@ -110,6 +110,12 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 6,
         borderRight: '1px solid #171725',
+    },
+    minHeight50: {
+        minHeight: 50
+    },
+    minHeight38: {
+        minHeight: 38
     }
 });
 
@@ -157,8 +163,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     const medical_history_title = (id) => {
         var value = ''
-        if (id == 2 || id == 3) {
-            value = `Issue : `
+        if (id == 2 ) {
+            value = `Condition : `
+        } else if (id == 3) {
+            value = `History : `
         } else if (id == 4) {
             value = `Allergies to : `
         } else if (id == 1) {
@@ -3741,11 +3749,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {isGynaecHistoryAccessable && obsHistoryData &&
                                         Object.keys(obsHistoryData).length > 2 &&
                                         (option?.format === "inline" ? (
-                                            <ObsHistoryInlineView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} obsHistoryData={obsHistoryData} />
+                                            <ObsHistoryInlineView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
                                         ) : option?.format === "listview" ? (
-                                            <ObsHistoryListView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} obsHistoryData={obsHistoryData} />
+                                            <ObsHistoryListView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
                                         ) : (
-                                            <ObsHistoryTableView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} obsHistoryData={obsHistoryData} />
+                                            <ObsHistoryTableView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
                                         ))
                                     }
                                 </>

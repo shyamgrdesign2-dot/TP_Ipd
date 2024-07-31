@@ -5,6 +5,7 @@ const initialState = {
   isObstetricDetailsFetched: false,
   isPatientDiagnosisUpdated: false,
   isObstetricDetailsUpdated: false,
+  isNavigateToObstetric: false,
 };
 
 const obstetricSlice = createSlice({
@@ -14,9 +15,21 @@ const obstetricSlice = createSlice({
     resetObstetricState: () => initialState,
     addObstetricDetails: (state, action) => {
       if (action.payload?.examinationHistory?.length > 0) {
-        let sortedData = [...action.payload.examinationHistory].sort(
-          (a, b) => new Date(b.date) - new Date(a.date)
-        );
+        let sortedData = [...action.payload.examinationHistory]
+          .map((item, index) => ({
+            ...item,
+            originalIndex: index,
+          }))
+          .sort((a, b) => {
+            const dateComparison = new Date(b.date) - new Date(a.date);
+            if (dateComparison !== 0) {
+              return dateComparison;
+            }
+
+            return b.originalIndex - a.originalIndex;
+          })
+          .map(({ originalIndex, ...item }) => item);
+
         action.payload.examinationHistory = sortedData;
       }
       state.obstetricDetails = action.payload;
@@ -31,6 +44,9 @@ const obstetricSlice = createSlice({
     obstetricDetailsUpdated: (state) => {
       state.isObstetricDetailsUpdated = true;
     },
+    navigateToObstetric: (state) => {
+      state.isNavigateToObstetric = !state.isNavigateToObstetric;
+    },
   },
 });
 
@@ -40,5 +56,6 @@ export const {
   patientDiagnosisUpdated,
   resetUpdatedPatientDiagnosis,
   obstetricDetailsUpdated,
+  navigateToObstetric,
 } = obstetricSlice.actions;
 export default obstetricSlice.reducer;

@@ -1,9 +1,10 @@
 .examinationTableViewContainer {
-  margin: 20px 30px 30px;
+  padding: 20px 40px;
   gap: 24px;
 
-  @media only screen and (min-width: 1200px) {
-    margin: 20px 30px 30px;
+  .tableWrappwer {
+    border-radius: 10px;
+    border: 1px solid #ddd;
   }
   .editIcon {
     display: flex;
@@ -21,7 +22,7 @@
 }
 
 .anotherVisit {
-  padding: 0 0 40px 30px;
+  padding: 0 0 40px 40px;
 
   .anotherVisitBtn {
     width: 180px;

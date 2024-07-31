@@ -55,7 +55,7 @@ import { getGynecDetails } from "../../api/services/ApiGynec";
 import Obstetric from "../obstetric/Obstetric";
 import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
 import { fetchAllObstetricDetails } from "../obstetric/service";
-import { addObstetricDetails } from "../../redux/obstetricSlice";
+import { addObstetricDetails, navigateToObstetric } from "../../redux/obstetricSlice";
 
 function TabPrescription() {
   const {
@@ -67,9 +67,8 @@ function TabPrescription() {
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
-  const { obstetricDetails, isObstetricDetailsFetched } = useSelector(
-    (state) => state.obstetric
-  );
+  const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
+    useSelector((state) => state.obstetric);
   const { examinationHistory = [] } = obstetricDetails;
   const dispatch = useDispatch();
 
@@ -330,10 +329,21 @@ function TabPrescription() {
       handleDrawerVaccination();
     } else if (chartType === "growthChart") {
       handleDrawerGrowth();
-    } else if (chartType === "obstetric") {
-      handleDrawerObstetric();
     }
   }, [chartType]);
+
+  useEffect(() => {
+    if (isNavigateToObstetric) {
+      handleDrawerObstetric();
+      dispatch(navigateToObstetric());
+    }
+  }, [isNavigateToObstetric]);
+
+  useEffect(() => {
+    if (collapsedFlag === 6 && examinationHistory.length === 0) {
+      setCollapsed(false);
+    }
+  }, [collapsedFlag, collapsed])
 
   //Handle Sider
   const openCollapsed = useCallback(
@@ -806,7 +816,9 @@ function TabPrescription() {
             width="100%"
             push={false}
           >
-            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
+            <Obstetric
+              handleDrawerObstetric={handleDrawerObstetric}
+              handleCollapsed={(flag) => handleCollapsed(flag)} />
           </Drawer>
         )}
       </>

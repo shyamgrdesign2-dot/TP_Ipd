@@ -26,7 +26,8 @@ const dev = {
   firebaseMessagingSenderId: "482265957598",
   firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
   tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
-  obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
+  obstetric_api_url:
+    "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
 };
 
 const qa = {
@@ -57,7 +58,8 @@ const qa = {
   firebaseMessagingSenderId: "482265957598",
   firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
   tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
-  obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
+  obstetric_api_url:
+    "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
 };
 
 const uat = {
@@ -88,8 +90,10 @@ const uat = {
   firebaseMessagingSenderId: "482265957598",
   firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
   tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
-  gynec_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
-  obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
+  gynec_api_url:
+    "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
+  obstetric_api_url:
+    "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
 };
 
 const prod = {
@@ -120,8 +124,10 @@ const prod = {
   firebaseAppId: "1:601922359186:web:a3b9df05589faed1f5fb4b",
   growth_chart_api_url: `https://pm-prod-growth-chart.tatvacare.in`,
   tatvaRedirect: "https://health.tatvacare.in/#/content?auto=",
-  gynec_api_url: "https://pm-medicalhistory-prod.tatvacare.in/api/v1/gynec-history",
-  obstetric_api_url: "https://pm-medicalhistory-prod.tatvacare.in/api/v1/obstetric-history",
+  gynec_api_url:
+    "https://pm-medicalhistory-prod.tatvacare.in/api/v1/gynec-history",
+  obstetric_api_url:
+    "https://pm-medicalhistory-prod.tatvacare.in/api/v1/obstetric-history",
 };
 
 const getEnv = () => {

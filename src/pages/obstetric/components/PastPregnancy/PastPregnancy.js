@@ -1,25 +1,30 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Button, Card, DatePicker, Input, Tooltip, Select, Radio } from "antd";
-import { errorMessage } from "../../../../utils/utils";
 import moment from "moment";
-import SuccessPopup from "../../../growthChart/components/SuccessPopup";
 import { useDispatch, useSelector } from "react-redux";
 import "./pastPregnancy.scss";
 import { EllipsisOutlined, DeleteOutlined } from "@ant-design/icons";
-import { addObstetricData, updateObstetricData } from "../../service";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
-import { obstetricDetailsUpdated } from "../../../../redux/obstetricSlice";
-import { isNumberCheck } from "../../utils/helper";
+import {
+  addObstetricDetails,
+  obstetricDetailsUpdated,
+  patientDiagnosisUpdated,
+} from "../../../../redux/obstetricSlice";
+import { isDecimalCheck, isNumberCheck } from "../../utils/helper";
 
-function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
+function PastPregnancy({
+  close,
+  editIndex,
+  toggleDeletePopup,
+  isDataAddedOrEdited,
+  setIsDataAddedOrEdited,
+}) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
   const [pastPregnancyData, setPastPregnancyData] = useState({});
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [loader, setLoader] = useState(false);
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { pregnancyHistory = [] } = obstetricDetails;
   const { state } = useLocation();
@@ -40,6 +45,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
       };
       return newData;
     });
+    setIsDataAddedOrEdited(true);
   };
 
   const disabledDate = (current) => {
@@ -82,76 +88,32 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
       ];
     }
     const payload = {
+      ...obstetricDetails,
       patientId: patient_data.patient_unique_id,
-      ...(pregnancyHistory?.length > 0 ? {} : obstetricDetails),
       pregnancyHistory: newPastPregnancy,
-      createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
-      createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
-      modifiedAt: pregnancyHistory?.length
-        ? new Date().toISOString()
-        : obstetricDetails?.modifiedAt || new Date().toISOString(),
-      modifiedBy: pregnancyHistory?.length
-        ? decodedToken?.result?.user_id
-        : obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
     };
-    setLoader(true);
-    const addPastPregnancyRes = obstetricDetails?._id
-      ? await updateObstetricData(obstetricDetails?.patientId, payload)
-      : await addObstetricData(payload);
-    setLoader(false);
-    if (addPastPregnancyRes?.data) {
-      dispatch(obstetricDetailsUpdated());
-      getAllObstetricDetails();
-      setShowSuccess(true);
-      setTimeout(() => {
-        close();
-      }, 1000);
-    } else {
-      errorMessage(addPastPregnancyRes?.message || "Error while adding data");
-    }
+    dispatch(addObstetricDetails(payload));
+    dispatch(obstetricDetailsUpdated());
+    dispatch(patientDiagnosisUpdated());
+    setIsDataAddedOrEdited(false);
+    close();
   };
 
   const deletePastPregnancyData = async () => {
-    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-    let decodedToken;
-    if (token) {
-      try {
-        decodedToken = jwtDecode(token);
-      } catch (e) {
-        console.log(e);
-      }
-    }
     let newPastPregnancy = [...pregnancyHistory];
     if (editIndex >= 0) {
       newPastPregnancy.splice(editIndex, 1);
     }
     const payload = {
+      ...obstetricDetails,
       patientId: patient_data.patient_unique_id,
       pregnancyHistory: newPastPregnancy,
-      createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
-      createdBy: obstetricDetails?.createdBy || decodedToken?.result?.user_id,
-      modifiedAt: pregnancyHistory?.length
-        ? new Date().toISOString()
-        : obstetricDetails?.modifiedAt || new Date().toISOString(),
-      modifiedBy: pregnancyHistory?.length
-        ? decodedToken?.result?.user_id
-        : obstetricDetails?.modifiedBy || decodedToken?.result?.user_id,
     };
-    const deletePastPregnancyRes = await updateObstetricData(
-      obstetricDetails?.patientId,
-      payload
-    );
-    if (deletePastPregnancyRes?.data) {
-      getAllObstetricDetails();
-      setShowSuccess(true);
-      setTimeout(() => {
-        close();
-      }, 1000);
-    } else {
-      errorMessage(
-        deletePastPregnancyRes?.message || "Error while adding data"
-      );
-    }
+    dispatch(addObstetricDetails(payload));
+    dispatch(obstetricDetailsUpdated());
+    dispatch(patientDiagnosisUpdated());
+    setIsDataAddedOrEdited(false);
+    close();
   };
 
   const TABLE_PAST_PREGNANCY = useMemo(() => {
@@ -181,15 +143,26 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
           )}
         </div>
         <div className="past-pregnancy-row past-pregnancy-row-40 d-flex align-items-center px-2 py-5 w-100">
-          <Input
-            className="inputheight41-group"
-            placeholder="Enter"
-            inputMode="numeric"
-            value={pastPregnancyData?.gravidaNumber}
-            onChange={(e) =>
-              isNumberCheck(e) &&
-              handlePastPregnancyDataChange("gravidaNumber", e.target.value)
+          <Select
+            style={{ width: 170, height: 40, outline: "none" }}
+            onChange={(value) =>
+              handlePastPregnancyDataChange("gravidaNumber", value)
             }
+            options={[
+              { value: "1", label: "1" },
+              { value: "2", label: "2" },
+              { value: "3", label: "3" },
+              { value: "4", label: "4" },
+              { value: "5", label: "5" },
+              { value: "6", label: "6" },
+              { value: "7", label: "7" },
+              { value: "8", label: "8" },
+              { value: "9", label: "9" },
+            ]}
+            placeholder="Select"
+            className="custom-select"
+            value={pastPregnancyData?.gravidaNumber}
+            allowClear
           />
         </div>
         <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
@@ -250,10 +223,9 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                   handlePastPregnancyDataChange("deliveryMode", value)
                 }
                 options={[
-                  { value: "NVD", label: "NVD" },
-                  { value: "AVD", label: "AVD" },
-                  { value: "CSEC", label: "CSEC" },
-                  { value: "Others", label: "Others" },
+                  { value: "FTND", label: "FTND" },
+                  { value: "LSCS", label: "LSCS" },
+                  { value: "PTVD", label: "PTVD" },
                 ]}
                 placeholder="Select"
                 className="custom-select"
@@ -264,7 +236,6 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
             <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
               <DatePicker
                 key={"dateOfDelivery"}
-                inputReadOnly
                 onChange={(date) => {
                   const formattedDate = date.format("YYYY-MM-DD");
                   handlePastPregnancyDataChange(
@@ -274,14 +245,16 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                 }}
                 disabledDate={disabledDate}
                 style={{ width: "170px", height: "41px" }}
-                placement="bottom"
                 value={
                   pastPregnancyData.dateOfDelivery
                     ? dayjs(moment(pastPregnancyData.dateOfDelivery))
                     : ""
                 }
                 allowClear={false}
-                format={"DD MMM YYYY"}
+                format={{
+                  format: "DD-MM-YYYY",
+                  type: "mask",
+                }}
               />
             </div>
             <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
@@ -321,10 +294,10 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                 className="inputheight41-group"
                 placeholder="Enter"
                 inputMode="numeric"
-                value={pastPregnancyData.babysWeight}
+                value={pastPregnancyData.babysWeight || ""}
                 addonAfter={"Kgs"}
                 onChange={(e) =>
-                  isNumberCheck(e) &&
+                  isDecimalCheck(e) &&
                   handlePastPregnancyDataChange("babysWeight", e.target.value)
                 }
               />
@@ -338,7 +311,7 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
                 className="inputheight41-group"
                 placeholder="Enter"
                 inputMode="numeric"
-                value={pastPregnancyData.gestationPeriod}
+                value={pastPregnancyData.gestationPeriod || ""}
                 addonAfter={"weeks"}
                 onChange={(e) =>
                   isNumberCheck(e) &&
@@ -440,15 +413,30 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
     );
   }, [pastPregnancyData]);
 
+  const closeBtnHandler = () => {
+    if (isDataAddedOrEdited) {
+      toggleDeletePopup();
+    } else {
+      close();
+    }
+  };
+
   return (
     <>
       <Card bordered={false} className="search-modalCard">
-        <div className="modalCard-header h-60 align-items-center justify-content-between d-flex">
+        <div
+          className="modalCard-header h-60 align-items-center justify-content-between d-flex"
+          style={{
+            position: "sticky",
+            top: "0px",
+            zIndex: 2,
+          }}
+        >
           <div className="align-items-center d-flex">
             <Button
               type="text"
               className="btn btn-delete-prescription px-3 focus-none h-100"
-              onClick={close}
+              onClick={closeBtnHandler}
             >
               <i className="icon-Cross fs-3"></i>
             </Button>
@@ -457,11 +445,8 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
           <Button
             onClick={addPastPregnancyData}
             className="btn btn-primary3 btn-41 px-4 me-20"
-            loading={loader}
             disabled={
-              loader ||
-              !pastPregnancyData.gravidaNumber ||
-              !pastPregnancyData.outcome
+              !pastPregnancyData.gravidaNumber || !pastPregnancyData.outcome
             }
           >
             Done
@@ -546,7 +531,6 @@ function PastPregnancy({ close, editIndex, getAllObstetricDetails }) {
           )}
         </div>
       </Card>
-      <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
     </>
   );
 }
