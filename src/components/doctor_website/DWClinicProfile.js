@@ -10,7 +10,7 @@ import AddPhotos from "../../../src/assets/images/add-photos.svg";
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
 import { TAB_ADDRESS, TAB_TIMINGS, TAB_PHOTOS } from "../../utils/constants";
-import { errorMessage } from '../../utils/utils';
+import { errorMessage, onlyNumberFormat } from '../../utils/utils';
 
 const dateFormat = 'HH:mm:ss'
 const showDateFormat = 'h:mm A'
@@ -57,7 +57,11 @@ function DWClinicProfile() {
         (el, key, e) => {
             const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
             if (index !== -1) {
-                clinicProfile[index][key] = el.target.value;
+                if (key === 'contact_no') {
+                    clinicProfile[index][key] = onlyNumberFormat(el.target.value);
+                } else {
+                    clinicProfile[index][key] = el.target.value;
+                }
                 setClinicProfile((prev) => { return [...prev] });
             }
         },
@@ -68,7 +72,11 @@ function DWClinicProfile() {
         (el, key, e) => {
             const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
             if (index !== -1) {
-                clinicProfile[index]['address'][key] = el.target.value;
+                if (key === 'pincode') {
+                    clinicProfile[index]['address'][key] = onlyNumberFormat(el.target.value);
+                } else {
+                    clinicProfile[index]['address'][key] = el.target.value;
+                }
                 setClinicProfile((prev) => { return [...prev] });
                 if (key === 'pincode') {
                     setTimeout(() => {
@@ -88,6 +96,7 @@ function DWClinicProfile() {
         [clinicProfile]
     );
 
+    const dayOrder = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
     const onDayClick = useCallback(
         (value, e, i1) => {
             const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
@@ -98,10 +107,10 @@ function DWClinicProfile() {
                     if (index1 > -1) {
                         data.splice(index1, 1);
                     }
-                    clinicProfile[index]['shift'][i1]['days'] = [...data];
+                    clinicProfile[index]['shift'][i1]['days'] = [...data.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b))];
                 } else {
                     data.push(value)
-                    clinicProfile[index]['shift'][i1]['days'] = [...data];
+                    clinicProfile[index]['shift'][i1]['days'] = [...data.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b))];
                 }
 
 
@@ -494,7 +503,9 @@ function DWClinicProfile() {
                             )}
                         </Form>
                     </div >
-                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 align-items-center d-flex justify-content-center' onClick={() => onRemoveRow(e)}><i className='icon-delete fs-18 me-2'></i>Delete</Button>
+                    {i !== 0 && (
+                        <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 align-items-center d-flex justify-content-center' onClick={() => onRemoveRow(e)}><i className='icon-delete fs-18 me-2'></i>Delete</Button>
+                    )}
                 </div >,
         },
     ];
@@ -545,4 +556,4 @@ function DWClinicProfile() {
     );
 }
 
-export default DWClinicProfile;
+export default React.memo(DWClinicProfile);

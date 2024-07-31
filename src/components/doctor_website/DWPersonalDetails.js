@@ -85,10 +85,9 @@ function DWPersonalDetails() {
                     <Col span={24}>
                         <Form.Item
                             label="Email"
-                            className='fw-medium mb-20'
-                            required>
+                            className='fw-medium mb-20'>
                             <Input placeholder="Email"
-                                className="text-capitalize rounded-10px h-38"
+                                className="rounded-10px h-38"
                                 value={personalDetails?.email_id}
                                 onChange={(e) => onChangeInput(e, 'email_id')} />
                         </Form.Item>

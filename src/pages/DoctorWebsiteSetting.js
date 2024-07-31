@@ -24,6 +24,7 @@ import DWSocialLinks from "../components/doctor_website/DWSocialLinks";
 import Homepage from "../website/Homepage";
 import DWMembership from "../components/doctor_website/DWMembership";
 import { TAB_ADDRESS } from "../utils/constants";
+// import { validateEmail } from "../utils/utils";
 
 function DoctorWebsiteSetting() {
 
@@ -139,25 +140,25 @@ function DoctorWebsiteSetting() {
             //Clinic Profile
             if (clinicProfile?.filter(el => !el.clinic_delete)?.length > 0) {
                 const firstClinic = clinicProfile?.filter(el => !el.clinic_delete)[0]
-                if (firstClinic?.name) {
+                if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.name)?.length === 0) {
                     cal += 1.587
                 }
-                if (firstClinic?.contact_no) {
+                if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.contact_no)?.length === 0) {
                     cal += 1.587
                 }
-                if (firstClinic?.address?.pincode) {
+                if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.pincode)?.length === 0) {
                     cal += 1.587
                 }
-                if (firstClinic?.address?.city) {
+                if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.city)?.length === 0) {
                     cal += 1.587
                 }
-                if (firstClinic?.address?.state) {
+                if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.state)?.length === 0) {
                     cal += 1.587
                 }
-                if (firstClinic?.address?.address_line) {
+                if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.address_line)?.length === 0) {
                     cal += 1.587
                 }
-                if (firstClinic?.shift?.length > 0) {
+                if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => el.shift.length === 0)?.length === 0) {
                     cal += 1.587
                 }
             }
@@ -304,6 +305,7 @@ function DoctorWebsiteSetting() {
                                                 {personalDetails?.first_name
                                                     && personalDetails?.last_name
                                                     && personalDetails?.education
+                                                    // && (personalDetails?.email_id ? validateEmail(personalDetails?.email_id) : true)
                                                     && (
                                                         <img className="ms-2" src={mandatoryTick} alt="Mandatory" />
                                                     )}
@@ -337,12 +339,13 @@ function DoctorWebsiteSetting() {
                                                 <div className="titleprint">Clinic Profile</div>
                                                 <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mandatory</div>
                                                 {clinicProfile?.filter(el => !el.clinic_delete)?.length > 0
-                                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.name
-                                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.contact_no
-                                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.pincode
-                                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.city
-                                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.address_line
-                                                    && clinicProfile?.filter(el => !el.clinic_delete)[0]?.shift?.length > 0
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.name)?.length === 0
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.contact_no)?.length === 0
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.pincode)?.length === 0
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.city)?.length === 0
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.state)?.length === 0
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.address_line)?.length === 0
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => el.shift.length === 0)?.length === 0
                                                     && (
                                                         <img className="ms-2" src={mandatoryTick} alt="Mandatory" />
                                                     )}

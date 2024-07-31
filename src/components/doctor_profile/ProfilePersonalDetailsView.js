@@ -21,10 +21,10 @@ function ProfilePersonalDetailsView() {
                         Personal Details
                     </div>
                 </div>
-                <button onClick={handleDrawerParent} className="btn d-flex align-items-center btn-text">
+                {/* <button onClick={handleDrawerParent} className="btn d-flex align-items-center btn-text">
                     <i className='icon-Edit me-1 fs-5'></i>
                     <span> Edit </span>
-                </button>
+                </button> */}
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
                     <ProfilePersonalDetailsEdit onClose={handleDrawerParent} />
                 </Drawer>

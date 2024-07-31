@@ -13,7 +13,7 @@ import LinkIcon from '../../assets/images/Link.svg';
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
 import { saveDoctorWebsite, publishDoctorWebsite } from "../../redux/doctorWebsiteSlice";
-import { errorMessage, handleCopy } from '../../utils/utils';
+import { errorMessage, handleCopy, validateEmail } from '../../utils/utils';
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 
@@ -178,7 +178,7 @@ function HeaderDoctorWebsite() {
                         <Col sm="auto" className='h-100'>
                             <div className='align-items-center d-flex h-100'>
                                 <div className='border-end h-100 text-center'>
-                                    <div onClick={() => navigate(-1)} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                                    <div onClick={() => navigate('/doctor_profile', { replace: true, state: { websiteData: { ...websiteData } } })} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
                                         <i className='icon-right'></i>
                                     </div>
                                 </div>
@@ -200,15 +200,17 @@ function HeaderDoctorWebsite() {
                                     disabled={personalDetails?.first_name
                                         && personalDetails?.last_name
                                         && personalDetails?.education
+                                        // && (personalDetails?.email_id ? validateEmail(personalDetails?.email_id) : true)
                                         && aboutDoctor?.years_experience
                                         && aboutDoctor?.language?.length > 0
                                         && clinicProfile?.filter(el => !el.clinic_delete)?.length > 0
-                                        && clinicProfile?.filter(el => !el.clinic_delete)[0]?.name
-                                        && clinicProfile?.filter(el => !el.clinic_delete)[0]?.contact_no
-                                        && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.pincode
-                                        && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.city
-                                        && clinicProfile?.filter(el => !el.clinic_delete)[0]?.address?.address_line
-                                        && clinicProfile?.filter(el => !el.clinic_delete)[0]?.shift?.length > 0 ? false : true}
+                                        && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.name)?.length === 0
+                                        && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.contact_no)?.length === 0
+                                        && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.pincode)?.length === 0
+                                        && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.city)?.length === 0
+                                        && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.state)?.length === 0
+                                        && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.address_line)?.length === 0
+                                        && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => el.shift.length === 0)?.length === 0 ? false : true}
                                     onClick={onSaveWebsiteClick}>
                                     <i className="icon-New-Window me-2"></i> Save & Publish Website
                                 </Button>
@@ -363,13 +365,13 @@ function HeaderDoctorWebsite() {
                                     <div className='ms-3 title-common'>Back to editor</div>
                                 </div>
                             </Col>
-                            <Col sm="auto">
+                            {/* <Col sm="auto">
                                 <Button
                                     type='button'
                                     className="btn-41 btn px-4 btn-primary3 align-items-center d-flex">
                                     <i className="icon-New-Window me-2"></i> Publish Website
                                 </Button>
-                            </Col>
+                            </Col> */}
                         </Row>
                     </Container >
                 </Navbar>
@@ -412,4 +414,4 @@ function HeaderDoctorWebsite() {
     );
 }
 
-export default HeaderDoctorWebsite;
+export default React.memo(HeaderDoctorWebsite);

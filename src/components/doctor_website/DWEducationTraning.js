@@ -113,7 +113,7 @@ function DWEducationTraning() {
                             </Row>
                         </Form>
                     </div>
-                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 btn-primary3 align-items-center d-flex justify-content-center' onClick={() => onRemoveRow(i)}><i className='icon-delete fs-18 me-2'></i>Delete</Button>
+                    <Button className='btn w-100 btn-delete-experience btn-41 rounded-top-0 align-items-center d-flex justify-content-center' onClick={() => onRemoveRow(i)}><i className='icon-delete fs-18 me-2'></i>Delete</Button>
                 </div>,
         },
     ];

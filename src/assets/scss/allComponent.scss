@@ -513,6 +513,19 @@
                 .btn-delete-experience {
                     border-bottom-left-radius: 20px;
                     border-bottom-right-radius: 20px;
+                    background-color: $bgbody;
+                    border-top-color: $bordercolor;
+                    color: $maincolor;
+                    &:hover {
+                        border-bottom-color: transparent;
+                        border-left-color: transparent;
+                        border-right-color: transparent;
+                        box-shadow: none !important;
+                    }
+                    &.btn-delete-experience1 {
+                        background-color: transparent;
+                        border: none;
+                    }
                 }
             }
             .ant-collapse-item { 

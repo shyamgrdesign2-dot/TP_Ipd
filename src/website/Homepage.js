@@ -41,6 +41,7 @@ import websiteInstagram from '../assets/images/website-images/website-instagram.
 import websiteLinkedin from '../assets/images/website-images/website-linkedin.svg'
 import websiteTwitter from '../assets/images/website-images/website-twitter.svg'
 import websiteYoutube from '../assets/images/website-images/website-youtube.svg'
+import { validateEmail } from '../utils/utils';
 
 const slideData = [1, 2, 3, 4]
 const dateFormat = 'HH:mm:ss'
@@ -193,8 +194,30 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
     setIsModalOpen(false);
   };
 
-  // Navbar
+  const formatDays = (selectedDays) => {
 
+    const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+    let ranges = [];
+    let start = null;
+
+    for (let i = 0; i < selectedDays.length; i++) {
+      if (start === null) {
+        start = selectedDays[i];
+      }
+      if (i === selectedDays.length - 1 || days.indexOf(selectedDays[i + 1]) !== days.indexOf(selectedDays[i]) + 1) {
+        if (start !== selectedDays[i]) {
+          ranges.push(`${start} - ${selectedDays[i]}`);
+        } else {
+          ranges.push(start);
+        }
+        start = null;
+      }
+    }
+    return ranges.join(', ');
+  };
+
+  // Navbar
   const [showNavbar, setShowNavbar] = React.useState(false);
 
   const handleShowNavbar = () => {
@@ -214,8 +237,8 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
               <div className="menu-icon" onClick={handleShowNavbar}>
                 <img width={24} height={24} src={MenuImg} alt="Doctor Website Navbar" />
               </div>
-              <div className={`nav-elements d-lg-flex ${showNavbar && "active text-center"}`}>
-                <ul className='mb-0 mt-4 mt-lg-0 p-0'>
+              <div className={`nav-elements d-lg-flex w-100 ${showNavbar && "active text-center"}`}>
+                <ul className='mb-0 mt-4 mt-lg-0 p-0 w-100'>
                   <li>
                     <a className='cursor-pointer' onClick={() => scrollToSection(2)}>About</a>
                   </li>
@@ -269,7 +292,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                 <div className="education-speciality mb-15 text-welcome">{`${personalDetails?.education} - ${personalDetails?.specialty}`}</div>
                 <div className="d-flex flex-wrap mb-lg-5 mb-28">
                   {/* <div className="location-contact text-welcome mb-2"> <img src={Location} width={18} height={18} alt="Location" /> Ahmedabad</div> */}
-                  {personalDetails?.email_id && (
+                  {personalDetails?.email_id && validateEmail(personalDetails?.email_id) && (
                     <div className="location-contact text-welcome"> <img src={Mail} width={18} height={18} alt="Location" />
                       <a href={`mailto:${personalDetails?.email_id}`} className='text-main'>{personalDetails?.email_id}</a>
                     </div>
@@ -398,24 +421,19 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                               <div className='clinic-address'>{'No Address Details & Photos'}</div>
                             )}
                           </div>
-                          <div className='d-flex flex-wrap clinic-btn mb-4'>
+                          <div className={`d-flex flex-wrap clinic-btn ${e?.shift?.length > 0 ? 'mb-4' : 'mb-5'}`}>
                             {e?.address?.google_map && (
                               <Button type="button" onClick={() => window.open(e?.address?.google_map)} className="btn btn-primary3 btn-48">
-                                <img width={19} height={19} src={Direction} alt="Direction" /> Direction to Clinic
+                                <img width={19} height={19} className='me-2' src={Direction} alt="Direction" /> Direction to Clinic
                               </Button>
                             )}
                             {e?.contact_no && (
-                              <Button type="button" onClick={() => window.location.href = (`tel:${e.contact_no}`)} className="btn btn-primary3 btn-48">
-                                <img width={19} height={19} src={Call} alt="Call" /> Call Clinic
+                              <Button type="button" onClick={() => window.location.href = (`tel:${e?.contact_no}`)} className="btn btn-primary3 btn-48">
+                                <img width={19} height={19} src={Call} className='me-2' alt="Call" /> Call Clinic
                               </Button>
                             )}
                           </div>
                         </div>
-
-
-
-
-
                       </Col>
                       <Col sm={24} lg={12}>
                         {e?.shift?.length > 0 && (
@@ -430,7 +448,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                                 <div key={i1} className='mt-4'>
                                   {e1?.days?.length > 0 && e1?.timing?.length ? (
                                     <>
-                                      <div className='text-welcome fw-medium fs-16 text-capitalize'>{`${e1?.days?.length > 1 ? e1?.days[0] + ' - ' + e1?.days[e1?.days?.length - 1] : e1?.days[0]}`}</div>
+                                      <div className='text-welcome fw-medium fs-16 text-capitalize'>{formatDays(e1.days)}</div>
 
                                       {e1?.timing?.map((e2, i2) => (
                                         <div key={i2} className='text-welcome fs-16'>
@@ -444,7 +462,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                             </div>
                           </div>
                         )}
-                        <p className='slide-count'><span>{String(currentSlide + 1).padStart(2, "0")}/{String(clinicProfile?.filter(el => !el.clinic_delete)?.length).padStart(2, "0")}</span></p>
+                        <p className='slide-count'><span>{String(i + 1).padStart(2, "0")}/{String(clinicProfile?.filter(el => !el.clinic_delete)?.length).padStart(2, "0")}</span></p>
                       </Col>
                     </Row>
                   </div>
@@ -782,76 +800,46 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
         <div className='model-subtitle mt-2'>Please contact the clinic to schedule an appointment.</div>
         <Row className='mt-4'>
           <Col sm={24} lg={16}>
-            <Slider {...settingsAppointment} className='clinic-slider'>
-              <div className="timingshape">
-                <div className='h-100 d-flex flex-column justify-content-between appt-30'>
-                  <div>
-                    <div className='d-flex align-items-center'>
-                      <div className='appointment-dp'>
-                        <img width={80} height={80} src={DoctorProfile} className='img-fluid' alt="Doctor Profile" />
+            {clinicProfile?.filter(el => !el.clinic_delete)?.length > 0 && (
+              <Slider {...settingsAppointment} className='clinic-slider'>
+                {clinicProfile?.filter(el => !el.clinic_delete)?.map((e, i) => {
+                  return (
+                    <div key={i} className="timingshape">
+                      <div className='h-100 d-flex flex-column justify-content-between appt-30'>
+                        <div>
+                          <div className='d-flex align-items-center'>
+                            <div className='appointment-dp'>
+                              <img width={80} height={80} src={personalDetails?.hero_image_link ? personalDetails?.hero_image_link : DoctorDefault} className='img-fluid' alt="Doctor Profile" />
+                            </div>
+                            <div className='ms-3'>
+                              <div className='appt-drname text-welcome'>{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</div>
+                              <div className='appt-dreducation text-welcome'>{`${personalDetails?.education} - ${personalDetails?.specialty}`}</div>
+                            </div>
+                          </div>
+                          <Row className='mt-4'>
+                            <Col sm={24} lg={4}>
+                              <div className='bg-icon-common bg-icon-sm2 mb-2 bg-white border'><img width={28} height={28} src={LocationClinic} alt="Clinic Address & Hours" /></div>
+                            </Col>
+                            <Col sm={24} lg={20}>
+                              <div className='model-subtitle text-welcome fw-medium'>{e?.name}</div>
+                              <div>{`${Object.values(Object.fromEntries(Object.entries((({ address_line, city, state, pincode }) => ({ address_line, city, state, pincode }))(e?.address)).filter(([_, v]) => v))).join(', ')}`}</div>
+                            </Col>
+                          </Row>
+                        </div>
+                        <div>
+                          <Button type="button" onClick={() => window.location.href = (`tel:${e?.contact_no}`)} className="btn btn-primary3 btn-48 rounded-18">
+                            <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
+                          </Button>
+                        </div>
                       </div>
-                      <div className='ms-3'>
-                        <div className='appt-drname text-welcome'>Dr. Kunal Shah</div>
-                        <div className='appt-dreducation text-welcome'>MBBS, MD - Anaesthesiology</div>
-                      </div>
+                      <div className='round-shape-top-education round'></div>
+                      <div className='shape-education'></div>
+                      <p className='mb-0 position-absolute slide-count slide-count-left' style={{ bottom: 33, zIndex: 99, right: 5 }}><span className='text-welcome'>{String(i + 1).padStart(2, "0")} / {String(clinicProfile?.filter(el => !el.clinic_delete)?.length).padStart(2, "0")}</span></p>
                     </div>
-                    <Row className='mt-4'>
-                      <Col sm={24} lg={4}>
-                        <div className='bg-icon-common bg-icon-sm2 mb-2 bg-white border'><img width={28} height={28} src={LocationClinic} alt="Clinic Address & Hours" /></div>
-                      </Col>
-                      <Col sm={24} lg={20}>
-                        <div className='model-subtitle text-welcome fw-medium'>Aayushyam Clinic Centre LLP</div>
-                        <div>Ground Floor, Sheetal Varsha Complex,
-                          Landmark: Near Shivranjani Cross Road,
-                          Ahmedabad, Gujarat 380015</div>
-                      </Col>
-                    </Row>
-                  </div>
-                  <div>
-                    <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18">
-                      <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" /> Call +91 7894561230</a>
-                    </Button>
-                  </div>
-                </div>
-                <div className='round-shape-top-education round'></div>
-                <div className='shape-education'></div>
-                <p className='mb-0 position-absolute slide-count slide-count-left' style={{ bottom: 33, zIndex: 99, right: 5 }}><span className='text-welcome'>0{currentSlide + 1} / </span> <span className='text-greycolor'> 0{slideData.length}</span></p>
-              </div>
-              <div className="timingshape">
-                <div className='h-100 d-flex flex-column justify-content-between appt-30'>
-                  <div>
-                    <div className='d-flex align-items-center'>
-                      <div className='appointment-dp'>
-                        <img width={80} height={80} src={DoctorProfile} className='img-fluid' alt="Doctor Profile" />
-                      </div>
-                      <div className='ms-3'>
-                        <div className='appt-drname text-welcome'>Dr. Kunal Shah</div>
-                        <div className='appt-dreducation text-welcome'>MBBS, MD - Anaesthesiology</div>
-                      </div>
-                    </div>
-                    <Row className='mt-4'>
-                      <Col sm={24} lg={4}>
-                        <div className='bg-icon-common bg-icon-sm2 mb-2 bg-white border'><img width={28} height={28} src={LocationClinic} alt="Clinic Address & Hours" /></div>
-                      </Col>
-                      <Col sm={24} lg={20}>
-                        <div className='model-subtitle text-welcome fw-medium'>Aayushyam Clinic Centre LLP</div>
-                        <div>Ground Floor, Sheetal Varsha Complex,
-                          Landmark: Near Shivranjani Cross Road,
-                          Ahmedabad, Gujarat 380015</div>
-                      </Col>
-                    </Row>
-                  </div>
-                  <div>
-                    <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18">
-                      <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" /> Call +91 7894561230</a>
-                    </Button>
-                  </div>
-                </div>
-                <div className='round-shape-top-education round'></div>
-                <div className='shape-education'></div>
-                <p className='mb-0 position-absolute slide-count slide-count-left' style={{ bottom: 33, zIndex: 99, right: 5 }}><span className='text-welcome'>0{currentSlide + 1} / </span> <span className='text-greycolor'> 0{slideData.length}</span></p>
-              </div>
-            </Slider>
+                  )
+                })}
+              </Slider>
+            )}
           </Col>
           <Col lg='auto' className='d-none d-sm-none d-lg-block'>
             <img width={184} height={390} src={BAPhoto} className='img-fluid' alt="Book Appointment" />

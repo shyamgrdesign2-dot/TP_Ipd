@@ -11,10 +11,10 @@ function ProfileClinicView() {
                         Clinic Details
                     </div>
                 </div>
-                <button className="btn d-flex align-items-center btn-text">
+                {/* <button className="btn d-flex align-items-center btn-text">
                     <i className='icon-Edit me-1 fs-5'></i>
                     <span> Edit </span>
-                </button>
+                </button> */}
             </div>
             <div className="px-20 py-1">
                 <Row>
