@@ -339,12 +339,13 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                           {aboutDoctor?.language?.slice(0, 2).join(', ')}
                         </div>
                         <div>
-                          <Tooltip placement="top"
-
-                            title={aboutDoctor?.language.slice(2).join(' , ')}
-                            arrow={mergedArrow}>
-                            <div className="ms-2 text-primary px-2 py-1 rounded-5 fw-medium" style={{ backgroundColor: 'rgba(75, 74, 213, 0.10)' }}>{`${aboutDoctor?.language?.length - 2}+`}</div>
-                          </Tooltip>
+                          {aboutDoctor?.language?.length > 2 && (
+                            <Tooltip placement="top"
+                              title={aboutDoctor?.language.slice(2).join(' , ')}
+                              arrow={mergedArrow}>
+                              <div className="ms-2 text-primary px-2 py-1 rounded-5 fw-medium" style={{ backgroundColor: 'rgba(75, 74, 213, 0.10)' }}>{`${aboutDoctor?.language?.length - 2}+`}</div>
+                            </Tooltip>
+                          )}
                         </div>
                       </div>
                       <div>Languages</div>
@@ -647,12 +648,12 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                 <Slider
                   {...commonSettings}
                   slidesToShow={membership?.length <= 2 ? membership?.length : 2}
-                  arrows={membership?.length >= 3 ? true : false}
+                  arrows={membership?.filter(el => el.title)?.length >= 3 ? true : false}
                   vertical={true}
                   verticalSwiping={true}
                   className='clinic-slider'>
                   <div> {!membership.length > 0 && 'No any memberships added'}</div>
-                  {membership?.map((e, i) => {
+                  {membership?.filter(el => el.title)?.map((e, i) => {
                     return (
                       <div key={i} className='d-flex align-items-center mb-3'>
                         {e.title && (
@@ -670,9 +671,9 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                     )
                   })}
                 </Slider>
-                {membership?.length > 2 && (
+                {membership?.filter(el => el.title)?.length > 2 && (
                   <div className='py-5 mt-5'>
-                    <p className='slide-count'><span>{String(currentSlide + 1).padStart(2, "0")} - {String(membership?.length).padStart(2, "0")}</span></p>
+                    <p className='slide-count'><span>{String(currentSlide + 1).padStart(2, "0")} - {String(membership?.filter(el => el.title)?.length).padStart(2, "0")}</span></p>
                   </div>
                 )}
               </Col>
@@ -733,7 +734,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
       ) : null}
       <div className='outer-round-big'>
         {/* Profile and Social Media Links */}
-        <div className="website-section mt-2 mt-lg-5">
+        <div className="website-section">
           <div className="container" id='socialSection' ref={socialSectionRef}>
             <div className='row-80 text-center'>
               <div className='bg-icon-common bg-icon-xl mx-auto mb-20'>
