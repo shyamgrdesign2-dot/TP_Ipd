@@ -303,7 +303,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                 </div>
                 <h2 className="doctor-name h1 web-h1 text-welcome mb-28">About The Doctor</h2>
                 <div className='d-flex align-items-center mb-28'>
-                  {aboutDoctor?.years_experience && aboutDoctor?.years_experience?.length > 0 && (
+                  {aboutDoctor?.years_experience && (
                     <div className='about-after ps-3 me-5'>
                       <div className='fs-18 text-welcome fw-medium'>{`${aboutDoctor?.years_experience} Years`}</div>
                       <div>Overall Experience</div>

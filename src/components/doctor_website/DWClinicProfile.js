@@ -520,7 +520,9 @@ function DWClinicProfile() {
                         </div>
                     )
                 })}
-                <Button className='btn btn-input w-100 btn-41 d-flex align-items-center justify-content-center mt-3' onClick={addClinicProfileClick}><i className='icon-Add fs-18 me-2'></i>Add one more clinic</Button>
+                {clinicProfile?.filter(el => !el.clinic_delete)?.length < 5 && (
+                    <Button className='btn btn-input w-100 btn-41 d-flex align-items-center justify-content-center mt-3' onClick={addClinicProfileClick}><i className='icon-Add fs-18 me-2'></i>Add one more clinic</Button>
+                )}
             </div>
         </div>
     );
