@@ -370,9 +370,9 @@ function AddExamination({
             style={{ width: 170, height: 40 }}
             onChange={(value) => handleExaminationDataChange("liquor", value)}
             options={[
-              { value: "normal", label: "Normal" },
-              { value: "less", label: "Less" },
-              { value: "more", label: "More" },
+              { value: "Normal", label: "Normal" },
+              { value: "Less", label: "Less" },
+              { value: "More", label: "More" },
             ]}
             placeholder="Select"
             className="custom-select"
