@@ -114,25 +114,25 @@ function DoctorProfile() {
     //Clinic Profile
     if (clinicProfile?.filter(el => !el.clinic_delete)?.length > 0) {
       const firstClinic = clinicProfile?.filter(el => !el.clinic_delete)[0]
-      if (firstClinic?.name) {
+      if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.name)?.length === 0) {
         cal += 1.587
       }
-      if (firstClinic?.contact_no) {
+      if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.contact_no)?.length === 0) {
         cal += 1.587
       }
-      if (firstClinic?.address?.pincode) {
+      if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.pincode)?.length === 0) {
         cal += 1.587
       }
-      if (firstClinic?.address?.city) {
+      if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.city)?.length === 0) {
         cal += 1.587
       }
-      if (firstClinic?.address?.state) {
+      if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.state)?.length === 0) {
         cal += 1.587
       }
-      if (firstClinic?.address?.address_line) {
+      if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.address_line)?.length === 0) {
         cal += 1.587
       }
-      if (firstClinic?.shift?.length > 0) {
+      if (clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => el.shift.length === 0)?.length === 0) {
         cal += 1.587
       }
     }

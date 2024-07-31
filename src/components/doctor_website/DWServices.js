@@ -165,4 +165,4 @@ function DWServices() {
     );
 }
 
-export default DWServices;
+export default React.memo(DWServices);

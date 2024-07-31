@@ -158,7 +158,7 @@ function DWMembership() {
                     </DndContext>
                 </div>
 
-                <Button className='btn btn-input w-100 btn-41 d-flex align-items-center justify-content-center mt-3' onClick={addMemberShipClick} ><i className='icon-Add fs-18 me-2'></i>Add Service</Button>
+                <Button className='btn btn-input w-100 btn-41 d-flex align-items-center justify-content-center mt-3' onClick={addMemberShipClick} ><i className='icon-Add fs-18 me-2'></i>Add Membership</Button>
             </div>
         </div>
     );
