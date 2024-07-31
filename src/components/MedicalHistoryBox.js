@@ -25,10 +25,10 @@ import {
 } from "../redux/medicalhistorySlice";
 import { useLocation } from "react-router-dom";
 import { getGynecDetails, postGynecDetails, updateGynecDetails } from "../api/services/ApiGynec";
-import { GB_GYNEC_HISTORY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { jwtDecode } from "jwt-decode";
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { CLOTS_LIST, CYCLE_KEY_LIST, FLOW_LIST, GYNEC_SECTION_ENABLE_LIST, PAIN_LIST, PAIN_OCCURANCE_LIST, REPRODUCTIVE_LIFE_STAGES_LIST, TYPES_REPRODUCTIVE_STAGES } from "../utils/gynec_constants";
+import { useAccess } from "../pages/vaccination/useAccess";
 
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD-MM-YYYY'
@@ -45,9 +45,7 @@ function MedicalHistoryBox(props) {
     const { profile } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
-    const isGynecHistoryAccessableFromGB = useFeatureIsOn(
-        GB_GYNEC_HISTORY
-    );
+    const {isGynaecHistoryAccessable} = useAccess();
 
     const { medicalHistoryData, setMedicalHistoryData } = useContext(CashManagerContext);
     // const [ medicalHistoryData, setMedicalHistoryData] = useState([]);
@@ -693,23 +691,46 @@ function MedicalHistoryBox(props) {
     }
 
     const handleSelectionChange = (key, value) => {
-        
+        setActiveMenstrualData(key)
         if (key === "pain" && value === "None") {
             setGynecHistory(prevState => ({ ...prevState, ["occurrenceOfPain"]: null }));
         }
-
-        if (key === "ageAtMenarche" && value === "number") {
-            setGynecHistory(prevState => ({ ...prevState, [key]: null }));
-        }
-
+   
         setGynecHistory(prevState => {
             if (!prevState) {
                 return { [key]: value }; // Handle case when prevState is null or undefined
             }
+
+            setPrevActiveMentrualData(activeMenstrualData)
             if (prevState[key] === value && activeMenstrualData === key) {
-
+                setActiveMenstrualData("");
+                
+                switch (activeMenstrualData) {
+                    case 'cycle':
+                        setRightPanelTitle('Cycle');
+                        break;
+                    case 'flow':
+                        setRightPanelTitle('Flow');
+                        break;
+                    case 'pain':
+                        setRightPanelTitle('Pain');
+                        break;
+                    case 'ageAtMenarche':
+                        setRightPanelTitle('Age at menarche');
+                        break;
+                    case 'reproductiveLifeStages':
+                        setRightPanelTitle("Lifecycle Hormonal Changes");
+                        break;
+                    case 'notes':
+                        setRightPanelTitle('Enter the notes');
+                        break;
+                    default:
+                        setRightPanelTitle('Please select data from left pan');
+                        break;
+                }
+                
                 const updatedState = { ...prevState, [key]: null };
-
+                
                 // Check for specific keys and set corresponding fields to null
                 if (key === "cycle") {
                     updatedState.intervalOfCycle = null;
@@ -732,46 +753,46 @@ function MedicalHistoryBox(props) {
                     updatedState.ageAtMenopause = null;
                     setInputMenopause('')
                     updatedState.typeOfMenopause = null;
-                    updatedState.note = null;
+                    updatedState.reproductiveNotes = null;
                 }
                 if (key === "ageAtMenarche") {
                     updatedState.ageAtMenarche = null;
+                    updatedState.menarcheNotes = null
                     setInputMenarche('')
                 }
     
                 return updatedState;
             } else {
+                setActiveMenstrualData(key);
+                switch (key) {
+                    case 'cycle':
+                        setRightPanelTitle('Cycle');
+                        break;
+                    case 'flow':
+                        setRightPanelTitle('Flow');
+                        break;
+                    case 'pain':
+                        setRightPanelTitle('Pain');
+                        break;
+                    case 'ageAtMenarche':
+                        setRightPanelTitle('Age at menarche');
+                        break;
+                    case 'reproductiveLifeStages':
+                        setRightPanelTitle("Lifecycle Hormonal Changes");
+                        break;
+                    case 'notes':
+                        setRightPanelTitle('Enter the notes');
+                        break;
+                    default:
+                        setRightPanelTitle('No Data');
+                        break;
+                }
                 return {
                     ...prevState,
                     [key]: value
                 };
             }
         });
-
-        setActiveMenstrualData(key);
-        switch (key) {
-            case 'cycle':
-                setRightPanelTitle('Cycle');
-                break;
-            case 'flow':
-                setRightPanelTitle('Flow');
-                break;
-            case 'pain':
-                setRightPanelTitle('Pain');
-                break;
-            case 'ageAtMenarche':
-                setRightPanelTitle('Age at menarche');
-                break;
-            case 'reproductiveLifeStages':
-                setRightPanelTitle(value);
-                break;
-            case 'notes':
-                setRightPanelTitle('Enter the notes');
-                break;
-            default:
-                setRightPanelTitle('No Data');
-                break;
-        }
     };
 
     const handleGynecValueChange = (key, value) => {
@@ -788,6 +809,7 @@ function MedicalHistoryBox(props) {
     };
 
     const [activeMenstrualData, setActiveMenstrualData] = useState(null);
+    const [prevActiveMentrualData, setPrevActiveMentrualData] = useState("cycle");
     const [rightPanelTitle, setRightPanelTitle] = useState("No Record");
     
     const disabledDate = (current) => {
@@ -828,16 +850,20 @@ function MedicalHistoryBox(props) {
     }, []);
 
     useEffect(() => {
-        fetchGynecHistory();
-    }, []);
+        if(isGynaecHistoryAccessable){
+            fetchGynecHistory();
+        }
+    }, [isGynaecHistoryAccessable]);
     
     const fetchGynecHistory = async () => {
         try {
             const data = await getGynecDetails(patient_data.patient_unique_id);
             if (data){
                 setGynecEditState("UPDATE");
-                setActiveMenstrualData("cycle")
-                setRightPanelTitle('Cycle')
+                if (Object.keys(data).length > 2){
+                    setActiveMenstrualData("cycle")
+                    setRightPanelTitle('Cycle')
+                }
             }
             setGynecHistory(data);
             setGynecLoading(false);
@@ -937,7 +963,7 @@ function MedicalHistoryBox(props) {
                             </div>
                         </div>
                         <div className="title-common">
-                            { isGynecHistoryAccessableFromGB ? `Gynec History` :`Medical History`}
+                            { isGynaecHistoryAccessable ? `Gynec History` :`Medical History`}
                         </div>
                     </div>
                     <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={onSaveClicked}>
@@ -945,12 +971,12 @@ function MedicalHistoryBox(props) {
                     </Button>
                 </div>
                 <Tabs defaultActiveKey="gynec" onChange={onTabChange}>
-                    { isGynecHistoryAccessableFromGB && 
+                    { isGynaecHistoryAccessable && 
                         <TabPane tab="Menstrual History" key="gynec">
                             <div style={{marginTop: "-1rem"}}>
                                 <Row>
                                     <Col lg={12}>
-                                        <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(101vh - 110px)'}}>
+                                        <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 115px)'}}>
                                             <div className="border-bottom px-4 pt-3 pb-2">
                                                     <div className="d-flex align-items-center lmp-gynec">
                                                         <label className="pe-3">Last menstrual period :</label>
@@ -1150,7 +1176,7 @@ function MedicalHistoryBox(props) {
                                                         <div className="segement-static d-flex flex-wrap">
                                                             {CYCLES_LIST.map((item, i) => {
                                                                 const isCustomButton = i === CYCLES_LIST.length-1;
-                                                                const isActive = gynecHistory?.intervalOfCycle === item.value || (isCustomButton && (gynecHistory?.intervalOfCycle === customCyclesValue || gynecHistory?.intervalOfCycle ===inputCycles));
+                                                                const isActive = gynecHistory?.intervalOfCycle === item.value || (isCustomButton && gynecHistory?.intervalOfCycle !== "" && (gynecHistory?.intervalOfCycle === customCyclesValue || gynecHistory?.intervalOfCycle ===inputCycles));
                                                                 return (
                                                                     <button
                                                                         key={i}
@@ -1183,7 +1209,7 @@ function MedicalHistoryBox(props) {
                                                         <div className="segement-static d-flex mb-3">
                                                             {DURATION_OF_CYCLE_LIST.map((item, i) => {
                                                                 const isCustomButton = i === DURATION_OF_CYCLE_LIST.length-1;
-                                                                const isActive = gynecHistory?.durationOfMenstrualFlow === item.value || (isCustomButton && (gynecHistory?.durationOfMenstrualFlow === customCyclesDaysValue || gynecHistory?.durationOfMenstrualFlow === inputCyclesDays));
+                                                                const isActive = gynecHistory?.durationOfMenstrualFlow === item.value || (isCustomButton && gynecHistory?.durationOfMenstrualFlow !== "" && (gynecHistory?.durationOfMenstrualFlow === customCyclesDaysValue || gynecHistory?.durationOfMenstrualFlow === inputCyclesDays));
                                                                 return (
                                                                     <button
                                                                         key={i}
@@ -1213,7 +1239,7 @@ function MedicalHistoryBox(props) {
                                                         <div className="segement-static d-flex">
                                                             {PAD_NUM_LIST.map((item, i) => {
                                                                 const isCustomButton = i === PAD_NUM_LIST.length-1;
-                                                                const isActive = gynecHistory?.numberOfPadsPerDay === item.value || (isCustomButton && (gynecHistory?.numberOfPadsPerDay === customPadNumValue || gynecHistory?.numberOfPadsPerDay === inputPadsNum));
+                                                                const isActive = gynecHistory?.numberOfPadsPerDay === item.value || (isCustomButton && gynecHistory?.numberOfPadsPerDay !== "" && (gynecHistory?.numberOfPadsPerDay === customPadNumValue || gynecHistory?.numberOfPadsPerDay === inputPadsNum));
                                                                 return (
                                                                     <button
                                                                         key={i}
@@ -1274,7 +1300,7 @@ function MedicalHistoryBox(props) {
                                                         <div className="segement-static d-flex flex-wrap">
                                                             {MENARCHE_LIST.map((item, i) => {
                                                                 const isCustomButton = i === MENARCHE_LIST.length-1;
-                                                                const isActive = gynecHistory?.ageAtMenarche === item.value || (isCustomButton && (gynecHistory?.ageAtMenarche === customMenarcheValue || gynecHistory?.ageAtMenarche === inputMenarche));
+                                                                const isActive = gynecHistory?.ageAtMenarche === item.value || (isCustomButton && gynecHistory?.ageAtMenarche !== "" && (gynecHistory?.ageAtMenarche === customMenarcheValue || gynecHistory?.ageAtMenarche === inputMenarche));
                                                                 return (
                                                                     <button
                                                                         key={i}
@@ -1306,7 +1332,7 @@ function MedicalHistoryBox(props) {
                                                         <div className="segement-static d-flex mb-2">
                                                             {MENOPAUSE_LIST.map((item, i) => {
                                                                 const isCustomButton = i === MENOPAUSE_LIST.length-1;
-                                                                const isActive = gynecHistory?.ageAtMenopause === item.value || (isCustomButton && (gynecHistory?.ageAtMenopause === customMenoPause || gynecHistory?.ageAtMenopause === inputMenopause));
+                                                                const isActive = gynecHistory?.ageAtMenopause === item.value || (isCustomButton && gynecHistory?.ageAtMenopause !== "" && (gynecHistory?.ageAtMenopause === customMenoPause || gynecHistory?.ageAtMenopause === inputMenopause));
                                                                 return (
                                                                     <button
                                                                         key={i}
@@ -1346,6 +1372,13 @@ function MedicalHistoryBox(props) {
                                                         </div>
                                                     </div>
                                                 )}
+                                                { gynecHistory && activeMenstrualData === "reproductiveLifeStages" && !gynecHistory?.[activeMenstrualData] && (
+                                                    <div className="text-center">
+                                                        <img className="my-4" style={{ width: 194 }} src={noRecordFound} alt="No Result Found" />
+                                                        <div className="fontroboto text-main title-common"> No selected data Found! </div>
+                                                        <div className="fontroboto text-main title fw-normal mt-2"> Please select data from the left panel. </div>
+                                                    </div>
+                                                )}
                                                 {activeMenstrualData === "notes" && (
                                                     <div>
                                                         <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
@@ -1378,7 +1411,7 @@ function MedicalHistoryBox(props) {
                         <div style={{marginTop: "-1rem"}}>
                             <Row>
                                 <Col lg={15}>
-                                    <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(101vh - 110px)' }}>
+                                    <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 115px)' }}>
                                         {cloneMedicalHistoryData.length > 0 ? (
                                             cloneMedicalHistoryData?.map((e, i) => {
                                                 return (

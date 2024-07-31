@@ -13,6 +13,7 @@ import VideoModal from "../../../../common/VideoModal";
 import tutorial2 from "../../../../assets/images/tutorial2.png";
 import playIcons from "../../../../assets/images/tube-icon.svg";
 import { LoadingOutlined } from "@ant-design/icons";
+import { useSelector } from "react-redux";
 
 function VaccineHeader({
   handleDrawerVaccination,
@@ -22,6 +23,10 @@ function VaccineHeader({
   printLoader,
   printPopupHandler,
   tablePrintHandler,
+  handleObstetricBackBtn,
+  clearObstetricData,
+  loader,
+  isObstetric,
 }) {
   const vaccinationVideo = {
     link: "https://www.youtube.com/embed/o6ALwX9hPMM",
@@ -31,6 +36,7 @@ function VaccineHeader({
   };
   const navigate = useNavigate();
   let { patient_data } = useContext(CashManagerContext);
+  const { isPatientDiagnosisUpdated } = useSelector((state) => state.obstetric);
 
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [shouldShowPreview, setShowPreview] = useState(false);
@@ -40,6 +46,14 @@ function VaccineHeader({
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
   }, [isBackModalOpen]);
+
+  const obstetricBackBtnHandler = () => {
+    if (isPatientDiagnosisUpdated) {
+      showHideBackModal();
+    } else {
+      handleObstetricBackBtn();
+    }
+  };
 
   function handleMenuClick(e) {
     setPrintType(e?.key);
@@ -133,6 +147,12 @@ function VaccineHeader({
   }, [popOverVideo]);
   const antIcon = <LoadingOutlined style={{ fontSize: 20 }} spin />;
 
+  const navigateToPrescription = () => {
+    navigate("/prescription", {
+      state: { patient_data: patient_data },
+    });
+  };
+
   return (
     <Navbar className="headerprescription p-0">
       <Container fluid className="h-100 gx-0 w-100">
@@ -141,7 +161,11 @@ function VaccineHeader({
             <div className="align-items-center d-flex h-100">
               <div className="border-end h-100 text-center">
                 <div
-                  onClick={handleDrawerVaccination}
+                  onClick={
+                    isObstetric
+                      ? obstetricBackBtnHandler
+                      : handleDrawerVaccination
+                  }
                   className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
                 >
                   <i className="icon-right"></i>
@@ -158,17 +182,18 @@ function VaccineHeader({
                           <img className="me-3" src={alertIcon} alt="Warning" />
                           <span>
                             Are you sure you want to leave? <br />
-                            You will permanently lose your data.
+                            You will permanently lose your{" "}
+                            {isObstetric ? " Obstetric" : ""} data.
                           </span>
                         </div>
                       </div>
                       <div className="mt-4">
                         <div className="d-flex align-items-center mt-2 justify-content-end">
                           <div
-                            onClick={() =>
-                              navigate("/prescription", {
-                                state: { patient_data: patient_data },
-                              })
+                            onClick={
+                              isObstetric
+                                ? clearObstetricData
+                                : navigateToPrescription
                             }
                             className="me-4 text-decoration-underline btn p-0 text-main"
                           >
@@ -220,25 +245,32 @@ function VaccineHeader({
                   Preview
                 </Button>
               )}
-              <Dropdown overlay={isVaccination ? vaccinePrint : growthPrint}>
-                <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
-                  <i className="icon-Print" />
-                  <span className="btn-input">Print</span>
-                  {printLoader ? (
-                    <Spin spinning={printLoader} indicator={antIcon} />
-                  ) : (
-                    <i
-                      className="icon-right"
-                      style={{ display: "block", transform: `rotate(270deg)` }}
-                    />
-                  )}
-                </div>
-              </Dropdown>
+              {!isObstetric && (
+                <Dropdown overlay={isVaccination ? vaccinePrint : growthPrint}>
+                  <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
+                    <i className="icon-Print" />
+                    <span className="btn-input">Print</span>
+                    {printLoader ? (
+                      <Spin spinning={printLoader} indicator={antIcon} />
+                    ) : (
+                      <i
+                        className="icon-right"
+                        style={{
+                          display: "block",
+                          transform: `rotate(270deg)`,
+                        }}
+                      />
+                    )}
+                  </div>
+                </Dropdown>
+              )}
               <Button
                 type="button"
                 className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
                 onClick={handleDrawerVaccination}
                 icon={<i className="icon-save" />}
+                loading={isObstetric && loader}
+                disabled={isObstetric && loader}
               >
                 Save
               </Button>

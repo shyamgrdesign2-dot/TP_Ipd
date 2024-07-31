@@ -28,3 +28,5 @@ export const GB_ISCRIBE = "iscribe"
 
 export const GB_GYNEC_HISTORY = "obs-gynec-history"
 
+export const GYNAECOLOGY = "Gynaecology";
+export const PAEDIATRICS = "Paediatrics";

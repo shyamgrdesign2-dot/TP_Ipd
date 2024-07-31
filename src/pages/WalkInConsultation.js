@@ -20,6 +20,7 @@ import { resetVaccineState } from "../redux/vaccineSlice";
 import smartPad from "../assets/images/smartPad.svg";
 import { GB_ISCRIBE } from "../utils/constants";
 import { resetGrowthChartState } from "../redux/growthChartSlice";
+import { resetObstetricState } from "../redux/obstetricSlice";
 
 function WalkInConsultation() {
   const navigate = useNavigate();
@@ -265,6 +266,7 @@ function WalkInConsultation() {
   useEffect(()=>{
     dispatch(resetVaccineState());
     dispatch(resetGrowthChartState());
+    dispatch(resetObstetricState());
   },[])
 
   useEffect(() => {

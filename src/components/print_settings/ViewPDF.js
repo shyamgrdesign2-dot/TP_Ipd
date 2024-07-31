@@ -4,6 +4,9 @@ import { isNumeric } from '../../utils/utils'
 import { NORMAL, WHATSAPP } from '../../utils/constants';
 import moment from 'moment';
 import { chunkArray } from '../../utils/utils';
+import ObsHistoryInlineView from './obsHistory/inline';
+import ObsHistoryListView from './obsHistory/list';
+import ObsHistoryTableView from './obsHistory/table';
 
 const PX_TO_PT = 0.75
 
@@ -107,12 +110,18 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 6,
         borderRight: '1px solid #171725',
+    },
+    minHeight50: {
+        minHeight: 50
+    },
+    minHeight38: {
+        minHeight: 38
     }
 });
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynecHistoryAccessableFromGB } = props
+    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData } = props
 
     const gynecHistoryData = caseManagerData?.gynecHistoryData 
     
@@ -154,8 +163,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     const medical_history_title = (id) => {
         var value = ''
-        if (id == 2 || id == 3) {
-            value = `Issue : `
+        if (id == 2 ) {
+            value = `Condition : `
+        } else if (id == 3) {
+            value = `History : `
         } else if (id == 4) {
             value = `Allergies to : `
         } else if (id == 1) {
@@ -1393,9 +1404,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         </>
                                     )}
                                 </>
-                            ) : option?.id === 13 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
+                            ) : option?.id === 13 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
-                                    { gynecHistoryData && isGynecHistoryAccessableFromGB &&
+                                    { gynecHistoryData && isGynaecHistoryAccessable &&
                                         (option?.format === "inline" ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
                                                 <Text
@@ -3732,6 +3743,19 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         )
                                     )}
+                                </>
+                            ) : option?.id === 14 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
+                                <>
+                                    {isGynaecHistoryAccessable && obsHistoryData &&
+                                        Object.keys(obsHistoryData).length > 2 &&
+                                        (option?.format === "inline" ? (
+                                            <ObsHistoryInlineView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
+                                        ) : option?.format === "listview" ? (
+                                            <ObsHistoryListView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
+                                        ) : (
+                                            <ObsHistoryTableView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
+                                        ))
+                                    }
                                 </>
                             )
                         )

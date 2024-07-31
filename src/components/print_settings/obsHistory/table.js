@@ -1,0 +1,1471 @@
+import React from "react";
+import moment from "moment";
+import { Text, View } from "@react-pdf/renderer";
+
+function ObsHistoryTableView({
+  PX_TO_PT,
+  styles,
+  printSettings,
+  options,
+  obsHistoryData,
+}) {
+  return (
+    <View style={{ marginTop: PX_TO_PT * 15 }}>
+      <Text
+        style={{
+          color: "#171725",
+          fontFamily: printSettings?.page_format?.font_family,
+          fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+          fontWeight: 700,
+        }}
+      >
+        Obstetric History&nbsp;:&nbsp;
+      </Text>
+
+      {options?.includes("diagnosis") && (
+        <View>
+          <Text
+            style={{
+              color: "#000",
+              marginTop: PX_TO_PT * 12,
+              fontFamily: printSettings?.page_format?.font_family,
+              fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+              fontWeight: 500,
+              padding: 6,
+              borderTop: "1px solid #171725",
+              borderLeft: "1px solid #171725",
+              borderRight: "1px solid #171725",
+              backgroundColor: "#E2E2EA",
+            }}
+          >
+            Patient diagnosis
+          </Text>
+          <View style={[styles.table, { marginTop: 0 }]}>
+            <View
+              style={[
+                styles.row,
+                { alignItems: "center", justifyContent: "center" },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight50,
+                ]}
+              >
+                LMP
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight50,
+                ]}
+              >
+                E.D.D.
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight50,
+                ]}
+              >
+                C.E.E.D.
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight50,
+                ]}
+              >
+                Gestation
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight50,
+                ]}
+              >
+                Blood group
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight50,
+                ]}
+              >
+                Husband's blood group
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight50,
+                ]}
+              >
+                Consang
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight50,
+                ]}
+              >
+                Marital status
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight50,
+                ]}
+              >
+                Marriage duration
+              </Text>
+            </View>
+
+            <View
+              style={[
+                styles.row,
+                { alignItems: "center", justifyContent: "center" },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight38,
+                ]}
+              >
+                {"lmp" in obsHistoryData
+                  ? moment(obsHistoryData?.lmp).format("DD MMM YYYY")
+                  : `-`}
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight38,
+                ]}
+              >
+                {"edd" in obsHistoryData
+                  ? moment(obsHistoryData?.edd).format("DD MMM YYYY")
+                  : `-`}
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight38,
+                ]}
+              >
+                {"ceed" in obsHistoryData
+                  ? moment(obsHistoryData?.ceed).format("DD MMM YYYY")
+                  : `-`}
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight38,
+                ]}
+              >
+                {"gestationWeeks" in obsHistoryData &&
+                obsHistoryData?.gestationWeeks != null
+                  ? `${obsHistoryData?.gestationWeeks}W`
+                  : ""}
+                {"gestationWeeks" in obsHistoryData &&
+                obsHistoryData?.gestationWeeks != null &&
+                "gestationDays" in obsHistoryData &&
+                obsHistoryData?.gestationDays != null
+                  ? `,`
+                  : `-`}
+                {"gestationDays" in obsHistoryData &&
+                obsHistoryData?.gestationDays != null
+                  ? `${obsHistoryData?.gestationDays}D`
+                  : ""}
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight38,
+                ]}
+              >
+                {"blood" in obsHistoryData ? obsHistoryData?.blood : `-`}
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight38,
+                ]}
+              >
+                {"husbandsBlood" in obsHistoryData
+                  ? obsHistoryData?.husbandsBlood
+                  : `-`}
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight38,
+                ]}
+              >
+                {Boolean(obsHistoryData?.consang) ? `Yes` : `No`}
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight38,
+                ]}
+              >
+                {"maritialStatus" in obsHistoryData
+                  ? obsHistoryData?.maritialStatus
+                  : `-`}
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                  styles.minHeight38,
+                ]}
+              >
+                {"marriageDurationYears" in obsHistoryData &&
+                obsHistoryData?.marriageDurationYears != null
+                  ? obsHistoryData?.marriageDurationYears
+                  : ``}
+                {"marriageDurationYears" in obsHistoryData &&
+                obsHistoryData?.marriageDurationYears != null &&
+                "marriageDurationMonths" in obsHistoryData &&
+                obsHistoryData?.marriageDurationMonths != null
+                  ? `.`
+                  : ``}
+                {"marriageDurationMonths" in obsHistoryData &&
+                obsHistoryData?.marriageDurationMonths != null
+                  ? obsHistoryData?.marriageDurationMonths
+                  : ``}
+                {"marriageDurationYears" in obsHistoryData &&
+                obsHistoryData?.marriageDurationYears != null &&
+                "marriageDurationMonths" in obsHistoryData &&
+                obsHistoryData?.marriageDurationMonths != null
+                  ? ` years`
+                  : "marriageDurationYears" in obsHistoryData &&
+                    obsHistoryData?.marriageDurationYears != null &&
+                    (!obsHistoryData.hasOwnProperty("marriageDurationMonths") ||
+                      obsHistoryData?.marriageDurationMonths == null)
+                  ? ` years`
+                  : (!obsHistoryData.hasOwnProperty("marriageDurationYears") ||
+                      obsHistoryData?.marriageDurationYears == null) &&
+                    "marriageDurationMonths" in obsHistoryData &&
+                    obsHistoryData?.marriageDurationMonths != null
+                  ? ` months`
+                  : ``}
+              </Text>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {options?.includes("gplae") && (
+        <View>
+          <Text
+            style={{
+              color: "#000",
+              marginTop: PX_TO_PT * 12,
+              fontFamily: printSettings?.page_format?.font_family,
+              fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+              fontWeight: 500,
+              padding: 6,
+              borderTop: "1px solid #171725",
+              borderLeft: "1px solid #171725",
+              borderRight: "1px solid #171725",
+              backgroundColor: "#E2E2EA",
+            }}
+          >
+            GPLAE
+          </Text>
+          <View style={[styles.table, { marginTop: 0 }]}>
+            <View
+              style={[
+                styles.row,
+                { alignItems: "center", justifyContent: "center" },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Gravida
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Para
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Living
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Abortion
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Ectopic
+              </Text>
+            </View>
+
+            <View
+              style={[
+                styles.row,
+                { alignItems: "center", justifyContent: "center" },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                {"gravidity" in obsHistoryData
+                  ? obsHistoryData?.gravidity?.toString().padStart(2, "0")
+                  : `-`}
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                {"parity" in obsHistoryData
+                  ? obsHistoryData?.parity?.toString().padStart(2, "0")
+                  : `-`}
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                {"livingChildren" in obsHistoryData
+                  ? obsHistoryData?.livingChildren?.toString().padStart(2, "0")
+                  : `-`}
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                {"abortion" in obsHistoryData
+                  ? obsHistoryData?.abortion?.toString().padStart(2, "0")
+                  : `-`}
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                {"ectopicPregnancies" in obsHistoryData
+                  ? obsHistoryData?.ectopicPregnancies
+                      ?.toString()
+                      .padStart(2, "0")
+                  : `-`}
+              </Text>
+            </View>
+            <Text
+              style={{
+                color: "#000",
+                fontFamily: printSettings?.page_format?.font_family,
+                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                fontWeight: 500,
+                padding: 6,
+                borderBottom: "1px solid #171725",
+                borderRight: "1px solid #171725",
+              }}
+            >
+              Remarks&nbsp;:&nbsp;
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                  },
+                ]}
+              >
+                {"diagnosisNotes" in obsHistoryData
+                  ? obsHistoryData?.diagnosisNotes
+                  : `-`}
+              </Text>
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {options?.includes("history") && (
+        <View>
+          <Text
+            style={{
+              color: "#000",
+              marginTop: PX_TO_PT * 12,
+              fontFamily: printSettings?.page_format?.font_family,
+              fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+              fontWeight: 500,
+              padding: 6,
+              borderTop: "1px solid #171725",
+              borderLeft: "1px solid #171725",
+              borderRight: "1px solid #171725",
+              backgroundColor: "#E2E2EA",
+            }}
+          >
+            Pregnancy history
+          </Text>
+          {obsHistoryData?.pregnancyHistory.map((item, i) => {
+            return (
+              <View key={i} wrap={false}>
+                <View style={[styles.table, { marginTop: 0 }]}>
+                  <View
+                    style={[
+                      styles.row,
+                      { alignItems: "center", justifyContent: "center" },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 500,
+                          color: "#000",
+                          textAlign: "center",
+                        },
+                      ]}
+                    >
+                      Gravida no
+                    </Text>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 500,
+                          color: "#000",
+                          textAlign: "center",
+                        },
+                      ]}
+                    >
+                      Outcome
+                    </Text>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 500,
+                          color: "#000",
+                          textAlign: "center",
+                        },
+                      ]}
+                    >
+                      Term length
+                    </Text>
+                    {"deliveryMode" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        Delivery mode
+                      </Text>
+                    )}
+
+                    {"gestationPeriod" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        Period of gestation
+                      </Text>
+                    )}
+
+                    {"location" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        Location
+                      </Text>
+                    )}
+
+                    {"modeOfManagement" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        Management mode
+                      </Text>
+                    )}
+
+                    {"typeOfAbortion" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        Type of abortion
+                      </Text>
+                    )}
+
+                    {"modeOfAbortion" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        Mode of abortion
+                      </Text>
+                    )}
+
+                    {"dateOfDelivery" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        Delivery date
+                      </Text>
+                    )}
+
+                    {"gender" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        Gender
+                      </Text>
+                    )}
+
+                    {"babysWeight" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        Baby's weight
+                      </Text>
+                    )}
+                  </View>
+
+                  <View
+                    style={[
+                      styles.row,
+                      { alignItems: "center", justifyContent: "center" },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                          color: "#000",
+                          textAlign: "center",
+                        },
+                      ]}
+                    >
+                      {"gravidaNumber" in item
+                        ? item?.gravidaNumber?.toString().padStart(2, "0")
+                        : `-`}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                          color: "#000",
+                          textAlign: "center",
+                        },
+                      ]}
+                    >
+                      {"outcome" in item ? item?.outcome : `-`}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                          color: "#000",
+                          textAlign: "center",
+                        },
+                      ]}
+                    >
+                      {"termLength" in item ? item?.termLength : `-`}
+                    </Text>
+
+                    {"deliveryMode" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        {"deliveryMode" in item ? item?.deliveryMode : `-`}
+                      </Text>
+                    )}
+
+                    {"gestationPeriod" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        {"gestationPeriod" in item
+                          ? `${item?.gestationPeriod} ${
+                              Number(item?.gestationPeriod) > 1
+                                ? "weeks"
+                                : "week"
+                            }`
+                          : "-"}
+                      </Text>
+                    )}
+
+                    {"location" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        {"location" in item ? item?.location : `-`}
+                      </Text>
+                    )}
+
+                    {"modeOfManagement" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        {"modeOfManagement" in item
+                          ? item?.modeOfManagement
+                          : `-`}
+                      </Text>
+                    )}
+
+                    {"typeOfAbortion" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        {"typeOfAbortion" in item ? item?.typeOfAbortion : `-`}
+                      </Text>
+                    )}
+
+                    {"modeOfAbortion" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        {"modeOfAbortion" in item ? item?.modeOfAbortion : `-`}
+                      </Text>
+                    )}
+
+                    {"dateOfDelivery" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        {"dateOfDelivery" in item
+                          ? moment(item?.dateOfDelivery).format("DD MMM YYYY")
+                          : `-`}
+                      </Text>
+                    )}
+
+                    {"gender" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        {"gender" in item ? item?.gender : `-`}
+                      </Text>
+                    )}
+
+                    {"babysWeight" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        {"babysWeight" in item ? item?.babysWeight : ``}
+                        {"babysWeight" in item ? `kgs` : `-`}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+                <Text
+                  style={{
+                    color: "#000",
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    padding: 6,
+                    borderBottom: "1px solid #171725",
+                    borderLeft: "1px solid #171725",
+                    borderRight: "1px solid #171725",
+                  }}
+                >
+                  Remarks&nbsp;:&nbsp;
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                      },
+                    ]}
+                  >
+                    {"remarks" in item ? item?.remarks : `-`}
+                  </Text>
+                </Text>
+              </View>
+            );
+          })}
+        </View>
+      )}
+
+      {options?.includes("examination") && (
+        <View>
+          <Text
+            style={{
+              color: "#000",
+              marginTop: PX_TO_PT * 12,
+              fontFamily: printSettings?.page_format?.font_family,
+              fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+              fontWeight: 500,
+              padding: 6,
+              borderTop: "1px solid #171725",
+              borderLeft: "1px solid #171725",
+              borderRight: "1px solid #171725",
+              backgroundColor: "#E2E2EA",
+            }}
+            wrap={false}
+          >
+            Examination
+          </Text>
+          {obsHistoryData?.examinationHistory.map((item, i) => (
+            <View key={i} wrap={false}>
+              <View style={[styles.table, { marginTop: 0 }]}>
+                <View
+                  style={[
+                    styles.row,
+                    { alignItems: "center", justifyContent: "center" },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 0.5,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    Rx
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 0.5,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    Pallor
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 0.7,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    Oedema
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 1.3,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    BMI
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 1.5,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    BP
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 1,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    Fundus
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 1.5,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    Presentation
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 1,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    Liquor
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 1,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    FHR
+                  </Text>
+                </View>
+
+                <View
+                  style={[
+                    styles.row,
+                    { alignItems: "center", justifyContent: "center" },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 0.5,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {i + 1}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 0.5,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {Boolean(item?.pallor) ? `Yes` : `No`}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 0.7,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {Boolean(item?.oedema) ? `Yes` : `No`}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 1.3,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {"mothersBMI" in item ? item?.mothersBMI : ``}
+                    {"mothersBMI" in item ? `kg/m2` : `-`}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 1.5,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {"diastolic" in item ? item?.diastolic : ``}
+                    {"diastolic" in item && "systolic" in item ? `/` : `-`}
+                    {"systolic" in item ? item?.systolic : ``}
+                    {"diastolic" in item || "systolic" in item ? ` mmHg` : ``}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 1,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {"heightOfFundus" in item ? item?.heightOfFundus : ``}
+                    {"heightOfFundus" in item && "heightOfFundusUnit" in item
+                      ? item?.heightOfFundusUnit
+                      : `-`}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 1.5,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {"presentation" in item ? item?.presentation : `-`}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 1,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {"liquor" in item ? item?.liquor : `-`}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        flex: 1,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {"foetalHeartRate" in item ? item?.foetalHeartRate : ``}
+                    {"foetalHeartRate" in item ? ` BPM` : `-`}
+                  </Text>
+                </View>
+              </View>
+              <Text
+                style={{
+                  color: "#000",
+                  fontFamily: printSettings?.page_format?.font_family,
+                  fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                  fontWeight: 500,
+                  padding: 6,
+                  borderBottom: "1px solid #171725",
+                  borderLeft: "1px solid #171725",
+                  borderRight: "1px solid #171725",
+                }}
+              >
+                Remarks&nbsp;:&nbsp;
+                <Text
+                  style={[
+                    styles.cell,
+                    {
+                      fontFamily: printSettings?.page_format?.font_family,
+                      fontSize:
+                        PX_TO_PT * printSettings?.page_format?.font_size,
+                      fontWeight: 400,
+                      color: "#000",
+                    },
+                  ]}
+                >
+                  {"notes" in item ? item?.notes : `-`}
+                </Text>
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+export default ObsHistoryTableView;

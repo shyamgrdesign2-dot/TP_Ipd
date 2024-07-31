@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, GB_GYNEC_HISTORY } from "../utils/constants";
+import { ADD, EDIT, GB_GYNEC_HISTORY, GYNAECOLOGY } from "../utils/constants";
 
 import { getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../redux/medicalhistorySlice";
@@ -39,12 +39,16 @@ import hey from "../assets/images/bg-hey.png";
 import { Content } from "antd/es/layout/layout";
 import vaccinationImg from "../assets/images/Vaccination.svg";
 import growthChartImg from "../assets/images/growth-chart-dark.svg";
+import obstetricImg from "../assets/images/obstetric-dark.svg";
 import Vaccination from "./vaccination/Vaccination";
 import GrowthChart from "./growthChart/GrowthChart";
 import { viewPatient } from "../redux/appointmentsSlice";
 import { useAccess } from "./vaccination/useAccess";
 import { getGynecDetails } from "../api/services/ApiGynec";
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import Obstetric from "./obstetric/Obstetric";
+import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
+import { fetchAllObstetricDetails } from "./obstetric/service";
+import { addObstetricDetails, navigateToObstetric } from "../redux/obstetricSlice";
 
 function Prescription() {
   const {
@@ -57,16 +61,14 @@ function Prescription() {
 
   const { selectedVitalsList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
+  const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
+    useSelector((state) => state.obstetric);
+  const { examinationHistory = [] } = obstetricDetails;
   const dispatch = useDispatch();
-
-  const isGynecHistoryAccessableFromGB = useFeatureIsOn(
-    GB_GYNEC_HISTORY
-  );
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
-  const isVaccination = state?.isVaccination;
-  const isGrowth = state?.isGrowth;
+  const chartType = state?.chartType;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -123,16 +125,30 @@ function Prescription() {
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
   const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
-  const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
+  const [obstetricDrawer, setObstetricDrawer] = useState(false);
+  const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     patient_data?.ageYears
   );
+
+  const getAllObstetricDetails = async () => {
+    const obstetricResponse = await fetchAllObstetricDetails(patient_data.patient_unique_id);
+    if (obstetricResponse) {
+      dispatch(addObstetricDetails(obstetricResponse));
+    }
+  }
 
   useEffect(() => {
     const sendData = {
       patient_unique_id: patient_data?.patient_unique_id,
     };
-    dispatch(viewPatient(sendData));
+    dispatch(viewPatient(sendData));    
   }, []);
+
+  useEffect(() => {
+    if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {
+      getAllObstetricDetails();
+    }
+  }, [isObstetricDetailsFetched, isGynaecHistoryAccessable]);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -288,7 +304,7 @@ function Prescription() {
   // Drawer Private Notes
   const handleDrawerPrivateNotes = useCallback((data) => {
     setSelectPrivateNotes(data)
-    setPrivateNotesDrawer(!privateNotesDrawer);
+      setPrivateNotesDrawer(!privateNotesDrawer);
   }, [privateNotesDrawer, selectPrivateNotes]);
 
   // Drawer Vaccination
@@ -302,17 +318,25 @@ function Prescription() {
     setIsGrowthChart(!isGrowthChart);
   };
 
-  useEffect(() => {
-    if (isVaccination) {
-      handleDrawerVaccination();
-    }
-  }, [isVaccination]);
+  // Drawer Obstetric
+  const handleDrawerObstetric = () => {
+    setObstetricDrawer(!obstetricDrawer);
+  };
 
   useEffect(() => {
-    if (isGrowth) {
+    if (chartType === "vaccination") {
+      handleDrawerVaccination();
+    } else if (chartType === "growthChart") {
       handleDrawerGrowth();
     }
-  }, [isGrowth]);
+  }, [chartType]);
+
+  useEffect(() => {
+    if (isNavigateToObstetric) {
+      handleDrawerObstetric();
+      dispatch(navigateToObstetric());
+    }
+  }, [isNavigateToObstetric]);
 
   //Handle Sider
   const handleCollapsed = useCallback(
@@ -393,8 +417,10 @@ function Prescription() {
   };
 
   useEffect(() => {
-    fetchGynecHistory();
-  }, []);
+    if(isGynaecHistoryAccessable){
+        fetchGynecHistory();
+    }
+  }, [isGynaecHistoryAccessable]);
 
   const fetchGynecHistory = async () => {
       try {
@@ -456,7 +482,7 @@ function Prescription() {
                           alt="Medical History"
                           className="me-3"
                         />
-                        <div className="title-common">{ isGynecHistoryAccessableFromGB ? `Gynec History` : `Medical History` }</div>
+                        <div className="title-common">{ isGynaecHistoryAccessable ? `Gynec History` : `Medical History` }</div>
                         {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
                             <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                           </Button> */}
@@ -485,32 +511,32 @@ function Prescription() {
                   e.tmdpm_id === 7 &&
                   e.tmdpm_status === 0 &&
                   isVaccinationAccessable ? (
-                    <div className="prescription-box-sm p-14">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={vaccinationImg}
-                            alt="vitals"
-                            className="me-3"
-                          />
-                          <div className="title-common">Vaccination</div>
-                        </div>
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerVaccination}
-                        >
-                          {" "}
-                          <i className={`icon-Add me-1 fs-5`}></i>{" "}
-                          <span>Add</span>
-                        </button>
+                  <div className="prescription-box-sm p-14">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <img
+                          src={vaccinationImg}
+                          alt="vitals"
+                          className="me-3"
+                        />
+                        <div className="title-common">Vaccination</div>
                       </div>
+                      <button
+                        className="btn d-flex align-items-center btn-text"
+                        onClick={handleDrawerVaccination}
+                      >
+                        {" "}
+                        <i className={`icon-Add me-1 fs-5`}></i>{" "}
+                        <span>Add</span>
+                      </button>
                     </div>
+                  </div>
                   )
                   : 
                   e.tmdpm_id === 16 &&
                   e.tmdpm_status === 0 &&
                   isGrowthChartAccessable ? (
-                    <div className="prescription-box-sm p-14">
+                  <div className="prescription-box-sm p-14">
                     <div className="d-flex align-items-center justify-content-between">
                       <div className="d-flex align-items-center">
                         <img src={growthChartImg} alt="growth" className="me-3" />
@@ -523,31 +549,63 @@ function Prescription() {
                         <i className={`icon-Add me-1 fs-5`}></i> <span>Add</span>
                       </button></div></div>
                   )
-                 : e.tmdpm_id === 8 && e.tmdpm_status === 0 && (
-                  <div key={i} className="prescription-box-sm p-14">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <div className="d-flex align-items-center">
+                 : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
+                    <div key={i} className="prescription-box-sm p-14">
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center">
                         <img src={privateNotes} alt="Private Notes" className="me-3" />
                         <div className="title-common">
                           Private Notes
                         </div>
-                      </div>
-                      {!privateNotesData && (
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerPrivateNotes}
-                        >
+                        </div>
+                        {!privateNotesData && (
+                          <button
+                            className="btn d-flex align-items-center btn-text"
+                            onClick={handleDrawerPrivateNotes}
+                          >
                           <i
                             className="icon-Add me-1 fs-5"></i>
-                          <span>Add</span>
-                        </button>
+                            <span>Add</span>
+                          </button>
+                        )}
+                      </div>
+                      {privateNotesList.length > 0 && (
+                      <PrivateNotesList handleDrawerPrivateNotes={handleDrawerPrivateNotes} />
                       )}
                     </div>
-                    {privateNotesList.length > 0 && (
-                      <PrivateNotesList handleDrawerPrivateNotes={handleDrawerPrivateNotes} />
-                    )}
-                  </div>
-                )
+                  )
+                  : e.tmdpm_id === 17 && e.tmdpm_status === 0 && isGynaecHistoryAccessable && (
+                    <div className="prescription-box-sm p-14">
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center">
+                          <img
+                            src={obstetricImg}
+                            alt="obstetric"
+                            className="me-3"
+                          />
+                          <div className="title-common">Obstetric History</div>
+                        </div>
+                        <button
+                          className="btn d-flex align-items-center btn-text"
+                          onClick={handleDrawerObstetric}
+                        >
+                          <i
+                            className={`${
+                              examinationHistory.length > 0
+                                ? "icon-Edit"
+                                : "icon-Add"
+                            } me-1 fs-5`}
+                          ></i>
+                          <span>{`${
+                            examinationHistory.length > 0 ? "Edit" : "Add"
+                          }`}</span>
+                        </button>
+                      </div>
+                      {examinationHistory?.length > 0 && (
+                        <ObstetricList />
+                      )}
+                    </div>
+                  )
               })}
 
               {/* <div>
@@ -645,15 +703,15 @@ function Prescription() {
         </Drawer>
         {
           vaccinationDrawer && (
-            <Drawer
-              closeIcon={false}
-              placement="right"
-              onClose={handleDrawerVaccination}
-              open={vaccinationDrawer}
-              width="100%"
-            >
-              <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
-            </Drawer>
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerVaccination}
+            open={vaccinationDrawer}
+            width="100%"
+          >
+            <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
+          </Drawer>
           )
         }
         {growthDrawer && (
@@ -666,6 +724,18 @@ function Prescription() {
             push={false}
           >
             <GrowthChart handleDrawerVaccination={handleDrawerGrowth} />
+          </Drawer>
+        )}
+        {obstetricDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerObstetric}
+            open={obstetricDrawer}
+            width="100%"
+            push={false}
+          >
+            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
           </Drawer>
         )}
       </>

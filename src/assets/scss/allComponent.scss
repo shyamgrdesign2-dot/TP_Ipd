@@ -1176,25 +1176,19 @@ body {
     }
 }
 
-.gynec-history-list .d-flex {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
 .gynec-history-list .text-history {
-    flex: 1;
-}
-
-.gynec-history-list .fontroboto {
-    flex: 1;
-    text-align: end;
+    width: 44%;
+    word-break: break-word;
+    align-content: center;
+    &.fs-13{
+        font-size: 12px;
+    }
+    &.t-bold{
+        font-weight: 600;
+    }
 }
 
 .gynec-history-list .semicolon {
-    padding: 0 8px; 
+    width: 2%;
 }
 
-.text-end {
-    text-align: right;
-}

@@ -15,6 +15,7 @@ import messageSent from '../assets/images/message-sent.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
 import { useSelector, useDispatch } from "react-redux";
+import { useAccess } from "./vaccination/useAccess";
 
 import { viewCaseManager } from "../redux/caseManagerSlice";
 
@@ -94,14 +95,17 @@ function PrescriptionPrintView() {
     const [printBlob, setPrintBlob] = useState(null);
 
     const [gynecHistoryData, setGynecHistoryData] = useState(null);
+    const {isGynaecHistoryAccessable} = useAccess();
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
 
     useEffect(() => {
-        fetchGynecHistory();
-    }, []);
+        if(isGynaecHistoryAccessable){
+            fetchGynecHistory();
+        }
+    }, [isGynaecHistoryAccessable]);
     
     const fetchGynecHistory = async () => {
         try {
