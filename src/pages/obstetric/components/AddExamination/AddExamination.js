@@ -24,6 +24,7 @@ function AddExamination({
   toggleDeletePopup,
   isDataAddedOrEdited,
   setIsDataAddedOrEdited,
+  setIsExaminationUpdated,
 }) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
@@ -68,6 +69,7 @@ function AddExamination({
   };
 
   const addExaminationData = async () => {
+    setIsExaminationUpdated(true);
     const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
     let decodedToken;
     if (token) {

@@ -21,6 +21,7 @@ function PastPregnancy({
   toggleDeletePopup,
   isDataAddedOrEdited,
   setIsDataAddedOrEdited,
+  setIsPastPregnancyUpdated,
 }) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
@@ -53,6 +54,7 @@ function PastPregnancy({
   };
 
   const addPastPregnancyData = async () => {
+    setIsPastPregnancyUpdated(true);
     const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
     let decodedToken;
     if (token) {
