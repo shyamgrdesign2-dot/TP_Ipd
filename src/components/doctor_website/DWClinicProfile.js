@@ -280,10 +280,10 @@ function DWClinicProfile() {
         if (checkFiles === 0 || checkFiles < 5) {
             if (el.target.files?.length > 0) {
                 const files = Array.from(el.target.files);
-                const selectedImages = files.filter(file => file.type.startsWith('image/')).slice(0, 6 - checkFiles);
+                const selectedImages = files.filter(file => file.type.startsWith('image/')).slice(0, 5 - checkFiles);
                 const fileUrls = selectedImages;
                 const updatedData = Object.entries(fileUrls).reduce((acc, [key, fileUrl]) => {
-                    if (fileUrl.size <= 2000000 && ['image/png', 'image/jpeg', 'image/jpg'].includes(fileUrl.type)) {
+                    if (fileUrl.size <= 2101546 && ['image/png', 'image/jpeg', 'image/jpg'].includes(fileUrl.type)) {
                         acc.push({
                             clinic_image_id: Math.floor(1000000000 + Math.random() * 9999999999),
                             clinic_image_delete: 0,
@@ -446,7 +446,7 @@ function DWClinicProfile() {
                                 </>
                             ) : e?.selectedTab === TAB_PHOTOS && (
                                 <div className='px-10'>
-                                    <div className='d-flex flex-wrap mb-3'>
+                                    <div className='d-flex flex-wrap mb-2'>
                                         <Image.PreviewGroup
                                             preview={{
                                                 visible,
@@ -498,6 +498,9 @@ function DWClinicProfile() {
                                                 onChange={(el) => handleImageChange(el, e)} />
                                             <img src={AddPhotos} alt='Clinic Photos' className='img-fluid' />
                                         </div>
+                                    </div>
+                                    <div className='mb-2 fs-12-1'>
+                                        You Can Upload only 5 Photos at a time
                                     </div>
                                 </div>
                             )}

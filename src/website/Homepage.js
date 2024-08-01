@@ -41,7 +41,8 @@ import websiteInstagram from '../assets/images/website-images/website-instagram.
 import websiteLinkedin from '../assets/images/website-images/website-linkedin.svg'
 import websiteTwitter from '../assets/images/website-images/website-twitter.svg'
 import websiteYoutube from '../assets/images/website-images/website-youtube.svg'
-import { validateEmail } from '../utils/utils';
+import { errorMessage, isValidWebsite, validateEmail } from '../utils/utils';
+import { isMobile } from 'react-device-detect';
 
 const slideData = [1, 2, 3, 4]
 const dateFormat = 'HH:mm:ss'
@@ -227,7 +228,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
   return (
     <div className="website-wrapper">
       {/* Header Section */}
-      <div className="container-fluid mt-14">
+      <div className="container-fluid mt-14" style={{ position: 'sticky', top: 14, zIndex: 9 }}>
         <div className={`website-section website-header ${showNavbar && "website-header-responsive"}`}>
           <nav className="navbar">
             <div className='d-flex align-items-center justify-content-between w-100'>
@@ -428,9 +429,13 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                                 <img width={19} height={19} className='me-2' src={Direction} alt="Direction" /> Direction to Clinic
                               </Button>
                             )}
-                            {e?.contact_no && (
-                              <Button type="button" onClick={() => window.location.href = (`tel:${e?.contact_no}`)} className="btn btn-primary3 btn-48">
-                                <img width={19} height={19} src={Call} className='me-2' alt="Call" /> Call Clinic
+                            {e?.contact_no && !isMobile ? (
+                              <Button type="button" className="btn btn-primary3 btn-48 rounded-18">
+                                <a className='text-white d-flex align-items-center'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
+                              </Button>
+                            ) : (
+                              <Button type="button" onClick={() => window.location.href = (`tel:${e?.contact_no}`)} className="btn btn-primary3 btn-48 rounded-18">
+                                <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
                               </Button>
                             )}
                           </div>
@@ -447,7 +452,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                               </div>
                               {e?.shift?.map((e1, i1) => (
                                 <div key={i1} className='mt-4'>
-                                  {e1?.days?.length > 0 && e1?.timing?.length ? (
+                                  {e1?.days?.length > 0 && e1?.timing?.length && (
                                     <>
                                       <div className='text-welcome fw-medium fs-16 text-capitalize'>{formatDays(e1.days)}</div>
 
@@ -457,9 +462,10 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                                         </div>
                                       ))}
                                     </>
-                                  ) : 'No Timings details'}
+                                  )}
                                 </div>
                               ))}
+                              {e?.shift?.filter(el => el?.days?.length > 0)?.length === 0 && (<div>No Timings details</div>)}
                             </div>
                           </div>
                         )}
@@ -485,13 +491,13 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                   <img width={28} height={28} src={ServicecIcon} alt="Our Services" />
                 </div>
                 <h3 className="doctor-name h1 web-h1 text-welcome mb-lg-5 mb-28">Our Services</h3>
-                {services?.length > 0 ? (
+                {services?.filter(el => el.title)?.length > 0 ? (
                   <Row >
-                    {services?.map((e, i) => {
+                    {services?.filter(el => el.title)?.map((e, i) => {
                       return (
-                        <Col key={i} sm={24} lg={services.length == 1 ? 24 : 12}>
+                        <Col key={i} sm={24} lg={services?.filter(el => el.title)?.length == 1 ? 24 : 12}>
                           {e?.title && (
-                            <div className={`d-flex ${services.length == 1 && 'justify-content-center'} align-items-center text-welcome text-start fs-16 p-14`}> <div className='bg-icon-common bg-icon-sm me-3'><img width={18} height={18} src={CheckIcon} alt="Our Services" /></div> {e?.title}</div>
+                            <div className={`d-flex ${services?.filter(el => el.title)?.length == 1 && 'justify-content-center'} align-items-center text-welcome text-start fs-16 p-14`}> <div className='bg-icon-common bg-icon-sm me-3'><img width={18} height={18} src={CheckIcon} alt="Our Services" /></div> {e?.title}</div>
                           )}
                         </Col>
                       )
@@ -741,7 +747,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                 <img width={50.313} height={71.669} src={avatarDoctor} alt="Doctor Profile" />
               </div>
               <h3 className="doctor-name h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h3>
-              <div className='fs-18 text-welcome fw-medium mt-1'>{`${personalDetails?.education}, - ${personalDetails?.specialty}`}</div>
+              <div className='fs-18 text-welcome fw-medium mt-1'>{`${personalDetails?.education} - ${personalDetails?.specialty}`}</div>
               <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mt-4 px-4 mb-5">
                 Book Appointment
               </Button>
@@ -756,19 +762,19 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
               {otherSettings?.enable_social_links ? (
                 <div className='d-flex align-items-center justify-content-center mt-5'>
                   {socialLinks?.facebook && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.facebook)}><img width={14.769} height={14.769} src={websiteFacebook} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.facebook) ? window.open(socialLinks?.facebook):errorMessage('Wrong Facebook URL')}><img width={14.769} height={14.769} src={websiteFacebook} alt="Email" /></div>
                   )}
                   {socialLinks?.instagram && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.instagram)} ><img width={14.769} height={14.769} src={websiteInstagram} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.instagram) ? window.open(socialLinks?.instagram):errorMessage('Wrong Instagram URL')} ><img width={14.769} height={14.769} src={websiteInstagram} alt="Email" /></div>
                   )}
                   {socialLinks?.linkedin && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.linkedin)}><img width={14.769} height={14.769} src={websiteLinkedin} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.linkedin) ? window.open(socialLinks?.linkedin):errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteLinkedin} alt="Email" /></div>
                   )}
                   {socialLinks?.twitter && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.twitter)}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.twitter) ? window.open(socialLinks?.twitter):errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
                   )}
                   {socialLinks?.youtube && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => window.open(socialLinks?.youtube)}><img width={14.769} height={14.769} src={websiteYoutube} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.youtube) ? window.open(socialLinks?.youtube):errorMessage('Wrong youtube URL')}><img width={14.769} height={14.769} src={websiteYoutube} alt="Email" /></div>
                   )}
                 </div>
               ) : null}
@@ -796,7 +802,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
         onCancel={handleCancel}
         footer={false}
         width={792}
-        className='website-appointment-model p-lg-5'>
+        className='website-appointment-model'>
         <div className='model-title text-welcome mt-4'>Book an Appointment</div>
         <div className='model-subtitle mt-2'>Please contact the clinic to schedule an appointment.</div>
         <Row className='mt-4'>
@@ -828,9 +834,15 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                           </Row>
                         </div>
                         <div>
-                          <Button type="button" onClick={() => window.location.href = (`tel:${e?.contact_no}`)} className="btn btn-primary3 btn-48 rounded-18">
-                            <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
-                          </Button>
+                          {!isMobile ? (
+                            <Button type="button" className="btn btn-primary3 btn-48 rounded-18">
+                              <a className='text-white d-flex align-items-center'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
+                            </Button>
+                          ) : (
+                            <Button type="button" onClick={() => window.location.href = (`tel:${e?.contact_no}`)} className="btn btn-primary3 btn-48 rounded-18">
+                              <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
+                            </Button>
+                          )}
                         </div>
                       </div>
                       <div className='round-shape-top-education round'></div>

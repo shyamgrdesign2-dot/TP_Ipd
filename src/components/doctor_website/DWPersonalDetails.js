@@ -26,7 +26,7 @@ function DWPersonalDetails() {
     const handleImageChange = (e) => {
         if (e.target.files?.length > 0) {
             const fileUrl = e.target.files[0];
-            if (fileUrl.size <= 2000000 && (fileUrl.type == 'image/png' || fileUrl.type == 'image/jpeg' || fileUrl.type == 'image/jpg')) {
+            if (fileUrl.size <= 2101546 && (fileUrl.type == 'image/png' || fileUrl.type == 'image/jpeg' || fileUrl.type == 'image/jpg')) {
                 personalDetails['hero_image_name'] = fileUrl.name
                 personalDetails['hero_image_link'] = URL.createObjectURL(fileUrl)
                 personalDetails['uploadFile'] = fileUrl
@@ -42,18 +42,18 @@ function DWPersonalDetails() {
             <div className="text-greycolor fontroboto mb-3"> Write about doctor's personal details.</div>
             <Form layout="vertical">
                 <Row gutter={20}>
-                    <Col span={12}>
+                    <Col span={24}>
                         <Form.Item
-                            label="First Name"
+                            label="Full Name"
                             className='fw-medium mb-20'
                             required>
-                            <Input placeholder="First Name"
+                            <Input placeholder="Full Name"
                                 className="text-capitalize rounded-10px h-38"
-                                value={personalDetails?.first_name}
-                                onChange={(e) => onChangeInput(e, 'first_name')} />
+                                value={personalDetails?.first_name + ' ' + personalDetails?.last_name}
+                                disabled/>
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    {/* <Col span={12}>
                         <Form.Item
                             label="Last Name"
                             className='fw-medium mb-20'
@@ -63,7 +63,7 @@ function DWPersonalDetails() {
                                 value={personalDetails?.last_name}
                                 onChange={(e) => onChangeInput(e, 'last_name')} />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
                     <Col span={12}>
                         <Form.Item
                             label="Specialty"

@@ -481,13 +481,16 @@ function Header({ locationPath }) {
     //     </a>,
     //   key: '7',
     // },
-    {
-      type: 'divider',
-    },
-    {
-      label: <><i className="icon-exit me-2"></i> Log Out</>,
-      key: '8',
-    },
+
+
+    // CSS Also comment
+    // {
+    //   type: 'divider',
+    // },
+    // {
+    //   label: <><i className="icon-exit me-2"></i> Log Out</>,
+    //   key: '8',
+    // },
   ];
 
   return (
