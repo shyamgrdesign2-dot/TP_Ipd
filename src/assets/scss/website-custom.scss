@@ -273,13 +273,13 @@ body .ant-btn.btn-48 {
     .website-header {
         padding: 0;
         border-radius: 16.583px;
-        background-color: rgba(255, 255, 255, 0.40);
+        background-color: rgba(255, 255, 255, 0.70);
         border: 0.829px solid var(--T-BG-10, $drawerHeaderColor);
         backdrop-filter: blur(11.388888359069824px);
         &.website-header-responsive {
             height: calc(100vh - 20px) !important;
             border: 0.642px solid var(--T-BG-10, #F1F1F5);
-            background: rgba(255, 255, 255, 0.40);
+            background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(30px);
         }
         .logo, .menu-icon {
@@ -291,11 +291,15 @@ body .ant-btn.btn-48 {
             list-style: none;
             li {
                 a {
-                    padding: 10px;
+                    padding: 4px 8px;
                     margin: 0 15px;
                     color: $welcomecolor;
                     font-size: 12px;
                     font-weight: 400;
+                    border-radius: 18px;
+                    &:focus, &:hover, &:active, &:focus-within, &:visited, &:focus-visible {
+                        background-color: $drawerHeaderColor;
+                    }
                     @media only screen and (max-width: 1140px) {
                         margin: 0 10px;
                     }
@@ -530,7 +534,7 @@ body .ant-btn.btn-48 {
                             margin-bottom: 30px;
                         }
                     }
-                    @media only screen and (max-width: 1200px)  {
+                    @media only screen and (max-width: 1400px)  {
                         &:first-child {
                             margin-bottom: 15px;
                         }
