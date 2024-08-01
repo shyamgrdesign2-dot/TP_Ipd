@@ -5,7 +5,7 @@ import React, {
   useContext,
   useRef,
 } from "react";
-import { Drawer,message } from "antd";
+import { Button, Drawer,message } from "antd";
 import { useLocation } from "react-router-dom";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -63,7 +63,7 @@ function SmartPrescription() {
   const [token, setToken] = useState(null);
   const [tokenData, setTokenData] = useState(null);
   const [prescription, setPrescription] = useState(false);
-  const canvasRef = useRef(null);
+  // const canvasRef = useRef(null);
   const [refresh, setRefresh] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -76,10 +76,12 @@ function SmartPrescription() {
   const [hasError, setHasError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const imageRef = useRef(null);
-  
   const socketRef = useRef(null);
-
-  const ctxGlobalRef = useRef(null);
+  const ctxGlobalRefs = useRef([]);
+  const [pages, setPages] = useState([]);
+  const [selectedPage, setSelectedPage] = useState(0);
+  const selectedPageRef = useRef(selectedPage); // Add a ref for selectedPage
+  const canvasRefs = useRef([]);
 
   const contextApi = {
     patient_data,
@@ -294,7 +296,7 @@ function SmartPrescription() {
         };
       });
       setVitalsData(updatedData);
-    }
+    } 
   }, [selectedVitalsList]);
 
   useEffect(() => {
@@ -311,40 +313,46 @@ function SmartPrescription() {
   }, []);
 
   useEffect(() => {
-    
     const parentElement = document.getElementById("pdf");
 
     if (!parentElement) {
       errorMessage("Canvas not found, please refresh the page!");
       return;
     }
-  
-    // Remove the previous canvas
-    const previousCanvas = canvasRef.current;
-    if (previousCanvas) {
-      previousCanvas.parentNode.removeChild(previousCanvas);
+    
+    if (pages.length === 0 ){
+      handleAddPage()
     }
-  
-    // Generate a new canvas with a new UUID and white background
-    const newCanvas = document.createElement("canvas");
-    const parentWidth = parentElement.offsetWidth;
-    const parentHeight = parentElement.offsetHeight;
-    newCanvas.id = uuidv4();
-    newCanvas.width = parentWidth * 1;
-    newCanvas.height = parentHeight * 1;
-    newCanvas.style.backgroundColor = "white";
-    newCanvas.style.border = "1px solid lightgrey";
-    newCanvas.style.borderRadius = "20px";
-    newCanvas.style.color = "black";
-    parentElement.appendChild(newCanvas);
-    canvasRef.current = newCanvas;
-  
-    if (smartRxFile) {
-      ctxGlobalRef.current = canvasRef.current.getContext('2d');
-      ctxGlobalRef.current.fillStyle = "white";
-      ctxGlobalRef.current.fillRect(0, 0, newCanvas.width, newCanvas.height);
-    }
-  }, [refresh, prescription]);
+    
+    // Ensure a canvas exists for each page
+    pages.forEach((page, index) => {
+      if (!canvasRefs.current[index]) {
+        const newCanvas = document.createElement("canvas");
+        const parentWidth = parentElement.offsetWidth;
+        const parentHeight = parentElement.offsetHeight;
+        newCanvas.id = page;
+        newCanvas.width = parentWidth;
+        newCanvas.height = parentHeight;
+        newCanvas.style.backgroundColor = "white";
+        newCanvas.style.border = "1px solid lightgrey";
+        newCanvas.style.borderRadius = "20px";
+        newCanvas.style.color = "black";
+        parentElement.appendChild(newCanvas);
+        canvasRefs.current[index] = newCanvas;
+
+        if (smartRxFile) {
+          const ctx = newCanvas.getContext('2d');
+          ctx.fillStyle = "white";
+          ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+          ctxGlobalRefs.current[index] = ctx;
+        }
+      }
+    });
+  }, [pages, smartRxFile]);
+
+  useEffect(() => {
+    selectedPageRef.current = selectedPage; // Update the ref when selectedPage changes
+  }, [selectedPage]);
 
   const wsError = (error) => {
       message.open({
@@ -364,9 +372,8 @@ function SmartPrescription() {
 
   // Handles Websocket Connection
   const connectWebSocket = () => {
-
+    // WebSocket initialization (reconnectingwebsocket -> this package handles the reconnection)
     try {
-      // WebSocket initialization (reconnectingwebsocket -> this package handles the reconnection)
       socketRef.current = new ReconnectingWebSocket(WEBSOCKET_ADDRESS, null, {debug: true, reconnectInterval: 3000});
       
       socketRef.current.onopen = () => {
@@ -381,9 +388,11 @@ function SmartPrescription() {
       };
 
       const drawFunction = smartRxFile ? editDraw : draw;
+     
+      console.log({selectedPage})
       socketRef.current.onmessage = (event) => {
         const o = event.data.split("|");
-        drawFunction(o[0], o[1], o[2], o[3]);
+        drawFunction(o[0], o[1], o[2], o[3], selectedPageRef.current);
       };
 
       socketRef.current.onerror = (error) => {
@@ -401,8 +410,37 @@ function SmartPrescription() {
     }
   };
 
-  function draw(t, n, a, c) {
-    const canvas = canvasRef.current;
+  const handleAddPage = () => {
+    const newPageId = uuidv4();
+    setPages([...pages, newPageId]);
+    setSelectedPage(pages.length); // Set the new page as the selected page
+  };
+
+  const handleDeletePage = (index) => {
+    const newPages = pages.filter((_, pageIndex) => pageIndex !== index);
+    setPages(newPages);
+    if (selectedPage >= newPages.length) {
+      setSelectedPage(newPages.length - 1);
+    }
+  };
+
+  const handlePageChange = (index) => {
+    setSelectedPage(index);
+  };
+
+  const handleRefresh = () => {
+    const canvas = canvasRefs.current[selectedPage];
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+  };
+
+  function draw(t, n, a, c, pageIndex) {
+    // console.log({selectedPage})
+    const canvas = canvasRefs.current[pageIndex];
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#fff";
@@ -420,15 +458,16 @@ function SmartPrescription() {
   }
 
   function editDraw(t, n, a, c) {
-    const canvas = canvasRef.current;
+    console.log({selectedPage})
+    const canvas = canvasRefs.current[selectedPage];
     if (!canvas) return;
     const scaleFactor = 1.5;
-    ctxGlobalRef.current.strokeStyle = '#000';
-    ctxGlobalRef.current.beginPath();
-    ctxGlobalRef.current.moveTo(t * scaleFactor, n * scaleFactor);
-    ctxGlobalRef.current.lineTo(a * scaleFactor, c * scaleFactor);
-    ctxGlobalRef.current.lineJoin = ctxGlobalRef.current.lineCap = "round";
-    ctxGlobalRef.current.stroke();
+    ctxGlobalRefs.current[selectedPage].strokeStyle = '#000';
+    ctxGlobalRefs.current[selectedPage].beginPath();
+    ctxGlobalRefs.current[selectedPage].moveTo(t * scaleFactor, n * scaleFactor);
+    ctxGlobalRefs.current[selectedPage].lineTo(a * scaleFactor, c * scaleFactor);
+    ctxGlobalRefs.current[selectedPage].lineJoin = ctxGlobalRefs.current[selectedPage].lineCap = "round";
+    ctxGlobalRefs.current[selectedPage].stroke();
   }
 
   const convertCanvasToJPEG = (canvas) => {
@@ -449,25 +488,21 @@ function SmartPrescription() {
       socketRef.current = null;
     }
 
-    const canvas = canvasRef.current;
-    let name = null;
+    const canvasArray = canvasRefs.current;
+    let blobs = [];
+    let files = [];
 
-    if (smartRxFile) {
-      name  = caseManagerData.smart_prescription_filename;
-    } else {
-      const imgId = uuidv4();
-      name = `${imgId}.jpeg`;
-    }
-    setBlobName(name);
-    let blob = null;
-    let file = null;
-
-    try{
-      // throw new Error("Simulated conversion error");
-      blob = await convertCanvasToJPEG(canvas);
-      file = new File([blob], name, { type: 'image/jpeg' });
-    }
-    catch (error) {
+    try {
+      // Convert all canvases to JPEG blobs and files
+      for (let i = 0; i < canvasArray.length; i++) {
+        const canvas = canvasArray[i];
+        if (!canvas) continue;
+        const blob = await convertCanvasToJPEG(canvas);
+        const name = smartRxFile ? caseManagerData.smart_prescription_filename : `${uuidv4()}.jpeg`;
+        blobs.push(blob);
+        files.push(new File([blob], name, { type: 'image/jpeg' }));
+      }
+    } catch (error) {
       console.log('Error converting canvas to JPEG:', error);
       errorMessage("Failed to generate image, Please Submit again");
       return;
@@ -475,21 +510,18 @@ function SmartPrescription() {
 
     // FormData to handle file upload
     const formData = new FormData();
-    formData.append('smart_prescription_filename', name);
-    formData.append('smart_prescription_file', file);
+    files.forEach((file, index) => {
+      formData.append(`smart_prescription_file_${index + 1}`, file);
+    });
     formData.append('doctor_unique_id', tokenData?.doctor_unique_id);
     formData.append('patient_unique_id', patient_data?.patient_unique_id);
 
     try {
-      const response = await api.post(
-        SMART_RX_UPLOAD,
-        formData,
-        baseUrl
-      );
+      const response = await api.post(SMART_RX_UPLOAD, formData, { baseURL: baseUrl });
       const data = response?.message;
 
       if (data) {
-        setSmartRxDetails(name);
+        setSmartRxDetails(files.map(file => file.name));
       }
     } catch (error) {
       errorMessage("Error Uploading the prescription, Please try again");
@@ -497,16 +529,17 @@ function SmartPrescription() {
     }
   };
 
-  const handleRefresh = () => {
-    setRefresh(!refresh);
-  };
-
   const handleWrite = () => {
     setPrescription(true);
     connectWebSocket();
+    // if (smartRxFile) {
+    //   imageLoad(smartRxFile);
+    // }
   };
 
   useEffect(() => {
+    // Set the first page as the default selected page on initial render
+    setSelectedPage(0);
     // this is to remove the click from the right container.
     handleWrite();
     if (smartRxFile) {
@@ -577,12 +610,14 @@ function SmartPrescription() {
     };
   }
 
+  console.log(pages,"pages")
+  console.log(selectedPage,"selectedPage")
   useEffect(() => {
-    if (smartRxFile && imageLoaded && canvasRef.current) {
-      ctxGlobalRef.current = canvasRef.current.getContext('2d');
-      ctxGlobalRef.current.drawImage(imageRef.current, 0, 0)
+    if (smartRxFile && imageLoaded && canvasRefs.current[selectedPage]) {
+      ctxGlobalRefs.current[selectedPage] = canvasRefs.current[selectedPage].getContext('2d');
+      ctxGlobalRefs.current[selectedPage].drawImage(imageRef.current, 0, 0);
     }
-  }, [imageLoaded]);
+  }, [imageLoaded, selectedPage]);
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -651,7 +686,39 @@ function SmartPrescription() {
                   id="pdf"
                   style={{ border: prescription ? "none" : "lightgrey" }}
                 >
-                  <canvas ref={canvasRef} width="720px" height="980px" />
+                  <Button onClick={() => handlePageChange(0)}>
+                    Page 1
+                  </Button>
+                  {pages.slice(1, -1).map((page, index) => (
+                    <Button key={page} onClick={() => handlePageChange(index + 1)}>
+                      Page {index + 2}
+                    </Button>
+                  ))}
+                  {pages.length > 0 && 
+                    <Button onClick={() => handlePageChange(pages.length - 1)}>
+                      Page {pages.length}
+                    </Button>
+                  }
+                  <Button onClick={handleAddPage}>New Page</Button>
+                  {/* {pages.map((page, index) => (
+                    <div key={page} className="canvas-container">
+                      <div className="canvas-header">
+                        <span>Page {index + 1}</span>
+                        <Button onClick={() => handleRefresh(index)}>Refresh</Button>
+                        <Button onClick={() => handleDeletePage(index)} disabled={pages.length === 1}>Delete</Button>
+                      </div>
+                      <canvas 
+                        ref={el => canvasRefs.current[index] = el}
+                        onClick={() => handlePageChange(index)}
+                      >
+                      </canvas>
+                      <div className="canvas-footer">
+                        {index === pages.length - 1 && (
+                          <Button onClick={handleAddPage}>Add New Page</Button>
+                        )}
+                      </div>
+                    </div>
+                  ))} */}
                 </div>
               </div>
             </div>
