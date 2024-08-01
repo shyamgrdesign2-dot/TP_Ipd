@@ -741,7 +741,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                 <img width={50.313} height={71.669} src={avatarDoctor} alt="Doctor Profile" />
               </div>
               <h3 className="doctor-name h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h3>
-              <div className='fs-18 text-welcome fw-medium mt-1'>{`${personalDetails?.education}, - ${personalDetails?.specialty}`}</div>
+              <div className='fs-18 text-welcome fw-medium mt-1'>{`${personalDetails?.education} - ${personalDetails?.specialty}`}</div>
               <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mt-4 px-4 mb-5">
                 Book Appointment
               </Button>
