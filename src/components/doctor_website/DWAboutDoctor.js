@@ -24,7 +24,7 @@ function DWAboutDoctor() {
     const onChangeInput = useCallback(
         (e, key) => {
             if (key === 'years_experience') {
-                if (e.target.value.length < 3 && (!e.target.value || parseInt(e.target.value) <= 40)) {
+                if (e.target.value.length < 4 && (!e.target.value || parseInt(e.target.value) <= 100)) {
                     aboutDoctor[key] = onlyNumberFormat(e.target.value);
                 }
             } else {
@@ -45,7 +45,7 @@ function DWAboutDoctor() {
     );
     const increment = useCallback(
         () => {
-            if (!aboutDoctor?.years_experience || parseInt(aboutDoctor?.years_experience) < 40) {
+            if (!aboutDoctor?.years_experience || parseInt(aboutDoctor?.years_experience) < 100) {
                 setAboutDoctor((prev) => { return { ...prev, years_experience: prev?.years_experience ? parseInt(prev?.years_experience) + 1 : 1 } });
             }
         },

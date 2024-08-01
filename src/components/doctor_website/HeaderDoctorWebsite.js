@@ -375,7 +375,7 @@ function HeaderDoctorWebsite() {
                         </Row>
                     </Container >
                 </Navbar>
-                <div className="overflow-auto" style={{ height: 'calc(100vh - 60px)' }}>
+                <div className="overflow-auto bg-white" style={{ height: 'calc(100vh - 60px)' }}>
                     <Homepage
                         personalDetails={personalDetails}
                         aboutDoctor={aboutDoctor}
