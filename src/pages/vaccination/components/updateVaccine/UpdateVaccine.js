@@ -38,7 +38,6 @@ const UpdateVaccine = ({
   setCardClicked,
   setLoading,
 }) => {
-  console.log({ patientDetails });
   const dispatch = useDispatch();
   const { TextArea } = Input;
   const [changeDate, setChangeDate] = useState(false);
@@ -66,7 +65,6 @@ const UpdateVaccine = ({
   const { patient_data } = state;
   const formRef = useRef(null);
   const { profile } = useSelector((state) => state.doctors);
-  console.log({ profile });
 
   const handleFocus = (index, isFocused = false) => {
     setIsOpen((prev) => {

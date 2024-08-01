@@ -33,7 +33,6 @@ function Measurements(props) {
   } = props;
 
   const { patient_data } = useContext(CashManagerContext);
-  console.log({ patient_data });
   const [measurementsData, setMeasurementsData] = useState([
     {
       date: moment().format(dateFormat),
