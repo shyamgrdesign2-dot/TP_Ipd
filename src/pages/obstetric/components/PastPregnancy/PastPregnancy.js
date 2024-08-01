@@ -525,6 +525,8 @@ function PastPregnancy({
                   onChange={(e) =>
                     handlePastPregnancyDataChange("remarks", e.target.value)
                   }
+                  autoComplete="off"
+                  autoCorrect="off"
                 />
               </div>
             </>

@@ -515,6 +515,8 @@ function AddExamination({
               onChange={(e) =>
                 handleExaminationDataChange("notes", e.target.value)
               }
+              autoComplete="off"
+              autoCorrect="off"
             />
           </div>
         </div>
