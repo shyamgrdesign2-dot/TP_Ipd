@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData } = props
+    let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData } = props
 
     const gynecHistoryData = caseManagerData?.gynecHistoryData 
     
@@ -176,6 +176,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     }
 
     let gynecListViewCounter = 1;
+    console.log({smartRxData});
+    const isSmartSyncPrescription = smartRxData && smartRxData[0]?.smart_prescription_file;
 
     return (
         <Document>
@@ -201,7 +203,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     paddingLeft: mode == NORMAL ? printSettings?.letterhead_format != 2 ? PX_TO_PT * 30 : printSettings?.header_footer?.margin?.left ? printSettings?.header_footer?.margin?.left * 25 : 0 : PX_TO_PT * 30,
                     paddingRight: mode == NORMAL ? printSettings?.letterhead_format != 2 ? PX_TO_PT * 30 : printSettings?.header_footer?.margin?.right ? printSettings?.header_footer?.margin?.right * 25 : 0 : PX_TO_PT * 30,
                 }}
-                wrap={!smartRxFile}>
+                wrap={!smartRxData}>
 
                 <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed>
                     {mode == NORMAL ? (
@@ -1351,9 +1353,21 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </>
                                 </>
                             ) : option?.id === 11 && option?.enable === 'Y' && option?.custom_status === 'Y' && caseManagerData?.smart_prescription_filename ? (
-                                    <Image
-                                        src={smartRxFile}
-                                    />
+                                <>
+                                {isSmartSyncPrescription && (
+                                    smartRxData.data.map((item, i) => (
+                                        <View key={i}>
+                                            <View style={{ marginTop: PX_TO_PT * 15, width: '100%', height: '800' }}>
+                                                <Image
+                                                    style={{ width: '100%', height: '100%' }}
+                                                    source={{ uri: item.smart_prescription_file }}
+                                                    resizeMode="contain"
+                                                />
+                                            </View>
+                                        </View>
+                                    ))
+                                )}
+                                </>
                             ) : option?.id === 12 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     {growthChartData?.length > 0 && (
