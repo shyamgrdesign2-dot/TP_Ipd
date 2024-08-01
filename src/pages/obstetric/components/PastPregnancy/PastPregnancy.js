@@ -41,7 +41,8 @@ function PastPregnancy({
     setPastPregnancyData((prevData) => {
       const newData = {
         ...prevData,
-        [field]: value === prevData[field] ? undefined : value,
+        [field]:
+          field !== "remarks" && value === prevData[field] ? undefined : value,
         modifiedAt: new Date().toISOString(),
       };
       return newData;
