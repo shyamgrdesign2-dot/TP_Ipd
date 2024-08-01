@@ -25,7 +25,7 @@ import dayjs from "dayjs";
 import moment from "moment";
 import { jwtDecode } from "jwt-decode";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
-import { errorMessage } from "../../utils/utils";
+import { errorMessage, getClinicName } from "../../utils/utils";
 import SuccessPopup from "../growthChart/components/SuccessPopup";
 import CommonModal from "../../common/CommonModal";
 
@@ -101,10 +101,12 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
     { value: abortion, label: "A", key: "abortion" },
     { value: ectopicPregnancies, label: "E", key: "ectopicPregnancies" },
   ]);
+  const [isExaminationUpdated, setIsExaminationUpdated] = useState(false);
+  const [isPastPregnancyUpdated, setIsPastPregnancyUpdated] = useState(false);
 
   const pregnancyRef = useRef(null);
   const examinationRef = useRef(null);
-  const {profile} = useSelector((state) => state.doctors);
+  const { profile } = useSelector((state) => state.doctors);
 
   useEffect(() => {
     if (examinationEditIndex >= 0) {
@@ -184,6 +186,25 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
     }
   };
 
+  const trackUpdateEvent = () => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const attributes = {
+      clinic_name,
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+    };
+    window.Moengage.track_event("TP_Obs_history_updated", attributes);
+    if (isExaminationUpdated) {
+      window.Moengage.track_event("TP_obs_examination_updated", attributes);
+      setIsExaminationUpdated(false);
+    }
+    if (isPastPregnancyUpdated) {
+      window.Moengage.track_event("TP_Past_pregnancy_updated", attributes);
+      setIsPastPregnancyUpdated(false);
+    }
+  };
+
   const obstetricSaveBtnHandler = async () => {
     if (isPatientDiagnosisUpdated) {
       const pastPregnancy = pastPregnancyData.reduce((acc, item) => {
@@ -209,11 +230,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
         : await addObstetricData(payload);
       setLoader(false);
       if (obstetricResponse?.data) {
-        window.Moengage.track_event("TP_Obs_history_updated", {
-          doctor_id: profile?.doctor_unique_id,
-          patient_number: patient_data?.pm_contact_no,
-          patient_id: patient_data?.patient_unique_id,
-        });
+        trackUpdateEvent();
         setShowSuccess(true);
         getAllObstetricDetails();
       } else {
@@ -315,6 +332,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
             toggleDeletePopup={toggleDeletePopup}
             isDataAddedOrEdited={isDataAddedOrEdited}
             setIsDataAddedOrEdited={setIsDataAddedOrEdited}
+            setIsExaminationUpdated={setIsExaminationUpdated}
           />
         </Drawer>
       )}
@@ -343,6 +361,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
             toggleDeletePopup={toggleDeletePopup}
             isDataAddedOrEdited={isDataAddedOrEdited}
             setIsDataAddedOrEdited={setIsDataAddedOrEdited}
+            setIsPastPregnancyUpdated={setIsPastPregnancyUpdated}
           />
         </Drawer>
       )}

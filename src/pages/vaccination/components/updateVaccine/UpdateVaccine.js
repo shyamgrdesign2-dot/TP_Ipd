@@ -19,7 +19,7 @@ import SuccessPopup from "../SuccessPopup.js";
 import { updateDueDate, updateVaccine } from "../../service.js";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
-import { errorMessage } from "../../../../utils/utils.js";
+import { errorMessage, getClinicName } from "../../../../utils/utils.js";
 import {
   addDueVaccines,
   addGivenVaccines,
@@ -102,6 +102,17 @@ const UpdateVaccine = ({
     }
   }, []);
 
+  const trackUpdateEvent = () => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const attributes = {
+      clinic_name,
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+    };
+    window.Moengage.track_event("TP_vaccination_updated", attributes);
+  };
+
   const updateVaccineDetails = async () => {
     setCardClicked(false);
     const newFocusedIndexes = [];
@@ -146,11 +157,7 @@ const UpdateVaccine = ({
       const result = updateVaccine(payload);
       const resultStatus = await result;
       if (resultStatus?.status === 201) {
-        window.Moengage.track_event("TP_vaccination_updated", {
-          doctor_id: profile?.doctor_unique_id,
-          patient_number: patientDetails?.vac_contact_no,
-          patient_id: patientDetails?.patient_unique_id,
-        });
+        trackUpdateEvent();
         dispatch(addGivenVaccines({ payload, vaccine }));
       }
       return result;
@@ -210,11 +217,7 @@ const UpdateVaccine = ({
       const result = updateDueDate(payload);
       const resultStatus = await result;
       if (resultStatus?.status === 200) {
-        window.Moengage.track_event("TP_vaccination_updated", {
-          doctor_id: profile?.doctor_unique_id,
-          patient_number: patientDetails?.vac_contact_no,
-          patient_id: patientDetails?.patient_unique_id,
-        });
+        trackUpdateEvent();
         dispatch(addDueVaccines({ payload, vaccine }));
       }
       return result;

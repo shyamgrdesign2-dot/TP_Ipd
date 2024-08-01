@@ -15,6 +15,7 @@ import { addGrowthChartParam, updateGrowthChartParam } from "../../service";
 import SuccessPopup from "../SuccessPopup";
 import { addMeasurements } from "../../../../redux/growthChartSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { getClinicName } from "../../../../utils/utils";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
@@ -162,6 +163,17 @@ function Measurements(props) {
     [measurementsData]
   );
 
+  const trackUpdateEvent = () => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const attributes = {
+      clinic_name,
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+    };
+    window.Moengage.track_event("TP_Growth_Chart_updated", attributes);
+  };
+
   const onAddGrowthData = async () => {
     setLoader(true);
     const result = measurementsData.map(async (measurement) => {
@@ -197,11 +209,7 @@ function Measurements(props) {
             )
           : await addGrowthChartParam(payload);
       if (addMeasurementsRes?.tcbc_id || addMeasurementsRes?.status === 204) {
-        window.Moengage.track_event("TP_Growth_Chart_updated", {
-          doctor_id: profile?.doctor_unique_id,
-          patient_number: patient_data?.pm_contact_no,
-          patient_id: patient_data?.patient_unique_id,
-        });
+        trackUpdateEvent();
         dispatch(
           addMeasurements({ ...payload, tcbc_id: addMeasurementsRes?.tcbc_id })
         );

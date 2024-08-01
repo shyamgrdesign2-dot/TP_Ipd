@@ -1,4 +1,4 @@
-import PERSISTANT_STORAGE_KEY_AUTH_TOKEN from "../utils/constants";
+import {PERSISTANT_STORAGE_KEY_AUTH_TOKEN} from "../utils/constants";
 import { jwtDecode } from "jwt-decode";
 
 export function useLocalStorage(key) {
