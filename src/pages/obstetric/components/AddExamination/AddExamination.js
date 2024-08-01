@@ -53,7 +53,8 @@ function AddExamination({
     setExaminationData((prevData) => {
       const newData = {
         ...prevData,
-        [field]: value === prevData[field] ? undefined : value,
+        [field]:
+          field !== "notes" && value === prevData[field] ? undefined : value,
         ...(["mothersWeight", "mothersHeight"].includes(field) && {
           ...bmi,
         }),
