@@ -754,6 +754,7 @@ function TabPrescription() {
             />
         </Drawer>)}
         <Drawer
+          className="scroll-y-hidden"
           closeIcon={false}
           placement="right"
           onClose={handleDrawerMedicalHistory}
