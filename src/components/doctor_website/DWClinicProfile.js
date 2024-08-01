@@ -500,7 +500,7 @@ function DWClinicProfile() {
                                         </div>
                                     </div>
                                     <div className='mb-2 fs-12-1'>
-                                        You Can Upload only 5 Photos at a time
+                                        You can upload upto 5 images at a time. Save and publish to add more images.
                                     </div>
                                 </div>
                             )}
