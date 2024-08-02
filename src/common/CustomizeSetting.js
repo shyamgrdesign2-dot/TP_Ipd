@@ -17,6 +17,7 @@ import playcover2 from '../assets/images/play-cover2.png';
 import playIcons from '../assets/images/tube-icon.svg';
 import fullicon from '../assets/images/full-icon.svg';
 import VideoModal from './VideoModal';
+import { useAccess } from '../pages/vaccination/useAccess';
 
 const CustomRow = ({ children, ...props }) => {
   const {
@@ -80,10 +81,11 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
 
   const [popOverVideo, setPopOverVideo] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
+  const {isGynaecHistoryAccessable} = useAccess();
 
   useEffect(() => {
     if (customizedPadLeftList.length > 0) {
-      const updatedData = customizedPadLeftList.filter(e => e.tmdpm_id === 7 && e.tmdpm_status === 0 ? isVaccinationEnabled : e.tmdpm_id === 16 && e.tmdpm_status === 0 ? isGrowthChartEnabled : true).map((e, i) => {
+      const updatedData = customizedPadLeftList.filter(e => e.tmdpm_id === 7 && e.tmdpm_status === 0 ? isVaccinationEnabled : e.tmdpm_id === 16 && e.tmdpm_status === 0 ? isGrowthChartEnabled : e.tmdpm_id === 17 && e.tmdpm_status === 0 ? isGynaecHistoryAccessable : true).map((e, i) => {
         return { ...e };
       });
       setDataSourceLeft(updatedData);
@@ -115,7 +117,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
       colSpan: 0,
       dataIndex: 'tmdpm_name',
       key: 'tmdpm_name',
-      render: (text, record) => <div className='align-items-center d-flex'><img src={record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{record.tmdpm_name}</div>
+      render: (text, record) => <div className='align-items-center d-flex'><img src={record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{(isGynaecHistoryAccessable && record.tmdpm_name === "Medical History") ? "Gynec History": record.tmdpm_name}</div>
     },
     {
       title: 'ENABLE/DISABLE',

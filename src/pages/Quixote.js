@@ -11,6 +11,7 @@ import ViewPDF from '../components/print_settings/ViewPDF';
 import { renderPDF } from '../components/print_settings/renderPDF';
 import { PDF } from '../components/print_settings/PDF';
 import { pdfjs, Document, Page } from "react-pdf";
+import { useAccess } from './vaccination/useAccess';
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
@@ -21,6 +22,9 @@ function Quixote({ mode = NORMAL, ...props }) {
     const { smartRxFile, divWidth, caseManagerData, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
+
+    const {isGynaecHistoryAccessable} = useAccess();
+    const { obstetricDetails } = useSelector((state) => state.obstetric);
 
     const initialRows = [
         {
@@ -144,6 +148,8 @@ function Quixote({ mode = NORMAL, ...props }) {
                 fileSignature={fileSignature}
                 todayVaccines={props.todayVaccines}
                 growthChartDetails={props.growthChartDetails}
+                isGynaecHistoryAccessable = {isGynaecHistoryAccessable}
+                obsHistoryData={obstetricDetails}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
         }
@@ -164,7 +170,8 @@ function Quixote({ mode = NORMAL, ...props }) {
         fileWatermark,
         fileLogo,
         props.todayVaccines,
-        props.growthChartDetails
+        props.growthChartDetails,
+        obstetricDetails
     ]);
 
     const onDocumentLoadSuccess = ({ numPages }) => {

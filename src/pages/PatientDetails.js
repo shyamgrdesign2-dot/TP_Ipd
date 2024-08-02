@@ -21,6 +21,7 @@ import VisitVaccination from "./vaccination/components/visitVaccination/VisitVac
 import CertificateDetails from "../components/medical_certificate/CertificateDetails";
 import VisitGrowthChart from "./growthChart/components/visitGrowthChart/VisitGrowthChart";
 import { useAccess } from "./vaccination/useAccess";
+import VisitObstetric from "./obstetric/components/visitObstetric/VisitObstetric";
 
 const { Sider, Content } = Layout;
 
@@ -41,6 +42,7 @@ function PatientDetails() {
     const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
       patient_data?.ageYears
     );
+    const {isGynaecHistoryAccessable} = useAccess();
 
     const [sidebarKey, setSidebarKey] = useState(1);
 
@@ -128,6 +130,7 @@ function PatientDetails() {
                                                 <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
                                                 {isVaccinationAccessable && <VisitVaccination />}
                                                 {isGrowthChartAccessable && <VisitGrowthChart />}
+                                                {isGynaecHistoryAccessable && <VisitObstetric />}
                                             </>
                                         }
                                         {/*   <LabParameters />

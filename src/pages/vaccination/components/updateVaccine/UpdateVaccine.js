@@ -19,12 +19,12 @@ import SuccessPopup from "../SuccessPopup.js";
 import { updateDueDate, updateVaccine } from "../../service.js";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
-import { errorMessage } from "../../../../utils/utils.js";
+import { errorMessage, getClinicName } from "../../../../utils/utils.js";
 import {
   addDueVaccines,
   addGivenVaccines,
 } from "../../../../redux/vaccineSlice.js";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const UpdateVaccine = ({
   show,
@@ -64,6 +64,7 @@ const UpdateVaccine = ({
   const { state } = useLocation();
   const { patient_data } = state;
   const formRef = useRef(null);
+  const { profile } = useSelector((state) => state.doctors);
 
   const handleFocus = (index, isFocused = false) => {
     setIsOpen((prev) => {
@@ -98,6 +99,17 @@ const UpdateVaccine = ({
       );
     }
   }, []);
+
+  const trackUpdateEvent = () => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const attributes = {
+      clinic_name,
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+    };
+    window.Moengage.track_event("TP_vaccination_updated", attributes);
+  };
 
   const updateVaccineDetails = async () => {
     setCardClicked(false);
@@ -143,6 +155,7 @@ const UpdateVaccine = ({
       const result = updateVaccine(payload);
       const resultStatus = await result;
       if (resultStatus?.status === 201) {
+        trackUpdateEvent();
         dispatch(addGivenVaccines({ payload, vaccine }));
       }
       return result;
@@ -202,6 +215,7 @@ const UpdateVaccine = ({
       const result = updateDueDate(payload);
       const resultStatus = await result;
       if (resultStatus?.status === 200) {
+        trackUpdateEvent();
         dispatch(addDueVaccines({ payload, vaccine }));
       }
       return result;

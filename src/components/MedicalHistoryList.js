@@ -2,10 +2,22 @@ import React, { useState, useEffect, useContext } from "react";
 import { Collapse } from 'antd';
 
 import CashManagerContext from '../context/CashManagerContext';
+import GynecHistoryList from "./GynecHistoryList";
+import { useAccess } from "../pages/vaccination/useAccess";
 
 function MedicalHistoryList(props) {
     const { medicalHistoryData } = useContext(CashManagerContext);
+    const {gynecHistory} = props
     const [accordionItems, setAccordionItems] = useState([]);
+
+    const {isGynaecHistoryAccessable} = useAccess();
+
+    const filteredGynecHistory = Object.keys(gynecHistory || {}).reduce((acc, key) => {
+        if ( key !== 'reproductiveLifeStages' ) {
+            acc[key] = gynecHistory[key];
+        }
+        return acc;
+    }, {});
 
     useEffect(() => {
         if (medicalHistoryData.length > 0) {
@@ -80,17 +92,17 @@ function MedicalHistoryList(props) {
     return (
         <>
             <div className="overflow-y-auto" style={{ maxHeight: "661px" }}>
-                <div>
-                    {medicalHistoryData.length > 0 && (
-                        <div className="p-10">
-                            <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box history-sider-box-white" expandIconPosition={'end'} />
-                        </div>
-                    )}
-                </div>
+                { (medicalHistoryData.length > 0 || (gynecHistory && Object.keys(filteredGynecHistory).length > 0)) && (
+                    <div className="p-10">
+                        { isGynaecHistoryAccessable && gynecHistory && Object.keys(filteredGynecHistory).length > 0 &&
+                            <GynecHistoryList gynecHistory={gynecHistory} />
+                        }
+                        <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box history-sider-box-white" expandIconPosition={'end'} />
+                    </div>
+                )}
             </div>
         </>
     );
 }
-
 
 export default React.memo(MedicalHistoryList);

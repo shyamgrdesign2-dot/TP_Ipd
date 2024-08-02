@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState, useMemo } from "react";
+import React, { useCallback, useContext, useMemo } from "react";
 import { Col, Radio, Row, Form, Table, Collapse, Checkbox } from "antd";
 
 import { MenuOutlined } from "@ant-design/icons";
@@ -17,6 +17,7 @@ import PrintSettingsContext from "../../context/PrintSettingsContext";
 import { isMobile } from "react-device-detect";
 import { useAccess } from "../../pages/vaccination/useAccess";
 import { graphsToPrintData } from "../../pages/growthChart/growthChartHelper";
+import { useSelector } from "react-redux";
 
 // const CustomRow = ({ children, ...props }) => {
 //     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
@@ -143,11 +144,31 @@ const checkboxOptions = [
   },
 ];
 
+const obsHistoryCheckboxOptions = [
+  {
+    label: "Diagnosis",
+    value: "diagnosis",
+  },
+  {
+    label: "GPLAE",
+    value: "gplae",
+  },
+  {
+    label: "History",
+    value: "history",
+  },
+  {
+    label: "Examination",
+    value: "examination",
+  },
+];
+
 function PrescriptionLayout({todayVaccines, growthChartDetails}) {
   const { caseManagerData, printSettings, setPrintSettings } = useContext(PrintSettingsContext);
-  const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
+  const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
+  const { obstetricDetails } = useSelector((state) => state.obstetric);
 
   const onMainCaseOptionChange = useCallback(
     (e) => {
@@ -209,6 +230,15 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
    const onGrowthChartOptionChange = (checkedValues, i) => {
     setPrintSettings((prev) => {
       prev.prescription.case_option[i].growth_chart_option = checkedValues;
+      return {
+        ...prev,
+      };
+    });
+   };
+
+   const onObsHistoryOptionChange = (checkedValues, i) => {
+    setPrintSettings((prev) => {
+      prev.prescription.case_option[i].obs_history_option = checkedValues;
       return {
         ...prev,
       };
@@ -286,6 +316,31 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
     },
   ];
 
+  const obsHistoryAccordionItems = (record, i) => [
+    {
+      key: "1",
+      label: (
+        <div className="text-start">
+          <div className="fw-semibold">Customise Options</div>
+          <div className="subtitle-customize">
+            Select/deselect the parameters need to be printed
+          </div>
+        </div>
+      ),
+      children: (
+          <div className="d-flex align-items-center">
+            <Checkbox.Group
+              options={obsHistoryCheckboxOptions}
+              value={record?.obs_history_option}
+              onChange={(checkedValues) =>
+                onObsHistoryOptionChange(checkedValues, i)
+              }
+            />
+          </div>
+      ),
+    },
+  ];
+
   //Display Patient Info
   const caseOptionTable = [
     {
@@ -356,6 +411,20 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
                 <div className="border mt-3 rounded-4 p-3 bg-white ">
                   <Collapse
                     items={growthChartAccordionItems(record, printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
+                    defaultActiveKey={["1"]}
+                    className="prescriptiontab-accordian"
+                    expandIconPosition={"end"}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          {record.id === 14 && (
+            <div style={{ marginLeft: -40, display: "flex" }}>
+              <div style={{ flex: 1 }}>
+                <div className="border mt-3 rounded-4 p-3 bg-white ">
+                  <Collapse
+                    items={obsHistoryAccordionItems(record, printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
                     defaultActiveKey={["1"]}
                     className="prescriptiontab-accordian"
                     expandIconPosition={"end"}
@@ -447,7 +516,10 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
                                                                         ({ ...option, key: option.id }) 
                                                                         :(caseManagerData.smart_prescription_filename && option.id === 11) ?
                                                                             ({ ...option, key: option.id }) 
-                                                                            :(isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartData?.length) && ({...option, key: option.id})
+                                                                            :(isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartData?.length) ? 
+                                                                              ({...option, key: option.id})
+                                                                              :(caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ? ({...option, key: option.id})
+                                                                                :(option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?._id) && ({...option, key: option.id})
               )}
               showHeader={false}
             />
