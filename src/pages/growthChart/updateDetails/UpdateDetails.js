@@ -8,7 +8,7 @@ import SuccessPopup from "../components/SuccessPopup";
 import moment from "moment";
 import { errorMessage } from "../../../utils/utils";
 import { useSelector } from "react-redux";
-import { getMidParentalHeight } from "../growthChartHelper";
+import { disableFutureDates, getMidParentalHeight } from "../growthChartHelper";
 import { useDispatch } from "react-redux";
 import { editPatient } from "../../../redux/appointmentsSlice";
 
@@ -192,6 +192,7 @@ export default function UpdateDetails({
               width: "374px",
             }}
             allowClear={false}
+            disabledDate={disableFutureDates}
           />
         </div>
         <div style={{ marginBottom: 15 }}>
