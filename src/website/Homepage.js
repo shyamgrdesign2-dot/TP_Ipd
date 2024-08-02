@@ -41,7 +41,7 @@ import websiteInstagram from '../assets/images/website-images/website-instagram.
 import websiteLinkedin from '../assets/images/website-images/website-linkedin.svg'
 import websiteTwitter from '../assets/images/website-images/website-twitter.svg'
 import websiteYoutube from '../assets/images/website-images/website-youtube.svg'
-import { errorMessage, isValidWebsite, validateEmail } from '../utils/utils';
+import { errorMessage, isValidMap, isValidWebsite, validateEmail } from '../utils/utils';
 import { isMobile } from 'react-device-detect';
 
 const slideData = [1, 2, 3, 4]
@@ -236,7 +236,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                 <img src={websiteLogo} width={151.29} height={34} alt="Logo" />
               </div>
               <div className="menu-icon" onClick={handleShowNavbar}>
-                <img width={24} height={24} src={MenuImg} alt="Doctor Website Navbar" />
+                <img width={34} height={34} src={MenuImg} alt="Doctor Website Navbar" />
               </div>
               <div className={`nav-elements d-lg-flex w-100 ${showNavbar && "active text-center"}`}>
                 <ul className='mb-0 mt-4 mt-lg-0 p-0 w-100'>
@@ -425,7 +425,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                           </div>
                           <div className={`d-flex flex-wrap clinic-btn ${e?.shift?.length > 0 ? 'mb-4' : 'mb-5'}`}>
                             {e?.address?.google_map && (
-                              <Button type="button" onClick={() => window.open(e?.address?.google_map)} className="btn btn-primary3 btn-48">
+                              <Button type="button" onClick={() => isValidMap(e?.address?.google_map) ? window.open(e?.address?.google_map) : window.open('https://google.com/maps')} className="btn btn-primary3 btn-48">
                                 <img width={19} height={19} className='me-2' src={Direction} alt="Direction" /> Direction to Clinic
                               </Button>
                             )}
@@ -755,26 +755,26 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
               {personalDetails?.email_id && validateEmail(personalDetails?.email_id) && (
                 <div className='border rounded-4 d-flex align-items-center mx-auto d-inline-flex mt-5 pe-3 py-2' style={{ borderRadius: 25 }}>
                   <div className='bg-icon-common bg-icon-sm2 mx-2'><img width={22} height={22} src={Mail} alt="Email" /></div>
-                  <a href={`mailto:${personalDetails?.email_id}`} className='text-main'>{personalDetails?.email_id}</a>
+                  <a href={`mailto:${personalDetails?.email_id}`} className='text-main emailres-doc'>{personalDetails?.email_id}</a>
                 </div>
               )}
               <br />
               {otherSettings?.enable_social_links ? (
                 <div className='d-flex align-items-center justify-content-center mt-5'>
                   {socialLinks?.facebook && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.facebook) ? window.open(socialLinks?.facebook):errorMessage('Wrong Facebook URL')}><img width={14.769} height={14.769} src={websiteFacebook} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.facebook) ? window.open(socialLinks?.facebook) : errorMessage('Wrong Facebook URL')}><img width={14.769} height={14.769} src={websiteFacebook} alt="Email" /></div>
                   )}
                   {socialLinks?.instagram && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.instagram) ? window.open(socialLinks?.instagram):errorMessage('Wrong Instagram URL')} ><img width={14.769} height={14.769} src={websiteInstagram} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.instagram) ? window.open(socialLinks?.instagram) : errorMessage('Wrong Instagram URL')} ><img width={14.769} height={14.769} src={websiteInstagram} alt="Email" /></div>
                   )}
                   {socialLinks?.linkedin && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.linkedin) ? window.open(socialLinks?.linkedin):errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteLinkedin} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.linkedin) ? window.open(socialLinks?.linkedin) : errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteLinkedin} alt="Email" /></div>
                   )}
                   {socialLinks?.twitter && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.twitter) ? window.open(socialLinks?.twitter):errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.twitter) ? window.open(socialLinks?.twitter) : errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
                   )}
                   {socialLinks?.youtube && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.youtube) ? window.open(socialLinks?.youtube):errorMessage('Wrong youtube URL')}><img width={14.769} height={14.769} src={websiteYoutube} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.youtube) ? window.open(socialLinks?.youtube) : errorMessage('Wrong youtube URL')}><img width={14.769} height={14.769} src={websiteYoutube} alt="Email" /></div>
                   )}
                 </div>
               ) : null}
@@ -789,7 +789,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
               <div className='clinic-box p-4'>
                 <div className='d-flex flex-wrap align-items-center justify-content-center justify-content-lg-between'>
                   <img style={{ filter: 'brightness(0) invert(1)' }} src={websiteLogo} width={151.29} height={34} alt="Footer Logo" />
-                  <div className='text-white mt-4 mt-lg-0'>© {(new Date().getFullYear())} TatvaPractice. All rights reserved</div>
+                  <div className='text-white mt-4 text-center mt-lg-0'>© {(new Date().getFullYear())} TatvaPractice. All rights reserved</div>
                 </div>
               </div>
             </div>

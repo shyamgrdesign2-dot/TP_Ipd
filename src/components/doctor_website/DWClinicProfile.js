@@ -380,6 +380,7 @@ function DWClinicProfile() {
                             </div>
                             <Tabs activeKey={e?.selectedTab} onChange={(key) => onTabChange(key, e)} items={TabsPrintSetting} className="print-tabs" />
                             {e?.selectedTab === TAB_ADDRESS ? (
+                                <>
                                 <Row gutter={20} className='px-10'>
                                     <Col span={12}>
                                         <Form.Item
@@ -427,12 +428,14 @@ function DWClinicProfile() {
                                         <Form.Item
                                             label="Google map link"
                                             className='fw-medium mb-20'>
-                                            <Input placeholder="Copy and paste your clinic address link" className="text-capitalize rounded-10px h-38"
+                                            <Input placeholder="Copy and paste your clinic address link" className="rounded-10px h-38"
                                                 value={e?.address?.google_map}
                                                 onChange={(el) => onChangeAddressInput(el, 'google_map', e)} />
                                         </Form.Item>
                                     </Col>
                                 </Row>
+                                <button className='align-items-center btn btn-delete-experience btn-delete-experience1 d-flex mb-2 me-2 ms-auto text-primary' onClick={() => onTabChange(TAB_TIMINGS, e)}><i className='icon-Add fs-18 me-2'></i>Add Timings</button>
+                                </>
                             ) : e?.selectedTab === TAB_TIMINGS ? (
                                 <>
                                     {e?.shift.map((e1, i1) => {
@@ -442,7 +445,10 @@ function DWClinicProfile() {
                                             </div>
                                         )
                                     })}
-                                    <button className='mb-2 btn btn-delete-experience btn-delete-experience1 text-primary' onClick={() => addShiftClick(e)}><i className='icon-Add fs-18 me-2'></i>Add More Shifts</button>
+                                    <div className='d-flex align-items-center justify-content-between'>
+                                        <button className='d-flex align-items-center mb-2 btn btn-delete-experience btn-delete-experience1 text-primary' onClick={() => addShiftClick(e)}><i className='icon-Add fs-18 me-2'></i>Add More Shifts</button>
+                                        <button className='d-flex align-items-center mb-2 btn btn-delete-experience btn-delete-experience1 text-primary' onClick={() => onTabChange(TAB_PHOTOS, e)}><i className='icon-Add fs-18 me-2'></i>Add Photos</button>
+                                    </div>
                                 </>
                             ) : e?.selectedTab === TAB_PHOTOS && (
                                 <div className='px-10'>
