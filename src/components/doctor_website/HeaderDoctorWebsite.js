@@ -198,7 +198,7 @@ function HeaderDoctorWebsite() {
                                     className="btn-41 btn px-4 btn-primary3 align-items-center d-flex"
                                     loading={save_loading}
                                     disabled={personalDetails?.first_name
-                                        && personalDetails?.last_name
+                                        // && personalDetails?.last_name
                                         && personalDetails?.education
                                         // && (personalDetails?.email_id ? validateEmail(personalDetails?.email_id) : true)
                                         && aboutDoctor?.years_experience

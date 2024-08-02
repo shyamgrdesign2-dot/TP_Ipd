@@ -303,7 +303,7 @@ function DoctorWebsiteSetting() {
                                                 <div className="titleprint">Personal Details</div>
                                                 <div className="border rounded-1 ms-2 px-1 fw-medium fs-12-1">Mandatory</div>
                                                 {personalDetails?.first_name
-                                                    && personalDetails?.last_name
+                                                    // && personalDetails?.last_name
                                                     && personalDetails?.education
                                                     // && (personalDetails?.email_id ? validateEmail(personalDetails?.email_id) : true)
                                                     && (
