@@ -30,6 +30,8 @@ import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import { errorMessage } from "../utils/utils";
 import { MESSAGE_KEY } from "../utils/constants";
+import CommonModal from "../common/CommonModal";
+import alertIcon from "../assets/images/alertIcon.svg";
 
 function SmartPrescription() {
   const {
@@ -82,6 +84,11 @@ function SmartPrescription() {
   const [selectedPage, setSelectedPage] = useState(0);
   const selectedPageRef = useRef(selectedPage); // Add a ref for selectedPage
   const canvasRefs = useRef([]);
+  const [newPageText, setNewPageText] = useState("");
+  const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+  const [deletePopupMsg, setDeletePopupMsg] = useState("");
+  const [isClearPopup, setIsClearPopup] = useState(false);
+  const [updatedIndex, setUpdatedIndex] = useState(null);
 
   const contextApi = {
     patient_data,
@@ -419,23 +426,20 @@ function SmartPrescription() {
   //   });
   // }, [pages, smartRxFile]);
 
-  const getCanvas = (id, width, height) => (
+  const toggleDeletePopup = () => {
+    setShowDeletePopup((prev) => !prev);
+  };
+
+  const getCanvas = (id, index) => (
     <canvas
       key={id}
       id={id}
-      width={width}
-      height={height}
-      style={{
-        backgroundColor: "white",
-        border: "1px solid lightgrey",
-        borderRadius: "20px",
-        color: "black",
-      }}
+      className={`canvas-style ${selectedPage === index ? "canvas-active" : ""}`}
       ref={(el) => {
         if (el) {
           canvasRefs.current[id] = el;
           if (smartRxFile) {
-            const ctx = el.getContext('2d');
+            const ctx = el.getContext("2d");
             ctx.fillStyle = "white";
             ctx.fillRect(0, 0, el.width, el.height);
             ctxGlobalRefs.current[id] = ctx;
@@ -443,7 +447,7 @@ function SmartPrescription() {
         }
       }}
       onClick={() => handlePageChange(id)}
-    ></canvas>
+    />
   );
 
   useEffect(() => {
@@ -510,6 +514,7 @@ function SmartPrescription() {
     const newPageId = uuidv4();
     setPages([...pages, newPageId]);
     setSelectedPage(pages.length); // Set the new page as the selected page
+    setNewPageText("");
   };
 
   const handleDeletePage = (index) => {
@@ -777,23 +782,68 @@ function SmartPrescription() {
                 left: "39%",
               }}
             >
-              <div className="right-container">
+              <div>
                 <div
                   id="pdf"
                   style={{ border: prescription ? "none" : "lightgrey" }}
                 >
                   {pages.map((page, index) => (
                     <div key={page} className="canvas-container">
-                      <div className="canvas-header">
-                        <span>Page {index + 1}</span>
-                        <Button onClick={() => handleRefresh(index)}>Refresh</Button>
-                        <Button onClick={() => handleDeletePage(index)} disabled={pages.length === 1}>Delete</Button>
+                      <div
+                        className={`canvas-header ${
+                          selectedPage === index ? "active-page" : ""
+                        }`}
+                      >
+                        <div className="canvas-header-left">
+                          <span>Page {index + 1}</span>
+                          {selectedPage === index && (
+                            <span className="selected-text">Selected</span>
+                          )}
+                        </div>
+                        <div className="d-flex">
+                          <button
+                            className="btn d-flex align-items-center btn-text"
+                            onClick={() => {
+                              toggleDeletePopup();
+                              setIsClearPopup(true);
+                              setDeletePopupMsg(
+                                "Are you sure you want to clear page 1 data"
+                              );
+                              setUpdatedIndex(index);
+                            }}
+                          >
+                            <i className="icon-reload me-2 fs-5" />
+                          </button>
+                          <button
+                            className="btn d-flex align-items-center btn-text"
+                            onClick={() => {
+                              toggleDeletePopup();
+                              setIsClearPopup(false);
+                              setDeletePopupMsg(
+                                "Are you sure you want to delete page 1 data"
+                              );
+                              setUpdatedIndex(index);
+                            }}
+                          >
+                            <i className="icon-delete me-2 fs-5" />
+                          </button>
+                        </div>
                       </div>
-                      {getCanvas(page, "760px", "920px")}
-                      <div className="canvas-footer">
-                        {index === pages.length - 1 && (
-                          <Button onClick={handleAddPage}>Add New Page</Button>
-                        )}
+                      {getCanvas(page, index)}
+                      <div
+                        className={`canvas-footer ${
+                          selectedPage === index ? "active-page" : ""
+                        }`}
+                      >
+                        {index === pages.length - 1 &&  <button
+                          className="btn d-flex align-items-center justify-content-center btn-text new-page-btn"
+                          onMouseEnter={() => setNewPageText("New Page")}
+                          onMouseLeave={() => setNewPageText("")}
+                          onClick={handleAddPage}
+                        >
+                          <i className="icon-Add fs-5" />
+                          {newPageText}
+                        </button>}
                       </div>
                     </div>
                   ))}
@@ -830,7 +880,7 @@ function SmartPrescription() {
                       </div>
                     </div>
                   ))} */}
-                    {/* {pages.map((page, index) => (
+                  {/* {pages.map((page, index) => (
                       <div key={page.id} className="canvas-container" style={{ position: 'relative', marginBottom: '20px' }} onClick={() => handlePageChange(index + 1)}>
                         <div className="canvas-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span>Page {index + 1}</span>
@@ -846,8 +896,8 @@ function SmartPrescription() {
                         </div>
                       </div>
                     ))} */}
-                    </div>
-                    {/* <div>
+                </div>
+                {/* <div>
                       <Button onClick={() => handlePageChange(0)}>Page 1</Button>
                       {pages.slice(1, -1).map((page, index) => (
                         <Button key={page.id} onClick={() => handlePageChange(index + 1)}>
@@ -877,6 +927,46 @@ function SmartPrescription() {
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
         </Drawer>
+        <CommonModal
+          isModalOpen={shouldShowDeletePopup}
+          onCancel={toggleDeletePopup}
+          modalWidth={398}
+          title={"You may lose your data"}
+          modalBody={
+            <>
+              <div className="alert-warning rounded-10px p-2 patient-details">
+                <div className="d-flex align-items-center">
+                  <img className="me-3" src={alertIcon} alt="Warning" />
+                  <span>{deletePopupMsg}</span>
+                </div>
+              </div>
+              <div className="mt-4">
+                <div className="d-flex align-items-center mt-2 justify-content-end">
+                  <div
+                    onClick={() => {
+                      if (isClearPopup) {
+                        handleRefresh(updatedIndex);
+                      } else {
+                        handleDeletePage(updatedIndex);
+                      }
+                      toggleDeletePopup();
+                      setUpdatedIndex(null);
+                    }}
+                    className="me-4 text-decoration-underline btn p-0 text-main"
+                  >
+                    {isClearPopup ? "Clear" : "Delete"}
+                  </div>
+                  <Button
+                    onClick={toggleDeletePopup}
+                    className="lh-lg btn btn-primary3 btn-41 px-4"
+                  >
+                    <span>No, Stay</span>
+                  </Button>
+                </div>
+              </div>
+            </>
+          }
+        />
       </>
     </CashManagerContext.Provider>
   );
