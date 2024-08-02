@@ -404,7 +404,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                             {(e?.address.address_line || e?.address.city || e?.address.state || e?.address.pincode || e?.clinic_photos?.length > 0) ? (
                               <>
                                 <div className='clinic-address'>{`${Object.values(Object.fromEntries(Object.entries((({ address_line, city, state, pincode }) => ({ address_line, city, state, pincode }))(e?.address)).filter(([_, v]) => v))).join(', ')}`}</div>
-                                <div className='d-flex mt-4'>
+                                <div className='d-flex my-4'>
                                   {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.slice(0, 3)?.map((item, index) => {
                                     return (
                                       <div key={index} className='clinic-photo'>
@@ -423,7 +423,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                               <div className='clinic-address'>{'No Address Details & Photos'}</div>
                             )}
                           </div>
-                          <div className={`d-flex flex-wrap clinic-btn ${e?.shift?.length > 0 ? 'mb-4' : 'mb-5'}`}>
+                          <div className={`d-flex flex-wrap clinic-btn ${e?.shift?.length > 0 ? 'mb-lg-4' : 'mb-5'}`}>
                             {e?.address?.google_map && (
                               <Button type="button" onClick={() => isValidMap(e?.address?.google_map) ? window.open(e?.address?.google_map) : window.open('https://google.com/maps')} className="btn btn-primary3 btn-48">
                                 <img width={19} height={19} className='me-2' src={Direction} alt="Direction" /> Direction to Clinic
