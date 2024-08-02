@@ -26,6 +26,11 @@ export const isValidWebsite = (url) => {
   return pattern.test(url);
 }
 
+export const isValidMap = (url) => {
+  const pattern = /^https?\:\/\/(www\.|maps\.)?google(\.[a-z]+){1,2}\/maps\/?\?([^&]+&)*(ll=-?[0-9]{1,2}\.[0-9]+,-?[0-9]{1,2}\.[0-9]+|q=[^&]+)+($|&)/;;
+  return pattern.test(url);
+}
+
 export const onlyNumberFormat = (text) => {
   return text.replace(/[^0-9]/g, "");
 };
