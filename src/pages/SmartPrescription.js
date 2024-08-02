@@ -81,8 +81,8 @@ function SmartPrescription() {
   const socketRef = useRef(null);
   const ctxGlobalRefs = useRef([]);
   const [pages, setPages] = useState([]);
-  const [selectedPage, setSelectedPage] = useState(0);
-  const selectedPageRef = useRef(selectedPage); // Add a ref for selectedPage
+  const [selectedPage, setSelectedPage] = useState(null);
+  const selectedPageRef = useRef(null); // Add a ref for selectedPage
   const canvasRefs = useRef([]);
   const [newPageText, setNewPageText] = useState("");
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
@@ -321,112 +321,12 @@ function SmartPrescription() {
 
   useEffect(() => {
     if (pages.length === 0) {
+      console.log("its getting called")
       handleAddPage();
     }
   }, []);
 
-  // useEffect(() => {
-  //   const parentElement = document.getElementById("pdf");
-
-  //   if (!parentElement) {
-  //     errorMessage("Canvas not found, please refresh the page!");
-  //     return;
-  //   }
-    
-  //   if (pages.length === 0 ){
-  //     handleAddPage()
-  //   }
-    
-  //   // Ensure a canvas exists for each page
-  //   pages.forEach((page, index) => {
-  //     if (!canvasRefs.current[index]) {
-  //       console.log("inside pages foreach")
-  //       const newCanvas = document.createElement("canvas");
-  //       const parentWidth = parentElement.offsetWidth;
-  //       const parentHeight = parentElement.offsetHeight;
-  //       newCanvas.id = page;
-  //       newCanvas.width = parentWidth;
-  //       newCanvas.height = parentHeight;
-  //       newCanvas.style.backgroundColor = "white";
-  //       newCanvas.style.border = "1px solid lightgrey";
-  //       newCanvas.style.borderRadius = "20px";
-  //       newCanvas.style.color = "black";
-  //       parentElement.appendChild(newCanvas);
-  //       console.log({parentElement})
-  //       canvasRefs.current[index] = newCanvas;
-
-  //       if (smartRxFile) {
-  //         const ctx = newCanvas.getContext('2d');
-  //         ctx.fillStyle = "white";
-  //         ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
-  //         ctxGlobalRefs.current[index] = ctx;
-  //       }
-  //     }
-  //   });
-  // }, [pages, smartRxFile]);
-
-  // useEffect(() => {
-  //   const parentElement = document.getElementById("pdf");
-
-  //   if (!parentElement) {
-  //     errorMessage("Canvas not found, please refresh the page!");
-  //     return;
-  //   }
-
-  //   if (pages.length === 0) {
-  //     handleAddPage();
-  //   }
-
-  //   const getCanvas = (id, width, height) => (
-  //     <canvas
-  //       key={id}
-  //       id={id}
-  //       width={width}
-  //       height={height}
-  //       style={{
-  //         backgroundColor: "white",
-  //         border: "1px solid lightgrey",
-  //         borderRadius: "20px",
-  //         color: "black",
-  //       }}
-  //       ref={(el) => {
-  //         if (el) {
-  //           canvasRefs.current[id] = el;
-  //           if (smartRxFile) {
-  //             const ctx = el.getContext('2d');
-  //             ctx.fillStyle = "white";
-  //             ctx.fillRect(0, 0, el.width, el.height);
-  //             ctxGlobalRefs.current[id] = ctx;
-  //           }
-  //         }
-  //       }}
-  //       onClick={() => handlePageChange(id)}
-  //     ></canvas>
-  //   );
-
-  //   const canvases = pages.map((page, index) => (
-  //     <div key={page} className="canvas-container">
-  //       <div className="canvas-header">
-  //         <span>Page {index + 1}</span>
-  //         <Button onClick={() => handleRefresh(index)}>Refresh</Button>
-  //         <Button onClick={() => handleDeletePage(index)} disabled={pages.length === 1}>Delete</Button>
-  //       </div>
-  //       {getCanvas(page, parentElement.offsetWidth, parentElement.offsetHeight)}
-  //       <div className="canvas-footer">
-  //         {index === pages.length - 1 && (
-  //           <Button onClick={handleAddPage}>Add New Page</Button>
-  //         )}
-  //       </div>
-  //     </div>
-  //   ));
-
-  //   parentElement.innerHTML = ''; // Clear previous canvases
-  //   canvases.forEach((canvas) => {
-  //     parentElement.appendChild(canvas);
-  //   });
-  // }, [pages, smartRxFile]);
-
-  const toggleDeletePopup = () => {
+ const toggleDeletePopup = () => {
     setShowDeletePopup((prev) => !prev);
   };
 
@@ -434,6 +334,8 @@ function SmartPrescription() {
     <canvas
       key={id}
       id={id}
+      width="720px"
+      height="980px"
       className={`canvas-style ${selectedPage === index ? "canvas-active" : ""}`}
       ref={(el) => {
         if (el) {
@@ -446,12 +348,12 @@ function SmartPrescription() {
           }
         }
       }}
-      onClick={() => handlePageChange(id)}
+      onClick={() => handlePageChange(index)}
     />
   );
 
   useEffect(() => {
-    selectedPageRef.current = selectedPage; // Update the ref when selectedPage changes
+    selectedPageRef.current = pages[selectedPage]; // Update the ref when selectedPage changes
   }, [selectedPage]);
 
   const wsError = (error) => {
@@ -489,7 +391,6 @@ function SmartPrescription() {
 
       const drawFunction = smartRxFile ? editDraw : draw;
      
-      console.log({selectedPage})
       socketRef.current.onmessage = (event) => {
         const o = event.data.split("|");
         drawFunction(o[0], o[1], o[2], o[3], selectedPageRef.current);
@@ -513,7 +414,11 @@ function SmartPrescription() {
   const handleAddPage = () => {
     const newPageId = uuidv4();
     setPages([...pages, newPageId]);
-    setSelectedPage(pages.length); // Set the new page as the selected page
+    if(pages.length === 0){
+      setSelectedPage(0)  
+    } else{
+      setSelectedPage(pages.length);
+    }// Set the new page as the selected page
     setNewPageText("");
   };
 
@@ -530,7 +435,7 @@ function SmartPrescription() {
   };
 
   const handleRefresh = () => {
-    const canvas = canvasRefs.current[selectedPage];
+    const canvas = canvasRefs.current[pages[updatedIndex]];
     if (canvas) {
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -559,7 +464,6 @@ function SmartPrescription() {
   }
 
   function editDraw(t, n, a, c) {
-    console.log({selectedPage})
     const canvas = canvasRefs.current[selectedPage];
     if (!canvas) return;
     const scaleFactor = 1.5;
@@ -711,8 +615,6 @@ function SmartPrescription() {
     };
   }
 
-  console.log(pages,"pages")
-  console.log(selectedPage,"selectedPage")
   useEffect(() => {
     if (smartRxFile && imageLoaded && canvasRefs.current[selectedPage]) {
       ctxGlobalRefs.current[selectedPage] = canvasRefs.current[selectedPage].getContext('2d');
@@ -814,7 +716,7 @@ function SmartPrescription() {
                           >
                             <i className="icon-reload me-2 fs-5" />
                           </button>
-                          <button
+                          { pages.length > 1 && (<button
                             className="btn d-flex align-items-center btn-text"
                             onClick={() => {
                               toggleDeletePopup();
@@ -826,7 +728,8 @@ function SmartPrescription() {
                             }}
                           >
                             <i className="icon-delete me-2 fs-5" />
-                          </button>
+                          </button>)
+                          }
                         </div>
                       </div>
                       {getCanvas(page, index)}
