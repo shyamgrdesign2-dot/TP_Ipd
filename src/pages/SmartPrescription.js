@@ -430,6 +430,18 @@ function SmartPrescription() {
     }
   };
 
+  const handleClearAllPages = () => {
+    setPages([pages[0]]);
+    setSelectedPage(0);
+    const canvas = canvasRefs.current[pages[0]];
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+  };
+
   const handlePageChange = (index) => {
     setSelectedPage(index);
   };
@@ -627,7 +639,7 @@ function SmartPrescription() {
       <>
         <HeaderSmartPrescription
           prescription={prescription}
-          onClear={handleRefresh}
+          onClear={handleClearAllPages}
           onSubmit={handleSubmit}
           smartRxData={smartRxDetails}
         />
@@ -717,17 +729,17 @@ function SmartPrescription() {
                             <i className="icon-reload me-2 fs-5" />
                           </button>
                           { pages.length > 1 && (<button
-                            className="btn d-flex align-items-center btn-text"
-                            onClick={() => {
-                              toggleDeletePopup();
-                              setIsClearPopup(false);
-                              setDeletePopupMsg(
-                                "Are you sure you want to delete page 1 data"
-                              );
-                              setUpdatedIndex(index);
-                            }}
-                          >
-                            <i className="icon-delete me-2 fs-5" />
+                              className="btn d-flex align-items-center btn-text"
+                              onClick={() => {
+                                toggleDeletePopup();
+                                setIsClearPopup(false);
+                                setDeletePopupMsg(
+                                  "Are you sure you want to delete page 1 data"
+                                );
+                                setUpdatedIndex(index);
+                              }}
+                            >
+                              <i className="icon-delete me-2 fs-5" />
                           </button>)
                           }
                         </div>
@@ -739,13 +751,13 @@ function SmartPrescription() {
                         }`}
                       >
                         {index === pages.length - 1 &&  <button
-                          className="btn d-flex align-items-center justify-content-center btn-text new-page-btn"
-                          onMouseEnter={() => setNewPageText("New Page")}
-                          onMouseLeave={() => setNewPageText("")}
-                          onClick={handleAddPage}
-                        >
-                          <i className="icon-Add fs-5" />
-                          {newPageText}
+                            className="btn d-flex align-items-center justify-content-center btn-text new-page-btn"
+                            onMouseEnter={() => setNewPageText("New Page")}
+                            onMouseLeave={() => setNewPageText("")}
+                            onClick={handleAddPage}
+                          >
+                            <i className="icon-Add fs-5" />
+                            {newPageText}
                         </button>}
                       </div>
                     </div>
