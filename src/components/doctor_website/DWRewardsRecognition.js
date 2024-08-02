@@ -73,7 +73,7 @@ function DWRewardsRecognition() {
                                 <Select
                                     className="autocomplete-custom"
                                     placeholder="Year"
-                                    options={yearsFromToCurrent(1990)}
+                                    options={yearsFromToCurrent(1950)}
                                     value={e?.year ? e?.year : null}
                                     onSelect={(e) => onSelect(e, 'year', i)}
                                 />

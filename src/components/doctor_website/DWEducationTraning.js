@@ -91,7 +91,7 @@ function DWEducationTraning() {
                                         <Select
                                             className="autocomplete-custom"
                                             placeholder="Year"
-                                            options={yearsFromToCurrent(1990)}
+                                            options={yearsFromToCurrent(1950)}
                                             value={e?.start_year ? e?.start_year : null}
                                             onSelect={(e) => onSelect(e, 'start_year', i)}
                                         />
