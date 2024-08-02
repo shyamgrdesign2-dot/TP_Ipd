@@ -99,7 +99,7 @@ function DWPersonalDetails() {
                 </Row>
             </Form>
             <hr className='mt-1' />
-            <div className='title-common'>Hero Image</div>
+            <div className='title-common'>Your Image</div>
             <div className='upload-headfoot p-2'>
                 <div className="d-flex align-items-center justify-content-between mx-auto">
                     {personalDetails?.hero_image_link &&

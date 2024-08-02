@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Button, Col, Row, Modal, Tooltip } from "antd";
+import { Button, Col, Row, Modal, Tooltip, Image } from "antd";
 
 import "../assets/scss/website-custom.scss";
 import 'slick-carousel/slick/slick.css';
@@ -404,17 +404,46 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                             {(e?.address.address_line || e?.address.city || e?.address.state || e?.address.pincode || e?.clinic_photos?.length > 0) ? (
                               <>
                                 <div className='clinic-address'>{`${Object.values(Object.fromEntries(Object.entries((({ address_line, city, state, pincode }) => ({ address_line, city, state, pincode }))(e?.address)).filter(([_, v]) => v))).join(', ')}`}</div>
-                                <div className='d-flex mt-4'>
-                                  {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.slice(0, 3)?.map((item, index) => {
+                                <div className='d-flex my-4'>
+
+                                  <Image.PreviewGroup
+                                    preview={{
+                                      // visible,
+                                      closeIcon: <Button className='btn btn-41 px-4 btn-primary3 mx-0 imageclose-btn'>Close</Button>,
+                                      toolbarRender: () => null,
+                                      countRender: () => null,
+                                      imageRender: (originalNode, info) => (
+                                        <div className='d-block'>
+                                          <div className='d-flex align-items-center justify-content-between preview-header'>
+                                            <div className='text-white fs-16 fw-medium ms-4'>Clinic Photos</div>
+                                            {/* <div className='d-flex align-items-center'>
+                                              <Button onClick={showHide} className='btn btn-41 px-4 btn-primary3 mx-3'>Close</Button>
+                                            </div> */}
+                                          </div>
+                                          <img src={originalNode.props.src} style={{ maxWidth: 600 }} />
+                                        </div>
+                                      )
+                                    }}
+                                  >
+                                    {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.slice(0, 5)?.map((item, index) => {
+                                      return (
+                                        <div key={index} className='clinic-photo'>
+                                          <Image width={60} height={60} className='img-fluid h-100' src={item?.clinic_image_link} alt={item?.clinic_image_name} />
+                                        </div>
+                                      )
+                                    })}
+                                  </Image.PreviewGroup>
+
+                                  {/* {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.slice(0, 3)?.map((item, index) => {
                                     return (
                                       <div key={index} className='clinic-photo'>
                                         <img width={60} height={60} className='img-fluid h-100' src={item?.clinic_image_link} alt={item?.clinic_image_name} />
                                       </div>
                                     )
-                                  })}
-                                  {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.length > 3 && (
+                                  })} */}
+                                  {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.length > 5 && (
                                     <div className='clinic-photo d-flex align-items-center justify-content-center'>
-                                      <div className='title-common text-white'>{`${e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.length - 3}+`}</div>
+                                      <div className='title-common text-white'>{`${e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.length - 5}+`}</div>
                                     </div>
                                   )}
                                 </div>
@@ -423,7 +452,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                               <div className='clinic-address'>{'No Address Details & Photos'}</div>
                             )}
                           </div>
-                          <div className={`d-flex flex-wrap clinic-btn ${e?.shift?.length > 0 ? 'mb-4' : 'mb-5'}`}>
+                          <div className={`d-flex flex-wrap clinic-btn ${e?.shift?.length > 0 ? 'mb-lg-4' : 'mb-5'}`}>
                             {e?.address?.google_map && (
                               <Button type="button" onClick={() => isValidMap(e?.address?.google_map) ? window.open(e?.address?.google_map) : window.open('https://google.com/maps')} className="btn btn-primary3 btn-48">
                                 <img width={19} height={19} className='me-2' src={Direction} alt="Direction" /> Direction to Clinic
