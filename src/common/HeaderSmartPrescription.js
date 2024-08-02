@@ -72,6 +72,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
   const [popOverVideo, setPopOverVideo] = useState(false);
+  const [clicked, setClicked] = useState(false);
   // const [connectLoading, setConnectLoading] = useState(false);
   // const [error, setError] = useState(null);
   // const [status, setStatus] = useState(null);
@@ -120,7 +121,10 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
   };
 
   const handleSubmitClick = async () => {
-    onSubmit();
+    setClicked(true)
+    if(!clicked){
+      onSubmit();
+    }
   };
 
   //PopOverVideo function
@@ -469,7 +473,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                 className="btn align-items-center d-flex btn-41 btn-primary3 me-20"
                 onClick={handleSubmitClick}
                 loading={loading}
-                disabled={!prescription}
+                disabled={!prescription && clicked}
               >
                 Submit
               </Button>

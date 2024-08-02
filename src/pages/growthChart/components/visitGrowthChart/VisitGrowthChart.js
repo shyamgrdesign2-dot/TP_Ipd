@@ -74,7 +74,7 @@ export default function VisitGrowthChart() {
                     navigate("/prescription", {
                       state: {
                         patient_data: patient_data,
-                        isGrowth: true,
+                        chartType: "growthChart",
                       },
                     })
                   }
