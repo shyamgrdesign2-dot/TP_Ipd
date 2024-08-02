@@ -313,42 +313,138 @@ function SmartPrescription() {
   }, []);
 
   useEffect(() => {
-    const parentElement = document.getElementById("pdf");
-
-    if (!parentElement) {
-      errorMessage("Canvas not found, please refresh the page!");
-      return;
+    if (pages.length === 0) {
+      handleAddPage();
     }
-    
-    if (pages.length === 0 ){
-      handleAddPage()
-    }
-    
-    // Ensure a canvas exists for each page
-    pages.forEach((page, index) => {
-      if (!canvasRefs.current[index]) {
-        const newCanvas = document.createElement("canvas");
-        const parentWidth = parentElement.offsetWidth;
-        const parentHeight = parentElement.offsetHeight;
-        newCanvas.id = page;
-        newCanvas.width = parentWidth;
-        newCanvas.height = parentHeight;
-        newCanvas.style.backgroundColor = "white";
-        newCanvas.style.border = "1px solid lightgrey";
-        newCanvas.style.borderRadius = "20px";
-        newCanvas.style.color = "black";
-        parentElement.appendChild(newCanvas);
-        canvasRefs.current[index] = newCanvas;
+  }, []);
 
-        if (smartRxFile) {
-          const ctx = newCanvas.getContext('2d');
-          ctx.fillStyle = "white";
-          ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
-          ctxGlobalRefs.current[index] = ctx;
+  // useEffect(() => {
+  //   const parentElement = document.getElementById("pdf");
+
+  //   if (!parentElement) {
+  //     errorMessage("Canvas not found, please refresh the page!");
+  //     return;
+  //   }
+    
+  //   if (pages.length === 0 ){
+  //     handleAddPage()
+  //   }
+    
+  //   // Ensure a canvas exists for each page
+  //   pages.forEach((page, index) => {
+  //     if (!canvasRefs.current[index]) {
+  //       console.log("inside pages foreach")
+  //       const newCanvas = document.createElement("canvas");
+  //       const parentWidth = parentElement.offsetWidth;
+  //       const parentHeight = parentElement.offsetHeight;
+  //       newCanvas.id = page;
+  //       newCanvas.width = parentWidth;
+  //       newCanvas.height = parentHeight;
+  //       newCanvas.style.backgroundColor = "white";
+  //       newCanvas.style.border = "1px solid lightgrey";
+  //       newCanvas.style.borderRadius = "20px";
+  //       newCanvas.style.color = "black";
+  //       parentElement.appendChild(newCanvas);
+  //       console.log({parentElement})
+  //       canvasRefs.current[index] = newCanvas;
+
+  //       if (smartRxFile) {
+  //         const ctx = newCanvas.getContext('2d');
+  //         ctx.fillStyle = "white";
+  //         ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+  //         ctxGlobalRefs.current[index] = ctx;
+  //       }
+  //     }
+  //   });
+  // }, [pages, smartRxFile]);
+
+  // useEffect(() => {
+  //   const parentElement = document.getElementById("pdf");
+
+  //   if (!parentElement) {
+  //     errorMessage("Canvas not found, please refresh the page!");
+  //     return;
+  //   }
+
+  //   if (pages.length === 0) {
+  //     handleAddPage();
+  //   }
+
+  //   const getCanvas = (id, width, height) => (
+  //     <canvas
+  //       key={id}
+  //       id={id}
+  //       width={width}
+  //       height={height}
+  //       style={{
+  //         backgroundColor: "white",
+  //         border: "1px solid lightgrey",
+  //         borderRadius: "20px",
+  //         color: "black",
+  //       }}
+  //       ref={(el) => {
+  //         if (el) {
+  //           canvasRefs.current[id] = el;
+  //           if (smartRxFile) {
+  //             const ctx = el.getContext('2d');
+  //             ctx.fillStyle = "white";
+  //             ctx.fillRect(0, 0, el.width, el.height);
+  //             ctxGlobalRefs.current[id] = ctx;
+  //           }
+  //         }
+  //       }}
+  //       onClick={() => handlePageChange(id)}
+  //     ></canvas>
+  //   );
+
+  //   const canvases = pages.map((page, index) => (
+  //     <div key={page} className="canvas-container">
+  //       <div className="canvas-header">
+  //         <span>Page {index + 1}</span>
+  //         <Button onClick={() => handleRefresh(index)}>Refresh</Button>
+  //         <Button onClick={() => handleDeletePage(index)} disabled={pages.length === 1}>Delete</Button>
+  //       </div>
+  //       {getCanvas(page, parentElement.offsetWidth, parentElement.offsetHeight)}
+  //       <div className="canvas-footer">
+  //         {index === pages.length - 1 && (
+  //           <Button onClick={handleAddPage}>Add New Page</Button>
+  //         )}
+  //       </div>
+  //     </div>
+  //   ));
+
+  //   parentElement.innerHTML = ''; // Clear previous canvases
+  //   canvases.forEach((canvas) => {
+  //     parentElement.appendChild(canvas);
+  //   });
+  // }, [pages, smartRxFile]);
+
+  const getCanvas = (id, width, height) => (
+    <canvas
+      key={id}
+      id={id}
+      width={width}
+      height={height}
+      style={{
+        backgroundColor: "white",
+        border: "1px solid lightgrey",
+        borderRadius: "20px",
+        color: "black",
+      }}
+      ref={(el) => {
+        if (el) {
+          canvasRefs.current[id] = el;
+          if (smartRxFile) {
+            const ctx = el.getContext('2d');
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, el.width, el.height);
+            ctxGlobalRefs.current[id] = ctx;
+          }
         }
-      }
-    });
-  }, [pages, smartRxFile]);
+      }}
+      onClick={() => handlePageChange(id)}
+    ></canvas>
+  );
 
   useEffect(() => {
     selectedPageRef.current = selectedPage; // Update the ref when selectedPage changes
@@ -686,7 +782,22 @@ function SmartPrescription() {
                   id="pdf"
                   style={{ border: prescription ? "none" : "lightgrey" }}
                 >
-                  <Button onClick={() => handlePageChange(0)}>
+                  {pages.map((page, index) => (
+                    <div key={page} className="canvas-container">
+                      <div className="canvas-header">
+                        <span>Page {index + 1}</span>
+                        <Button onClick={() => handleRefresh(index)}>Refresh</Button>
+                        <Button onClick={() => handleDeletePage(index)} disabled={pages.length === 1}>Delete</Button>
+                      </div>
+                      {getCanvas(page, "760px", "920px")}
+                      <div className="canvas-footer">
+                        {index === pages.length - 1 && (
+                          <Button onClick={handleAddPage}>Add New Page</Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {/* <Button onClick={() => handlePageChange(0)}>
                     Page 1
                   </Button>
                   {pages.slice(1, -1).map((page, index) => (
@@ -699,8 +810,8 @@ function SmartPrescription() {
                       Page {pages.length}
                     </Button>
                   }
-                  <Button onClick={handleAddPage}>New Page</Button>
-                  {/* {pages.map((page, index) => (
+                  <Button onClick={handleAddPage}>New Page</Button> */}
+                  {/* {canvasRefs.map((page, index) => (
                     <div key={page} className="canvas-container">
                       <div className="canvas-header">
                         <span>Page {index + 1}</span>
@@ -719,7 +830,36 @@ function SmartPrescription() {
                       </div>
                     </div>
                   ))} */}
-                </div>
+                    {/* {pages.map((page, index) => (
+                      <div key={page.id} className="canvas-container" style={{ position: 'relative', marginBottom: '20px' }} onClick={() => handlePageChange(index + 1)}>
+                        <div className="canvas-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span>Page {index + 1}</span>
+                          <div>
+                            <Button onClick={() => handleRefresh(index)}>Refresh</Button>
+                            <Button onClick={() => handleDeletePage(index)} disabled={pages.length === 1}>Delete</Button>
+                          </div>
+                        </div>
+                        <div className="canvas-footer" style={{ textAlign: 'center', marginTop: '10px' }}>
+                          {index === pages.length - 1 && (
+                            <Button onClick={handleAddPage}>Add New Page</Button>
+                          )}
+                        </div>
+                      </div>
+                    ))} */}
+                    </div>
+                    {/* <div>
+                      <Button onClick={() => handlePageChange(0)}>Page 1</Button>
+                      {pages.slice(1, -1).map((page, index) => (
+                        <Button key={page.id} onClick={() => handlePageChange(index + 1)}>
+                          Page {index + 2}
+                        </Button>
+                      ))}
+                      {pages.length > 0 && (
+                        <Button onClick={() => handlePageChange(pages.length - 1)}>
+                          Page {pages.length}
+                        </Button>
+                      )}
+                    </div> */}
               </div>
             </div>
           </div>
