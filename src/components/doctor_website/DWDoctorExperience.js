@@ -6,6 +6,7 @@ import moment from 'moment';
 function DWDoctorExperience() {
 
     const { doctorExperience, setDoctorExperience } = useContext(DoctorWebsiteSettingsContext);
+    const [activeKey, setActiveKey] = useState(doctorExperience.length ? [`${doctorExperience.length}`] : ['1']);
 
     const monthList = [
         {
@@ -266,22 +267,50 @@ function DWDoctorExperience() {
         },
     ];
 
-    const addDoctorExperienceClick = useCallback(
-        () => {
-            doctorExperience.push({
-                title: '',
-                hospital: '',
-                city: '',
-                currently_working: 0,
-                start_month: '',
-                start_year: '',
-                end_month: '',
-                end_year: ''
-            })
-            setDoctorExperience((prev) => { return [...prev] });
-        },
-        [doctorExperience]
-    );
+    // const addDoctorExperienceClick = useCallback(
+    //     () => {
+    //         doctorExperience.push({
+    //             title: '',
+    //             hospital: '',
+    //             city: '',
+    //             currently_working: 0,
+    //             start_month: '',
+    //             start_year: '',
+    //             end_month: '',
+    //             end_year: ''
+    //         })
+    //         setDoctorExperience((prev) => { return [...prev] });
+    //     },
+    //     [doctorExperience]
+    // );
+
+    // Accordian Auto Open 
+    const addDoctorExperienceClick = useCallback(() => {
+        const newClinic = {
+            title: '',
+            hospital: '',
+            city: '',
+            currently_working: 0,
+            start_month: '',
+            start_year: '',
+            end_month: '',
+            end_year: ''
+        };
+
+        setDoctorExperience((prev) => {
+            const newProfile = [...prev, newClinic];
+            setActiveKey([`${newProfile.length}`]);
+            return newProfile;
+        });
+    }, [setDoctorExperience]);
+
+    const handleCollapseChange = (key) => {
+        if (activeKey.includes(key)) {
+            setActiveKey([]);
+        } else {
+            setActiveKey([key]);
+        }
+    };
 
     return (
         <div className="bg-white overflow-auto" style={{ height: 'calc(100vh - 120px)' }}>
@@ -292,7 +321,7 @@ function DWDoctorExperience() {
                         <div key={i} className="border rounded-20px bg-white mt-3">
                             <Collapse
                                 items={accordionItems(e, i)}
-                                defaultActiveKey={['1']}
+                                activeKey={activeKey} onChange={() => handleCollapseChange(`${i + 1}`)}
                                 className="prescriptiontab-accordian doctor-experience"
                                 expandIconPosition={'end'} />
                         </div>

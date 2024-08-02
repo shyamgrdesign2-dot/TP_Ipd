@@ -1,10 +1,11 @@
-import React, { useContext, useCallback } from 'react';
+import React, { useContext, useCallback, useState } from 'react';
 import { Form, Input, Select, Button, Collapse } from 'antd';
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 import moment from 'moment';
 
 function DWRewardsRecognition() {
     const { rewardRecognition, setRewardRecognition } = useContext(DoctorWebsiteSettingsContext);
+    const [activeKey, setActiveKey] = useState(rewardRecognition.length ? [`${rewardRecognition.length}`] : ['1']);
     const yearList = [
         {
             value: '2021',
@@ -85,16 +86,39 @@ function DWRewardsRecognition() {
         },
     ];
 
-    const addRewardRecognitionClick = useCallback(
-        () => {
-            rewardRecognition.push({
-                title: '',
-                year: ''
-            })
-            setRewardRecognition((prev) => { return [...prev] });
-        },
-        [rewardRecognition]
-    );
+    // const addRewardRecognitionClick = useCallback(
+    //     () => {
+    //         rewardRecognition.push({
+    //             title: '',
+    //             year: ''
+    //         })
+    //         setRewardRecognition((prev) => { return [...prev] });
+    //     },
+    //     [rewardRecognition]
+    // );
+
+
+    // Accordian Auto Open 
+    const addRewardRecognitionClick = useCallback(() => {
+        const newClinic = {
+            title: '',
+            year: ''
+        };
+
+        setRewardRecognition((prev) => {
+            const newProfile = [...prev, newClinic];
+            setActiveKey([`${newProfile.length}`]);
+            return newProfile;
+        });
+    }, [setRewardRecognition]);
+
+    const handleCollapseChange = (key) => {
+        if (activeKey.includes(key)) {
+            setActiveKey([]);
+        } else {
+            setActiveKey([key]);
+        }
+    };
 
     return (
         <div className="bg-white overflow-auto" style={{ height: 'calc(100vh - 120px)' }}>
@@ -103,7 +127,7 @@ function DWRewardsRecognition() {
                 {rewardRecognition.map((e, i) => {
                     return (
                         <div key={i} className="border rounded-20px bg-white mt-3">
-                            <Collapse items={accordionItems(e, i)} defaultActiveKey={['1']} className="prescriptiontab-accordian doctor-experience" expandIconPosition={'end'} />
+                            <Collapse items={accordionItems(e, i)} activeKey={activeKey} onChange={() => handleCollapseChange(`${i + 1}`)} className="prescriptiontab-accordian doctor-experience" expandIconPosition={'end'} />
                         </div>
                     )
                 })}

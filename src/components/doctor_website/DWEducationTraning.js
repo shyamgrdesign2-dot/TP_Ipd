@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useCallback } from 'react';
+import React, { useContext, useMemo, useCallback, useState } from 'react';
 import { Button, Collapse, Form, Input, Row, Col, Select } from 'antd';
 import moment from 'moment';
 
@@ -7,6 +7,7 @@ import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsCon
 function DWEducationTraning() {
 
     const { educationTraining, setEducationTraining } = useContext(DoctorWebsiteSettingsContext);
+    const [activeKey, setActiveKey] = useState(educationTraining.length ? [`${educationTraining.length}`] : ['1']);
 
     const yearsFromToCurrent = (value) => {
         const startYear = parseInt(value);
@@ -118,19 +119,44 @@ function DWEducationTraning() {
         },
     ];
 
-    const addEducationClick = useCallback(
-        () => {
-            educationTraining.push({
-                title: '',
-                degree: '',
-                city: '',
-                start_year: '',
-                end_year: ''
-            })
-            setEducationTraining((prev) => { return [...prev] });
-        },
-        [educationTraining]
-    );
+    // const addEducationClick = useCallback(
+    //     () => {
+    //         educationTraining.push({
+    //             title: '',
+    //             degree: '',
+    //             city: '',
+    //             start_year: '',
+    //             end_year: ''
+    //         })
+    //         setEducationTraining((prev) => { return [...prev] });
+    //     },
+    //     [educationTraining]
+    // );
+
+    // Accordian Auto Open 
+    const addEducationClick = useCallback(() => {
+        const newClinic = {
+            title: '',
+            degree: '',
+            city: '',
+            start_year: '',
+            end_year: ''
+        };
+
+        setEducationTraining((prev) => {
+            const newProfile = [...prev, newClinic];
+            setActiveKey([`${newProfile.length}`]);
+            return newProfile;
+        });
+    }, [setEducationTraining]);
+
+    const handleCollapseChange = (key) => {
+        if (activeKey.includes(key)) {
+            setActiveKey([]);
+        } else {
+            setActiveKey([key]);
+        }
+    };
 
 
     return (
@@ -140,7 +166,7 @@ function DWEducationTraning() {
                 {educationTraining.map((e, i) => {
                     return (
                         <div key={i} className="border rounded-20px bg-white mt-3">
-                            <Collapse items={accordionItems(e, i)} defaultActiveKey={['1']} className="prescriptiontab-accordian doctor-experience" expandIconPosition={'end'} />
+                            <Collapse items={accordionItems(e, i)} activeKey={activeKey} onChange={() => handleCollapseChange(`${i + 1}`)} className="prescriptiontab-accordian doctor-experience" expandIconPosition={'end'} />
                         </div>
                     )
                 })}

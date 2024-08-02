@@ -22,6 +22,7 @@ function DWClinicProfile() {
     const inputImageUrls = useRef([]);
 
     const { clinicProfile, setClinicProfile } = useContext(DoctorWebsiteSettingsContext);
+    const [activeKey, setActiveKey] = useState(clinicProfile.length ? [`${clinicProfile.length}`] : ['1']);
     const [imageIndex, setImageIndex] = useState(0);
     const [visible, setVisible] = useState(false);
 
@@ -381,60 +382,60 @@ function DWClinicProfile() {
                             <Tabs activeKey={e?.selectedTab} onChange={(key) => onTabChange(key, e)} items={TabsPrintSetting} className="print-tabs" />
                             {e?.selectedTab === TAB_ADDRESS ? (
                                 <>
-                                <Row gutter={20} className='px-10'>
-                                    <Col span={12}>
-                                        <Form.Item
-                                            label="Pincode"
-                                            className='fw-medium mb-20'
-                                            required>
-                                            <Input placeholder="Pincode" className="text-capitalize rounded-10px h-38"
-                                                value={e?.address?.pincode}
-                                                onChange={(el) => onChangeAddressInput(el, 'pincode', e)} />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={12}>
-                                        <Form.Item
-                                            label="City"
-                                            className='fw-medium mb-20'
-                                            required>
-                                            <Input placeholder="City"
-                                                className="text-capitalize rounded-10px h-38"
-                                                value={e?.address?.city}
-                                                onChange={(el) => onChangeAddressInput(el, 'city', e)} />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            label="State"
-                                            className='fw-medium mb-20'
-                                            required>
-                                            <Input placeholder="City"
-                                                className="text-capitalize rounded-10px h-38"
-                                                value={e?.address?.state}
-                                                onChange={(el) => onChangeAddressInput(el, 'state', e)} />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            label="Address"
-                                            className='fw-medium mb-20'
-                                            required>
-                                            <Input.TextArea placeholder="Address" rows={3} className="textareaPlaceholder text-capitalize rounded-10px"
-                                                value={e?.address?.address_line}
-                                                onChange={(el) => onChangeAddressInput(el, 'address_line', e)} />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            label="Google map link"
-                                            className='fw-medium mb-20'>
-                                            <Input placeholder="Copy and paste your clinic address link" className="rounded-10px h-38"
-                                                value={e?.address?.google_map}
-                                                onChange={(el) => onChangeAddressInput(el, 'google_map', e)} />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                                <button className='align-items-center btn btn-delete-experience btn-delete-experience1 d-flex mb-2 me-2 ms-auto text-primary' onClick={() => onTabChange(TAB_TIMINGS, e)}><i className='icon-Add fs-18 me-2'></i>Add Timings</button>
+                                    <Row gutter={20} className='px-10'>
+                                        <Col span={12}>
+                                            <Form.Item
+                                                label="Pincode"
+                                                className='fw-medium mb-20'
+                                                required>
+                                                <Input placeholder="Pincode" className="text-capitalize rounded-10px h-38"
+                                                    value={e?.address?.pincode}
+                                                    onChange={(el) => onChangeAddressInput(el, 'pincode', e)} />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={12}>
+                                            <Form.Item
+                                                label="City"
+                                                className='fw-medium mb-20'
+                                                required>
+                                                <Input placeholder="City"
+                                                    className="text-capitalize rounded-10px h-38"
+                                                    value={e?.address?.city}
+                                                    onChange={(el) => onChangeAddressInput(el, 'city', e)} />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                label="State"
+                                                className='fw-medium mb-20'
+                                                required>
+                                                <Input placeholder="City"
+                                                    className="text-capitalize rounded-10px h-38"
+                                                    value={e?.address?.state}
+                                                    onChange={(el) => onChangeAddressInput(el, 'state', e)} />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                label="Address"
+                                                className='fw-medium mb-20'
+                                                required>
+                                                <Input.TextArea placeholder="Address" rows={3} className="textareaPlaceholder text-capitalize rounded-10px"
+                                                    value={e?.address?.address_line}
+                                                    onChange={(el) => onChangeAddressInput(el, 'address_line', e)} />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                label="Google map link"
+                                                className='fw-medium mb-20'>
+                                                <Input placeholder="Copy and paste your clinic address link" className="rounded-10px h-38"
+                                                    value={e?.address?.google_map}
+                                                    onChange={(el) => onChangeAddressInput(el, 'google_map', e)} />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <button className='align-items-center btn btn-delete-experience btn-delete-experience1 d-flex mb-2 me-2 ms-auto text-primary' onClick={() => onTabChange(TAB_TIMINGS, e)}><i className='icon-Add fs-18 me-2'></i>Add Timings</button>
                                 </>
                             ) : e?.selectedTab === TAB_TIMINGS ? (
                                 <>
@@ -519,32 +520,70 @@ function DWClinicProfile() {
         },
     ];
 
-    const addClinicProfileClick = useCallback(
-        () => {
-            clinicProfile.push({
-                created_by: 'local',
-                random_id: Math.floor(1000000000 + Math.random() * 9999999999),
-                name: '',
-                contact_no: '',
-                address: {
-                    pincode: '',
-                    city: '',
-                    state: '',
-                    address_line: '',
-                    google_map: ''
-                },
-                shift: [{
-                    days: [],
-                    timing: []
-                }],
-                clinic_photos: [],
-                clinic_delete: 0,
-                selectedTab: TAB_ADDRESS
-            })
-            setClinicProfile((prev) => { return [...prev] });
-        },
-        [clinicProfile]
-    );
+    // const addClinicProfileClick = useCallback(
+    //     () => {
+    //         clinicProfile.push({
+    //             created_by: 'local',
+    //             random_id: Math.floor(1000000000 + Math.random() * 9999999999),
+    //             name: '',
+    //             contact_no: '',
+    //             address: {
+    //                 pincode: '',
+    //                 city: '',
+    //                 state: '',
+    //                 address_line: '',
+    //                 google_map: ''
+    //             },
+    //             shift: [{
+    //                 days: [],
+    //                 timing: []
+    //             }],
+    //             clinic_photos: [],
+    //             clinic_delete: 0,
+    //             selectedTab: TAB_ADDRESS
+    //         })
+    //         setClinicProfile((prev) => { return [...prev] });
+    //     },
+    //     [clinicProfile]
+    // );
+
+    // Accordian Auto Open 
+    const addClinicProfileClick = useCallback(() => {
+        const newClinic = {
+            created_by: 'local',
+            random_id: Math.floor(1000000000 + Math.random() * 9999999999),
+            name: '',
+            contact_no: '',
+            address: {
+                pincode: '',
+                city: '',
+                state: '',
+                address_line: '',
+                google_map: ''
+            },
+            shift: [{
+                days: [],
+                timing: []
+            }],
+            clinic_photos: [],
+            clinic_delete: 0,
+            selectedTab: TAB_ADDRESS
+        };
+
+        setClinicProfile((prev) => {
+            const newProfile = [...prev, newClinic];
+            setActiveKey([`${newProfile.length}`]);
+            return newProfile;
+        });
+    }, [setClinicProfile]);
+
+    const handleCollapseChange = (key) => {
+        if (activeKey.includes(key)) {
+            setActiveKey([]);
+        } else {
+            setActiveKey([key]);
+        }
+    };
 
     return (
         <div className="bg-white overflow-auto" style={{ height: 'calc(100vh - 120px)' }}>
@@ -553,7 +592,7 @@ function DWClinicProfile() {
                 {clinicProfile?.filter(el => !el.clinic_delete)?.map((e, i) => {
                     return (
                         <div key={i} className="border rounded-20px bg-white mt-3">
-                            <Collapse items={clinicItems(e, i)} defaultActiveKey={['1']} className="prescriptiontab-accordian doctor-experience" expandIconPosition={'end'} />
+                            <Collapse items={clinicItems(e, i)} activeKey={activeKey} onChange={() => handleCollapseChange(`${i + 1}`)} className="prescriptiontab-accordian doctor-experience" expandIconPosition={'end'} />
                         </div>
                     )
                 })}
