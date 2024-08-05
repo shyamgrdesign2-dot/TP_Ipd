@@ -932,6 +932,42 @@ body {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
     }
+
+}
+
+.calender-merge-input-gynec{
+    width: 10rem;
+    height: 2rem ;
+    .ant-picker {
+        border: none;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-top-right-radius: 1rem;
+        border-bottom-right-radius: 1rem;
+        border-left: 0;
+
+        .ant-picker-input {
+
+            input:hover,
+            .ant-picker:hover {
+                border-color: none;
+            }
+
+            input,
+            .ant-picker-clear {
+                display: none;
+            }
+        }
+    }
+
+    .calnder-input2 {
+        border-top-left-radius: 1rem;
+        border-bottom-left-radius: 1rem;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        width: 8rem;
+        border: none;
+    }
 }
 
 .ant-picker {
@@ -1187,3 +1223,36 @@ body {
         font-weight: 600;
     }
 }
+
+// Gynec page's style
+.gynec-notes{
+    div{
+        width: 90% !important;
+        height: 100% !important;
+    }
+    button{
+        width: 10% !important;
+        height: 100% !important;
+        color: #4B4AD5 !important;
+        span{
+            color: #4B4AD5 !important;
+        }
+    }
+}
+
+.gynec-history-list .text-history {
+    width: 44%;
+    word-break: break-word;
+    align-content: center;
+    &.fs-13{
+        font-size: 12px;
+    }
+    &.t-bold{
+        font-weight: 600;
+    }
+}
+
+.gynec-history-list .semicolon {
+    width: 2%;
+}
+

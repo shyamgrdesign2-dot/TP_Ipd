@@ -1,7 +1,24 @@
 import React from 'react';
+import { useSelector } from "react-redux";
 import { Row, Col, Button } from 'antd';
+import Slider from 'react-slick';
 
 function ProfileClinicView() {
+
+    const { profile } = useSelector((state) => state.doctors);
+
+    const settings = {
+        infinite: false,
+        arrows: false,
+        dots: true,
+        arrows: false,
+        adaptiveHeight: true,
+        autoplay: false,
+        adaptiveHeight: true,
+        slidesToShow: 2,
+        slidesToScroll: 2,
+    };
+
     return (
         <div className="rounded-20px bg-white">
             <div className="d-flex align-items-center justify-content-between p-20 border-bottom" style={{ borderColor: '#F1F1F5' }}>
@@ -16,19 +33,35 @@ function ProfileClinicView() {
                     <span> Edit </span>
                 </button> */}
             </div>
-            <div className="px-20 py-1">
-                <Row>
-                    <Col span={12} className='my-3'>
-                        <div>
-                            <div className="p-20 rounded-20px rounded-bottom-0 border" style={{ backgroundColor: 'rgba(237, 223, 247, 0.30)' }}>
-                                <div className='fw-semibold fs-16' style={{ fontWeight: 600 }}> Aayushyam Clinic Centre LLP</div>
+            <div>
+                <Slider
+                    {...settings}
+                    arrows={false}
+                    className='hospital-address-slider'>
+                    {profile?.hospital_data?.map((e, i) => {
+                        return (
+                            <div key={Math.random()} className='p-3'>
+                                <div>
+                                    <div className="p-20 rounded-20px rounded-bottom-0 border" style={{ backgroundColor: 'rgba(237, 223, 247, 0.30)' }}>
+                                        <div className='fw-semibold fs-16' style={{ fontWeight: 600 }}> {e?.hm_name ? e?.hm_name : '-'}</div>
+                                    </div>
+                                    <div className="p-20 rounded-20px rounded-top-0 bg-white border border-top-0">
+                                        <div className="fw-semibold">Address</div>
+                                        <div className="fs-14">{e?.hm_address ? e?.hm_address : '-'}</div>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="p-20 rounded-20px rounded-top-0 bg-white border border-top-0">
-                                <div className="fw-semibold">Address</div>
-                                <div className="fs-14">Ground Floor, Sheetal Varsha Complex,
-                                    Landmark: Near Shivranjani Cross Road,
-                                    Ahmedabad, Gujarat 380015</div>
-                                <div className="d-flex align-items-center justify-content-between mt-4">
+                        )
+                    })}
+                </Slider>
+                {/* <div>
+                    <div className="p-20 rounded-20px rounded-bottom-0 border" style={{ backgroundColor: 'rgba(237, 223, 247, 0.30)' }}>
+                        <div className='fw-semibold fs-16' style={{ fontWeight: 600 }}> {profile?.hospital_data[0]?.hm_name ? profile?.hospital_data[0]?.hm_name : '-'}</div>
+                    </div>
+                    <div className="p-20 rounded-20px rounded-top-0 bg-white border border-top-0">
+                        <div className="fw-semibold">Address</div>
+                        <div className="fs-14">{profile?.hm_address ? profile?.hm_address : '-'}</div>
+                        <div className="d-flex align-items-center justify-content-between mt-4">
                                     <div className="align-items-center d-flex text-primary fw-medium px-3 py-1 cursor-pointer">
                                         <i className="icon-Preview text-primary me-2"></i>
                                         Get Direction                                        
@@ -37,10 +70,8 @@ function ProfileClinicView() {
                                         7894561230
                                     </Button>
                                 </div>
-                            </div>
-                        </div>
-                    </Col>
-                </Row>
+                    </div>
+                </div> */}
             </div>
         </div >
     );

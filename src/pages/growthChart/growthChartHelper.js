@@ -55,7 +55,11 @@ export const dummyData = {
   ],
 };
 
-export const getGrowthChartData = (growthChartData, DOB, patientAgeInMonths) => {
+export const getGrowthChartData = (
+  growthChartData,
+  DOB,
+  patientAgeInMonths
+) => {
   return growthChartData.reduce(
     (acc, entry, index) => {
       const createdDate = moment(entry.tcbc_created_date);
@@ -117,7 +121,7 @@ export const getGrowthChartData = (growthChartData, DOB, patientAgeInMonths) => 
   );
 };
 
-const getOrdinalSuffix = (n) => {
+export const getOrdinalSuffix = (n) => {
   const s = ["th", "st", "nd", "rd"],
     v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
@@ -201,4 +205,8 @@ export const ageIntervals = {
 export const getAgeInMonths = (patientDOB) => {
   const today = moment(new Date());
   return today.diff(patientDOB, "months");
+};
+
+export const disableFutureDates = (current) => {
+  return current && current >= moment().add(1, "days").startOf("day");
 };

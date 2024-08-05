@@ -252,6 +252,13 @@ body .ant-btn.btn-48 {
     }
 }
 
+.btn-width-mobile {
+    width: auto;
+    @media only screen and (max-width: 767px) {
+        width: 100%;
+    }
+}
+
 // Page
 .website-wrapper {
     position: relative;
@@ -269,6 +276,10 @@ body .ant-btn.btn-48 {
         left: -45px;
         top: -280px;
         z-index: -1;
+        @media only screen and (max-width: 400px) {
+            width: 360.775px;
+            height: 360.775px;
+        }
     }
     
     // Header Section
@@ -402,7 +413,16 @@ body .ant-btn.btn-48 {
             top: 160px;
             z-index: -1;
             @media only screen and (max-width: 991px)  {
-                right: 15px;
+                width: 90.526px;
+                height: 90.526px;
+                right: 135px;
+                top: 100px;
+            };
+            @media only screen and (max-width: 767px)  {
+                right: 42px;
+            };
+            @media only screen and (max-width: 575px)  {
+                right: -30px;
             };
         }
         .square-yellow {
@@ -413,18 +433,26 @@ body .ant-btn.btn-48 {
             background: #FED15E;
             width: 111.526px;
             height: 111.526px;
-            left: 250px;
-            bottom: 180px;
+            right: 363px;
+            bottom: 60px;
             z-index: -1;
             @media only screen and (max-width: 991px)  {
-                display: none;
+                width: 90.526px;
+                height: 90.526px;
+                right: 475px;
+                bottom: 45px;
             }
+            @media only screen and (max-width: 767px)  {
+                right: 390px;
+            };
+            @media only screen and (max-width: 575px)  {
+                right: 300px;
+            };
         }
         .doctor-photo {
             width: 440px;
             height: 468px;
             margin: 50px 0 0;
-            margin-left: auto;
             background-color: #F6EFFB;
             position: relative;
             overflow: hidden;
@@ -435,6 +463,9 @@ body .ant-btn.btn-48 {
             mask-image: url(../images/website-images/hero-doctor.svg);
             mask-repeat: no-repeat;
             @media only screen and (max-width: 991px)  {
+                margin: 65px auto 0;
+                width: 360px;
+                height: 383px;
                 mask-image: url(../images/website-images/hero-doctor-mobile.svg);
             }
         }
@@ -799,8 +830,13 @@ body .ant-btn.btn-48 {
                 .timingshape {
                     height: 250px;
                 }
+                .clinic-slider {
+                    @media only screen and (max-width: 575px)  {
+                        margin-top: 100px;
+                    }
+                }
                 .slick-arrow  {
-                    top: -85px;
+                    top: -80px;
                     left: inherit !important;
                     right: 100px;
                     &.slick-prev {
@@ -837,19 +873,37 @@ body .ant-btn.btn-48 {
                     }
                     @media only screen and (max-width: 991px)  {
                         left: 70px !important;
+                        top: -61px;
                         right: inherit;
                         &.slick-prev {
                             left: 0px !important;
                             right: inherit;
                         }
                     }
+                    @media only screen and (max-width: 575px)  {
+                        left: 70px !important;
+                        top: -61px;
+                        right: inherit;
+                    }
                 }
                 .slide-count {
-                    top: inherit;
+                    top: 4px;
                     position: relative;
                     left: inherit;
                     @media only screen and (max-width: 991px)  {
                         left: 140px;
+                        top: 35px;
+                        position: absolute;
+                    }
+                    @media only screen and (max-width: 575px)  {
+                        left: -245px;
+                        top: 167px;
+                    }
+                    @media only screen and (max-width: 413px)  {
+                        top: 216px;
+                    }
+                    @media only screen and (max-width: 400px)  {
+                        left: -200px;
                     }
                 }
             }
@@ -1168,7 +1222,7 @@ body .ant-btn.btn-48 {
     }
 }
 .ant-image-mask {
-    opacity: 0;
+    opacity: 0 !important;
 }
 
 .imageclose-btn {

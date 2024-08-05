@@ -124,10 +124,10 @@ function VisitVaccination() {
   const resultData = (vaccines) => {
     return (
       <>
-        {vaccines.map((item) => {
+        {vaccines.map((item, index) => {
           return (
             <>
-              <div className="subTitle">{item[0]}</div>
+              <div key={index} className="subTitle">{item[0]}</div>
               {vaccinesDetails(item[1])}
             </>
           );
@@ -157,7 +157,7 @@ function VisitVaccination() {
                     navigate("/prescription", {
                       state: {
                         patient_data: patient_data,
-                        isVaccination: true,
+                        chartType: "vaccination",
                       },
                     })
                   }

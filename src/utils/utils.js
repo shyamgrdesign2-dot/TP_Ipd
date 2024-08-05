@@ -7,6 +7,7 @@ import { isBrowser } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
+import { getDecodedToken } from "./localStorage.js";
 
 // export const validateEmail = (email) => {
 //   return String(email)
@@ -27,7 +28,7 @@ export const isValidWebsite = (url) => {
 }
 
 export const isValidMap = (url) => {
-  const pattern = /^https?\:\/\/(www\.|maps\.)?google(\.[a-z]+){1,2}\/maps\/?\?([^&]+&)*(ll=-?[0-9]{1,2}\.[0-9]+,-?[0-9]{1,2}\.[0-9]+|q=[^&]+)+($|&)/;;
+  const pattern = /^https?:\/\/(www\.)?(google\.[a-z]{2,3}(?:\.[a-z]{2})?|maps\.app\.goo\.gl)\/(maps\/)?[a-zA-Z0-9?=&,.;_-]*$/;
   return pattern.test(url);
 }
 
@@ -556,3 +557,10 @@ export const chunkArray = (array, size) => {
   }
   return chunkedArr;
 };
+
+export const getClinicName = (hospitalData) => {
+  const decodedToken = getDecodedToken();
+  const clinicId = decodedToken?.result?.clinic_id;
+  const clinic = hospitalData.find((e) => e?.hm_id == clinicId);
+  return clinic ? clinic.hm_name : "";
+}

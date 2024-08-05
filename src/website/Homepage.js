@@ -61,6 +61,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
   const socialSectionRef = useRef(null);
 
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showNavbar, setShowNavbar] = React.useState(false);
 
   // Read More content
   const ReadMore = ({ children }) => {
@@ -105,22 +106,31 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
     try {
       if (scrollId == 1) {
         personalSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 2) {
         aboutSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 3) {
         clinicSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 4) {
         experienceSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 5) {
         servicesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 6) {
         educationSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 7) {
         membershipSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 8) {
         awardsSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 9) {
         socialSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       }
     } catch (e) {
       console.log(e)
@@ -218,9 +228,6 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
     return ranges.join(', ');
   };
 
-  // Navbar
-  const [showNavbar, setShowNavbar] = React.useState(false);
-
   const handleShowNavbar = () => {
     setShowNavbar(!showNavbar);
   };
@@ -230,7 +237,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
       {/* Header Section */}
       <div className="container-fluid mt-14" style={{ position: 'sticky', top: 14, zIndex: 9 }}>
         <div className={`website-section website-header ${showNavbar && "website-header-responsive"}`}>
-          <nav className="navbar">
+          <nav className="navbar" onClick={handleShowNavbar}>
             <div className='d-flex align-items-center justify-content-between w-100'>
               <div className="logo">
                 <img src={websiteLogo} width={151.29} height={34} alt="Logo" />
@@ -272,7 +279,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                     </li>
                   ) : null}
                 </ul>
-                <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mx-lg-3 mt-5 mt-lg-0">
+                <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mx-lg-3 mt-5 mt-lg-0 btn-width-mobile">
                   Book Appointment
                 </Button>
               </div>
@@ -287,7 +294,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
         <div id='personalSection' ref={personalSectionRef} className="website-section website-banner">
           <div className="container">
             <Row className='row-80'>
-              <Col sm={24} lg={12}>
+              <Col sm={24} lg={12} className='w-100'>
                 <div className="hi text-welcome">Hi, I'm</div>
                 <h1 className="doctor-name mb-20 web-h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h1>
                 <div className="education-speciality mb-15 text-welcome">{`${personalDetails?.education} - ${personalDetails?.specialty}`}</div>
@@ -299,11 +306,11 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                     </div>
                   )}
                 </div>
-                <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18">
+                <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 btn-width-mobile">
                   Book Appointment
                 </Button>
               </Col>
-              <Col sm={24} lg={12}>
+              <Col sm={24} lg={12} className='mx-auto'>
                 <div className='round-pink'></div>
                 <div className='doctor-photo'>
                   <img fill src={personalDetails?.hero_image_link ? personalDetails?.hero_image_link : DoctorDefault} alt="Doctor Profile" style={{
@@ -454,17 +461,17 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                           </div>
                           <div className={`d-flex flex-wrap clinic-btn ${e?.shift?.length > 0 ? 'mb-lg-4' : 'mb-5'}`}>
                             {e?.address?.google_map && (
-                              <Button type="button" onClick={() => isValidMap(e?.address?.google_map) ? window.open(e?.address?.google_map) : window.open('https://google.com/maps')} className="btn btn-primary3 btn-48">
+                              <Button type="button" onClick={() => isValidMap(e?.address?.google_map) ? window.open(e?.address?.google_map) : window.open(`https://www.google.com/maps/search/${e?.address?.google_map}`)} className="btn btn-primary3 btn-48">
                                 <img width={19} height={19} className='me-2' src={Direction} alt="Direction" /> Direction to Clinic
                               </Button>
                             )}
                             {e?.contact_no && !isMobile ? (
                               <Button type="button" className="btn btn-primary3 btn-48 rounded-18">
-                                <a className='text-white d-flex align-items-center'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
+                                <a className='text-white d-flex align-items-center'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` ${e?.contact_no}`}</a>
                               </Button>
                             ) : (
                               <Button type="button" onClick={() => window.location.href = (`tel:${e?.contact_no}`)} className="btn btn-primary3 btn-48 rounded-18">
-                                <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
+                                <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` ${e?.contact_no}`}</a>
                               </Button>
                             )}
                           </div>
@@ -865,11 +872,11 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                         <div>
                           {!isMobile ? (
                             <Button type="button" className="btn btn-primary3 btn-48 rounded-18">
-                              <a className='text-white d-flex align-items-center'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
+                              <a className='text-white d-flex align-items-center'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` ${e?.contact_no}`}</a>
                             </Button>
                           ) : (
                             <Button type="button" onClick={() => window.location.href = (`tel:${e?.contact_no}`)} className="btn btn-primary3 btn-48 rounded-18">
-                              <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
+                              <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` ${e?.contact_no}`}</a>
                             </Button>
                           )}
                         </div>

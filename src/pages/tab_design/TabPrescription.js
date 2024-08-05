@@ -40,6 +40,8 @@ import growthChart from "../../assets/images/growth-chart.svg";
 import growthChartDark from "../../assets/images/growth-chart-dark.svg";
 import privateNotesWhite from "../../assets/images/private-notes-white.svg";
 import privateNotesDark from "../../assets/images/private-notes-dark.svg";
+import obstetricWhite from "../../assets/images/obstetric-white.svg";
+import obstetricDark from "../../assets/images/obstetric-dark.svg";
 
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
@@ -49,6 +51,11 @@ import Vaccination from "../vaccination/Vaccination";
 import GrowthChart from "../growthChart/GrowthChart";
 import { viewPatient } from "../../redux/appointmentsSlice";
 import { useAccess } from "../vaccination/useAccess";
+import { getGynecDetails } from "../../api/services/ApiGynec";
+import Obstetric from "../obstetric/Obstetric";
+import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
+import { fetchAllObstetricDetails } from "../obstetric/service";
+import { addObstetricDetails, navigateToObstetric } from "../../redux/obstetricSlice";
 
 function TabPrescription() {
   const {
@@ -60,12 +67,14 @@ function TabPrescription() {
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
+  const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
+    useSelector((state) => state.obstetric);
+  const { examinationHistory = [] } = obstetricDetails;
   const dispatch = useDispatch();
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
-  const isVaccination = state?.isVaccination;
-  const isGrowth = state?.isGrowth;
+  const chartType = state?.chartType;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -84,10 +93,12 @@ function TabPrescription() {
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
   const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
+  const [obstetricDrawer, setObstetricDrawer] = useState(false);
   const [isGrowthChart, setIsGrowthChart] = useState(false);
-  const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
+  const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
+  const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
 
   const contextApi = {
     patient_data,
@@ -127,12 +138,25 @@ function TabPrescription() {
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
 
+  const getAllObstetricDetails = async () => {
+    const obstetricResponse = await fetchAllObstetricDetails(patient_data.patient_unique_id);
+    if (obstetricResponse) {
+      dispatch(addObstetricDetails(obstetricResponse));
+    }
+  }
+
   useEffect(() => {
     const sendData = {
       patient_unique_id: patient_data?.patient_unique_id,
     };
     dispatch(viewPatient(sendData));
   }, []);
+
+  useEffect(() => {
+    if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {
+      getAllObstetricDetails();
+    }
+  }, [isObstetricDetailsFetched, isGynaecHistoryAccessable]);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -294,17 +318,32 @@ function TabPrescription() {
     setIsGrowthChart(!isGrowthChart);
   };
 
-  useEffect(() => {
-    if (isVaccination) {
-      handleDrawerVaccination();
-    }
-  }, [isVaccination]);
+   // Drawer Obstetric
+  const handleDrawerObstetric = () => {
+    setCollapsedFlag(6);
+    setObstetricDrawer(!obstetricDrawer);
+  };
 
   useEffect(() => {
-    if (isGrowth) {
+    if (chartType === "vaccination") {
+      handleDrawerVaccination();
+    } else if (chartType === "growthChart") {
       handleDrawerGrowth();
     }
-  }, [isGrowth]);
+  }, [chartType]);
+
+  useEffect(() => {
+    if (isNavigateToObstetric) {
+      handleDrawerObstetric();
+      dispatch(navigateToObstetric());
+    }
+  }, [isNavigateToObstetric]);
+
+  useEffect(() => {
+    if (collapsedFlag === 6 && examinationHistory.length === 0) {
+      setCollapsed(false);
+    }
+  }, [collapsedFlag, collapsed])
 
   //Handle Sider
   const openCollapsed = useCallback(
@@ -327,6 +366,10 @@ function TabPrescription() {
         handleDrawerVaccination();
       } else if (flag === 4) {
         handleDrawerPrivateNotes();
+      } else if (flag === 5) {
+        handleDrawerGrowth();
+      } else if (flag === 6) {
+        handleDrawerObstetric();
       }
     },
     [
@@ -397,10 +440,32 @@ function TabPrescription() {
     }
   }, [privateNotesList]);
 
+  const handleSaveGynecHistory = (updatedGynecHistory) => {
+    setUpdatedGynecHistory(updatedGynecHistory)
+  };
+
+  useEffect(() => {
+    if(isGynaecHistoryAccessable){
+        fetchGynecHistory();
+    }
+  }, [isGynaecHistoryAccessable]);
+
+  const fetchGynecHistory = async () => {
+      try {
+          const data = await getGynecDetails(patient_data.patient_unique_id);
+          // Destructure to remove createdAt and createdBy
+          const { createdAt, createdBy, ...updatedData } = data;
+          
+          setUpdatedGynecHistory(updatedData);
+      } catch (error) {
+          console.error('Error fetching gynec history:', error);
+      }
+  }; 
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper p-0">
           <Layout>
             <div className="prescription-sidebar">
@@ -434,7 +499,7 @@ function TabPrescription() {
                     type="button"
                     className="mb-3 text-center btn btn-action"
                     onClick={() =>
-                      medicalHistoryData.length === 0
+                      (medicalHistoryData.length === 0 && !updatedGynecHistory)
                         ? handleDrawerMedicalHistory()
                         : openCollapsed(2)
                     }
@@ -493,50 +558,80 @@ function TabPrescription() {
                   e.tmdpm_id === 7 &&
                   e.tmdpm_status === 0 &&
                   isVaccinationAccessable ? (
-                    <button
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={handleDrawerVaccination}
-                    >
-                      <div
+                  <button
+                    type="button"
+                    className="mb-3 text-center btn btn-action"
+                    onClick={handleDrawerVaccination}
+                  >
+                    <div
                         className={`bg-secondary-light prescription-tab-button rounded-10px ${collapsedFlag === 3 && "active"}`}
-                      >
-                        <img
-                          src={
-                            collapsedFlag === 3
-                              ? vaccinationDark
-                              : vaccinationWhite
-                          }
-                          alt="Vitals"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Vaccine</label>
-                    </button>
+                    >
+                      <img
+                        src={
+                          collapsedFlag === 3
+                            ? vaccinationDark
+                            : vaccinationWhite
+                        }
+                        alt="Vitals"
+                      />
+                    </div>
+                    <label className="text-white mt-1">Vaccine</label>
+                  </button>
                   )
                  : 
-                  (
                   e.tmdpm_id === 16 &&
                   e.tmdpm_status === 0 &&
-                  isGrowthChartAccessable && (
-                    <button
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={handleDrawerGrowth}
-                    >
-                      <div
-                        className={`prescription-tab-button rounded-10px ${
-                          collapsedFlag === 5 && "active"
-                        }`}
+                  isGrowthChartAccessable ? (
+                      <button
+                        type="button"
+                        className="mb-3 text-center btn btn-action"
+                        onClick={handleDrawerGrowth}
                       >
-                        <img
-                          src={collapsedFlag === 5 ? growthChartDark : growthChart}
-                          alt="Growth"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Growth</label>
-                    </button>
+                        <div
+                          className={`prescription-tab-button rounded-10px ${
+                            collapsedFlag === 5 && "active"
+                          }`}
+                        >
+                          <img
+                            src={
+                              collapsedFlag === 5
+                                ? growthChartDark
+                                : growthChart
+                            }
+                            alt="Growth"
+                          />
+                        </div>
+                        <label className="text-white mt-1">Growth</label>
+                      </button>
                   )
-                )
+                  :
+                  e.tmdpm_id === 17 &&
+                    e.tmdpm_status === 0 &&
+                    isGynaecHistoryAccessable && (
+                        <button
+                          type="button"
+                          className="mb-3 text-center btn btn-action"
+                          style={{padding: "0px"}}
+                          onClick={() => examinationHistory.length === 0 ? handleDrawerObstetric() : openCollapsed(6)}
+                        >
+                          <div
+                            className={`prescription-tab-button rounded-10px ${
+                              collapsedFlag === 6 && "active"
+                            }`}
+                          >
+                            <img
+                              src={
+                                collapsedFlag === 6
+                                  ? obstetricDark
+                                  : obstetricWhite
+                              }
+                              alt="Obstetric"
+                            />
+                          </div>
+                          <label className="text-white mt-1">Obstetric</label>
+                        </button>
+                    )
+                ;
               })}
               {/* <button type='button' className="mb-3 text-center btn btn-action">
                                 <div className="prescription-tab-button rounded-10px">
@@ -586,13 +681,18 @@ function TabPrescription() {
                   mode={caseManagerData !== undefined ? EDIT : ADD}
                   handleDrawerMedicalHistory={handleDrawerMedicalHistory}
                   handleCollapsed={() => setCollapsed(!collapsed)}
+                  gynecHistory={updatedGynecHistory}
                 />
-              ) : collapsedFlag === 4 && (
+              ) : collapsedFlag === 4 ? (
                   <TabPrivateNotesList
                     mode={caseManagerData !== undefined ? EDIT : ADD}
                     handleDrawerPrivateNotes={handleDrawerPrivateNotes}
                     handleCollapsed={() => setCollapsed(!collapsed)}
                   />
+              ) : collapsedFlag === 6 && (
+                <TabObstetricList
+                  handleCollapsed={() => setCollapsed(!collapsed)}
+                  handleDrawerObstetric={handleDrawerObstetric} />
               )}
             </Sider>
             <div
@@ -654,6 +754,7 @@ function TabPrescription() {
             />
         </Drawer>)}
         <Drawer
+          className="scroll-y-hidden"
           closeIcon={false}
           placement="right"
           onClose={handleDrawerMedicalHistory}
@@ -663,6 +764,7 @@ function TabPrescription() {
           <MedicalHistoryBox
             handleDrawerMedicalHistory={handleDrawerMedicalHistory}
             handleCollapsed={(flag) => handleCollapsed(flag)}
+            onSave={handleSaveGynecHistory}
           />
         </Drawer>
         <Drawer
@@ -703,6 +805,20 @@ function TabPrescription() {
               handleDrawerVaccination={handleDrawerGrowth}
               handleDrawerVital={handleDrawerVital}
             />
+          </Drawer>
+        )}
+        {obstetricDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerObstetric}
+            open={obstetricDrawer}
+            width="100%"
+            push={false}
+          >
+            <Obstetric
+              handleDrawerObstetric={handleDrawerObstetric}
+              handleCollapsed={(flag) => handleCollapsed(flag)} />
           </Drawer>
         )}
       </>
