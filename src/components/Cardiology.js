@@ -247,7 +247,7 @@ function Cardiology(props) {
         state: {
           patient_data: patient_data,
           caseManagerData: viewCaseManagerData,
-          smartRxFile: smartRxFile,
+          smartRxFiles: smartRxFile,
         },
       });
     } else {

@@ -45,7 +45,7 @@ function SmartPrescription() {
   const dispatch = useDispatch();
 
   const { state } = useLocation();
-  const { patient_data, caseManagerData, smartRxFile } = state;
+  const { patient_data, caseManagerData, smartRxFiles } = state;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -76,21 +76,25 @@ function SmartPrescription() {
   const [connected, setConnected] = useState(false);
   const [smartRxDetails, setSmartRxDetails] = useState(null);
   const [hasError, setHasError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const imageRef = useRef(null);
+  // const [imageLoaded, setImageLoaded] = useState(false);
+  // const imageRef = useRef(null);
   const socketRef = useRef(null);
-  const ctxGlobalRefs = useRef([]);
+  // const ctxGlobalRefs = useRef([]);
+  const canvasRefs = useRef({});
+  const ctxGlobalRefs = useRef({});
   const newPageRef = useRef(null);
   const [pages, setPages] = useState([]);
   const [selectedPage, setSelectedPage] = useState(null);
   const selectedPageRef = useRef(null); // Add a ref for selectedPage
-  const canvasRefs = useRef([]);
+  // const canvasRefs = useRef([]);
   const [newPageText, setNewPageText] = useState("");
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [deletePopupMsg, setDeletePopupMsg] = useState("");
   const [isClearPopup, setIsClearPopup] = useState(false);
   const [updatedIndex, setUpdatedIndex] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(null);
+  const [imageLoaded, setImageLoaded] = useState({});
+  const [imageRefs, setImageRefs] = useState({});
 
   const contextApi = {
     patient_data,
@@ -323,7 +327,6 @@ function SmartPrescription() {
 
   useEffect(() => {
     if (pages.length === 0) {
-      console.log("its getting called")
       handleAddPage();
     }
   }, []);
@@ -389,7 +392,7 @@ function SmartPrescription() {
         setConnected(false);
       };
 
-      const drawFunction = smartRxFile.length ? editDraw : draw;
+      const drawFunction = smartRxFiles.length ? editDraw : draw;
      
       socketRef.current.onmessage = (event) => {
         const o = event.data.split("|");
@@ -431,7 +434,7 @@ function SmartPrescription() {
     const newPages = pages.filter((_, pageIndex) => pageIndex !== index);
     setPages(newPages);
     if (selectedPage >= newPages.length) {
-      setSelectedPage(newPages.length - 1);
+      setSelectedPage(newPages.length ? Math.min(selectedPage, newPages.length - 1) : 0);
     }
   };
 
@@ -527,7 +530,8 @@ function SmartPrescription() {
         const canvas = canvasArray[i];
         if (!canvas) continue;
         const blob = await convertCanvasToJPEG(canvas);
-        const name = smartRxFile ? caseManagerData.smart_prescription_filename : `${uuidv4()}.jpeg`;
+        // const name = smartRxFiles ? caseManagerData.smart_prescription_filename : `${uuidv4()}.jpeg`;
+        const name = smartRxFiles[i]?.smart_prescription_filename || `${uuidv4()}.jpeg`;
         blobs.push(blob);
         files.push(new File([blob], name, { type: 'image/jpeg' }));
       }
@@ -571,9 +575,6 @@ function SmartPrescription() {
     setSelectedPage(0);
     // this is to remove the click from the right container.
     handleWrite();
-    if (smartRxFile) {
-      imageLoad(smartRxFile);
-    } 
 
     return () => {
       // Cleanup WebSocket connection on component unmount
@@ -581,7 +582,7 @@ function SmartPrescription() {
         socketRef.current.close();
       }
     };
-  }, [smartRxFile]);
+  }, []);
 
   const openModal = (success, message) => {
     setShowModal(true);
@@ -629,22 +630,50 @@ function SmartPrescription() {
     }, interval);
   };
 
-  const imageLoad = (imageUrl) => {
+ // Load images for the edit flow
+ const imageLoad = (imageUrls) => {
+  const loadedImages = {};
+
+  imageUrls.forEach((imageObj, index) => {
+    const { smart_prescription_file: imageUrl } = imageObj;
     const img = new Image();
     img.src = imageUrl;
     img.crossOrigin = 'anonymous';
     img.onload = () => {
-      setImageLoaded(true);
-      imageRef.current = img;
+      loadedImages[pages[index]] = img;
+      setImageRefs((prevState) => ({ ...prevState, [pages[index]]: img }));
+      setImageLoaded((prevState) => ({ ...prevState, [pages[index]]: true }));
     };
+  });
+};
+
+useEffect(() => {
+  // Set up pages and load images when smartRxFiles changes
+  if (smartRxFiles) {
+    const imageUrls = smartRxFiles;
+    const newPageIds = imageUrls.map(() => uuidv4());
+    setPages(newPageIds);
+    imageLoad(imageUrls);
+    setSelectedPage(0);
   }
 
-  useEffect(() => {
-    if (smartRxFile && imageLoaded && canvasRefs.current[selectedPage]) {
-      ctxGlobalRefs.current[selectedPage] = canvasRefs.current[selectedPage].getContext('2d');
-      ctxGlobalRefs.current[selectedPage].drawImage(imageRef.current, 0, 0);
+  return () => {
+    if (socketRef.current) {
+      socketRef.current.close();
     }
-  }, [imageLoaded, selectedPage]);
+  };
+}, [smartRxFiles]);
+
+useEffect(() => {
+  // Draw images on canvases when images are loaded
+  pages.forEach((pageId, index) => {
+    if (imageLoaded[pageId] && canvasRefs.current[pageId]) {
+      const ctx = canvasRefs.current[pageId].getContext('2d');
+      ctx.drawImage(imageRefs[pageId], 0, 0);
+      ctxGlobalRefs.current[pageId] = ctx;
+    }
+  });
+}, [imageLoaded, pages]);
 
   return (
     <CashManagerContext.Provider value={contextApi}>
