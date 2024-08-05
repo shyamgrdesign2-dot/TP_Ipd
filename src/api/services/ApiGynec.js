@@ -3,12 +3,12 @@ import config from "../../config";
 import { getDecodedToken } from "../../utils/localStorage";
 
 const baseUrl = { customBaseUrl: config.gynec_api_url };
+const decodedToken = getDecodedToken();
+const doctorId = decodedToken?.result?.user_id;
 
 export const getGynecDetails = async function (patient_unique_id) {
   let res = {};
   try {
-    const decodedToken = getDecodedToken();
-    const doctorId = decodedToken?.result?.user_id;
     res = await api.get(
       `/gynec/${patient_unique_id}/${doctorId}`,
       baseUrl
@@ -39,7 +39,7 @@ export const updateGynecDetails = async function (patientId, payload) {
     let res = {};
     try {
       res = await api.patch(
-          `/gynec/${patientId}`,
+          `/gynec/${patientId}/${doctorId}`,
           payload,
           baseUrl
       );
