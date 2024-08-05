@@ -39,13 +39,18 @@
     .vaccineDetailsKey {
       font-size: 12px;
       line-height: 18px;
-
       font-weight: 500;
+      white-space: nowrap;
 
       @media only screen and (min-width: 1200px) {
         font-size: 14px;
         line-height: 21px;
       }
+    }
+    .noteStyle {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .vaccineDetailsValue {
       font-size: 12px;
