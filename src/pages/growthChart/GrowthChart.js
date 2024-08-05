@@ -32,6 +32,7 @@ import GrowthChartPrint from "./components/growthChartPrint/GrowthChartPrint";
 import { handlePrintClick } from "../../utils/utils";
 import html2canvas from "html2canvas";
 import { updatedMeasurement } from "../../redux/growthChartSlice";
+import { getClinicName } from "../../utils/utils";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const dispatch = useDispatch();
@@ -102,6 +103,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     OFC: new Array(6).fill(true),
     HeightVsWeight: new Array(6).fill(true),
   });
+  const { profile } = useSelector((state) => state.doctors);
 
   useEffect(() => {
     if (patients_details) {
@@ -120,7 +122,19 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     onAfterPrint: () => setDisplay("none"),
   });
 
-  const handlePrint = () => {
+  const trackPrintEvent = () => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    window.Moengage.track_event("TP_Growth_Chart_Print", {
+      print_type: isTableprint ? "Table" : "Graph",
+      clinic_name,
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+    });
+  };
+
+  const handlePrint = (isTableprint) => {
+    trackPrintEvent(isTableprint);
     setDisplay("block");
     setTimeout(() => {
       handlePrintClick(
@@ -421,7 +435,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
   const tablePrintHandler = () => {
     if (allGrowthChartParams.length) {
-      handlePrint();
+      handlePrint(true);
       setTablePrint(true);
     } else {
       notification.open({

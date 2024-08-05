@@ -1,6 +1,7 @@
 import React from 'react';
 import { Row, Col, Button } from 'antd';
-function ProfileClinicCard() {
+
+function ProfileClinicView() {
     return (
         <div className="rounded-20px bg-white">
             <div className="d-flex align-items-center justify-content-between p-20 border-bottom" style={{ borderColor: '#F1F1F5' }}>
@@ -10,10 +11,10 @@ function ProfileClinicCard() {
                         Clinic Details
                     </div>
                 </div>
-                <button className="btn d-flex align-items-center btn-text">
+                {/* <button className="btn d-flex align-items-center btn-text">
                     <i className='icon-Edit me-1 fs-5'></i>
                     <span> Edit </span>
-                </button>
+                </button> */}
             </div>
             <div className="px-20 py-1">
                 <Row>
@@ -45,4 +46,4 @@ function ProfileClinicCard() {
     );
 }
 
-export default ProfileClinicCard;
+export default React.memo(ProfileClinicView);

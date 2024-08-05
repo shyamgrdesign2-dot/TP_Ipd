@@ -7,14 +7,30 @@ import { isBrowser } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
+import { getDecodedToken } from "./localStorage.js";
+
+// export const validateEmail = (email) => {
+//   return String(email)
+//     .toLowerCase()
+//     .match(
+//       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+//     );
+// };
 
 export const validateEmail = (email) => {
-  return String(email)
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    );
+  let reg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  return reg.test(String(email).toLowerCase());
 };
+
+export const isValidWebsite = (url) => {
+  const pattern = /^https?:\/\/([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/;
+  return pattern.test(url);
+}
+
+export const isValidMap = (url) => {
+  const pattern = /^https?\:\/\/(www\.|maps\.)?google(\.[a-z]+){1,2}\/maps\/?\?([^&]+&)*(ll=-?[0-9]{1,2}\.[0-9]+,-?[0-9]{1,2}\.[0-9]+|q=[^&]+)+($|&)/;;
+  return pattern.test(url);
+}
 
 export const onlyNumberFormat = (text) => {
   return text.replace(/[^0-9]/g, "");
@@ -24,6 +40,10 @@ export const onlyDecimalFormat = (text) => {
 };
 export const removeBeforeWhiteSpace = (text) => {
   return text.replace(/^[ ]+/g, "")
+};
+
+export const removeWhiteSpace = (text) => {
+  return text.replace(/[ ]+/g, "")
 };
 
 export const frequencyFormat = (str) => {
@@ -159,6 +179,15 @@ export const errorMessage = async (error) => {
       content: typeof error === 'object' ? error.message : error,
       duration: 2,
     });
+  }
+};
+
+export const handleCopy = async (url) => {
+  try {
+    await navigator.clipboard.writeText(url);
+    errorMessage('Copied')
+  } catch (err) {
+    console.error('Failed to copy:', err);
   }
 };
 
@@ -528,3 +557,10 @@ export const chunkArray = (array, size) => {
   }
   return chunkedArr;
 };
+
+export const getClinicName = (hospitalData) => {
+  const decodedToken = getDecodedToken();
+  const clinicId = decodedToken?.result?.clinic_id;
+  const clinic = hospitalData.find((e) => e?.hm_id == clinicId);
+  return clinic ? clinic.hm_name : "";
+}
