@@ -41,18 +41,7 @@ function Cardiology(props) {
 
   const [filteredInfo, setFilteredInfo] = useState({});
   const [setSortedInfo] = useState({});
-  const [smartRxFile, setSmartRxFile] = useState([
-    {
-        "tcm_id": 4091,
-        "smart_prescription_filename": "100211283-c887-4e3a-bd37-g88cde7721ab2.jpeg",
-        "smart_prescription_file": "https://iscribe.blob.core.windows.net/iscribeprescription/100211283-c887-4e3a-bd37-g88cde7721ab2.jpeg?sv=2024-05-04&se=2024-08-01T12%3A31%3A04Z&sr=b&sp=r&sig=cfVQ0kuup9NsGgscJWxWYIZiCaLbgvecvUYRGeNg%2Fr4%3D"
-    },
-    {
-        "tcm_id": 4091,
-        "smart_prescription_filename": "200211283-c887-4e3a-bd37-g88cde7721ab2.jpeg",
-        "smart_prescription_file": "https://iscribe.blob.core.windows.net/iscribeprescription/200211283-c887-4e3a-bd37-g88cde7721ab2.jpeg?sv=2024-05-04&se=2024-08-01T12%3A31%3A04Z&sr=b&sp=r&sig=Y1KBD4ALMOBePhoCUmYg7r%2BXyBMryUny7bHDV8GNzK8%3D"
-    }
-]);
+  const [smartRxFile, setSmartRxFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -60,7 +49,7 @@ function Cardiology(props) {
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
   
   useEffect(() => {
-    // setSmartRxFile(null)
+    setSmartRxFile(null)
     if (viewCaseManagerData?.tcm_id) {
       fetchData();
     }
@@ -70,18 +59,18 @@ function Cardiology(props) {
     const payload = {
       tcm_id: viewCaseManagerData?.tcm_id,
     };
-    // try {
-    //     if(viewCaseManagerData?.smart_prescription_filename){
-    //       const response = await api.post(
-    //         FETCH_SMART_RX,
-    //         payload,
-    //         baseUrl
-    //       );
-    //       setSmartRxFile(response?.data || null);
-    //     }
-    // } catch (error) {
-    //   console.error("Error:", error);
-    // }
+    try {
+        if(viewCaseManagerData?.smart_prescription_filename){
+          const response = await api.post(
+            FETCH_SMART_RX,
+            payload,
+            baseUrl
+          );
+          setSmartRxFile(response?.data || null);
+        }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   async function printRxInAppContent() {

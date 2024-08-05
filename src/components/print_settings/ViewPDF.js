@@ -176,7 +176,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     }
 
     let gynecListViewCounter = 1;
-    console.log({smartRxData});
     const isSmartSyncPrescription = smartRxData && smartRxData[0]?.smart_prescription_file;
 
     return (
