@@ -41,7 +41,7 @@ function Cardiology(props) {
 
   const [filteredInfo, setFilteredInfo] = useState({});
   const [setSortedInfo] = useState({});
-  const [smartRxFile, setSmartRxFile] = useState(null);
+  const [smartRxFile, setSmartRxFile] = useState([]);
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -49,7 +49,7 @@ function Cardiology(props) {
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
   
   useEffect(() => {
-    setSmartRxFile(null)
+    setSmartRxFile([]);
     if (viewCaseManagerData?.tcm_id) {
       fetchData();
     }
@@ -60,14 +60,16 @@ function Cardiology(props) {
       tcm_id: viewCaseManagerData?.tcm_id,
     };
     try {
-        if(viewCaseManagerData?.smart_prescription_filename){
+        if(viewCaseManagerData?.smart_prescription_filename?.length){
           const response = await api.post(
             FETCH_SMART_RX,
             payload,
             baseUrl
           );
-          const fileToShow = response.data.smart_prescription_file;
-          setSmartRxFile(fileToShow);
+          if (response?.data?.length) {
+            const filesToShow = response.data;
+            setSmartRxFile(filesToShow);
+          } 
         }
     } catch (error) {
       console.error("Error:", error);

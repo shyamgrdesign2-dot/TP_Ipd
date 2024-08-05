@@ -341,13 +341,11 @@ function SmartPrescription() {
       ref={(el) => {
         if (el) {
           canvasRefs.current[id] = el;
-          if (smartRxFile) {
             const ctx = el.getContext("2d");
             ctx.fillStyle = "white";
             ctx.fillRect(0, 0, el.width, el.height);
             ctxGlobalRefs.current[id] = ctx;
           }
-        }
       }}
       onClick={() => handlePageChange(index)}
     />
@@ -390,7 +388,7 @@ function SmartPrescription() {
         setConnected(false);
       };
 
-      const drawFunction = smartRxFile ? editDraw : draw;
+      const drawFunction = smartRxFile.length ? editDraw : draw;
      
       socketRef.current.onmessage = (event) => {
         const o = event.data.split("|");
