@@ -61,6 +61,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
   const socialSectionRef = useRef(null);
 
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showNavbar, setShowNavbar] = React.useState(false);
 
   // Read More content
   const ReadMore = ({ children }) => {
@@ -105,22 +106,31 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
     try {
       if (scrollId == 1) {
         personalSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 2) {
         aboutSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 3) {
         clinicSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 4) {
         experienceSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 5) {
         servicesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 6) {
         educationSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 7) {
         membershipSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 8) {
         awardsSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       } else if (scrollId == 9) {
         socialSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+        setShowNavbar(false);
       }
     } catch (e) {
       console.log(e)
@@ -218,9 +228,6 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
     return ranges.join(', ');
   };
 
-  // Navbar
-  const [showNavbar, setShowNavbar] = React.useState(false);
-
   const handleShowNavbar = () => {
     setShowNavbar(!showNavbar);
   };
@@ -272,7 +279,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                     </li>
                   ) : null}
                 </ul>
-                <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mx-lg-3 mt-5 btn-width-mobile">
+                <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mx-lg-3 mt-5 mt-lg-0 btn-width-mobile">
                   Book Appointment
                 </Button>
               </div>
@@ -460,11 +467,11 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                             )}
                             {e?.contact_no && !isMobile ? (
                               <Button type="button" className="btn btn-primary3 btn-48 rounded-18">
-                                <a className='text-white d-flex align-items-center'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
+                                <a className='text-white d-flex align-items-center'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` ${e?.contact_no}`}</a>
                               </Button>
                             ) : (
                               <Button type="button" onClick={() => window.location.href = (`tel:${e?.contact_no}`)} className="btn btn-primary3 btn-48 rounded-18">
-                                <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
+                                <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` ${e?.contact_no}`}</a>
                               </Button>
                             )}
                           </div>
@@ -865,11 +872,11 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                         <div>
                           {!isMobile ? (
                             <Button type="button" className="btn btn-primary3 btn-48 rounded-18">
-                              <a className='text-white d-flex align-items-center'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
+                              <a className='text-white d-flex align-items-center'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` ${e?.contact_no}`}</a>
                             </Button>
                           ) : (
                             <Button type="button" onClick={() => window.location.href = (`tel:${e?.contact_no}`)} className="btn btn-primary3 btn-48 rounded-18">
-                              <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` Call ${e?.contact_no}`}</a>
+                              <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` ${e?.contact_no}`}</a>
                             </Button>
                           )}
                         </div>
