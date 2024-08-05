@@ -798,19 +798,19 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
               {otherSettings?.enable_social_links ? (
                 <div className='d-flex align-items-center justify-content-center mt-5'>
                   {socialLinks?.facebook && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.facebook) ? window.open(socialLinks?.facebook) : errorMessage('Wrong Facebook URL')}><img width={14.769} height={14.769} src={websiteFacebook} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.facebook,'facebook') ? window.open(socialLinks?.facebook) : errorMessage('Wrong Facebook URL')}><img width={14.769} height={14.769} src={websiteFacebook} alt="Email" /></div>
                   )}
                   {socialLinks?.instagram && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.instagram) ? window.open(socialLinks?.instagram) : errorMessage('Wrong Instagram URL')} ><img width={14.769} height={14.769} src={websiteInstagram} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.instagram,'instagram') ? window.open(socialLinks?.instagram) : errorMessage('Wrong Instagram URL')} ><img width={14.769} height={14.769} src={websiteInstagram} alt="Email" /></div>
                   )}
                   {socialLinks?.linkedin && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.linkedin) ? window.open(socialLinks?.linkedin) : errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteLinkedin} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.linkedin,'linkedin') ? window.open(socialLinks?.linkedin) : errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteLinkedin} alt="Email" /></div>
                   )}
                   {socialLinks?.twitter && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.twitter) ? window.open(socialLinks?.twitter) : errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.twitter,'twitter') ? window.open(socialLinks?.twitter) : errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
                   )}
                   {socialLinks?.youtube && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.youtube) ? window.open(socialLinks?.youtube) : errorMessage('Wrong youtube URL')}><img width={14.769} height={14.769} src={websiteYoutube} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.youtube,'youtube') ? window.open(socialLinks?.youtube) : errorMessage('Wrong youtube URL')}><img width={14.769} height={14.769} src={websiteYoutube} alt="Email" /></div>
                   )}
                 </div>
               ) : null}

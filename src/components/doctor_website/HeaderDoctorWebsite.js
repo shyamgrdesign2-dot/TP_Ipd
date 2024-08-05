@@ -312,10 +312,10 @@ function HeaderDoctorWebsite() {
                             <>
                                 <Progress type="circle" format={(number) => ''} percent={progress} size={100} />
                                 <div className="title-hypertension text-welcome mt-4 mb-2">Processing Website...</div>
-                                <div className='title-common'>Please wait a while, Your website is being saved & published.</div>
-                                <Button className="lh-lg btn btn-clear btn-41 px-4 mt-4" onClick={handleCancelUpload}>
+                                <div className='title-common'>Your data is getting saved, please do not refresh the page.</div>
+                                {/* <Button className="lh-lg btn btn-clear btn-41 px-4 mt-4" onClick={handleCancelUpload}>
                                     <img className='me-3' src={stopPublishing} alt="Warning" /> <span>Stop Processing</span>
-                                </Button>
+                                </Button> */}
                             </>
                         )
                     )}

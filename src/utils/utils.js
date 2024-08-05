@@ -22,9 +22,26 @@ export const validateEmail = (email) => {
   return reg.test(String(email).toLowerCase());
 };
 
-export const isValidWebsite = (url) => {
-  const pattern = /^https?:\/\/([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/;
-  return pattern.test(url);
+// export const isValidWebsite = (url) => {
+//   const pattern = /^https?:\/\/([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/;
+//   return pattern.test(url);
+// }
+
+export const isValidWebsite = (url, account) => {
+  let pattern;
+  if (account === 'facebook') {
+    pattern = /^https?:\/\/(www\.)?facebook\.com\/(profile\.php\?id=\d+|[A-Za-z0-9.]+)\/?$/;
+
+    /* should return true
+    console.log("https://www.facebook.com/username");
+    console.log("http://facebook.com/username");  
+    console.log("https://facebook.com/username/"); 
+    console.log("https://www.facebook.com/username.profile"); 
+    console.log("https://www.facebook.com/profile.php?id=100004531399459");*/
+    return pattern.test(url);
+  } else {
+    return true;
+  }
 }
 
 export const isValidMap = (url) => {
