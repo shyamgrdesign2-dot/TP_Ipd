@@ -506,8 +506,9 @@ function DWClinicProfile() {
                                             <img src={AddPhotos} alt='Clinic Photos' className='img-fluid' />
                                         </div>
                                     </div>
-                                    <div className='mb-2 fs-12-1'>
-                                        You can upload upto 5 images at a time. Save and publish to add more images.
+                                    <div className='mb-2 fs-12-1 d-flex align-items-center'>
+                                        <i className='icon-info fs-18 me-2'></i>
+                                        <div>You can upload upto 5 images at a time. Save and publish to add more images.</div>
                                     </div>
                                 </div>
                             )}
