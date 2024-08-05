@@ -66,7 +66,7 @@ const UpdateVaccine = ({
   const formRef = useRef(null);
   const { profile } = useSelector((state) => state.doctors);
 
-  const handleFocus = (index, isFocused = false) => {
+  const handleDropdownVisibleChange = (index, isFocused = false) => {
     setIsOpen((prev) => {
       const newState = [...prev];
       newState[index] = isFocused;
@@ -74,12 +74,14 @@ const UpdateVaccine = ({
     });
   };
 
+
   const scrollToIndex = (index) => {
     const element = selectRefs.current[index];
     if (element) {
       element.scrollTo({ behavior: "smooth", block: "center" });
       element.focus();
-      handleFocus(index, true);
+      handleDropdownVisibleChange(index, true);
+      
     }
   };
 
@@ -198,7 +200,7 @@ const UpdateVaccine = ({
       else prev[vaccineName] = { [detail]: value };
       return prev;
     });
-    handleFocus(index);
+    handleDropdownVisibleChange(index);
   };
 
   const updateVaccineDueDate = async () => {
@@ -421,8 +423,9 @@ const UpdateVaccine = ({
                         if (ref) selectRefs.current[i] = ref;
                       }}
                       open={isOpen[i]}
-                      onFocus={() => handleFocus(i, true)}
-                      onBlur={() => handleFocus(i)}
+                      onDropdownVisibleChange={(open) =>
+                        handleDropdownVisibleChange(i, open)
+                      }
                       style={{
                         border: focusedIndexes.includes(i)
                           ? "1px solid blue"
