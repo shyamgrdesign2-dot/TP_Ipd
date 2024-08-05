@@ -253,7 +253,7 @@ function Vaccination({ handleDrawerVaccination }) {
 
   const handleScroll = (e) => {
     const scrollTop = e.target.scrollTop;
-    if (scrollTop > 147) {
+    if (scrollTop > 160) {
       setIsFixed(true);
     } else {
       setIsFixed(false);
@@ -313,31 +313,33 @@ function Vaccination({ handleDrawerVaccination }) {
                   setSelectAll={setSelectAll}
                 />
               </div>
-              {shouldShowSelectAll ? (
-                <div className="selectAllContainer scrollable-content">
-                  <Checkbox
-                    className="vaccine-custom-checkbox"
-                    checked={selectAll}
-                    onChange={handleSelectAll}
-                  />
-                  <span className="selectAll">Select All</span>
-                </div>
-              ) : null}
-
-              <Row xs={1} sm={2} md={2} lg={3} className="gy-4">
-                {vaccinesData?.map((vaccineData, index) => (
-                  <Col key={index} className="gx-4">
-                    <VaccineCard
-                      vaccineData={vaccineData}
-                      selectedCards={selectedCards}
-                      handleCardCheckboxChange={handleCardCheckboxChange}
-                      setSelectedCards={setSelectedCards}
-                      index={index}
-                      handleCardClick={handleCardClick}
+              <div style={{ marginTop: isFixed ? "100px" : "0px" }}>
+                {shouldShowSelectAll ? (
+                  <div className="selectAllContainer scrollable-content">
+                    <Checkbox
+                      className="vaccine-custom-checkbox"
+                      checked={selectAll}
+                      onChange={handleSelectAll}
                     />
-                  </Col>
-                ))}
-              </Row>
+                    <span className="selectAll">Select All</span>
+                  </div>
+                ) : null}
+
+                <Row xs={1} sm={2} md={2} lg={3} className="gy-4">
+                  {vaccinesData?.map((vaccineData, index) => (
+                    <Col key={index} className="gx-4">
+                      <VaccineCard
+                        vaccineData={vaccineData}
+                        selectedCards={selectedCards}
+                        handleCardCheckboxChange={handleCardCheckboxChange}
+                        setSelectedCards={setSelectedCards}
+                        index={index}
+                        handleCardClick={handleCardClick}
+                      />
+                    </Col>
+                  ))}
+                </Row>
+              </div>
             </>
           ) : (
             <div>

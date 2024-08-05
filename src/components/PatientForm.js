@@ -24,13 +24,16 @@ import CommonModal from "../common/CommonModal";
 import saveIcon from '../assets/images/save.svg';
 import smartPad from '../assets/images/smartPad.svg';
 import startConsultIcon from '../assets/images/startConsult.svg';
+import { updateDob } from "../pages/vaccination/service";
 
 const { TabPane } = Tabs;
 
 function PatientForm({ mode = ADD, patient_data }) {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { loading, error } = useSelector((state) => state.records);
+    const { loading, profile } = useSelector(
+      (state) => state.records
+    );
 
     const [form] = Form.useForm();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -80,6 +83,22 @@ function PatientForm({ mode = ADD, patient_data }) {
 
             const action = mode === EDIT ? await dispatch(editPatient(finalValues)) : await dispatch(addPatient(finalValues));
             if (action.meta.requestStatus === "fulfilled") { 
+                if (
+                  mode === EDIT &&
+                  patient_data.pm_dob !== finalValues.pm_dob
+                ) {
+                  const payload = {
+                    patient_uid: patient_data?.patient_unique_id,
+                    patient_pid: patient_data?.pm_pid,
+                    hospital_bid:
+                      patient_data?.hm_business_id ||
+                      patient_data?.hospital_business_id,
+                    hospital_id:
+                      patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
+                    updated_dob: finalValues.pm_dob,
+                  };
+                  await updateDob(payload);
+                }
                 if (isMobile || !isSmartSyncAccessableFromGB){
                     mode === EDIT ? navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } }) : navigate("/prescription", { replace: true, state: { patient_data: action.payload } })
                 }
