@@ -732,6 +732,32 @@ body {
         }
     }   
 }
+.hospital-address-slider {
+    .slick-dots {
+            li {
+                button {
+                    &:before {
+                        font-size: 9px;
+                        width: 8px;
+                        height: 8px;
+                    }
+                }
+    
+                &.slick-active {
+                    button {
+                        &:before {
+                            width: 14px;
+                            height: 9px;
+                            background-color: $maincolor;
+                            color: transparent;
+                            top: 4px;
+                            border-radius: 5px;
+                        }
+                    }
+                }
+            }
+        }
+}
 .prescription-pad {
     .videodrawer {
         margin: 0 0 -8px 0;
