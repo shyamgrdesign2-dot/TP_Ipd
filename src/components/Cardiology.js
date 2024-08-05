@@ -67,8 +67,7 @@ function Cardiology(props) {
             baseUrl
           );
           if (response?.data?.length) {
-            const filesToShow = response.data;
-            setSmartRxFile(filesToShow);
+            setSmartRxFile(response?.data);
           } 
         }
     } catch (error) {
@@ -350,12 +349,12 @@ function Cardiology(props) {
                 </div>
               </div>
             ) : //smart image
-            smartRxFile ? (
+            smartRxFile ? smartRxFile?.map(({smart_prescription_file}) =>
               <>
                 <div style={{ padding: "5px" }}>
-                  {smartRxFile && (
+                  {smart_prescription_file && (
                     <img
-                      src={smartRxFile}
+                      src={smart_prescription_file}
                       alt="Smart Rx"
                       width="100%"
                       height="660px"
@@ -372,7 +371,8 @@ function Cardiology(props) {
                 }
                 </div>
               </>
-            ) : (
+            )
+             : (
               <Card.Body className="p-0 cardbody-data">
                 <div>
                   <div className="p-3 pb-0">

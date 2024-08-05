@@ -134,8 +134,7 @@ function SmartRxPreview() {
                   payload,
                   baseUrl
                 );
-                const fileToShow = response.data.smart_prescription_file;
-                setSmartRxFile(fileToShow);
+                setSmartRxFile(response?.data || null);
           } catch (error) {
             console.error("Error:", error);
           }

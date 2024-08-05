@@ -29,6 +29,7 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { CLOTS_LIST, CYCLE_KEY_LIST, FLOW_LIST, GYNEC_SECTION_ENABLE_LIST, PAIN_LIST, PAIN_OCCURANCE_LIST, REPRODUCTIVE_LIFE_STAGES_LIST, TYPES_REPRODUCTIVE_STAGES } from "../utils/gynec_constants";
 import { useAccess } from "../pages/vaccination/useAccess";
+import { getClinicName } from "../utils/utils";
 
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD-MM-YYYY'
@@ -880,6 +881,16 @@ function MedicalHistoryBox(props) {
         return Object.keys(rest).length > 0;
     };
 
+    const trackUpdateEvent = () => {
+        const clinic_name = getClinicName(profile?.hospital_data);
+        window.Moengage.track_event("TP_Gynec_history_updated", {
+            clinic_name,
+            doctor_id: profile?.doctor_unique_id,
+            patient_number: patient_data?.pm_contact_no,
+            patient_id: patient_data?.patient_unique_id,
+        })
+    }
+
     const handleSaveClick = async () => {
         setGynecEditState("UPDATE");
         setGynecLoading(true);
@@ -915,6 +926,9 @@ function MedicalHistoryBox(props) {
             };
             try {
                 const response = await postGynecDetails(payload);
+                if(response?.data){
+                    trackUpdateEvent();
+                }
             } catch (error) {
                 console.error('Error:', error);
                 errorMessage("Unable to create gynec history for you. please try again.")
@@ -929,6 +943,9 @@ function MedicalHistoryBox(props) {
             };
             try {
                 const response = await updateGynecDetails(patient_data.patient_unique_id, payload);
+                if(response?.data){
+                    trackUpdateEvent();
+                }
             } catch (error) {
                 console.error('Error:', error);
                 errorMessage("Unable able to update gynecdetail for you. please try again.")
@@ -976,7 +993,7 @@ function MedicalHistoryBox(props) {
                             <div style={{marginTop: "-1rem"}}>
                                 <Row>
                                     <Col lg={12}>
-                                        <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(101vh - 110px)'}}>
+                                        <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 115px)'}}>
                                             <div className="border-bottom px-4 pt-3 pb-2">
                                                     <div className="d-flex align-items-center lmp-gynec">
                                                         <label className="pe-3">Last menstrual period :</label>
@@ -1411,7 +1428,7 @@ function MedicalHistoryBox(props) {
                         <div style={{marginTop: "-1rem"}}>
                             <Row>
                                 <Col lg={15}>
-                                    <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(101vh - 110px)' }}>
+                                    <div className="bg-white overflow-y-auto medical-history-section" style={{ height: 'calc(100vh - 115px)' }}>
                                         {cloneMedicalHistoryData.length > 0 ? (
                                             cloneMedicalHistoryData?.map((e, i) => {
                                                 return (

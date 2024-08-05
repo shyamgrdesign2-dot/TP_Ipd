@@ -435,6 +435,18 @@ function SmartPrescription() {
     }
   };
 
+  const handleClearAllPages = () => {
+    setPages([pages[0]]);
+    setSelectedPage(0);
+    const canvas = canvasRefs.current[pages[0]];
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+  };
+
   const handlePageChange = (index) => {
     setSelectedPage(index);
   };
@@ -639,7 +651,7 @@ function SmartPrescription() {
       <>
         <HeaderSmartPrescription
           prescription={prescription}
-          onClear={handleRefresh}
+          onClear={handleClearAllPages}
           onSubmit={handleSubmit}
           smartRxData={smartRxDetails}
         />

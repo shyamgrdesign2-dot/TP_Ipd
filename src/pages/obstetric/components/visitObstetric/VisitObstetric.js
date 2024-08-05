@@ -158,7 +158,7 @@ export default function VisitObstetric() {
                 <span className="previousText">Previous visit</span>
                 <span className="updatedText">
                   {previousVisit.modifiedAt
-                    ? "Updated on : " + visitDate.format("DD MMM YYYY")
+                    ? "Updated on : " + moment(previousVisit.modifiedAt).format("DD MMM YYYY")
                     : ""}
                 </span>
               </div>
