@@ -230,7 +230,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
       {/* Header Section */}
       <div className="container-fluid mt-14" style={{ position: 'sticky', top: 14, zIndex: 9 }}>
         <div className={`website-section website-header ${showNavbar && "website-header-responsive"}`}>
-          <nav className="navbar">
+          <nav className="navbar" onClick={handleShowNavbar}>
             <div className='d-flex align-items-center justify-content-between w-100'>
               <div className="logo">
                 <img src={websiteLogo} width={151.29} height={34} alt="Logo" />
@@ -272,7 +272,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                     </li>
                   ) : null}
                 </ul>
-                <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mx-lg-3 mt-5 mt-lg-0">
+                <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mx-lg-3 mt-5 btn-width-mobile">
                   Book Appointment
                 </Button>
               </div>
@@ -287,7 +287,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
         <div id='personalSection' ref={personalSectionRef} className="website-section website-banner">
           <div className="container">
             <Row className='row-80'>
-              <Col sm={24} lg={12}>
+              <Col sm={24} lg={12} className='w-100'>
                 <div className="hi text-welcome">Hi, I'm</div>
                 <h1 className="doctor-name mb-20 web-h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h1>
                 <div className="education-speciality mb-15 text-welcome">{`${personalDetails?.education} - ${personalDetails?.specialty}`}</div>
@@ -299,11 +299,11 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                     </div>
                   )}
                 </div>
-                <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18">
+                <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 btn-width-mobile">
                   Book Appointment
                 </Button>
               </Col>
-              <Col sm={24} lg={12}>
+              <Col sm={24} lg={12} className='mx-auto'>
                 <div className='round-pink'></div>
                 <div className='doctor-photo'>
                   <img fill src={personalDetails?.hero_image_link ? personalDetails?.hero_image_link : DoctorDefault} alt="Doctor Profile" style={{
