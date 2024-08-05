@@ -80,6 +80,7 @@ function SmartPrescription() {
   const imageRef = useRef(null);
   const socketRef = useRef(null);
   const ctxGlobalRefs = useRef([]);
+  const newPageRef = useRef(null);
   const [pages, setPages] = useState([]);
   const [selectedPage, setSelectedPage] = useState(null);
   const selectedPageRef = useRef(null); // Add a ref for selectedPage
@@ -417,6 +418,11 @@ function SmartPrescription() {
       setSelectedPage(0)  
     } else{
       setSelectedPage(pages.length);
+      setTimeout(() => {
+        newPageRef?.current?.scrollIntoView({
+          behavior: "smooth",
+        });
+      }, 100); // Adjust timeout as needed
     }// Set the new page as the selected page
     setNewPageText("");
   };
@@ -696,7 +702,11 @@ function SmartPrescription() {
                   style={{ border: prescription ? "none" : "lightgrey" }}
                 >
                   {pages.map((page, index) => (
-                    <div key={page} className="canvas-container">
+                    <div
+                      key={page}
+                      className="canvas-container"
+                      ref={index === pages.length - 1 ? newPageRef : null}
+                    >
                       <div
                         className={`canvas-header ${
                           selectedPage === index ? "active-page" : ""
@@ -715,27 +725,32 @@ function SmartPrescription() {
                               toggleDeletePopup();
                               setIsClearPopup(true);
                               setDeletePopupMsg(
-                                "Are you sure you want to clear page 1 data"
+                                `Are you sure you want to clear page ${
+                                  index + 1
+                                } data`
                               );
                               setUpdatedIndex(index);
                             }}
                           >
                             <i className="icon-reload me-2 fs-5" />
                           </button>
-                          { pages.length > 1 && (<button
-                            className="btn d-flex align-items-center btn-text"
-                            onClick={() => {
-                              toggleDeletePopup();
-                              setIsClearPopup(false);
-                              setDeletePopupMsg(
-                                "Are you sure you want to delete page 1 data"
-                              );
-                              setUpdatedIndex(index);
-                            }}
-                          >
-                            <i className="icon-delete me-2 fs-5" />
-                          </button>)
-                          }
+                          {pages.length > 1 && (
+                            <button
+                              className="btn d-flex align-items-center btn-text"
+                              onClick={() => {
+                                toggleDeletePopup();
+                                setIsClearPopup(false);
+                                setDeletePopupMsg(
+                                  `Are you sure you want to delete page ${
+                                    index + 1
+                                  } data`
+                                );
+                                setUpdatedIndex(index);
+                              }}
+                            >
+                              <i className="icon-delete me-2 fs-5" />
+                            </button>
+                          )}
                         </div>
                       </div>
                       {getCanvas(page, index)}
@@ -744,15 +759,17 @@ function SmartPrescription() {
                           selectedPage === index ? "active-page" : ""
                         }`}
                       >
-                        {index === pages.length - 1 &&  <button
-                          className="btn d-flex align-items-center justify-content-center btn-text new-page-btn"
-                          onMouseEnter={() => setNewPageText("New Page")}
-                          onMouseLeave={() => setNewPageText("")}
-                          onClick={handleAddPage}
-                        >
-                          <i className="icon-Add fs-5" />
-                          {newPageText}
-                        </button>}
+                        {index === pages.length - 1 && (
+                          <button
+                            className="btn d-flex align-items-center justify-content-center btn-text new-page-btn"
+                            onMouseEnter={() => setNewPageText("New Page")}
+                            onMouseLeave={() => setNewPageText("")}
+                            onClick={handleAddPage}
+                          >
+                            <i className="icon-Add fs-5" />
+                            {newPageText}
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
