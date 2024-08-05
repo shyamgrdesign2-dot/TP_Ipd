@@ -89,6 +89,7 @@ function SmartPrescription() {
   const [deletePopupMsg, setDeletePopupMsg] = useState("");
   const [isClearPopup, setIsClearPopup] = useState(false);
   const [updatedIndex, setUpdatedIndex] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(null);
 
   const contextApi = {
     patient_data,
@@ -354,7 +355,7 @@ function SmartPrescription() {
 
   useEffect(() => {
     selectedPageRef.current = pages[selectedPage]; // Update the ref when selectedPage changes
-  }, [selectedPage]);
+  }, [selectedPage, refreshTrigger]);
 
   const wsError = (error) => {
       message.open({
@@ -435,12 +436,19 @@ function SmartPrescription() {
   };
 
   const handleRefresh = () => {
-    const canvas = canvasRefs.current[pages[updatedIndex]];
+    const newPageId = uuidv4();
+    const newPages = [...pages];
+    newPages[updatedIndex] = newPageId;
+    setPages(newPages);
+    setSelectedPage(updatedIndex);
+    setRefreshTrigger(!refreshTrigger)
+
+    const canvas = canvasRefs.current[newPageId];
     if (canvas) {
       const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctxGlobalRefs.current[newPageId] = ctx;
     }
   };
 
