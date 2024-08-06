@@ -237,7 +237,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
       {/* Header Section */}
       <div className="container-fluid mt-14" style={{ position: 'sticky', top: 14, zIndex: 9 }}>
         <div className={`website-section website-header ${showNavbar && "website-header-responsive"}`}>
-          <nav className="navbar" onClick={handleShowNavbar}>
+          <nav className="navbar">
             <div className='d-flex align-items-center justify-content-between w-100'>
               <div className="logo">
                 <img src={websiteLogo} width={151.29} height={34} alt="Logo" />
