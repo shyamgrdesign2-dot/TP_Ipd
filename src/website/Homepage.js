@@ -807,7 +807,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                     <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.linkedin, 'linkedin') ? window.open(socialLinks?.linkedin) : errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteLinkedin} alt="Email" /></div>
                   )}
                   {socialLinks?.twitter && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.twitter, 'twitter') ? window.open(socialLinks?.twitter) : errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.twitter, 'twitter') ? window.open(socialLinks?.twitter) : errorMessage('Wrong Twitter URL')}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
                   )}
                   {socialLinks?.youtube && (
                     <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.youtube, 'youtube') ? window.open(socialLinks?.youtube) : errorMessage('Wrong youtube URL')}><img width={14.769} height={14.769} src={websiteYoutube} alt="Email" /></div>
