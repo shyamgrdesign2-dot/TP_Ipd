@@ -410,7 +410,7 @@ function DWClinicProfile() {
                                     <Input placeholder="Clinic Contact"
                                         className="text-capitalize rounded-10px h-38"
                                         value={e?.contact_no}
-                                        onChange={(el) => onChangeInput(el, 'contact_no', e)} />
+                                        onChange={(el) => onChangeInput(el, 'contact_no', e)} inputMode='numeric' />
                                 </Form.Item>
                             </div>
                             <Tabs activeKey={e?.selectedTab} onChange={(key) => onTabChange(key, e)} items={TabsPrintSetting} className="print-tabs" />
@@ -611,7 +611,8 @@ function DWClinicProfile() {
 
         setClinicProfile((prev) => {
             const newProfile = [...prev, newClinic];
-            setActiveKey([`${newProfile.length}`]);
+            const countClinicDeleteZero = newProfile.filter(profile => profile.clinic_delete === 0).length;
+            setActiveKey([`${countClinicDeleteZero}`]);
             return newProfile;
         });
     }, [setClinicProfile]);

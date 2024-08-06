@@ -170,6 +170,13 @@ function HeaderDoctorWebsite() {
         },
     ];
 
+
+    const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
+
+    const showHideLogoModal = useCallback(() => {
+        setIsLogoModalOpen(!isLogoModalOpen);
+    }, [isLogoModalOpen]);
+
     return (
         <>
             <Navbar className="justify-content-between headerprescription p-0">
@@ -178,9 +185,39 @@ function HeaderDoctorWebsite() {
                         <Col sm="auto" className='h-100'>
                             <div className='align-items-center d-flex h-100'>
                                 <div className='border-end h-100 text-center'>
-                                    <div onClick={() => navigate('/doctor_profile', { replace: true, state: { websiteData: { ...websiteData } } })} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                                    <div onClick={showHideLogoModal} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
                                         <i className='icon-right'></i>
                                     </div>
+                                    <CommonModal
+                                        isModalOpen={isLogoModalOpen}
+                                        onCancel={showHideLogoModal}
+                                        modalWidth={500}
+                                        title={"You may lose your data"}
+                                        modalBody={
+                                            <>
+                                                <div className="alert-warning rounded-10px p-2 patient-details mb-4">
+                                                    <div className="d-flex align-items-center">
+                                                        <img className='me-3' src={alertIcon} alt="Warning" />
+                                                        <span>
+                                                            Are you sure you want to leave? <br />
+                                                            You will permanently lose your data.
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div className="d-flex align-items-center mt-2 justify-content-end">
+                                                        <div onClick={() => navigate('/doctor_profile', { replace: true, state: { websiteData: { ...websiteData } } })}
+                                                            className="me-4 text-decoration-underline btn p-0 text-main">
+                                                            Yes, Back
+                                                        </div>
+                                                        <Button onClick={showHideLogoModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                                            <span>No, Stay</span>
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        }
+                                    />
                                 </div>
                                 <div className='ms-3 title-common'>Setup Website</div>
                             </div>
