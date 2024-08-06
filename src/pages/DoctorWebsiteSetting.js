@@ -120,11 +120,11 @@ function DoctorWebsiteSetting() {
             let cal = 0
             //Personal Details
             if (personalDetails?.first_name) {
-                cal += 3.703
+                cal += 7.406
             }
-            if (personalDetails?.last_name) {
-                cal += 3.703
-            }
+            // if (personalDetails?.last_name) {
+            //     cal += 3.703
+            // }
             if (personalDetails?.education) {
                 cal += 3.703
             }
@@ -285,7 +285,7 @@ function DoctorWebsiteSetting() {
                 <HeaderDoctorWebsite />
                 <div className={'w-100 bg-body wrapper2'}>
                     <Row justify="space-between">
-                        <Col xl={8} sm={10} className="pe-3">
+                        <Col xl={8} sm={9} className="pe-2">
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                                 <div className="p-20 web-progress-custom">
                                     <div className="ms-5 fontroboto">Website Setup Score</div>
@@ -518,7 +518,7 @@ function DoctorWebsiteSetting() {
                                 }
                             </div>
                         </Col>
-                        <Col xl={16} sm={14}>
+                        <Col xl={16} sm={15}>
                             <div className="mx-auto overflow-y-auto">
                                 <div className="mt-20 d-flex align-items-center justify-content-between">
                                     <div className="titleprint">Preview</div>
