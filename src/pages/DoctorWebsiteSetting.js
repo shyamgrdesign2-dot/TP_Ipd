@@ -120,11 +120,11 @@ function DoctorWebsiteSetting() {
             let cal = 0
             //Personal Details
             if (personalDetails?.first_name) {
-                cal += 3.703
+                cal += 7.406
             }
-            if (personalDetails?.last_name) {
-                cal += 3.703
-            }
+            // if (personalDetails?.last_name) {
+            //     cal += 3.703
+            // }
             if (personalDetails?.education) {
                 cal += 3.703
             }
