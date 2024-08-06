@@ -605,7 +605,8 @@ function DWClinicProfile() {
             }],
             clinic_photos: [],
             clinic_delete: 0,
-            selectedTab: TAB_ADDRESS
+            selectedTab: TAB_ADDRESS, 
+            activeShiftKeys :['1']
         };
 
         setClinicProfile((prev) => {
