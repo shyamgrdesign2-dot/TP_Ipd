@@ -784,12 +784,12 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
               </div>
               <h3 className="doctor-name h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h3>
               <div className='fs-18 text-welcome fw-medium mt-1'>{`${personalDetails?.education} - ${personalDetails?.specialty}`}</div>
-              <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mt-4 px-4 mb-5">
+              <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mt-4 px-4 mb-4 mb-lg-5">
                 Book Appointment
               </Button>
               <hr className='mx-auto' style={{ width: 200 }} />
               {personalDetails?.email_id && validateEmail(personalDetails?.email_id) && (
-                <div className='border rounded-4 d-flex align-items-center mx-auto d-inline-flex mt-5 pe-3 py-2' style={{ borderRadius: 25 }}>
+                <div className='border rounded-4 d-flex align-items-center mx-auto d-inline-flex mt-4 mt-lg-5 pe-3 py-2' style={{ borderRadius: 25 }}>
                   <div className='bg-icon-common bg-icon-sm2 mx-2'><img width={22} height={22} src={Mail} alt="Email" /></div>
                   <a href={`mailto:${personalDetails?.email_id}`} className='text-main emailres-doc'>{personalDetails?.email_id}</a>
                 </div>
@@ -822,10 +822,10 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
         <div className="container-fluid mb-3">
           <div className="website-section website-clinic website-footer">
             <div className="slider-container">
-              <div className='clinic-box p-4'>
+              <div className='clinic-box p-3 p-lg-4'>
                 <div className='d-flex flex-wrap align-items-center justify-content-center justify-content-lg-between'>
                   <img style={{ filter: 'brightness(0) invert(1)' }} src={websiteLogo} width={151.29} height={34} alt="Footer Logo" />
-                  <div className='text-white mt-4 text-center mt-lg-0'>© {(new Date().getFullYear())} TatvaPractice. All rights reserved</div>
+                  <div className='text-white mt-2 text-center mt-lg-0'>© {(new Date().getFullYear())} TatvaPractice. All rights reserved</div>
                 </div>
               </div>
             </div>
