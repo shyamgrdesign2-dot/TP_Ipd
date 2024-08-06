@@ -459,7 +459,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                               <div className='clinic-address'>{'No Address Details & Photos'}</div>
                             )}
                           </div>
-                          <div className={`d-flex flex-wrap clinic-btn ${e?.shift?.length > 0 ? 'mb-lg-4' : 'mb-5'}`}>
+                          <div className={`d-flex flex-wrap clinic-btn ${e?.shift?.length > 0 ? 'mb-4' : 'mb-5'}`}>
                             {e?.address?.google_map && (
                               <Button type="button" onClick={() => isValidMap(e?.address?.google_map) ? window.open(e?.address?.google_map) : window.open(`https://www.google.com/maps/search/${e?.address?.google_map}`)} className="btn btn-primary3 btn-48">
                                 <img width={19} height={19} className='me-2' src={Direction} alt="Direction" /> Direction to Clinic
