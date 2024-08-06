@@ -94,7 +94,9 @@ function SmartPrescription() {
   const [updatedIndex, setUpdatedIndex] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(null);
   const [imageLoaded, setImageLoaded] = useState({});
+  const [drawFunction, setDrawFunction] = useState(null);
   const [imageRefs, setImageRefs] = useState({});
+  const drawRef = useRef(null);
 
   const contextApi = {
     patient_data,
@@ -343,13 +345,16 @@ function SmartPrescription() {
       height="980px"
       className={`canvas-style ${selectedPage === index ? "canvas-active" : ""}`}
       ref={(el) => {
-        if (el) {
+        if (el && !smartRxFiles?.length) {
           canvasRefs.current[id] = el;
-            const ctx = el.getContext("2d");
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 0, el.width, el.height);
-            ctxGlobalRefs.current[id] = ctx;
-          }
+          const ctx = el.getContext("2d");
+          ctx.fillStyle = "white";
+          ctx.fillRect(0, 0, el.width, el.height);
+          ctxGlobalRefs.current[id] = ctx;
+        }
+        else{
+          canvasRefs.current[id] = el;
+        }
       }}
       onClick={() => handlePageChange(index)}
     />
@@ -375,6 +380,10 @@ function SmartPrescription() {
     });
   }
 
+  useEffect(() => {
+    drawRef.current = smartRxFiles?.length >= selectedPage+1 && drawFunction ? editDraw : draw;
+  },[selectedPage])
+
   // Handles Websocket Connection
   const connectWebSocket = () => {
     // WebSocket initialization (reconnectingwebsocket -> this package handles the reconnection)
@@ -391,12 +400,10 @@ function SmartPrescription() {
         console.log("WebSocket connection closed");
         setConnected(false);
       };
-
-      const drawFunction = smartRxFiles.length ? editDraw : draw;
-     
+      
       socketRef.current.onmessage = (event) => {
         const o = event.data.split("|");
-        drawFunction(o[0], o[1], o[2], o[3], selectedPageRef.current);
+        drawRef.current(o[0], o[1], o[2], o[3], selectedPageRef.current);
       };
 
       socketRef.current.onerror = (error) => {
@@ -462,6 +469,10 @@ function SmartPrescription() {
     setSelectedPage(updatedIndex);
     setRefreshTrigger(!refreshTrigger)
 
+    if(smartRxFiles?.length >= selectedPage+1){
+      setDrawFunction(true)
+    }
+    
     const canvas = canvasRefs.current[newPageId];
     if (canvas) {
       const ctx = canvas.getContext("2d");
@@ -472,7 +483,6 @@ function SmartPrescription() {
   };
 
   function draw(t, n, a, c, pageIndex) {
-    // console.log({selectedPage})
     const canvas = canvasRefs.current[pageIndex];
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -490,16 +500,16 @@ function SmartPrescription() {
     ctx.stroke();
   }
 
-  function editDraw(t, n, a, c) {
-    const canvas = canvasRefs.current[selectedPage];
+  function editDraw(t, n, a, c,pageIndex) {
+    const canvas = canvasRefs.current[pageIndex];
     if (!canvas) return;
     const scaleFactor = 1.5;
-    ctxGlobalRefs.current[selectedPage].strokeStyle = '#000';
-    ctxGlobalRefs.current[selectedPage].beginPath();
-    ctxGlobalRefs.current[selectedPage].moveTo(t * scaleFactor, n * scaleFactor);
-    ctxGlobalRefs.current[selectedPage].lineTo(a * scaleFactor, c * scaleFactor);
-    ctxGlobalRefs.current[selectedPage].lineJoin = ctxGlobalRefs.current[selectedPage].lineCap = "round";
-    ctxGlobalRefs.current[selectedPage].stroke();
+    ctxGlobalRefs.current[pageIndex].strokeStyle = '#000';
+    ctxGlobalRefs.current[pageIndex].beginPath();
+    ctxGlobalRefs.current[pageIndex].moveTo(t * scaleFactor, n * scaleFactor);
+    ctxGlobalRefs.current[pageIndex].lineTo(a * scaleFactor, c * scaleFactor);
+    ctxGlobalRefs.current[pageIndex].lineJoin = ctxGlobalRefs.current[pageIndex].lineCap = "round";
+    ctxGlobalRefs.current[pageIndex].stroke();
   }
 
   const convertCanvasToJPEG = (canvas) => {
@@ -565,9 +575,6 @@ function SmartPrescription() {
   const handleWrite = () => {
     setPrescription(true);
     connectWebSocket();
-    // if (smartRxFile) {
-    //   imageLoad(smartRxFile);
-    // }
   };
 
   useEffect(() => {
@@ -588,7 +595,6 @@ function SmartPrescription() {
     setShowModal(true);
     setUploadSuccess(success);
     setUploadMessage(message);
-    console.log(success, "sucess");
     setModalColor(success ? "green" : "red");
     // Start the progress animation
     if (success) {
@@ -630,30 +636,32 @@ function SmartPrescription() {
     }, interval);
   };
 
- // Load images for the edit flow
- const imageLoad = (imageUrls) => {
+// Load images for the edit flow
+const imageLoad = () => {
   const loadedImages = {};
 
-  imageUrls.forEach((imageObj, index) => {
+  const newPageIds = smartRxFiles.map(() => uuidv4());
+  setPages(newPageIds);
+  smartRxFiles.forEach((imageObj, index) => {
     const { smart_prescription_file: imageUrl } = imageObj;
     const img = new Image();
     img.src = imageUrl;
-    img.crossOrigin = 'anonymous';
+    img.crossOrigin = "anonymous";
     img.onload = () => {
-      loadedImages[pages[index]] = img;
-      setImageRefs((prevState) => ({ ...prevState, [pages[index]]: img }));
-      setImageLoaded((prevState) => ({ ...prevState, [pages[index]]: true }));
+      loadedImages[newPageIds[index]] = img;
+      setImageRefs((prevState) => ({ ...prevState, [newPageIds[index]]: img }));
+      setImageLoaded((prevState) => ({
+        ...prevState,
+        [newPageIds[index]]: true,
+      }));
     };
   });
 };
 
 useEffect(() => {
   // Set up pages and load images when smartRxFiles changes
-  if (smartRxFiles) {
-    const imageUrls = smartRxFiles;
-    const newPageIds = imageUrls.map(() => uuidv4());
-    setPages(newPageIds);
-    imageLoad(imageUrls);
+  if (smartRxFiles?.length) {
+    imageLoad();
     setSelectedPage(0);
   }
 
@@ -673,7 +681,7 @@ useEffect(() => {
       ctxGlobalRefs.current[pageId] = ctx;
     }
   });
-}, [imageLoaded, pages]);
+}, [imageLoaded]);
 
   return (
     <CashManagerContext.Provider value={contextApi}>
