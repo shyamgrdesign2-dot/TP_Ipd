@@ -314,7 +314,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                 <div className='round-pink'></div>
                 <div className='doctor-photo'>
                   <img fill src={personalDetails?.hero_image_link ? personalDetails?.hero_image_link : DoctorDefault} alt="Doctor Profile" style={{
-                    objectFit: personalDetails?.hero_image_link ? 'cover' : 'none',
+                    objectFit: personalDetails?.hero_image_link ? 'cover' : 'scale-down',
                     position: 'absolute', height: '100%', width: '100%', inset: 0, color: 'transparent'
                   }} />
                 </div>
