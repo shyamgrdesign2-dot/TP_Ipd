@@ -4,6 +4,7 @@ import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
 import axios from 'axios';
+import { isChrome, isSafari } from 'react-device-detect';
 
 import Homepage from '../../website/Homepage';
 import stopPublishing from '../../assets/images/stop-publishing.svg';
@@ -179,6 +180,15 @@ function HeaderDoctorWebsite() {
         setIsLogoModalOpen(!isLogoModalOpen);
     }, [isLogoModalOpen]);
 
+    const clickRedirect = async () => {
+        if (!isChrome && !isSafari) {
+            navigate(`/doctor_website_setting/?url=${publishUrl}&key=phpRedirect`, { replace: true, state: { websiteData: { ...websiteData } } })
+            navigate(0, { replace: true });
+        } else {
+            await window.open(publishUrl)
+        }
+    }
+
     return (
         <>
             <Navbar className="justify-content-between headerprescription p-0">
@@ -325,7 +335,7 @@ function HeaderDoctorWebsite() {
                                         <div className="d-flex align-items-center mt-4">
                                             <Button type="text" className="btn btn-primary2 align-items-center justify-content-center d-flex btn-41 w-50"
                                                 icon={<i className="icon-New-Window"></i>}
-                                                onClick={() => window.open(publishUrl)}>
+                                                onClick={clickRedirect}>
                                                 Live Preview
                                             </Button>
                                             <Button type="text" className="btn btn-primary3 align-items-center justify-content-center d-flex btn-41 w-50 ms-4"

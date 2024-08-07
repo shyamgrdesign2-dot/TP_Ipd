@@ -42,7 +42,7 @@ export const isValidWebsite = (url, account) => {
   // Profile with a numeric ID
   // console.log("https://www.facebook.com/profile.php?id=100004531399459");
 
-  
+
 
   // Instagram URL examples:
   // Standard profile pages
@@ -275,10 +275,10 @@ export const errorMessage = async (error) => {
   }
 };
 
-export const handleCopy = async (url) => {
+export const handleCopy = async (url, msg = 'Copied') => {
   try {
     await navigator.clipboard.writeText(url);
-    errorMessage('Copied')
+    errorMessage(msg)
   } catch (err) {
     console.error('Failed to copy:', err);
   }

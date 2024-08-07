@@ -42,14 +42,14 @@ import websiteInstagram from '../assets/images/website-images/website-instagram.
 import websiteLinkedin from '../assets/images/website-images/website-linkedin.svg'
 import websiteTwitter from '../assets/images/website-images/website-twitter.svg'
 import websiteYoutube from '../assets/images/website-images/website-youtube.svg'
-import { errorMessage, isValidMap, isValidWebsite, validateEmail } from '../utils/utils';
+import { errorMessage, handleCopy, isValidMap, isValidWebsite, validateEmail } from '../utils/utils';
 import { isMobile, isChrome, isSafari } from 'react-device-detect';
 
 const slideData = [1, 2, 3, 4]
 const dateFormat = 'HH:mm:ss'
 const showDateFormat = 'h:mm A'
 
-function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, services, rewardRecognition, educationTraining, doctorExperience, membership, otherSettings, socialLinks }) {
+function Homepage({ centerPadding, scrollId, personalDetails, aboutDoctor, clinicProfile, services, rewardRecognition, educationTraining, doctorExperience, membership, otherSettings, socialLinks }) {
 
   const navigate = useNavigate();
 
@@ -148,7 +148,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
     className: "center",
     centerMode: true,
     infinite: false,
-    centerPadding: "50px",
+    centerPadding: centerPadding ? `${window.innerWidth / 30}px` : `${window.innerWidth / 10}px`,
     arrows: false,
     speed: 500,
     dots: true,
@@ -166,7 +166,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
       {
         breakpoint: 600,
         settings: {
-          centerMode: false,
+          // centerMode: false,
         }
       },
     ]
@@ -235,10 +235,9 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
     setShowNavbar(!showNavbar);
   };
 
-  const clickRedirect = async (link) => {
+  const clickRedirect = async (link, account) => {
     if (!isChrome && !isSafari) {
-      navigate(`/?url=${link}&key=phpRedirect`, { replace: true })
-      navigate(0, { replace: true });
+      handleCopy(link, `The ${account} link has been copied. Please paste it into your browser to review your social page. Your patient will be able to access these pages smoothly once you 'save and publish' this website`)
     } else {
       await window.open(link)
     }
@@ -473,7 +472,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                           </div>
                           <div className={`d-flex flex-wrap clinic-btn ${e?.shift?.length > 0 ? 'mb-4' : 'mb-5'}`}>
                             {e?.address?.google_map && (
-                              <Button type="button" onClick={() => isValidMap(e?.address?.google_map) ? window.open(e?.address?.google_map) : window.open(`https://www.google.com/maps/search/${e?.address?.google_map}`)} className="btn btn-primary3 btn-48">
+                              <Button type="button" onClick={() => isValidMap(e?.address?.google_map) ? clickRedirect(e?.address?.google_map, 'map') : clickRedirect(`https://www.google.com/maps/search/${e?.address?.google_map}`, 'map')} className="btn btn-primary3 btn-48">
                                 <img width={19} height={19} className='me-2' src={Direction} alt="Direction" /> Direction to Clinic
                               </Button>
                             )}
@@ -786,64 +785,64 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
           </div>
         </div>
       ) : null}
-      
-        {/* Profile and Social Media Links */}
-        <div className="website-section">
-          <div className="container" ref={socialSectionRef}>
-            <div className='row-80 text-center'>
-              <div className='bg-icon-common bg-icon-xl mx-auto mb-20'>
-                <img width={50.313} height={71.669} src={avatarDoctor} alt="Doctor Profile" />
-              </div>
-              <h3 className="doctor-name h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h3>
-              <div className='fs-18 text-welcome fw-medium mt-1'>{`${personalDetails?.education} - ${personalDetails?.specialty}`}</div>
-              <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mt-4 px-4 mb-4 mb-lg-5">
-                Book Appointment
-              </Button>
-              <hr className='mx-auto' style={{ width: 200 }} />
-              {personalDetails?.email_id && validateEmail(personalDetails?.email_id) && (
-                <div className='border rounded-4 d-flex align-items-center mx-auto d-inline-flex mt-4 mt-lg-5 pe-3 py-2' style={{ borderRadius: 25 }}>
-                  <div className='bg-icon-common bg-icon-sm2 mx-2'><img width={22} height={22} src={Mail} alt="Email" /></div>
-                  <a href={`mailto:${personalDetails?.email_id}`} className='text-main emailres-doc'>{personalDetails?.email_id}</a>
-                </div>
-              )}
-              <br />
-              {otherSettings?.enable_social_links ? (
-                <div className='d-flex align-items-center justify-content-center mt-5'>
-                  {socialLinks?.facebook && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.facebook, 'facebook') ? clickRedirect(socialLinks?.facebook) : errorMessage('Wrong Facebook URL')}><img width={14.769} height={14.769} src={websiteFacebook} alt="Email" /></div>
-                  )}
-                  {socialLinks?.instagram && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.instagram, 'instagram') ? clickRedirect(socialLinks?.instagram) : errorMessage('Wrong Instagram URL')} ><img width={14.769} height={14.769} src={websiteInstagram} alt="Email" /></div>
-                  )}
-                  {socialLinks?.linkedin && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.linkedin, 'linkedin') ? clickRedirect(socialLinks?.linkedin) : errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteLinkedin} alt="Email" /></div>
-                  )}
-                  {socialLinks?.twitter && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.twitter, 'twitter') ? clickRedirect(socialLinks?.twitter) : errorMessage('Wrong Twitter URL')}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
-                  )}
-                  {socialLinks?.youtube && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.youtube, 'youtube') ? clickRedirect(socialLinks?.youtube) : errorMessage('Wrong youtube URL')}><img width={14.769} height={14.769} src={websiteYoutube} alt="Email" /></div>
-                  )}
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </div>
 
-        {/* Footer Section */}
-        <div className="container-fluid mb-3">
-          <div className="website-section website-clinic website-footer">
-            <div className="slider-container">
-              <div className='clinic-box p-3 p-lg-4'>
-                <div className='d-flex flex-wrap align-items-center justify-content-center justify-content-lg-between'>
-                  <img style={{ filter: 'brightness(0) invert(1)' }} src={websiteLogo} width={151.29} height={34} alt="Footer Logo" />
-                  <div className='text-white mt-2 text-center mt-lg-0'>© {(new Date().getFullYear())} TatvaPractice. All rights reserved</div>
-                </div>
+      {/* Profile and Social Media Links */}
+      <div className="website-section">
+        <div className="container" ref={socialSectionRef}>
+          <div className='row-80 text-center'>
+            <div className='bg-icon-common bg-icon-xl mx-auto mb-20'>
+              <img width={50.313} height={71.669} src={avatarDoctor} alt="Doctor Profile" />
+            </div>
+            <h3 className="doctor-name h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h3>
+            <div className='fs-18 text-welcome fw-medium mt-1'>{`${personalDetails?.education} - ${personalDetails?.specialty}`}</div>
+            <Button type="button" onClick={showModal} className="btn btn-primary3 btn-48 rounded-18 mt-4 px-4 mb-4 mb-lg-5">
+              Book Appointment
+            </Button>
+            <hr className='mx-auto' style={{ width: 200 }} />
+            {personalDetails?.email_id && validateEmail(personalDetails?.email_id) && (
+              <div className='border rounded-4 d-flex align-items-center mx-auto d-inline-flex mt-4 mt-lg-5 pe-3 py-2' style={{ borderRadius: 25 }}>
+                <div className='bg-icon-common bg-icon-sm2 mx-2'><img width={22} height={22} src={Mail} alt="Email" /></div>
+                <a href={`mailto:${personalDetails?.email_id}`} className='text-main emailres-doc'>{personalDetails?.email_id}</a>
+              </div>
+            )}
+            <br />
+            {otherSettings?.enable_social_links ? (
+              <div className='d-flex align-items-center justify-content-center mt-5'>
+                {socialLinks?.facebook && (
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.facebook, 'facebook') ? clickRedirect(socialLinks?.facebook, 'facebook') : errorMessage('Wrong Facebook URL')}><img width={14.769} height={14.769} src={websiteFacebook} alt="Email" /></div>
+                )}
+                {socialLinks?.instagram && (
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.instagram, 'instagram') ? clickRedirect(socialLinks?.instagram, 'instagram') : errorMessage('Wrong Instagram URL')} ><img width={14.769} height={14.769} src={websiteInstagram} alt="Email" /></div>
+                )}
+                {socialLinks?.linkedin && (
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.linkedin, 'linkedin') ? clickRedirect(socialLinks?.linkedin, 'linkedin') : errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteLinkedin} alt="Email" /></div>
+                )}
+                {socialLinks?.twitter && (
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.twitter, 'twitter') ? clickRedirect(socialLinks?.twitter, 'twitter') : errorMessage('Wrong Twitter URL')}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
+                )}
+                {socialLinks?.youtube && (
+                  <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.youtube, 'youtube') ? clickRedirect(socialLinks?.youtube, 'youtube') : errorMessage('Wrong youtube URL')}><img width={14.769} height={14.769} src={websiteYoutube} alt="Email" /></div>
+                )}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Section */}
+      <div className="container-fluid mb-3">
+        <div className="website-section website-clinic website-footer">
+          <div className="slider-container">
+            <div className='clinic-box p-3 p-lg-4'>
+              <div className='d-flex flex-wrap align-items-center justify-content-center justify-content-lg-between'>
+                <img style={{ filter: 'brightness(0) invert(1)' }} src={websiteLogo} width={151.29} height={34} alt="Footer Logo" />
+                <div className='text-white mt-2 text-center mt-lg-0'>© {(new Date().getFullYear())} TatvaPractice. All rights reserved</div>
               </div>
             </div>
           </div>
         </div>
-      
+      </div>
+
       {/* Common Model */}
       <Modal
         open={isModalOpen}
@@ -855,52 +854,6 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
         <div className='model-subtitle mt-2'>Please contact the clinic to schedule an appointment.</div>
         <Row className='mt-4'>
           <Col sm={24} lg={16}>
-            {/* {clinicProfile?.filter(el => !el.clinic_delete)?.length > 0 && (
-              <Slider {...settingsAppointment} className='clinic-slider'>
-                {clinicProfile?.filter(el => !el.clinic_delete)?.map((e, i) => {
-                  return (
-                    <div key={i} className="timingshape">
-                      <div className='h-100 d-flex flex-column justify-content-between appt-30'>
-                        <div>
-                          <div className='d-flex align-items-center'>
-                            <div className='appointment-dp'>
-                              <img width={80} height={80} src={personalDetails?.hero_image_link ? personalDetails?.hero_image_link : DoctorDefault} className='img-fluid' alt="Doctor Profile" />
-                            </div>
-                            <div className='ms-3'>
-                              <div className='appt-drname text-welcome'>{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</div>
-                              <div className='appt-dreducation text-welcome'>{`${personalDetails?.education} - ${personalDetails?.specialty}`}</div>
-                            </div>
-                          </div>
-                          <Row className='mt-4'>
-                            <Col sm={24} lg={4}>
-                              <div className='bg-icon-common bg-icon-sm2 mb-2 bg-white border'><img width={28} height={28} src={LocationClinic} alt="Clinic Address & Hours" /></div>
-                            </Col>
-                            <Col sm={24} lg={20}>
-                              <div className='model-subtitle text-welcome fw-medium'>{e?.name}</div>
-                              <div>{`${Object.values(Object.fromEntries(Object.entries((({ address_line, city, state, pincode }) => ({ address_line, city, state, pincode }))(e?.address)).filter(([_, v]) => v))).join(', ')}`}</div>
-                            </Col>
-                          </Row>
-                        </div>
-                        <div>
-                          {!isMobile ? (
-                            <Button type="button" className="btn btn-primary3 btn-48 rounded-18">
-                              <a className='text-white d-flex align-items-center'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` ${e?.contact_no}`}</a>
-                            </Button>
-                          ) : (
-                            <Button type="button" onClick={() => window.location.href = (`tel:${e?.contact_no}`)} className="btn btn-primary3 btn-48 rounded-18">
-                              <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` ${e?.contact_no}`}</a>
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                      <div className='round-shape-top-education round'></div>
-                      <div className='shape-education'></div>
-                      <p className='mb-0 position-absolute slide-count slide-count-left' style={{ bottom: 33, zIndex: 99, right: 5 }}><span className='text-welcome'>{String(i + 1).padStart(2, "0")} / {String(clinicProfile?.filter(el => !el.clinic_delete)?.length).padStart(2, "0")}</span></p>
-                    </div>
-                  )
-                })}
-              </Slider>
-            )} */}
             {clinicProfile?.filter(el => !el.clinic_delete)?.length > 0 && (
               clinicProfile.filter(el => !el.clinic_delete).length > 1 ? (
                 <Slider {...settingsAppointment} className='clinic-slider'>
