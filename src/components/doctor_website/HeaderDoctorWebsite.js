@@ -279,7 +279,14 @@ function HeaderDoctorWebsite() {
 
                             <div className='text-start mt-4'>
                                 <Space.Compact className='h-45' style={{ width: '100%' }}>
-                                    <Input className='fontroboto' defaultValue={'Note: Your live website url has been expired.'} disabled />
+                                    <div className='align-items-center bg-body border d-flex mx-auto px-4 rounded-3'>
+                                        <div className='text-danger-custom fw-medium'>
+                                            Note:    
+                                        </div> 
+                                        <div className='fw-medium ms-2'>
+                                            Your live website url has been expired.
+                                        </div>
+                                    </div>
                                 </Space.Compact>
                             </div>
 
