@@ -17,6 +17,7 @@ import caseManagerSlice from './caseManagerSlice';
 import followUpSlice from './followUpSlice';
 import vaccineSlice from './vaccineSlice';
 import growthChartSlice from './growthChartSlice';
+import doctorWebsiteSlice from './doctorWebsiteSlice';
 import obstetricSlice from './obstetricSlice';
 
 const persistConfig = {
@@ -40,6 +41,7 @@ const rootReducer = combineReducers({
   followUp: followUpSlice,
   vaccines: vaccineSlice,
   growthChart: growthChartSlice,
+  doctorWebsite: doctorWebsiteSlice,
   obstetric: obstetricSlice
 });
 

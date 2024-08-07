@@ -163,8 +163,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     const medical_history_title = (id) => {
         var value = ''
-        if (id == 2 || id == 3) {
-            value = `Issue : `
+        if (id == 2 ) {
+            value = `Condition : `
+        } else if (id == 3) {
+            value = `History : `
         } else if (id == 4) {
             value = `Allergies to : `
         } else if (id == 1) {
@@ -901,7 +903,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             // diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
                                                                             spo2: spo2 ? `SPO2: ${spo2}%` : '',
                                                                             height: height ? `Height: ${height}cms` : '',
-                                                                            weight: weight ? `Weight" ${weight}kgs` : '',
+                                                                            weight: weight ? `Weight: ${weight}kgs` : '',
                                                                             bmi: bmi ? `BMI: ${parseFloat(bmi).toFixed(2)}kg/m²` : '',
                                                                             bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
                                                                             bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',

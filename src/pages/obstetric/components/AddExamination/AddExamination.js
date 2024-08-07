@@ -24,6 +24,7 @@ function AddExamination({
   toggleDeletePopup,
   isDataAddedOrEdited,
   setIsDataAddedOrEdited,
+  setIsExaminationUpdated,
 }) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
@@ -52,7 +53,8 @@ function AddExamination({
     setExaminationData((prevData) => {
       const newData = {
         ...prevData,
-        [field]: value === prevData[field] ? undefined : value,
+        [field]:
+          field !== "notes" && value === prevData[field] ? undefined : value,
         ...(["mothersWeight", "mothersHeight"].includes(field) && {
           ...bmi,
         }),
@@ -68,6 +70,7 @@ function AddExamination({
   };
 
   const addExaminationData = async () => {
+    setIsExaminationUpdated(true);
     const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
     let decodedToken;
     if (token) {
@@ -370,9 +373,9 @@ function AddExamination({
             style={{ width: 170, height: 40 }}
             onChange={(value) => handleExaminationDataChange("liquor", value)}
             options={[
-              { value: "normal", label: "Normal" },
-              { value: "less", label: "Less" },
-              { value: "more", label: "More" },
+              { value: "Normal", label: "Normal" },
+              { value: "Less", label: "Less" },
+              { value: "More", label: "More" },
             ]}
             placeholder="Select"
             className="custom-select"
@@ -515,6 +518,8 @@ function AddExamination({
               onChange={(e) =>
                 handleExaminationDataChange("notes", e.target.value)
               }
+              autoComplete="off"
+              autoCorrect="off"
             />
           </div>
         </div>

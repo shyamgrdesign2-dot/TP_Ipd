@@ -206,3 +206,7 @@ export const getAgeInMonths = (patientDOB) => {
   const today = moment(new Date());
   return today.diff(patientDOB, "months");
 };
+
+export const disableFutureDates = (current) => {
+  return current && current >= moment().add(1, "days").startOf("day");
+};
