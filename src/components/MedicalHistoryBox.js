@@ -1035,31 +1035,31 @@ function MedicalHistoryBox(props) {
                                 <i className='icon-right'></i>
                             </div>
                         </div>
-                        <div className="d-flex align-items-center gap-3">
-                            <div className="title-common">
-                                { isGynaecHistoryAccessable ? `Gynec History` :`Medical History`}
-                            </div>
-                            {isGynaecHistoryAccessable && (
-                                <Popover
-                                    open={popOverVideo}
-                                    onOpenChange={showHideVideoListPopover}
-                                    content={VIDEO_CONTENT}
-                                    trigger="click"
-                                    overlayClassName="pop-430 pp-0 videoTutorial"
-                                    placement="bottom"
-                                    >
-                                    <button className="btn d-flex align-items-center btn-text p-0 me-20">
-                                        <span>
-                                        <img src={tutorial2} />
-                                        </span>
-                                    </button>
-                                </Popover>
-                            )}
+                        <div className="title-common">
+                            { isGynaecHistoryAccessable ? `Gynec History` :`Medical History`}
                         </div>
                     </div>
+                    <div className="d-flex align-items-center gap-2">
+                    {isGynaecHistoryAccessable && (
+                        <Popover
+                            open={popOverVideo}
+                            onOpenChange={showHideVideoListPopover}
+                            content={VIDEO_CONTENT}
+                            trigger="click"
+                            overlayClassName="pop-430 pp-0 videoTutorial"
+                            placement="bottom"
+                            >
+                            <button className="btn d-flex align-items-center btn-text p-0 me-20">
+                                <span>
+                                <img src={tutorial2} />
+                                </span>
+                            </button>
+                        </Popover>
+                    )}
                     <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={onSaveClicked}>
                         Save
                     </Button>
+                    </div>
                 </div>
                 <Tabs defaultActiveKey="gynec" onChange={onTabChange}>
                     { isGynaecHistoryAccessable && 
