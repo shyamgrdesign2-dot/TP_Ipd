@@ -11,12 +11,9 @@ function ProfileClinicView() {
         infinite: false,
         arrows: false,
         dots: true,
-        arrows: false,
         adaptiveHeight: true,
         autoplay: false,
-        adaptiveHeight: true,
-        slidesToShow: 2,
-        slidesToScroll: 2,
+        adaptiveHeight: true
     };
 
     return (
@@ -36,12 +33,14 @@ function ProfileClinicView() {
             <div>
                 <Slider
                     {...settings}
-                    arrows={false}
+                    slidesToShow={profile?.hospital_data?.length > 1 ? 2 : 1}
+                    slidesToScroll={profile?.hospital_data?.length > 1 ? 2 : 1}
+                    variableWidth={profile?.hospital_data?.length > 1 ? false : true}
                     className='hospital-address-slider'>
                     {profile?.hospital_data?.map((e, i) => {
                         return (
-                            <div key={Math.random()} className='p-3'>
-                                <div>
+                            <div key={Math.random()} className='p-3' style={{ width: profile?.hospital_data?.length > 1 ? 'auto' : '50%' }}>
+                                <div >
                                     <div className="p-20 rounded-20px rounded-bottom-0 border" style={{ backgroundColor: 'rgba(237, 223, 247, 0.30)' }}>
                                         <div className='fw-semibold fs-16' style={{ fontWeight: 600 }}> {e?.hm_name ? e?.hm_name : '-'}</div>
                                     </div>
