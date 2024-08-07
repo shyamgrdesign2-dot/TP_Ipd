@@ -538,6 +538,7 @@ function DoctorWebsiteSetting() {
                                 <div className="rounded-20px bg-white mt-2 overflow-hidden">
                                     <div className="printheight" style={{ height: 'calc(100vh - 124px)' }}>
                                         <Homepage
+                                            centerPadding={true}
                                             scrollId={selectedMenu ? selectedMenu?.value : null}
                                             personalDetails={personalDetails}
                                             aboutDoctor={aboutDoctor}
