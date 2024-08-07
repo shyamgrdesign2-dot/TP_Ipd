@@ -2,7 +2,6 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  useContext,
   useRef,
 } from "react";
 import { Button, Drawer,message } from "antd";
@@ -22,8 +21,6 @@ import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
 import vitals from "../assets/images/Vitals.svg";
 import SmartRxFollowUpBox from "../components/SmartRxFollowUpBox";
-// import visitEnd from '../assets/images/end-visit.svg';
-// import imgCloseVisit from '../assets/images/close-visit.svg';
 
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, WEBSOCKET_ADDRESS } from "../utils/constants";
 import api from "../api/services/axiosService";
@@ -39,14 +36,12 @@ function SmartPrescription() {
     customizedPadRightList,
     frequencyList,
     timingList,
-    profile,
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
 
   const { state } = useLocation();
-  const { patient_data, caseManagerData } = state;
-  let   { smartRxFiles } = state;
+  const { patient_data, caseManagerData, smartRxFilesData } = state;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -66,23 +61,16 @@ function SmartPrescription() {
   const [token, setToken] = useState(null);
   const [tokenData, setTokenData] = useState(null);
   const [prescription, setPrescription] = useState(false);
-  // const canvasRef = useRef(null);
-  const [refresh, setRefresh] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalColor, setModalColor] = useState(null);
   const [progress, setProgress] = useState(0);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [blobName, setBlobName] = useState(null);
   const [connected, setConnected] = useState(false);
   const [smartRxDetails, setSmartRxDetails] = useState(null);
   const [hasError, setHasError] = useState(false);
-  // const [imageLoaded, setImageLoaded] = useState(false);
-  // const imageRef = useRef(null);
   const socketRef = useRef(null);
   const ctxGlobalRefs = useRef([]);
-  // const canvasRefs = useRef({});
-  // const ctxGlobalRefs = useRef({});
   const newPageRef = useRef(null);
   const [pages, setPages] = useState([]);
   const [selectedPage, setSelectedPage] = useState(null);
@@ -96,6 +84,7 @@ function SmartPrescription() {
   const [refreshTrigger, setRefreshTrigger] = useState(null);
   const [imageLoaded, setImageLoaded] = useState({});
   const [drawFunction, setDrawFunction] = useState(null);
+  const [smartRxFiles, setSmartRxFiles] = useState([]);
   const [imageRefs, setImageRefs] = useState({});
   const drawRef = useRef(null);
 
@@ -323,7 +312,7 @@ function SmartPrescription() {
         var decoded = jwtDecode(token);
         setTokenData(decoded.result)
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     }
   }, []);
@@ -331,6 +320,9 @@ function SmartPrescription() {
   useEffect(() => {
     if (pages.length === 0) {
       handleAddPage();
+    }
+    if(smartRxFilesData?.length > 0){
+      setSmartRxFiles(smartRxFilesData)
     }
   }, []);
 
@@ -433,12 +425,14 @@ function SmartPrescription() {
           behavior: "smooth",
         });
       }, 100); // Adjust timeout as needed
-    }// Set the new page as the selected page
+    }
     setNewPageText("");
   };
 
   const handleDeletePage = (index) => {
-    smartRxFiles = smartRxFiles && smartRxFiles.filter((_,fileIndex)=> fileIndex !== index)
+    if(smartRxFiles){
+      setSmartRxFiles(smartRxFiles.filter((_,fileIndex)=> fileIndex !== index))
+    }
     const newPages = pages.filter((_, pageIndex) => pageIndex !== index);
     setPages(newPages);
     setRefreshTrigger(!refreshTrigger)
@@ -447,17 +441,11 @@ function SmartPrescription() {
     }
   };
 
-  console.log({selectedPage})
-
   const handlePageChange = (index) => {
     setSelectedPage(index);
   };
 
   const handleRefresh = () => {
-    // const newPageId = uuidv4();
-    // const newPages = [...pages];
-    // newPages[selectedPage] = newPageId;
-    // setPages(newPages);
     setSelectedPage(updatedIndex);
     setRefreshTrigger(!refreshTrigger)
 
@@ -536,26 +524,22 @@ function SmartPrescription() {
       socketRef.current = null;
     }
 
-    console.log(canvasRefs.current,"canvasRefs.current")
     const canvasArray = Object.values(canvasRefs.current).filter(canvas => canvas !== null);
     let blobs = [];
     let files = [];
 
     try {
       // Convert all canvases to JPEG blobs and files
-      console.log(canvasArray)
       for (let i = 0; i < canvasArray.length; i++) {
         const canvas = canvasArray[i];
         if (!canvas) continue;
         const blob = await convertCanvasToJPEG(canvas);
-        // const name = smartRxFiles ? caseManagerData.smart_prescription_filename : `${uuidv4()}.jpeg`;
         const name = smartRxFiles && smartRxFiles[i] ? smartRxFiles[i].smart_prescription_filename : `${uuidv4()}.jpeg`;
         blobs.push(blob);
         files.push(new File([blob], name, { type: 'image/jpeg' }));
       }
-      console.log(files,"files")
     } catch (error) {
-      console.log('Error converting canvas to JPEG:', error);
+      console.error('Error converting canvas to JPEG:', error);
       errorMessage("Failed to generate image, Please Submit again");
       return;
     }
@@ -568,24 +552,17 @@ function SmartPrescription() {
     });
     formData.append('doctor_unique_id', tokenData?.doctor_unique_id);
     formData.append('patient_unique_id', patient_data?.patient_unique_id);
-    
-    // Log FormData entries to inspect its content
-    for (let pair of formData.entries()) {
-      console.log(`${pair[0]}: ${pair[1].name ? pair[1].name : pair[1]}`);
-    }
 
     try {
       const response = await api.post(SMART_RX_UPLOAD, formData, baseUrl);
-      console.log(response?.message)
       const data = response?.message;
 
       if (data) {
         setSmartRxDetails(files.map(file => file.name));
       }
-      console.log(smartRxDetails,"smartRxDetails")
     } catch (error) {
       errorMessage("Error Uploading the prescription, Please try again");
-      console.log('Error Submitting the prescription:', error);
+      console.error('Error Submitting the prescription:', error);
     }
   }
 
@@ -599,6 +576,10 @@ function SmartPrescription() {
     setSelectedPage(0);
     // this is to remove the click from the right container.
     handleWrite();
+
+    if (smartRxFilesData) {
+      imageLoad();
+    }
 
     return () => {
       // Cleanup WebSocket connection on component unmount
@@ -657,9 +638,9 @@ function SmartPrescription() {
 const imageLoad = () => {
   const loadedImages = {};
 
-  const newPageIds = smartRxFiles.map(() => uuidv4());
+  const newPageIds = smartRxFilesData.map(() => uuidv4());
   setPages(newPageIds);
-  smartRxFiles.forEach((imageObj, index) => {
+  smartRxFilesData.forEach((imageObj, index) => {
     const { smart_prescription_file: imageUrl } = imageObj;
     const img = new Image();
     img.src = imageUrl;
@@ -676,22 +657,8 @@ const imageLoad = () => {
 };
 
 useEffect(() => {
-  // Set up pages and load images when smartRxFiles changes
-  if (smartRxFiles?.length) {
-    imageLoad();
-    setSelectedPage(0);
-  }
-
-  return () => {
-    if (socketRef.current) {
-      socketRef.current.close();
-    }
-  };
-}, [smartRxFiles]);
-
-useEffect(() => {
-  // Draw images on canvases when images are loaded
-  pages.forEach((pageId, index) => {
+  // Draw images on canvases when images are getting loaded
+  pages.forEach((pageId) => {
     if (imageLoaded[pageId] && canvasRefs.current[pageId]) {
       const ctx = canvasRefs.current[pageId].getContext('2d');
       ctx.drawImage(imageRefs[pageId], 0, 0);
@@ -748,9 +715,7 @@ useEffect(() => {
                 )}
               </div>
               <div className="prescription-box-sm p-14">
-                {/* <div className="prescription-box-sm"> */}
                 <SmartRxFollowUpBox />
-                {/* </div> */}
               </div>
             </div>
             <div

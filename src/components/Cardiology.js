@@ -87,7 +87,6 @@ function Cardiology(props) {
   };
 
   const handleChange = (pagination, filters, sorter) => {
-    console.log("Various parameters", pagination, filters, sorter);
     setFilteredInfo(filters);
     setSortedInfo(sorter);
   };
@@ -247,7 +246,7 @@ function Cardiology(props) {
         state: {
           patient_data: patient_data,
           caseManagerData: viewCaseManagerData,
-          smartRxFiles: smartRxFile,
+          smartRxFilesData: smartRxFile,
         },
       });
     } else {
