@@ -45,7 +45,8 @@ function SmartPrescription() {
   const dispatch = useDispatch();
 
   const { state } = useLocation();
-  const { patient_data, caseManagerData, smartRxFiles } = state;
+  const { patient_data, caseManagerData } = state;
+  let   { smartRxFiles } = state;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -79,14 +80,14 @@ function SmartPrescription() {
   // const [imageLoaded, setImageLoaded] = useState(false);
   // const imageRef = useRef(null);
   const socketRef = useRef(null);
-  // const ctxGlobalRefs = useRef([]);
-  const canvasRefs = useRef({});
-  const ctxGlobalRefs = useRef({});
+  const ctxGlobalRefs = useRef([]);
+  // const canvasRefs = useRef({});
+  // const ctxGlobalRefs = useRef({});
   const newPageRef = useRef(null);
   const [pages, setPages] = useState([]);
   const [selectedPage, setSelectedPage] = useState(null);
   const selectedPageRef = useRef(null); // Add a ref for selectedPage
-  // const canvasRefs = useRef([]);
+  const canvasRefs = useRef([]);
   const [newPageText, setNewPageText] = useState("");
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [deletePopupMsg, setDeletePopupMsg] = useState("");
@@ -333,8 +334,8 @@ function SmartPrescription() {
     }
   }, []);
 
- const toggleDeletePopup = () => {
-    setShowDeletePopup((prev) => !prev);
+  const toggleDeletePopup = () => {
+      setShowDeletePopup((prev) => !prev);
   };
 
   const getCanvas = (id, index) => (
@@ -345,11 +346,10 @@ function SmartPrescription() {
       height="980px"
       className={`canvas-style ${selectedPage === index ? "canvas-active" : ""}`}
       ref={(el) => {
-        if (el && !smartRxFiles?.length) {
+        if (el && smartRxFiles) {
           canvasRefs.current[id] = el;
           const ctx = el.getContext("2d");
           ctx.fillStyle = "white";
-          ctx.fillRect(0, 0, el.width, el.height);
           ctxGlobalRefs.current[id] = ctx;
         }
         else{
@@ -381,7 +381,7 @@ function SmartPrescription() {
   }
 
   useEffect(() => {
-    drawRef.current = smartRxFiles?.length >= selectedPage+1 && drawFunction ? editDraw : draw;
+    drawRef.current = smartRxFiles?.length >= selectedPage+1 ? editDraw : draw;
   },[selectedPage])
 
   // Handles Websocket Connection
@@ -438,10 +438,41 @@ function SmartPrescription() {
   };
 
   const handleDeletePage = (index) => {
+    smartRxFiles = smartRxFiles && smartRxFiles.filter((_,fileIndex)=> fileIndex !== index)
     const newPages = pages.filter((_, pageIndex) => pageIndex !== index);
     setPages(newPages);
+    setRefreshTrigger(!refreshTrigger)
     if (selectedPage >= newPages.length) {
       setSelectedPage(newPages.length ? Math.min(selectedPage, newPages.length - 1) : 0);
+    }
+  };
+
+  console.log({selectedPage})
+
+  const handlePageChange = (index) => {
+    setSelectedPage(index);
+  };
+
+  const handleRefresh = () => {
+    // const newPageId = uuidv4();
+    // const newPages = [...pages];
+    // newPages[selectedPage] = newPageId;
+    // setPages(newPages);
+    setSelectedPage(updatedIndex);
+    setRefreshTrigger(!refreshTrigger)
+
+    if(smartRxFiles?.length >= selectedPage+1){
+      setDrawFunction(true)
+    }
+    
+    const canvas = canvasRefs.current[pages[updatedIndex]];
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctxGlobalRefs.current[pages[updatedIndex]] = ctx;
+      canvasRefs.current[pages[updatedIndex]] = ctx
     }
   };
 
@@ -451,34 +482,9 @@ function SmartPrescription() {
     const canvas = canvasRefs.current[pages[0]];
     if (canvas) {
       const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-  };
-
-  const handlePageChange = (index) => {
-    setSelectedPage(index);
-  };
-
-  const handleRefresh = () => {
-    const newPageId = uuidv4();
-    const newPages = [...pages];
-    newPages[updatedIndex] = newPageId;
-    setPages(newPages);
-    setSelectedPage(updatedIndex);
-    setRefreshTrigger(!refreshTrigger)
-
-    if(smartRxFiles?.length >= selectedPage+1){
-      setDrawFunction(true)
-    }
-    
-    const canvas = canvasRefs.current[newPageId];
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctxGlobalRefs.current[newPageId] = ctx;
+      ctx.beginPath();
     }
   };
 
@@ -530,21 +536,24 @@ function SmartPrescription() {
       socketRef.current = null;
     }
 
-    const canvasArray = canvasRefs.current;
+    console.log(canvasRefs.current,"canvasRefs.current")
+    const canvasArray = Object.values(canvasRefs.current).filter(canvas => canvas !== null);
     let blobs = [];
     let files = [];
 
     try {
       // Convert all canvases to JPEG blobs and files
+      console.log(canvasArray)
       for (let i = 0; i < canvasArray.length; i++) {
         const canvas = canvasArray[i];
         if (!canvas) continue;
         const blob = await convertCanvasToJPEG(canvas);
         // const name = smartRxFiles ? caseManagerData.smart_prescription_filename : `${uuidv4()}.jpeg`;
-        const name = smartRxFiles[i]?.smart_prescription_filename || `${uuidv4()}.jpeg`;
+        const name = smartRxFiles && smartRxFiles[i] ? smartRxFiles[i].smart_prescription_filename : `${uuidv4()}.jpeg`;
         blobs.push(blob);
         files.push(new File([blob], name, { type: 'image/jpeg' }));
       }
+      console.log(files,"files")
     } catch (error) {
       console.log('Error converting canvas to JPEG:', error);
       errorMessage("Failed to generate image, Please Submit again");
@@ -554,23 +563,31 @@ function SmartPrescription() {
     // FormData to handle file upload
     const formData = new FormData();
     files.forEach((file, index) => {
-      formData.append(`smart_prescription_file_${index + 1}`, file);
+      formData.append('smart_prescription_files', file);
+      formData.append('smart_prescription_filename[]', file.name);
     });
     formData.append('doctor_unique_id', tokenData?.doctor_unique_id);
     formData.append('patient_unique_id', patient_data?.patient_unique_id);
+    
+    // Log FormData entries to inspect its content
+    for (let pair of formData.entries()) {
+      console.log(`${pair[0]}: ${pair[1].name ? pair[1].name : pair[1]}`);
+    }
 
     try {
-      const response = await api.post(SMART_RX_UPLOAD, formData, { baseURL: baseUrl });
+      const response = await api.post(SMART_RX_UPLOAD, formData, baseUrl);
+      console.log(response?.message)
       const data = response?.message;
 
       if (data) {
         setSmartRxDetails(files.map(file => file.name));
       }
+      console.log(smartRxDetails,"smartRxDetails")
     } catch (error) {
       errorMessage("Error Uploading the prescription, Please try again");
       console.log('Error Submitting the prescription:', error);
     }
-  };
+  }
 
   const handleWrite = () => {
     setPrescription(true);
@@ -822,69 +839,7 @@ useEffect(() => {
                       </div>
                     </div>
                   ))}
-                  {/* <Button onClick={() => handlePageChange(0)}>
-                    Page 1
-                  </Button>
-                  {pages.slice(1, -1).map((page, index) => (
-                    <Button key={page} onClick={() => handlePageChange(index + 1)}>
-                      Page {index + 2}
-                    </Button>
-                  ))}
-                  {pages.length > 0 && 
-                    <Button onClick={() => handlePageChange(pages.length - 1)}>
-                      Page {pages.length}
-                    </Button>
-                  }
-                  <Button onClick={handleAddPage}>New Page</Button> */}
-                  {/* {canvasRefs.map((page, index) => (
-                    <div key={page} className="canvas-container">
-                      <div className="canvas-header">
-                        <span>Page {index + 1}</span>
-                        <Button onClick={() => handleRefresh(index)}>Refresh</Button>
-                        <Button onClick={() => handleDeletePage(index)} disabled={pages.length === 1}>Delete</Button>
-                      </div>
-                      <canvas 
-                        ref={el => canvasRefs.current[index] = el}
-                        onClick={() => handlePageChange(index)}
-                      >
-                      </canvas>
-                      <div className="canvas-footer">
-                        {index === pages.length - 1 && (
-                          <Button onClick={handleAddPage}>Add New Page</Button>
-                        )}
-                      </div>
-                    </div>
-                  ))} */}
-                  {/* {pages.map((page, index) => (
-                      <div key={page.id} className="canvas-container" style={{ position: 'relative', marginBottom: '20px' }} onClick={() => handlePageChange(index + 1)}>
-                        <div className="canvas-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span>Page {index + 1}</span>
-                          <div>
-                            <Button onClick={() => handleRefresh(index)}>Refresh</Button>
-                            <Button onClick={() => handleDeletePage(index)} disabled={pages.length === 1}>Delete</Button>
-                          </div>
-                        </div>
-                        <div className="canvas-footer" style={{ textAlign: 'center', marginTop: '10px' }}>
-                          {index === pages.length - 1 && (
-                            <Button onClick={handleAddPage}>Add New Page</Button>
-                          )}
-                        </div>
-                      </div>
-                    ))} */}
                 </div>
-                {/* <div>
-                      <Button onClick={() => handlePageChange(0)}>Page 1</Button>
-                      {pages.slice(1, -1).map((page, index) => (
-                        <Button key={page.id} onClick={() => handlePageChange(index + 1)}>
-                          Page {index + 2}
-                        </Button>
-                      ))}
-                      {pages.length > 0 && (
-                        <Button onClick={() => handlePageChange(pages.length - 1)}>
-                          Page {pages.length}
-                        </Button>
-                      )}
-                    </div> */}
               </div>
             </div>
           </div>
