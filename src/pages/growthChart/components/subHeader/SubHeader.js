@@ -90,7 +90,7 @@ const SubHeader = ({
       <div className="rightSubHeader">
         {growthDetails(
           `Mid parental height ${
-            parentalDetails?.mid_parental_height
+            parentalDetails?.mother_height && parentalDetails?.father_height
               ? `: ${parentalDetails?.mid_parental_height}`
               : ""
           }`,
