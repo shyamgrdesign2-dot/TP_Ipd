@@ -19,6 +19,20 @@ function MedicalHistoryList(props) {
         return acc;
     }, {});
 
+    const medical_history_title = (id) => {
+        var value = ''
+        if (id == 2 ) {
+            value = `Condition : `
+        } else if (id == 3) {
+            value = `History : `
+        } else if (id == 4) {
+            value = `Allergies to : `
+        } else if (id == 1) {
+            value = `Habit : `
+        }
+        return value
+    }
+
     useEffect(() => {
         if (medicalHistoryData.length > 0) {
             const data = []
@@ -36,7 +50,7 @@ function MedicalHistoryList(props) {
                                                 return (
                                                     <>
                                                         <div key={Math.random()} className='my-2'>
-                                                            <span>Issue</span> : <label>{e1?.title}</label>
+                                                            <span>{medical_history_title(e?.tmmhs_id)}</span> <label>{e1?.title}</label>
                                                             {e1?.since && (
                                                                 <> | <span>Since</span> : <label>{e1?.since}</label></>
                                                             )}

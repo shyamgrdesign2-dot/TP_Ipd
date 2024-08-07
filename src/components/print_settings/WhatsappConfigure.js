@@ -323,7 +323,7 @@ function WhatsappConfigure(props) {
     const onWhatsappSaveSettingsClick = () => {
         if (printSettingsCopy?.whatsapp_letterhead_format == 0 && printSettingsCopy?.header_footer?.header?.doctor_info?.enable == 'N' && printSettingsCopy?.header_footer?.header?.clinic_info?.enable == 'N' && printSettingsCopy?.logo_enable == 'N') {
             errorMessage(`Enable at least one option (Doctor's information, Clinic's information, Logo on Header)`)
-        } else if (printSettingsCopy?.whatsapp_letterhead_format == 1 && !fileHeader) {
+        } else if (printSettingsCopy?.whatsapp_letterhead_format == 1 && !fileHeaderCopy) {
             errorMessage(`Upload header`)
         } else {
             setPrintSettings(JSON.parse(JSON.stringify(printSettingsCopy)))
