@@ -49,6 +49,12 @@ function DWClinicProfile() {
                 clinicProfile[index]['selectedTab'] = key;
                 setClinicProfile((prev) => { return [...prev] });
             }
+            if (key === 2) {
+                setActiveShiftKeys((prev) => ({
+                    ...prev,
+                    [e.random_id]: [`${(clinicProfile[index].shift.length - 1)}`] // Show the new shift
+                }));
+            }
         },
         [clinicProfile]
     );
@@ -279,6 +285,7 @@ function DWClinicProfile() {
                     });
                     return newProfile;
                 }
+                onTabChange(TAB_TIMINGS, { random_id: clinicId });
                 return prev;
             });
             setActiveShiftKeys((prev) => ({
@@ -605,8 +612,8 @@ function DWClinicProfile() {
             }],
             clinic_photos: [],
             clinic_delete: 0,
-            selectedTab: TAB_ADDRESS, 
-            activeShiftKeys :['1']
+            selectedTab: TAB_ADDRESS,
+            activeShiftKeys: ['1']
         };
 
         setClinicProfile((prev) => {
