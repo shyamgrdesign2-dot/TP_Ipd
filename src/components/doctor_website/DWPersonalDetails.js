@@ -49,8 +49,8 @@ function DWPersonalDetails() {
                             required>
                             <Input placeholder="Full Name"
                                 className="text-capitalize rounded-10px h-38"
-                                value={personalDetails?.first_name + ' ' + personalDetails?.last_name}
-                                disabled/>
+                                value={personalDetails?.first_name} 
+                                onChange={(e) => onChangeInput(e, 'first_name')}/>
                         </Form.Item>
                     </Col>
                     {/* <Col span={12}>
@@ -72,7 +72,7 @@ function DWPersonalDetails() {
                             <Input placeholder="Specialty"
                                 className="text-capitalize rounded-10px h-38"
                                 value={personalDetails?.specialty}
-                                disabled />
+                                onChange={(e) => onChangeInput(e, 'specialty')} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>

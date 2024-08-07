@@ -149,9 +149,9 @@ const UpdateVaccine = ({
           vaccine?.brandId,
         vaccine_given_date: givenDate,
         remarks:
-          (vaccineDetails[vaccine?.tvac_name]?.remarks ||
-            vaccine?.tvp_remarks) ??
-          "",
+          vaccineDetails[vaccine?.tvac_name]?.remarks !== vaccine?.tvp_remarks
+            ? vaccineDetails[vaccine?.tvac_name]?.remarks
+            : vaccine?.tvp_remarks || "",
       };
 
       const result = updateVaccine(payload);
