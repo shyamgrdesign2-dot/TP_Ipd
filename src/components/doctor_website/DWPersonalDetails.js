@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { Row, Col, Form, Input } from 'antd';
 
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
-import { errorMessage, removeWhiteSpace } from '../../utils/utils';
+import { errorMessage, removeSpecialCharectorWithoutDotSpace, removeWhiteSpace } from '../../utils/utils';
 
 function DWPersonalDetails() {
 
@@ -14,6 +14,8 @@ function DWPersonalDetails() {
         (e, key) => {
             if (key === 'email_id') {
                 personalDetails[key] = removeWhiteSpace(e.target.value);
+            } else if (key === 'specialty') {
+                personalDetails[key] = removeSpecialCharectorWithoutDotSpace(e.target.value);
             } else {
                 personalDetails[key] = e.target.value;
             }
@@ -49,8 +51,8 @@ function DWPersonalDetails() {
                             required>
                             <Input placeholder="Full Name"
                                 className="text-capitalize rounded-10px h-38"
-                                value={personalDetails?.first_name} 
-                                onChange={(e) => onChangeInput(e, 'first_name')}/>
+                                value={personalDetails?.first_name}
+                                onChange={(e) => onChangeInput(e, 'first_name')} />
                         </Form.Item>
                     </Col>
                     {/* <Col span={12}>

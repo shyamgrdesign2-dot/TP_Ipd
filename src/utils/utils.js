@@ -125,6 +125,10 @@ export const isValidMap = (url) => {
   return pattern.test(url);
 }
 
+export const removeSpecialCharectorWithoutDotSpace = (text) => {
+  return text.replace(/[^\w. ]/g, "");
+}
+
 export const onlyNumberFormat = (text) => {
   return text.replace(/[^0-9]/g, "");
 };
