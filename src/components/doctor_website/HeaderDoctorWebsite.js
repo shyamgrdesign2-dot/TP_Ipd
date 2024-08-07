@@ -13,6 +13,7 @@ import LinkIcon from '../../assets/images/Link.svg';
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
 import { saveDoctorWebsite, publishDoctorWebsite } from "../../redux/doctorWebsiteSlice";
+import { updateWebsitePublish } from "../../redux/doctorsSlice";
 import { errorMessage, handleCopy, validateEmail } from '../../utils/utils';
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
@@ -20,6 +21,7 @@ import alertIcon from '../../assets/images/alertIcon.svg';
 function HeaderDoctorWebsite() {
 
     const dispatch = useDispatch();
+    const { profile } = useSelector((state) => state.doctors);
     const { save_loading, publish_loading } = useSelector((state) => state.doctorWebsite);
 
     const [childDrawer, setChildDrawer] = useState(false);
@@ -152,6 +154,7 @@ function HeaderDoctorWebsite() {
                 setUnpublishStatus(true)
                 setLoaderModal(true)
             }
+            await dispatch(updateWebsitePublish({ website_publish: status, publish_url: action.payload?.publish_url }))
             setPublishUrl(action.payload?.publish_url)
         } else {
             setLoaderModal(false)
@@ -251,11 +254,13 @@ function HeaderDoctorWebsite() {
                                     onClick={onSaveWebsiteClick}>
                                     <i className="icon-New-Window me-2"></i> Save & Publish Website
                                 </Button>
-                                <Dropdown className='btn btn-outline btn-more p-0 ms-3' menu={{ items }} trigger={['click']}>
-                                    <a onClick={(e) => e.preventDefault()}>
-                                        <i className='icon-More'></i>
-                                    </a>
-                                </Dropdown>
+                                {profile?.website_publish && profile?.publish_url ? (
+                                    <Dropdown className='btn btn-outline btn-more p-0 ms-3' menu={{ items }} trigger={['click']}>
+                                        <a onClick={(e) => e.preventDefault()}>
+                                            <i className='icon-More'></i>
+                                        </a>
+                                    </Dropdown>
+                                ) : null}
                             </div>
                         </Col>
                     </Row>
@@ -281,8 +286,8 @@ function HeaderDoctorWebsite() {
                                 <Space.Compact className='h-45' style={{ width: '100%' }}>
                                     <div className='align-items-center bg-body border d-flex mx-auto px-4 rounded-3'>
                                         <div className='text-danger-custom fw-medium'>
-                                            Note:    
-                                        </div> 
+                                            Note:
+                                        </div>
                                         <div className='fw-medium ms-2'>
                                             Your live website url has been expired.
                                         </div>

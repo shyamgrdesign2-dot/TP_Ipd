@@ -288,6 +288,8 @@ body .ant-btn.btn-48 {
             border: 0.642px solid var(--T-BG-10, #F1F1F5);
             background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(30px);
+            position: absolute;
+            width: 95%;
         }
         .logo {
             padding: 8.292px 16.583px;

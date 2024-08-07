@@ -309,6 +309,10 @@ const doctorsSlice = createSlice({
     updatePatientCertificateList: (state, action) => {
       const { index, thumbnailUrl } = action.payload
       state.patientCertificateList[index]['thumbnailUrl'] = thumbnailUrl
+    },
+    updateWebsitePublish: (state, action) => {
+      const { website_publish, publish_url } = action.payload
+      state.profile = { ...state.profile, website_publish: website_publish, publish_url: publish_url }
     }
   },
   extraReducers: (builder) => {
@@ -506,5 +510,5 @@ const doctorsSlice = createSlice({
   },
 });
 
-export const { updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList } = doctorsSlice.actions
+export const { updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish } = doctorsSlice.actions
 export default doctorsSlice.reducer;

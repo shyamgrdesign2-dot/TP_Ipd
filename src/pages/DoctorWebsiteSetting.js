@@ -243,9 +243,23 @@ function DoctorWebsiteSetting() {
     }, [isVisible, personalDetails, clinicProfile, aboutDoctor, doctorExperience, rewardRecognition, membership, socialLinks, services, educationTraining, otherSettings]);
 
     const handlePersonalDetails = useCallback((value, name) => {
+        if (value === 4) {
+            otherSettings['enable_doctor_experience'] = 1;
+        } else if (value === 5) {
+            otherSettings['enable_services'] = 1;
+        } else if (value === 6) {
+            otherSettings['enable_education_training'] = 1;
+        } else if (value === 7) {
+            otherSettings['enable_membership'] = 1;
+        } else if (value === 8) {
+            otherSettings['enable_reward_recognition'] = 1;
+        } else if (value === 9) {
+            otherSettings['enable_social_links'] = 1;
+        }
+        setOtherSettings((prev) => { return { ...prev } });
         setSelectedMenu({ value: value, name: name })
         showHide();
-    }, [selectedMenu, isVisible])
+    }, [selectedMenu, otherSettings, isVisible])
 
     const showHide = useCallback(() => {
         setIsVisible(!isVisible);
