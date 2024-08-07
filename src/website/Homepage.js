@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Button, Col, Row, Modal, Tooltip, Image } from "antd";
+import { useNavigate } from "react-router-dom";
 
 import "../assets/scss/website-custom.scss";
 import 'slick-carousel/slick/slick.css';
@@ -42,13 +43,15 @@ import websiteLinkedin from '../assets/images/website-images/website-linkedin.sv
 import websiteTwitter from '../assets/images/website-images/website-twitter.svg'
 import websiteYoutube from '../assets/images/website-images/website-youtube.svg'
 import { errorMessage, isValidMap, isValidWebsite, validateEmail } from '../utils/utils';
-import { isMobile } from 'react-device-detect';
+import { isMobile, isChrome, isSafari } from 'react-device-detect';
 
 const slideData = [1, 2, 3, 4]
 const dateFormat = 'HH:mm:ss'
 const showDateFormat = 'h:mm A'
 
 function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, services, rewardRecognition, educationTraining, doctorExperience, membership, otherSettings, socialLinks }) {
+
+  const navigate = useNavigate();
 
   const personalSectionRef = useRef(null);
   const aboutSectionRef = useRef(null);
@@ -231,6 +234,15 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
   const handleShowNavbar = () => {
     setShowNavbar(!showNavbar);
   };
+
+  const clickRedirect = async (link) => {
+    if (!isChrome && !isSafari) {
+      navigate(`/?url=${link}&key=phpRedirect`, { replace: true })
+      navigate(0, { replace: true });
+    } else {
+      await window.open(link)
+    }
+  }
 
   return (
     <div className="website-wrapper">
@@ -471,7 +483,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                               </Button>
                             ) : (
                               <Button type="button" onClick={() => window.location.href = (`tel:${e?.contact_no}`)} className="btn btn-primary3 btn-48 rounded-18">
-                                <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` ${e?.contact_no}`}</a>
+                                <a className='text-white d-flex align-items-center'><img width={19} height={19} src={Call} className='me-2' alt="Call" />{` ${e?.contact_no}`}</a>
                               </Button>
                             )}
                           </div>
@@ -774,7 +786,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
           </div>
         </div>
       ) : null}
-      <div className='outer-round-big'>
+      
         {/* Profile and Social Media Links */}
         <div className="website-section">
           <div className="container" ref={socialSectionRef}>
@@ -798,19 +810,19 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
               {otherSettings?.enable_social_links ? (
                 <div className='d-flex align-items-center justify-content-center mt-5'>
                   {socialLinks?.facebook && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.facebook, 'facebook') ? window.open(socialLinks?.facebook) : errorMessage('Wrong Facebook URL')}><img width={14.769} height={14.769} src={websiteFacebook} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.facebook, 'facebook') ? clickRedirect(socialLinks?.facebook) : errorMessage('Wrong Facebook URL')}><img width={14.769} height={14.769} src={websiteFacebook} alt="Email" /></div>
                   )}
                   {socialLinks?.instagram && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.instagram, 'instagram') ? window.open(socialLinks?.instagram) : errorMessage('Wrong Instagram URL')} ><img width={14.769} height={14.769} src={websiteInstagram} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.instagram, 'instagram') ? clickRedirect(socialLinks?.instagram) : errorMessage('Wrong Instagram URL')} ><img width={14.769} height={14.769} src={websiteInstagram} alt="Email" /></div>
                   )}
                   {socialLinks?.linkedin && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.linkedin, 'linkedin') ? window.open(socialLinks?.linkedin) : errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteLinkedin} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.linkedin, 'linkedin') ? clickRedirect(socialLinks?.linkedin) : errorMessage('Wrong Linkedin URL')}><img width={14.769} height={14.769} src={websiteLinkedin} alt="Email" /></div>
                   )}
                   {socialLinks?.twitter && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.twitter, 'twitter') ? window.open(socialLinks?.twitter) : errorMessage('Wrong Twitter URL')}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.twitter, 'twitter') ? clickRedirect(socialLinks?.twitter) : errorMessage('Wrong Twitter URL')}><img width={14.769} height={14.769} src={websiteTwitter} alt="Email" /></div>
                   )}
                   {socialLinks?.youtube && (
-                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.youtube, 'youtube') ? window.open(socialLinks?.youtube) : errorMessage('Wrong youtube URL')}><img width={14.769} height={14.769} src={websiteYoutube} alt="Email" /></div>
+                    <div className='bg-icon-common bg-icon-32 cursor-pointer' onClick={() => isValidWebsite(socialLinks?.youtube, 'youtube') ? clickRedirect(socialLinks?.youtube) : errorMessage('Wrong youtube URL')}><img width={14.769} height={14.769} src={websiteYoutube} alt="Email" /></div>
                   )}
                 </div>
               ) : null}
@@ -831,7 +843,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
             </div>
           </div>
         </div>
-      </div>
+      
       {/* Common Model */}
       <Modal
         open={isModalOpen}
@@ -923,7 +935,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                               </Button>
                             ) : (
                               <Button type="button" onClick={() => window.location.href = (`tel:${e?.contact_no}`)} className="btn btn-primary3 btn-48 rounded-18">
-                                <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><Image width={19} height={19} src={Call} className='me-2' alt="Call" />{`${e?.contact_no}`}</a>
+                                <a className='text-white d-flex align-items-center'><Image width={19} height={19} src={Call} className='me-2' alt="Call" />{`${e?.contact_no}`}</a>
                               </Button>
                             )}
                           </div>
@@ -965,7 +977,7 @@ function Homepage({ scrollId, personalDetails, aboutDoctor, clinicProfile, servi
                         </Button>
                       ) : (
                         <Button type="button" onClick={() => window.location.href = (`tel:${clinicProfile[0]?.contact_no}`)} className="btn btn-primary3 btn-48 rounded-18">
-                          <a className='text-white d-flex align-items-center' href='tel:+91 7894561230'><Image width={19} height={19} src={Call} className='me-2' alt="Call" />{`${clinicProfile[0]?.contact_no}`}</a>
+                          <a className='text-white d-flex align-items-center'><Image width={19} height={19} src={Call} className='me-2' alt="Call" />{`${clinicProfile[0]?.contact_no}`}</a>
                         </Button>
                       )}
                     </div>
