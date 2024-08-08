@@ -241,7 +241,7 @@ function Cardiology(props) {
       rx_date: viewCaseManagerData?.consultation_date,
     });
   
-    if (smartRxFile) {
+    if (smartRxFile.length > 0) {
       navigate("/smart-prescription", {
         state: {
           patient_data: patient_data,
@@ -308,7 +308,7 @@ function Cardiology(props) {
                   <button
                     className="btn p-0 ms-3"
                     style={{
-                      visibility: viewCaseManagerData?.doctor_data?.editCase && !(smartRxFile && isMobile) ? "visible" : "hidden",
+                      visibility: viewCaseManagerData?.doctor_data?.editCase && !(smartRxFile.length > 0 && isMobile) ? "visible" : "hidden",
                     }}
                     onClick={handleEditRxClick}
                   >
@@ -324,7 +324,7 @@ function Cardiology(props) {
                   >
                     <i className="icon-Print"></i>
                   </button>
-                  { !smartRxFile &&
+                  { !smartRxFile.length > 0 &&
                     <Dropdown
                       className="btn btn-outline btn-more ms-1"
                       menu={{ items }}
@@ -348,7 +348,7 @@ function Cardiology(props) {
                 </div>
               </div>
             ) : //smart image
-            smartRxFile ?
+            smartRxFile.length > 0 ?
             (
             <>
               {smartRxFile?.map(({smart_prescription_file}) =>
