@@ -13,8 +13,10 @@ function DWPersonalDetails() {
     const onChangeInput = useCallback(
         (e, key) => {
             if (key === 'email_id') {
-                personalDetails[key] = removeWhiteSpace(e.target.value);
+                personalDetails[key] = removeWhiteSpace(blockedEmoji(e.target.value));
             } else if (key === 'specialty') {
+                personalDetails[key] = removeSpecialCharectorWithoutDotSpace(e.target.value);
+            } else if (key === 'first_name') {
                 personalDetails[key] = removeSpecialCharectorWithoutDotSpace(e.target.value);
             } else {
                 personalDetails[key] = blockedEmoji(e.target.value);
