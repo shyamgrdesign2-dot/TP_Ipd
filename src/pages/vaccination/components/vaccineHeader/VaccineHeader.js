@@ -34,13 +34,30 @@ function VaccineHeader({
     tmv_description: "Vaccination",
     tmv_title: "Vaccination",
   };
+  const obstetricVideo = {
+    link: "https://www.youtube.com/embed/KWIi-p3fXRk",
+    thumbnail: "https://i.ytimg.com/vi/o6ALwX9hPMM/hqdefault.jpg",
+    tmv_description: "Obstetric History",
+    tmv_title: "Obstetric History",
+  };
+    const growthChartVideo = {
+      link: "https://www.youtube.com/embed/ZpfTsX_f2LM",
+      thumbnail: "https://i.ytimg.com/vi/o6ALwX9hPMM/hqdefault.jpg",
+      tmv_description: "Growth Chart",
+      tmv_title: "Growth Chart",
+    };
+  const videoLink = isObstetric
+    ? obstetricVideo
+    : isVaccination
+    ? vaccinationVideo
+    : growthChartVideo;
   const navigate = useNavigate();
   let { patient_data } = useContext(CashManagerContext);
   const { isPatientDiagnosisUpdated } = useSelector((state) => state.obstetric);
 
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [shouldShowPreview, setShowPreview] = useState(false);
-  const [videoLink, setVideoLink] = useState(null);
+  const [shouldShowVideo, setShowVideo] = useState(false);
   const [popOverVideo, setPopOverVideo] = useState(false);
 
   const showHideBackModal = useCallback(() => {
@@ -122,22 +139,19 @@ function VaccineHeader({
 
           <div className={`d-flex`}>
             <div className="tutorial-play me-14">
-              <button
-                type="button"
-                onClick={() => setVideoLink(vaccinationVideo)}
-              >
+              <button type="button" onClick={() => setShowVideo(true)}>
                 <img src={playIcons} />
               </button>
               <span className="tutorial-thumb">
-                <img src={vaccinationVideo.thumbnail} />
+                <img src={videoLink.thumbnail} />
               </span>
             </div>
             <div>
               <h3 className="title-common text-welcome">
-                {vaccinationVideo.tmv_title}
+                {videoLink.tmv_title}
               </h3>
               <div className="fs-12 fontroboto fw-normal text-main">
-                {vaccinationVideo.tmv_description}
+                {videoLink.tmv_description}
               </div>
             </div>
           </div>
@@ -218,8 +232,7 @@ function VaccineHeader({
             </div>
           </Col>
           <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
-            <div className="align-items-center d-flex h-100">
-              {isVaccination && (
+            <div className="align-items-center d-flex h-100 gap-2">
                 <Popover
                   open={popOverVideo}
                   onOpenChange={showHideVideoListPopover}
@@ -234,7 +247,6 @@ function VaccineHeader({
                     </span>
                   </button>
                 </Popover>
-              )}
               {isVaccination && (
                 <Button
                   type="button"
@@ -285,8 +297,11 @@ function VaccineHeader({
           />
         ) : null}
       </Container>
-      {videoLink && (
-        <VideoModal videoLink={videoLink} onCancel={() => setVideoLink(null)} />
+      {shouldShowVideo && (
+        <VideoModal
+          videoLink={videoLink}
+          onCancel={() => setShowVideo(false)}
+        />
       )}
     </Navbar>
   );

@@ -15,6 +15,8 @@ import verticleUpDown from '../assets/images/verticle-up-down.svg';
 import ActiveverticleUpDown from '../assets/images/active-verticle-up-down.svg';
 import InActiveverticleUpDown from '../assets/images/inactive-verticle-up-down.svg';
 import NoHypertension from '../assets/images/no-hypertension.png';
+import playIcons from "../assets/images/tube-icon.svg";
+import tutorial2 from "../assets/images/tutorial2.png";
 import moment from "moment";
 import dayjs from "dayjs";
 
@@ -30,6 +32,7 @@ import { jwtDecode } from "jwt-decode";
 import { CLOTS_LIST, CYCLE_KEY_LIST, FLOW_LIST, GYNEC_SECTION_ENABLE_LIST, PAIN_LIST, PAIN_OCCURANCE_LIST, REPRODUCTIVE_LIFE_STAGES_LIST, TYPES_REPRODUCTIVE_STAGES } from "../utils/gynec_constants";
 import { useAccess } from "../pages/vaccination/useAccess";
 import { getClinicName } from "../utils/utils";
+import VideoModal from "../common/VideoModal";
 
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD-MM-YYYY'
@@ -69,6 +72,15 @@ function MedicalHistoryBox(props) {
         note: ''
     }
 
+    const videoLink = {
+      link: "https://www.youtube.com/embed/Y91zuWBeao4",
+      thumbnail: "https://i.ytimg.com/vi/o6ALwX9hPMM/hqdefault.jpg",
+      tmv_description: "Gynec History",
+      tmv_title: "Gynec History",
+    };
+
+    const [shouldShowVideo, setShowVideo] = useState(false);
+    const [popOverVideo, setPopOverVideo] = useState(false);
     const [selectData, setSelectData] = useState(null);
     const [addEditData, setAddEditData] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
@@ -966,6 +978,50 @@ function MedicalHistoryBox(props) {
       }
     }, [gynecHistory]);
 
+    const showHideVideoListPopover = useCallback(() => {
+        setPopOverVideo(!popOverVideo);
+    }, [popOverVideo]);
+
+    const VIDEO_CONTENT = useCallback(() => {
+    return (
+        <>
+        <div
+            className="video-contant rounded-4 p-20"
+            key="oneclickrx-video"
+        >
+            <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+            <div className="title-common lh-base">Video Tutorial</div>
+            <Button
+                className="btn btn-delete-prescription p-0"
+                onClick={showHideVideoListPopover}
+            >
+                <i className="icon-Cross" />
+            </Button>
+            </div>
+
+            <div className={`d-flex`}>
+            <div className="tutorial-play me-14">
+                <button type="button" onClick={() => setShowVideo(true)}>
+                <img src={playIcons} />
+                </button>
+                <span className="tutorial-thumb">
+                <img src={videoLink.thumbnail} />
+                </span>
+            </div>
+            <div>
+                <h3 className="title-common text-welcome">
+                {videoLink.tmv_title}
+                </h3>
+                <div className="fs-12 fontroboto fw-normal text-main">
+                {videoLink.tmv_description}
+                </div>
+            </div>
+            </div>
+        </div>
+        </>
+    );
+    }, [popOverVideo]);
+
     return (
         <>
             <Card bordered={false} className="search-modalCard">
@@ -983,9 +1039,27 @@ function MedicalHistoryBox(props) {
                             { isGynaecHistoryAccessable ? `Gynec History` :`Medical History`}
                         </div>
                     </div>
+                    <div className="d-flex align-items-center gap-2">
+                    {isGynaecHistoryAccessable && (
+                        <Popover
+                            open={popOverVideo}
+                            onOpenChange={showHideVideoListPopover}
+                            content={VIDEO_CONTENT}
+                            trigger="click"
+                            overlayClassName="pop-430 pp-0 videoTutorial"
+                            placement="bottom"
+                            >
+                            <button className="btn d-flex align-items-center btn-text p-0 me-20">
+                                <span>
+                                <img src={tutorial2} />
+                                </span>
+                            </button>
+                        </Popover>
+                    )}
                     <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={onSaveClicked}>
                         Save
                     </Button>
+                    </div>
                 </div>
                 <Tabs defaultActiveKey="gynec" onChange={onTabChange}>
                     { isGynaecHistoryAccessable && 
@@ -1706,6 +1780,12 @@ function MedicalHistoryBox(props) {
                     </TabPane>
                 </Tabs>
             </Card>
+            {shouldShowVideo && (
+                <VideoModal
+                    videoLink={videoLink}
+                    onCancel={() => setShowVideo(false)}
+                />
+            )}
         </>
     );
 }

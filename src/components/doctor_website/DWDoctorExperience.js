@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { Button, Collapse, Form, Input, Row, Col, Select, Checkbox } from 'antd';
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 import moment from 'moment';
+import { blockedEmoji } from '../../utils/utils';
 
 function DWDoctorExperience() {
 
@@ -61,7 +62,7 @@ function DWDoctorExperience() {
 
     const onChangeInput = useCallback(
         (e, key, i) => {
-            doctorExperience[i][key] = e.target.value;
+            doctorExperience[i][key] = blockedEmoji(e.target.value);
             setDoctorExperience((prev) => { return [...prev] });
         },
         [doctorExperience]

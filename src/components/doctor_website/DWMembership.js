@@ -8,6 +8,7 @@ import { MenuOutlined } from '@ant-design/icons';
 import { CSS } from '@dnd-kit/utilities';
 
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
+import { blockedEmoji } from '../../utils/utils';
 
 const RowContext = React.createContext({});
 const DragHandle = () => {
@@ -70,7 +71,7 @@ function DWMembership() {
 
     const onChangeInput = useCallback(
         (e, key, i) => {
-            membership[i][key] = e.target.value;
+            membership[i][key] = blockedEmoji(e.target.value);
             setMembership((prev) => { return [...prev] });
         },
         [membership]

@@ -3,6 +3,7 @@ import { Button, Collapse, Form, Input, Row, Col, Select } from 'antd';
 import moment from 'moment';
 
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
+import { blockedEmoji } from '../../utils/utils';
 
 function DWEducationTraning() {
 
@@ -20,7 +21,7 @@ function DWEducationTraning() {
 
     const onChangeInput = useCallback(
         (e, key, i) => {
-            educationTraining[i][key] = e.target.value;
+            educationTraining[i][key] = blockedEmoji(e.target.value);
             setEducationTraining((prev) => { return [...prev] });
         },
         [educationTraining]
