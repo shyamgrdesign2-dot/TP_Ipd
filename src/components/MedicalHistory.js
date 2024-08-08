@@ -19,7 +19,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
 
     const { state } = useLocation();
     const { patient_data } = state;
-    const { profile } = useSelector((state) => state.doctors);
+    const { userId } = useSelector((state) => state.doctors);
 
     const {isGynaecHistoryAccessable} = useAccess();
 
@@ -33,7 +33,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
         try {
             const data = await getGynecDetails(
               patient_data?.patient_unique_id,
-              profile?.userId
+              userId
             );
             setGynecHistory(data);
         } catch (error) {
