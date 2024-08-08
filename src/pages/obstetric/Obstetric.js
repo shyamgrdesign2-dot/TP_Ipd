@@ -165,7 +165,8 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
-      patient_data.patient_unique_id
+      patient_data.patient_unique_id,
+      profile?.userId
     );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
@@ -247,7 +248,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
       dispatch(resetUpdatedPatientDiagnosis());
       setLoader(true);
       const obstetricResponse = obstetricDetails?._id
-        ? await updateObstetricData(obstetricDetails?.patientId, payload)
+        ? await updateObstetricData(obstetricDetails?.patientId, payload, profile?.userId)
         : await addObstetricData(payload);
       const prefillObstetricPayload = {};
       Object.keys(prefillObstetricData).forEach((key) => {
@@ -255,7 +256,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
           prefillObstetricPayload[key] = prefillObstetricData[key];
         }
       });
-      await updatePrefillObstetricData(prefillObstetricPayload);
+      await updatePrefillObstetricData(prefillObstetricPayload, profile?.userId);
       setLoader(false);
       if (obstetricResponse?.data) {
         trackUpdateEvent();

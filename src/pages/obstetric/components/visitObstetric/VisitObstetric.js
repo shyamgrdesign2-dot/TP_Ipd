@@ -21,6 +21,7 @@ export default function VisitObstetric() {
   const { obstetricDetails, isObstetricDetailsFetched } = useSelector(
     (state) => state.obstetric
   );
+  const { profile } = useSelector((state) => state.doctors);
   const { state } = useLocation();
   const { patient_data } = state;
   const { isGynaecHistoryAccessable } = useAccess();
@@ -83,7 +84,8 @@ export default function VisitObstetric() {
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
-      patient_data.patient_unique_id
+      patient_data.patient_unique_id,
+      profile?.userId
     );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
@@ -158,7 +160,8 @@ export default function VisitObstetric() {
                 <span className="previousText">Previous visit</span>
                 <span className="updatedText">
                   {previousVisit.modifiedAt
-                    ? "Updated on : " + moment(previousVisit.modifiedAt).format("DD MMM YYYY")
+                    ? "Updated on : " +
+                      moment(previousVisit.modifiedAt).format("DD MMM YYYY")
                     : ""}
                 </span>
               </div>
