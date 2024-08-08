@@ -62,6 +62,7 @@ function HeaderDoctorWebsite() {
 
             delete newObj['selectedTab'];
             delete newObj['created_by'];
+            delete newObj['activeShiftKeys'];
 
             const updatedServerClinicPhotos = newObj?.clinic_photos?.filter(e1 => !e1.clinic_image_link.startsWith('blob:'))
 
@@ -259,7 +260,9 @@ function HeaderDoctorWebsite() {
                                         && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.city)?.length === 0
                                         && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.state)?.length === 0
                                         && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.address_line)?.length === 0
-                                        && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => el.shift.length === 0)?.length === 0 ? false : true}
+                                        && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => el.shift.length === 0)?.length === 0
+                                        && clinicProfile?.filter(el => !el.clinic_delete)?.every(el => el.shift.every(x => x.days.length !== 0))
+                                        && clinicProfile?.filter(el => !el.clinic_delete)?.every(el => el.shift.every(x => x.timing.every(xl => xl.from_time !== "" && xl.end_time !== ""))) ? false : true}
                                     onClick={onSaveWebsiteClick}>
                                     <i className="icon-New-Window me-2"></i> Save & Publish Website
                                 </Button>

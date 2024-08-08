@@ -71,8 +71,7 @@ function DWServices() {
 
     const onChangeInput = useCallback(
         (e, key, i) => {
-            services[i][key] = removeBeforeWhiteSpace(e.target.value);
-            services[i][key] = blockedEmoji(e.target.value);
+            services[i][key] = removeBeforeWhiteSpace(blockedEmoji(e.target.value));
             setServices((prev) => { return [...prev] });
         },
         [services]

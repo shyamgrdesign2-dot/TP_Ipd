@@ -10,7 +10,7 @@ import AddPhotos from "../../../src/assets/images/add-photos.svg";
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
 import { TAB_ADDRESS, TAB_TIMINGS, TAB_PHOTOS } from "../../utils/constants";
-import { blockedEmoji, errorMessage, onlyNumberFormat } from '../../utils/utils';
+import { blockedEmoji, errorMessage, onlyNumberFormat, removeSpecialCharectorWithoutDotSpace } from '../../utils/utils';
 
 const dateFormat = 'HH:mm:ss'
 const showDateFormat = 'h:mm A'
@@ -82,6 +82,8 @@ function DWClinicProfile() {
             if (index !== -1) {
                 if (key === 'pincode') {
                     clinicProfile[index]['address'][key] = onlyNumberFormat(el.target.value);
+                } else if (key === 'city') {
+                    clinicProfile[index]['address'][key] = removeSpecialCharectorWithoutDotSpace(el.target.value);
                 } else {
                     clinicProfile[index]['address'][key] = blockedEmoji(el.target.value);
                 }

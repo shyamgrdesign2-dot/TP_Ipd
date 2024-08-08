@@ -52,7 +52,7 @@ export const removeSpecialCharectorWithoutDotSpace = (text) => {
 }
 
 export const blockedEmoji = (text) => {
-  return text.replace(/[^a-zA-Z0-9 ]/gm, '');
+  return text.replace(/[\p{Emoji}\u200d\uFE0F]/gu, '');
 }
 
 export const onlyNumberFormat = (text) => {
