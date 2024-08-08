@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { Flex, Progress, Button } from 'antd';
-import { handleCopy, makeDefaultLogo } from "../utils/utils";
+import { handleCopy, makeDefaultLogo, removeSpecialCharectorWithoutDotSpace } from "../utils/utils";
 import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
@@ -41,10 +41,16 @@ function DoctorProfile() {
       }))
 
       const updatedClinicProfile = websiteData?.clinic_profile?.map(e => {
-        const updatedClinicPhotos = e?.clinic_photos?.map(e1 => {
-          return { ...e1, clinic_image_link: e1?.clinic_image_link }
-        })
-        return { ...e, created_by: 'server', selectedTab: TAB_ADDRESS, clinic_photos: [...updatedClinicPhotos] }
+        // const updatedClinicPhotos = e?.clinic_photos?.map(e1 => {
+        //     return { ...e1, clinic_image_link: e1?.clinic_image_link }
+        // })
+        return {
+          ...e,
+          address: { ...e?.address, city: removeSpecialCharectorWithoutDotSpace(e?.address?.city) },
+          created_by: 'server',
+          selectedTab: TAB_ADDRESS,
+          // clinic_photos: [...updatedClinicPhotos]
+        }
       })
       const copy_clinicProfile = JSON.parse(JSON.stringify([...updatedClinicProfile]))
 

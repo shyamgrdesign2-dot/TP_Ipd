@@ -28,91 +28,13 @@ export const validateEmail = (email) => {
 // }
 
 export const isValidWebsite = (url, account) => {
-
-
-  // Facebook URL examples:
-  // Standard profile pages
-  // console.log("https://www.facebook.com/username");
-  // console.log("http://facebook.com/username");  
-  // console.log("https://facebook.com/username/"); 
-
-  // Profile with a period in the username
-  // console.log("https://www.facebook.com/username.profile"); 
-
-  // Profile with a numeric ID
-  // console.log("https://www.facebook.com/profile.php?id=100004531399459");
-
-
-
-  // Instagram URL examples:
-  // Standard profile pages
-  // console.log("https://www.instagram.com/username");
-  // console.log("https://instagram.com/username");
-
-  // Profile with trailing slash
-  // console.log("https://www.instagram.com/username/");
-
-  // Profiles with special characters in the username
-  // console.log("https://www.instagram.com/user.name");
-  // console.log("https://www.instagram.com/user-name");  
-
-  // Profile with query parameters
-  // console.log("https://www.instagram.com/mayank.rathod1/?igsh=ZHk2M2VqcDgzcjRl&utm_source=qr");
-
-
-
-  // LinkedIn URL examples:
-  // Standard profile pages
-  // console.log("https://www.linkedin.com/in/username");
-  // console.log("https://linkedin.com/in/username");
-
-  // Profile with trailing slash
-  // console.log("https://www.linkedin.com/in/username/");
-
-  // Profiles with special characters in the username
-  // console.log("https://www.linkedin.com/in/username-with-dash");
-  // console.log("https://www.linkedin.com/in/username_with_underscore");
-
-
-
-  // Twitter URL examples:
-  // Standard profile pages
-  // console.log("https://www.twitter.com/username");
-  // console.log("https://twitter.com/username");
-
-  // Profile with trailing slash
-  // console.log("https://www.twitter.com/username/");
-
-  // Profiles with numbers and underscores
-  // console.log("https://twitter.com/username123");
-  // console.log("https://twitter.com/user_name");
-
-  // Shortened URL format with query parameters
-  // console.log("https://x.com/neelpatel2707?s=11&t=N-HTAHjNg-el7uoL0ajOVA");
-
-
-
-  // YouTube URL examples:
-  // Channel URLs
-  // console.log("https://www.youtube.com/channel/UCXXXXXXX"); 
-  // console.log("https://youtube.com/channel/UCXXXXXXX"); 
-
-  // User profile URLs
-  // console.log("https://www.youtube.com/user/username"); 
-  // console.log("https://youtube.com/user/username"); 
-
-  // Shortened video URLs with query parameters
-  // console.log("https://youtu.be/XXXXXXX"); 
-  // console.log("https://youtu.be/XXXXXXX?feature=share"); 
-
   const patterns = {
     facebook: /^https?:\/\/(www\.)?facebook\.com\/(profile\.php\?id=\d+|[A-Za-z0-9.]+)\/?$/,
-    instagram: /^https?:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._-]+(?:\/\?[^]*)?$/,
+    instagram: /^https?:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._-]+\/?(?:\?[^\s]*)?$/,
     linkedin: /^https?:\/\/(www\.)?linkedin\.com\/in\/[A-Za-z0-9-._]+\/?$/,
     twitter: /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[A-Za-z0-9_]{1,15}(?:\?[^\s]*)?\/?$/,
     youtube: /^https?:\/\/(www\.)?(youtube\.com\/(channel\/[A-Za-z0-9_-]+|user\/[A-Za-z0-9_-]+|@?[A-Za-z0-9._-]+)|youtu\.be\/[A-Za-z0-9_-]+)(\?[^\s]*)?$/
   };
-
   const pattern = patterns[account];
   if (pattern) {
     return pattern.test(url.trim());
@@ -127,6 +49,10 @@ export const isValidMap = (url) => {
 
 export const removeSpecialCharectorWithoutDotSpace = (text) => {
   return text.replace(/[^\w. ]/g, "");
+}
+
+export const blockedEmoji = (text) => {
+  return text.replace(/[\p{Emoji}\u200d\uFE0F]/gu, '');
 }
 
 export const onlyNumberFormat = (text) => {

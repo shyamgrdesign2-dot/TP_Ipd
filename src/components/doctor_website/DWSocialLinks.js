@@ -8,6 +8,7 @@ import Instagram from '../../assets/images/instagram-img.svg';
 import Linkedin from '../../assets/images/linkedin-img.svg';
 import XIcon from '../../assets/images/x-img.svg';
 import Youtube from '../../assets/images/youtube-img.svg';
+import { blockedEmoji } from '../../utils/utils';
 
 function DWSocialLinks() {
 
@@ -15,7 +16,7 @@ function DWSocialLinks() {
 
     const onChangeInput = useCallback(
         (e, key) => {
-            socialLinks[key] = e.target.value;
+            socialLinks[key] = blockedEmoji(e.target.value);
             setSocialLinks((prev) => { return { ...prev } });
         },
         [socialLinks]
