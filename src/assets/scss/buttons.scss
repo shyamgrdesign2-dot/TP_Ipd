@@ -90,28 +90,24 @@ body {
             }
         }
         &.btn-device-connect{
-            border-radius: 24px;
-            border: 1px solid $theme !important;
-            background-color: $white;
+            border-radius: 66px;
+            padding: 5px;
+            background-color: $drawerHeaderColor;
             height: 41px;
 
             span {
                 line-height: normal;
                 font-size: 14px;
                 font-weight: 500 !important;
-                color: #4B4AD5 !important;
+                color: $maincolor !important;
+                padding: 0 10px;
             }
             i {
                 font-size: 19px;
             }
             img {
-                border: 1px solid #fff;
-                width: 33px;
-                height: 33px;
-                border-radius: 50%;
-                padding: 4px;
-                margin-right: 9px;
-                margin-left: -9px;
+                width: 24px;
+                height: 24px;
             }
         }
 
