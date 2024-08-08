@@ -1,21 +1,30 @@
 import React from 'react';
-import { Row, Col } from 'antd';
-function ProfilePersonalDetailsCard() {
+import { Row, Col, Button } from 'antd';
+import { Container, Navbar } from 'react-bootstrap';
+
+function ProfilePersonalDetailsEdit({ onClose }) {
     return (
-        <div className="rounded-20px bg-white">
-            <div className="d-flex align-items-center justify-content-between p-20 border-bottom" style={{borderColor: '#F1F1F5'}}>
-                <div className="d-flex align-items-center">
-                    <i className="profile-head-icon icon-profile me-3"></i>
-                    <div className="titleprint">
-                       Personal Details
-                    </div>
-                </div>
-                <button className="btn d-flex align-items-center btn-text">
-                    <i className='icon-Edit me-1 fs-5'></i>
-                    <span> Edit </span>
-                </button>
-            </div>
-            <div className="px-20 py-1">
+        <>
+            <Navbar className="justify-content-between headerprescription p-0 bg-white">
+                <Container fluid className='h-100 gx-0 w-100'>
+                    <Row className='h-100 align-items-center w-100 justify-content-between'>
+                        <Col lg="auto" className='h-100'>
+                            <div className='align-items-center d-flex h-100'>
+                                <div className='border-end h-100 text-center'>
+                                    <div onClick={onClose} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                                        <i className='icon-right'></i>
+                                    </div>
+                                </div>
+                                <div className='ms-3 title-common'>Edit Personal Details</div>
+                            </div>
+                        </Col>
+                        <Col lg="auto">
+                            <Button type='button' className="btn-41 btn px-4 btn-primary3 me-20" disabled> Update </Button>
+                        </Col>
+                    </Row>
+                </Container>
+            </Navbar>
+            <div className="m-4 p-4 rounded-20px bg-white">
                 <Row>
                     <Col span={12} className='my-3'>
                         <div>
@@ -49,8 +58,9 @@ function ProfilePersonalDetailsCard() {
                     </Col>
                 </Row>
             </div>
-        </div>
+        </>
+
     );
 }
 
-export default ProfilePersonalDetailsCard;
+export default ProfilePersonalDetailsEdit;

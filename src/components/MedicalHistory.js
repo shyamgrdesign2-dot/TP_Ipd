@@ -49,6 +49,20 @@ function MedicalHistory({ loading, medicalHistoryData }) {
         return acc;
     }, {});
 
+    const medical_history_title = (id) => {
+        var value = ''
+        if (id == 2 ) {
+            value = `Condition : `
+        } else if (id == 3) {
+            value = `History : `
+        } else if (id == 4) {
+            value = `Allergies to : `
+        } else if (id == 1) {
+            value = `Habit : `
+        }
+        return value
+    }
+
     return (
         <div className="appointment-wrap PatientDetailswrap m-0">
             <Card>
@@ -145,7 +159,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                                             <div className='border rounded px-2 my-2'>
                                                                 {e.tags.filter(x => x.enable === 'Y').map((e1, i1) => (
                                                                     <div key={i1} className='my-2'>
-                                                                        <span>Issue</span> : <label>{e1.title}</label>
+                                                                        <span>{medical_history_title(e?.tmmhs_id)}</span> <label>{e1.title}</label>
                                                                         {e1.since && (
                                                                             <> | <span>Since</span> : <label>{e1.since}</label></>
                                                                         )}
