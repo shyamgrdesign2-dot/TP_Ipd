@@ -78,7 +78,7 @@ function PrescriptionPrintView() {
     const {
         loading,
     } = useSelector((state) => state.caseManager);
-    const { profile } = useSelector((state) => state.doctors);
+    const { userId } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
@@ -110,7 +110,7 @@ function PrescriptionPrintView() {
     
     const fetchGynecHistory = async () => {
         try {
-            const data = await getGynecDetails(patient_data?.patient_unique_id, profile?.userId);
+            const data = await getGynecDetails(patient_data?.patient_unique_id, userId);
             setGynecHistoryData(data);
         } catch (error) {
             console.error('Error fetching gynec history:', error);

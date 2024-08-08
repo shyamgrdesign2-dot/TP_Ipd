@@ -106,7 +106,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
 
   const pregnancyRef = useRef(null);
   const examinationRef = useRef(null);
-  const { profile } = useSelector((state) => state.doctors);
+  const { profile, userId } = useSelector((state) => state.doctors);
 
   useEffect(() => {
     if (examinationEditIndex >= 0) {
@@ -145,7 +145,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
       patient_data.patient_unique_id,
-      profile?.userId
+      userId
     );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
@@ -227,7 +227,11 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
       dispatch(resetUpdatedPatientDiagnosis());
       setLoader(true);
       const obstetricResponse = obstetricDetails?._id
-        ? await updateObstetricData(obstetricDetails?.patientId, payload, profile?.userId)
+        ? await updateObstetricData(
+            obstetricDetails?.patientId,
+            payload,
+            userId
+          )
         : await addObstetricData(payload);
       setLoader(false);
       if (obstetricResponse?.data) {
