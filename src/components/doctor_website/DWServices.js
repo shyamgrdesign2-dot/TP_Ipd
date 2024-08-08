@@ -8,7 +8,7 @@ import { MenuOutlined } from '@ant-design/icons';
 import { CSS } from '@dnd-kit/utilities';
 
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
-import { removeBeforeWhiteSpace } from '../../utils/utils';
+import { blockedEmoji, removeBeforeWhiteSpace } from '../../utils/utils';
 
 const RowContext = React.createContext({});
 const DragHandle = () => {
@@ -72,6 +72,7 @@ function DWServices() {
     const onChangeInput = useCallback(
         (e, key, i) => {
             services[i][key] = removeBeforeWhiteSpace(e.target.value);
+            services[i][key] = blockedEmoji(e.target.value);
             setServices((prev) => { return [...prev] });
         },
         [services]

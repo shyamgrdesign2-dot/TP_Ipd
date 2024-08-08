@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import LanguageMoreModal from './LanguageMoreModal';
 
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
-import { onlyNumberFormat } from '../../utils/utils';
+import { blockedEmoji, onlyNumberFormat } from '../../utils/utils';
 
 function DWAboutDoctor() {
 
@@ -28,7 +28,7 @@ function DWAboutDoctor() {
                     aboutDoctor[key] = onlyNumberFormat(e.target.value);
                 }
             } else {
-                aboutDoctor[key] = e.target.value;
+                aboutDoctor[key] = blockedEmoji(e.target.value);
             }
             setAboutDoctor((prev) => { return { ...prev } });
         },

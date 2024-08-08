@@ -2,6 +2,7 @@ import React, { useContext, useCallback, useState } from 'react';
 import { Form, Input, Select, Button, Collapse } from 'antd';
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 import moment from 'moment';
+import { blockedEmoji } from '../../utils/utils';
 
 function DWRewardsRecognition() {
     const { rewardRecognition, setRewardRecognition } = useContext(DoctorWebsiteSettingsContext);
@@ -24,7 +25,7 @@ function DWRewardsRecognition() {
 
     const onChangeInput = useCallback(
         (e, key, i) => {
-            rewardRecognition[i][key] = e.target.value;
+            rewardRecognition[i][key] = blockedEmoji(e.target.value);
             setRewardRecognition((prev) => { return [...prev] });
         },
         [rewardRecognition]
