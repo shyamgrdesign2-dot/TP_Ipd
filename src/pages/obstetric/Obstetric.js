@@ -148,7 +148,12 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
       lmp: prefillObstetricResponse.lmp
         ? moment(prefillObstetricResponse.lmp)
         : patientDiagnosisData.lmp,
-      blood: prefillObstetricResponse.bloodGroup || patientDiagnosisData.blood,
+      blood:
+        prefillObstetricResponse.bloodGroup?.indexOf("(") > 0
+          ? prefillObstetricResponse.bloodGroup
+              ?.slice(0, prefillObstetricResponse.bloodGroup?.indexOf("("))
+              ?.trim()
+          : prefillObstetricResponse.bloodGroup || patientDiagnosisData.blood,
       maritialStatus:
         prefillObstetricResponse.marriedStatus ||
         patientDiagnosisData.maritialStatus,
