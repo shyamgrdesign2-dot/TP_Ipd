@@ -297,6 +297,9 @@ const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
   reducers: {
+    setUserId: (state, action) => {
+      state.profile = { ...state.profile, userId: action.payload?.user_id };
+    },
     updateStatusMoengageB2C: (state) => {
       state.profile = { ...state.profile, old_b2c: state.profile.b2c, moengage_b2c_send: true }
     },
@@ -510,5 +513,5 @@ const doctorsSlice = createSlice({
   },
 });
 
-export const { updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish } = doctorsSlice.actions
+export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish } = doctorsSlice.actions
 export default doctorsSlice.reducer;

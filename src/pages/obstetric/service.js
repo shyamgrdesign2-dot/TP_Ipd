@@ -1,15 +1,12 @@
 import api from "../../api/services/axiosService";
 import config from "../../config";
-import { getDecodedToken } from "../../utils/localStorage";
 
 const baseUrl = { customBaseUrl: config.obstetric_api_url };
-const decodedToken = getDecodedToken();
-const doctorId = decodedToken?.result?.user_id;
 
-export const fetchAllObstetricDetails = async function (patient_unique_id) {
+export const fetchAllObstetricDetails = async function (patient_unique_id, userId) {
   let res = {};
   try {
-    res = await api.get(`/obstetric/${patient_unique_id}/${doctorId}`, baseUrl);
+    res = await api.get(`/obstetric/${patient_unique_id}/${userId}`, baseUrl);
 
     res = res.data;
   } catch (e) {
@@ -28,20 +25,20 @@ export const addObstetricData = async function (payload) {
   return res;
 };
 
-export const updateObstetricData = async function (id, payload) {
+export const updateObstetricData = async function (id, payload, userId) {
   let res = {};
   try {
-    res = await api.patch(`/obstetric/${id}/${doctorId}`, payload, baseUrl);
+    res = await api.patch(`/obstetric/${id}/${userId}`, payload, baseUrl);
   } catch (e) {
     console.error("Error while addObstetricData: ", e);
   }
   return res;
 };
 
-export const deleteObstetricData = async function (id) {
+export const deleteObstetricData = async function (id, userId) {
   let res = {};
   try {
-    res = await api.delete(`/obstetric/${id}/${doctorId}`, baseUrl);
+    res = await api.delete(`/obstetric/${id}/${userId}`, baseUrl);
   } catch (e) {
     console.error("Error while addObstetricData: ", e);
   }
