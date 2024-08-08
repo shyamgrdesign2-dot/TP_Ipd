@@ -348,30 +348,32 @@ function Cardiology(props) {
                 </div>
               </div>
             ) : //smart image
-            smartRxFile ? smartRxFile?.map(({smart_prescription_file}) =>
-              <>
-                <div style={{ padding: "5px" }}>
-                  {smart_prescription_file && (
-                    <img
-                      src={smart_prescription_file}
-                      alt="Smart Rx"
-                      width="100%"
-                      height="660px"
-                    />
-                  )}
-                </div>
-                <div className="d-flex align-items-center mb-14 follow-up-detailsPage">
-                { viewCaseManagerData?.follow_up_date &&
-                  <>
-                    <img className='me-3' src={followUp} alt="Symptoms" />
-                    <div className="title-common">Follow-up:</div>
-                    <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
-                  </>
-                }
-                </div>
+            smartRxFile ?
+            (
+            <>
+              {smartRxFile?.map(({smart_prescription_file}) =>
+                  <div style={{ padding: "5px" }}>
+                    {smart_prescription_file && (
+                      <img
+                        src={smart_prescription_file}
+                        alt="Smart Rx"
+                        width="100%"
+                        height="660px"
+                      />
+                    )}
+                  </div>
+              )}
+              <div className="d-flex align-items-center mb-14 follow-up-detailsPage">
+              { viewCaseManagerData?.follow_up_date &&
+                <>
+                  <img className='me-3' src={followUp} alt="Symptoms" />
+                  <div className="title-common">Follow-up:</div>
+                  <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
+                </>
+              }
+              </div>
               </>
-            )
-             : (
+            ) : (
               <Card.Body className="p-0 cardbody-data">
                 <div>
                   <div className="p-3 pb-0">
