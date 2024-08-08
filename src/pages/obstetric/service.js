@@ -44,3 +44,24 @@ export const deleteObstetricData = async function (id, userId) {
   }
   return res;
 };
+
+export const fetchPrefillObstetricDetails = async function (patient_unique_id) {
+  let res = {};
+  try {
+    res = await api.get(`/prefilled/${patient_unique_id}`, baseUrl);
+    res = res.data;
+  } catch (e) {
+    console.error("Error while fetching prefill obstetric details: ", e);
+  }
+  return res;
+};
+
+export const updatePrefillObstetricData = async function (payload) {
+  let res = {};
+  try {
+    res = await api.patch(`/prefilled/${doctorId}`, payload, baseUrl);
+  } catch (e) {
+    console.error("Error while addObstetricData: ", e);
+  }
+  return res;
+};

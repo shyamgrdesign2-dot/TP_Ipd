@@ -14,7 +14,9 @@ import { Drawer } from "antd";
 import {
   addObstetricData,
   fetchAllObstetricDetails,
+  fetchPrefillObstetricDetails,
   updateObstetricData,
+  updatePrefillObstetricData,
 } from "./service";
 import {
   addObstetricDetails,
@@ -73,6 +75,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
 
   const [patientDiagnosisNotes, setPatientDiagnosisNotes] =
     useState(diagnosisNotes);
+  const [prefillObstetricData, setPrefillObstetricData] = useState({});
 
   const today = moment();
   const lmpValue = moment(lmp);
@@ -131,8 +134,26 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   }, []);
 
   useEffect(() => {
+    getPrefillObstetricDetails();
     scrollToBottom();
   }, []);
+
+  const getPrefillObstetricDetails = async () => {
+    const prefillObstetricResponse = await fetchPrefillObstetricDetails(
+      patient_data.patient_unique_id
+    );
+    setPrefillObstetricData(prefillObstetricResponse);
+    setPatientDiagnosisData({
+      ...patientDiagnosisData,
+      lmp: prefillObstetricResponse.lmp
+        ? moment(prefillObstetricResponse.lmp)
+        : patientDiagnosisData.lmp,
+      blood: prefillObstetricResponse.bloodGroup || patientDiagnosisData.blood,
+      maritialStatus:
+        prefillObstetricResponse.marriedStatus ||
+        patientDiagnosisData.maritialStatus,
+    });
+  };
 
   const scrollToBottom = () => {
     if (activeTab === "pregnancyHistory") {
@@ -233,6 +254,13 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
             userId
           )
         : await addObstetricData(payload);
+      const prefillObstetricPayload = {};
+      Object.keys(prefillObstetricData).forEach((key) => {
+        if (prefillObstetricData[key]) {
+          prefillObstetricPayload[key] = prefillObstetricData[key];
+        }
+      });
+      await updatePrefillObstetricData(prefillObstetricPayload);
       setLoader(false);
       if (obstetricResponse?.data) {
         trackUpdateEvent();
@@ -279,6 +307,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
           setPastPregnancyData={setPastPregnancyData}
           setPatientDiagnosisNotes={setPatientDiagnosisNotes}
           isFixed={isFixed}
+          setPrefillObstetricData={setPrefillObstetricData}
         />
 
         <Tabs
@@ -338,6 +367,8 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
             isDataAddedOrEdited={isDataAddedOrEdited}
             setIsDataAddedOrEdited={setIsDataAddedOrEdited}
             setIsExaminationUpdated={setIsExaminationUpdated}
+            prefillObstetricData={prefillObstetricData}
+            setPrefillObstetricData={setPrefillObstetricData}
           />
         </Drawer>
       )}
