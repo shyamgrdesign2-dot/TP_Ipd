@@ -52,7 +52,7 @@ import { addObstetricDetails, navigateToObstetric } from "../redux/obstetricSlic
 
 function Prescription() {
   const {
-    profile,
+    userId,
     customizedPadLeftList,
     customizedPadRightList,
     frequencyList,
@@ -133,7 +133,7 @@ function Prescription() {
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
       patient_data.patient_unique_id,
-      profile?.userId
+      userId
     );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
@@ -429,7 +429,7 @@ function Prescription() {
       try {
         const data = await getGynecDetails(
           patient_data.patient_unique_id,
-          profile?.userId
+          userId
         );
         // Destructure to remove createdAt and createdBy
         const { createdAt, createdBy, ...updatedData } = data;

@@ -19,7 +19,8 @@ const initialState = {
   defaultPrintSettings: null,
   videoList: [],
   certificateList: [],
-  patientCertificateList: []
+  patientCertificateList: [],
+  userId: null
 };
 
 export const getProfile = createAsyncThunk(
@@ -298,7 +299,7 @@ const doctorsSlice = createSlice({
   initialState,
   reducers: {
     setUserId: (state, action) => {
-      state.profile = { ...state.profile, userId: action.payload?.user_id };
+      state.userId = action.payload?.user_id;
     },
     updateStatusMoengageB2C: (state) => {
       state.profile = { ...state.profile, old_b2c: state.profile.b2c, moengage_b2c_send: true }

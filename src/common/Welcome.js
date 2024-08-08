@@ -29,7 +29,7 @@ function Welcome(props) {
               ) : locationPath == "/walk_in_consultation" ? (
                 <h1>Start Walk-In Consultation</h1>
               ) : (
-                <h1>Welcome Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
+                <h1>Welcome Dr. {profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
               )}
               {locationPath == "/" && <p>{"Your Appointments"}</p>}
             </div>

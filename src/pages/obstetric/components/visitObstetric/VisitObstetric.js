@@ -21,7 +21,7 @@ export default function VisitObstetric() {
   const { obstetricDetails, isObstetricDetailsFetched } = useSelector(
     (state) => state.obstetric
   );
-  const { profile } = useSelector((state) => state.doctors);
+  const { userId } = useSelector((state) => state.doctors);
   const { state } = useLocation();
   const { patient_data } = state;
   const { isGynaecHistoryAccessable } = useAccess();
@@ -85,7 +85,7 @@ export default function VisitObstetric() {
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
       patient_data.patient_unique_id,
-      profile?.userId
+      userId
     );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
