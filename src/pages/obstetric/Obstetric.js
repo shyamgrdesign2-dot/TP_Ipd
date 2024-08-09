@@ -146,6 +146,15 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
       setShowLmpPopup(true);
     }
     setPrefillObstetricData(prefillObstetricResponse);
+    let gestationInWeeks, gestationInDays;
+    if (prefillObstetricResponse?.lmp) {
+      gestationInWeeks = today.diff(
+        moment(prefillObstetricResponse?.lmp),
+        "weeks"
+      );
+      const tempDate = lmp.clone().add(gestationInWeeks, "weeks");
+      gestationInDays = today.diff(tempDate, "days");
+    }
     setPatientDiagnosisData({
       ...patientDiagnosisData,
       lmp: prefillObstetricResponse.lmp
@@ -169,6 +178,8 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
       maritialStatus:
         prefillObstetricResponse.marriedStatus ||
         patientDiagnosisData.maritialStatus,
+      gestationWeeks: gestationInWeeks || gestationWeeks,
+      gestationDays: gestationInDays || gestationDays,
     });
   };
 
