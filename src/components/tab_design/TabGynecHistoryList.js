@@ -35,6 +35,12 @@ function TabGynecHistoryList(props) {
                                     <div className="text-history font-roboto fs-13">{gynecHistory.ageAtMenarche} years</div>
                                 </div>
                             )}
+                            {gynecHistory.menarcheNotes && (
+                                <div key="notes" className="my-2">
+                                    <div style={{fontSize: "12px",fontWeight:"600"}} >Notes</div>
+                                    <div style={{fontSize: "12px"}} className="border rounded px-2">{gynecHistory.menarcheNotes}</div>
+                                </div>
+                            )}
                             {gynecHistory.cycle && (
                                 <div key="cycle" className="d-flex justify-content-between align-items-center my-2">
                                     <div className="text-history font-roboto fs-13 t-bold">Cycle</div>
@@ -47,6 +53,12 @@ function TabGynecHistoryList(props) {
                                     <div className="text-history font-roboto fs-13 t-bold">Cycle Interval</div>
                                     <div className="semicolon">:</div>
                                     <div className="text-history font-roboto fs-13">{gynecHistory.intervalOfCycle} days</div>
+                                </div>
+                            )}
+                              {gynecHistory.cycleNotes && (
+                                <div key="notes" className="my-2">
+                                    <div style={{fontSize: "12px",fontWeight:"600"}} >Notes</div>
+                                    <div style={{fontSize: "12px"}} className="border rounded px-2">{gynecHistory.cycleNotes}</div>
                                 </div>
                             )}
                             {gynecHistory.flow && (
@@ -77,6 +89,12 @@ function TabGynecHistoryList(props) {
                                     <div className="text-history font-roboto fs-13">{gynecHistory.numberOfPadsPerDay}</div>
                                 </div>
                             )}
+                            {gynecHistory.flowNotes && (
+                                <div key="notes" className="my-2">
+                                    <div style={{fontSize: "12px",fontWeight:"600"}} >Notes</div>
+                                    <div style={{fontSize: "12px"}} className="border rounded px-2">{gynecHistory.flowNotes}</div>
+                                </div>
+                            )}
                             {gynecHistory.pain && (
                                 <div key="pain" className="d-flex justify-content-between align-items-center my-2">
                                     <div className="text-history font-roboto fs-13 t-bold">Pain</div>
@@ -91,6 +109,12 @@ function TabGynecHistoryList(props) {
                                     <div className="text-history font-roboto fs-13">{gynecHistory.occurrenceOfPain}</div>
                                 </div>
                             )}
+                            {gynecHistory.painNotes && (
+                                <div key="notes" className="my-2">
+                                    <div style={{fontSize: "12px",fontWeight:"600"}} >Notes</div>
+                                    <div style={{fontSize: "12px"}} className="border rounded px-2">{gynecHistory.painNotes}</div>
+                                </div>
+                            )}
                             {gynecHistory.ageAtMenopause && (
                                 <div key="ageAtMenopause" className="d-flex justify-content-between align-items-center my-2">
                                     <div className="text-history font-roboto fs-13 t-bold">{gynecHistory?.reproductiveLifeStages} at</div>
@@ -103,6 +127,12 @@ function TabGynecHistoryList(props) {
                                     <div className="text-history font-roboto fs-13 t-bold">{gynecHistory?.reproductiveLifeStages} type</div>
                                     <div className="semicolon">:</div>
                                     <div className="text-history font-roboto fs-13">{gynecHistory.typeOfMenopause}</div>
+                                </div>
+                            )}
+                            {gynecHistory.reproductiveNotes && (
+                                <div key="notes" className="my-2">
+                                    <div style={{fontSize: "12px",fontWeight:"600"}} >Notes</div>
+                                    <div style={{fontSize: "12px"}} className="border rounded px-2">{gynecHistory.reproductiveNotes}</div>
                                 </div>
                             )}
                             {gynecHistory.notes && (
