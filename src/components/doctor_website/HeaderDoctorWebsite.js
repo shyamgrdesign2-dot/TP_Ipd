@@ -4,15 +4,16 @@ import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
 import axios from 'axios';
+import { isChrome, isSafari } from 'react-device-detect';
 
 import Homepage from '../../website/Homepage';
-import DemoHomepage from '../../website/DemoHomepage';
 import stopPublishing from '../../assets/images/stop-publishing.svg';
 import LinkIcon from '../../assets/images/Link.svg';
 
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
 import { saveDoctorWebsite, publishDoctorWebsite } from "../../redux/doctorWebsiteSlice";
+import { updateWebsitePublish } from "../../redux/doctorsSlice";
 import { errorMessage, handleCopy, validateEmail } from '../../utils/utils';
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
@@ -20,6 +21,7 @@ import alertIcon from '../../assets/images/alertIcon.svg';
 function HeaderDoctorWebsite() {
 
     const dispatch = useDispatch();
+    const { profile } = useSelector((state) => state.doctors);
     const { save_loading, publish_loading } = useSelector((state) => state.doctorWebsite);
 
     const [childDrawer, setChildDrawer] = useState(false);
@@ -152,6 +154,7 @@ function HeaderDoctorWebsite() {
                 setUnpublishStatus(true)
                 setLoaderModal(true)
             }
+            await dispatch(updateWebsitePublish({ website_publish: status, publish_url: action.payload?.publish_url }))
             setPublishUrl(action.payload?.publish_url)
         } else {
             setLoaderModal(false)
@@ -170,6 +173,22 @@ function HeaderDoctorWebsite() {
         },
     ];
 
+
+    const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
+
+    const showHideLogoModal = useCallback(() => {
+        setIsLogoModalOpen(!isLogoModalOpen);
+    }, [isLogoModalOpen]);
+
+    const clickRedirect = async () => {
+        if (!isChrome && !isSafari) {
+            navigate(`/doctor_website_setting/?url=${publishUrl}&key=phpRedirect`, { replace: true, state: { websiteData: { ...websiteData } } })
+            navigate(0, { replace: true });
+        } else {
+            await window.open(publishUrl)
+        }
+    }
+
     return (
         <>
             <Navbar className="justify-content-between headerprescription p-0">
@@ -178,9 +197,39 @@ function HeaderDoctorWebsite() {
                         <Col sm="auto" className='h-100'>
                             <div className='align-items-center d-flex h-100'>
                                 <div className='border-end h-100 text-center'>
-                                    <div onClick={() => navigate('/doctor_profile', { replace: true, state: { websiteData: { ...websiteData } } })} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
+                                    <div onClick={showHideLogoModal} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
                                         <i className='icon-right'></i>
                                     </div>
+                                    <CommonModal
+                                        isModalOpen={isLogoModalOpen}
+                                        onCancel={showHideLogoModal}
+                                        modalWidth={500}
+                                        title={"You may lose your data"}
+                                        modalBody={
+                                            <>
+                                                <div className="alert-warning rounded-10px p-2 patient-details mb-4">
+                                                    <div className="d-flex align-items-center">
+                                                        <img className='me-3' src={alertIcon} alt="Warning" />
+                                                        <span>
+                                                            Are you sure you want to leave? <br />
+                                                            You will permanently lose your data.
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div className="d-flex align-items-center mt-2 justify-content-end">
+                                                        <div onClick={() => navigate('/doctor_profile', { replace: true, state: { websiteData: { ...websiteData } } })}
+                                                            className="me-4 text-decoration-underline btn p-0 text-main">
+                                                            Yes, Back
+                                                        </div>
+                                                        <Button onClick={showHideLogoModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                                            <span>No, Stay</span>
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        }
+                                    />
                                 </div>
                                 <div className='ms-3 title-common'>Setup Website</div>
                             </div>
@@ -214,11 +263,13 @@ function HeaderDoctorWebsite() {
                                     onClick={onSaveWebsiteClick}>
                                     <i className="icon-New-Window me-2"></i> Save & Publish Website
                                 </Button>
-                                <Dropdown className='btn btn-outline btn-more p-0 ms-3' menu={{ items }} trigger={['click']}>
-                                    <a onClick={(e) => e.preventDefault()}>
-                                        <i className='icon-More'></i>
-                                    </a>
-                                </Dropdown>
+                                {profile?.website_publish && profile?.publish_url ? (
+                                    <Dropdown className='btn btn-outline btn-more p-0 ms-3' menu={{ items }} trigger={['click']}>
+                                        <a onClick={(e) => e.preventDefault()}>
+                                            <i className='icon-More'></i>
+                                        </a>
+                                    </Dropdown>
+                                ) : null}
                             </div>
                         </Col>
                     </Row>
@@ -242,7 +293,14 @@ function HeaderDoctorWebsite() {
 
                             <div className='text-start mt-4'>
                                 <Space.Compact className='h-45' style={{ width: '100%' }}>
-                                    <Input className='fontroboto' defaultValue={'Note: Your live website url has been expired.'} disabled />
+                                    <div className='align-items-center bg-body border d-flex mx-auto px-4 rounded-3'>
+                                        <div className='text-danger-custom fw-medium'>
+                                            Note:
+                                        </div>
+                                        <div className='fw-medium ms-2'>
+                                            Your live website url has been expired.
+                                        </div>
+                                    </div>
                                 </Space.Compact>
                             </div>
 
@@ -277,7 +335,7 @@ function HeaderDoctorWebsite() {
                                         <div className="d-flex align-items-center mt-4">
                                             <Button type="text" className="btn btn-primary2 align-items-center justify-content-center d-flex btn-41 w-50"
                                                 icon={<i className="icon-New-Window"></i>}
-                                                onClick={() => window.open(publishUrl)}>
+                                                onClick={clickRedirect}>
                                                 Live Preview
                                             </Button>
                                             <Button type="text" className="btn btn-primary3 align-items-center justify-content-center d-flex btn-41 w-50 ms-4"
@@ -406,8 +464,312 @@ function HeaderDoctorWebsite() {
                 <div className='w-100 px-3 py-2 fontroboto d-flex align-items-center' style={{ backgroundColor: '#FFE8AE' }}>
                     <i className='icon-info fs-18 me-3'></i> This is a demonstration website with sample data to show how it will look once you fill it.
                 </div>
-                <div className="overflow-auto" style={{ height: 'calc(100vh - 60px)' }}>
-                    <DemoHomepage />
+                <div className="overflow-auto bg-white" style={{ height: 'calc(100vh - 97px)' }}>
+                    <Homepage
+                        personalDetails={{
+                            "first_name": "Dr. Kunal Shah",
+                            "last_name": "",
+                            "specialty": "Anaesthesiology",
+                            "education": "MBBS, MD",
+                            "email_id": "contact@aayushyamclinic.com",
+                            "hero_image_name": "profile_pic_1713329446.jpg",
+                            "hero_image_thumb_link": "",
+                            "hero_image_link": "",
+                        }}
+                        aboutDoctor={{
+                            "years_experience": "12",
+                            "language": [
+                                "English",
+                                "Hindi"
+                            ],
+                            "about": "Dr. Kunal Jhaveri is a Spine and Pain Specialist, Pain Management Specialist and Nerve Pain Specialist in Satellite Road, Ahmedabad and has an experience of 6 years in these fields. Dr. Kunal Shah practices at Karnavati Pain Clinic in Satellite Dr. Kunal Shah practices at Karnavati Pain Clinic in Satellite"
+                        }}
+                        clinicProfile={[
+                            {
+                                "random_id": 7398049865,
+                                "name": "Aayushyam Clinic Centre LLP",
+                                "contact_no": "Call Clinic",
+                                "address": {
+                                    "pincode": "380015",
+                                    "city": "Ahmadabad",
+                                    "state": "Gujarat",
+                                    "address_line": "Ground Floor, Sheetal Varsha Complex, Landmark: Near Shivranjani Cross Road",
+                                    "google_map": "wqe qe"
+                                },
+                                "shift": [
+                                    {
+                                        "days": [
+                                            "mon",
+                                            'tue',
+                                            'wed',
+                                            'thu',
+                                            'fri',
+                                            "sat"
+                                        ],
+                                        "timing": [
+                                            {
+                                                "from_time": "09:00",
+                                                "end_time": "04:45"
+                                            }
+                                        ],
+                                        "timing": [
+                                            {
+                                                "from_time": "05:30",
+                                                "end_time": "07:00"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "days": [
+                                            "sun"
+                                        ],
+                                        "timing": [
+                                            {
+                                                "from_time": "09:00",
+                                                "end_time": "01:00"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "clinic_photos": [
+                                    {
+                                        "clinic_image_id": 9752048460,
+                                        "clinic_image_name": "f523fb8d-e9a3-4b43-a61c-e19c5e162ef6.png",
+                                        "clinic_image_thumb_name": "thumb_f523fb8d-e9a3-4b43-a61c-e19c5e162ef6.png",
+                                        "clinic_image_delete": 0,
+                                        "clinic_image_thumb_link": "https://media.istockphoto.com/id/1315141049/photo/innovative-technology-in-a-modern-hospital-operating-room-futuristic-medical-interface.jpg?s=612x612&w=0&k=20&c=_Xd8yzWHctije-bdTd_FApLlpN4M-i2PrKG55vT20J8=",
+                                        "clinic_image_link": "https://media.istockphoto.com/id/1315141049/photo/innovative-technology-in-a-modern-hospital-operating-room-futuristic-medical-interface.jpg?s=612x612&w=0&k=20&c=_Xd8yzWHctije-bdTd_FApLlpN4M-i2PrKG55vT20J8="
+                                    },
+                                    {
+                                        "clinic_image_id": 4468370316,
+                                        "clinic_image_name": "6cad3eee-83f0-4365-a6e6-86a292911c56.png",
+                                        "clinic_image_thumb_name": "thumb_6cad3eee-83f0-4365-a6e6-86a292911c56.png",
+                                        "clinic_image_delete": 0,
+                                        "clinic_image_thumb_link": "https://static.toiimg.com/thumb/msid-100889909,width-1280,height-720,resizemode-72/100889909.jpg",
+                                        "clinic_image_link": "https://static.toiimg.com/thumb/msid-100889909,width-1280,height-720,resizemode-72/100889909.jpg"
+                                    },
+                                    {
+                                        "clinic_image_id": 4468370316,
+                                        "clinic_image_name": "6cad3eee-83f0-4365-a6e6-86a292911c56.png",
+                                        "clinic_image_thumb_name": "thumb_6cad3eee-83f0-4365-a6e6-86a292911c56.png",
+                                        "clinic_image_delete": 0,
+                                        "clinic_image_thumb_link": "https://img.freepik.com/free-photo/young-man-being-ill-hospital-bed_23-2149017252.jpg",
+                                        "clinic_image_link": "https://img.freepik.com/free-photo/young-man-being-ill-hospital-bed_23-2149017252.jpg"
+                                    },
+                                    {
+                                        "clinic_image_id": 4468370316,
+                                        "clinic_image_name": "6cad3eee-83f0-4365-a6e6-86a292911c56.png",
+                                        "clinic_image_thumb_name": "thumb_6cad3eee-83f0-4365-a6e6-86a292911c56.png",
+                                        "clinic_image_delete": 0,
+                                        "clinic_image_thumb_link": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Hospital-de-Bellvitge.jpg/640px-Hospital-de-Bellvitge.jpg",
+                                        "clinic_image_link": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Hospital-de-Bellvitge.jpg/640px-Hospital-de-Bellvitge.jpg"
+                                    }
+                                ],
+                                "clinic_delete": 0
+                            },
+                            {
+                                "random_id": 7398049865,
+                                "name": "Aayushyam Clinic Centre LLP",
+                                "contact_no": "Call Clinic",
+                                "address": {
+                                    "pincode": "380015",
+                                    "city": "Ahmadabad",
+                                    "state": "Gujarat",
+                                    "address_line": "Ground Floor, Sheetal Varsha Complex, Landmark: Near Shivranjani Cross Road",
+                                    "google_map": "wqe qe"
+                                },
+                                "shift": [
+                                    {
+                                        "days": [
+                                            "mon",
+                                            'tue',
+                                            'wed',
+                                            'thu',
+                                            'fri',
+                                            "sat"
+                                        ],
+                                        "timing": [
+                                            {
+                                                "from_time": "09:00",
+                                                "end_time": "04:45"
+                                            }
+                                        ],
+                                        "timing": [
+                                            {
+                                                "from_time": "05:30",
+                                                "end_time": "07:00"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "days": [
+                                            "sun"
+                                        ],
+                                        "timing": [
+                                            {
+                                                "from_time": "09:00",
+                                                "end_time": "01:00"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "clinic_photos": [
+                                    {
+                                        "clinic_image_id": 9752048460,
+                                        "clinic_image_name": "f523fb8d-e9a3-4b43-a61c-e19c5e162ef6.png",
+                                        "clinic_image_thumb_name": "thumb_f523fb8d-e9a3-4b43-a61c-e19c5e162ef6.png",
+                                        "clinic_image_delete": 0,
+                                        "clinic_image_thumb_link": "https://dhsplcitatvaclinic.blob.core.windows.net/dhsplqa/thumb_f523fb8d-e9a3-4b43-a61c-e19c5e162ef6.png?sv=2023-11-03&se=2024-08-07T10%3A19%3A36Z&sr=b&sp=r&sig=GPDLmaeWRI1KVBgNxJ6UwMGHNnA5vO%2BzNFzxaGOkFEE%3D",
+                                        "clinic_image_link": "https://dhsplcitatvaclinic.blob.core.windows.net/dhsplqa/f523fb8d-e9a3-4b43-a61c-e19c5e162ef6.png?sv=2023-11-03&se=2024-08-07T10%3A19%3A36Z&sr=b&sp=r&sig=en6kxU7cE1sdye5I4GL2xZGasd1qvhVk18C58zG1j0o%3D"
+                                    },
+                                    {
+                                        "clinic_image_id": 4468370316,
+                                        "clinic_image_name": "6cad3eee-83f0-4365-a6e6-86a292911c56.png",
+                                        "clinic_image_thumb_name": "thumb_6cad3eee-83f0-4365-a6e6-86a292911c56.png",
+                                        "clinic_image_delete": 0,
+                                        "clinic_image_thumb_link": "https://dhsplcitatvaclinic.blob.core.windows.net/dhsplqa/thumb_6cad3eee-83f0-4365-a6e6-86a292911c56.png?sv=2023-11-03&se=2024-08-07T10%3A19%3A36Z&sr=b&sp=r&sig=JiYrc32A4bzMcUtwKsVKbwjTgKadyNQRDiSOn00ehE0%3D",
+                                        "clinic_image_link": "https://dhsplcitatvaclinic.blob.core.windows.net/dhsplqa/6cad3eee-83f0-4365-a6e6-86a292911c56.png?sv=2023-11-03&se=2024-08-07T10%3A19%3A36Z&sr=b&sp=r&sig=n3C21I6na09AC9K%2BLZxMoKSItW2EYvRMxBL%2FW6R%2FfhQ%3D"
+                                    }
+                                ],
+                                "clinic_delete": 0
+                            },
+                        ]}
+                        services={[
+                            {
+                                "title": "Back Pain Treatment"
+                            },
+                            {
+                                "title": "Musculoskeletal Pain Management"
+                            },
+                            {
+                                "title": "RF Neurotomy"
+                            },
+                            {
+                                "title": "Interventional Pain management"
+                            },
+                            {
+                                "title": "Cancer Pain Management"
+                            },
+                            {
+                                "title": "Knee Pain Treatment"
+                            },
+                            {
+                                "title": "Hand Pain Treatment"
+                            },
+                            {
+                                "title": "Joint Pain Treatment"
+                            }
+                        ]}
+                        rewardRecognition={[
+                            {
+                                "title": "Chairman's Award from Max Healthcare",
+                                "year": "2019"
+                            },
+                            {
+                                "title": "Role of HEV infection in sporadic NANB hepatitis cases",
+                                "year": "2016"
+                            },
+                            {
+                                "title": "First Position in Pathology",
+                                "year": "2002"
+                            },
+                            {
+                                "title": "First Position in Pathology",
+                                "year": "2002"
+                            }
+                        ]}
+                        educationTraining={[
+                            {
+                                "title": "National Board of Examinations",
+                                "degree": "MBBS",
+                                "city": "Mumbai",
+                                "start_year": "2018",
+                                "end_year": "2020"
+                            },
+                            {
+                                "title": "B J Medical College Ahmedabad",
+                                "degree": "MD",
+                                "city": "Ahmedabad",
+                                "start_year": "2015",
+                                "end_year": "2018"
+                            },
+                            {
+                                "title": "B J Medical College Ahmedabad",
+                                "degree": "MBBS",
+                                "city": "Ahmedabad",
+                                "start_year": "2011",
+                                "end_year": "2014"
+                            },
+                            {
+                                "title": "B J Medical College Ahmedabad",
+                                "degree": "MBBS",
+                                "city": "Ahmedabad",
+                                "start_year": "2011",
+                                "end_year": "2014"
+                            }
+                        ]}
+                        doctorExperience={[
+                            {
+                                "title": "Director of Max Super Specialty",
+                                "hospital": "Siloam Hospitals",
+                                "city": "Ahmedabad",
+                                "currently_working": 1,
+                                "start_month": "Oct",
+                                "start_year": "2017",
+                                "end_month": "May",
+                                "end_year": "2021"
+                            },
+                            {
+                                "title": "Sr. Registrar of Ministry of Health",
+                                "hospital": "Mitra Keluarga",
+                                "city": "Mumbai",
+                                "currently_working": 0,
+                                "start_month": "Jan",
+                                "start_year": "2016",
+                                "end_month": "Sep",
+                                "end_year": "2017"
+                            },
+                            {
+                                "title": "Sr. Registrar of Ministry of Health",
+                                "hospital": "Mitra Keluarga",
+                                "city": "Mumbai",
+                                "currently_working": 0,
+                                "start_month": "Jan",
+                                "start_year": "2016",
+                                "end_month": "Sep",
+                                "end_year": "2017"
+                            }
+                        ]}
+                        membership={[
+                            {
+                                "title": "Member of the Royal College of Physicians, London, UK"
+                            },
+                            {
+                                "title": "Member of National Academy of Medical Sciences (MNAMS), India"
+                            },
+                            {
+                                "title": "Member of the Royal College of Physicians, London, UK"
+                            },
+                            {
+                                "title": "Member of National Academy of Medical Sciences (MNAMS), India"
+                            }
+                        ]}
+                        otherSettings={{
+                            "enable_doctor_experience": 1,
+                            "enable_services": 1,
+                            "enable_education_training": 1,
+                            "enable_membership": 1,
+                            "enable_reward_recognition": 1,
+                            "enable_social_links": 1
+                        }}
+                        socialLinks={{
+                            "facebook": " ",
+                            "instagram": " ",
+                            "linkedin": " ",
+                            "twitter": " ",
+                            "youtube": " "
+                        }}
+                    />
                 </div>
             </Drawer>
         </>

@@ -120,13 +120,10 @@ function DoctorWebsiteSetting() {
             let cal = 0
             //Personal Details
             if (personalDetails?.first_name) {
-                cal += 3.703
-            }
-            if (personalDetails?.last_name) {
-                cal += 3.703
+                cal += 5.555
             }
             if (personalDetails?.education) {
-                cal += 3.703
+                cal += 5.555
             }
 
             //About Doctor
@@ -243,9 +240,23 @@ function DoctorWebsiteSetting() {
     }, [isVisible, personalDetails, clinicProfile, aboutDoctor, doctorExperience, rewardRecognition, membership, socialLinks, services, educationTraining, otherSettings]);
 
     const handlePersonalDetails = useCallback((value, name) => {
+        if (value === 4) {
+            otherSettings['enable_doctor_experience'] = 1;
+        } else if (value === 5) {
+            otherSettings['enable_services'] = 1;
+        } else if (value === 6) {
+            otherSettings['enable_education_training'] = 1;
+        } else if (value === 7) {
+            otherSettings['enable_membership'] = 1;
+        } else if (value === 8) {
+            otherSettings['enable_reward_recognition'] = 1;
+        } else if (value === 9) {
+            otherSettings['enable_social_links'] = 1;
+        }
+        setOtherSettings((prev) => { return { ...prev } });
         setSelectedMenu({ value: value, name: name })
         showHide();
-    }, [selectedMenu, isVisible])
+    }, [selectedMenu, otherSettings, isVisible])
 
     const showHide = useCallback(() => {
         setIsVisible(!isVisible);
@@ -285,7 +296,7 @@ function DoctorWebsiteSetting() {
                 <HeaderDoctorWebsite />
                 <div className={'w-100 bg-body wrapper2'}>
                     <Row justify="space-between">
-                        <Col xl={8} sm={10} className="pe-3">
+                        <Col xl={8} sm={9} className="pe-2">
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                                 <div className="p-20 web-progress-custom">
                                     <div className="ms-5 fontroboto">Website Setup Score</div>
@@ -518,7 +529,7 @@ function DoctorWebsiteSetting() {
                                 }
                             </div>
                         </Col>
-                        <Col xl={16} sm={14}>
+                        <Col xl={16} sm={15}>
                             <div className="mx-auto overflow-y-auto">
                                 <div className="mt-20 d-flex align-items-center justify-content-between">
                                     <div className="titleprint">Preview</div>
@@ -527,6 +538,7 @@ function DoctorWebsiteSetting() {
                                 <div className="rounded-20px bg-white mt-2 overflow-hidden">
                                     <div className="printheight" style={{ height: 'calc(100vh - 124px)' }}>
                                         <Homepage
+                                            centerPadding={true}
                                             scrollId={selectedMenu ? selectedMenu?.value : null}
                                             personalDetails={personalDetails}
                                             aboutDoctor={aboutDoctor}

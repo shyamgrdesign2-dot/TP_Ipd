@@ -8,7 +8,7 @@ h1, .h1 {
         font-size: 48px !important;
         font-weight: 500;
         line-height: normal;
-        @media only screen and (max-width: 1100px)  {
+        @media only screen and (max-width: 1200px)  {
             font-size: 32px !important;
         }
     }
@@ -29,14 +29,7 @@ body .ant-btn.btn-48 {
 .row-80 {
     height: 100%;
     align-items: center;
-    // width: 80%;
     margin: 0 auto;
-    @media only screen and (max-width: 1200px) and (min-width: 1100px)  {
-        // width: 90%;
-    }
-    @media only screen and (max-width: 1100px)  {
-        // width: 100%;
-    }
 }
 .website-section {
     padding: 50px 0;
@@ -248,6 +241,7 @@ body .ant-btn.btn-48 {
             top: inherit;
             bottom: 0;
             right: 45% !important;
+            z-index: 99;
         }
     }
 }
@@ -294,6 +288,8 @@ body .ant-btn.btn-48 {
             border: 0.642px solid var(--T-BG-10, #F1F1F5);
             background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(30px);
+            position: absolute;
+            width: 95%;
         }
         .logo {
             padding: 8.292px 16.583px;
@@ -412,6 +408,10 @@ body .ant-btn.btn-48 {
             right: -45px;
             top: 160px;
             z-index: -1;
+            @media only screen and (max-width: 1200px) and (min-width: 992px)  {
+                right: 15px;
+                top: 100px;
+            };
             @media only screen and (max-width: 991px)  {
                 width: 90.526px;
                 height: 90.526px;
@@ -436,6 +436,9 @@ body .ant-btn.btn-48 {
             right: 363px;
             bottom: 60px;
             z-index: -1;
+            @media only screen and (max-width: 1200px) and (min-width: 992px)   {
+                right: 350px;
+            }
             @media only screen and (max-width: 991px)  {
                 width: 90.526px;
                 height: 90.526px;
@@ -463,7 +466,7 @@ body .ant-btn.btn-48 {
             // clip-path: path("M86.6177 40.0625C86.6177 17.9711 104.526 0.0625 126.618 0.0625H399.451C421.543 0.0625 439.451 17.9711 439.451 40.0625V303.508C439.451 325.599 421.543 343.508 399.451 343.508H395.047C372.955 343.508 355.047 361.416 355.047 383.508V427.713C355.047 449.804 337.138 467.712 315.047 467.712H40.8223C18.7309 467.712 0.822266 449.804 0.822266 427.713V165.267C0.822266 143.175 18.7309 125.267 40.8223 125.267H46.6177C68.7091 125.267 86.6177 107.358 86.6177 85.2667V40.0625Z");
             mask-image: url(../images/website-images/hero-doctor.svg);
             mask-repeat: no-repeat;
-            @media only screen and (max-width: 991px)  {
+            @media only screen and (max-width: 1200px)  {
                 margin: 65px auto 0;
                 width: 360px;
                 height: 383px;
@@ -496,6 +499,7 @@ body .ant-btn.btn-48 {
                 display: none;
             }
             padding-bottom: 0;
+            padding-top: 0;
             .clinic-box {
                 @media only screen and (max-width: 991px)  {
                     border-radius: 30px;
@@ -584,9 +588,9 @@ body .ant-btn.btn-48 {
                         width: 100%;
                         margin-right: 0px;
                         margin-bottom: 20px;
-                        &:last-child {
-                            margin-bottom: 30px;
-                        }
+                        // &:last-child {
+                        //     margin-bottom: 30px;
+                        // }
                     }
                     @media only screen and (max-width: 1400px)  {
                         &:first-child {

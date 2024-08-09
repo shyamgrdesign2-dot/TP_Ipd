@@ -23,6 +23,7 @@ function DWClinicProfile() {
 
     const { clinicProfile, setClinicProfile } = useContext(DoctorWebsiteSettingsContext);
     const [activeKey, setActiveKey] = useState(clinicProfile.length ? [`${clinicProfile.length}`] : ['1']);
+    const [activeShiftKeys, setActiveShiftKeys] = useState(['1']);
     const [imageIndex, setImageIndex] = useState(0);
     const [visible, setVisible] = useState(false);
 
@@ -47,6 +48,12 @@ function DWClinicProfile() {
             if (index !== -1) {
                 clinicProfile[index]['selectedTab'] = key;
                 setClinicProfile((prev) => { return [...prev] });
+            }
+            if (key === 2) {
+                setActiveShiftKeys((prev) => ({
+                    ...prev,
+                    [e.random_id]: [`${(clinicProfile[index].shift.length - 1)}`] // Show the new shift
+                }));
             }
         },
         [clinicProfile]
@@ -252,19 +259,53 @@ function DWClinicProfile() {
         },
     ];
 
+    // const addShiftClick = useCallback(
+    //     (e) => {
+    //         const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+    //         if (index !== -1) {
+    //             clinicProfile[index]['shift'].push({
+    //                 days: [],
+    //                 timing: []
+    //             })
+    //             setClinicProfile((prev) => { return [...prev] });
+    //         }
+    //     },
+    //     [clinicProfile]
+    // );
+
     const addShiftClick = useCallback(
-        (e) => {
-            const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
-            if (index !== -1) {
-                clinicProfile[index]['shift'].push({
-                    days: [],
-                    timing: []
-                })
-                setClinicProfile((prev) => { return [...prev] });
-            }
+        (clinicId) => {
+            setClinicProfile((prev) => {
+                const newProfile = [...prev];
+                const index = newProfile.findIndex(el => el.random_id === clinicId);
+                if (index !== -1) {
+                    newProfile[index].shift.push({
+                        days: [],
+                        timing: []
+                    });
+                    return newProfile;
+                }
+                onTabChange(TAB_TIMINGS, { random_id: clinicId });
+                return prev;
+            });
+            setActiveShiftKeys((prev) => ({
+                ...prev,
+                [clinicId]: [`${(clinicProfile.find(el => el.random_id === clinicId)?.shift.length || 0)}`]
+            }));
         },
-        [clinicProfile]
+        [clinicProfile, setClinicProfile]
     );
+
+    const handleShiftCollapseChange = (clinicId, key) => {
+        setActiveShiftKeys((prev) => {
+            const clinicKeys = prev[clinicId] || [];
+            if (clinicKeys.includes(key)) {
+                return { ...prev, [clinicId]: clinicKeys.filter(k => k !== key) };
+            } else {
+                return { ...prev, [clinicId]: [key] };
+            }
+        });
+    };
 
     const setImageRef = (el, i) => {
         try {
@@ -376,7 +417,7 @@ function DWClinicProfile() {
                                     <Input placeholder="Clinic Contact"
                                         className="text-capitalize rounded-10px h-38"
                                         value={e?.contact_no}
-                                        onChange={(el) => onChangeInput(el, 'contact_no', e)} />
+                                        onChange={(el) => onChangeInput(el, 'contact_no', e)} inputMode='numeric' />
                                 </Form.Item>
                             </div>
                             <Tabs activeKey={e?.selectedTab} onChange={(key) => onTabChange(key, e)} items={TabsPrintSetting} className="print-tabs" />
@@ -442,12 +483,15 @@ function DWClinicProfile() {
                                     {e?.shift.map((e1, i1) => {
                                         return (
                                             <div key={i1} className='px-10 mb-2'>
-                                                <Collapse items={TimingItems(e1, i1, e)} defaultActiveKey={['1']} className='prescriptiontab-accordian timingTab' expandIconPosition={'end'} />
+                                                {/* <Collapse items={TimingItems(e1, i1, e)} defaultActiveKey={['1']} className='prescriptiontab-accordian timingTab' expandIconPosition={'end'} /> */}
+                                                <Collapse items={TimingItems(e1, i1, e)} defaultActiveKey={['1']} className='prescriptiontab-accordian timingTab' expandIconPosition={'end'} activeKey={activeShiftKeys[e.random_id] || (e.shift.length > 0 ? [`${e.shift.length}`] : ['1'])}
+                                                    onChange={() => handleShiftCollapseChange(e.random_id, `${i1 + 1}`)} />
                                             </div>
                                         )
                                     })}
                                     <div className='d-flex align-items-center justify-content-between'>
-                                        <button className='d-flex align-items-center mb-2 btn btn-delete-experience btn-delete-experience1 text-primary' onClick={() => addShiftClick(e)}><i className='icon-Add fs-18 me-2'></i>Add More Shifts</button>
+                                        {/* <button className='d-flex align-items-center mb-2 btn btn-delete-experience btn-delete-experience1 text-primary' onClick={() => addShiftClick(e)}><i className='icon-Add fs-18 me-2'></i>Add More Shifts</button> */}
+                                        <button className='d-flex align-items-center mb-2 btn btn-delete-experience btn-delete-experience1 text-primary' onClick={() => addShiftClick(e.random_id)}><i className='icon-Add fs-18 me-2'></i>Add More Shifts</button>
                                         <button className='d-flex align-items-center mb-2 btn btn-delete-experience btn-delete-experience1 text-primary' onClick={() => onTabChange(TAB_PHOTOS, e)}><i className='icon-Add fs-18 me-2'></i>Add Photos</button>
                                     </div>
                                 </>
@@ -568,12 +612,14 @@ function DWClinicProfile() {
             }],
             clinic_photos: [],
             clinic_delete: 0,
-            selectedTab: TAB_ADDRESS
+            selectedTab: TAB_ADDRESS,
+            activeShiftKeys: ['1']
         };
 
         setClinicProfile((prev) => {
             const newProfile = [...prev, newClinic];
-            setActiveKey([`${newProfile.length}`]);
+            const countClinicDeleteZero = newProfile.filter(profile => profile.clinic_delete === 0).length;
+            setActiveKey([`${countClinicDeleteZero}`]);
             return newProfile;
         });
     }, [setClinicProfile]);

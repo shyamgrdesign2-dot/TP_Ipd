@@ -10,6 +10,7 @@ import { useLocation } from 'react-router-dom';
 import { getGynecDetails } from '../api/services/ApiGynec';
 import { errorMessage } from '../utils/utils';
 import { useAccess } from '../pages/vaccination/useAccess';
+import { useSelector } from 'react-redux';
 
 function MedicalHistory({ loading, medicalHistoryData }) {
 
@@ -17,7 +18,8 @@ function MedicalHistory({ loading, medicalHistoryData }) {
     const [gynecHistory, setGynecHistory] = useState({});
 
     const { state } = useLocation();
-    const { patient_data } = state
+    const { patient_data } = state;
+    const { userId } = useSelector((state) => state.doctors);
 
     const {isGynaecHistoryAccessable} = useAccess();
 
@@ -29,7 +31,10 @@ function MedicalHistory({ loading, medicalHistoryData }) {
     
     const fetchGynecHistory = async () => {
         try {
-            const data = await getGynecDetails(patient_data?.patient_unique_id);
+            const data = await getGynecDetails(
+              patient_data?.patient_unique_id,
+              userId
+            );
             setGynecHistory(data);
         } catch (error) {
             errorMessage('Error fetching gynec history:', error);
@@ -48,6 +53,20 @@ function MedicalHistory({ loading, medicalHistoryData }) {
         }
         return acc;
     }, {});
+
+    const medical_history_title = (id) => {
+        var value = ''
+        if (id == 2 ) {
+            value = `Condition : `
+        } else if (id == 3) {
+            value = `History : `
+        } else if (id == 4) {
+            value = `Allergies to : `
+        } else if (id == 1) {
+            value = `Habit : `
+        }
+        return value
+    }
 
     return (
         <div className="appointment-wrap PatientDetailswrap m-0">
@@ -145,7 +164,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                                             <div className='border rounded px-2 my-2'>
                                                                 {e.tags.filter(x => x.enable === 'Y').map((e1, i1) => (
                                                                     <div key={i1} className='my-2'>
-                                                                        <span>Issue</span> : <label>{e1.title}</label>
+                                                                        <span>{medical_history_title(e?.tmmhs_id)}</span> <label>{e1.title}</label>
                                                                         {e1.since && (
                                                                             <> | <span>Since</span> : <label>{e1.since}</label></>
                                                                         )}

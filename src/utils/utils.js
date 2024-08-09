@@ -42,7 +42,7 @@ export const isValidWebsite = (url, account) => {
   // Profile with a numeric ID
   // console.log("https://www.facebook.com/profile.php?id=100004531399459");
 
-  
+
 
   // Instagram URL examples:
   // Standard profile pages
@@ -123,6 +123,10 @@ export const isValidWebsite = (url, account) => {
 export const isValidMap = (url) => {
   const pattern = /^https?:\/\/(www\.)?(google\.[a-z]{2,3}(?:\.[a-z]{2})?|maps\.app\.goo\.gl)\/(maps\/)?[a-zA-Z0-9?=&,.;_-]*$/;
   return pattern.test(url);
+}
+
+export const removeSpecialCharectorWithoutDotSpace = (text) => {
+  return text.replace(/[^\w. ]/g, "");
 }
 
 export const onlyNumberFormat = (text) => {
@@ -275,10 +279,10 @@ export const errorMessage = async (error) => {
   }
 };
 
-export const handleCopy = async (url) => {
+export const handleCopy = async (url, msg = 'Copied') => {
   try {
     await navigator.clipboard.writeText(url);
-    errorMessage('Copied')
+    errorMessage(msg)
   } catch (err) {
     console.error('Failed to copy:', err);
   }
