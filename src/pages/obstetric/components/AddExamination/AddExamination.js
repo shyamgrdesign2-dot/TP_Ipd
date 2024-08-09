@@ -53,10 +53,13 @@ function AddExamination({
         mothersWeight: prefillObstetricData?.weight,
         systolic: prefillObstetricData?.bloodPressure?.split("/")[0],
         diastolic: prefillObstetricData?.bloodPressure?.split("/")[1],
-        bmi: calculate(
-          prefillObstetricData?.height,
-          prefillObstetricData?.weight
-        ),
+        ...(prefillObstetricData?.height &&
+          prefillObstetricData?.weight && {
+            ...calculate(
+              prefillObstetricData?.height,
+              prefillObstetricData?.weight
+            ),
+          }),
       });
     }
   }, [prefillObstetricData]);
