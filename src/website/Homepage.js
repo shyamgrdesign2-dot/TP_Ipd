@@ -307,9 +307,9 @@ function Homepage({ centerPadding, scrollId, personalDetails, aboutDoctor, clini
             <Row className='row-80'>
               <Col sm={24} lg={12} className='w-100'>
                 <div className="hi text-welcome">Hi, I'm</div>
-                <h1 className="doctor-name mb-20 web-h1 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h1>
+                <h1 className="doctor-name mb-20 web-h1 text-welcome">{`${personalDetails?.first_name} ${personalDetails?.last_name}`}</h1>
                 <div className="education-speciality mb-15 text-welcome">{`${personalDetails?.education} - ${personalDetails?.specialty}`}</div>
-                <div className="d-flex flex-wrap mb-lg-5 mb-28">
+                <div className="d-flex flex-wrap gmaildiv-wrap mb-lg-5 mb-28">
                   {/* <div className="location-contact text-welcome mb-2"> <img src={Location} width={18} height={18} alt="Location" /> Ahmedabad</div> */}
                   {personalDetails?.email_id && validateEmail(personalDetails?.email_id) && (
                     <div className="location-contact text-welcome"> <img src={Mail} width={18} height={18} alt="Location" />
@@ -443,9 +443,9 @@ function Homepage({ centerPadding, scrollId, personalDetails, aboutDoctor, clini
                                       )
                                     }}
                                   >
-                                    {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.slice(0, 5)?.map((item, index) => {
+                                    {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.map((item, index) => {
                                       return (
-                                        <div key={index} className='clinic-photo'>
+                                        <div key={index} className='clinic-photo' style={{ display: index > 2 ? 'none' : 'block' }}>
                                           <Image width={60} height={60} className='img-fluid h-100' src={item?.clinic_image_link} alt={item?.clinic_image_name} />
                                         </div>
                                       )
@@ -459,9 +459,9 @@ function Homepage({ centerPadding, scrollId, personalDetails, aboutDoctor, clini
                                       </div>
                                     )
                                   })} */}
-                                  {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.length > 5 && (
+                                  {e?.clinic_photos && e?.clinic_photos?.filter(el => !el?.clinic_image_delete)?.length > 3 && (
                                     <div className='clinic-photo d-flex align-items-center justify-content-center'>
-                                      <div className='title-common text-white'>{`${e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.length - 5}+`}</div>
+                                      <div className='title-common text-white'>{`${e?.clinic_photos?.filter(el => !el.clinic_image_delete)?.length - 3}+`}</div>
                                     </div>
                                   )}
                                 </div>
@@ -603,7 +603,7 @@ function Homepage({ centerPadding, scrollId, personalDetails, aboutDoctor, clini
                                     <div className='bg-icon-common'>
                                       <img width={20} height={20} src={HospitalIcon} alt="Hospital Icon" />
                                     </div>
-                                    <div className='text-welcome fs-16 mt-2'>{e?.hospital}</div>
+                                    <div className='text-welcome fw-medium fs-16 mt-2'>{e?.hospital}</div>
                                   </>
                                 )}
                                 {e?.city && (
@@ -638,7 +638,7 @@ function Homepage({ centerPadding, scrollId, personalDetails, aboutDoctor, clini
                       <div className='bg-icon-common mx-auto mb-20'>
                         <img width={28} height={28} src={EducationIcon} alt="Clinic Address & Hours" />
                       </div>
-                      <h3 className="doctor-name h1 text-white">Education & Training</h3>
+                      <h3 className="doctor-name web-h1 h1 text-white">Education & Training</h3>
                     </div>
                   </div>
                   <Slider
@@ -787,7 +787,7 @@ function Homepage({ centerPadding, scrollId, personalDetails, aboutDoctor, clini
       ) : null}
 
       {/* Profile and Social Media Links */}
-      <div className="website-section">
+      <div className="website-section profile-socialmedia">
         <div className="container" ref={socialSectionRef}>
           <div className='row-80 text-center'>
             <div className='bg-icon-common bg-icon-xl mx-auto mb-20'>

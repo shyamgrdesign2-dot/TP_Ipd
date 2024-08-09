@@ -234,3 +234,221 @@
 .bdg-danger {
     color: #FC5A5A !important;
 }
+
+.react-website-wrapper {
+    @media only screen and (max-width: 1200px)  {
+        .website-wrapper {
+            .website-header {
+                padding: 0 !important;
+                ul li a {
+                    font-size: 10px;
+                    padding: 4px;
+                    margin: 0 5px;
+                }
+                .ant-btn {
+                    margin: 0 !important;
+                    padding: 5px 8px;
+                    height: 40px !important;
+                    border-radius: 10px !important;
+                    span {
+                        font-size: 11px;
+                    }
+                }
+                .logo {
+                    min-width: 130px;
+                    img {
+                        height: 22px;
+                        width: 107px;
+                    }
+                }
+            }
+            .website-section {
+                padding: 35px 0;
+                &.website-footer {
+                    padding: 0;
+                    .clinic-box {
+                        border-radius: 25px;
+                    }
+                }
+                .hi {
+                    font-size: 20px;
+                }
+                h1.web-h1, .h1.web-h1 {
+                    font-size: 28px !important;
+                }
+                .education-speciality {
+                    font-size: 17px;
+                }
+                &.website-banner {
+                    h1.web-h1, .h1.web-h1 {
+                        margin-top: 8px;
+                        margin-bottom: 10px;
+                    }
+                }
+                .gmaildiv-wrap {
+                    margin-bottom: 30px !important;
+                }
+                .location-contact {
+                    a {
+                        font-size: 12px;
+                    }
+                }
+                .round-pink {
+                    width: 90.526px;
+                    height: 90.526px;
+                    right: 0;
+                }
+                .doctor-photo {
+                    width: 290px;
+                    height: 313px;
+                    mask-image: url(../images/website-images/hero-doctor-mobile2.svg);
+                }
+                .square-yellow {
+                    width: 90.526px;
+                    height: 90.526px;
+                    right: 270px;
+                }
+                .slick-slide {
+                    padding: 0 10px !important;
+                }
+                &.website-clinic {
+                    .slick-list {
+                        // padding: 0 !important;
+                        .clinic-box {
+                            padding: 20px;
+                            .timingshape {
+                                width: 287px;
+                                height: 343px;
+                                background-repeat: no-repeat;
+                                background-image: url(../images/website-images/clinic-timing2.svg);
+                            }
+                        }
+                    }   
+                    .clinic-slider {
+                        .title-hypertension {
+                            font-size: 20px;
+                        }
+                    }
+                }
+                &.website-experience {
+                    .ant-col-lg-8 {
+                        flex: 0 0 29.166666666666668%;
+                        max-width: 29.166666666666668%;
+                    }
+                    .ant-col-lg-16 {
+                        flex: 0 0 70.83333333333334%;
+                        max-width: 70.83333333333334%;
+                    }
+                    .slick-arrow {
+                        left: -155px !important;
+                        top: 200px !important;
+                        &.slick-prev {
+                            left: -210px !important;
+                        }
+                    }
+                    .slide-count {
+                        left: 110px;
+                        top: 203px;
+                    }
+                    .bg-icon-common {
+                        min-width: 40px !important;
+                        min-height: 40px !important;
+                        width: 40px !important;
+                        height: 40px !important;
+                    }
+                    .timingshape {
+                        .p-30 {
+                            padding: 20px;
+                        }
+                        height: 300px;
+                    }
+                    .fs-16 {
+                        font-size: 13px !important;
+                        padding: 5px 0;
+                    }
+                }
+                &.website-education {
+                    .clinic-box {
+                        padding: 0 10px 50px;
+                        .py-lg-5 {
+                            padding-top: 2rem !important;
+                            padding-bottom: 1.5rem !important;
+                        }
+                        .timingshape {
+                            width: 100% !important;
+                            height: 270px;
+                            .p-30 {
+                                padding: 20px;
+                            }
+                            .titleprint {
+                                margin: 10px 0 5px;
+                                font-size: 15px;
+                                line-height: 1.4;
+                            }
+                        }
+                        .slide-count {
+                            top: 505px;
+                            left: 60px;
+                        }
+                        .slick-arrow {
+                            right: 90px !important;
+                            top: 330px;
+                            &.slick-prev {
+                                right: 156px !important;
+                            }
+                        }
+                    }
+                }
+                &.website-membership {
+                    .membership-slide {
+                        width: 70px;
+                        height: 70px;
+                        min-width: 70px;
+                        min-height: 70px;
+                    }
+                    .slick-slide {
+                        .title-common {
+                            font-size: 14px;
+                        }
+                    }
+                }
+                &.profile-socialmedia {
+                    .bg-icon-common {
+                        &.bg-icon-xl {
+                            min-width: 95px !important;
+                            min-height: 95px !important;
+                            width: 95px !important;
+                            height: 95px !important;
+                            border-radius: 30px;
+                            img {
+                                height: 60px;
+                            }
+                        }
+                        &.bg-icon-sm2 {
+                            min-width: 36px;
+                            min-height: 36px;
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 8px;
+                        }
+                    }
+                    .ant-btn {
+                        &.mb-lg-5 {
+                            margin-bottom: 20px !important;
+                        }
+                    }
+                    .mt-lg-5 {
+                        margin-top: 20px !important;
+                        border-radius: 10px;
+                    }
+                    .fs-18 {
+                        font-size: 15px !important;
+                    }
+                    .emailres-doc {
+                        font-size: 15px;
+                    }
+                }
+            }
+        }
+    }
+}
