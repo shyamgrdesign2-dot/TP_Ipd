@@ -151,6 +151,15 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
       lmp: prefillObstetricResponse.lmp
         ? moment(prefillObstetricResponse.lmp)
         : patientDiagnosisData.lmp,
+      edd: prefillObstetricResponse.lmp
+        ? moment(prefillObstetricResponse.lmp)
+            .clone()
+            .add(1, "year")
+            .subtract(3, "months")
+            .add(7, "days")
+            .toDate()
+            .toISOString()
+        : patientDiagnosisData.edd,
       blood:
         prefillObstetricResponse.bloodGroup?.indexOf("(") > 0
           ? prefillObstetricResponse.bloodGroup
