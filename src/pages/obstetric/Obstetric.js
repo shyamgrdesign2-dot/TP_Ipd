@@ -61,7 +61,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   const [pastPregnancyDrawer, setPastPregancyDrawer] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [isDataAddedOrEdited, setIsDataAddedOrEdited] = useState(false);
-  const [showLmpPopup, setShowLmpPopup] = useState(!obstetricDetails?.lmp);
+  const [showLmpPopup, setShowLmpPopup] = useState(false);
   const [examinationEditIndex, setExaminationEditIndex] = useState(-1);
   const [pastPregnancyEditIndex, setPastPregnancyEditIndex] = useState(-1);
   const [isFixed, setIsFixed] = useState(false);
@@ -142,6 +142,9 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
     const prefillObstetricResponse = await fetchPrefillObstetricDetails(
       patient_data.patient_unique_id
     );
+    if (!obstetricDetails?.lmp && !prefillObstetricResponse?.lmp) {
+      setShowLmpPopup(true);
+    }
     setPrefillObstetricData(prefillObstetricResponse);
     let gestationInWeeks, gestationInDays, newLmp, newEdd;
     if (prefillObstetricResponse?.lmp) {
