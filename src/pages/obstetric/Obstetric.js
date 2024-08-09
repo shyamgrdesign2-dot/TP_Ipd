@@ -146,38 +146,31 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
       setShowLmpPopup(true);
     }
     setPrefillObstetricData(prefillObstetricResponse);
-    let gestationInWeeks, gestationInDays;
+    let gestationInWeeks, gestationInDays, newLmp, newEdd;
     if (prefillObstetricResponse?.lmp) {
-      gestationInWeeks = today.diff(
-        moment(prefillObstetricResponse?.lmp),
-        "weeks"
-      );
-      const tempDate = lmp.clone().add(gestationInWeeks, "weeks");
+      newLmp = moment(prefillObstetricResponse?.lmp);
+      newEdd = newLmp
+        .clone()
+        .add(1, "year")
+        .subtract(3, "months")
+        .add(7, "days")
+        .toDate()
+        .toISOString();
+      gestationInWeeks = today.diff(newLmp, "weeks");
+      const tempDate = newLmp.clone().add(gestationInWeeks, "weeks");
       gestationInDays = today.diff(tempDate, "days");
     }
     setPatientDiagnosisData({
       ...patientDiagnosisData,
-      lmp: prefillObstetricResponse.lmp
-        ? moment(prefillObstetricResponse.lmp)
-        : patientDiagnosisData.lmp,
-      edd: prefillObstetricResponse.lmp
-        ? moment(prefillObstetricResponse.lmp)
-            .clone()
-            .add(1, "year")
-            .subtract(3, "months")
-            .add(7, "days")
-            .toDate()
-            .toISOString()
-        : patientDiagnosisData.edd,
+      lmp: newLmp || lmp,
+      edd: newEdd || edd,
       blood:
         prefillObstetricResponse.bloodGroup?.indexOf("(") > 0
           ? prefillObstetricResponse.bloodGroup
               ?.slice(0, prefillObstetricResponse.bloodGroup?.indexOf("("))
               ?.trim()
-          : prefillObstetricResponse.bloodGroup || patientDiagnosisData.blood,
-      maritialStatus:
-        prefillObstetricResponse.marriedStatus ||
-        patientDiagnosisData.maritialStatus,
+          : prefillObstetricResponse.bloodGroup || blood,
+      maritialStatus: prefillObstetricResponse.marriedStatus || maritialStatus,
       gestationWeeks: gestationInWeeks || gestationWeeks,
       gestationDays: gestationInDays || gestationDays,
     });
