@@ -62,6 +62,7 @@ function HeaderDoctorWebsite() {
 
             delete newObj['selectedTab'];
             delete newObj['created_by'];
+            delete newObj['activeShiftKeys'];
 
             const updatedServerClinicPhotos = newObj?.clinic_photos?.filter(e1 => !e1.clinic_image_link.startsWith('blob:'))
 
@@ -259,7 +260,9 @@ function HeaderDoctorWebsite() {
                                         && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.city)?.length === 0
                                         && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.state)?.length === 0
                                         && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.address_line)?.length === 0
-                                        && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => el.shift.length === 0)?.length === 0 ? false : true}
+                                        && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => el.shift.length === 0)?.length === 0
+                                        && clinicProfile?.filter(el => !el.clinic_delete)?.every(el => el.shift.every(x => x.days.length !== 0))
+                                        && clinicProfile?.filter(el => !el.clinic_delete)?.every(el => el.shift.every(x => x.timing.every(xl => xl.from_time !== "" && xl.end_time !== ""))) ? false : true}
                                     onClick={onSaveWebsiteClick}>
                                     <i className="icon-New-Window me-2"></i> Save & Publish Website
                                 </Button>
@@ -569,7 +572,7 @@ function HeaderDoctorWebsite() {
                             },
                             {
                                 "random_id": 7398049865,
-                                "name": "Aayushyam Clinic Centre LLP",
+                                "name": "Akshar Clinic",
                                 "contact_no": "Call Clinic",
                                 "address": {
                                     "pincode": "380015",
@@ -619,16 +622,32 @@ function HeaderDoctorWebsite() {
                                         "clinic_image_name": "f523fb8d-e9a3-4b43-a61c-e19c5e162ef6.png",
                                         "clinic_image_thumb_name": "thumb_f523fb8d-e9a3-4b43-a61c-e19c5e162ef6.png",
                                         "clinic_image_delete": 0,
-                                        "clinic_image_thumb_link": "https://dhsplcitatvaclinic.blob.core.windows.net/dhsplqa/thumb_f523fb8d-e9a3-4b43-a61c-e19c5e162ef6.png?sv=2023-11-03&se=2024-08-07T10%3A19%3A36Z&sr=b&sp=r&sig=GPDLmaeWRI1KVBgNxJ6UwMGHNnA5vO%2BzNFzxaGOkFEE%3D",
-                                        "clinic_image_link": "https://dhsplcitatvaclinic.blob.core.windows.net/dhsplqa/f523fb8d-e9a3-4b43-a61c-e19c5e162ef6.png?sv=2023-11-03&se=2024-08-07T10%3A19%3A36Z&sr=b&sp=r&sig=en6kxU7cE1sdye5I4GL2xZGasd1qvhVk18C58zG1j0o%3D"
+                                        "clinic_image_thumb_link": "https://media.istockphoto.com/id/1315141049/photo/innovative-technology-in-a-modern-hospital-operating-room-futuristic-medical-interface.jpg?s=612x612&w=0&k=20&c=_Xd8yzWHctije-bdTd_FApLlpN4M-i2PrKG55vT20J8=",
+                                        "clinic_image_link": "https://media.istockphoto.com/id/1315141049/photo/innovative-technology-in-a-modern-hospital-operating-room-futuristic-medical-interface.jpg?s=612x612&w=0&k=20&c=_Xd8yzWHctije-bdTd_FApLlpN4M-i2PrKG55vT20J8="
                                     },
                                     {
                                         "clinic_image_id": 4468370316,
                                         "clinic_image_name": "6cad3eee-83f0-4365-a6e6-86a292911c56.png",
                                         "clinic_image_thumb_name": "thumb_6cad3eee-83f0-4365-a6e6-86a292911c56.png",
                                         "clinic_image_delete": 0,
-                                        "clinic_image_thumb_link": "https://dhsplcitatvaclinic.blob.core.windows.net/dhsplqa/thumb_6cad3eee-83f0-4365-a6e6-86a292911c56.png?sv=2023-11-03&se=2024-08-07T10%3A19%3A36Z&sr=b&sp=r&sig=JiYrc32A4bzMcUtwKsVKbwjTgKadyNQRDiSOn00ehE0%3D",
-                                        "clinic_image_link": "https://dhsplcitatvaclinic.blob.core.windows.net/dhsplqa/6cad3eee-83f0-4365-a6e6-86a292911c56.png?sv=2023-11-03&se=2024-08-07T10%3A19%3A36Z&sr=b&sp=r&sig=n3C21I6na09AC9K%2BLZxMoKSItW2EYvRMxBL%2FW6R%2FfhQ%3D"
+                                        "clinic_image_thumb_link": "https://static.toiimg.com/thumb/msid-100889909,width-1280,height-720,resizemode-72/100889909.jpg",
+                                        "clinic_image_link": "https://static.toiimg.com/thumb/msid-100889909,width-1280,height-720,resizemode-72/100889909.jpg"
+                                    },
+                                    {
+                                        "clinic_image_id": 4468370316,
+                                        "clinic_image_name": "6cad3eee-83f0-4365-a6e6-86a292911c56.png",
+                                        "clinic_image_thumb_name": "thumb_6cad3eee-83f0-4365-a6e6-86a292911c56.png",
+                                        "clinic_image_delete": 0,
+                                        "clinic_image_thumb_link": "https://img.freepik.com/free-photo/young-man-being-ill-hospital-bed_23-2149017252.jpg",
+                                        "clinic_image_link": "https://img.freepik.com/free-photo/young-man-being-ill-hospital-bed_23-2149017252.jpg"
+                                    },
+                                    {
+                                        "clinic_image_id": 4468370316,
+                                        "clinic_image_name": "6cad3eee-83f0-4365-a6e6-86a292911c56.png",
+                                        "clinic_image_thumb_name": "thumb_6cad3eee-83f0-4365-a6e6-86a292911c56.png",
+                                        "clinic_image_delete": 0,
+                                        "clinic_image_thumb_link": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Hospital-de-Bellvitge.jpg/640px-Hospital-de-Bellvitge.jpg",
+                                        "clinic_image_link": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Hospital-de-Bellvitge.jpg/640px-Hospital-de-Bellvitge.jpg"
                                     }
                                 ],
                                 "clinic_delete": 0
