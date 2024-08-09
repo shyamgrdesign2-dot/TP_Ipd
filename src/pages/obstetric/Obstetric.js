@@ -14,7 +14,9 @@ import { Drawer } from "antd";
 import {
   addObstetricData,
   fetchAllObstetricDetails,
+  fetchPrefillObstetricDetails,
   updateObstetricData,
+  updatePrefillObstetricData,
 } from "./service";
 import {
   addObstetricDetails,
@@ -73,6 +75,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
 
   const [patientDiagnosisNotes, setPatientDiagnosisNotes] =
     useState(diagnosisNotes);
+  const [prefillObstetricData, setPrefillObstetricData] = useState({});
 
   const today = moment();
   const lmpValue = moment(lmp);
@@ -106,7 +109,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
 
   const pregnancyRef = useRef(null);
   const examinationRef = useRef(null);
-  const { profile } = useSelector((state) => state.doctors);
+  const { profile, userId } = useSelector((state) => state.doctors);
 
   useEffect(() => {
     if (examinationEditIndex >= 0) {
@@ -131,8 +134,44 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   }, []);
 
   useEffect(() => {
+    getPrefillObstetricDetails();
     scrollToBottom();
   }, []);
+
+  const getPrefillObstetricDetails = async () => {
+    const prefillObstetricResponse = await fetchPrefillObstetricDetails(
+      patient_data.patient_unique_id
+    );
+    setPrefillObstetricData(prefillObstetricResponse);
+    let gestationInWeeks, gestationInDays, newLmp, newEdd;
+    if (prefillObstetricResponse?.lmp) {
+      newLmp = moment(prefillObstetricResponse?.lmp);
+      newEdd = newLmp
+        .clone()
+        .add(1, "year")
+        .subtract(3, "months")
+        .add(7, "days")
+        .toDate()
+        .toISOString();
+      gestationInWeeks = today.diff(newLmp, "weeks");
+      const tempDate = newLmp.clone().add(gestationInWeeks, "weeks");
+      gestationInDays = today.diff(tempDate, "days");
+    }
+    setPatientDiagnosisData({
+      ...patientDiagnosisData,
+      lmp: newLmp || lmp,
+      edd: newEdd || edd,
+      blood:
+        prefillObstetricResponse.bloodGroup?.indexOf("(") > 0
+          ? prefillObstetricResponse.bloodGroup
+              ?.slice(0, prefillObstetricResponse.bloodGroup?.indexOf("("))
+              ?.trim()
+          : prefillObstetricResponse.bloodGroup || blood,
+      maritialStatus: prefillObstetricResponse.marriedStatus || maritialStatus,
+      gestationWeeks: gestationInWeeks || gestationWeeks,
+      gestationDays: gestationInDays || gestationDays,
+    });
+  };
 
   const scrollToBottom = () => {
     if (activeTab === "pregnancyHistory") {
@@ -144,7 +183,8 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
-      patient_data.patient_unique_id
+      patient_data.patient_unique_id,
+      userId
     );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
@@ -226,8 +266,19 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
       dispatch(resetUpdatedPatientDiagnosis());
       setLoader(true);
       const obstetricResponse = obstetricDetails?._id
-        ? await updateObstetricData(obstetricDetails?.patientId, payload)
+        ? await updateObstetricData(
+            obstetricDetails?.patientId,
+            payload,
+            userId
+          )
         : await addObstetricData(payload);
+      const prefillObstetricPayload = {};
+      Object.keys(prefillObstetricData).forEach((key) => {
+        if (prefillObstetricData[key]) {
+          prefillObstetricPayload[key] = prefillObstetricData[key];
+        }
+      });
+      await updatePrefillObstetricData(prefillObstetricPayload, userId);
       setLoader(false);
       if (obstetricResponse?.data) {
         trackUpdateEvent();
@@ -274,6 +325,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
           setPastPregnancyData={setPastPregnancyData}
           setPatientDiagnosisNotes={setPatientDiagnosisNotes}
           isFixed={isFixed}
+          setPrefillObstetricData={setPrefillObstetricData}
         />
 
         <Tabs
@@ -333,6 +385,8 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
             isDataAddedOrEdited={isDataAddedOrEdited}
             setIsDataAddedOrEdited={setIsDataAddedOrEdited}
             setIsExaminationUpdated={setIsExaminationUpdated}
+            prefillObstetricData={prefillObstetricData}
+            setPrefillObstetricData={setPrefillObstetricData}
           />
         </Drawer>
       )}

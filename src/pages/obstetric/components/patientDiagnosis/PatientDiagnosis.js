@@ -36,6 +36,7 @@ export default function PatientDiagnosis({
   setPastPregnancyData,
   setPatientDiagnosisNotes,
   isFixed,
+  setPrefillObstetricData,
 }) {
   const dispatch = useDispatch();
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
@@ -71,6 +72,16 @@ export default function PatientDiagnosis({
 
   const handlePatientDiagnosis = (newValue, key, isValid = true) => {
     if (isValid) {
+      if (["lmp", "blood", "maritialStatus"].includes(key)) {
+        setPrefillObstetricData((prevState) => ({
+          ...prevState,
+          [key === "blood"
+            ? "bloodGroup"
+            : key === "maritialStatus"
+            ? "marriedStatus"
+            : key]: newValue,
+        }));
+      }
       setPatientDiagnosisData((prevState) => ({
         ...prevState,
         [key]: newValue,
