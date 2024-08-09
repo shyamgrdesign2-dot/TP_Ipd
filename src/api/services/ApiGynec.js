@@ -1,12 +1,15 @@
 import api from "../../api/services/axiosService";
 import config from "../../config";
+import { getDecodedToken } from "../../utils/localStorage";
 
 const baseUrl = { customBaseUrl: config.gynec_api_url };
 
 export const getGynecDetails = async function (patient_unique_id, userId) {
   let res = {};
   try {
-    res = await api.get(`/gynec/${patient_unique_id}/${userId}`, baseUrl);
+    const decodedToken = getDecodedToken();
+    const doctorId = decodedToken?.result?.user_id;
+    res = await api.get(`/gynec/${patient_unique_id}/${userId || doctorId}`, baseUrl);
 
     res = res.data;
   } catch (e) {
