@@ -1,6 +1,23 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Button, Collapse } from 'antd';
 
+// Read More content
+const ReadMore = ({ children }) => {
+    const text = children;
+    const [isReadMore, setIsReadMore] = useState(true);
+    const toggleReadMore = () => {
+        setIsReadMore(!isReadMore);
+    };
+    return (
+        <div className="text mb-0 fontroboto lh-base fs-13">
+            {isReadMore && text.length > 63 ? text.slice(0, 63) : text}
+            <span onClick={toggleReadMore} style={{fontSize: "12px"}} className="read-or-hide">
+                {text.length > 63 ? isReadMore ? "... View More" : " View Less" : ""}
+            </span>
+        </div>
+    );
+};
+
 function TabGynecHistoryList(props) {
     const {gynecHistory} = props
     const [accordionItems, setAccordionItems] = useState([]);
@@ -38,7 +55,13 @@ function TabGynecHistoryList(props) {
                             {gynecHistory.menarcheNotes && (
                                 <div key="notes" className="my-2">
                                     <div style={{fontSize: "12px",fontWeight:"600"}} >Notes</div>
-                                    <div style={{fontSize: "12px"}} className="border rounded px-2">{gynecHistory.menarcheNotes}</div>
+                                    <div style={{fontSize: "12px"}} className="border rounded px-2">
+                                        <div className='my-2'>
+                                            <ReadMore>
+                                                {gynecHistory.menarcheNotes}
+                                            </ReadMore>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                             {gynecHistory.cycle && (
@@ -55,10 +78,16 @@ function TabGynecHistoryList(props) {
                                     <div className="text-history font-roboto fs-13">{gynecHistory.intervalOfCycle} days</div>
                                 </div>
                             )}
-                              {gynecHistory.cycleNotes && (
+                            {gynecHistory.cycleNotes && (
                                 <div key="notes" className="my-2">
                                     <div style={{fontSize: "12px",fontWeight:"600"}} >Notes</div>
-                                    <div style={{fontSize: "12px"}} className="border rounded px-2">{gynecHistory.cycleNotes}</div>
+                                    <div style={{fontSize: "12px"}} className="border rounded px-2">
+                                        <div className='my-2'>
+                                            <ReadMore>
+                                                {gynecHistory.cycleNotes}
+                                            </ReadMore>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                             {gynecHistory.flow && (
@@ -92,7 +121,13 @@ function TabGynecHistoryList(props) {
                             {gynecHistory.flowNotes && (
                                 <div key="notes" className="my-2">
                                     <div style={{fontSize: "12px",fontWeight:"600"}} >Notes</div>
-                                    <div style={{fontSize: "12px"}} className="border rounded px-2">{gynecHistory.flowNotes}</div>
+                                    <div style={{fontSize: "12px"}} className="border rounded px-2">
+                                        <div className='my-2'>
+                                            <ReadMore>
+                                                {gynecHistory.flowNotes}
+                                            </ReadMore>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                             {gynecHistory.pain && (
@@ -112,7 +147,13 @@ function TabGynecHistoryList(props) {
                             {gynecHistory.painNotes && (
                                 <div key="notes" className="my-2">
                                     <div style={{fontSize: "12px",fontWeight:"600"}} >Notes</div>
-                                    <div style={{fontSize: "12px"}} className="border rounded px-2">{gynecHistory.painNotes}</div>
+                                    <div style={{fontSize: "12px"}} className="border rounded px-2">
+                                        <div className='my-2'>
+                                            <ReadMore>
+                                                {gynecHistory.painNotes}
+                                            </ReadMore>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                             {gynecHistory.ageAtMenopause && (
@@ -132,13 +173,25 @@ function TabGynecHistoryList(props) {
                             {gynecHistory.reproductiveNotes && (
                                 <div key="notes" className="my-2">
                                     <div style={{fontSize: "12px",fontWeight:"600"}} >Notes</div>
-                                    <div style={{fontSize: "12px"}} className="border rounded px-2">{gynecHistory.reproductiveNotes}</div>
+                                    <div style={{fontSize: "12px"}} className="border rounded px-2">
+                                        <div className='my-2'>
+                                            <ReadMore>
+                                                {gynecHistory.reproductiveNotes}
+                                            </ReadMore>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                             {gynecHistory.notes && (
                                 <div key="notes" className="my-2">
                                     <div style={{fontSize: "12px",fontWeight:"600"}} >Menstruation notes</div>
-                                    <div style={{fontSize: "12px"}} className="border rounded px-2">{gynecHistory.notes}</div>
+                                    <div style={{fontSize: "12px"}} className="border rounded px-2">
+                                        <div className='my-2'>
+                                            <ReadMore>
+                                                {gynecHistory.notes}
+                                            </ReadMore>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>
