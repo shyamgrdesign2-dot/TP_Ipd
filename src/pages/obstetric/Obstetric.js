@@ -278,7 +278,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
           prefillObstetricPayload[key] = prefillObstetricData[key];
         }
       });
-      await updatePrefillObstetricData(prefillObstetricPayload);
+      await updatePrefillObstetricData(prefillObstetricPayload, userId);
       setLoader(false);
       if (obstetricResponse?.data) {
         trackUpdateEvent();

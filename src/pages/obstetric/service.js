@@ -58,10 +58,10 @@ export const fetchPrefillObstetricDetails = async function (patient_unique_id) {
   return res;
 };
 
-export const updatePrefillObstetricData = async function (payload) {
+export const updatePrefillObstetricData = async function (payload, userId) {
   let res = {};
   try {
-    res = await api.patch(`/prefilled/${doctorId}`, payload, baseUrl);
+    res = await api.patch(`/prefilled/${userId}`, payload, baseUrl);
   } catch (e) {
     console.error("Error while addObstetricData: ", e);
   }
