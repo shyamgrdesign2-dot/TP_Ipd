@@ -22,6 +22,7 @@ import CertificateDetails from "../components/medical_certificate/CertificateDet
 import VisitGrowthChart from "./growthChart/components/visitGrowthChart/VisitGrowthChart";
 import { useAccess } from "./vaccination/useAccess";
 import VisitObstetric from "./obstetric/components/visitObstetric/VisitObstetric";
+import { getClinicName } from "../utils/utils";
 
 const { Sider, Content } = Layout;
 
@@ -55,6 +56,12 @@ function PatientDetails() {
     }, [location]);
 
     useEffect(() => {
+        const clinic_name = getClinicName(profile?.hospital_data);
+        window.Moengage.track_event("TP_Patient_detail_landing", {
+            clinic_name,
+            patient_number: patient_data?.pm_contact_no,
+            patient_id: patient_data?.patient_unique_id,
+        })
         var sendData = {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
             tcm_id: tcmData.tcm_id

@@ -18,7 +18,7 @@ import { addPatientCertificate, editPatientCertificate } from "../redux/doctorsS
 import alertIcon from '../assets/images/alertIcon.svg';
 import fontSizeIcon from '../assets/images/fontSizeIcon.svg';
 import CreateCertificate from "../components/medical_certificate/CreateCertificate";
-import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
+import { errorMessage, getClinicName, removeBeforeWhiteSpace } from "../utils/utils";
 
 function MedicalCertificate() {
 
@@ -396,6 +396,12 @@ function MedicalCertificate() {
     }, [title]);
 
     const onPatientCertificateClick = async () => {
+        const clinic_name = getClinicName(profile?.hospital_data);
+        window.Moengage.track_event("TP_Consultation_edited", {
+            clinic_name,
+            patient_number: patient_data?.pm_contact_no,
+            patient_id: patient_data?.patient_unique_id,
+        })
         var sendData = {
             patient_unique_id: patient_data?.patient_unique_id !== undefined ? patient_data?.patient_unique_id : 0,
             pam_id: patient_data?.pam_id !== undefined ? patient_data?.pam_id : 0,
