@@ -109,13 +109,18 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     if (patients_details) {
       getGrowthChartDetails();
       setShowTimelineInYear(patients_details?.ageYears >= 2);
-      getGraphsToPrintCheckBox();
     }
   }, [patients_details]);
 
   useEffect(() => {
     getPatientParentalDetails();
   }, []);
+
+  useEffect(() => {
+    if (patients_details) {
+      getGraphsToPrintCheckBox();
+    }
+  }, [patients_details, growthChartData]);
 
   const handlePrintWeb = useReactToPrint({
     content: () => printableRef.current,
@@ -208,7 +213,11 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
   const getGraphsToPrintCheckBox = () => {
     const percentileVisibility = visibility;
-    const updatedGraphsToPrintData = graphsToPrint
+    const growthChartDataKeys = Object.keys(growthChartData);
+    let updatedGraphsToPrintData = graphsToPrintData.filter((item) =>
+      growthChartDataKeys.includes(item.id)
+    );
+    updatedGraphsToPrintData = updatedGraphsToPrintData
       .map((graphItem) => {
         const percentileData =
           graphItem.id === "Weight" && patientAgeInMonths > 120
