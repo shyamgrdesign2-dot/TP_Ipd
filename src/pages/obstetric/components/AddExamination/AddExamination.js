@@ -46,7 +46,7 @@ function AddExamination({
   }, [editIndex]);
 
   useEffect(() => {
-    if (editIndex === -1) {
+    if (editIndex === -1 && prefillObstetricData) {
       setExaminationData({
         ...examinationData,
         mothersHeight: prefillObstetricData?.height,
@@ -62,8 +62,7 @@ function AddExamination({
           }),
       });
     }
-  }, [prefillObstetricData]);
-
+  }, []);
   const handleExaminationDataChange = (field, value) => {
     let bmi;
     if (field === "mothersWeight") {
