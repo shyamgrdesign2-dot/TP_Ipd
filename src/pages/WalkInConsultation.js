@@ -14,7 +14,7 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import TabHeader from "../components/tab_design/TabHeader";
 import CommonModal from "../common/CommonModal";
 import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
-import { isNumeric, isAlphabet } from "../utils/utils";
+import { isNumeric, isAlphabet, getClinicName } from "../utils/utils";
 import { resetVaccineState } from "../redux/vaccineSlice";
 
 import smartPad from "../assets/images/smartPad.svg";
@@ -99,7 +99,7 @@ function WalkInConsultation() {
   //   // setOpenRowIndex(patient?.patient_unique_id);
   // };
 
-  
+
   const onConsultClick = async (record) => {
     // window.Moengage.track_event("patient_search_consult", {
     //   doctor_id: profile?.doctor_unique_id,
@@ -141,7 +141,7 @@ function WalkInConsultation() {
     return (
       <>
         <div className="d-flex align-items-center justify-content-between">
-          <div className="d-flex align-items-center" onClick={()=>{
+          <div className="d-flex align-items-center" onClick={() => {
             setAutoCompleteFlag(false)
             setClickedPatient(patient)
           }}>
@@ -181,69 +181,75 @@ function WalkInConsultation() {
               type="text"
               className="btn btn-primary2 me-4 align-items-center d-flex"
               icon={<i className="icon-Preview"></i>}
-              onClick={() =>
+              onClick={() => {
+                const clinic_name = getClinicName(profile?.hospital_data);
+                window.Moengage.track_event("TP_Patient_details", {
+                  clinic_name,
+                  "patient_number": patient?.pm_contact_no,
+                  "patient_id": patient?.patient_unique_id
+                });
                 navigate("/patient_details", {
                   state: { patient_data: patient },
                 })
-              }
-            > 
+              }}
+            >
               Patient Details
             </Button>
-            {isSmartSyncAccessableFromGB  && !isMobile ? (
+            {isSmartSyncAccessableFromGB && !isMobile ? (
               <div className="d-flex btn btn-smart-rx-walkin">
-              <div style={{paddingLeft: "6px"}} onClick={() => onSmartRxClick(patient)}>
-                <img src={smartPad} alt="vitals" />
-                <button
-                  // className="btn btn-outline-primary btn-smart-rx"
-                  className="btn btn-smartRx-text"
-                >
-                  SmartRx
-                </button>
-              </div>
-              <div>
-                <Dropdown
-                  className="btn"
-                  menu={{
-                    items: getMenuItems(patient),
-                  }}
-                  trigger={["click"]}
-                >
-                  <a
-                    onClick={(e) => {
-                      e.preventDefault();
-                    }}
-                    style={{padding:"5px"}}
+                <div style={{ paddingLeft: "6px" }} onClick={() => onSmartRxClick(patient)}>
+                  <img src={smartPad} alt="vitals" />
+                  <button
+                    // className="btn btn-outline-primary btn-smart-rx"
+                    className="btn btn-smartRx-text"
                   >
-                    <i
-                      className="icon-right"
-                      style={{
-                      display: "block",
-                      transform: `rotate(270deg)`,
-                      color: "white",
-                      // padding: "5px"
+                    SmartRx
+                  </button>
+                </div>
+                <div>
+                  <Dropdown
+                    className="btn"
+                    menu={{
+                      items: getMenuItems(patient),
+                    }}
+                    trigger={["click"]}
+                  >
+                    <a
+                      onClick={(e) => {
+                        e.preventDefault();
                       }}
-                    />
-                  </a>
-                </Dropdown>
+                      style={{ padding: "5px" }}
+                    >
+                      <i
+                        className="icon-right"
+                        style={{
+                          display: "block",
+                          transform: `rotate(270deg)`,
+                          color: "white",
+                          // padding: "5px"
+                        }}
+                      />
+                    </a>
+                  </Dropdown>
+                </div>
               </div>
-              </div>
-            ) : ( 
+            ) : (
               <Button
-              type="text"
-              className="btn btn-primary3 align-items-center d-flex"
-              icon={<i className="icon-Consult"></i>}
-              onClick={() => {
+                type="text"
+                className="btn btn-primary3 align-items-center d-flex"
+                icon={<i className="icon-Consult"></i>}
+                onClick={() => {
                   window.Moengage.track_event("walkin_consult_start", {
-                      "doctor_id": profile?.doctor_unique_id,
-                      "patient_type": 'Existing',
-                      "patient_id": patient?.patient_unique_id
+                    "doctor_id": profile?.doctor_unique_id,
+                    "patient_type": 'Existing',
+                    "patient_id": patient?.patient_unique_id
                   });
                   navigate("/prescription", { state: { patient_data: patient } })
-              }}
+                }}
               >
                 Start Consult
               </Button>
-              )}
+            )}
           </div>
         </div>
       </>
@@ -263,11 +269,11 @@ function WalkInConsultation() {
     );
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(resetVaccineState());
     dispatch(resetGrowthChartState());
     dispatch(resetObstetricState());
-  },[])
+  }, [])
 
   useEffect(() => {
     if (searchQuery) {
@@ -312,6 +318,10 @@ function WalkInConsultation() {
 
   const onSearchParent = useCallback(
     (query) => {
+      const clinic_name = getClinicName(profile?.hospital_data);
+      window.Moengage.track_event("TP_Patient_searched", {
+        clinic_name,
+      });
       setSearchQuery(query);
     },
     [searchQuery]
@@ -381,75 +391,75 @@ function WalkInConsultation() {
                 </div>
                 {isSmartSyncAccessableFromGB && !isMobile ? (
                   <>
-                  <div
-                    style={{
-                      background: "#4B4AD5",
-                      borderRadius: "10px",
-                      color: "white",
-                      marginLeft: "1rem",
-                    }}
-                  >
-                    <button
-                      // className="btn btn-outline-primary btn-smart-rx"
-                      className="btn btn-outline-primary btn-smart-rx"
-                      onClick={() => onSmartRxClick(clickedPatient)}
-                      style={{ padding: "9px 8rem 9px 10px" }}
+                    <div
+                      style={{
+                        background: "#4B4AD5",
+                        borderRadius: "10px",
+                        color: "white",
+                        marginLeft: "1rem",
+                      }}
                     >
-                      <img src={smartPad} alt="vitals" className="me-3" />
-                      <span className="btn-span-smartRx">SmartRx</span>
-                    </button>
-                    <button
-                      className="btn btn-outline-primary btn-down-arrow"
-                      onClick={handleClickDownArrow}
-                      style={{ padding: "9.5px 5px" }}
-                    >
-                      <span
-                        role="img"
-                        aria-label="down"
-                        className="anticon anticon-down ant-select-suffix"
+                      <button
+                        // className="btn btn-outline-primary btn-smart-rx"
+                        className="btn btn-outline-primary btn-smart-rx"
+                        onClick={() => onSmartRxClick(clickedPatient)}
+                        style={{ padding: "9px 8rem 9px 10px" }}
                       >
-                        <i
-                          className="icon-right"
-                          style={{
-                            display: "block",
-                            transform: `rotate(270deg)`,
-                            color: "white",
-                          }}
-                        />
-                      </span>
-                    </button>
-                  </div>
-                  {clickedDownArrow && (
-                    <button
-                      ref={consultButtonRef}
-                      className="btn-consult-walkIn"
-                      onClick={() => onConsultClick(clickedPatient)}
-                    >
-                      Consult
-                    </button>
-                  )}
-                  </> 
-                ) : (  
+                        <img src={smartPad} alt="vitals" className="me-3" />
+                        <span className="btn-span-smartRx">SmartRx</span>
+                      </button>
+                      <button
+                        className="btn btn-outline-primary btn-down-arrow"
+                        onClick={handleClickDownArrow}
+                        style={{ padding: "9.5px 5px" }}
+                      >
+                        <span
+                          role="img"
+                          aria-label="down"
+                          className="anticon anticon-down ant-select-suffix"
+                        >
+                          <i
+                            className="icon-right"
+                            style={{
+                              display: "block",
+                              transform: `rotate(270deg)`,
+                              color: "white",
+                            }}
+                          />
+                        </span>
+                      </button>
+                    </div>
+                    {clickedDownArrow && (
+                      <button
+                        ref={consultButtonRef}
+                        className="btn-consult-walkIn"
+                        onClick={() => onConsultClick(clickedPatient)}
+                      >
+                        Consult
+                      </button>
+                    )}
+                  </>
+                ) : (
                   <Button
-                  type="text"
-                  className="btn btn-primary3 align-items-center d-flex btn-41 w-50 ms-4"
-                  icon={<i className="icon-Consult"></i>}
-                  onClick={() => {
-                    window.Moengage.track_event("walkin_consult_start", {
-                      doctor_id: profile?.doctor_unique_id,
-                      patient_type: "Existing",
-                      patient_id: clickedPatient?.patient_unique_id,
-                    });
-                    navigate("/prescription", {
-                      state: { patient_data: clickedPatient },
-                    });
-                  }}
+                    type="text"
+                    className="btn btn-primary3 align-items-center d-flex btn-41 w-50 ms-4"
+                    icon={<i className="icon-Consult"></i>}
+                    onClick={() => {
+                      window.Moengage.track_event("walkin_consult_start", {
+                        doctor_id: profile?.doctor_unique_id,
+                        patient_type: "Existing",
+                        patient_id: clickedPatient?.patient_unique_id,
+                      });
+                      navigate("/prescription", {
+                        state: { patient_data: clickedPatient },
+                      });
+                    }}
                   >
                     Start Consult{" "}
                     <i className="icon-right iconrotate180 ms-auto"></i>
                   </Button>
                 )
-              }
+                }
               </div>
             </div>
           </>
@@ -460,15 +470,15 @@ function WalkInConsultation() {
 
   function goToAddPatient() {
     window.Moengage.track_event("walkin_consult_start", {
-        "doctor_id": profile?.doctor_unique_id,
-        "patient_type": 'New',
+      "doctor_id": profile?.doctor_unique_id,
+      "patient_type": 'New',
     });
     if (searchQuery.length === 10 && isNumeric(searchQuery)) {
-        navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery } } });
+      navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery } } });
     } else if (searchQuery.length > 0 && isAlphabet(searchQuery)) {
-        navigate("/add_patient", { state: { patient_data: { pm_fullname: searchQuery, pm_contact_no: '' } } });
+      navigate("/add_patient", { state: { patient_data: { pm_fullname: searchQuery, pm_contact_no: '' } } });
     } else {
-        navigate("/add_patient");
+      navigate("/add_patient");
     }
   }
 
@@ -479,10 +489,10 @@ function WalkInConsultation() {
     // });
     navigate("/smart-prescription", { state: { patient_data: patient } });
   };
-  
+
   return (
     <>
-    {isMobile && <TabHeader flag={1} title="Start Walk-in Consultation" onClick={goToAddPatient} />}
+      {isMobile && <TabHeader flag={1} title="Start Walk-in Consultation" onClick={goToAddPatient} />}
       <div
         className={`${!isMobile && "border rounded-4 appointment-wrap"} p-4`}
       >
@@ -496,9 +506,8 @@ function WalkInConsultation() {
             value={searchQuery}
             onSearch={onSearchParent}
             options={searchOptions}
-            className={`${
-              isMobile ? "autocomplete-ios" : "w-100"
-            } autocomplete-custom`}
+            className={`${isMobile ? "autocomplete-ios" : "w-100"
+              } autocomplete-custom`}
             // onSelect={onSelect}
             onFocus={onFocusParent}
             onBlur={onBlurParent}
@@ -507,9 +516,8 @@ function WalkInConsultation() {
             defaultOpen
             listHeight={isMobile ? window.innerHeight - 180 : 320}
             autoFocus
-            popupClassName={`walkincomplete ${
-              isMobile && "walkincomplete-mobile"
-            }`}
+            popupClassName={`walkincomplete ${isMobile && "walkincomplete-mobile"
+              }`}
           >
             <Input
               placeholder="Search by Patient’s Name, Phone number or Id"

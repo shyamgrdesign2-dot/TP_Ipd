@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 import { useSelector } from "react-redux";
 
-import { makeDefaultLogo } from "../utils/utils";
+import { getClinicName, makeDefaultLogo } from "../utils/utils";
 
 function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHandle }) {
 
@@ -40,7 +40,16 @@ function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHan
             </div>
             <div>
                 <Link to="/edit_patient" replace={true} state={{ patient_data: patient_data }}>
-                    <Button className='btn btn-primary2 d-flex justify-content-center align-items-center w-100 mt-3 btn-41'>
+                    <Button className='btn btn-primary2 d-flex justify-content-center align-items-center w-100 mt-3 btn-41'
+                        onClick={() => {
+                            const clinic_name = getClinicName(profile?.hospital_data);
+                            window.Moengage.track_event("TP_patient_details_updated", {
+                                clinic_name,
+                                "patient_number": patient_data?.pm_contact_no,
+                                "patient_id": patient_data?.patient_unique_id
+                            });
+                        }}
+                    >
                         <i className='icon-Edit me-2 fs-21'></i>
                         Edit Profile
                     </Button>
