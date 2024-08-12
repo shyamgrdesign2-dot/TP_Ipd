@@ -409,7 +409,7 @@ const UpdateVaccine = ({
                           label: brand?.tvc_name,
                           value: brand?.tvc_id,
                         }))}
-                      dropdownStyle={{ maxHeight: "176px", overflow: "auto" }}
+                      dropdownStyle={{ maxHeight: "176px" }}
                       onChange={(value) => {
                         handleDetails(
                           vaccine?.tvac_name,
