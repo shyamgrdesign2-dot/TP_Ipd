@@ -31,9 +31,10 @@ const { TabPane } = Tabs;
 function PatientForm({ mode = ADD, patient_data }) {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { loading, profile } = useSelector(
+    const { loading } = useSelector(
       (state) => state.records
     );
+    const { profile } = useSelector((state) => state.doctors);
 
     const [form] = Form.useForm();
     const [isModalOpen, setIsModalOpen] = useState(false);

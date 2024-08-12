@@ -53,7 +53,7 @@ import { getClinicName } from "../utils/utils";
 
 function Prescription() {
   const {
-    profile,
+    userId,
     customizedPadLeftList,
     customizedPadRightList,
     frequencyList,
@@ -75,6 +75,8 @@ function Prescription() {
     caseManagerData !== undefined
       ? caseManagerData.consultation_date
       : moment().format("YYYY-MM-DD HH:mm:ss");
+
+      const { profile } = useSelector((state) => state.doctors);
 
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
@@ -132,7 +134,10 @@ function Prescription() {
   );
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchAllObstetricDetails(patient_data.patient_unique_id);
+    const obstetricResponse = await fetchAllObstetricDetails(
+      patient_data.patient_unique_id,
+      userId
+    );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
     }
@@ -432,16 +437,19 @@ function Prescription() {
   }, [isGynaecHistoryAccessable]);
 
   const fetchGynecHistory = async () => {
-    try {
-      const data = await getGynecDetails(patient_data.patient_unique_id);
-      // Destructure to remove createdAt and createdBy
-      const { createdAt, createdBy, ...updatedData } = data;
-
-      setUpdatedGynecHistory(updatedData);
-    } catch (error) {
-      console.error('Error fetching gynec history:', error);
-    }
-  };
+      try {
+        const data = await getGynecDetails(
+          patient_data.patient_unique_id,
+          userId
+        );
+        // Destructure to remove createdAt and createdBy
+        const { createdAt, createdBy, ...updatedData } = data;
+        
+        setUpdatedGynecHistory(updatedData);
+      } catch (error) {
+        console.error('Error fetching gynec history:', error);
+      }
+  };  
 
   return (
     <CashManagerContext.Provider value={contextApi}>
