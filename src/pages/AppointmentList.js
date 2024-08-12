@@ -9,14 +9,31 @@ import Appointment from "../components/AppointmentData";
 import AddNewPatient from "./AddNewPatient";
 import EditNewPatient from "./EditNewPatient";
 import WalkInConsultation from "./WalkInConsultation";
+import { useDispatch } from "react-redux";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { jwtDecode } from "jwt-decode";
+import { setUserId } from "../redux/doctorsSlice";
 
 function AppointmentList() {
+  const dispatch = useDispatch();
   let location = useLocation();
   const [locationPath, setLocationPath] = useState("/");
 
   useEffect(() => {
     setLocationPath(location.pathname);
   }, [location]);
+
+  useEffect(() => {
+    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+    try {
+      const decoded = jwtDecode(token);
+      if (decoded?.result?.user_id) {
+        dispatch(setUserId(decoded.result));
+      }
+    } catch (e) {
+      console.error("Error while token decoding: ", e);
+    }
+  }, []);
 
   return (
     <>

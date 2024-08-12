@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import { disableFutureDates, getMidParentalHeight } from "../growthChartHelper";
 import { useDispatch } from "react-redux";
 import { editPatient } from "../../../redux/appointmentsSlice";
+import { updateDob } from "../../vaccination/service";
 
 export default function UpdateDetails({
   show,
@@ -25,6 +26,7 @@ export default function UpdateDetails({
   const [dob, setDob] = useState("");
   const [loading, setLoading] = useState(false);
   const { patients_details } = useSelector((state) => state.records);
+  const { profile } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -146,6 +148,16 @@ export default function UpdateDetails({
     const updateDobRes = await dispatch(editPatient(payload));
     if (updateDobRes.meta.requestStatus !== "fulfilled") {
       errorMessage({ name: "TypeError" });
+    } else {
+      const payload = {
+        patient_uid: patient_data?.patient_unique_id,
+        patient_pid: patient_data?.pm_pid,
+        hospital_bid:
+          patient_data?.hm_business_id || patient_data?.hospital_business_id,
+        hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
+        updated_dob: moment(dob, "DD-MM-YYYY").format("YYYY-MM-DD"),
+      };
+      await updateDob(payload);
     }
   };
 

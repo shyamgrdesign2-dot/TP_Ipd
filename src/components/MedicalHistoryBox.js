@@ -46,7 +46,7 @@ function MedicalHistoryBox(props) {
         defaultList,
         loading,
     } = useSelector((state) => state.medicalhistory);
-    const { profile } = useSelector((state) => state.doctors);
+    const { profile, userId } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const {isGynaecHistoryAccessable} = useAccess();
@@ -870,7 +870,7 @@ function MedicalHistoryBox(props) {
     
     const fetchGynecHistory = async () => {
         try {
-            const data = await getGynecDetails(patient_data.patient_unique_id);
+            const data = await getGynecDetails(patient_data.patient_unique_id, userId);
             if (data){
                 setGynecEditState("UPDATE");
                 if (Object.keys(data).length > 2){
@@ -954,7 +954,7 @@ function MedicalHistoryBox(props) {
                 createdBy: tokenData?.user_id,
             };
             try {
-                const response = await updateGynecDetails(patient_data.patient_unique_id, payload);
+                const response = await updateGynecDetails(patient_data.patient_unique_id, payload, userId);
                 if(response?.data){
                     trackUpdateEvent();
                 }

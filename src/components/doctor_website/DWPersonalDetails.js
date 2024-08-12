@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { Row, Col, Form, Input } from 'antd';
 
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
-import { errorMessage, removeSpecialCharectorWithoutDotSpace, removeWhiteSpace } from '../../utils/utils';
+import { blockedEmoji, errorMessage, removeSpecialCharectorWithoutDotSpace, removeWhiteSpace } from '../../utils/utils';
 
 function DWPersonalDetails() {
 
@@ -13,11 +13,13 @@ function DWPersonalDetails() {
     const onChangeInput = useCallback(
         (e, key) => {
             if (key === 'email_id') {
-                personalDetails[key] = removeWhiteSpace(e.target.value);
+                personalDetails[key] = removeWhiteSpace(blockedEmoji(e.target.value));
             } else if (key === 'specialty') {
                 personalDetails[key] = removeSpecialCharectorWithoutDotSpace(e.target.value);
+            } else if (key === 'first_name') {
+                personalDetails[key] = removeSpecialCharectorWithoutDotSpace(e.target.value);
             } else {
-                personalDetails[key] = e.target.value;
+                personalDetails[key] = blockedEmoji(e.target.value);
             }
             setPersonalDetails((prev) => { return { ...prev } });
         },

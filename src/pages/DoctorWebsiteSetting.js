@@ -24,6 +24,7 @@ import DWSocialLinks from "../components/doctor_website/DWSocialLinks";
 import Homepage from "../website/Homepage";
 import DWMembership from "../components/doctor_website/DWMembership";
 import { TAB_ADDRESS } from "../utils/constants";
+import { removeSpecialCharectorWithoutDotSpace } from "../utils/utils";
 // import { validateEmail } from "../utils/utils";
 
 function DoctorWebsiteSetting() {
@@ -63,14 +64,22 @@ function DoctorWebsiteSetting() {
         const makeData = async () => {
             const copy_personalDetails = JSON.parse(JSON.stringify({
                 ...websiteData.personal_details,
+                first_name: removeSpecialCharectorWithoutDotSpace(websiteData.personal_details?.first_name),
+                specialty: removeSpecialCharectorWithoutDotSpace(websiteData.personal_details?.specialty),
                 uploadFile: null
             }))
 
             const updatedClinicProfile = websiteData?.clinic_profile?.map(e => {
-                const updatedClinicPhotos = e?.clinic_photos?.map(e1 => {
-                    return { ...e1, clinic_image_link: e1?.clinic_image_link }
-                })
-                return { ...e, created_by: 'server', selectedTab: TAB_ADDRESS, clinic_photos: [...updatedClinicPhotos] }
+                // const updatedClinicPhotos = e?.clinic_photos?.map(e1 => {
+                //     return { ...e1, clinic_image_link: e1?.clinic_image_link }
+                // })
+                return {
+                    ...e,
+                    address: { ...e?.address, city: removeSpecialCharectorWithoutDotSpace(e?.address?.city) },
+                    created_by: 'server',
+                    selectedTab: TAB_ADDRESS,
+                    // clinic_photos: [...updatedClinicPhotos]
+                }
             })
             const copy_clinicProfile = JSON.parse(JSON.stringify([...updatedClinicProfile]))
 
@@ -357,6 +366,8 @@ function DoctorWebsiteSetting() {
                                                     && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.state)?.length === 0
                                                     && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => !el.address.address_line)?.length === 0
                                                     && clinicProfile?.filter(el => !el.clinic_delete)?.filter(el => el.shift.length === 0)?.length === 0
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)?.every(el => el.shift.every(x => x.days.length !== 0))
+                                                    && clinicProfile?.filter(el => !el.clinic_delete)?.every(el => el.shift.every(x => x.timing.every(xl => xl.from_time !== "" && xl.end_time !== "")))
                                                     && (
                                                         <img className="ms-2" src={mandatoryTick} alt="Mandatory" />
                                                     )}
@@ -536,7 +547,7 @@ function DoctorWebsiteSetting() {
                                     {/* <div> <img src={cloudSaved} alt="Saved" className="me-1" />Saved</div> */}
                                 </div>
                                 <div className="rounded-20px bg-white mt-2 overflow-hidden">
-                                    <div className="printheight" style={{ height: 'calc(100vh - 124px)' }}>
+                                    <div className="printheight react-website-wrapper" style={{ height: 'calc(100vh - 124px)' }}>
                                         <Homepage
                                             centerPadding={true}
                                             scrollId={selectedMenu ? selectedMenu?.value : null}

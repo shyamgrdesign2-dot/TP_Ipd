@@ -63,7 +63,7 @@ function TabPrescription() {
     customizedPadRightList,
     frequencyList,
     timingList,
-    profile,
+    userId,
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
@@ -139,7 +139,10 @@ function TabPrescription() {
   const [growthDrawer, setGrowthDrawer] = useState(false);
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchAllObstetricDetails(patient_data.patient_unique_id);
+    const obstetricResponse = await fetchAllObstetricDetails(
+      patient_data.patient_unique_id,
+      userId
+    );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
     }
@@ -452,7 +455,7 @@ function TabPrescription() {
 
   const fetchGynecHistory = async () => {
       try {
-          const data = await getGynecDetails(patient_data.patient_unique_id);
+          const data = await getGynecDetails(patient_data.patient_unique_id, userId);
           // Destructure to remove createdAt and createdBy
           const { createdAt, createdBy, ...updatedData } = data;
           
