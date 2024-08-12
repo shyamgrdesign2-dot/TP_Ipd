@@ -50,7 +50,7 @@ function SmartRxPreview() {
     const [divWidth, setDivWidth] = useState(0);
     const [numPages, setNumPages] = useState();
     const [printBlob, setPrintBlob] = useState(null);
-    const [smartRxFile, setSmartRxFile] = useState(null);
+    const [smartRxFile, setSmartRxFile] = useState([]);
     const [isUpdateMobileNoModalOpen, setIsUpdateMobileNoModalOpen] = useState(false);
     const [mobileNumber, setMobileNumber] = useState('');
     const [useRegisteredMobile, setUseRegisteredMobile] = useState(false);
@@ -91,7 +91,7 @@ function SmartRxPreview() {
             var decoded = jwtDecode(token);
             setTokenData(decoded.result)
           } catch (e) {
-            console.log(e);
+            console.error(e);
           }
         }
       }, []);
@@ -134,8 +134,9 @@ function SmartRxPreview() {
                   payload,
                   baseUrl
                 );
-                const fileToShow = response.data.smart_prescription_file;
-                setSmartRxFile(fileToShow);
+                if(response?.data?.length){
+                    setSmartRxFile(response?.data);
+                }
           } catch (error) {
             console.error("Error:", error);
           }
@@ -225,7 +226,7 @@ function SmartRxPreview() {
                 state: {
                   patient_data: patient_data,
                   caseManagerData: action.payload,
-                  smartRxFile: smartRxFile,
+                  smartRxFilesData: smartRxFile,
                 },
             });
         } else {

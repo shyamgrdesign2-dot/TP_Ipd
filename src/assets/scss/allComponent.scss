@@ -147,13 +147,81 @@
 
 // smart-sync styling
 
-.right-container{
+.canvas-header {
+    height: 46px;
+    width: 720px;
+    border-radius: 20px 20px 0 0;
+    background: white;
+    border-bottom: none !important;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+
+    .canvas-header-left {
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+        column-gap: 20px;
+        font-size: 14px;
+        font-weight: 400;
+    }
+}
+.canvas-footer {
+    height: 46px;
+    width: 720px;
+    border-radius: 0 0 20px 20px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 10px 10px 0;
+    border-top: none !important;
+    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.1), 
+            0 -3px 3px rgba(0, 0, 0, 0); /* no shadow on the top */
+
+
+    .new-page-btn {
+        border-radius: 10px;
+        background: rgba(75, 74, 213, 0.1);
+        padding: 6px;
+        height: 30px;
+        column-gap: 5px;
+
+        &:hover {
+            background: rgba(75, 74, 213, 0.1);
+        }
+    }
+}
+.active-page {
+    border: 2px solid #BA7DE9;
+}
+
+.canvas-container {
+    display: flex;
+    flex-direction: column;
+}
+.canvas-style {
     width: 720px;
     height: 980px;
-    // border: 1px solid rgb(210 210 210);
-    border-radius: 22px;
-    background:#ffffff;
+    background-color: white;
+    border-top: 1px solid #E2E2EA;
+    color: black;
     box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+}
+.canvas-active {
+    border: 2px solid #BA7DE9;
+    border-top: 1px solid #E2E2EA;
+    border-bottom: none;
+}
+.selected-text {
+    background: rgba(164, 97, 216, 0.1);
+    color: rgba(164, 97, 216, 1) !important;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 6px;
+    border-radius: 4px;
 }
 .rx-image-container{
     display: flex;
@@ -200,11 +268,9 @@
     padding: 5px 0.4rem;
 }
 #pdf {
-    width: 720px;
-    height: 980px;
-    border: 1px solid rgb(148, 147, 147);
-    border-radius: 16px;
-    background-color: white;
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
 }
 .follow-up-detailsPage{
     margin: 0.3rem 1rem 1rem 1rem;
