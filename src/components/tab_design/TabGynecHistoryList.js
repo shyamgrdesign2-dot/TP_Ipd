@@ -175,6 +175,44 @@ function TabGynecHistoryList(props) {
                                     </div>
                                 </div>
                             )}
+                             {gynecHistoryData.ageAtMenopause && (
+                                <div key="ageAtMenopause" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fs-13 t-bold">{gynecHistoryData?.reproductiveLifeStages} at</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="text-history font-roboto fs-13">{gynecHistoryData.ageAtMenopause} years</div>
+                                </div>
+                            )}
+                            {gynecHistoryData.typeOfMenopause && (
+                                <div key="typeOfMenopause" className="d-flex justify-content-between align-items-center my-2">
+                                    <div className="text-history font-roboto fs-13 t-bold">{gynecHistoryData?.reproductiveLifeStages} type</div>
+                                    <div className="semicolon">:</div>
+                                    <div className="text-history font-roboto fs-13">{gynecHistoryData.typeOfMenopause}</div>
+                                </div>
+                            )}
+                            {gynecHistoryData.ageAtMenopause && gynecHistoryData.reproductiveNotes && (
+                                <div key="notes" className="my-2">
+                                    <div style={{fontSize: "12px",fontWeight:"600"}} >Notes</div>
+                                    <div style={{fontSize: "12px"}} className="border rounded px-2">
+                                        <div className='my-2'>
+                                            <ReadMore>
+                                                {gynecHistoryData.reproductiveNotes}
+                                            </ReadMore>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            {gynecHistoryData.notes && (
+                                <div key="notes" className="my-2">
+                                    <div style={{fontSize: "12px",fontWeight:"600"}} >Menstruation notes</div>
+                                    <div style={{fontSize: "12px"}} className="border rounded px-2">
+                                        <div className='my-2'>
+                                            <ReadMore>
+                                                {gynecHistoryData.notes}
+                                            </ReadMore>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 ),
