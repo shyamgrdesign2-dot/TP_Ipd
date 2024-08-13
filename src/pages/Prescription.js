@@ -76,7 +76,7 @@ function Prescription() {
       ? caseManagerData.consultation_date
       : moment().format("YYYY-MM-DD HH:mm:ss");
 
-      const { profile } = useSelector((state) => state.doctors);
+  const { profile } = useSelector((state) => state.doctors);
 
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
@@ -178,14 +178,16 @@ function Prescription() {
           (e) => e.tmdpm_id === 1 && e.tmdpm_status === 0
         ) !== -1
       ) {
-        const updatedData = caseManagerData.vitals.map((e, i) => {
-          return {
-            ...e,
-            systolic: e.blood_press ? e.blood_press.split("/")[0] : "",
-            diastolic: e.blood_press ? e.blood_press.split("/")[1] : "",
-          };
-        });
-        setVitalsData(updatedData);
+        if (tcmId !== 0) {
+          const updatedData = caseManagerData.vitals.map((e, i) => {
+            return {
+              ...e,
+              systolic: e.blood_press ? e.blood_press.split("/")[0] : "",
+              diastolic: e.blood_press ? e.blood_press.split("/")[1] : "",
+            };
+          });
+          setVitalsData(updatedData);
+        }
       }
       if (
         caseManagerData.medical_history.length > 0 &&
@@ -259,9 +261,9 @@ function Prescription() {
               frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
             tmm_dosage_unit_name: `${e.tmm_dosage
-                ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""
-                }`
-                : ""
+              ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""
+              }`
+              : ""
               }`,
             tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
               }`,
@@ -378,7 +380,7 @@ function Prescription() {
             patient_data !== undefined && patient_data.pam_id !== undefined
               ? patient_data.pam_id
               : 0,
-          mode: caseManagerData !== undefined ? EDIT : ADD,
+          mode: caseManagerData !== undefined && tcmId !== 0 ? EDIT : ADD,
         })
       );
 
@@ -406,7 +408,7 @@ function Prescription() {
   }, []);
 
   useEffect(() => {
-    if (caseManagerData === undefined) {
+    if (caseManagerData === undefined || tcmId === 0) {
       const updatedData = selectedVitalsList.map((e, i) => {
         return {
           ...e,
@@ -437,19 +439,19 @@ function Prescription() {
   }, [isGynaecHistoryAccessable]);
 
   const fetchGynecHistory = async () => {
-      try {
-        const data = await getGynecDetails(
-          patient_data.patient_unique_id,
-          userId
-        );
-        // Destructure to remove createdAt and createdBy
-        const { createdAt, createdBy, ...updatedData } = data;
-        
-        setUpdatedGynecHistory(updatedData);
-      } catch (error) {
-        console.error('Error fetching gynec history:', error);
-      }
-  };  
+    try {
+      const data = await getGynecDetails(
+        patient_data.patient_unique_id,
+        userId
+      );
+      // Destructure to remove createdAt and createdBy
+      const { createdAt, createdBy, ...updatedData } = data;
+
+      setUpdatedGynecHistory(updatedData);
+    } catch (error) {
+      console.error('Error fetching gynec history:', error);
+    }
+  };
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -510,8 +512,8 @@ function Prescription() {
                         {" "}
                         <i
                           className={`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)
-                              ? "icon-Edit"
-                              : "icon-Add"
+                            ? "icon-Edit"
+                            : "icon-Add"
                             } me-1 fs-5`}
                         ></i>{" "}
                         <span>{`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ? "Edit" : "Add"
@@ -604,8 +606,8 @@ function Prescription() {
                               >
                                 <i
                                   className={`${examinationHistory.length > 0
-                                      ? "icon-Edit"
-                                      : "icon-Add"
+                                    ? "icon-Edit"
+                                    : "icon-Add"
                                     } me-1 fs-5`}
                                 ></i>
                                 <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"

@@ -170,7 +170,8 @@ function AppointmentData({ locationPath }) {
                 apStatue: selectedTab,
                 filterVisitType: visitTypeFilters,
                 page: pageNo,
-                search: searchQuery
+                search: searchQuery,
+                sortOrder: sort_order
             }
             // console.log(sendData)
             dispatch(getAllAppointment(sendData));
@@ -188,7 +189,7 @@ function AppointmentData({ locationPath }) {
         return () => {
             clearTimeout(timeOutId);
         };
-    }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters]);
+    }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order]);
 
     useEffect(() => {
         if (date.startDate === date.endDate) {
@@ -415,7 +416,13 @@ function AppointmentData({ locationPath }) {
                 value += ` ${patient_data?.ageDays}d`
             }
         } else {
-            value += `${patient_data?.ageYears}y`
+            if (patient_data?.ageYears != 0) {
+                value += `${patient_data?.ageYears}y`
+            } else if (patient_data?.ageMonths != 0) {
+                value += ` ${patient_data?.ageMonths}m`
+            } else if (patient_data?.ageDays != 0) {
+                value += ` ${patient_data?.ageDays}d`
+            }
         }
         return value
     }
@@ -471,15 +478,18 @@ function AppointmentData({ locationPath }) {
             sortDirections: ['descend', 'ascend', 'descend'],
             sortOrder: sort_order,
             sorter: (a, b, sortOrder) => {
-                dispatch(changeSortOrder(sortOrder))
-                const lhsDateTime = `${a.apDate} ${a.apTime}`;
-                const lhsLongTime = moment(lhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
+                if (sortOrder !== sort_order) {
+                    setPageNo(0)
+                    dispatch(changeSortOrder(sortOrder))
+                }
+                // const lhsDateTime = `${a.apDate} ${a.apTime}`;
+                // const lhsLongTime = moment(lhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
 
-                const rhsDateTime = `${b.apDate} ${b.apTime}`;
-                const rhsLongTime = moment(rhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
+                // const rhsDateTime = `${b.apDate} ${b.apTime}`;
+                // const rhsLongTime = moment(rhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
 
-                const result = lhsLongTime - rhsLongTime;
-                return result;
+                // const result = lhsLongTime - rhsLongTime;
+                // return result;
             },
             render: (text, record) => (
                 <div>
@@ -491,12 +501,12 @@ function AppointmentData({ locationPath }) {
             title: "Action",
             key: "action",
             width: 170,
-            render: (_, record,index) => (
-                <div size="middle" style={{display : "flex"}}>
+            render: (_, record, index) => (
+                <div size="middle" style={{ display: "flex" }}>
                     {isSmartSyncAccessableFromGB && !isMobile ? (
                         <>
                             {selectedTab !== TAB_CANCELLED && (
-                                <button 
+                                <button
                                     // className="btn btn-outline-primary btn-smart-rx" 
                                     className={`btn btn-outline-primary ${selectedTab === TAB_FINISHED ? 'btn-print-rx' : 'btn-smart-rx'}`}
                                     onClick={() => selectedTab === TAB_QUEUE ? onSmartRxClick(record) : onPrintRxUrlClick(record)}
@@ -504,16 +514,16 @@ function AppointmentData({ locationPath }) {
                                     {selectedTab === TAB_FINISHED ? "PrintRx" : "SmartRx"}
                                 </button>
                             )}
-                            {selectedTab === TAB_QUEUE &&( 
-                                <button 
-                                    className="btn btn-outline-primary btn-down-arrow" 
+                            {selectedTab === TAB_QUEUE && (
+                                <button
+                                    className="btn btn-outline-primary btn-down-arrow"
                                     onClick={() => setOpenRowIndex(openRowIndex === index ? null : index)}
                                 >
                                     <span role="img" aria-label="down" class="anticon anticon-down ant-select-suffix">
-                                    <i
-                                        className="icon-right"
-                                        style={{ display: "block", transform: `rotate(270deg)` }}
-                                    />
+                                        <i
+                                            className="icon-right"
+                                            style={{ display: "block", transform: `rotate(270deg)` }}
+                                        />
                                     </span>
                                 </button>
                             )}
@@ -526,9 +536,9 @@ function AppointmentData({ locationPath }) {
                     ) : (
                         <>
                             {selectedTab !== TAB_CANCELLED && (
-                            <button className="btn btn-outline-primary" onClick={() => selectedTab === TAB_QUEUE ? onConsultClick(record) : onPrintRxUrlClick(record)}>
-                                {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
-                            </button>
+                                <button className="btn btn-outline-primary" onClick={() => selectedTab === TAB_QUEUE ? onConsultClick(record) : onPrintRxUrlClick(record)}>
+                                    {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
+                                </button>
                             )}
                         </>
                     )}

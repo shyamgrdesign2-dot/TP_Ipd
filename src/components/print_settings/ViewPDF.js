@@ -121,26 +121,50 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxFile, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData } = props
+    let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData } = props
 
-    const gynecHistoryData = caseManagerData?.gynecHistoryData 
-    
+    const gynecHistoryData = caseManagerData?.gynecHistoryData
+
     const { growthChartData, growthChartImageData } = growthChartDetails || {};
     let growthChartImageChunks = []
-    if(growthChartImageData) {
+    if (growthChartImageData) {
         const growthChartOption = printSettings?.prescription?.case_option?.find(o => o.id === 12)?.growth_chart_option;
         const graphs = Object.keys(growthChartImageData)?.filter(g => growthChartOption?.includes(g));
         growthChartImageChunks = chunkArray(graphs, 2);
     }
 
+    const genderAge = (patient_data, profile) => {
+        var value = ``
+        if (profile?.dp_id === 9) {
+            if (patient_data?.ageYears != 0) {
+                value += `${patient_data?.ageYears}y`
+            }
+            if (patient_data?.ageMonths != 0) {
+                value += ` ${patient_data?.ageMonths}m`
+            }
+            if (patient_data?.ageDays != 0) {
+                value += ` ${patient_data?.ageDays}d`
+            }
+        } else {
+            if (patient_data?.ageYears != 0) {
+                value += `${patient_data?.ageYears}y`
+            } else if (patient_data?.ageMonths != 0) {
+                value += ` ${patient_data?.ageMonths}m`
+            } else if (patient_data?.ageDays != 0) {
+                value += ` ${patient_data?.ageDays}d`
+            }
+        }
+        return value
+    }
+
     const patientDataShow = (id) => {
         var value = ''
         if (id == 1) {
-            value = `${caseManagerData?.patient_data?.patient_salutation} ${caseManagerData?.patient_data?.patient_name} ${caseManagerData?.patient_data?.patient_id}`
+            value = `${caseManagerData?.patient_data?.patient_salutation ? `${caseManagerData?.patient_data?.patient_salutation} ${caseManagerData?.patient_data?.patient_name} ${caseManagerData?.patient_data?.patient_id}` : `${caseManagerData?.patient_data?.patient_name} ${caseManagerData?.patient_data?.patient_id}`}`
         } else if (id == 2) {
             value = `${caseManagerData?.patient_data?.patient_consultaion_date ? moment(caseManagerData?.patient_data?.patient_consultaion_date).format('DD/MM/YYYY HH:mm') : '-'}`
         } else if (id == 3) {
-            value = `${caseManagerData?.patient_data?.patient_age ? `${caseManagerData?.patient_data?.patient_age}Years` : '-'}, ${caseManagerData?.patient_data?.patient_gender}`
+            value = `${genderAge(caseManagerData?.patient_data, caseManagerData?.doctor_data)}, ${caseManagerData?.patient_data?.patient_gender}`
         } else if (id == 4) {
             value = `${caseManagerData?.patient_data?.patient_contact_no ? caseManagerData?.patient_data?.patient_contact_no : '-'}`
         } else if (id == 5) {
@@ -163,7 +187,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     const medical_history_title = (id) => {
         var value = ''
-        if (id == 2 ) {
+        if (id == 2) {
             value = `Condition : `
         } else if (id == 3) {
             value = `History : `
@@ -176,6 +200,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     }
 
     let gynecListViewCounter = 1;
+    const isSmartSyncPrescription = smartRxData && smartRxData[0]?.smart_prescription_file;
 
     return (
         <Document>
@@ -201,7 +226,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     paddingLeft: mode == NORMAL ? printSettings?.letterhead_format != 2 ? PX_TO_PT * 30 : printSettings?.header_footer?.margin?.left ? printSettings?.header_footer?.margin?.left * 25 : 0 : PX_TO_PT * 30,
                     paddingRight: mode == NORMAL ? printSettings?.letterhead_format != 2 ? PX_TO_PT * 30 : printSettings?.header_footer?.margin?.right ? printSettings?.header_footer?.margin?.right * 25 : 0 : PX_TO_PT * 30,
                 }}
-                wrap={!smartRxFile}>
+                wrap={!smartRxData}>
 
                 <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed>
                     {mode == NORMAL ? (
@@ -1350,10 +1375,22 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         )}
                                     </>
                                 </>
-                            ) : option?.id === 11 && option?.enable === 'Y' && option?.custom_status === 'Y' && caseManagerData?.smart_prescription_filename ? (
-                                    <Image
-                                        src={smartRxFile}
-                                    />
+                            ) : option?.id === 11 && option?.enable === 'Y' && option?.custom_status === 'Y' && caseManagerData?.smart_prescription_filename?.length ? (
+                                <>
+                                {isSmartSyncPrescription && (
+                                    smartRxData?.data?.map((item, i) => (
+                                        <View key={i}>
+                                            <View style={{ marginTop: PX_TO_PT * 15, width: '100%', height: '800' }}>
+                                                <Image
+                                                    style={{ width: '100%', height: '100%' }}
+                                                    source={{ uri: item.smart_prescription_file }}
+                                                    resizeMode="contain"
+                                                />
+                                            </View>
+                                        </View>
+                                    ))
+                                )}
+                                </>
                             ) : option?.id === 12 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     {growthChartData?.length > 0 && (
@@ -1365,9 +1402,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         <View style={styles.row}>
                                                             <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Parameters</Text>
                                                             {option?.growth_chart_option?.includes('height') && <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Height</Text>}
-                                                            {option?.growth_chart_option?.includes('weight') &&<Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Weight</Text>}
-                                                            {option?.growth_chart_option?.includes('bmi') &&<Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>BMI</Text>}
-                                                            {option?.growth_chart_option?.includes('ofc') &&<Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>OFC</Text>}
+                                                            {option?.growth_chart_option?.includes('weight') && <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Weight</Text>}
+                                                            {option?.growth_chart_option?.includes('bmi') && <Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>BMI</Text>}
+                                                            {option?.growth_chart_option?.includes('ofc') && <Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>OFC</Text>}
                                                         </View>
                                                         {growthChartData?.map((item, i) => (
                                                             <View style={styles.row} key={i}>
@@ -1396,8 +1433,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginTop: PX_TO_PT * 15 }}>Growth Chart &nbsp;{'\n'}</Text>
                                             <View>
                                                 {growthChartImageChunks?.map((chunk, index) => (
-                                                    <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: PX_TO_PT * 15}} key={index}>
-                                                        {chunk?.filter(c => option?.growth_chart_option?.includes(c))?.map(img => (<Image key={img} style={{width: '48%', objectFit: 'contain'}} src={growthChartImageData[img]} />))}
+                                                    <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: PX_TO_PT * 15 }} key={index}>
+                                                        {chunk?.filter(c => option?.growth_chart_option?.includes(c))?.map(img => (<Image key={img} style={{ width: '48%', objectFit: 'contain' }} src={growthChartImageData[img]} />))}
                                                     </View>
                                                 ))}
                                             </View>
@@ -1406,7 +1443,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </>
                             ) : option?.id === 13 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
-                                    { gynecHistoryData && isGynaecHistoryAccessable &&
+                                    {gynecHistoryData && isGynaecHistoryAccessable &&
                                         (option?.format === "inline" ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
                                                 <Text
@@ -1470,7 +1507,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             </Text>
 
                                                             {gynecHistoryData?.cycle && (
-                                                                <>                                                            
+                                                                <>
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
@@ -1486,8 +1523,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             color: "#171725",
                                                                             fontFamily: printSettings?.page_format?.font_family,
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,  
-                                                                            textTransform: 'capitalize'                                                  
+                                                                            fontWeight: 400,
+                                                                            textTransform: 'capitalize'
                                                                         }}
                                                                     >
                                                                         {gynecHistoryData?.cycle}
@@ -1498,13 +1535,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 color: "#171725",
                                                                                 fontFamily: printSettings?.page_format?.font_family,
                                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,  
-                                                                                textTransform: 'capitalize'                                                  
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
                                                                             }}
                                                                         >
                                                                             &nbsp;|&nbsp;
                                                                         </Text>
-                                                                    )}                                                                    
+                                                                    )}
                                                                 </>
                                                             )}
 
@@ -1567,10 +1604,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         }}
                                                                     >
                                                                         {gynecHistoryData?.cycleNotes}
-                                                                    </Text>                                                            
+                                                                    </Text>
                                                                 </>
                                                             )}
-                                                        </> 
+                                                        </>
                                                     )}
 
                                                     {(gynecHistoryData?.flow || gynecHistoryData?.durationOfMenstrualFlow || gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
@@ -1771,7 +1808,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         }}
                                                                     >
                                                                         {gynecHistoryData?.flowNotes}
-                                                                    </Text>                                                            
+                                                                    </Text>
                                                                 </>
                                                             )}
                                                         </>
@@ -1801,7 +1838,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             </Text>
 
                                                             {gynecHistoryData?.pain && (
-                                                                <>                                                                    
+                                                                <>
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
@@ -1899,7 +1936,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         }}
                                                                     >
                                                                         {gynecHistoryData?.painNotes}
-                                                                    </Text>                                                    
+                                                                    </Text>
                                                                 </>
                                                             )}
                                                         </>
@@ -1929,7 +1966,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             </Text>
 
                                                             {gynecHistoryData?.ageAtMenarche && (
-                                                                <>                                                                    
+                                                                <>
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
@@ -1987,7 +2024,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         }}
                                                                     >
                                                                         {gynecHistoryData?.menarcheNotes}
-                                                                    </Text>                                                            
+                                                                    </Text>
                                                                 </>
                                                             )}
                                                         </>
@@ -2017,7 +2054,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             </Text>
 
                                                             {gynecHistoryData?.ageAtMenopause && (
-                                                                <>                                                                    
+                                                                <>
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
@@ -2115,7 +2152,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     >
                                                                         {gynecHistoryData?.reproductiveNotes}
                                                                     </Text>
-                                                                    
+
                                                                     {!gynecHistoryData?.notes && (
                                                                         <Text
                                                                             style={{
@@ -2185,7 +2222,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {gynecHistoryData?.lmp && (
                                                     <Text
                                                         style={{ marginTop: 5, lineHeight: 1.4 }}
-                                                    >                                                    
+                                                    >
                                                         <Text
                                                             style={{
                                                                 color: "#171725",
@@ -2199,7 +2236,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     color: "#171725",
                                                                     fontFamily: printSettings?.page_format?.font_family,
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,                                                                    
+                                                                    fontWeight: 500,
                                                                 }}
                                                             >
                                                                 &nbsp;{gynecListViewCounter++}.&nbsp;LMP&nbsp;:&nbsp;
@@ -2226,7 +2263,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             </Text>
                                                         </Text>
                                                     </Text>
-                                                )}    
+                                                )}
 
                                                 {(gynecHistoryData?.cycle || gynecHistoryData?.intervalOfCycle || gynecHistoryData?.cycleNotes || gynecHistoryData?.cycleNotes) && (
                                                     <Text
@@ -2240,7 +2277,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 500,
                                                             }}
                                                         >
-                                                            
+
                                                             <Text
                                                                 style={{
                                                                     color: "#171725",
@@ -2353,7 +2390,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         {gynecHistoryData?.cycleNotes}
                                                                     </Text>
                                                                 </>
-                                                            )}   
+                                                            )}
                                                         </Text>
                                                     </Text>
                                                 )}
@@ -2370,19 +2407,19 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 500,
                                                             }}
                                                         >
-                                                            
-                                                                <Text
-                                                                    style={{
-                                                                        color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                    }}
-                                                                >
-                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;Flow&nbsp;:&nbsp;
-                                                                </Text>
-                                                                                                                
-                                                            
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                &nbsp;{gynecListViewCounter++}.&nbsp;Flow&nbsp;:&nbsp;
+                                                            </Text>
+
+
                                                             {gynecHistoryData?.flow && (
                                                                 <>
                                                                     <Text
@@ -2560,7 +2597,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         {gynecHistoryData?.flowNotes}
                                                                     </Text>
                                                                 </>
-                                                            )}                                                    
+                                                            )}
                                                         </Text>
                                                     </Text>
                                                 )}
@@ -2577,19 +2614,19 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 500,
                                                             }}
                                                         >
-                                                            
-                                                                <Text
-                                                                    style={{
-                                                                        color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                    }}
-                                                                >
-                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;Pain&nbsp;:&nbsp;
-                                                                </Text>
-                                                            
-                                                            
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                &nbsp;{gynecListViewCounter++}.&nbsp;Pain&nbsp;:&nbsp;
+                                                            </Text>
+
+
                                                             {gynecHistoryData?.pain && (
                                                                 <>
                                                                     <Text
@@ -2691,7 +2728,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         {gynecHistoryData?.painNotes}
                                                                     </Text>
                                                                 </>
-                                                            )} 
+                                                            )}
                                                         </Text>
                                                     </Text>
                                                 )}
@@ -2708,19 +2745,19 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 500,
                                                             }}
                                                         >
-                                                            
-                                                                <Text
-                                                                    style={{
-                                                                        color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                    }}
-                                                                >
-                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;Menarche&nbsp;:&nbsp;
-                                                                </Text>
-                                                            
-                                                            
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                &nbsp;{gynecListViewCounter++}.&nbsp;Menarche&nbsp;:&nbsp;
+                                                            </Text>
+
+
                                                             {gynecHistoryData?.ageAtMenarche && (
                                                                 <>
                                                                     <Text
@@ -2731,7 +2768,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             fontWeight: 500,
                                                                         }}
                                                                     >
-                                                                       Age at&nbsp;:&nbsp;
+                                                                        Age at&nbsp;:&nbsp;
                                                                     </Text>
                                                                     <Text
                                                                         style={{
@@ -2782,7 +2819,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         {gynecHistoryData?.menarcheNotes}
                                                                     </Text>
                                                                 </>
-                                                            )} 
+                                                            )}
                                                         </Text>
                                                     </Text>
                                                 )}
@@ -2799,19 +2836,19 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontWeight: 500,
                                                             }}
                                                         >
-                                                            
-                                                                <Text
-                                                                    style={{
-                                                                        color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                    }}
-                                                                >
-                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;{gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}&nbsp;:&nbsp;
-                                                                </Text>
-                                                            
-                                                            
+
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                &nbsp;{gynecListViewCounter++}.&nbsp;{gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}&nbsp;:&nbsp;
+                                                            </Text>
+
+
                                                             {gynecHistoryData?.ageAtMenopause && (
                                                                 <>
                                                                     <Text
@@ -2912,7 +2949,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         {gynecHistoryData?.reproductiveNotes}
                                                                     </Text>
                                                                 </>
-                                                            )}                                                        
+                                                            )}
                                                         </Text>
                                                     </Text>
                                                 )}
@@ -2996,10 +3033,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
                                                                 },
                                                             ]}
                                                         >
@@ -3016,10 +3053,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
                                                                 },
                                                             ]}
                                                         >
@@ -3056,11 +3093,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
                                                                 },
                                                             ]}
                                                         >
@@ -3070,18 +3107,18 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
                                                                 },
                                                             ]}
                                                         >
                                                             Interval
-                                                        </Text>                                                        
+                                                        </Text>
                                                     </View>
-                                                    
+
                                                     <View
                                                         style={[
                                                             styles.row,
@@ -3092,12 +3129,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                textTransform: 'capitalize'
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                    textTransform: 'capitalize'
                                                                 },
                                                             ]}
                                                         >
@@ -3107,17 +3144,17 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
                                                                 },
                                                             ]}
                                                         >
                                                             {gynecHistoryData?.intervalOfCycle || ``}&nbsp;
                                                             {gynecHistoryData?.intervalOfCycle ? Number(gynecHistoryData?.intervalOfCycle) > 1 ? `days` : `day` : `-`}
-                                                        </Text>                                                        
+                                                        </Text>
                                                     </View>
 
                                                     <View
@@ -3152,7 +3189,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     }
                                                                 ]}>
                                                                 {gynecHistoryData?.cycleNotes || `-`}
-                                                            </Text>                                                                                                                        
+                                                            </Text>
                                                         </Text>
                                                     </View>
                                                 </View>
@@ -3185,11 +3222,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
                                                                 },
                                                             ]}
                                                         >
@@ -3199,11 +3236,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
                                                                 },
                                                             ]}
                                                         >
@@ -3213,11 +3250,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
                                                                 },
                                                             ]}
                                                         >
@@ -3227,18 +3264,18 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
                                                                 },
                                                             ]}
                                                         >
                                                             Pads per day
                                                         </Text>
                                                     </View>
-                                                    
+
                                                     <View
                                                         style={[
                                                             styles.row,
@@ -3249,12 +3286,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                textTransform: 'capitalize'
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                    textTransform: 'capitalize'
                                                                 },
                                                             ]}
                                                         >
@@ -3264,11 +3301,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
                                                                 },
                                                             ]}
                                                         >
@@ -3281,11 +3318,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
                                                                 },
                                                             ]}
                                                         >
@@ -3295,11 +3332,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
                                                                 },
                                                             ]}
                                                         >
@@ -3339,7 +3376,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     }
                                                                 ]}>
                                                                 {gynecHistoryData?.flowNotes || `-`}
-                                                            </Text>                                                                                                                        
+                                                            </Text>
                                                         </Text>
                                                     </View>
                                                 </View>
@@ -3357,47 +3394,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         borderRight: "1px solid #171725",
                                                         backgroundColor: "#E2E2EA",
                                                     }}
-                                                    wrap={false}                                                    
+                                                    wrap={false}
                                                 >
                                                     Pain
-                                                </Text>                                               
+                                                </Text>
                                                 <View style={[styles.table, { marginTop: 0 }]}>
-                                                    <View
-                                                        style={[
-                                                            styles.row,
-                                                            { alignItems: "center", justifyContent: "center" },
-                                                        ]}                                                        
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Level
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Occurrence
-                                                        </Text>
-                                                    </View>
-                                                    
                                                     <View
                                                         style={[
                                                             styles.row,
@@ -3408,12 +3409,48 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                textTransform: 'capitalize'
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Level
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            Occurrence
+                                                        </Text>
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.row,
+                                                            { alignItems: "center", justifyContent: "center" },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.cell,
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                    textTransform: 'capitalize'
                                                                 },
                                                             ]}
                                                         >
@@ -3422,13 +3459,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         <Text
                                                             style={[
                                                                 styles.cell,
-                                                                {                                                               
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                textTransform: 'capitalize'
+                                                                {
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                    textTransform: 'capitalize'
                                                                 },
                                                             ]}
                                                         >
@@ -3468,7 +3505,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     }
                                                                 ]}>
                                                                 {gynecHistoryData?.painNotes || `-`}
-                                                            </Text>                                                                                                                        
+                                                            </Text>
                                                         </Text>
                                                     </View>
                                                 </View>
@@ -3501,10 +3538,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
                                                                 },
                                                             ]}
                                                         >
@@ -3522,10 +3559,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
                                                                 },
                                                             ]}
                                                         >
@@ -3540,7 +3577,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     >
                                                         <Text
                                                             style={[
-                                                                styles.cell                                                                
+                                                                styles.cell
                                                             ]}
                                                         >
                                                             <Text
@@ -3565,7 +3602,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     }
                                                                 ]}>
                                                                 {gynecHistoryData?.menarcheNotes || `-`}
-                                                            </Text>                                                                                                                        
+                                                            </Text>
                                                         </Text>
                                                     </View>
                                                 </View>
@@ -3598,11 +3635,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
                                                                 },
                                                             ]}
                                                         >
@@ -3612,18 +3649,18 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                color: "#000",
-                                                                textAlign: "center",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
                                                                 },
                                                             ]}
                                                         >
                                                             Type of {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}
                                                         </Text>
                                                     </View>
-                                                    
+
                                                     <View
                                                         style={[
                                                             styles.row,
@@ -3634,11 +3671,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
                                                                 },
                                                             ]}
                                                         >
@@ -3648,12 +3685,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             style={[
                                                                 styles.cell,
                                                                 {
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400,
-                                                                color: "#000",
-                                                                textAlign: "center",
-                                                                textTransform: 'capitalize'
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400,
+                                                                    color: "#000",
+                                                                    textAlign: "center",
+                                                                    textTransform: 'capitalize'
                                                                 },
                                                             ]}
                                                         >
@@ -3693,7 +3730,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     }
                                                                 ]}>
                                                                 {gynecHistoryData?.reproductiveNotes || `-`}
-                                                            </Text>                                                                                                                        
+                                                            </Text>
                                                         </Text>
                                                     </View>
                                                 </View>
@@ -3739,10 +3776,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             </View>
                                                         </View>
                                                     </>
-                                                )}                                                                                                
+                                                )}
                                             </View>
                                         )
-                                    )}
+                                        )}
                                 </>
                             ) : option?.id === 14 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
                                 <>
