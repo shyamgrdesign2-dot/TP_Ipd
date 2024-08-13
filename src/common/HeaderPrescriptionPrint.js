@@ -51,7 +51,13 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id }) {
                 value += ` ${patient_data?.ageDays}d`
             }
         } else {
-            value += `${patient_data?.ageYears}y`
+            if (patient_data?.ageYears != 0) {
+                value += `${patient_data?.ageYears}y`
+            } else if (patient_data?.ageMonths != 0) {
+                value += ` ${patient_data?.ageMonths}m`
+            } else if (patient_data?.ageDays != 0) {
+                value += ` ${patient_data?.ageDays}d`
+            }
         }
         return value
     }
