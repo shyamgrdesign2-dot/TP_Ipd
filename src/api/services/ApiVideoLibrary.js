@@ -33,4 +33,8 @@ ApiVideoLibrary.publishDoctorWebsite = function (data) {
   return api.post(`/api/v1/doctorwebsite/publishDoctorWebsite`, data, baseUrl);
 };
 
+ApiVideoLibrary.doctorOpenAI = function (data) {
+  return api.post(`/api/v1/doctorwebsite/doctorOpenAI`, data, baseUrl);
+};
+
 export default ApiVideoLibrary;
