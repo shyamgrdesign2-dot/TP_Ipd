@@ -32,6 +32,8 @@ import reload from "../assets/images/ic_Reload.svg";
 import tutorial from "../assets/images/tutorial.svg";
 import playIcons from '../assets/images/tube-icon.svg';
 import devicePad from "../assets/images/device-pad.svg";
+import smartSyncConnected from "../assets/images/smart-sync-connected.svg";
+import smartSyncDisconnected from "../assets/images/smart-sync-disconnected.svg";
 
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
@@ -357,12 +359,43 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
               {/*Will be utilising this code in future, once the video is available */}
               {/* <Button
                 type="button"
-                className="btn align-items-center d-flex btn-device-connect me-20"
+                className="btn align-items-center d-flex btn-device-connect"
                 onClick={handleConnectButtonClick}
                 disabled={connectLoading}
               >
-                <img src={devicePad} alt="devicePad" className="align-items-center d-flex"  style={{backgroundColor: isConnected ? "#4B4AD5" : "#bdbdbd"}}/>
-                <span>{connectLoading ? 'Connecting...' : isConnected ? 'Disconnect' : 'Connect'}</span>
+                <div
+                  style={{
+                    borderRadius: "50%",
+                    width: "32px",
+                    height: "32px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: connectLoading
+                      ? "#4B4AD5"
+                      : isConnected
+                      ? "#FCDADA"
+                      : "#D1F1E4",
+                  }}
+                >
+                  <img
+                    src={
+                      connectLoading
+                        ? devicePad
+                        : isConnected
+                        ? smartSyncDisconnected
+                        : smartSyncConnected
+                    }
+                    alt="devicePad"
+                  />
+                </div>
+                <span>
+                  {connectLoading
+                    ? "SmartSync Connecting..."
+                    : isConnected
+                    ? "Connect SmartSync"
+                    : "SmartSync Connected"}
+                </span>
               </Button> */}
 
               {/* <CommonModal
@@ -414,8 +447,8 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
               </Popover>
               {videoLink && (
                 <VideoModal
-                    videoLink={videoLink}
-                    onCancel={() => setVideoLink(null)}
+                  videoLink={videoLink}
+                  onCancel={() => setVideoLink(null)}
                 />
               )}
               <Button
@@ -430,7 +463,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                   src={reload}
                   alt="clear"
                 />
-                <span>Clear</span>
+                <span>Clear All</span>
               </Button>
 
               <CommonModal
@@ -444,8 +477,8 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                       <div className="d-flex align-items-center">
                         <img className="me-3" src={alertIcon} alt="Warning" />
                         <span>
-                          Are you sure you want to clear this <br />
-                          page data?
+                          Are you sure you want to clear all the <br />
+                          prescription pages data?
                         </span>
                       </div>
                     </div>

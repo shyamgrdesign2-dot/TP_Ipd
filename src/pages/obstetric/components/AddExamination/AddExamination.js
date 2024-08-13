@@ -25,6 +25,8 @@ function AddExamination({
   isDataAddedOrEdited,
   setIsDataAddedOrEdited,
   setIsExaminationUpdated,
+  prefillObstetricData,
+  setPrefillObstetricData,
 }) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
@@ -43,12 +45,52 @@ function AddExamination({
     }
   }, [editIndex]);
 
+  useEffect(() => {
+    if (editIndex === -1 && prefillObstetricData) {
+      setExaminationData({
+        ...examinationData,
+        mothersHeight: prefillObstetricData?.height,
+        mothersWeight: prefillObstetricData?.weight,
+        systolic: prefillObstetricData?.bloodPressure?.split("/")[0],
+        diastolic: prefillObstetricData?.bloodPressure?.split("/")[1],
+        ...(prefillObstetricData?.height &&
+          prefillObstetricData?.weight && {
+            ...calculate(
+              prefillObstetricData?.height,
+              prefillObstetricData?.weight
+            ),
+          }),
+      });
+    }
+  }, []);
+
   const handleExaminationDataChange = (field, value) => {
     let bmi;
     if (field === "mothersWeight") {
       bmi = calculate(examinationData.mothersHeight, value);
     } else if (field === "mothersHeight") {
       bmi = calculate(value, examinationData.mothersWeight);
+    }
+    if (
+      ["systolic", "diastolic", "mothersWeight", "mothersHeight"].includes(
+        field
+      )
+    ) {
+      setPrefillObstetricData({
+        ...prefillObstetricData,
+        [field === "mothersWeight"
+          ? "weight"
+          : field === "mothersHeight"
+          ? "height"
+          : ["systolic", "diastolic"].includes(field)
+          ? "bloodPressure"
+          : field]:
+          "systolic" === field
+            ? `${value}/${examinationData.diastolic}`
+            : "diastolic" === field
+            ? `${examinationData.systolic}/${value}`
+            : value,
+      });
     }
     setExaminationData((prevData) => {
       const newData = {

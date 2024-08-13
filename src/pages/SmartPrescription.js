@@ -2,10 +2,9 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  useContext,
   useRef,
 } from "react";
-import { Drawer,message } from "antd";
+import { Button, Drawer,message } from "antd";
 import { useLocation } from "react-router-dom";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -22,14 +21,14 @@ import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
 import vitals from "../assets/images/Vitals.svg";
 import SmartRxFollowUpBox from "../components/SmartRxFollowUpBox";
-// import visitEnd from '../assets/images/end-visit.svg';
-// import imgCloseVisit from '../assets/images/close-visit.svg';
 
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, WEBSOCKET_ADDRESS } from "../utils/constants";
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import { errorMessage } from "../utils/utils";
 import { MESSAGE_KEY } from "../utils/constants";
+import CommonModal from "../common/CommonModal";
+import alertIcon from "../assets/images/alertIcon.svg";
 
 function SmartPrescription() {
   const {
@@ -37,13 +36,12 @@ function SmartPrescription() {
     customizedPadRightList,
     frequencyList,
     timingList,
-    profile,
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
 
   const { state } = useLocation();
-  const { patient_data, caseManagerData, smartRxFile } = state;
+  const { patient_data, caseManagerData, smartRxFilesData } = state;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -63,23 +61,32 @@ function SmartPrescription() {
   const [token, setToken] = useState(null);
   const [tokenData, setTokenData] = useState(null);
   const [prescription, setPrescription] = useState(false);
-  const canvasRef = useRef(null);
-  const [refresh, setRefresh] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalColor, setModalColor] = useState(null);
   const [progress, setProgress] = useState(0);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [blobName, setBlobName] = useState(null);
   const [connected, setConnected] = useState(false);
   const [smartRxDetails, setSmartRxDetails] = useState(null);
   const [hasError, setHasError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const imageRef = useRef(null);
-  
   const socketRef = useRef(null);
-
-  const ctxGlobalRef = useRef(null);
+  const ctxGlobalRefs = useRef([]);
+  const newPageRef = useRef(null);
+  const [pages, setPages] = useState([]);
+  const [selectedPage, setSelectedPage] = useState(null);
+  const selectedPageRef = useRef(null); // Add a ref for selectedPage
+  const canvasRefs = useRef([]);
+  const [newPageText, setNewPageText] = useState("");
+  const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+  const [deletePopupMsg, setDeletePopupMsg] = useState("");
+  const [isClearPopup, setIsClearPopup] = useState(false);
+  const [updatedIndex, setUpdatedIndex] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(null);
+  const [imageLoaded, setImageLoaded] = useState({});
+  const [drawFunction, setDrawFunction] = useState(null);
+  const [smartRxFiles, setSmartRxFiles] = useState([]);
+  const [imageRefs, setImageRefs] = useState({});
+  const drawRef = useRef(null);
 
   const contextApi = {
     patient_data,
@@ -294,7 +301,7 @@ function SmartPrescription() {
         };
       });
       setVitalsData(updatedData);
-    }
+    } 
   }, [selectedVitalsList]);
 
   useEffect(() => {
@@ -305,46 +312,49 @@ function SmartPrescription() {
         var decoded = jwtDecode(token);
         setTokenData(decoded.result)
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     }
   }, []);
 
   useEffect(() => {
-    
-    const parentElement = document.getElementById("pdf");
+    if (pages.length === 0) {
+      handleAddPage();
+    }
+    if(smartRxFilesData?.length > 0){
+      setSmartRxFiles(smartRxFilesData)
+    }
+  }, []);
 
-    if (!parentElement) {
-      errorMessage("Canvas not found, please refresh the page!");
-      return;
-    }
-  
-    // Remove the previous canvas
-    const previousCanvas = canvasRef.current;
-    if (previousCanvas) {
-      previousCanvas.parentNode.removeChild(previousCanvas);
-    }
-  
-    // Generate a new canvas with a new UUID and white background
-    const newCanvas = document.createElement("canvas");
-    const parentWidth = parentElement.offsetWidth;
-    const parentHeight = parentElement.offsetHeight;
-    newCanvas.id = uuidv4();
-    newCanvas.width = parentWidth * 1;
-    newCanvas.height = parentHeight * 1;
-    newCanvas.style.backgroundColor = "white";
-    newCanvas.style.border = "1px solid lightgrey";
-    newCanvas.style.borderRadius = "20px";
-    newCanvas.style.color = "black";
-    parentElement.appendChild(newCanvas);
-    canvasRef.current = newCanvas;
-  
-    if (smartRxFile) {
-      ctxGlobalRef.current = canvasRef.current.getContext('2d');
-      ctxGlobalRef.current.fillStyle = "white";
-      ctxGlobalRef.current.fillRect(0, 0, newCanvas.width, newCanvas.height);
-    }
-  }, [refresh, prescription]);
+  const toggleDeletePopup = () => {
+      setShowDeletePopup((prev) => !prev);
+  };
+
+  const getCanvas = (id, index) => (
+    <canvas
+      key={id}
+      id={id}
+      width="720px"
+      height="980px"
+      className={`canvas-style ${selectedPage === index ? "canvas-active" : ""}`}
+      ref={(el) => {
+        if (el && smartRxFiles) {
+          canvasRefs.current[id] = el;
+          const ctx = el.getContext("2d");
+          ctx.fillStyle = "white";
+          ctxGlobalRefs.current[id] = ctx;
+        }
+        else{
+          canvasRefs.current[id] = el;
+        }
+      }}
+      onClick={() => handlePageChange(index)}
+    />
+  );
+
+  useEffect(() => {
+    selectedPageRef.current = pages[selectedPage]; // Update the ref when selectedPage changes
+  }, [selectedPage, refreshTrigger]);
 
   const wsError = (error) => {
       message.open({
@@ -362,11 +372,14 @@ function SmartPrescription() {
     });
   }
 
+  useEffect(() => {
+    drawRef.current = smartRxFiles?.length >= selectedPage+1 ? editDraw : draw;
+  },[selectedPage])
+
   // Handles Websocket Connection
   const connectWebSocket = () => {
-
+    // WebSocket initialization (reconnectingwebsocket -> this package handles the reconnection)
     try {
-      // WebSocket initialization (reconnectingwebsocket -> this package handles the reconnection)
       socketRef.current = new ReconnectingWebSocket(WEBSOCKET_ADDRESS, null, {debug: true, reconnectInterval: 3000});
       
       socketRef.current.onopen = () => {
@@ -379,11 +392,10 @@ function SmartPrescription() {
         console.log("WebSocket connection closed");
         setConnected(false);
       };
-
-      const drawFunction = smartRxFile ? editDraw : draw;
+      
       socketRef.current.onmessage = (event) => {
         const o = event.data.split("|");
-        drawFunction(o[0], o[1], o[2], o[3]);
+        drawRef.current(o[0], o[1], o[2], o[3], selectedPageRef.current);
       };
 
       socketRef.current.onerror = (error) => {
@@ -401,8 +413,71 @@ function SmartPrescription() {
     }
   };
 
-  function draw(t, n, a, c) {
-    const canvas = canvasRef.current;
+  const handleAddPage = () => {
+    const newPageId = uuidv4();
+    setPages([...pages, newPageId]);
+    if(pages.length === 0){
+      setSelectedPage(0)  
+    } else{
+      setSelectedPage(pages.length);
+      setTimeout(() => {
+        newPageRef?.current?.scrollIntoView({
+          behavior: "smooth",
+        });
+      }, 100); // Adjust timeout as needed
+    }
+    setNewPageText("");
+  };
+
+  const handleDeletePage = (index) => {
+    if(smartRxFiles){
+      setSmartRxFiles(smartRxFiles.filter((_,fileIndex)=> fileIndex !== index))
+    }
+    const newPages = pages.filter((_, pageIndex) => pageIndex !== index);
+    setPages(newPages);
+    setRefreshTrigger(!refreshTrigger)
+    if (selectedPage >= newPages.length) {
+      setSelectedPage(newPages.length ? Math.min(selectedPage, newPages.length - 1) : 0);
+    }
+  };
+
+  const handlePageChange = (index) => {
+    setSelectedPage(index);
+  };
+
+  const handleRefresh = () => {
+    setSelectedPage(updatedIndex);
+    setRefreshTrigger(!refreshTrigger)
+
+    if(smartRxFiles?.length >= selectedPage+1){
+      setDrawFunction(true)
+    }
+    
+    const canvas = canvasRefs.current[pages[updatedIndex]];
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctxGlobalRefs.current[pages[updatedIndex]] = ctx;
+      canvasRefs.current[pages[updatedIndex]] = ctx
+    }
+  };
+
+  const handleClearAllPages = () => {
+    setPages([pages[0]]);
+    setSelectedPage(0);
+    const canvas = canvasRefs.current[pages[0]];
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+    }
+  };
+
+  function draw(t, n, a, c, pageIndex) {
+    const canvas = canvasRefs.current[pageIndex];
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#fff";
@@ -419,16 +494,16 @@ function SmartPrescription() {
     ctx.stroke();
   }
 
-  function editDraw(t, n, a, c) {
-    const canvas = canvasRef.current;
+  function editDraw(t, n, a, c,pageIndex) {
+    const canvas = canvasRefs.current[pageIndex];
     if (!canvas) return;
     const scaleFactor = 1.5;
-    ctxGlobalRef.current.strokeStyle = '#000';
-    ctxGlobalRef.current.beginPath();
-    ctxGlobalRef.current.moveTo(t * scaleFactor, n * scaleFactor);
-    ctxGlobalRef.current.lineTo(a * scaleFactor, c * scaleFactor);
-    ctxGlobalRef.current.lineJoin = ctxGlobalRef.current.lineCap = "round";
-    ctxGlobalRef.current.stroke();
+    ctxGlobalRefs.current[pageIndex].strokeStyle = '#000';
+    ctxGlobalRefs.current[pageIndex].beginPath();
+    ctxGlobalRefs.current[pageIndex].moveTo(t * scaleFactor, n * scaleFactor);
+    ctxGlobalRefs.current[pageIndex].lineTo(a * scaleFactor, c * scaleFactor);
+    ctxGlobalRefs.current[pageIndex].lineJoin = ctxGlobalRefs.current[pageIndex].lineCap = "round";
+    ctxGlobalRefs.current[pageIndex].stroke();
   }
 
   const convertCanvasToJPEG = (canvas) => {
@@ -449,57 +524,47 @@ function SmartPrescription() {
       socketRef.current = null;
     }
 
-    const canvas = canvasRef.current;
-    let name = null;
+    const canvasArray = Object.values(canvasRefs.current).filter(canvas => canvas !== null);
+    let blobs = [];
+    let files = [];
 
-    if (smartRxFile) {
-      name  = caseManagerData.smart_prescription_filename;
-    } else {
-      const imgId = uuidv4();
-      name = `${imgId}.jpeg`;
-    }
-    setBlobName(name);
-    let blob = null;
-    let file = null;
-
-    try{
-      // throw new Error("Simulated conversion error");
-      blob = await convertCanvasToJPEG(canvas);
-      file = new File([blob], name, { type: 'image/jpeg' });
-    }
-    catch (error) {
-      console.log('Error converting canvas to JPEG:', error);
+    try {
+      // Convert all canvases to JPEG blobs and files
+      for (let i = 0; i < canvasArray.length; i++) {
+        const canvas = canvasArray[i];
+        if (!canvas) continue;
+        const blob = await convertCanvasToJPEG(canvas);
+        const name = smartRxFiles && smartRxFiles[i] ? smartRxFiles[i].smart_prescription_filename : `${uuidv4()}.jpeg`;
+        blobs.push(blob);
+        files.push(new File([blob], name, { type: 'image/jpeg' }));
+      }
+    } catch (error) {
+      console.error('Error converting canvas to JPEG:', error);
       errorMessage("Failed to generate image, Please Submit again");
       return;
     }
 
     // FormData to handle file upload
     const formData = new FormData();
-    formData.append('smart_prescription_filename', name);
-    formData.append('smart_prescription_file', file);
+    files.forEach((file, index) => {
+      formData.append('smart_prescription_files', file);
+      formData.append('smart_prescription_filename[]', file.name);
+    });
     formData.append('doctor_unique_id', tokenData?.doctor_unique_id);
     formData.append('patient_unique_id', patient_data?.patient_unique_id);
 
     try {
-      const response = await api.post(
-        SMART_RX_UPLOAD,
-        formData,
-        baseUrl
-      );
+      const response = await api.post(SMART_RX_UPLOAD, formData, baseUrl);
       const data = response?.message;
 
       if (data) {
-        setSmartRxDetails(name);
+        setSmartRxDetails(files.map(file => file.name));
       }
     } catch (error) {
       errorMessage("Error Uploading the prescription, Please try again");
-      console.log('Error Submitting the prescription:', error);
+      console.error('Error Submitting the prescription:', error);
     }
-  };
-
-  const handleRefresh = () => {
-    setRefresh(!refresh);
-  };
+  }
 
   const handleWrite = () => {
     setPrescription(true);
@@ -507,11 +572,14 @@ function SmartPrescription() {
   };
 
   useEffect(() => {
+    // Set the first page as the default selected page on initial render
+    setSelectedPage(0);
     // this is to remove the click from the right container.
     handleWrite();
-    if (smartRxFile) {
-      imageLoad(smartRxFile);
-    } 
+
+    if (smartRxFilesData) {
+      imageLoad();
+    }
 
     return () => {
       // Cleanup WebSocket connection on component unmount
@@ -519,13 +587,12 @@ function SmartPrescription() {
         socketRef.current.close();
       }
     };
-  }, [smartRxFile]);
+  }, []);
 
   const openModal = (success, message) => {
     setShowModal(true);
     setUploadSuccess(success);
     setUploadMessage(message);
-    console.log(success, "sucess");
     setModalColor(success ? "green" : "red");
     // Start the progress animation
     if (success) {
@@ -567,29 +634,45 @@ function SmartPrescription() {
     }, interval);
   };
 
-  const imageLoad = (imageUrl) => {
+// Load images for the edit flow
+const imageLoad = () => {
+  const loadedImages = {};
+
+  const newPageIds = smartRxFilesData.map(() => uuidv4());
+  setPages(newPageIds);
+  smartRxFilesData.forEach((imageObj, index) => {
+    const { smart_prescription_file: imageUrl } = imageObj;
     const img = new Image();
     img.src = imageUrl;
-    img.crossOrigin = 'anonymous';
+    img.crossOrigin = "anonymous";
     img.onload = () => {
-      setImageLoaded(true);
-      imageRef.current = img;
+      loadedImages[newPageIds[index]] = img;
+      setImageRefs((prevState) => ({ ...prevState, [newPageIds[index]]: img }));
+      setImageLoaded((prevState) => ({
+        ...prevState,
+        [newPageIds[index]]: true,
+      }));
     };
-  }
+  });
+};
 
-  useEffect(() => {
-    if (smartRxFile && imageLoaded && canvasRef.current) {
-      ctxGlobalRef.current = canvasRef.current.getContext('2d');
-      ctxGlobalRef.current.drawImage(imageRef.current, 0, 0)
+useEffect(() => {
+  // Draw images on canvases when images are getting loaded
+  pages.forEach((pageId) => {
+    if (imageLoaded[pageId] && canvasRefs.current[pageId]) {
+      const ctx = canvasRefs.current[pageId].getContext('2d');
+      ctx.drawImage(imageRefs[pageId], 0, 0);
+      ctxGlobalRefs.current[pageId] = ctx;
     }
-  }, [imageLoaded]);
+  });
+}, [imageLoaded]);
 
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
         <HeaderSmartPrescription
           prescription={prescription}
-          onClear={handleRefresh}
+          onClear={handleClearAllPages}
           onSubmit={handleSubmit}
           smartRxData={smartRxDetails}
         />
@@ -632,9 +715,7 @@ function SmartPrescription() {
                 )}
               </div>
               <div className="prescription-box-sm p-14">
-                {/* <div className="prescription-box-sm"> */}
                 <SmartRxFollowUpBox />
-                {/* </div> */}
               </div>
             </div>
             <div
@@ -646,12 +727,83 @@ function SmartPrescription() {
                 left: "39%",
               }}
             >
-              <div className="right-container">
+              <div>
                 <div
                   id="pdf"
                   style={{ border: prescription ? "none" : "lightgrey" }}
                 >
-                  <canvas ref={canvasRef} width="720px" height="980px" />
+                  {pages.map((page, index) => (
+                    <div
+                      key={page}
+                      className="canvas-container"
+                      ref={index === pages.length - 1 ? newPageRef : null}
+                    >
+                      <div
+                        className={`canvas-header ${
+                          selectedPage === index ? "active-page" : ""
+                        }`}
+                      >
+                        <div className="canvas-header-left">
+                          <span>Page {index + 1}</span>
+                          {selectedPage === index && (
+                            <span className="selected-text">Selected</span>
+                          )}
+                        </div>
+                        <div className="d-flex">
+                          <button
+                            className="btn d-flex align-items-center btn-text"
+                            onClick={() => {
+                              toggleDeletePopup();
+                              setIsClearPopup(true);
+                              setDeletePopupMsg(
+                                `Are you sure you want to clear page ${
+                                  index + 1
+                                } data`
+                              );
+                              setUpdatedIndex(index);
+                            }}
+                          >
+                            <i className="icon-reload me-2 fs-5" />
+                          </button>
+                          {pages.length > 1 && (
+                            <button
+                              className="btn d-flex align-items-center btn-text"
+                              onClick={() => {
+                                toggleDeletePopup();
+                                setIsClearPopup(false);
+                                setDeletePopupMsg(
+                                  `Are you sure you want to delete page ${
+                                    index + 1
+                                  } data`
+                                );
+                                setUpdatedIndex(index);
+                              }}
+                            >
+                              <i className="icon-delete me-2 fs-5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      {getCanvas(page, index)}
+                      <div
+                        className={`canvas-footer ${
+                          selectedPage === index ? "active-page" : ""
+                        }`}
+                      >
+                        {index === pages.length - 1 && (
+                          <button
+                            className="btn d-flex align-items-center justify-content-center btn-text new-page-btn"
+                            onMouseEnter={() => setNewPageText("New Page")}
+                            onMouseLeave={() => setNewPageText("")}
+                            onClick={handleAddPage}
+                          >
+                            <i className="icon-Add fs-5" />
+                            {newPageText}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -670,6 +822,46 @@ function SmartPrescription() {
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
         </Drawer>
+        <CommonModal
+          isModalOpen={shouldShowDeletePopup}
+          onCancel={toggleDeletePopup}
+          modalWidth={398}
+          title={"You may lose your data"}
+          modalBody={
+            <>
+              <div className="alert-warning rounded-10px p-2 patient-details">
+                <div className="d-flex align-items-center">
+                  <img className="me-3" src={alertIcon} alt="Warning" />
+                  <span>{deletePopupMsg}</span>
+                </div>
+              </div>
+              <div className="mt-4">
+                <div className="d-flex align-items-center mt-2 justify-content-end">
+                  <div
+                    onClick={() => {
+                      if (isClearPopup) {
+                        handleRefresh(updatedIndex);
+                      } else {
+                        handleDeletePage(updatedIndex);
+                      }
+                      toggleDeletePopup();
+                      setUpdatedIndex(null);
+                    }}
+                    className="me-4 text-decoration-underline btn p-0 text-main"
+                  >
+                    {isClearPopup ? "Clear" : "Delete"}
+                  </div>
+                  <Button
+                    onClick={toggleDeletePopup}
+                    className="lh-lg btn btn-primary3 btn-41 px-4"
+                  >
+                    <span>No, Stay</span>
+                  </Button>
+                </div>
+              </div>
+            </>
+          }
+        />
       </>
     </CashManagerContext.Provider>
   );

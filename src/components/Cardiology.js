@@ -41,7 +41,7 @@ function Cardiology(props) {
 
   const [filteredInfo, setFilteredInfo] = useState({});
   const [setSortedInfo] = useState({});
-  const [smartRxFile, setSmartRxFile] = useState(null);
+  const [smartRxFile, setSmartRxFile] = useState([]);
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -49,7 +49,7 @@ function Cardiology(props) {
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
   
   useEffect(() => {
-    setSmartRxFile(null)
+    setSmartRxFile([]);
     if (viewCaseManagerData?.tcm_id) {
       fetchData();
     }
@@ -60,14 +60,15 @@ function Cardiology(props) {
       tcm_id: viewCaseManagerData?.tcm_id,
     };
     try {
-        if(viewCaseManagerData?.smart_prescription_filename){
+        if(viewCaseManagerData?.smart_prescription_filename?.length){
           const response = await api.post(
             FETCH_SMART_RX,
             payload,
             baseUrl
           );
-          const fileToShow = response.data.smart_prescription_file;
-          setSmartRxFile(fileToShow);
+          if (response?.data?.length) {
+            setSmartRxFile(response?.data);
+          } 
         }
     } catch (error) {
       console.error("Error:", error);
@@ -86,7 +87,6 @@ function Cardiology(props) {
   };
 
   const handleChange = (pagination, filters, sorter) => {
-    console.log("Various parameters", pagination, filters, sorter);
     setFilteredInfo(filters);
     setSortedInfo(sorter);
   };
@@ -241,12 +241,12 @@ function Cardiology(props) {
       rx_date: viewCaseManagerData?.consultation_date,
     });
   
-    if (smartRxFile) {
+    if (smartRxFile.length > 0) {
       navigate("/smart-prescription", {
         state: {
           patient_data: patient_data,
           caseManagerData: viewCaseManagerData,
-          smartRxFile: smartRxFile,
+          smartRxFilesData: smartRxFile,
         },
       });
     } else {
@@ -308,7 +308,7 @@ function Cardiology(props) {
                   <button
                     className="btn p-0 ms-3"
                     style={{
-                      visibility: viewCaseManagerData?.doctor_data?.editCase && !(smartRxFile && isMobile) ? "visible" : "hidden",
+                      visibility: viewCaseManagerData?.doctor_data?.editCase && !(smartRxFile.length > 0 && isMobile) ? "visible" : "hidden",
                     }}
                     onClick={handleEditRxClick}
                   >
@@ -324,7 +324,7 @@ function Cardiology(props) {
                   >
                     <i className="icon-Print"></i>
                   </button>
-                  { !smartRxFile &&
+                  { !smartRxFile.length > 0 &&
                     <Dropdown
                       className="btn btn-outline btn-more ms-1"
                       menu={{ items }}
@@ -348,27 +348,30 @@ function Cardiology(props) {
                 </div>
               </div>
             ) : //smart image
-            smartRxFile ? (
-              <>
-                <div style={{ padding: "5px" }}>
-                  {smartRxFile && (
-                    <img
-                      src={smartRxFile}
-                      alt="Smart Rx"
-                      width="100%"
-                      height="660px"
-                    />
-                  )}
-                </div>
-                <div className="d-flex align-items-center mb-14 follow-up-detailsPage">
-                { viewCaseManagerData?.follow_up_date &&
-                  <>
-                    <img className='me-3' src={followUp} alt="Symptoms" />
-                    <div className="title-common">Follow-up:</div>
-                    <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
-                  </>
-                }
-                </div>
+            smartRxFile.length > 0 ?
+            (
+            <>
+              {smartRxFile?.map(({smart_prescription_file}) =>
+                  <div style={{ padding: "5px" }}>
+                    {smart_prescription_file && (
+                      <img
+                        src={smart_prescription_file}
+                        alt="Smart Rx"
+                        width="100%"
+                        height="660px"
+                      />
+                    )}
+                  </div>
+              )}
+              <div className="d-flex align-items-center mb-14 follow-up-detailsPage">
+              { viewCaseManagerData?.follow_up_date &&
+                <>
+                  <img className='me-3' src={followUp} alt="Symptoms" />
+                  <div className="title-common">Follow-up:</div>
+                  <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
+                </>
+              }
+              </div>
               </>
             ) : (
               <Card.Body className="p-0 cardbody-data">

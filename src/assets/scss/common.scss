@@ -688,20 +688,14 @@ body {
             li {
                 list-style: none;
                 margin: 5px;
-                button {
-                    border: 0px;
-                    padding: 0px;
-                    margin: 0px;
-                    font-size: 0px;
-                    width: 6px;
-                    height: 6px;
-                    border-radius: 50%;
-                    background: #D9D9D9;
-                }
             }
             li.slick-active {
                 button {
-                    background: #A263D5;
+                    &:before {
+                        color: #A263D5;
+                        border-radius: 10px;
+                        font-size: 8px;
+                    }
                 }
             }
         }
@@ -731,6 +725,9 @@ body {
             }
         }
     }   
+}
+.video-bottom-spacing {
+    margin-bottom: 35px;
 }
 .hospital-address-slider {
     .slick-dots {

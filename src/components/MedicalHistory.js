@@ -10,6 +10,7 @@ import { useLocation } from 'react-router-dom';
 import { getGynecDetails } from '../api/services/ApiGynec';
 import { errorMessage } from '../utils/utils';
 import { useAccess } from '../pages/vaccination/useAccess';
+import { useSelector } from 'react-redux';
 
 function MedicalHistory({ loading, medicalHistoryData }) {
 
@@ -17,7 +18,8 @@ function MedicalHistory({ loading, medicalHistoryData }) {
     const [gynecHistory, setGynecHistory] = useState({});
 
     const { state } = useLocation();
-    const { patient_data } = state
+    const { patient_data } = state;
+    const { userId } = useSelector((state) => state.doctors);
 
     const {isGynaecHistoryAccessable} = useAccess();
 
@@ -29,7 +31,10 @@ function MedicalHistory({ loading, medicalHistoryData }) {
     
     const fetchGynecHistory = async () => {
         try {
-            const data = await getGynecDetails(patient_data?.patient_unique_id);
+            const data = await getGynecDetails(
+              patient_data?.patient_unique_id,
+              userId
+            );
             setGynecHistory(data);
         } catch (error) {
             errorMessage('Error fetching gynec history:', error);
