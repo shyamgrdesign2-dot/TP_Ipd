@@ -120,7 +120,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     if (patients_details) {
       getGraphsToPrintCheckBox();
     }
-  }, [patients_details, growthChartData]);
+  }, [patients_details, allGrowthChartParams]);
 
   const handlePrintWeb = useReactToPrint({
     content: () => printableRef.current,
@@ -171,15 +171,26 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     const formData = new FormData();
     formData.append("pm_id", patient_data?.pm_id || 0);
     formData.append("pm_pid", patient_data?.pm_pid || 0);
+
+    const uploadingGraphs = graphsToPrintData.filter((item) => {
+      if (
+        (item.id === "HeightVsWeight" &&
+          growthChartData[item.id].some((item) => item.y && item.x)) ||
+        (item.id !== "HeightVsWeight" &&
+          growthChartData[item.id].some((item) => item.y))
+      ) {
+        return item;
+      }
+    });
     await Promise.all(
       graphImgRefs.current.map(async (ref, index) => {
         if (ref === null) {
           return null;
         }
         const name =
-          graphsToPrint[index].id === "HeightVsWeight"
+          uploadingGraphs[index].id === "HeightVsWeight"
             ? "heightVsWeight"
-            : graphsToPrint[index].id.toLowerCase();
+            : uploadingGraphs[index].id.toLowerCase();
         const blob = await convertCanvasToJPEG(ref);
         const file = new File([blob], name, {
           type: "image/jpeg",
@@ -213,11 +224,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
   const getGraphsToPrintCheckBox = () => {
     const percentileVisibility = visibility;
-    const growthChartDataKeys = Object.keys(growthChartData);
-    let updatedGraphsToPrintData = graphsToPrintData.filter((item) =>
-      growthChartDataKeys.includes(item.id)
-    );
-    updatedGraphsToPrintData = updatedGraphsToPrintData
+    let updatedGraphsToPrintData = graphsToPrintData
       .map((graphItem) => {
         const percentileData =
           graphItem.id === "Weight" && patientAgeInMonths > 120
@@ -229,6 +236,25 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
         }
       })
       .filter((item) => item);
+    updatedGraphsToPrintData = updatedGraphsToPrintData.map((item) => {
+      if (
+        (item.id === "HeightVsWeight" &&
+          growthChartData[item.id].some((item) => item.y && item.x)) ||
+        (item.id !== "HeightVsWeight" &&
+          growthChartData[item.id].some((item) => item.y))
+      ) {
+        return item;
+      } else {
+        return {
+          ...item,
+          isPrintEnabled: false,
+        };
+      }
+    });
+    updatedGraphsToPrintData =
+      updatedGraphsToPrintData.length === 0
+        ? graphsToPrintData
+        : updatedGraphsToPrintData;
     setGraphToPrint(updatedGraphsToPrintData);
     setVisibility(percentileVisibility);
   };
@@ -252,6 +278,15 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const getGraphs = () => {
     let growthChartResult = [];
     if (display === "block") {
+      growthChartResult = growthChartResult.filter((item) => {
+        if (
+          (item.id === "HeightVsWeight" &&
+            growthChartData[item.id].some((item) => item.y && item.x)) ||
+          growthChartData[item.id].some((item) => item.y)
+        ) {
+          return item;
+        }
+      });
       growthChartResult = graphsToPrint
         .filter((item) => item.isPrintEnabled)
         .map((item) => item.id);
