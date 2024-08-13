@@ -48,7 +48,7 @@ function ObsHistoryInlineView({
                     fontWeight: 500,
                   }}
                 >
-                  Patient Details&nbsp;
+                  Patient Information&nbsp;
                 </Text>
                 <Text
                   style={{

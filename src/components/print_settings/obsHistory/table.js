@@ -38,7 +38,7 @@ function ObsHistoryTableView({
               backgroundColor: "#E2E2EA",
             }}
           >
-            Patient Details
+            Patient Information
           </Text>
           <View style={[styles.table, { marginTop: 0 }]}>
             <View
