@@ -479,6 +479,10 @@ function WalkInConsultation() {
       "doctor_id": profile?.doctor_unique_id,
       "patient_type": 'New',
     });
+    const clinic_name = getClinicName(profile?.hospital_data);
+    window.Moengage.track_event("TP_Add_Patient_clicked", {
+      clinic_name,
+    });
     if (searchQuery.length === 10 && isNumeric(searchQuery)) {
       navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery } } });
     } else if (searchQuery.length > 0 && isAlphabet(searchQuery)) {
