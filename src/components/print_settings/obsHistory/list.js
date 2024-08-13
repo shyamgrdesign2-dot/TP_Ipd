@@ -50,7 +50,7 @@ function ObsHistoryListView({
                     fontWeight: 500,
                   }}
                 >
-                  &nbsp;{obsListViewCounter++}.&nbsp;Patient diagnosis&nbsp;
+                  &nbsp;{obsListViewCounter++}.&nbsp;Patient Details&nbsp;
                 </Text>
 
                 <Text
