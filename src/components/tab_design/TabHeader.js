@@ -81,7 +81,7 @@ function TabHeader({ flag, mode = ADD, title, loading, onClick }) {
                     <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center' icon={<i className="icon-Add"></i>} onClick={onClick}>
                         Add New Patient
                     </Button>
-                ) : (
+                ) : flag === 2 && (
                     mode === EDIT ? (
                         <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center' loading={loading} onClick={onClick}>
                             Save

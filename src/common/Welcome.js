@@ -2,6 +2,7 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { getDecodedToken } from "../utils/localStorage";
 
 function Welcome(props) {
 
@@ -10,6 +11,20 @@ function Welcome(props) {
   const { locationPath, backVisible } = props;
 
   const { profile } = useSelector((state) => state.doctors);
+
+  const clickWalkInConsultation = () => {
+    const decodedToken = getDecodedToken();
+    const businessId = decodedToken?.result?.hospital_business_id;
+    window.Moengage.track_event("walk_in_consultation_click", {
+      "doctor_id": profile?.doctor_unique_id,
+      "timestamp": new Date(),
+    });
+    if (businessId == '754811713438773') {
+      navigate("/walk_in_consultation_zydus")
+    } else {
+      navigate("/walk_in_consultation")
+    }
+  }
 
   return (
     <>
@@ -26,7 +41,7 @@ function Welcome(props) {
                 <h1>Add New Patient</h1>
               ) : locationPath == "/edit_patient" ? (
                 <h1>Edit Patient Details</h1>
-              ) : locationPath == "/walk_in_consultation" ? (
+              ) : (locationPath == "/walk_in_consultation" || locationPath == "/walk_in_consultation_zydus") ? (
                 <h1>Start Walk-In Consultation</h1>
               ) : (
                 <h1>Welcome Dr. {profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
@@ -46,14 +61,7 @@ function Welcome(props) {
                 <Button
                   variant="primary"
                   className="px-3 btn-41"
-                  onClick={() => {
-                    window.Moengage.track_event("walk_in_consultation_click", {
-                      "doctor_id": profile?.doctor_unique_id,
-                      "timestamp": new Date(),
-                    });
-                    navigate("/walk_in_consultation")
-                  }}
-                >
+                  onClick={clickWalkInConsultation}>
                   {"Start Walk-in Consultation"}
                 </Button>
               </div>
