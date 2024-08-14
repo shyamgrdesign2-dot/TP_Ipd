@@ -67,7 +67,7 @@ const DiagnosisNotes = ({
         </div>
         <div className="px-20 py-3">
           <Input.TextArea
-            placeholder="Enter additional details related to patient details"
+            placeholder="Enter additional details related to patient diagnosis"
             value={diagnosisNotes}
             onChange={onChange}
             className="textareaPlaceholder"

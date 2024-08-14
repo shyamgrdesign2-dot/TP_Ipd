@@ -113,7 +113,7 @@ export default function PatientDiagnosis({
           background: "transparent",
         }}
       >
-        Patient Details
+        Patient Diagnosis
       </div>
     ),
     content: (
