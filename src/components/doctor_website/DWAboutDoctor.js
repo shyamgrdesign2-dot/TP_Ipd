@@ -148,7 +148,7 @@ function DWAboutDoctor() {
             <hr className='mt-1' />
             <div className='align-items-center d-flex'>
                 <div className='title-common' style={{ flex: 1 }}>About Doctor</div>
-                <Button type="button" onClick={getAIdata} className="btn btn-primary3" loading={ai_loading}>Generate AI</Button>
+                {/* <Button type="button" onClick={getAIdata} className="btn btn-primary3" loading={ai_loading}>Generate AI</Button> */}
             </div>
             <div className="text-greycolor fontroboto my-3"> Write a brief introduction. Share your experience journey, major achievements, best qualities, and key skills. </div>
             <Input.TextArea rows="5"

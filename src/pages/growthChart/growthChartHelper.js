@@ -60,7 +60,7 @@ export const getGrowthChartData = (
   DOB,
   patientAgeInMonths
 ) => {
-  const result = growthChartData.reduce(
+  return growthChartData.reduce(
     (acc, entry, index) => {
       const createdDate = moment(entry.tcbc_created_date);
       const monthsDiff = createdDate.diff(DOB, "months");
@@ -119,22 +119,6 @@ export const getGrowthChartData = (
       HeightVsWeight: [],
     }
   );
-  if (growthChartData.length === 0) {
-    return result
-  }
-  Object.keys(result).forEach((key) => {
-    if (key === "HeightVsWeight") {
-      if (result[key].every((item) => !item.y || !item.x)) {
-        delete result[key];
-      }
-    } else {
-      if (result[key].every((item) => !item.y)) {
-        delete result[key];
-      }
-    }
-  });
-
-  return result;
 };
 
 export const getOrdinalSuffix = (n) => {

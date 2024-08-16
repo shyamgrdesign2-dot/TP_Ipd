@@ -41,6 +41,9 @@ function ConfigurePrintSetting() {
     const [fileSignature, setFileSignature] = useState(null);
     const todayVaccines = useTodayVaccines(caseManagerData);
     const growthChartDetails = useGrowthChart(caseManagerData);
+    const medicalHistoryCheckboxOptions = caseManagerData?.medical_history?.map(e => {
+        return { label: e?.title, value: e?.tmmhs_id }
+    })
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
@@ -50,7 +53,7 @@ function ConfigurePrintSetting() {
         growthChartDetails.getGrowthChartDetails();
     }, []);
 
-    const contextApi = { smartRxFile , divWidth, caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature };
+    const contextApi = { smartRxFile, divWidth, caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature, medicalHistoryCheckboxOptions };
 
     const TabsPrintSetting = [
         {
@@ -101,7 +104,7 @@ function ConfigurePrintSetting() {
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                                 <Tabs defaultActiveKey="1" items={caseManagerData !== undefined ? TabsPrintSetting : TabsPrintSetting.slice(1, 2)} onChange={onTabChange} className="print-tabs" />
                                 {selectedTab === TAB_PRESCRIPTION ? (
-                                    <PrescriptionLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails}/>
+                                    <PrescriptionLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} />
                                 ) : selectedTab === TAB_HEADER_FOOTER ? (
                                     <HeaderFooterLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} />
                                 ) : selectedTab === TAB_PAGE_FORMAT && (
