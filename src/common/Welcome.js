@@ -2,7 +2,7 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { getDecodedToken } from "../utils/localStorage";
+import { getTokenData } from "../utils/utils";
 
 function Welcome(props) {
 
@@ -13,13 +13,12 @@ function Welcome(props) {
   const { profile } = useSelector((state) => state.doctors);
 
   const clickWalkInConsultation = () => {
-    const decodedToken = getDecodedToken();
-    const businessId = decodedToken?.result?.hospital_business_id;
+    const token_data = getTokenData();
     window.Moengage.track_event("walk_in_consultation_click", {
       "doctor_id": profile?.doctor_unique_id,
       "timestamp": new Date(),
     });
-    if (businessId == '754811713438773') {
+    if (token_data?.hospital_business_id == '754811713438773') {
       navigate("/walk_in_consultation_zydus")
     } else {
       navigate("/walk_in_consultation")
