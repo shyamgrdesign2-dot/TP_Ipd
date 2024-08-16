@@ -146,7 +146,7 @@ function WalkInConsultationZydus() {
                                     name={patient.patientname}
                                     boldWord={searchQuery}
                                 />{" "}
-                                ({patient.gender}, {calculateAge(moment(patient.dobstr, 'YYYY MM DD').format('YYYY-MM-DD')).years}y)
+                                ({patient.gender}, {calculateAge(moment(patient.dobstr).format('YYYY-MM-DD')).years}y)
                             </span>
                         </div>
                         {patient.mobilenumber && (
@@ -291,7 +291,7 @@ function WalkInConsultationZydus() {
                                     {clickedPatient?.patientname}{" "}
                                     <span className="fw-normal ms-2">
                                         {/* ({clickedPatient?.pm_gender}, {clickedPatient?.ageYears}y) */}
-                                        ({clickedPatient?.gender}, {calculateAge(moment(clickedPatient?.dobstr, 'YYYY MM DD').format('YYYY-MM-DD')).years}y)
+                                        ({clickedPatient?.gender}, {calculateAge(moment(clickedPatient?.dobstr).format('YYYY-MM-DD')).years}y)
                                     </span>
                                 </span>
                             </div>
