@@ -50,6 +50,30 @@ function PastPregnancy({
     setIsDataAddedOrEdited(true);
   };
 
+  const handleAgeOfDeliveryChange = (field, value) => {
+    setPastPregnancyData((prevData) => {
+      const updatedData = {
+        ...prevData,
+        [field]: value,
+      };
+
+      const ageOfDeliveryYears = updatedData.ageOfDeliveryYears || "";
+      const ageOfDeliveryMonths = updatedData.ageOfDeliveryMonths || "";
+
+      const ageOfDelivery = `${
+        ageOfDeliveryYears ? ageOfDeliveryYears + "y" : ""
+      }${ageOfDeliveryMonths} ${
+        ageOfDeliveryMonths ? ageOfDeliveryMonths + "m" : ""
+      }`.trim();
+
+      return {
+        ...updatedData,
+        ageOfDelivery,
+      };
+    });
+    setIsDataAddedOrEdited(true);
+  };
+
   const disabledDate = (current) => {
     return current && current >= moment().add(1, "days").startOf("day");
   };
@@ -237,29 +261,109 @@ function PastPregnancy({
               />
             </div>
             <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
-              <DatePicker
-                key={"dateOfDelivery"}
-                onChange={(date) => {
-                  const formattedDate = date.format("YYYY-MM-DD");
-                  handlePastPregnancyDataChange(
-                    "dateOfDelivery",
-                    formattedDate
-                  );
-                }}
-                disabledDate={disabledDate}
-                style={{ width: "170px", height: "41px" }}
-                value={
-                  pastPregnancyData.dateOfDelivery
-                    ? dayjs(moment(pastPregnancyData.dateOfDelivery))
-                    : ""
-                }
-                allowClear={false}
-                format={{
-                  format: "DD-MM-YYYY",
-                  type: "mask",
-                }}
-              />
+              <Radio.Group value={pastPregnancyData.typeOfDelivery}>
+                <Radio.Button
+                  value={"date"}
+                  onClick={() =>
+                    handlePastPregnancyDataChange("typeOfDelivery", "date")
+                  }
+                  style={{
+                    width: "85px",
+                    height: "41px",
+                    padding: "5px 20px 0 25px",
+                  }}
+                  className="custom-radio-button"
+                >
+                  DOD
+                </Radio.Button>
+                <Radio.Button
+                  value={"age"}
+                  onClick={() =>
+                    handlePastPregnancyDataChange("typeOfDelivery", "age")
+                  }
+                  style={{
+                    width: "85px",
+                    height: "41px",
+                    padding: "5px 20px 0 25px",
+                  }}
+                  className="custom-radio-button"
+                >
+                  Age
+                </Radio.Button>
+              </Radio.Group>
             </div>
+            {pastPregnancyData?.typeOfDelivery && (
+              <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
+                {pastPregnancyData?.typeOfDelivery === "date" && (
+                  <DatePicker
+                    key={"dateOfDelivery"}
+                    onChange={(date) => {
+                      const formattedDate = date.format("YYYY-MM-DD");
+                      handlePastPregnancyDataChange(
+                        "dateOfDelivery",
+                        formattedDate
+                      );
+                    }}
+                    disabledDate={disabledDate}
+                    style={{ width: "170px", height: "41px" }}
+                    value={
+                      pastPregnancyData.dateOfDelivery
+                        ? dayjs(moment(pastPregnancyData.dateOfDelivery))
+                        : ""
+                    }
+                    allowClear={false}
+                    format={{
+                      format: "DD-MM-YYYY",
+                      type: "mask",
+                    }}
+                  />
+                )}
+                {pastPregnancyData?.typeOfDelivery === "age" && (
+                  <>
+                    <Input
+                      className="inputheight41-group"
+                      style={{ width: "82px" }}
+                      placeholder="Enter"
+                      inputMode="numeric"
+                      value={
+                        pastPregnancyData.ageOfDeliveryYears ||
+                        pastPregnancyData.ageOfDelivery?.split("y")?.[0] ||
+                        ""
+                      }
+                      addonAfter={"Yr"}
+                      onChange={(e) =>
+                        isNumberCheck(e) &&
+                        e.target.value < 150 &&
+                        handleAgeOfDeliveryChange(
+                          "ageOfDeliveryYears",
+                          e.target.value
+                        )
+                      }
+                    />
+                    <Input
+                      className="inputheight41-group"
+                      style={{ width: "82px", marginLeft: "10px" }}
+                      placeholder="Enter"
+                      inputMode="numeric"
+                      value={
+                        pastPregnancyData.ageOfDeliveryMonths ||
+                        pastPregnancyData.ageOfDelivery?.split(" ")?.[1]?.[0] ||
+                        ""
+                      }
+                      addonAfter={"M"}
+                      onChange={(e) =>
+                        isNumberCheck(e) &&
+                        e.target.value < 12 &&
+                        handleAgeOfDeliveryChange(
+                          "ageOfDeliveryMonths",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </>
+                )}
+              </div>
+            )}
             <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
               <Radio.Group value={pastPregnancyData.gender}>
                 <Radio.Button
@@ -475,8 +579,15 @@ function PastPregnancy({
                     Delivery mode
                   </div>
                   <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5">
-                    Date of delivery
+                    Select birth info
                   </div>
+                  {pastPregnancyData?.typeOfDelivery && (
+                    <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5">
+                      <div className="birth-info">
+                        Add Date of delivery (DOD) or Age(in years& month)
+                      </div>
+                    </div>
+                  )}
                   <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5">
                     Gender
                   </div>

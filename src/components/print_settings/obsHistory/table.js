@@ -22,6 +22,264 @@ function ObsHistoryTableView({
         Obstetric History&nbsp;:&nbsp;
       </Text>
 
+      {options?.includes("gplae") && (
+        <View>
+          <Text
+            style={{
+              color: "#000",
+              marginTop: PX_TO_PT * 12,
+              fontFamily: printSettings?.page_format?.font_family,
+              fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+              fontWeight: 500,
+              padding: 6,
+              borderTop: "1px solid #171725",
+              borderLeft: "1px solid #171725",
+              borderRight: "1px solid #171725",
+              backgroundColor: "#E2E2EA",
+            }}
+          >
+            GPLAE
+          </Text>
+          <View style={[styles.table, { marginTop: 0 }]}>
+            {Number(obsHistoryData?.gravidity) === 1 &&
+            (!obsHistoryData?.parity || Number(obsHistoryData?.parity) === 0) &&
+            (!obsHistoryData?.livingChildren ||
+              Number(obsHistoryData?.livingChildren) === 0) &&
+            (!obsHistoryData?.abortion ||
+              Number(obsHistoryData?.abortion) === 0) &&
+            (!obsHistoryData?.ectopicPregnancies ||
+              Number(obsHistoryData?.ectopicPregnancies) === 0) ? (
+              <>
+                <Text
+                  style={{
+                    color: "#000",
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    padding: 6,
+                    borderBottom: "1px solid #171725",
+                    borderRight: "1px solid #171725",
+                  }}
+                >
+                  Primigravida
+                </Text>
+              </>
+            ) : (
+              <>
+                <View
+                  style={[
+                    styles.row,
+                    { alignItems: "center", justifyContent: "center" },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    Gravida
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    Para
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    Living
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    Abortion
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    Ectopic
+                  </Text>
+                </View>
+
+                <View
+                  style={[
+                    styles.row,
+                    { alignItems: "center", justifyContent: "center" },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {"gravidity" in obsHistoryData
+                      ? (obsHistoryData?.gravidity).toString().padStart(2, "0")
+                      : `-`}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {"parity" in obsHistoryData
+                      ? (obsHistoryData?.parity).toString().padStart(2, "0")
+                      : `-`}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {"livingChildren" in obsHistoryData
+                      ? (obsHistoryData?.livingChildren)
+                          .toString()
+                          .padStart(2, "0")
+                      : `-`}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {"abortion" in obsHistoryData
+                      ? (obsHistoryData?.abortion).toString().padStart(2, "0")
+                      : `-`}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cell,
+                      {
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 400,
+                        color: "#000",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {"ectopicPregnancies" in obsHistoryData
+                      ? (obsHistoryData?.ectopicPregnancies)
+                          .toString()
+                          .padStart(2, "0")
+                      : `-`}
+                  </Text>
+                </View>
+              </>
+            )}
+
+            <Text
+              style={{
+                color: "#000",
+                fontFamily: printSettings?.page_format?.font_family,
+                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                fontWeight: 500,
+                padding: 6,
+                borderBottom: "1px solid #171725",
+                borderRight: "1px solid #171725",
+              }}
+            >
+              Notes&nbsp;:&nbsp;
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 400,
+                    color: "#000",
+                  },
+                ]}
+              >
+                {"diagnosisNotes" in obsHistoryData
+                  ? obsHistoryData?.diagnosisNotes
+                  : `-`}
+              </Text>
+            </Text>
+          </View>
+        </View>
+      )}
+
       {options?.includes("diagnosis") && (
         <View>
           <Text
@@ -382,224 +640,6 @@ function ObsHistoryTableView({
         </View>
       )}
 
-      {options?.includes("gplae") && (
-        <View>
-          <Text
-            style={{
-              color: "#000",
-              marginTop: PX_TO_PT * 12,
-              fontFamily: printSettings?.page_format?.font_family,
-              fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-              fontWeight: 500,
-              padding: 6,
-              borderTop: "1px solid #171725",
-              borderLeft: "1px solid #171725",
-              borderRight: "1px solid #171725",
-              backgroundColor: "#E2E2EA",
-            }}
-          >
-            GPLAE
-          </Text>
-          <View style={[styles.table, { marginTop: 0 }]}>
-            <View
-              style={[
-                styles.row,
-                { alignItems: "center", justifyContent: "center" },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.cell,
-                  {
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 500,
-                    color: "#000",
-                    textAlign: "center",
-                  },
-                ]}
-              >
-                Gravida
-              </Text>
-              <Text
-                style={[
-                  styles.cell,
-                  {
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 500,
-                    color: "#000",
-                    textAlign: "center",
-                  },
-                ]}
-              >
-                Para
-              </Text>
-              <Text
-                style={[
-                  styles.cell,
-                  {
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 500,
-                    color: "#000",
-                    textAlign: "center",
-                  },
-                ]}
-              >
-                Living
-              </Text>
-              <Text
-                style={[
-                  styles.cell,
-                  {
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 500,
-                    color: "#000",
-                    textAlign: "center",
-                  },
-                ]}
-              >
-                Abortion
-              </Text>
-              <Text
-                style={[
-                  styles.cell,
-                  {
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 500,
-                    color: "#000",
-                    textAlign: "center",
-                  },
-                ]}
-              >
-                Ectopic
-              </Text>
-            </View>
-
-            <View
-              style={[
-                styles.row,
-                { alignItems: "center", justifyContent: "center" },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.cell,
-                  {
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 400,
-                    color: "#000",
-                    textAlign: "center",
-                  },
-                ]}
-              >
-                {"gravidity" in obsHistoryData
-                  ? obsHistoryData?.gravidity?.toString().padStart(2, "0")
-                  : `-`}
-              </Text>
-              <Text
-                style={[
-                  styles.cell,
-                  {
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 400,
-                    color: "#000",
-                    textAlign: "center",
-                  },
-                ]}
-              >
-                {"parity" in obsHistoryData
-                  ? obsHistoryData?.parity?.toString().padStart(2, "0")
-                  : `-`}
-              </Text>
-              <Text
-                style={[
-                  styles.cell,
-                  {
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 400,
-                    color: "#000",
-                    textAlign: "center",
-                  },
-                ]}
-              >
-                {"livingChildren" in obsHistoryData
-                  ? obsHistoryData?.livingChildren?.toString().padStart(2, "0")
-                  : `-`}
-              </Text>
-              <Text
-                style={[
-                  styles.cell,
-                  {
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 400,
-                    color: "#000",
-                    textAlign: "center",
-                  },
-                ]}
-              >
-                {"abortion" in obsHistoryData
-                  ? obsHistoryData?.abortion?.toString().padStart(2, "0")
-                  : `-`}
-              </Text>
-              <Text
-                style={[
-                  styles.cell,
-                  {
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 400,
-                    color: "#000",
-                    textAlign: "center",
-                  },
-                ]}
-              >
-                {"ectopicPregnancies" in obsHistoryData
-                  ? obsHistoryData?.ectopicPregnancies
-                      ?.toString()
-                      .padStart(2, "0")
-                  : `-`}
-              </Text>
-            </View>
-            <Text
-              style={{
-                color: "#000",
-                fontFamily: printSettings?.page_format?.font_family,
-                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                fontWeight: 500,
-                padding: 6,
-                borderBottom: "1px solid #171725",
-                borderRight: "1px solid #171725",
-              }}
-            >
-              Remarks&nbsp;:&nbsp;
-              <Text
-                style={[
-                  styles.cell,
-                  {
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 400,
-                    color: "#000",
-                  },
-                ]}
-              >
-                {"diagnosisNotes" in obsHistoryData
-                  ? obsHistoryData?.diagnosisNotes
-                  : `-`}
-              </Text>
-            </Text>
-          </View>
-        </View>
-      )}
-
       {options?.includes("history") && (
         <View>
           <Text
@@ -799,6 +839,24 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
+                    {"ageOfDelivery" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        Age
+                      </Text>
+                    )}
+
                     {"gender" in item && (
                       <Text
                         style={[
@@ -856,7 +914,7 @@ function ObsHistoryTableView({
                       ]}
                     >
                       {"gravidaNumber" in item
-                        ? item?.gravidaNumber?.toString().padStart(2, "0")
+                        ? (item?.gravidaNumber).toString().padStart(2, "0")
                         : `-`}
                     </Text>
                     <Text
@@ -1026,6 +1084,24 @@ function ObsHistoryTableView({
                       </Text>
                     )}
 
+                    {"ageOfDelivery" in item && (
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        {"ageOfDelivery" in item ? item?.ageOfDelivery : `-`}
+                      </Text>
+                    )}
+
                     {"gender" in item && (
                       <Text
                         style={[
@@ -1076,7 +1152,7 @@ function ObsHistoryTableView({
                     borderRight: "1px solid #171725",
                   }}
                 >
-                  Remarks&nbsp;:&nbsp;
+                  Notes&nbsp;:&nbsp;
                   <Text
                     style={[
                       styles.cell,
@@ -1444,7 +1520,7 @@ function ObsHistoryTableView({
                   borderRight: "1px solid #171725",
                 }}
               >
-                Remarks&nbsp;:&nbsp;
+                Notes&nbsp;:&nbsp;
                 <Text
                   style={[
                     styles.cell,

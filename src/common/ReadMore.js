@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const ReadMore = ({ text, textLimit, textSize }) => {
+const ReadMore = ({ text, textLimit, textSize, labelSize }) => {
   const [isReadMore, setIsReadMore] = useState(true);
   const toggleReadMore = () => {
     setIsReadMore(!isReadMore);
@@ -10,7 +10,13 @@ const ReadMore = ({ text, textLimit, textSize }) => {
       className="text mb-0 fontroboto lh-base"
       style={{ wordBreak: "break-word" }}
     >
-      {isReadMore && text.length > textLimit ? text.slice(0, textLimit) : text}
+      {isReadMore && text.length > textLimit ? (
+        <span style={{ fontSize: labelSize, fontWeight: 400 }}>
+          {text.slice(0, textLimit)}
+        </span>
+      ) : (
+        <span style={{ fontSize: labelSize, fontWeight: 400 }}>{text}</span>
+      )}
       <span
         onClick={toggleReadMore}
         className="read-or-hide"
