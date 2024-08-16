@@ -530,7 +530,7 @@ function Cardiology(props) {
                             />
                             <div>
                               <div className="title">Treatment</div>
-                              <label>{viewCaseManagerData.treatment}</label>
+                              <label className="whitespace-pre-wrap">{viewCaseManagerData.treatment}</label>
                             </div>
                           </div>
                         )}
