@@ -2,11 +2,14 @@ import { Collapse, Divider } from "antd";
 import React, { useEffect, useState } from "react";
 import ReadMore from "../../../../common/ReadMore";
 import { useSelector } from "react-redux";
+import moment from "moment";
+import { isPrimigravida } from "../../utils/helper";
 
 const ObstetricList = () => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { examinationHistory } = obstetricDetails;
   const [accordionItems, setAccordionItems] = useState([]);
+  const [infoAccordionItems, setInfoAccordionItems] = useState([]);
 
   useEffect(() => {
     const accordionItemsData = examinationHistory?.map((visitItem, i) => ({
@@ -106,6 +109,106 @@ const ObstetricList = () => {
         </div>
       ),
     }));
+    const { gravidity, livingChildren, parity, abortion, ectopicPregnancies } =
+      obstetricDetails || {};
+    const isprimigravida = isPrimigravida([
+      { key: "gravidity", value: gravidity },
+      { key: "livingChildren", value: livingChildren },
+      { key: "parity", value: parity },
+      { key: "abortion", value: abortion },
+      { key: "ectopicPregnancies", value: ectopicPregnancies },
+    ]);
+    const data = [];
+    const updateData = {
+      key: `${1}`,
+      content: (
+        <>
+          <div className="cardbody-data border rounded px-2 my-2">
+            <div className="my-2">
+              {(obstetricDetails.lmp || obstetricDetails.edd) && (
+                <>
+                  <span>Patient Info:</span>{" "}
+                  {obstetricDetails.lmp && (
+                    <>
+                      <span>LMP</span> :{" "}
+                      <label>
+                        {moment(obstetricDetails.lmp).format("DD MMM YYYY")}
+                      </label>{" "}
+                    </>
+                  )}
+                  {obstetricDetails.lmp && obstetricDetails.edd && " | "}
+                  {obstetricDetails.edd && (
+                    <>
+                      <span>EDD</span> :{" "}
+                      <label>
+                        {moment(obstetricDetails.edd).format("DD MMM YYYY")}
+                      </label>{" "}
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+            <div className="my-2">
+              <span>GPLAE</span>
+              {" ("}
+              {obstetricDetails.gravidity >= 0 && (
+                <>
+                  {isprimigravida ? (
+                    <span>Primigravida</span>
+                  ) : (
+                    <>
+                      <span>G</span> :{" "}
+                      <label>{obstetricDetails.gravidity}</label>
+                    </>
+                  )}
+                  {" | "}
+                </>
+              )}
+              {!isprimigravida && obstetricDetails.parity >= 0 && (
+                <>
+                  <span>P</span> : <label>{obstetricDetails.parity || 0}</label>
+                  {" | "}
+                </>
+              )}
+              {!isprimigravida && obstetricDetails.livingChildren >= 0 && (
+                <>
+                  <span>L</span> :{" "}
+                  <label>{obstetricDetails.livingChildren || 0}</label>
+                  {" | "}
+                </>
+              )}
+              {!isprimigravida && obstetricDetails.abortion >= 0 && (
+                <>
+                  <span>A</span> :{" "}
+                  <label>{obstetricDetails.abortion || 0}</label>
+                  {" | "}
+                </>
+              )}
+              {!isprimigravida && obstetricDetails.ectopicPregnancies >= 0 && (
+                <>
+                  <span>E</span> :{" "}
+                  <label>{obstetricDetails.ectopicPregnancies || 0}</label>
+                  {" | "}
+                </>
+              )}
+              {obstetricDetails?.diagnosisNotes?.length ? (
+                <>
+                  <span>Notes</span> :{" "}
+                  <ReadMore
+                    text={obstetricDetails?.diagnosisNotes}
+                    textLimit={100}
+                    labelSize={14}
+                  />
+                </>
+              ) : null}
+            </div>
+          </div>
+        </>
+      ),
+    };
+
+    data.push(updateData);
+    setInfoAccordionItems(data);
 
     setAccordionItems(accordionItemsData);
   }, [examinationHistory]);
@@ -115,6 +218,21 @@ const ObstetricList = () => {
       className="overflow-y-auto"
       style={{ maxHeight: "300px", padding: "10px 10px 0px" }}
     >
+      {infoAccordionItems?.map((item, index) => (
+        <React.Fragment key={index}>
+          {item.content}
+          {index < accordionItems.length - 1 && (
+            <Divider
+              dashed
+              style={{
+                borderTop: "1px dotted #D0D5DD",
+                margin: "6px 0",
+                width: "100%",
+              }}
+            />
+          )}
+        </React.Fragment>
+      ))}
       <Collapse
         defaultActiveKey={[0]}
         className="prescriptiontab-accordian history-sider-box history-sider-box-white"

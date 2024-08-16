@@ -25,6 +25,7 @@ import {
   patientDiagnosisUpdated,
 } from "../../../../redux/obstetricSlice";
 import { useDispatch } from "react-redux";
+import { isPrimigravida } from "../../utils/helper";
 
 export default function PatientDiagnosis({
   lmpDate,
@@ -467,6 +468,9 @@ export default function PatientDiagnosis({
               </Col>
             );
           })}
+          {isPrimigravida(pastPregnancyData) && (
+            <div className="primigravida">Primigravida</div>
+          )}
         </Row>
         {patientDiagnosisNotes ? (
           <div className="diagnosisNotesStyle">
