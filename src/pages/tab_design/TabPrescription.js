@@ -345,7 +345,7 @@ function TabPrescription() {
   }, [isNavigateToObstetric]);
 
   useEffect(() => {
-    if (collapsedFlag === 6 && examinationHistory.length === 0) {
+    if (collapsedFlag === 6 && examinationHistory.length === 0 && !obstetricDetails?._id) {
       setCollapsed(false);
     }
   }, [collapsedFlag, collapsed])
@@ -612,8 +612,8 @@ function TabPrescription() {
                         <button
                           type="button"
                           className="mb-3 text-center btn btn-action"
-                          style={{ padding: "0px" }}
-                          onClick={() => examinationHistory.length === 0 ? handleDrawerObstetric() : openCollapsed(6)}
+                          style={{padding: "0px"}}
+                          onClick={() => examinationHistory.length === 0 && !obstetricDetails?._id ? handleDrawerObstetric() : openCollapsed(6)}
                         >
                           <div
                             className={`prescription-tab-button rounded-10px ${collapsedFlag === 6 && "active"
