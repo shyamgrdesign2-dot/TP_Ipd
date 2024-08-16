@@ -5,6 +5,7 @@ import ApiVideoLibrary from "../api/services/ApiVideoLibrary";
 const initialState = {
     save_loading: false,
     publish_loading: false,
+    ai_loading:false,
     error: null,
     languageList: []
 };
@@ -74,6 +75,18 @@ export const publishDoctorWebsite = createAsyncThunk(
     }
 );
 
+export const doctorOpenAI = createAsyncThunk(
+    "videoLibrary/doctorOpenAI",
+    async (data) => {
+        const result = await ApiVideoLibrary.doctorOpenAI(data);
+        if (result.status) {
+            return result.data;
+        } else {
+            throw Error(result.error);
+        }
+    }
+);
+
 const doctorWebsiteSlice = createSlice({
     name: "doctorWebsite",
     initialState,
@@ -111,6 +124,15 @@ const doctorWebsiteSlice = createSlice({
             })
             .addCase(publishDoctorWebsite.rejected, (state) => {
                 state.publish_loading = false;
+            })
+            .addCase(doctorOpenAI.pending, (state) => {
+                state.ai_loading = true;
+            })
+            .addCase(doctorOpenAI.fulfilled, (state, action) => {
+                state.ai_loading = false;
+            })
+            .addCase(doctorOpenAI.rejected, (state) => {
+                state.ai_loading = false;
             });
     },
 });

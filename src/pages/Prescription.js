@@ -144,7 +144,7 @@ function Prescription() {
     const sendData = {
       patient_unique_id: patient_data?.patient_unique_id,
     };
-    dispatch(viewPatient(sendData));    
+    dispatch(viewPatient(sendData));
   }, []);
 
   useEffect(() => {
@@ -161,14 +161,16 @@ function Prescription() {
           (e) => e.tmdpm_id === 1 && e.tmdpm_status === 0
         ) !== -1
       ) {
-        const updatedData = caseManagerData.vitals.map((e, i) => {
-          return {
-            ...e,
-            systolic: e.blood_press ? e.blood_press.split("/")[0] : "",
-            diastolic: e.blood_press ? e.blood_press.split("/")[1] : "",
-          };
-        });
-        setVitalsData(updatedData);
+        if (tcmId !== 0) {
+          const updatedData = caseManagerData.vitals.map((e, i) => {
+            return {
+              ...e,
+              systolic: e.blood_press ? e.blood_press.split("/")[0] : "",
+              diastolic: e.blood_press ? e.blood_press.split("/")[1] : "",
+            };
+          });
+          setVitalsData(updatedData);
+        }
       }
       if (
         caseManagerData.medical_history.length > 0 &&
@@ -225,35 +227,29 @@ function Prescription() {
               unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
             tmm_freq_type_name:
               e.tmf_block == 0
-                ? `${
-                    e.tcm_tmm_freq_morning
-                      ? e.tcm_tmm_freq_morning + " - "
-                      : "0 -"
-                  }${
-                    e.tcm_tmm_freq_afternoon
-                      ? e.tcm_tmm_freq_afternoon + " - "
-                      : "0 -"
-                  }${
-                    e.tcm_tmm_freq_evening
-                      ? e.tcm_tmm_freq_evening + " - "
-                      : "0 -"
-                  }${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+                ? `${e.tcm_tmm_freq_morning
+                  ? e.tcm_tmm_freq_morning + " - "
+                  : "0 -"
+                }${e.tcm_tmm_freq_afternoon
+                  ? e.tcm_tmm_freq_afternoon + " - "
+                  : "0 -"
+                }${e.tcm_tmm_freq_evening
+                  ? e.tcm_tmm_freq_evening + " - "
+                  : "0 -"
+                }${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
                 : frequencyObj !== undefined
-                ? frequencyObj.tmf_title
-                : "",
+                  ? frequencyObj.tmf_title
+                  : "",
             tmf_block_val:
               frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-            tmm_dosage_unit_name: `${
-              e.tmm_dosage
-                ? `${e.tmm_dosage} ${
-                    unitObj && unitObj !== undefined ? unitObj.tmu_title : ""
-                  }`
-                : ""
-            }`,
-            tmm_days_duration_type: `${
-              e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
-            }`,
+            tmm_dosage_unit_name: `${e.tmm_dosage
+              ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""
+              }`
+              : ""
+              }`,
+            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
+              }`,
             unique_id: uuidv4(),
           };
         });
@@ -307,7 +303,7 @@ function Prescription() {
   // Drawer Private Notes
   const handleDrawerPrivateNotes = useCallback((data) => {
     setSelectPrivateNotes(data)
-      setPrivateNotesDrawer(!privateNotesDrawer);
+    setPrivateNotesDrawer(!privateNotesDrawer);
   }, [privateNotesDrawer, selectPrivateNotes]);
 
   // Drawer Vaccination
@@ -367,7 +363,7 @@ function Prescription() {
             patient_data !== undefined && patient_data.pam_id !== undefined
               ? patient_data.pam_id
               : 0,
-          mode: caseManagerData !== undefined ? EDIT : ADD,
+          mode: caseManagerData !== undefined && tcmId !== 0 ? EDIT : ADD,
         })
       );
 
@@ -395,7 +391,7 @@ function Prescription() {
   }, []);
 
   useEffect(() => {
-    if (caseManagerData === undefined) {
+    if (caseManagerData === undefined || tcmId === 0) {
       const updatedData = selectedVitalsList.map((e, i) => {
         return {
           ...e,
@@ -414,31 +410,31 @@ function Prescription() {
       }
     }
   }, [privateNotesList]);
-  
+
   const handleSaveGynecHistory = (updatedGynecHistory) => {
     setUpdatedGynecHistory(updatedGynecHistory)
   };
 
   useEffect(() => {
-    if(isGynaecHistoryAccessable){
-        fetchGynecHistory();
+    if (isGynaecHistoryAccessable) {
+      fetchGynecHistory();
     }
   }, [isGynaecHistoryAccessable]);
 
   const fetchGynecHistory = async () => {
-      try {
-        const data = await getGynecDetails(
-          patient_data.patient_unique_id,
-          userId
-        );
-        // Destructure to remove createdAt and createdBy
-        const { createdAt, createdBy, ...updatedData } = data;
-        
-        setUpdatedGynecHistory(updatedData);
-      } catch (error) {
-        console.error('Error fetching gynec history:', error);
-      }
-  };  
+    try {
+      const data = await getGynecDetails(
+        patient_data.patient_unique_id,
+        userId
+      );
+      // Destructure to remove createdAt and createdBy
+      const { createdAt, createdBy, ...updatedData } = data;
+
+      setUpdatedGynecHistory(updatedData);
+    } catch (error) {
+      console.error('Error fetching gynec history:', error);
+    }
+  };
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -464,13 +460,11 @@ function Prescription() {
                       >
                         {" "}
                         <i
-                          className={`${
-                            vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                          } me-1 fs-5`}
+                          className={`${vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                            } me-1 fs-5`}
                         ></i>{" "}
-                        <span>{`${
-                          vitalsData.length > 0 ? "Edit" : "Add"
-                        }`}</span>
+                        <span>{`${vitalsData.length > 0 ? "Edit" : "Add"
+                          }`}</span>
                       </button>
                     </div>
                     {vitalsData.length > 0 && (
@@ -488,7 +482,7 @@ function Prescription() {
                           alt="Medical History"
                           className="me-3"
                         />
-                        <div className="title-common">{ isGynaecHistoryAccessable ? `Gynec History` : `Medical History` }</div>
+                        <div className="title-common">{isGynaecHistoryAccessable ? `Gynec History` : `Medical History`}</div>
                         {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
                             <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                           </Button> */}
@@ -500,111 +494,38 @@ function Prescription() {
                       >
                         {" "}
                         <i
-                          className={`${
-                            medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)
-                              ? "icon-Edit"
-                              : "icon-Add"
-                          } me-1 fs-5`}
+                          className={`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)
+                            ? "icon-Edit"
+                            : "icon-Add"
+                            } me-1 fs-5`}
                         ></i>{" "}
-                        <span>{`${
-                          medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ? "Edit" : "Add"
-                        }`}</span>
+                        <span>{`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ? "Edit" : "Add"
+                          }`}</span>
                       </button>
                     </div>
-                    { (medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ) &&  <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
+                    {(medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)) && <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
                   </div>
-                ) : 
+                ) :
                   e.tmdpm_id === 7 &&
-                  e.tmdpm_status === 0 &&
-                  isVaccinationAccessable ? (
-                  <div className="prescription-box-sm p-14">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <div className="d-flex align-items-center">
-                        <img
-                          src={vaccinationImg}
-                          alt="vitals"
-                          className="me-3"
-                        />
-                        <div className="title-common">Vaccination</div>
-                      </div>
-                      <button
-                        className="btn d-flex align-items-center btn-text"
-                        onClick={handleDrawerVaccination}
-                      >
-                        {" "}
-                        <i className={`icon-Add me-1 fs-5`}></i>{" "}
-                        <span>Add</span>
-                      </button>
-                    </div>
-                  </div>
-                  )
-                  : 
-                  e.tmdpm_id === 16 &&
-                  e.tmdpm_status === 0 &&
-                  isGrowthChartAccessable ? (
-                  <div className="prescription-box-sm p-14">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <div className="d-flex align-items-center">
-                        <img src={growthChartImg} alt="growth" className="me-3" />
-                        <div className="title-common">Growth Chart</div>
-                      </div>
-                      <button
-                        className="btn d-flex align-items-center btn-text"
-                        onClick={handleDrawerGrowth}
-                      >
-                        <i className={`icon-Add me-1 fs-5`}></i> <span>Add</span>
-                      </button></div></div>
-                  )
-                 : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
-                    <div key={i} className="prescription-box-sm p-14">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                        <img src={privateNotes} alt="Private Notes" className="me-3" />
-                        <div className="title-common">
-                          Private Notes
-                        </div>
-                        </div>
-                        {!privateNotesData && (
-                          <button
-                            className="btn d-flex align-items-center btn-text"
-                            onClick={handleDrawerPrivateNotes}
-                          >
-                          <i
-                            className="icon-Add me-1 fs-5"></i>
-                            <span>Add</span>
-                          </button>
-                        )}
-                      </div>
-                      {privateNotesList.length > 0 && (
-                      <PrivateNotesList handleDrawerPrivateNotes={handleDrawerPrivateNotes} />
-                      )}
-                    </div>
-                  )
-                  : e.tmdpm_id === 17 && e.tmdpm_status === 0 && isGynaecHistoryAccessable && (
+                    e.tmdpm_status === 0 &&
+                    isVaccinationAccessable ? (
                     <div className="prescription-box-sm p-14">
                       <div className="d-flex align-items-center justify-content-between">
                         <div className="d-flex align-items-center">
                           <img
-                            src={obstetricImg}
-                            alt="obstetric"
+                            src={vaccinationImg}
+                            alt="vitals"
                             className="me-3"
                           />
-                          <div className="title-common">Obstetric History</div>
+                          <div className="title-common">Vaccination</div>
                         </div>
                         <button
                           className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerObstetric}
+                          onClick={handleDrawerVaccination}
                         >
-                          <i
-                            className={`${
-                              examinationHistory.length > 0
-                                ? "icon-Edit"
-                                : "icon-Add"
-                            } me-1 fs-5`}
-                          ></i>
-                          <span>{`${
-                            examinationHistory.length > 0 ? "Edit" : "Add"
-                          }`}</span>
+                          {" "}
+                          <i className={`icon-Add me-1 fs-5`}></i>{" "}
+                          <span>Add</span>
                         </button>
                       </div>
                       {(obstetricDetails?._id || examinationHistory?.length > 0) && (
@@ -612,6 +533,78 @@ function Prescription() {
                       )}
                     </div>
                   )
+                    :
+                    e.tmdpm_id === 16 &&
+                      e.tmdpm_status === 0 &&
+                      isGrowthChartAccessable ? (
+                      <div className="prescription-box-sm p-14">
+                        <div className="d-flex align-items-center justify-content-between">
+                          <div className="d-flex align-items-center">
+                            <img src={growthChartImg} alt="growth" className="me-3" />
+                            <div className="title-common">Growth Chart</div>
+                          </div>
+                          <button
+                            className="btn d-flex align-items-center btn-text"
+                            onClick={handleDrawerGrowth}
+                          >
+                            <i className={`icon-Add me-1 fs-5`}></i> <span>Add</span>
+                          </button></div></div>
+                    )
+                      : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
+                        <div key={i} className="prescription-box-sm p-14">
+                          <div className="d-flex align-items-center justify-content-between">
+                            <div className="d-flex align-items-center">
+                              <img src={privateNotes} alt="Private Notes" className="me-3" />
+                              <div className="title-common">
+                                Private Notes
+                              </div>
+                            </div>
+                            {!privateNotesData && (
+                              <button
+                                className="btn d-flex align-items-center btn-text"
+                                onClick={handleDrawerPrivateNotes}
+                              >
+                                <i
+                                  className="icon-Add me-1 fs-5"></i>
+                                <span>Add</span>
+                              </button>
+                            )}
+                          </div>
+                          {privateNotesList.length > 0 && (
+                            <PrivateNotesList handleDrawerPrivateNotes={handleDrawerPrivateNotes} />
+                          )}
+                        </div>
+                      )
+                        : e.tmdpm_id === 17 && e.tmdpm_status === 0 && isGynaecHistoryAccessable && (
+                          <div className="prescription-box-sm p-14">
+                            <div className="d-flex align-items-center justify-content-between">
+                              <div className="d-flex align-items-center">
+                                <img
+                                  src={obstetricImg}
+                                  alt="obstetric"
+                                  className="me-3"
+                                />
+                                <div className="title-common">Obstetric History</div>
+                              </div>
+                              <button
+                                className="btn d-flex align-items-center btn-text"
+                                onClick={handleDrawerObstetric}
+                              >
+                                <i
+                                  className={`${examinationHistory.length > 0
+                                    ? "icon-Edit"
+                                    : "icon-Add"
+                                    } me-1 fs-5`}
+                                ></i>
+                                <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"
+                                  }`}</span>
+                              </button>
+                            </div>
+                            {examinationHistory?.length > 0 && (
+                              <ObstetricList />
+                            )}
+                          </div>
+                        )
               })}
 
               {/* <div>
@@ -709,15 +702,15 @@ function Prescription() {
         </Drawer>
         {
           vaccinationDrawer && (
-          <Drawer
-            closeIcon={false}
-            placement="right"
-            onClose={handleDrawerVaccination}
-            open={vaccinationDrawer}
-            width="100%"
-          >
-            <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
-          </Drawer>
+            <Drawer
+              closeIcon={false}
+              placement="right"
+              onClose={handleDrawerVaccination}
+              open={vaccinationDrawer}
+              width="100%"
+            >
+              <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
+            </Drawer>
           )
         }
         {growthDrawer && (
