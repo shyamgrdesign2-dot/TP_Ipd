@@ -607,7 +607,7 @@ function Prescription() {
                           }`}</span>
                         </button>
                       </div>
-                      {examinationHistory?.length > 0 && (
+                      {(obstetricDetails?._id || examinationHistory?.length > 0) && (
                         <ObstetricList />
                       )}
                     </div>
