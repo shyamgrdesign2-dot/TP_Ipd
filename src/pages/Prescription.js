@@ -607,7 +607,7 @@ function Prescription() {
                           }`}</span>
                         </button>
                       </div>
-                      {(obstetricDetails?._id || examinationHistory?.length > 0) && (
+                      {(obstetricDetails?.lmp || obstetricDetails?.edd || obstetricDetails?.gravidity || obstetricDetails?.parity || obstetricDetails?.livingChildren || obstetricDetails?.abortion || obstetricDetails?.ectopicPregnancies || examinationHistory?.length > 0) && (
                         <ObstetricList />
                       )}
                     </div>

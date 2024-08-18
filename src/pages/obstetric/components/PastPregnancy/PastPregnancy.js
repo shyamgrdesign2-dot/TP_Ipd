@@ -33,16 +33,38 @@ function PastPregnancy({
 
   useEffect(() => {
     if (editIndex >= 0) {
-      setPastPregnancyData({ ...pregnancyHistory[editIndex] });
+      const data = pregnancyHistory[editIndex] || {};
+      const age = data?.ageOfDelivery
+        ? {
+            ageOfDeliveryYears: data?.ageOfDelivery?.split("y")[0] || "",
+            ageOfDeliveryMonths:
+              data?.ageOfDelivery?.split(" ")?.[1]?.[0] || "",
+          }
+        : {};
+      setPastPregnancyData({ ...data, ...age });
     }
   }, [editIndex]);
 
   const handlePastPregnancyDataChange = (field, value) => {
+    let temp = {};
+    if (
+      field === "dateOfDelivery" &&
+      pastPregnancyData?.typeOfDelivery === "date" &&
+      pastPregnancyData?.ageOfDelivery
+    ) {
+      temp = {
+        [field]: value,
+        ageOfDelivery: "",
+        ageOfDeliveryYears: "",
+        ageOfDeliveryMonths: "",
+      };
+    }
     setPastPregnancyData((prevData) => {
       const newData = {
         ...prevData,
         [field]:
           field !== "remarks" && value === prevData[field] ? undefined : value,
+        ...temp,
         modifiedAt: new Date().toISOString(),
       };
       return newData;
@@ -56,19 +78,24 @@ function PastPregnancy({
         ...prevData,
         [field]: value,
       };
-
+      let temp = {};
+      if (
+        pastPregnancyData?.typeOfDelivery === "age" &&
+        pastPregnancyData?.dateOfDelivery
+      ) {
+        temp = { [field]: value, dateOfDelivery: "" };
+      }
       const ageOfDeliveryYears = updatedData.ageOfDeliveryYears || "";
       const ageOfDeliveryMonths = updatedData.ageOfDeliveryMonths || "";
 
       const ageOfDelivery = `${
-        ageOfDeliveryYears ? ageOfDeliveryYears + "y" : ""
-      }${ageOfDeliveryMonths} ${
-        ageOfDeliveryMonths ? ageOfDeliveryMonths + "m" : ""
-      }`.trim();
+        ageOfDeliveryYears ? ageOfDeliveryYears + "y " : ""
+      }${ageOfDeliveryMonths ? ageOfDeliveryMonths + "m" : ""}`?.trim();
 
       return {
         ...updatedData,
         ageOfDelivery,
+        ...temp,
       };
     });
     setIsDataAddedOrEdited(true);
@@ -298,11 +325,13 @@ function PastPregnancy({
                   <DatePicker
                     key={"dateOfDelivery"}
                     onChange={(date) => {
-                      const formattedDate = date.format("YYYY-MM-DD");
-                      handlePastPregnancyDataChange(
-                        "dateOfDelivery",
-                        formattedDate
-                      );
+                      if (date) {
+                        const formattedDate = date.format("YYYY-MM-DD");
+                        handlePastPregnancyDataChange(
+                          "dateOfDelivery",
+                          formattedDate
+                        );
+                      }
                     }}
                     disabledDate={disabledDate}
                     style={{ width: "170px", height: "41px" }}
@@ -311,7 +340,6 @@ function PastPregnancy({
                         ? dayjs(moment(pastPregnancyData.dateOfDelivery))
                         : ""
                     }
-                    allowClear={false}
                     format={{
                       format: "DD-MM-YYYY",
                       type: "mask",
@@ -325,11 +353,7 @@ function PastPregnancy({
                       style={{ width: "82px" }}
                       placeholder="Enter"
                       inputMode="numeric"
-                      value={
-                        pastPregnancyData.ageOfDeliveryYears ||
-                        pastPregnancyData.ageOfDelivery?.split("y")?.[0] ||
-                        ""
-                      }
+                      value={pastPregnancyData.ageOfDeliveryYears || ""}
                       addonAfter={"Yr"}
                       onChange={(e) =>
                         isNumberCheck(e) &&
@@ -345,11 +369,7 @@ function PastPregnancy({
                       style={{ width: "82px", marginLeft: "10px" }}
                       placeholder="Enter"
                       inputMode="numeric"
-                      value={
-                        pastPregnancyData.ageOfDeliveryMonths ||
-                        pastPregnancyData.ageOfDelivery?.split(" ")?.[1]?.[0] ||
-                        ""
-                      }
+                      value={pastPregnancyData.ageOfDeliveryMonths || ""}
                       addonAfter={"M"}
                       onChange={(e) =>
                         isNumberCheck(e) &&

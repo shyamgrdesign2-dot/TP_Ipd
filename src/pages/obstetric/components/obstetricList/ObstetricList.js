@@ -148,60 +148,69 @@ const ObstetricList = () => {
                 </>
               )}
             </div>
-            <div className="my-2">
-              <span>GPLAE</span>
-              {" ("}
-              {obstetricDetails.gravidity >= 0 && (
-                <>
-                  {isprimigravida ? (
-                    <span>Primigravida</span>
-                  ) : (
+            {(obstetricDetails?.gravidity ||
+              obstetricDetails?.parity ||
+              obstetricDetails?.livingChildren ||
+              obstetricDetails?.abortion ||
+              obstetricDetails?.ectopicPregnancies) && (
+              <div className="my-2">
+                <span>GPLAE</span>
+                {" ("}
+                {obstetricDetails.gravidity >= 0 && (
+                  <>
+                    {isprimigravida ? (
+                      <span>Primigravida</span>
+                    ) : (
+                      <>
+                        <span>G</span> :{" "}
+                        <label>{obstetricDetails.gravidity}</label>
+                      </>
+                    )}
+                    {" | "}
+                  </>
+                )}
+                {!isprimigravida && obstetricDetails.parity >= 0 && (
+                  <>
+                    <span>P</span> :{" "}
+                    <label>{obstetricDetails.parity || 0}</label>
+                    {" | "}
+                  </>
+                )}
+                {!isprimigravida && obstetricDetails.livingChildren >= 0 && (
+                  <>
+                    <span>L</span> :{" "}
+                    <label>{obstetricDetails.livingChildren || 0}</label>
+                    {" | "}
+                  </>
+                )}
+                {!isprimigravida && obstetricDetails.abortion >= 0 && (
+                  <>
+                    <span>A</span> :{" "}
+                    <label>{obstetricDetails.abortion || 0}</label>
+                    {" | "}
+                  </>
+                )}
+                {!isprimigravida &&
+                  obstetricDetails.ectopicPregnancies >= 0 && (
                     <>
-                      <span>G</span> :{" "}
-                      <label>{obstetricDetails.gravidity}</label>
+                      <span>E</span> :{" "}
+                      <label>{obstetricDetails.ectopicPregnancies || 0}</label>
+                      {" | "}
                     </>
                   )}
-                  {" | "}
-                </>
-              )}
-              {!isprimigravida && obstetricDetails.parity >= 0 && (
-                <>
-                  <span>P</span> : <label>{obstetricDetails.parity || 0}</label>
-                  {" | "}
-                </>
-              )}
-              {!isprimigravida && obstetricDetails.livingChildren >= 0 && (
-                <>
-                  <span>L</span> :{" "}
-                  <label>{obstetricDetails.livingChildren || 0}</label>
-                  {" | "}
-                </>
-              )}
-              {!isprimigravida && obstetricDetails.abortion >= 0 && (
-                <>
-                  <span>A</span> :{" "}
-                  <label>{obstetricDetails.abortion || 0}</label>
-                  {" | "}
-                </>
-              )}
-              {!isprimigravida && obstetricDetails.ectopicPregnancies >= 0 && (
-                <>
-                  <span>E</span> :{" "}
-                  <label>{obstetricDetails.ectopicPregnancies || 0}</label>
-                  {" | "}
-                </>
-              )}
-              {obstetricDetails?.diagnosisNotes?.length ? (
-                <>
-                  <span>Notes</span> :{" "}
-                  <ReadMore
-                    text={obstetricDetails?.diagnosisNotes}
-                    textLimit={100}
-                    labelSize={14}
-                  />
-                </>
-              ) : null}
-            </div>
+                {obstetricDetails?.diagnosisNotes?.length ? (
+                  <>
+                    <span>Notes</span> :{" "}
+                    <ReadMore
+                      text={obstetricDetails?.diagnosisNotes}
+                      textLimit={100}
+                      labelSize={14}
+                    />
+                  </>
+                ) : null}
+                {")"}
+              </div>
+            )}
           </div>
         </>
       ),
@@ -221,7 +230,7 @@ const ObstetricList = () => {
       {infoAccordionItems?.map((item, index) => (
         <React.Fragment key={index}>
           {item.content}
-          {index < accordionItems.length - 1 && (
+          {index < infoAccordionItems?.length - 1 && (
             <Divider
               dashed
               style={{

@@ -343,7 +343,7 @@ function TabPrescription() {
   }, [isNavigateToObstetric]);
 
   useEffect(() => {
-    if (collapsedFlag === 6 && examinationHistory.length === 0 && !obstetricDetails?._id) {
+    if (collapsedFlag === 6 && examinationHistory.length === 0 && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies) {
       setCollapsed(false);
     }
   }, [collapsedFlag, collapsed])
@@ -615,7 +615,7 @@ function TabPrescription() {
                           type="button"
                           className="mb-3 text-center btn btn-action"
                           style={{padding: "0px"}}
-                          onClick={() => examinationHistory.length === 0 && !obstetricDetails?._id ? handleDrawerObstetric() : openCollapsed(6)}
+                          onClick={() => examinationHistory.length === 0 && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies ? handleDrawerObstetric() : openCollapsed(6)}
                         >
                           <div
                             className={`prescription-tab-button rounded-10px ${
