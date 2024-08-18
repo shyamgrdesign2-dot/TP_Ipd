@@ -528,9 +528,6 @@ function Prescription() {
                           <span>Add</span>
                         </button>
                       </div>
-                      {(obstetricDetails?._id || examinationHistory?.length > 0) && (
-                        <ObstetricList />
-                      )}
                     </div>
                   )
                     :
