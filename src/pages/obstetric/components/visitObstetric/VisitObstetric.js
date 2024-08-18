@@ -14,6 +14,7 @@ import {
 } from "../../../../redux/obstetricSlice";
 import { visitColumn } from "../../utils/constants";
 import { useAccess } from "../../../vaccination/useAccess";
+import ObstetricList from "../obstetricList/ObstetricList";
 
 export default function VisitObstetric() {
   const navigate = useNavigate();
@@ -122,7 +123,7 @@ export default function VisitObstetric() {
 
   return (
     <>
-      {!Object.keys(previousVisit)?.length ? null : (
+      {!Object.keys(previousVisit)?.length && !obstetricDetails ? null : (
         <div className="appointment-wrap PatientDetailswrap m-0">
           <Card
             style={{
@@ -155,7 +156,8 @@ export default function VisitObstetric() {
                 </Button>
               </div>
             </Card.Header>
-            <div className="visitBody visitObstetricContainer">
+            {obstetricDetails && <ObstetricList />}
+            {Object.keys(previousVisit)?.length > 0 && <div className="visitBody visitObstetricContainer">
               <div className="rowContainer">
                 <span className="previousText">Previous visit</span>
                 <span className="updatedText">
@@ -175,7 +177,7 @@ export default function VisitObstetric() {
                   {previousVisit.notes}
                 </div>
               ) : null}
-            </div>
+            </div>}
             {validVisitDetails.length > 2 && (
               <Card.Footer
                 className="bg-white py-3 viewLessOrMore"
