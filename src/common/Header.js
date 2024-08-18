@@ -44,6 +44,8 @@ function Header({ locationPath }) {
     infinite: false,
     centerPadding: "5px",
     slidesToShow: 1,
+    slidesToScroll: 1,
+    adaptiveHeight: true
   };
 
   //PopOver
@@ -543,7 +545,7 @@ function Header({ locationPath }) {
               {videoList?.map((item, i) => {
                 return (
                   item?.video?.length > 0 && (
-                    <div key={i} className="overflow-hidden ms-4">
+                    <div key={i} className=" ms-4 video-bottom-spacing">
                       <div className="title-common text-welcome">{item?.category}</div>
                       <div className="fs-12 fontroboto fw-normal text-main">{item?.description}</div>
                       <div className="videodrawer-left mt-3">

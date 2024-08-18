@@ -7,7 +7,7 @@ import ApiVideoLibrary from "../api/services/ApiVideoLibrary";
 import ApiMedicalCertificate from "../api/services/ApiMedicalCertificate";
 
 const initialState = {
-  sort_order: 'descend',
+  sort_order: 'ascend',
   profile: null,
   loading: false,
   error: null,
