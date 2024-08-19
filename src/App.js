@@ -26,7 +26,7 @@ import { useLocalStorage } from "./utils/localStorage";
 
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
-import TalkativeWidget from "./common/TalkativeWidget";
+import TalkativeWidget from "./components/TalkativeWidget";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
