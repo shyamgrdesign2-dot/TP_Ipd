@@ -29,7 +29,7 @@ const ReadMore = ({ text, textLimit, textSize, labelSize, isInfo = false }) => {
             ? "... view more"
             : " view less"
           : ""}
-          {isReadMore && <span>)</span>}
+        {text.length > textLimit && isReadMore && <span>)</span>}
       </span>
     </div>
   );

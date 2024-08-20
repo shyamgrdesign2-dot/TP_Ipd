@@ -122,96 +122,107 @@ const ObstetricList = ({ isPatientSummary = false }) => {
     const updateData = {
       key: `${1}`,
       content: (
-        <>
-          <div className="cardbody-data border rounded px-2 my-2">
-            <div className="my-2">
-              {(obstetricDetails.lmp || obstetricDetails.edd) && (
-                <>
-                  <span>Patient Info:</span>{" "}
-                  {obstetricDetails.lmp && (
-                    <>
-                      <span>LMP</span> :{" "}
-                      <label>
-                        {moment(obstetricDetails.lmp).format("DD MMM YYYY")}
-                      </label>{" "}
-                    </>
-                  )}
-                  {obstetricDetails.lmp && obstetricDetails.edd && " | "}
-                  {obstetricDetails.edd && (
-                    <>
-                      <span>EDD</span> :{" "}
-                      <label>
-                        {moment(obstetricDetails.edd).format("DD MMM YYYY")}
-                      </label>{" "}
-                    </>
-                  )}
-                </>
-              )}
-            </div>
-            {(obstetricDetails?.gravidity ||
-              obstetricDetails?.parity ||
-              obstetricDetails?.livingChildren ||
-              obstetricDetails?.abortion ||
-              obstetricDetails?.ectopicPregnancies) && (
-              <div className="my-2">
-                <span>GPLAE</span>{" "}
-                {obstetricDetails.gravidity >= 0 && (
+        <div className="cardbody-data border rounded px-2 my-2">
+          <div className="my-2">
+            {(obstetricDetails.lmp || obstetricDetails.edd) && (
+              <>
+                <span>Patient Info:</span>{" "}
+                {obstetricDetails.lmp && (
                   <>
-                    {isprimigravida ? (
-                      <span>(Primigravida</span>
-                    ) : (
-                      <>
-                        <span>(G</span> :{" "}
-                        <label>{obstetricDetails.gravidity}</label>
-                      </>
-                    )}
-                    {" | "}
+                    <span>LMP</span> :{" "}
+                    <label>
+                      {moment(obstetricDetails.lmp).format("DD MMM YYYY")}
+                    </label>{" "}
                   </>
                 )}
-                {!isprimigravida && obstetricDetails.parity >= 0 && (
+                {obstetricDetails.lmp && obstetricDetails.edd && " | "}
+                {obstetricDetails.edd && (
                   <>
-                    <span>P</span> :{" "}
-                    <label>{obstetricDetails.parity || 0}</label>
-                    {" | "}
+                    <span>EDD</span> :{" "}
+                    <label>
+                      {moment(obstetricDetails.edd).format("DD MMM YYYY")}
+                    </label>{" "}
                   </>
                 )}
-                {!isprimigravida && obstetricDetails.livingChildren >= 0 && (
-                  <>
-                    <span>L</span> :{" "}
-                    <label>{obstetricDetails.livingChildren || 0}</label>
-                    {" | "}
-                  </>
-                )}
-                {!isprimigravida && obstetricDetails.abortion >= 0 && (
-                  <>
-                    <span>A</span> :{" "}
-                    <label>{obstetricDetails.abortion || 0}</label>
-                    {" | "}
-                  </>
-                )}
-                {!isprimigravida &&
-                  obstetricDetails.ectopicPregnancies >= 0 && (
-                    <>
-                      <span>E</span> :{" "}
-                      <label>{obstetricDetails.ectopicPregnancies || 0}</label>
-                      {" | "}
-                    </>
-                  )}
-                {obstetricDetails?.diagnosisNotes?.length ? (
-                  <>
-                    <span>Notes</span> :{" "}
-                    <ReadMore
-                      text={obstetricDetails?.diagnosisNotes}
-                      textLimit={100}
-                      labelSize={14}
-                      isInfo
-                    />
-                  </>
-                ) : null}
-              </div>
+              </>
             )}
           </div>
-        </>
+          {(obstetricDetails?.gravidity ||
+            obstetricDetails?.parity ||
+            obstetricDetails?.livingChildren ||
+            obstetricDetails?.abortion ||
+            obstetricDetails?.ectopicPregnancies) && (
+            <div className="my-2">
+              <span>GPLAE</span>{" "}
+              {obstetricDetails.gravidity >= 0 && (
+                <>
+                  {isprimigravida ? (
+                    <span>(Primigravida</span>
+                  ) : (
+                    <>
+                      <span>(G</span> :{" "}
+                      <label>{obstetricDetails.gravidity}</label>
+                    </>
+                  )}
+                  {(obstetricDetails.parity ||
+                    obstetricDetails.livingChildren ||
+                    obstetricDetails.abortion ||
+                    obstetricDetails.ectopicPregnancies ||
+                    obstetricDetails.diagnosisNotes) &&
+                    " | "}
+                </>
+              )}
+              {!isprimigravida && obstetricDetails.parity >= 0 && (
+                <>
+                  <span>P</span> : <label>{obstetricDetails.parity}</label>
+                  {(obstetricDetails.livingChildren ||
+                    obstetricDetails.abortion ||
+                    obstetricDetails.ectopicPregnancies ||
+                    obstetricDetails.diagnosisNotes) &&
+                    " | "}
+                </>
+              )}
+              {!isprimigravida && obstetricDetails.livingChildren >= 0 && (
+                <>
+                  <span>L</span> :{" "}
+                  <label>{obstetricDetails.livingChildren}</label>
+                  {(obstetricDetails.abortion ||
+                    obstetricDetails.ectopicPregnancies ||
+                    obstetricDetails.diagnosisNotes) &&
+                    " | "}
+                </>
+              )}
+              {!isprimigravida && obstetricDetails.abortion >= 0 && (
+                <>
+                  <span>A</span> : <label>{obstetricDetails.abortion}</label>
+                  {(obstetricDetails.ectopicPregnancies ||
+                    obstetricDetails.diagnosisNotes) &&
+                    " | "}
+                </>
+              )}
+              {!isprimigravida && obstetricDetails.ectopicPregnancies >= 0 && (
+                <>
+                  <span>E</span> :{" "}
+                  <label>{obstetricDetails.ectopicPregnancies}</label>
+                  {obstetricDetails.diagnosisNotes && " | "}
+                </>
+              )}
+              {obstetricDetails?.diagnosisNotes?.length ? (
+                <>
+                  <span>Notes</span> :{" "}
+                  <ReadMore
+                    text={obstetricDetails?.diagnosisNotes}
+                    textLimit={100}
+                    labelSize={14}
+                    isInfo
+                  />
+                </>
+              ) : (
+                <span>)</span>
+              )}
+            </div>
+          )}
+        </div>
       ),
     };
 

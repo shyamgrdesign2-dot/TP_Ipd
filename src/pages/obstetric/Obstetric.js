@@ -271,7 +271,14 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
       const obstetricResponse = obstetricDetails?._id
         ? await updateObstetricData(
             obstetricDetails?.patientId,
-            payload,
+            {
+              ...payload,
+              gravidity: payload.gravidity || null,
+              parity: payload.parity || null,
+              livingChildren: payload.livingChildren || null,
+              abortion: payload.abortion || null,
+              ectopicPregnancies: payload.ectopicPregnancies || null,
+            },
             userId
           )
         : await addObstetricData(payload);
