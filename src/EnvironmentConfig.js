@@ -29,8 +29,8 @@ const dev = {
   gynec_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
   obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
-  zydus_business_id:'754811713438773',
-  rx_digitization : "https://pm-rxdigitization-uat.tatvacare.in",
+  zydus_business_id: '754811713438773',
+  rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
 };
 
 const qa = {
@@ -64,8 +64,8 @@ const qa = {
   gynec_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
   obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
-  zydus_business_id:'754811713438773',
-  rx_digitization : "https://pm-rxdigitization-uat.tatvacare.in",
+  zydus_business_id: '754811713438773',
+  rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
 };
 
 const uat = {
@@ -99,8 +99,8 @@ const uat = {
   gynec_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
   obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
-  zydus_business_id:'754811713438773',
-  rx_digitization : "https://pm-rxdigitization-uat.tatvacare.in",
+  zydus_business_id: '754811713438773',
+  rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
 };
 
 const prod = {
@@ -134,8 +134,8 @@ const prod = {
   gynec_api_url: "https://pm-medicalhistory-prod.tatvacare.in/api/v1/gynec-history",
   obstetric_api_url: "https://pm-medicalhistory-prod.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-prod.tatvacare.in`,
-  zydus_business_id:'368451724046474',
-  rx_digitization : "https://pm-rxdigitization-uat.tatvacare.in",
+  zydus_business_id: '368451724046474',
+  rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
 };
 
 const getEnv = () => {
