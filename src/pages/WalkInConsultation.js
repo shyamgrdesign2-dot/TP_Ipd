@@ -284,7 +284,7 @@ function WalkInConsultation() {
   useEffect(() => {
     if (searchQuery) {
       const timeOutId = setTimeout(() => {
-        dispatch(searchPatients(searchQuery));
+        dispatch(searchPatients({ searchQuery: searchQuery, company: "" }));
       }, 500);
       return () => {
         clearTimeout(timeOutId);

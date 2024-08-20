@@ -128,6 +128,12 @@ function Header({ locationPath }) {
           if (action.meta.requestStatus === "fulfilled") {
             // setSelectedHospital(value)
             await setToken(action.payload.token);
+            try {
+              var decoded = jwtDecode(action.payload.token);
+              setTokenData(decoded.result)
+            } catch (e) {
+              console.log(e)
+            }
             if (locationPath == "/") {
               if (!isChrome && !isSafari) {
                 navigate('/?authToken=' + action.payload.token, { replace: true });
@@ -226,7 +232,7 @@ function Header({ locationPath }) {
           navigate(0, { replace: true });
         }, 500);
       } else {
-        SSO_TO_PM().then(async (data) => {
+        SSO_TO_PM(1).then(async (data) => {
           if (data.success == 200) {
             navigate('/', { replace: true })
             clearLocalStorage()
@@ -239,19 +245,29 @@ function Header({ locationPath }) {
     }
   }
 
-  async function SSO_TO_PM() {
+  async function SSO_TO_PM(flag) {
     try {
-      const sendData = {
+
+      var sendData = {
         doctor_unique_id: tokenData.doctor_unique_id,
-        mobile_no: tokenData.mobile_no
       };
+
+      var URL;
+
+      if (flag === 1) {
+        sendData['mobile_no'] = tokenData.mobile_no
+        URL = config.sso_to_pm_url
+      } else if (flag === 2) {
+        sendData['hospital_business_id'] = tokenData.hospital_business_id
+        URL = config.sso_to_pm_admin_url
+      }
 
       const formData = new FormData();
       Object.keys(sendData).forEach((key) => {
         formData.append(key, sendData[key]);
       });
 
-      const response = await axios.post(config.sso_to_pm_url, formData,
+      const response = await axios.post(URL, formData,
         {
           auth: {
             username: config.sso_to_pm_username,
@@ -408,92 +424,127 @@ function Header({ locationPath }) {
     }
   }
 
-  const items = [
-    {
-      label:
-        <>
-          <div className="me-3">
-            {profile?.um_image ? (
-              <img
-                src={profile?.um_image ?? defaultprofile}
-                alt="Profile"
-                className="rounded-circle"
-                style={{ width: "52px" }}
-              />
-            ) : (
-              <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
-            )}
-          </div>
-          <div>
-            <div className="text-black titleprint">{(profile?.um_name)}</div>
-            <div className="title-common">{(profile?.um_contact)}</div>
-          </div>
-        </>
-      ,
-      key: '0',
-    },
-    {
-      type: 'divider',
-    },
-    {
-      label:
-        <a onClick={() => setUpWebsiteUrl(1)}>
-          <div className="title-common me-5 d-flex align-items-center"><i className="icon-profile me-3"></i>My Profile</div>
-          <i className="icon-right iconrotate180"></i>
-        </a>,
-      key: '2',
-    },
-    {
-      label:
-        <a onClick={() => setUpWebsiteUrl(2)}>
-          <div className="title-common me-5 d-flex align-items-center"><i className="icon-group me-3"></i>{`${profile?.website_publish && profile?.publish_url ? 'Visit' : 'Setup'} My Website`}</div>
-          <i className="icon-right iconrotate180"></i>
-        </a>,
-      key: '3',
-    },
-    // {
-    //   label:
-    //     <a>
-    //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-calendar me-3"></i>My Availability</div>
-    //       <i className="icon-right iconrotate180"></i>
-    //     </a>,
-    //   key: '4',
-    // },
-    // {
-    //   label:
-    //     <a>
-    //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-upgrade me-3"></i>Upgrade Plan</div>
-    //       <i className="icon-right iconrotate180"></i>
-    //     </a>,
-    //   key: '5',
-    // },
-    // {
-    //   label:
-    //     <a>
-    //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-help me-3"></i>Help Center</div>
-    //       <i className="icon-right iconrotate180"></i>
-    //     </a>,
-    //   key: '6',
-    // },
-    // {
-    //   label:
-    //     <a>
-    //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-setting me-3"></i>Account Setting</div>
-    //       <i className="icon-right iconrotate180"></i>
-    //     </a>,
-    //   key: '7',
-    // },
+  const accountSettings = async () => {
+    SSO_TO_PM(2).then(async (data) => {
+      if (data.success == 200) {
+        if (!isChrome && !isSafari) {
+          navigate(`/?url=${data.url}&key=phpRedirect`, { replace: true })
+          navigate(0, { replace: true });
+        } else {
+          await window.open(data.url)
+        }
+      }
+    });
+  }
+
+  const myAvailability = async () => {
+    SSO_TO_PM(1).then(async (data) => {
+      if (data.success == 200) {
+        if (!isChrome && !isSafari) {
+          navigate(`/?url=${data.url}&module=my_availability&key=phpRedirect`, { replace: true })
+          navigate(0, { replace: true });
+        } else {
+          await window.open(`${data.url}&module=my_availability`)
+        }
+      }
+    });
+  }
+
+  const getMenuItems = () => {
+    const items = [
+      {
+        label:
+          <>
+            <div className="me-3">
+              {profile?.um_image ? (
+                <img
+                  src={profile?.um_image ?? defaultprofile}
+                  alt="Profile"
+                  className="rounded-circle"
+                  style={{ width: "52px" }}
+                />
+              ) : (
+                <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
+              )}
+            </div>
+            <div>
+              <div className="text-black titleprint">{(profile?.um_name)}</div>
+              <div className="title-common">{(profile?.um_contact)}</div>
+            </div>
+          </>
+        ,
+        key: '0',
+      },
+      {
+        type: 'divider',
+      },
+      {
+        label:
+          <a onClick={() => setUpWebsiteUrl(1)}>
+            <div className="title-common me-5 d-flex align-items-center"><i className="icon-profile me-3"></i>My Profile</div>
+            <i className="icon-right iconrotate180"></i>
+          </a>,
+        key: '2',
+      },
+      {
+        label:
+          <a onClick={() => setUpWebsiteUrl(2)}>
+            <div className="title-common me-5 d-flex align-items-center"><i className="icon-group me-3"></i>{`${profile?.website_publish && profile?.publish_url ? 'Visit' : 'Setup'} My Website`}</div>
+            <i className="icon-right iconrotate180"></i>
+          </a>,
+        key: '3',
+      },
+      {
+        label:
+          <a onClick={myAvailability}>
+            <div className="title-common me-5 d-flex align-items-center"><i className="icon-calendar me-3"></i>My Availability</div>
+            <i className="icon-right iconrotate180"></i>
+          </a>,
+        key: '4',
+      },
+      {
+        label:
+          <a onClick={accountSettings}>
+            <div className="title-common me-5 d-flex align-items-center"><i className="icon-setting me-3"></i>Account Setting</div>
+            <i className="icon-right iconrotate180"></i>
+          </a>,
+        key: '5',
+      },
+      // {
+      //   label:
+      //     <a>
+      //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-upgrade me-3"></i>Upgrade Plan</div>
+      //       <i className="icon-right iconrotate180"></i>
+      //     </a>,
+      //   key: '5',
+      // },
+      // {
+      //   label:
+      //     <a>
+      //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-help me-3"></i>Help Center</div>
+      //       <i className="icon-right iconrotate180"></i>
+      //     </a>,
+      //   key: '6',
+      // },
 
 
-    // CSS Also comment
-    // {
-    //   type: 'divider',
-    // },
-    // {
-    //   label: <><i className="icon-exit me-2"></i> Log Out</>,
-    //   key: '8',
-    // },
-  ];
+      // CSS Also comment
+      // {
+      //   type: 'divider',
+      // },
+      // {
+      //   label: <><i className="icon-exit me-2"></i> Log Out</>,
+      //   key: '8',
+      // },
+    ];
+
+    if (!tokenData?.admin) {
+      return items.filter((item) => item.key !== "5");
+    } else {
+      return items;
+    }
+  };
+
 
   return (
     <Navbar className="justify-content-between portal-header">
@@ -578,7 +629,7 @@ function Header({ locationPath }) {
 
           <Dropdown
             menu={{
-              items,
+              items: getMenuItems(),
             }}
             trigger={['click']}
             className="py-0 nav-link cursor-pointer"

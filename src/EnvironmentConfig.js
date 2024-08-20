@@ -12,6 +12,7 @@ const dev = {
   medicalhistory_api_url: `https://strauss-medicalhistory.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
   videolibrary_api_url: `https://strauss-videolibrary.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
   sso_to_pm_url: `https://pms-upgrade.azurewebsites.net/api/get_doctor_sso_token.php`,
+  sso_to_pm_admin_url: `https://pms-upgrade.azurewebsites.net/api/get_doctor_admin_sso_token.php`,
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
@@ -26,8 +27,9 @@ const dev = {
   firebaseMessagingSenderId: "482265957598",
   firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
   tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
-  obstetric_api_url:
-    "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
+  gynec_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
+  obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
+  zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
 };
 
 const qa = {
@@ -44,6 +46,7 @@ const qa = {
   medicalhistory_api_url: `https://strauss-medicalhistory.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
   videolibrary_api_url: `https://strauss-videolibrary.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
   sso_to_pm_url: `https://pms-upgrade.azurewebsites.net/api/get_doctor_sso_token.php`,
+  sso_to_pm_admin_url: `https://pms-upgrade.azurewebsites.net/api/get_doctor_admin_sso_token.php`,
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
@@ -58,8 +61,9 @@ const qa = {
   firebaseMessagingSenderId: "482265957598",
   firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
   tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
-  obstetric_api_url:
-    "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
+  gynec_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
+  obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
+  zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
 };
 
 const uat = {
@@ -76,6 +80,7 @@ const uat = {
   medicalhistory_api_url: `https://pm-medicalhistory-uat.tatvacare.in`,
   videolibrary_api_url: `https://pm-videolibrary-uat.tatvacare.in`,
   sso_to_pm_url: `https://pm-uat-dhspl-2.tatvacare.in/api/get_doctor_sso_token.php`,
+  sso_to_pm_admin_url: `https://pm-uat-dhspl-2.tatvacare.in/api/get_doctor_admin_sso_token.php`,
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pm-uat-dhspl-2.tatvacare.in/doctor_website/`,
@@ -90,10 +95,9 @@ const uat = {
   firebaseMessagingSenderId: "482265957598",
   firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
   tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
-  gynec_api_url:
-    "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
-  obstetric_api_url:
-    "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
+  gynec_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
+  obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
+  zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
 };
 
 const prod = {
@@ -110,6 +114,7 @@ const prod = {
   medicalhistory_api_url: `https://pm-medicalhistory-prod.tatvacare.in`,
   videolibrary_api_url: `https://pm-videolibrary-prod.tatvacare.in`,
   sso_to_pm_url: `https://practice.tatvacare.in/api/get_doctor_sso_token.php`,
+  sso_to_pm_admin_url: `https://practice.tatvacare.in/api/get_doctor_admin_sso_token.php`,
   sso_to_pm_username: `PM_45dy48vh8sc4i1dum`,
   sso_to_pm_password: `481541at-j4xc-4817-q5xz-a4rt48c69bt1`,
   doctor_website_url: `https://practice.tatvacare.in/doctor_website/`,
@@ -124,10 +129,9 @@ const prod = {
   firebaseAppId: "1:601922359186:web:a3b9df05589faed1f5fb4b",
   growth_chart_api_url: `https://pm-prod-growth-chart.tatvacare.in`,
   tatvaRedirect: "https://health.tatvacare.in/#/content?auto=",
-  gynec_api_url:
-    "https://pm-medicalhistory-prod.tatvacare.in/api/v1/gynec-history",
-  obstetric_api_url:
-    "https://pm-medicalhistory-prod.tatvacare.in/api/v1/obstetric-history",
+  gynec_api_url: "https://pm-medicalhistory-prod.tatvacare.in/api/v1/gynec-history",
+  obstetric_api_url: "https://pm-medicalhistory-prod.tatvacare.in/api/v1/obstetric-history",
+  zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
 };
 
 const getEnv = () => {

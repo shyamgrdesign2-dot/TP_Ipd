@@ -10,6 +10,7 @@ import AddNewPatient from "./AddNewPatient";
 import EditNewPatient from "./EditNewPatient";
 import WalkInConsultation from "./WalkInConsultation";
 import { useSelector, useDispatch } from "react-redux";
+import WalkInConsultationZydus from "./WalkInConsultationZydus";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { setUserId } from "../redux/doctorsSlice";
@@ -56,6 +57,7 @@ function AppointmentList() {
           <Routes>
             <Route path="/" element={<Appointment locationPath={locationPath} />} />
             <Route path="walk_in_consultation" element={<WalkInConsultation />} />
+            <Route path="walk_in_consultation_zydus" element={<WalkInConsultationZydus />} />
             <Route path="add_patient" element={<AddNewPatient />} />
             <Route path="edit_patient" element={<EditNewPatient />} />
           </Routes>
