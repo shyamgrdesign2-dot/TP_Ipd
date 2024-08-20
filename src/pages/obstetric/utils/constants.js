@@ -116,7 +116,7 @@ export const LiveColumns = [
     width: "22%",
   },
   {
-    title: "Date of delivery",
+    title: "Date of delivery / Age",
     key: "dateOfDelivery",
     width: "12%",
   },

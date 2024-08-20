@@ -84,9 +84,24 @@ export const clearSearch = createAsyncThunk("records/clearSearch", async () => {
 
 export const searchPatients = createAsyncThunk(
     "records/searchPatients",
-    async (searchQuery) => {
+    async (data) => {
         let result = {};
-        result = await ApiAppointments.searchPatients(searchQuery);
+        result = await ApiAppointments.searchPatients(data.searchQuery, data.company);
+        if (data.company === '' && result.status) {
+            return result.data;
+        } else if (data.company === 'zydus' && result?.response?.docs?.length > 0) {
+            return result.response.docs;
+        } else {
+            throw Error(result.error);
+        }
+    }
+);
+
+export const synczyduspatient = createAsyncThunk(
+    "records/synczyduspatient",
+    async (data) => {
+        let result = {};
+        result = await ApiAppointments.synczyduspatient(data);
         if (result.status) {
             return result.data;
         } else {
@@ -304,7 +319,7 @@ const appointmentsSlice = createSlice({
             })
             .addCase(editPatient.fulfilled, (state, action) => {
                 state.loading = false;
-                state.patients_details = {...state.patients_details, ...action.payload};
+                state.patients_details = { ...state.patients_details, ...action.payload };
             })
             .addCase(editPatient.rejected, (state) => {
                 state.loading = false;

@@ -259,7 +259,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
         ...patientDiagnosisData,
         ...pastPregnancy,
         patientId: patient_data.patient_unique_id,
-        diagnosisNotes: patientDiagnosisNotes,
+        diagnosisNotes: patientDiagnosisNotes?.trim(),
         createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
         createdBy: obstetricDetails?.createdBy || tokenData?.user_id,
         modifiedAt: new Date().toISOString(),
@@ -271,7 +271,14 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
       const obstetricResponse = obstetricDetails?._id
         ? await updateObstetricData(
             obstetricDetails?.patientId,
-            payload,
+            {
+              ...payload,
+              gravidity: payload.gravidity || null,
+              parity: payload.parity || null,
+              livingChildren: payload.livingChildren || null,
+              abortion: payload.abortion || null,
+              ectopicPregnancies: payload.ectopicPregnancies || null,
+            },
             userId
           )
         : await addObstetricData(payload);

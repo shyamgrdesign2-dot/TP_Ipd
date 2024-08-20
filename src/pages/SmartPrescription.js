@@ -29,6 +29,7 @@ import { errorMessage } from "../utils/utils";
 import { MESSAGE_KEY } from "../utils/constants";
 import CommonModal from "../common/CommonModal";
 import alertIcon from "../assets/images/alertIcon.svg";
+import FullPageLoader from "./vaccination/components/Loader";
 
 function SmartPrescription() {
   const {
@@ -86,6 +87,7 @@ function SmartPrescription() {
   const [drawFunction, setDrawFunction] = useState(null);
   const [smartRxFiles, setSmartRxFiles] = useState([]);
   const [imageRefs, setImageRefs] = useState({});
+  const [loading, setLoading] = useState(false); // State to track loading
   const drawRef = useRef(null);
 
   const contextApi = {
@@ -322,6 +324,7 @@ function SmartPrescription() {
       handleAddPage();
     }
     if(smartRxFilesData?.length > 0){
+      setLoading(true);
       setSmartRxFiles(smartRxFilesData)
     }
   }, []);
@@ -558,7 +561,7 @@ function SmartPrescription() {
       const data = response?.message;
 
       if (data) {
-        setSmartRxDetails(files.map(file => file.name));
+        setSmartRxDetails(files);
       }
     } catch (error) {
       errorMessage("Error Uploading the prescription, Please try again");
@@ -637,9 +640,12 @@ function SmartPrescription() {
 // Load images for the edit flow
 const imageLoad = () => {
   const loadedImages = {};
+  const totalImages = smartRxFilesData.length;
+  let loadedCount = 0;
 
   const newPageIds = smartRxFilesData.map(() => uuidv4());
   setPages(newPageIds);
+
   smartRxFilesData.forEach((imageObj, index) => {
     const { smart_prescription_file: imageUrl } = imageObj;
     const img = new Image();
@@ -652,6 +658,12 @@ const imageLoad = () => {
         ...prevState,
         [newPageIds[index]]: true,
       }));
+      loadedCount++;
+
+      // Hide loader when all images are loaded
+      if (loadedCount === totalImages) {
+        setLoading(false);
+      }
     };
   });
 };
@@ -676,6 +688,7 @@ useEffect(() => {
           onSubmit={handleSubmit}
           smartRxData={smartRxDetails}
         />
+        {loading && <FullPageLoader />}
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <div className="row">
             <div

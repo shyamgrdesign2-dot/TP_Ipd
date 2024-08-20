@@ -4,6 +4,7 @@ import { generateMockData } from "../../utils/utils";
 import { IS_DEV } from "../../utils/constants";
 
 const baseUrl = { customBaseUrl: config.appointment_api_url };
+const baseZydusUrl = { customBaseUrl: config.zydus_api_url };
 
 const ApiAppointments = {};
 
@@ -47,14 +48,25 @@ ApiAppointments.endVisit = function (data) {
   return api.post(`/api/v1/appointment/endVisit`, data, baseUrl);
 };
 
-ApiAppointments.searchPatients = function (query) {
-  return api.post(
-    `/api/v1/appointment/searchPatient`,
-    {
-      search: query,
-    },
-    baseUrl
-  );
+ApiAppointments.searchPatients = function (query, company) {
+  if (company === 'zydus') {
+    return api.get(
+      `/zyduspatientsearch?wt=json&rows=10&q=${query}`,
+      baseZydusUrl
+    );
+  } else {
+    return api.post(
+      `/api/v1/appointment/searchPatient`,
+      {
+        search: query,
+      },
+      baseUrl
+    );
+  }
+};
+
+ApiAppointments.synczyduspatient = function (body) {
+  return api.post(`/appointment/synczyduspatient`, body, baseZydusUrl);
 };
 
 ApiAppointments.listSalutation = function () {

@@ -1,16 +1,18 @@
 import React, { useState, useContext, useCallback } from 'react';
-import { Form, Input } from 'antd';
-import { useSelector } from "react-redux";
+import { Form, Input, Button } from 'antd';
+import { useSelector, useDispatch } from "react-redux";
 import LanguageMoreModal from './LanguageMoreModal';
 
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
-import { blockedEmoji, onlyNumberFormat } from '../../utils/utils';
+import { doctorOpenAI } from "../../redux/doctorWebsiteSlice";
+import { blockedEmoji, errorMessage, onlyNumberFormat } from '../../utils/utils';
 
 function DWAboutDoctor() {
 
-    const { aboutDoctor, setAboutDoctor } = useContext(DoctorWebsiteSettingsContext);
+    const { personalDetails,aboutDoctor, setAboutDoctor } = useContext(DoctorWebsiteSettingsContext);
 
-    const { languageList } = useSelector((state) => state.doctorWebsite);
+    const dispatch = useDispatch();
+    const { languageList, ai_loading } = useSelector((state) => state.doctorWebsite);
 
     const [languageMoreOptionsVisible, setLanguageMoreOptionsVisible] = useState(false);
 
@@ -69,6 +71,20 @@ function DWAboutDoctor() {
         },
         [aboutDoctor]
     );
+
+    const getAIdata = async () => {
+        var sendData = {
+            search:`About for Dr. ${personalDetails?.first_name}(${personalDetails?.specialty})`
+        }
+
+        const action = await dispatch(doctorOpenAI(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            aboutDoctor['about'] = `${action.payload}`;
+            setAboutDoctor((prev) => { return { ...prev } });
+        } else {
+            errorMessage(action.error)
+        }
+    };
 
     return (
         <div className="bg-white p-20 overflow-auto" style={{ height: 'calc(100vh - 120px)' }}>
@@ -130,7 +146,10 @@ function DWAboutDoctor() {
                     array={languageList.slice(5, languageList.length)} />
             )}
             <hr className='mt-1' />
-            <div className='title-common'>About Doctor</div>
+            <div className='align-items-center d-flex'>
+                <div className='title-common' style={{ flex: 1 }}>About Doctor</div>
+                {/* <Button type="button" onClick={getAIdata} className="btn btn-primary3" loading={ai_loading}>Generate AI</Button> */}
+            </div>
             <div className="text-greycolor fontroboto my-3"> Write a brief introduction. Share your experience journey, major achievements, best qualities, and key skills. </div>
             <Input.TextArea rows="5"
                 showCount
