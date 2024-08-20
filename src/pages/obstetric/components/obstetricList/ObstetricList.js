@@ -147,18 +147,28 @@ const ObstetricList = ({ isPatientSummary = false }) => {
               </>
             )}
           </div>
-          {(obstetricDetails?.gravidity ||
-            obstetricDetails?.parity ||
-            obstetricDetails?.livingChildren ||
-            obstetricDetails?.abortion ||
-            obstetricDetails?.ectopicPregnancies ||
-            obstetricDetails?.diagnosisNotes?.length > 0) && (
+          {((obstetricDetails?.gravidity != null &&
+            obstetricDetails?.gravidity >= 0) ||
+            (obstetricDetails?.parity != null &&
+              obstetricDetails?.parity >= 0) ||
+            (obstetricDetails?.livingChildren != null &&
+              obstetricDetails?.livingChildren >= 0) ||
+            (obstetricDetails?.abortion != null &&
+              obstetricDetails?.abortion >= 0) ||
+            (obstetricDetails?.ectopicPregnancies != null &&
+              obstetricDetails?.ectopicPregnancies >= 0) ||
+            obstetricDetails.diagnosisNotes?.length > 0) && (
             <div className="my-2 d-flex align-items-center flex-wrap">
-              {(obstetricDetails?.gravidity ||
-                obstetricDetails?.parity ||
-                obstetricDetails?.livingChildren ||
-                obstetricDetails?.abortion ||
-                obstetricDetails?.ectopicPregnancies) && (
+              {((obstetricDetails?.gravidity != null &&
+                obstetricDetails?.gravidity >= 0) ||
+                (obstetricDetails?.parity != null &&
+                  obstetricDetails?.parity >= 0) ||
+                (obstetricDetails?.livingChildren != null &&
+                  obstetricDetails?.livingChildren >= 0) ||
+                (obstetricDetails?.abortion != null &&
+                  obstetricDetails?.abortion >= 0) ||
+                (obstetricDetails?.ectopicPregnancies != null &&
+                  obstetricDetails?.ectopicPregnancies >= 0)) && (
                 <>
                   <span style={{ marginRight: 5 }}>GPLAE (</span>
                 </>
@@ -167,9 +177,9 @@ const ObstetricList = ({ isPatientSummary = false }) => {
                 obstetricDetails.gravidity >= 0 && (
                   <>
                     {isprimigravida ? (
-                      <span className="mx-1">Primigravida</span>
+                      <span style={{ marginRight: 5 }}>Primigravida</span>
                     ) : (
-                      <div className="mx-1">
+                      <div style={{ marginRight: 5 }}>
                         <span>G</span> :{" "}
                         <label>{obstetricDetails.gravidity}</label>
                       </div>
@@ -233,11 +243,16 @@ const ObstetricList = ({ isPatientSummary = false }) => {
                     textLimit={100}
                     labelSize={14}
                     isInfo={
-                      obstetricDetails?.gravidity ||
-                      obstetricDetails?.parity ||
-                      obstetricDetails?.livingChildren ||
-                      obstetricDetails?.abortion ||
-                      obstetricDetails?.ectopicPregnancies
+                      (obstetricDetails?.gravidity != null &&
+                        obstetricDetails?.gravidity >= 0) ||
+                      (obstetricDetails?.parity != null &&
+                        obstetricDetails?.parity >= 0) ||
+                      (obstetricDetails?.livingChildren != null &&
+                        obstetricDetails?.livingChildren >= 0) ||
+                      (obstetricDetails?.abortion != null &&
+                        obstetricDetails?.abortion >= 0) ||
+                      (obstetricDetails?.ectopicPregnancies != null &&
+                        obstetricDetails?.ectopicPregnancies >= 0)
                     }
                   />
                 </>
