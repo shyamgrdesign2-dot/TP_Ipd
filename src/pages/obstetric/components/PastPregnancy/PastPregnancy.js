@@ -358,6 +358,7 @@ function PastPregnancy({
                       format: "DD-MM-YYYY",
                       type: "mask",
                     }}
+                    allowClear
                   />
                 )}
                 {pastPregnancyData?.typeOfDelivery === "age" && (

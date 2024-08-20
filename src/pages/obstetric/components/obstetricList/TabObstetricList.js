@@ -136,59 +136,68 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
             obstetricDetails?.ectopicPregnancies) && (
             <div className="my-2">
               <span>GPLAE</span>{" "}
-              {obstetricDetails.gravidity >= 0 && (
-                <>
-                  {isprimigravida ? (
-                    <span>(Primigravida</span>
-                  ) : (
-                    <>
-                      <span>(G</span> :{" "}
-                      <label>{obstetricDetails.gravidity}</label>
-                    </>
-                  )}
-                  {(obstetricDetails.parity ||
-                    obstetricDetails.livingChildren ||
-                    obstetricDetails.abortion ||
-                    obstetricDetails.ectopicPregnancies ||
-                    obstetricDetails.diagnosisNotes) &&
-                    " | "}
-                </>
-              )}
-              {!isprimigravida && obstetricDetails.parity >= 0 && (
-                <>
-                  <span>P</span> : <label>{obstetricDetails.parity}</label>
-                  {(obstetricDetails.livingChildren ||
-                    obstetricDetails.abortion ||
-                    obstetricDetails.ectopicPregnancies ||
-                    obstetricDetails.diagnosisNotes) &&
-                    " | "}
-                </>
-              )}
-              {!isprimigravida && obstetricDetails.livingChildren >= 0 && (
-                <>
-                  <span>L</span> :{" "}
-                  <label>{obstetricDetails.livingChildren}</label>
-                  {(obstetricDetails.abortion ||
-                    obstetricDetails.ectopicPregnancies ||
-                    obstetricDetails.diagnosisNotes) &&
-                    " | "}
-                </>
-              )}
-              {!isprimigravida && obstetricDetails.abortion >= 0 && (
-                <>
-                  <span>A</span> : <label>{obstetricDetails.abortion}</label>
-                  {(obstetricDetails.ectopicPregnancies ||
-                    obstetricDetails.diagnosisNotes) &&
-                    " | "}
-                </>
-              )}
-              {!isprimigravida && obstetricDetails.ectopicPregnancies >= 0 && (
-                <>
-                  <span>E</span> :{" "}
-                  <label>{obstetricDetails.ectopicPregnancies}</label>
-                  {obstetricDetails.diagnosisNotes && " | "}
-                </>
-              )}
+              {obstetricDetails.gravidity != null &&
+                obstetricDetails.gravidity >= 0 && (
+                  <>
+                    {isprimigravida ? (
+                      <span>(Primigravida</span>
+                    ) : (
+                      <>
+                        <span>(G</span> :{" "}
+                        <label>{obstetricDetails.gravidity}</label>
+                      </>
+                    )}
+                    {(obstetricDetails.parity ||
+                      obstetricDetails.livingChildren ||
+                      obstetricDetails.abortion ||
+                      obstetricDetails.ectopicPregnancies ||
+                      obstetricDetails.diagnosisNotes) &&
+                      " | "}
+                  </>
+                )}
+              {!isprimigravida &&
+                obstetricDetails.parity != null &&
+                obstetricDetails.parity >= 0 && (
+                  <>
+                    <span>P</span> : <label>{obstetricDetails.parity}</label>
+                    {(obstetricDetails.livingChildren ||
+                      obstetricDetails.abortion ||
+                      obstetricDetails.ectopicPregnancies ||
+                      obstetricDetails.diagnosisNotes) &&
+                      " | "}
+                  </>
+                )}
+              {!isprimigravida &&
+                obstetricDetails.livingChildren != null &&
+                obstetricDetails.livingChildren >= 0 && (
+                  <>
+                    <span>L</span> :{" "}
+                    <label>{obstetricDetails.livingChildren}</label>
+                    {(obstetricDetails.abortion ||
+                      obstetricDetails.ectopicPregnancies ||
+                      obstetricDetails.diagnosisNotes) &&
+                      " | "}
+                  </>
+                )}
+              {!isprimigravida &&
+                obstetricDetails.abortion != null &&
+                obstetricDetails.abortion >= 0 && (
+                  <>
+                    <span>A</span> : <label>{obstetricDetails.abortion}</label>
+                    {(obstetricDetails.ectopicPregnancies ||
+                      obstetricDetails.diagnosisNotes) &&
+                      " | "}
+                  </>
+                )}
+              {!isprimigravida &&
+                obstetricDetails.ectopicPregnancies != null &&
+                obstetricDetails.ectopicPregnancies >= 0 && (
+                  <>
+                    <span>E</span> :{" "}
+                    <label>{obstetricDetails.ectopicPregnancies}</label>
+                    {obstetricDetails.diagnosisNotes && " | "}
+                  </>
+                )}
               {obstetricDetails?.diagnosisNotes?.length ? (
                 <>
                   <span>Notes</span> :{" "}
