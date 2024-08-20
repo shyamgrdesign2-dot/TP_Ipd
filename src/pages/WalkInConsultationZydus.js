@@ -14,7 +14,7 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import TabHeader from "../components/tab_design/TabHeader";
 import CommonModal from "../common/CommonModal";
 import { clearSearch, searchPatients, synczyduspatient } from "../redux/appointmentsSlice";
-import { isNumeric, isAlphabet, calculateAge, errorMessage } from "../utils/utils";
+import { isNumeric, isAlphabet, calculateAge, errorMessage, removeSpecialCharectorWithoutDotSpace } from "../utils/utils";
 import { resetVaccineState } from "../redux/vaccineSlice";
 
 import smartPad from "../assets/images/smartPad.svg";
@@ -43,11 +43,12 @@ function WalkInConsultationZydus() {
 
     const BoldWordInName = ({ name, boldWord }) => {
         // Split the name into parts based on the bold word
-        const parts = name.split(new RegExp(`(${boldWord})`, "i"));
+        const parts = name.split(new RegExp(`(${removeSpecialCharectorWithoutDotSpace(boldWord)})`, "i"));
+        // const parts = name.split(boldWord);
 
         // Map through the parts and apply different styles to the bold word
         const formattedName = parts.map((part, index) => {
-            if (part.toLowerCase() === boldWord.toLowerCase()) {
+            if (part.toLowerCase() === removeSpecialCharectorWithoutDotSpace(boldWord).toLowerCase()) {
                 // If the part matches the bold word, render it in bold
                 return (
                     <span key={index} className="fw-medium">
@@ -242,11 +243,12 @@ function WalkInConsultationZydus() {
 
     useEffect(() => {
         const data = [];
+        console.log(patients)
         if (patients) {
             if (patients.length === 0 && searchQuery.length > 0) {
                 data.push({
                     key: -2,
-                    label: <div>{error}</div>,
+                    label: <div>{'No Data Found'}</div>,
                 });
             } else {
                 patients.map((patient) => {
@@ -423,7 +425,7 @@ function WalkInConsultationZydus() {
                             }`}
                     >
                         <Input
-                            placeholder="Search by Patient’s Name, Phone number or Id"
+                            placeholder="Search via name, phn No or MRN (use * followed by last 6 digits of MRN eg: *234567)"
                             prefix={<i className="icon-search"></i>}
                             suffix={
                                 searchQuery.length > 0 && (
