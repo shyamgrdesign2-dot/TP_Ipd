@@ -123,11 +123,19 @@ export default function VisitObstetric() {
 
   return (
     <>
-      {!Object.keys(previousVisit)?.length && !obstetricDetails ? null : (
+      {Object.keys(previousVisit)?.length ||
+      obstetricDetails?.lmp ||
+      obstetricDetails?.edd ||
+      obstetricDetails?.gravidity ||
+      obstetricDetails?.parity ||
+      obstetricDetails?.livingChildren ||
+      obstetricDetails?.abortion ||
+      obstetricDetails?.ectopicPregnancies ? (
         <div className="appointment-wrap PatientDetailswrap m-0">
           <Card
             style={{
               maxHeight: viewMore ? "fit-content" : "370px",
+              overflowY: "scroll",
             }}
           >
             <Card.Header className="bg-white py-3">
@@ -156,28 +164,38 @@ export default function VisitObstetric() {
                 </Button>
               </div>
             </Card.Header>
-            {obstetricDetails && <ObstetricList />}
-            {Object.keys(previousVisit)?.length > 0 && <div className="visitBody visitObstetricContainer">
-              <div className="rowContainer">
-                <span className="previousText">Previous visit</span>
-                <span className="updatedText">
-                  {previousVisit.modifiedAt
-                    ? "Updated on : " +
-                      moment(previousVisit.modifiedAt).format("DD MMM YYYY")
-                    : ""}
-                </span>
-              </div>
-              <div>{visitedMonth} Month</div>
-              {measurementDetails()}
-              {previousVisit?.notes?.length ? (
-                <div
-                  className="cardbody-data mt-2 border visitItem"
-                  style={{ borderRadius: "8px", padding: "16px" }}
-                >
-                  {previousVisit.notes}
+            {(obstetricDetails?.lmp ||
+              obstetricDetails?.edd ||
+              obstetricDetails?.gravidity ||
+              obstetricDetails?.parity ||
+              obstetricDetails?.livingChildren ||
+              obstetricDetails?.abortion ||
+              obstetricDetails?.ectopicPregnancies) && (
+              <ObstetricList isPatientSummary />
+            )}
+            {Object.keys(previousVisit)?.length > 0 && (
+              <div className="visitBody visitObstetricContainer">
+                <div className="rowContainer">
+                  <span className="previousText">Previous visit</span>
+                  <span className="updatedText">
+                    {previousVisit.modifiedAt
+                      ? "Updated on : " +
+                        moment(previousVisit.modifiedAt).format("DD MMM YYYY")
+                      : ""}
+                  </span>
                 </div>
-              ) : null}
-            </div>}
+                <div>{visitedMonth} Month</div>
+                {measurementDetails()}
+                {previousVisit?.notes?.length ? (
+                  <div
+                    className="cardbody-data mt-2 border visitItem"
+                    style={{ borderRadius: "8px", padding: "16px" }}
+                  >
+                    {previousVisit.notes}
+                  </div>
+                ) : null}
+              </div>
+            )}
             {validVisitDetails.length > 2 && (
               <Card.Footer
                 className="bg-white py-3 viewLessOrMore"
@@ -188,7 +206,7 @@ export default function VisitObstetric() {
             )}
           </Card>
         </div>
-      )}
+      ) : null}
     </>
   );
 }

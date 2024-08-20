@@ -125,7 +125,8 @@ function AddExamination({
     const data = {};
     Object.keys(examinationData).forEach((key) => {
       if (![undefined, null, ""].includes(examinationData[key])) {
-        data[key] = examinationData[key];
+        data[key] =
+          key === "notes" ? examinationData[key]?.trim() : examinationData[key];
       }
     });
     if (examinationHistory?.length > 0 && editIndex >= 0) {

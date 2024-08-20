@@ -120,7 +120,10 @@ function PastPregnancy({
     const data = {};
     Object.keys(pastPregnancyData).forEach((key) => {
       if (![undefined, null, ""].includes(pastPregnancyData[key])) {
-        data[key] = pastPregnancyData[key];
+        data[key] =
+          key === "remarks"
+            ? pastPregnancyData[key]?.trim()
+            : pastPregnancyData[key];
       }
     });
     if (pregnancyHistory?.length > 0 && editIndex >= 0) {

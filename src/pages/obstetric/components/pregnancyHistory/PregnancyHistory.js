@@ -59,6 +59,7 @@ const PregnancyHistory = ({
     const {
       outcome,
       dateOfDelivery,
+      ageOfDelivery,
       deliveryMode = "-",
       gender = "-",
       babysWeight,
@@ -78,7 +79,7 @@ const PregnancyHistory = ({
             <td className="obstetricTcell pregnancyTcell">
               {dateOfDelivery
                 ? moment(dateOfDelivery).format("DD MMM YYYY")
-                : "-"}
+                : ageOfDelivery || "-"}
             </td>
             <td className="obstetricTcell pregnancyTcell">{gender}</td>
             <td className="obstetricTcell pregnancyTcell">
