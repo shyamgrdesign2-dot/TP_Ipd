@@ -30,4 +30,5 @@ export default {
   gynec_api_url: env.gynec_api_url,
   obstetric_api_url: env.obstetric_api_url,
   zydus_api_url: env.zydus_api_url,
+  rx_digitization : env.rx_digitization,
 };

@@ -25,6 +25,8 @@ export const WEBSOCKET_ADDRESS = "ws://localhost:5001/iScribeSocket"
 export const WEBSOCKET_ERROR_MESSAGE = "Error connecting the server, Please check device connectivity"
 export const WHATS_APP_API = "/api/v1/casemanager/smart-rx/send"
 export const SMART_RX_UPLOAD = "/api/v1/casemanager/smart-rx/upload"
+export const RX_DIGITIZATION = "/api/v1/rxdigitize/rx"
+export const IS_RX_DIGI_API_CALL = false
 export const FETCH_SMART_RX = "/api/v1/casemanager/smart-rx"
 export const WTSAP_ERR_MESSAGE = "Error sending the prescription, Please try again"
 
