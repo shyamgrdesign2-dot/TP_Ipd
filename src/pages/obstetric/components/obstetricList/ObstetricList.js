@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import moment from "moment";
 import { isPrimigravida } from "../../utils/helper";
 
-const ObstetricList = () => {
+const ObstetricList = ({ isPatientSummary = false }) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { examinationHistory } = obstetricDetails;
   const [accordionItems, setAccordionItems] = useState([]);
@@ -224,7 +224,7 @@ const ObstetricList = () => {
 
   return (
     <div
-      className="overflow-y-auto"
+      className={isPatientSummary ? "" : "overflow-y-auto"}
       style={{ maxHeight: "300px", padding: "10px 10px 0px" }}
     >
       {infoAccordionItems?.map((item, index) => (
@@ -242,29 +242,31 @@ const ObstetricList = () => {
           )}
         </React.Fragment>
       ))}
-      <Collapse
-        defaultActiveKey={[0]}
-        className="prescriptiontab-accordian history-sider-box history-sider-box-white"
-        expandIconPosition={"end"}
-      >
-        {accordionItems?.map((item, index) => (
-          <React.Fragment key={index}>
-            <Collapse.Panel header={item.label} key={item.key}>
-              {item.content}
-            </Collapse.Panel>
-            {index < accordionItems.length - 1 && (
-              <Divider
-                dashed
-                style={{
-                  borderTop: "1px dotted #D0D5DD",
-                  margin: "6px 0",
-                  width: "100%",
-                }}
-              />
-            )}
-          </React.Fragment>
-        ))}
-      </Collapse>
+      {!isPatientSummary && (
+        <Collapse
+          defaultActiveKey={[0]}
+          className="prescriptiontab-accordian history-sider-box history-sider-box-white"
+          expandIconPosition={"end"}
+        >
+          {accordionItems?.map((item, index) => (
+            <React.Fragment key={index}>
+              <Collapse.Panel header={item.label} key={item.key}>
+                {item.content}
+              </Collapse.Panel>
+              {index < accordionItems.length - 1 && (
+                <Divider
+                  dashed
+                  style={{
+                    borderTop: "1px dotted #D0D5DD",
+                    margin: "6px 0",
+                    width: "100%",
+                  }}
+                />
+              )}
+            </React.Fragment>
+          ))}
+        </Collapse>
+      )}
     </div>
   );
 };

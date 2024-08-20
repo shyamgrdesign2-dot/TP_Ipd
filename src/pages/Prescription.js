@@ -528,9 +528,6 @@ function Prescription() {
                           <span>Add</span>
                         </button>
                       </div>
-                      {(obstetricDetails?.lmp || obstetricDetails?.edd || obstetricDetails?.gravidity || obstetricDetails?.parity || obstetricDetails?.livingChildren || obstetricDetails?.abortion || obstetricDetails?.ectopicPregnancies || examinationHistory?.length > 0) && (
-                        <ObstetricList />
-                      )}
                     </div>
                   )
                     :
@@ -600,7 +597,7 @@ function Prescription() {
                                   }`}</span>
                               </button>
                             </div>
-                            {examinationHistory?.length > 0 && (
+                            {(obstetricDetails?.lmp || obstetricDetails?.edd || obstetricDetails?.gravidity || obstetricDetails?.parity || obstetricDetails?.livingChildren || obstetricDetails?.abortion || obstetricDetails?.ectopicPregnancies || examinationHistory?.length > 0) && (
                               <ObstetricList />
                             )}
                           </div>
