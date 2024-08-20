@@ -154,15 +154,14 @@ const ObstetricList = ({ isPatientSummary = false }) => {
               obstetricDetails?.abortion ||
               obstetricDetails?.ectopicPregnancies) && (
               <div className="my-2">
-                <span>GPLAE</span>
-                {" ("}
+                <span>GPLAE</span>{" "}
                 {obstetricDetails.gravidity >= 0 && (
                   <>
                     {isprimigravida ? (
-                      <span>Primigravida</span>
+                      <span>(Primigravida</span>
                     ) : (
                       <>
-                        <span>G</span> :{" "}
+                        <span>(G</span> :{" "}
                         <label>{obstetricDetails.gravidity}</label>
                       </>
                     )}
@@ -205,10 +204,10 @@ const ObstetricList = ({ isPatientSummary = false }) => {
                       text={obstetricDetails?.diagnosisNotes}
                       textLimit={100}
                       labelSize={14}
+                      isInfo
                     />
                   </>
                 ) : null}
-                {")"}
               </div>
             )}
           </div>

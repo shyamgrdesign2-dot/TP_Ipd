@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const ReadMore = ({ text, textLimit, textSize, labelSize }) => {
+const ReadMore = ({ text, textLimit, textSize, labelSize, isInfo = false }) => {
   const [isReadMore, setIsReadMore] = useState(true);
   const toggleReadMore = () => {
     setIsReadMore(!isReadMore);
@@ -15,7 +15,9 @@ const ReadMore = ({ text, textLimit, textSize, labelSize }) => {
           {text.slice(0, textLimit)}
         </span>
       ) : (
-        <span style={{ fontSize: labelSize, fontWeight: 400 }}>{text}</span>
+        <span style={{ fontSize: labelSize, fontWeight: 400 }}>
+          {`${text}${isInfo ? ")" : ""}`}
+        </span>
       )}
       <span
         onClick={toggleReadMore}
@@ -27,6 +29,7 @@ const ReadMore = ({ text, textLimit, textSize, labelSize }) => {
             ? "... view more"
             : " view less"
           : ""}
+          {isReadMore && <span>)</span>}
       </span>
     </div>
   );
