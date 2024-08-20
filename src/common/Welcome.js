@@ -3,6 +3,7 @@ import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getDecodedToken } from "../utils/localStorage";
+import config from "../config";
 
 function Welcome(props) {
 
@@ -19,7 +20,7 @@ function Welcome(props) {
       "doctor_id": profile?.doctor_unique_id,
       "timestamp": new Date(),
     });
-    if (businessId == '754811713438773') {
+    if (businessId == config.zydus_business_id) {
       navigate("/walk_in_consultation_zydus")
     } else {
       navigate("/walk_in_consultation")
