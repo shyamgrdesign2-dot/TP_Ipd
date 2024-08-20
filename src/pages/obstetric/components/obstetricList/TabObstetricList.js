@@ -142,17 +142,17 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
                 obstetricDetails?.abortion ||
                 obstetricDetails?.ectopicPregnancies) && (
                 <>
-                  <span style={{ marginRight: 5 }}>GPLAE</span>{" "}
+                  <span style={{ marginRight: 5 }}>GPLAE (</span>
                 </>
               )}
               {obstetricDetails.gravidity != null &&
                 obstetricDetails.gravidity >= 0 && (
                   <>
                     {isprimigravida ? (
-                      <span className="mx-1">(Primigravida</span>
+                      <span className="mx-1">Primigravida</span>
                     ) : (
                       <div className="mx-1">
-                        <span>(G</span> :{" "}
+                        <span>G</span> :{" "}
                         <label>{obstetricDetails.gravidity}</label>
                       </div>
                     )}
