@@ -36,9 +36,20 @@ function PastPregnancy({
       const data = pregnancyHistory[editIndex] || {};
       const age = data?.ageOfDelivery
         ? {
-            ageOfDeliveryYears: data?.ageOfDelivery?.split("y")[0] || "",
+            ageOfDeliveryYears:
+              data?.ageOfDelivery?.indexOf("y") > -1
+                ? data?.ageOfDelivery?.slice(
+                    0,
+                    data?.ageOfDelivery?.indexOf("y")
+                  )
+                : "",
             ageOfDeliveryMonths:
-              data?.ageOfDelivery?.split(" ")?.[1]?.[0] || "",
+              data?.ageOfDelivery?.indexOf("m") > -1
+                ? data?.ageOfDelivery?.slice(
+                    data?.ageOfDelivery?.indexOf(" ") + 1,
+                    data?.ageOfDelivery?.indexOf("m")
+                  )
+                : "",
           }
         : {};
       setPastPregnancyData({ ...data, ...age });
