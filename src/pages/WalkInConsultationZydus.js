@@ -243,7 +243,6 @@ function WalkInConsultationZydus() {
 
     useEffect(() => {
         const data = [];
-        console.log(patients)
         if (patients) {
             if (patients.length === 0 && searchQuery.length > 0) {
                 data.push({
