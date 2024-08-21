@@ -24,7 +24,7 @@ import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
-import { errorMessage, makeDefaultLogo } from "../utils/utils";
+import { errorMessage, getClinicName, makeDefaultLogo } from "../utils/utils";
 import CommonModal from './CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 
@@ -397,7 +397,18 @@ function Header({ locationPath }) {
             return (
               <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 3)[0]?.video?.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
                 <div className="tutorial-play me-14">
-                  <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+                  <button type="button" 
+                  onClick={() => {
+                    setVideoLink(item1)
+                    const clinic_name = getClinicName(profile?.hospital_data);
+                    window.Moengage.track_event("TP_Tutorial_Viewed", {
+                      clinic_name,
+                      tutorial_type: videoList[0]?.category,
+                    });
+                  }}
+                  >
+                    <img src={playIcons} />
+                  </button>
                   <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
                 </div>
                 <div>
@@ -604,7 +615,18 @@ function Header({ locationPath }) {
                           {item?.video?.map((item1, i1) => {
                             return (
                               <div key={i1} className="drawer-slider">
-                                <button type="button" onClick={() => setVideoLink(item1)}><img src={playIconutube} /></button>
+                                <button type="button"
+                                  onClick={() => {
+                                    setVideoLink(item1)
+                                    const clinic_name = getClinicName(profile?.hospital_data);
+                                    window.Moengage.track_event("TP_Tutorial_Viewed", {
+                                      clinic_name,
+                                      tutorial_type: item?.category,
+                                    });
+                                  }}
+                                >
+                                  <img src={playIconutube} />
+                                </button>
                                 <img src={item1?.thumbnail} />
                               </div>
                             )
