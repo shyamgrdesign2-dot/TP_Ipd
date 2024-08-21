@@ -27,6 +27,7 @@ function VaccineHeader({
   clearObstetricData,
   loader,
   isObstetric,
+  isGrowthChart
 }) {
   const vaccinationVideo = {
     link: "https://www.youtube.com/embed/o6ALwX9hPMM",
@@ -257,6 +258,13 @@ function VaccineHeader({
                   Preview
                 </Button>
               )}
+              {
+                isGrowthChart && (
+                  <div className="growth-chart-type">
+                    WHO-IAP Chart
+                  </div>
+                )
+              }
               {!isObstetric && (
                 <Dropdown overlay={isVaccination ? vaccinePrint : growthPrint}>
                   <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">

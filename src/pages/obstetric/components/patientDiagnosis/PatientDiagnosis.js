@@ -25,6 +25,7 @@ import {
   patientDiagnosisUpdated,
 } from "../../../../redux/obstetricSlice";
 import { useDispatch } from "react-redux";
+import { isPrimigravida } from "../../utils/helper";
 
 export default function PatientDiagnosis({
   lmpDate,
@@ -98,7 +99,7 @@ export default function PatientDiagnosis({
   const handleInputChange = (index, newValue, isValid) => {
     if (isValid) {
       const updatedData = [...pastPregnancyData];
-      updatedData[index].value = newValue !== "" ? newValue : null;
+      updatedData[index].value = newValue !== "" ? newValue : undefined;
       setPastPregnancyData(updatedData);
       dispatch(patientDiagnosisUpdated());
       dispatch(obstetricDetailsUpdated());
@@ -113,7 +114,7 @@ export default function PatientDiagnosis({
           background: "transparent",
         }}
       >
-        Patient Diagnosis
+        Patient Information
       </div>
     ),
     content: (
@@ -467,6 +468,9 @@ export default function PatientDiagnosis({
               </Col>
             );
           })}
+          {isPrimigravida(pastPregnancyData) && (
+            <div className="primigravida">Primigravida</div>
+          )}
         </Row>
         {patientDiagnosisNotes ? (
           <div className="diagnosisNotesStyle">
