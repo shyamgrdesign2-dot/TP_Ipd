@@ -499,6 +499,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
           handleDrawerVaccination={imageUploadHandler}
           printPopupHandler={printPopupHandler}
           tablePrintHandler={tablePrintHandler}
+          isGrowthChart
         />
         <div className="scrollableContainer">
           <SubHeader

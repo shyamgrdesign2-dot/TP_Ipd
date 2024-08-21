@@ -15,3 +15,17 @@ export const isDecimalCheck = (e) => {
   }
   return false;
 };
+
+export const isPrimigravida = (pastPregnancyData) => {
+  const gravidityValue = pastPregnancyData?.find(
+    (item) => item.key === "gravidity"
+  )?.value;
+  const otherValuesEmpty = pastPregnancyData?.every((item) => {
+    if (item.key !== "gravidity") {
+      return [0, "0", "", null, undefined].includes(item.value);
+    }
+    return true;
+  });
+
+  return gravidityValue == 1 && otherValuesEmpty;
+};
