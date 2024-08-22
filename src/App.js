@@ -26,6 +26,7 @@ import { useLocalStorage } from "./utils/localStorage";
 
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
+import TalkativeWidget from "./components/TalkativeWidget";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -41,7 +42,7 @@ function App() {
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
-
+  
   useEffect(() => {
     // Load features asynchronously when the app renders
     growthbook?.init({ streaming: true });
@@ -81,6 +82,7 @@ function App() {
             console.error(details);
           }}
         >
+          <TalkativeWidget region="au" configUuid="3f5d31d7-aae5-43f2-903a-2dc2d90a36f3" />
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
               <Routes>
