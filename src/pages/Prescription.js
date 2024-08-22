@@ -59,7 +59,7 @@ function Prescription() {
     timingList,
   } = useSelector((state) => state.doctors);
 
-  const { selectedVitalsList } = useSelector((state) => state.vitals);
+  const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
   const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
@@ -467,7 +467,7 @@ function Prescription() {
                           }`}</span>
                       </button>
                     </div>
-                    {vitalsData.length > 0 && (
+                    {(vitalsData.length > 0 || vitalsPastList.length > 0) && (
                       <VitalsList
                         mode={caseManagerData !== undefined ? EDIT : ADD}
                       />
