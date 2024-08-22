@@ -273,11 +273,11 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
             obstetricDetails?.patientId,
             {
               ...payload,
-              gravidity: payload.gravidity || null,
-              parity: payload.parity || null,
-              livingChildren: payload.livingChildren || null,
-              abortion: payload.abortion || null,
-              ectopicPregnancies: payload.ectopicPregnancies || null,
+              gravidity: payload.gravidity ?? null,
+              parity: payload.parity ?? null,
+              livingChildren: payload.livingChildren ?? null,
+              abortion: payload.abortion ?? null,
+              ectopicPregnancies: payload.ectopicPregnancies ?? null,
             },
             userId
           )
