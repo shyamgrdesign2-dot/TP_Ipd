@@ -32,4 +32,5 @@ export default {
   zydus_api_url: env.zydus_api_url,
   zydus_business_id: env.zydus_business_id,
   rx_digitization: env.rx_digitization,
+  visit_api_url: env.visit_api_url,
 };
