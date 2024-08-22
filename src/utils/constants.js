@@ -31,7 +31,7 @@ export const FETCH_SMART_RX = "/api/v1/casemanager/smart-rx"
 export const WTSAP_ERR_MESSAGE = "Error sending the prescription, Please try again"
 
 export const GB_ISCRIBE = "iscribe"
-
+export const GB_TALKATIVE = "Talkative"
 export const GB_GYNEC_HISTORY = "obs-gynec-history"
 
 export const GYNAECOLOGY = "Gynaecology";
