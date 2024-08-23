@@ -31,6 +31,7 @@ import alertIcon from "../assets/images/alertIcon.svg";
 import reload from "../assets/images/ic_Reload.svg";
 import tutorial from "../assets/images/tutorial.svg";
 import playIcons from '../assets/images/tube-icon.svg';
+import api from "../api/services/axiosService";
 import devicePad from "../assets/images/device-pad.svg";
 import smartSyncConnected from "../assets/images/smart-sync-connected.svg";
 import smartSyncDisconnected from "../assets/images/smart-sync-disconnected.svg";
@@ -41,6 +42,9 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { addCaseManager, editCaseManager } from "../redux/caseManagerSlice";
 import VideoModal from './VideoModal';
+import { getDecodedToken } from "../utils/localStorage";
+import { env } from "../EnvironmentConfig";
+import { RX_DIGITIZATION, IS_RX_DIGI_API_CALL } from "../utils/constants";
 
 function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
 
@@ -79,6 +83,8 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
   // const [error, setError] = useState(null);
   // const [status, setStatus] = useState(null);
   // const intervalRef = useRef(null);
+
+  const baseUrl = { customBaseUrl: env.rx_digitization };
 
   const items = [
       {
@@ -265,6 +271,8 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
 
   // Handle the data upate and end the visit 
   async function onEndVisitClick() {
+      const smartRxFiles  = smartRxData.map(file => file.name);
+      const files = smartRxData.map(file => file);
       const sendData = {
         action: tcmId == 0 ? "add" : "edit",
         tcm_id: tcmId,
@@ -287,7 +295,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
         follow_up_date: followUpDate,
         visit_advice: additionalNote,
         medical_history: medicalHistoryData,
-        smart_prescription_filename:smartRxData,
+        smart_prescription_filename:smartRxFiles,
       };
 
       const action =
@@ -296,7 +304,24 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
           : await dispatch(editCaseManager(sendData));
 
       if (action.meta.requestStatus === "fulfilled") {
-        navigate('/print-smart-rx', { replace: true, state: { ...action.payload, patient_data: patient_data, smartRxFile:smartRxData } })
+       if(IS_RX_DIGI_API_CALL){
+          const data = getDecodedToken();
+          // FormData for rx_digitizing api
+          const formData = new FormData();
+          files.forEach((file) => {
+            formData.append('files', file);
+          });
+          formData.append('doctorId', data.result.user_id);
+          formData.append('patientId', action.meta.arg.patient_unique_id);
+          formData.append('caseId', action.payload.tcm_id);
+          formData.append('ocrModel', 'docx');
+          try {
+            const response = api.post(RX_DIGITIZATION, formData, baseUrl);
+          } catch (error) {
+            console.error('Error DIGITIZING the prescription:', error);
+          }
+       }
+       navigate('/print-smart-rx', { replace: true, state: { ...action.payload, patient_data: patient_data, smartRxFile: smartRxFiles } })
       } else {
         errorMessage(action.error);
       }

@@ -181,6 +181,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             value = `${caseManagerData?.patient_data?.patient_email ? caseManagerData?.patient_data?.patient_email : '-'}`
         } else if (id == 11) {
             value = `${caseManagerData?.patient_data?.patient_reference_id ? caseManagerData?.patient_data?.patient_reference_id : '-'}`
+        } else if (id == 12) {
+            value = `${caseManagerData?.patient_data?.patient_salutation ? `${caseManagerData?.patient_data?.patient_salutation} ${caseManagerData?.patient_data?.patient_name}` : `${caseManagerData?.patient_data?.patient_name}`}`
         }
         return value
     }
@@ -1474,7 +1476,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     fontWeight: 500,
                                                                 }}
                                                             >
-                                                                LMP&nbsp;(Date&nbsp;:&nbsp;
+                                                                LMP&nbsp;&nbsp;:&nbsp;
                                                             </Text>
                                                             <Text
                                                                 style={{
@@ -1485,16 +1487,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 }}
                                                             >
                                                                 {moment(gynecHistoryData?.lmp).format("DD MMM YYYY")}
-                                                            </Text>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                ),&nbsp;
                                                             </Text>
                                                         </>
                                                     )}
@@ -2246,16 +2238,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 }}
                                                             >
                                                                 &nbsp;{gynecListViewCounter++}.&nbsp;LMP&nbsp;:&nbsp;
-                                                            </Text>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                Date&nbsp;:&nbsp;
                                                             </Text>
                                                             <Text
                                                                 style={{

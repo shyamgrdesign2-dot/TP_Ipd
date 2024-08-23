@@ -21,6 +21,397 @@ function ObsHistoryInlineView({
         Obstetric History&nbsp;:&nbsp;
       </Text>
 
+      {options?.includes("gplae") && (
+        <View>
+          <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+            {(("gravidity" in obsHistoryData &&
+              obsHistoryData?.gravidity != null) ||
+              ("parity" in obsHistoryData && obsHistoryData?.parity != null) ||
+              ("livingChildren" in obsHistoryData &&
+                obsHistoryData?.livingChildren != null) ||
+              ("abortion" in obsHistoryData &&
+                obsHistoryData?.abortion != null) ||
+              ("ectopicPregnancies" in obsHistoryData &&
+                obsHistoryData?.ectopicPregnancies != null) ||
+              ("diagnosisNotes" in obsHistoryData &&
+                obsHistoryData?.diagnosisNotes != null)) && (
+              <>
+                <Text
+                  style={{
+                    color: "#171725",
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                  }}
+                >
+                  GPLAE&nbsp;
+                </Text>
+                <Text
+                  style={{
+                    color: "#171725",
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                  }}
+                >
+                  (
+                </Text>
+
+                {Number(obsHistoryData?.gravidity) === 1 &&
+                (!obsHistoryData?.parity ||
+                  Number(obsHistoryData?.parity) === 0) &&
+                (!obsHistoryData?.livingChildren ||
+                  Number(obsHistoryData?.livingChildren) === 0) &&
+                (!obsHistoryData?.abortion ||
+                  Number(obsHistoryData?.abortion) === 0) &&
+                (!obsHistoryData?.ectopicPregnancies ||
+                  Number(obsHistoryData?.ectopicPregnancies) === 0) ? (
+                  <>
+                    <Text
+                      style={{
+                        color: "#171725",
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                      }}
+                    >
+                      Primigravida
+                    </Text>
+
+                    {"diagnosisNotes" in obsHistoryData &&
+                      obsHistoryData?.diagnosisNotes != null && (
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                          }}
+                        >
+                          &nbsp;|&nbsp;
+                        </Text>
+                      )}
+                  </>
+                ) : (
+                  <>
+                    {"gravidity" in obsHistoryData &&
+                      obsHistoryData?.gravidity != null && (
+                        <>
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            Gravida&nbsp;:&nbsp;
+                          </Text>
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                            }}
+                          >
+                            {obsHistoryData?.gravidity
+                              ?.toString()
+                              .padStart(2, "0")}
+                          </Text>
+                          {(("parity" in obsHistoryData &&
+                            obsHistoryData?.parity != null) ||
+                            ("livingChildren" in obsHistoryData &&
+                              obsHistoryData?.livingChildren != null) ||
+                            ("abortion" in obsHistoryData &&
+                              obsHistoryData?.abortion != null) ||
+                            ("ectopicPregnancies" in obsHistoryData &&
+                              obsHistoryData?.ectopicPregnancies != null) ||
+                            ("diagnosisNotes" in obsHistoryData &&
+                              obsHistoryData?.diagnosisNotes != null)) && (
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 400,
+                              }}
+                            >
+                              &nbsp;|&nbsp;
+                            </Text>
+                          )}
+                        </>
+                      )}
+
+                    {"parity" in obsHistoryData &&
+                      obsHistoryData?.parity != null && (
+                        <>
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            Para&nbsp;:&nbsp;
+                          </Text>
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                            }}
+                          >
+                            {obsHistoryData?.parity
+                              ?.toString()
+                              .padStart(2, "0")}
+                          </Text>
+                          {(("livingChildren" in obsHistoryData &&
+                            obsHistoryData?.livingChildren != null) ||
+                            ("abortion" in obsHistoryData &&
+                              obsHistoryData?.abortion != null) ||
+                            ("ectopicPregnancies" in obsHistoryData &&
+                              obsHistoryData?.ectopicPregnancies != null) ||
+                            ("diagnosisNotes" in obsHistoryData &&
+                              obsHistoryData?.diagnosisNotes != null)) && (
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 400,
+                              }}
+                            >
+                              &nbsp;|&nbsp;
+                            </Text>
+                          )}
+                        </>
+                      )}
+
+                    {"livingChildren" in obsHistoryData &&
+                      obsHistoryData?.livingChildren != null && (
+                        <>
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            Living&nbsp;:&nbsp;
+                          </Text>
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                            }}
+                          >
+                            {obsHistoryData?.livingChildren
+                              ?.toString()
+                              .padStart(2, "0")}
+                          </Text>
+                          {(("abortion" in obsHistoryData &&
+                            obsHistoryData?.abortion != null) ||
+                            ("ectopicPregnancies" in obsHistoryData &&
+                              obsHistoryData?.ectopicPregnancies != null) ||
+                            ("diagnosisNotes" in obsHistoryData &&
+                              obsHistoryData?.diagnosisNotes != null)) && (
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 400,
+                              }}
+                            >
+                              &nbsp;|&nbsp;
+                            </Text>
+                          )}
+                        </>
+                      )}
+
+                    {"abortion" in obsHistoryData &&
+                      obsHistoryData?.abortion != null && (
+                        <>
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            Abortion&nbsp;:&nbsp;
+                          </Text>
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                            }}
+                          >
+                            {obsHistoryData?.abortion
+                              ?.toString()
+                              .padStart(2, "0")}
+                          </Text>
+                          {(("ectopicPregnancies" in obsHistoryData &&
+                            obsHistoryData?.ectopicPregnancies != null) ||
+                            ("diagnosisNotes" in obsHistoryData &&
+                              obsHistoryData?.diagnosisNotes != null)) && (
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 400,
+                              }}
+                            >
+                              &nbsp;|&nbsp;
+                            </Text>
+                          )}
+                        </>
+                      )}
+
+                    {"ectopicPregnancies" in obsHistoryData &&
+                      obsHistoryData?.ectopicPregnancies != null && (
+                        <>
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            Ectopic&nbsp;:&nbsp;
+                          </Text>
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                            }}
+                          >
+                            {obsHistoryData?.ectopicPregnancies
+                              ?.toString()
+                              .padStart(2, "0")}
+                          </Text>
+                          {"diagnosisNotes" in obsHistoryData &&
+                            obsHistoryData?.diagnosisNotes != null && (
+                              <Text
+                                style={{
+                                  color: "#171725",
+                                  fontFamily:
+                                    printSettings?.page_format?.font_family,
+                                  fontSize:
+                                    PX_TO_PT *
+                                    printSettings?.page_format?.font_size,
+                                  fontWeight: 400,
+                                }}
+                              >
+                                &nbsp;|&nbsp;
+                              </Text>
+                            )}
+                        </>
+                      )}
+                  </>
+                )}
+
+                {"diagnosisNotes" in obsHistoryData &&
+                  obsHistoryData?.diagnosisNotes != null && (
+                    <>
+                      <Text
+                        style={{
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 500,
+                        }}
+                      >
+                        Notes&nbsp;:&nbsp;
+                      </Text>
+                      <Text
+                        style={{
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                        }}
+                      >
+                        {obsHistoryData?.diagnosisNotes}
+                      </Text>
+                    </>
+                  )}
+
+                <Text
+                  style={{
+                    color: "#171725",
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                  }}
+                >
+                  )
+                </Text>
+              </>
+            )}
+          </Text>
+        </View>
+      )}
+
       {options?.includes("diagnosis") && (
         <View>
           <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
@@ -48,7 +439,7 @@ function ObsHistoryInlineView({
                     fontWeight: 500,
                   }}
                 >
-                  Patient diagnosis&nbsp;
+                  Patient Information&nbsp;
                 </Text>
                 <Text
                   style={{
@@ -537,322 +928,6 @@ function ObsHistoryInlineView({
         </View>
       )}
 
-      {options?.includes("gplae") && (
-        <View>
-          <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
-            {(("gravidity" in obsHistoryData &&
-              obsHistoryData?.gravidity != null) ||
-              ("parity" in obsHistoryData && obsHistoryData?.parity != null) ||
-              ("livingChildren" in obsHistoryData &&
-                obsHistoryData?.livingChildren != null) ||
-              ("abortion" in obsHistoryData &&
-                obsHistoryData?.abortion != null) ||
-              ("ectopicPregnancies" in obsHistoryData &&
-                obsHistoryData?.ectopicPregnancies != null) ||
-              ("diagnosisNotes" in obsHistoryData &&
-                obsHistoryData?.diagnosisNotes != null)) && (
-              <>
-                <Text
-                  style={{
-                    color: "#171725",
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 500,
-                  }}
-                >
-                  GPLAE&nbsp;
-                </Text>
-                <Text
-                  style={{
-                    color: "#171725",
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 500,
-                  }}
-                >
-                  (
-                </Text>
-
-                {"gravidity" in obsHistoryData &&
-                  obsHistoryData?.gravidity != null && (
-                    <>
-                      <Text
-                        style={{
-                          color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 500,
-                        }}
-                      >
-                        Gravida&nbsp;:&nbsp;
-                      </Text>
-                      <Text
-                        style={{
-                          color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 400,
-                        }}
-                      >
-                        {obsHistoryData?.gravidity?.toString().padStart(2, "0")}
-                      </Text>
-                      {(("parity" in obsHistoryData &&
-                        obsHistoryData?.parity != null) ||
-                        ("livingChildren" in obsHistoryData &&
-                          obsHistoryData?.livingChildren != null) ||
-                        ("abortion" in obsHistoryData &&
-                          obsHistoryData?.abortion != null) ||
-                        ("ectopicPregnancies" in obsHistoryData &&
-                          obsHistoryData?.ectopicPregnancies != null) ||
-                        ("diagnosisNotes" in obsHistoryData &&
-                          obsHistoryData?.diagnosisNotes != null)) && (
-                        <Text
-                          style={{
-                            color: "#171725",
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                          }}
-                        >
-                          &nbsp;|&nbsp;
-                        </Text>
-                      )}
-                    </>
-                  )}
-
-                {"parity" in obsHistoryData &&
-                  obsHistoryData?.parity != null && (
-                    <>
-                      <Text
-                        style={{
-                          color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 500,
-                        }}
-                      >
-                        Para&nbsp;:&nbsp;
-                      </Text>
-                      <Text
-                        style={{
-                          color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 400,
-                        }}
-                      >
-                        {obsHistoryData?.parity?.toString().padStart(2, "0")}
-                      </Text>
-                      {(("livingChildren" in obsHistoryData &&
-                        obsHistoryData?.livingChildren != null) ||
-                        ("abortion" in obsHistoryData &&
-                          obsHistoryData?.abortion != null) ||
-                        ("ectopicPregnancies" in obsHistoryData &&
-                          obsHistoryData?.ectopicPregnancies != null) ||
-                        ("diagnosisNotes" in obsHistoryData &&
-                          obsHistoryData?.diagnosisNotes != null)) && (
-                        <Text
-                          style={{
-                            color: "#171725",
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                          }}
-                        >
-                          &nbsp;|&nbsp;
-                        </Text>
-                      )}
-                    </>
-                  )}
-
-                {"livingChildren" in obsHistoryData &&
-                  obsHistoryData?.livingChildren != null && (
-                    <>
-                      <Text
-                        style={{
-                          color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 500,
-                        }}
-                      >
-                        Living&nbsp;:&nbsp;
-                      </Text>
-                      <Text
-                        style={{
-                          color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 400,
-                        }}
-                      >
-                        {obsHistoryData?.livingChildren
-                          ?.toString()
-                          .padStart(2, "0")}
-                      </Text>
-                      {(("abortion" in obsHistoryData &&
-                        obsHistoryData?.abortion != null) ||
-                        ("ectopicPregnancies" in obsHistoryData &&
-                          obsHistoryData?.ectopicPregnancies != null) ||
-                        ("diagnosisNotes" in obsHistoryData &&
-                          obsHistoryData?.diagnosisNotes != null)) && (
-                        <Text
-                          style={{
-                            color: "#171725",
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                          }}
-                        >
-                          &nbsp;|&nbsp;
-                        </Text>
-                      )}
-                    </>
-                  )}
-
-                {"abortion" in obsHistoryData &&
-                  obsHistoryData?.abortion != null && (
-                    <>
-                      <Text
-                        style={{
-                          color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 500,
-                        }}
-                      >
-                        Abortion&nbsp;:&nbsp;
-                      </Text>
-                      <Text
-                        style={{
-                          color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 400,
-                        }}
-                      >
-                        {obsHistoryData?.abortion?.toString().padStart(2, "0")}
-                      </Text>
-                      {(("ectopicPregnancies" in obsHistoryData &&
-                        obsHistoryData?.ectopicPregnancies != null) ||
-                        ("diagnosisNotes" in obsHistoryData &&
-                          obsHistoryData?.diagnosisNotes != null)) && (
-                        <Text
-                          style={{
-                            color: "#171725",
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                          }}
-                        >
-                          &nbsp;|&nbsp;
-                        </Text>
-                      )}
-                    </>
-                  )}
-
-                {"ectopicPregnancies" in obsHistoryData &&
-                  obsHistoryData?.ectopicPregnancies != null && (
-                    <>
-                      <Text
-                        style={{
-                          color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 500,
-                        }}
-                      >
-                        Ectopic&nbsp;:&nbsp;
-                      </Text>
-                      <Text
-                        style={{
-                          color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 400,
-                        }}
-                      >
-                        {obsHistoryData?.ectopicPregnancies
-                          ?.toString()
-                          .padStart(2, "0")}
-                      </Text>
-                      {"diagnosisNotes" in obsHistoryData &&
-                        obsHistoryData?.diagnosisNotes != null && (
-                          <Text
-                            style={{
-                              color: "#171725",
-                              fontFamily:
-                                printSettings?.page_format?.font_family,
-                              fontSize:
-                                PX_TO_PT *
-                                printSettings?.page_format?.font_size,
-                              fontWeight: 400,
-                            }}
-                          >
-                            &nbsp;|&nbsp;
-                          </Text>
-                        )}
-                    </>
-                  )}
-
-                {"diagnosisNotes" in obsHistoryData &&
-                  obsHistoryData?.diagnosisNotes != null && (
-                    <>
-                      <Text
-                        style={{
-                          color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 500,
-                        }}
-                      >
-                        Notes&nbsp;:&nbsp;
-                      </Text>
-                      <Text
-                        style={{
-                          color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 400,
-                        }}
-                      >
-                        {obsHistoryData?.diagnosisNotes}
-                      </Text>
-                    </>
-                  )}
-
-                <Text
-                  style={{
-                    color: "#171725",
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 500,
-                  }}
-                >
-                  )
-                </Text>
-              </>
-            )}
-          </Text>
-        </View>
-      )}
-
       {options?.includes("history") && (
         <View>
           <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
@@ -880,7 +955,9 @@ function ObsHistoryInlineView({
                       "modeOfManagement" in item ||
                       "typeOfAbortion" in item ||
                       "modeOfAbortion" in item ||
+                      "typOfDelivery" in item ||
                       "dateOfDelivery" in item ||
+                      "ageOfDelivery" in item ||
                       "gender" in item ||
                       "babysWeight" in item ||
                       "remarks" in item) && (
@@ -941,7 +1018,9 @@ function ObsHistoryInlineView({
                               "modeOfManagement" in item ||
                               "typeOfAbortion" in item ||
                               "modeOfAbortion" in item ||
+                              "typOfDelivery" in item ||
                               "dateOfDelivery" in item ||
+                              "ageOfDelivery" in item ||
                               "gender" in item ||
                               "babysWeight" in item ||
                               "remarks" in item) && (
@@ -997,7 +1076,9 @@ function ObsHistoryInlineView({
                               "modeOfManagement" in item ||
                               "typeOfAbortion" in item ||
                               "modeOfAbortion" in item ||
+                              "typOfDelivery" in item ||
                               "dateOfDelivery" in item ||
+                              "ageOfDelivery" in item ||
                               "gender" in item ||
                               "babysWeight" in item ||
                               "remarks" in item) && (
@@ -1052,7 +1133,9 @@ function ObsHistoryInlineView({
                               "modeOfManagement" in item ||
                               "typeOfAbortion" in item ||
                               "modeOfAbortion" in item ||
+                              "typOfDelivery" in item ||
                               "dateOfDelivery" in item ||
+                              "ageOfDelivery" in item ||
                               "gender" in item ||
                               "babysWeight" in item ||
                               "remarks" in item) && (
@@ -1106,7 +1189,9 @@ function ObsHistoryInlineView({
                               "modeOfManagement" in item ||
                               "typeOfAbortion" in item ||
                               "modeOfAbortion" in item ||
+                              "typOfDelivery" in item ||
                               "dateOfDelivery" in item ||
+                              "ageOfDelivery" in item ||
                               "gender" in item ||
                               "babysWeight" in item ||
                               "remarks" in item) && (
@@ -1162,7 +1247,9 @@ function ObsHistoryInlineView({
                               "modeOfManagement" in item ||
                               "typeOfAbortion" in item ||
                               "modeOfAbortion" in item ||
+                              "typOfDelivery" in item ||
                               "dateOfDelivery" in item ||
+                              "ageOfDelivery" in item ||
                               "gender" in item ||
                               "babysWeight" in item ||
                               "remarks" in item) && (
@@ -1214,7 +1301,9 @@ function ObsHistoryInlineView({
                             {("modeOfManagement" in item ||
                               "typeOfAbortion" in item ||
                               "modeOfAbortion" in item ||
+                              "typOfDelivery" in item ||
                               "dateOfDelivery" in item ||
+                              "ageOfDelivery" in item ||
                               "gender" in item ||
                               "babysWeight" in item ||
                               "remarks" in item) && (
@@ -1265,7 +1354,9 @@ function ObsHistoryInlineView({
                             </Text>
                             {("typeOfAbortion" in item ||
                               "modeOfAbortion" in item ||
+                              "typOfDelivery" in item ||
                               "dateOfDelivery" in item ||
+                              "ageOfDelivery" in item ||
                               "gender" in item ||
                               "babysWeight" in item ||
                               "remarks" in item) && (
@@ -1315,7 +1406,9 @@ function ObsHistoryInlineView({
                               {item?.typeOfAbortion}
                             </Text>
                             {("modeOfAbortion" in item ||
+                              "typOfDelivery" in item ||
                               "dateOfDelivery" in item ||
+                              "ageOfDelivery" in item ||
                               "gender" in item ||
                               "babysWeight" in item ||
                               "remarks" in item) && (
@@ -1364,7 +1457,9 @@ function ObsHistoryInlineView({
                             >
                               {item?.modeOfAbortion}
                             </Text>
-                            {("dateOfDelivery" in item ||
+                            {("typOfDelivery" in item ||
+                              "dateOfDelivery" in item ||
+                              "ageOfDelivery" in item ||
                               "gender" in item ||
                               "babysWeight" in item ||
                               "remarks" in item) && (
@@ -1414,6 +1509,54 @@ function ObsHistoryInlineView({
                               {moment(item?.dateOfDelivery).format(
                                 "DD MMM YYYY"
                               )}
+                            </Text>
+                            {("gender" in item ||
+                              "babysWeight" in item ||
+                              "remarks" in item) && (
+                              <Text
+                                style={{
+                                  color: "#171725",
+                                  fontFamily:
+                                    printSettings?.page_format?.font_family,
+                                  fontSize:
+                                    PX_TO_PT *
+                                    printSettings?.page_format?.font_size,
+                                  fontWeight: 400,
+                                }}
+                              >
+                                &nbsp;|&nbsp;
+                              </Text>
+                            )}
+                          </>
+                        )}
+
+                        {"ageOfDelivery" in item && (
+                          <>
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 500,
+                              }}
+                            >
+                              Age&nbsp;:&nbsp;
+                            </Text>
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 400,
+                              }}
+                            >
+                              {item?.ageOfDelivery}
                             </Text>
                             {("gender" in item ||
                               "babysWeight" in item ||

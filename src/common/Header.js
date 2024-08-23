@@ -24,7 +24,7 @@ import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
-import { errorMessage, makeDefaultLogo } from "../utils/utils";
+import { errorMessage, getClinicName, makeDefaultLogo } from "../utils/utils";
 import CommonModal from './CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 
@@ -159,6 +159,10 @@ function Header({ locationPath }) {
   }, [isLogoModalOpen]);
 
   const tatvaRedirectClick = async () => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    window.Moengage.track_event("TP_Tatvapedia_landing", {
+      clinic_name,
+    });
     showHideLogoModal()
     setTimeout(() => {
       if (!isChrome && !isSafari) {
@@ -197,7 +201,10 @@ function Header({ locationPath }) {
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Switch
                 </div>
-                <Button onClick={showHideLogoModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                <Button onClick={() => {
+                  window.Moengage.track_event("TP_Tatvapedia_Switch_cancelled");
+                  showHideLogoModal()
+                }} className="lh-lg btn btn-primary3 btn-41 px-4">
                   <span>No, Stay</span>
                 </Button>
               </div>
@@ -367,7 +374,10 @@ function Header({ locationPath }) {
     } else {
       showHideSwitchModal()
     }
-    window.Moengage.track_event("switch_to_old_view_clicked");
+    const clinic_name = getClinicName(profile?.hospital_data);
+    window.Moengage.track_event("TP_Flow_changed", {
+      clinic_name,
+    });
   }
 
   //DrawerVideo function
@@ -397,7 +407,18 @@ function Header({ locationPath }) {
             return (
               <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 3)[0]?.video?.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
                 <div className="tutorial-play me-14">
-                  <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+                  <button type="button"
+                    onClick={() => {
+                      setVideoLink(item1)
+                      const clinic_name = getClinicName(profile?.hospital_data);
+                      window.Moengage.track_event("TP_Tutorial_Viewed", {
+                        clinic_name,
+                        tutorial_type: videoList[0]?.category,
+                      });
+                    }}
+                  >
+                    <img src={playIcons} />
+                  </button>
                   <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
                 </div>
                 <div>
@@ -461,7 +482,7 @@ function Header({ locationPath }) {
                   src={profile?.um_image ?? defaultprofile}
                   alt="Profile"
                   className="rounded-circle"
-                  style={{ width: "52px" }}
+                  style={{ width: "52px", height: "52px" }}
                 />
               ) : (
                 <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
@@ -550,7 +571,10 @@ function Header({ locationPath }) {
     <Navbar className="justify-content-between portal-header">
       <Container fluid>
         <div>
-          <img onClick={showHideLogoModal}
+          <img onClick={() => {
+            window.Moengage.track_event("TP_Tatvapedia_clicked");
+            showHideLogoModal()
+          }}
             src={require("../assets/images/logo.png")}
             className={`d-inline-block align-top cursor-pointer`}
             style={{ width: '110px' }}
@@ -604,7 +628,18 @@ function Header({ locationPath }) {
                           {item?.video?.map((item1, i1) => {
                             return (
                               <div key={i1} className="drawer-slider">
-                                <button type="button" onClick={() => setVideoLink(item1)}><img src={playIconutube} /></button>
+                                <button type="button"
+                                  onClick={() => {
+                                    setVideoLink(item1)
+                                    const clinic_name = getClinicName(profile?.hospital_data);
+                                    window.Moengage.track_event("TP_Tutorial_Viewed", {
+                                      clinic_name,
+                                      tutorial_type: item?.category,
+                                    });
+                                  }}
+                                >
+                                  <img src={playIconutube} />
+                                </button>
                                 <img src={item1?.thumbnail} />
                               </div>
                             )
@@ -641,7 +676,7 @@ function Header({ locationPath }) {
                   src={profile?.um_image ?? defaultprofile}
                   alt="Profile"
                   className="rounded-circle"
-                  style={{ width: "35px" }}
+                  style={{ width: "35px", height: "35px" }}
                 />
               ) : (
                 <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>

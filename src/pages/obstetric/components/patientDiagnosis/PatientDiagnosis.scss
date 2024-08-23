@@ -21,7 +21,7 @@
           background: transparent !important;
           padding: 0px;
           line-height: 24px;
-          width: 164px;
+          width: 175px;
 
           .ant-collapse-expand-icon:after {
             width: 22px;
@@ -197,7 +197,7 @@
   }
 
   .diagnosisNotesStyle {
-    width: 50%;
+    // width: 50%;
     display: flex;
     padding-right: 40px;
     align-items: flex-start;
@@ -351,4 +351,17 @@
 
 .marrital {
   margin-right: -42px !important;
+}
+
+.primigravida {
+  width: 137px;
+  height: 34px;
+  padding: 5px 16px 5px 16px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  text-align: left;
+  background: #A461D81A;
+  color: #A461D8 !important;
 }

@@ -146,12 +146,12 @@ const checkboxOptions = [
 
 const obsHistoryCheckboxOptions = [
   {
-    label: "Diagnosis",
-    value: "diagnosis",
-  },
-  {
     label: "GPLAE",
     value: "gplae",
+  },
+  {
+    label: "Patient Info",
+    value: "diagnosis",
   },
   {
     label: "History",

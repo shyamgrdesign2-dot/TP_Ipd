@@ -584,7 +584,7 @@ export const chunkArray = (array, size) => {
 export const getClinicName = (hospitalData) => {
   const decodedToken = getDecodedToken();
   const clinicId = decodedToken?.result?.clinic_id;
-  const clinic = hospitalData.find((e) => e?.hm_id == clinicId);
+  const clinic = hospitalData?.find((e) => e?.hm_id == clinicId);
   return clinic ? clinic.hm_name : "";
 }
 

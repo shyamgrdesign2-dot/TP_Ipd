@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Popover } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 
-import { errorMessage } from "../utils/utils";
+import { errorMessage, getClinicName } from "../utils/utils";
 import VideoModal from './VideoModal';
 
 import {
@@ -30,7 +30,7 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
         setPopOverVideo(!popOverVideo);
     }, [popOverVideo]);
 
-    const { loading, videoList } = useSelector((state) => state.doctors);
+    const { loading, videoList, profile } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const { printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
@@ -55,12 +55,23 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
                             <i className="icon-Cross" />
                         </Button>
                     </div>
-                    <div className='overflow-y-auto' style={{maxHeight: 'calc(100vh - 550px)'}}>
+                    <div className='overflow-y-auto' style={{ maxHeight: 'calc(100vh - 550px)' }}>
                         {videoList?.filter(e => e.category_id === 7)[0]?.video?.map((item1, i1) => {
                             return (
                                 <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 7)[0]?.video?.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
                                     <div className="tutorial-play me-14">
-                                        <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+                                        <button type="button"
+                                            onClick={() => {
+                                                setVideoLink(item1)
+                                                const clinic_name = getClinicName(profile?.hospital_data);
+                                                window.Moengage.track_event("TP_Tutorial_Viewed", {
+                                                    clinic_name,
+                                                    tutorial_type: videoList[0]?.category,
+                                                });
+                                            }}
+                                        >
+                                            <img src={playIcons} />
+                                        </button>
                                         <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
                                     </div>
                                     <div>

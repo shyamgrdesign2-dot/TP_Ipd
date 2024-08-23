@@ -14,7 +14,7 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import TabHeader from "../components/tab_design/TabHeader";
 import CommonModal from "../common/CommonModal";
 import { clearSearch, searchPatients } from "../redux/appointmentsSlice";
-import { isNumeric, isAlphabet } from "../utils/utils";
+import { isNumeric, isAlphabet, getClinicName } from "../utils/utils";
 import { resetVaccineState } from "../redux/vaccineSlice";
 
 import smartPad from "../assets/images/smartPad.svg";
@@ -187,11 +187,17 @@ function WalkInConsultation() {
               type="text"
               className="btn btn-primary2 me-4 align-items-center d-flex"
               icon={<i className="icon-Preview"></i>}
-              onClick={() =>
+              onClick={() => {
+                const clinic_name = getClinicName(profile?.hospital_data);
+                window.Moengage.track_event("TP_Patient_details", {
+                  clinic_name,
+                  "patient_number": patient?.pm_contact_no,
+                  "patient_id": patient?.patient_unique_id
+                });
                 navigate("/patient_details", {
                   state: { patient_data: patient },
                 })
-              }
+              }}
             >
               Patient Details
             </Button>
@@ -239,9 +245,10 @@ function WalkInConsultation() {
                 className="btn btn-primary3 align-items-center d-flex"
                 icon={<i className="icon-Consult"></i>}
                 onClick={() => {
-                  window.Moengage.track_event("walkin_consult_start", {
-                    "doctor_id": profile?.doctor_unique_id,
-                    "patient_type": 'Existing',
+                  const clinic_name = getClinicName(profile?.hospital_data);
+                  window.Moengage.track_event("TP_Consult_started", {
+                    clinic_name,
+                    "patient_number": patient?.pm_contact_no,
                     "patient_id": patient?.patient_unique_id
                   });
                   navigate("/prescription", { state: { patient_data: patient } })
@@ -318,6 +325,10 @@ function WalkInConsultation() {
 
   const onSearchParent = useCallback(
     (query) => {
+      const clinic_name = getClinicName(profile?.hospital_data);
+      window.Moengage.track_event("TP_Patient_searched", {
+        clinic_name,
+      });
       setSearchQuery(query);
     },
     [searchQuery]
@@ -441,10 +452,11 @@ function WalkInConsultation() {
                     className="btn btn-primary3 align-items-center d-flex btn-41 w-50 ms-4"
                     icon={<i className="icon-Consult"></i>}
                     onClick={() => {
-                      window.Moengage.track_event("walkin_consult_start", {
-                        doctor_id: profile?.doctor_unique_id,
-                        patient_type: "Existing",
-                        patient_id: clickedPatient?.patient_unique_id,
+                      const clinic_name = getClinicName(profile?.hospital_data);
+                      window.Moengage.track_event("TP_Consult_started", {
+                        clinic_name,
+                        "patient_number": clickedPatient?.pm_contact_no,
+                        "patient_id": clickedPatient?.patient_unique_id
                       });
                       navigate("/prescription", {
                         state: { patient_data: clickedPatient },
@@ -465,9 +477,13 @@ function WalkInConsultation() {
   }, [clickedPatient, clickedDownArrow]);
 
   function goToAddPatient() {
-    window.Moengage.track_event("walkin_consult_start", {
-      "doctor_id": profile?.doctor_unique_id,
-      "patient_type": 'New',
+    // window.Moengage.track_event("walkin_consult_start", {
+    //   "doctor_id": profile?.doctor_unique_id,
+    //   "patient_type": 'New',
+    // });
+    const clinic_name = getClinicName(profile?.hospital_data);
+    window.Moengage.track_event("TP_Add_Patient_clicked", {
+      clinic_name,
     });
     if (searchQuery.length === 10 && isNumeric(searchQuery)) {
       navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery } } });

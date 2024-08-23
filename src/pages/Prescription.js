@@ -49,6 +49,7 @@ import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
 import { fetchAllObstetricDetails } from "./obstetric/service";
 import { addObstetricDetails, navigateToObstetric } from "../redux/obstetricSlice";
+import { getClinicName } from "../utils/utils";
 
 function Prescription() {
   const {
@@ -59,7 +60,7 @@ function Prescription() {
     timingList,
   } = useSelector((state) => state.doctors);
 
-  const { selectedVitalsList } = useSelector((state) => state.vitals);
+  const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
   const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
@@ -74,6 +75,8 @@ function Prescription() {
     caseManagerData !== undefined
       ? caseManagerData.consultation_date
       : moment().format("YYYY-MM-DD HH:mm:ss");
+
+  const { profile } = useSelector((state) => state.doctors);
 
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
@@ -141,6 +144,20 @@ function Prescription() {
   }
 
   useEffect(() => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    tcmId == 0 ?
+      window.Moengage.track_event("TP_Consultation_Started", {
+        clinic_name,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+        tcm_id: tcmId,
+      })
+      :
+      window.Moengage.track_event("TP_Consultation_edit_started", {
+        clinic_name,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+      })
     const sendData = {
       patient_unique_id: patient_data?.patient_unique_id,
     };
@@ -467,7 +484,7 @@ function Prescription() {
                           }`}</span>
                       </button>
                     </div>
-                    {vitalsData.length > 0 && (
+                    {(vitalsData.length > 0 || vitalsPastList.length > 0) && (
                       <VitalsList
                         mode={caseManagerData !== undefined ? EDIT : ADD}
                       />
@@ -597,7 +614,7 @@ function Prescription() {
                                   }`}</span>
                               </button>
                             </div>
-                            {examinationHistory?.length > 0 && (
+                            {(obstetricDetails?.lmp || obstetricDetails?.edd || obstetricDetails?.gravidity || obstetricDetails?.parity || obstetricDetails?.livingChildren || obstetricDetails?.abortion || obstetricDetails?.ectopicPregnancies || examinationHistory?.length > 0) && (
                               <ObstetricList />
                             )}
                           </div>

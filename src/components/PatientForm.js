@@ -4,7 +4,7 @@ import React, {
     useCallback,
     useMemo,
     useContext,
-  } from "react";
+} from "react";
 import { isMobile } from "react-device-detect";
 import { Col, Row } from "react-bootstrap";
 import { Form, Tabs, Button } from "antd";
@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import { ADD, EDIT, GB_ISCRIBE } from "../utils/constants";
-import { errorMessage } from "../utils/utils";
+import { errorMessage, getClinicName } from "../utils/utils";
 
 import TabHeader from "../components/tab_design/TabHeader";
 import PersonalDetails from "../components/PersonalDetails";
@@ -32,7 +32,7 @@ function PatientForm({ mode = ADD, patient_data }) {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { loading } = useSelector(
-      (state) => state.records
+        (state) => state.records
     );
     const { profile } = useSelector((state) => state.doctors);
 
@@ -83,24 +83,30 @@ function PatientForm({ mode = ADD, patient_data }) {
             }
 
             const action = mode === EDIT ? await dispatch(editPatient(finalValues)) : await dispatch(addPatient(finalValues));
-            if (action.meta.requestStatus === "fulfilled") { 
+            if (action.meta.requestStatus === "fulfilled") {
+                const clinic_name = getClinicName(profile?.hospital_data);
+                window.Moengage.track_event("TP_Patient_added", {
+                    clinic_name,
+                    "patient_number": patient_data?.pm_contact_no,
+                    "patient_id": patient_data?.patient_unique_id
+                });
                 if (
-                  mode === EDIT &&
-                  patient_data.pm_dob !== finalValues.pm_dob
+                    mode === EDIT &&
+                    patient_data.pm_dob !== finalValues.pm_dob
                 ) {
-                  const payload = {
-                    patient_uid: patient_data?.patient_unique_id,
-                    patient_pid: patient_data?.pm_pid,
-                    hospital_bid:
-                      patient_data?.hm_business_id ||
-                      patient_data?.hospital_business_id,
-                    hospital_id:
-                      patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
-                    updated_dob: finalValues.pm_dob,
-                  };
-                  await updateDob(payload);
+                    const payload = {
+                        patient_uid: patient_data?.patient_unique_id,
+                        patient_pid: patient_data?.pm_pid,
+                        hospital_bid:
+                            patient_data?.hm_business_id ||
+                            patient_data?.hospital_business_id,
+                        hospital_id:
+                            patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
+                        updated_dob: finalValues.pm_dob,
+                    };
+                    await updateDob(payload);
                 }
-                if (isMobile || !isSmartSyncAccessableFromGB){
+                if (isMobile || !isSmartSyncAccessableFromGB) {
                     mode === EDIT ? navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } }) : navigate("/prescription", { replace: true, state: { patient_data: action.payload } })
                 }
                 else {
@@ -111,7 +117,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                     if (mode === EDIT) {
                         navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } });
                     }
-                 }
+                }
             } else {
                 errorMessage(action.error);
             }
@@ -135,7 +141,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                 layout="vertical"
                 className="form_addnewpatient">
                 <div className={isMobile ? "" : "border rounded-4 appointment-wrap"}>
-                    <div className={isMobile ? "p-30 pt-0" : "p-30 overflow-y-auto"} style={{height: 'calc(100vh - 242px)'}}>
+                    <div className={isMobile ? "p-30 pt-0" : "p-30 overflow-y-auto"} style={{ height: 'calc(100vh - 242px)' }}>
                         <Row className="justify-content-between">
                             <Col sm={8}>
                                 {isMobile ? (
@@ -182,40 +188,40 @@ function PatientForm({ mode = ADD, patient_data }) {
                                 modalWidth={500}
                                 title={"Patient Added"}
                                 modalBody={
-                                <>
-                                    <div className="rounded-10px p-2 patient-details" style={{borderRadius: "10px",background: "rgba(25, 187, 122, 0.10)"}}>
-                                        <div className="d-flex align-items-center">
-                                            <img className='me-3' src={saveIcon} alt="Warning" />
-                                            <span>
-                                                Patient has been successfully added.
-                                            </span>
+                                    <>
+                                        <div className="rounded-10px p-2 patient-details" style={{ borderRadius: "10px", background: "rgba(25, 187, 122, 0.10)" }}>
+                                            <div className="d-flex align-items-center">
+                                                <img className='me-3' src={saveIcon} alt="Warning" />
+                                                <span>
+                                                    Patient has been successfully added.
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="mt-4">
-                                        <div className="me-4 text-decoration-underline btn p-0 text-main">
-                                        Choose Action
+                                        <div className="mt-4">
+                                            <div className="me-4 text-decoration-underline btn p-0 text-main">
+                                                Choose Action
+                                            </div>
+                                            <div className="d-flex align-items-center mt-2" style={{ gap: "3.4rem" }}>
+                                                {isSmartSyncAccessableFromGB ? (
+                                                    <>
+                                                        <Button onClick={handleConsult} className="lh-lg btn btn-secondary2 btn-41 px-4 me-4">
+                                                            <img className='me-3' src={startConsultIcon} alt="Consult" />
+                                                            <span>Start Consult</span>
+                                                        </Button>
+                                                        <Button onClick={handleSmartRx} className="lh-lg btn btn-secondary3 btn-41 px-4 me-4">
+                                                            <img className='me-3' src={smartPad} alt="SmartRx" />
+                                                            <span>Start Smart Rx</span>
+                                                        </Button>
+                                                    </>
+                                                ) : (
+                                                    <Button onClick={handleConsult} className="lh-lg btn btn-secondary2 btn-41 px-4 me-4">
+                                                        <img className='me-3' src={startConsultIcon} alt="Consult" />
+                                                        <span>Start Consult</span>
+                                                    </Button>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div className="d-flex align-items-center mt-2" style={{gap: "3.4rem"}}>
-                                        {isSmartSyncAccessableFromGB ? (
-                                            <>
-                                            <Button onClick={handleConsult} className="lh-lg btn btn-secondary2 btn-41 px-4 me-4">
-                                                <img className='me-3' src={startConsultIcon} alt="Consult" />
-                                                <span>Start Consult</span>
-                                            </Button>
-                                            <Button onClick={handleSmartRx} className="lh-lg btn btn-secondary3 btn-41 px-4 me-4">
-                                                <img className='me-3' src={smartPad} alt="SmartRx" />
-                                                <span>Start Smart Rx</span>
-                                            </Button>
-                                            </>
-                                        ) : (
-                                            <Button onClick={handleConsult} className="lh-lg btn btn-secondary2 btn-41 px-4 me-4">
-                                                <img className='me-3' src={startConsultIcon} alt="Consult" />
-                                                <span>Start Consult</span>
-                                            </Button>
-                                        )}
-                                        </div>
-                                    </div>
-                                </>
+                                    </>
                                 }
                             />
                         </>
