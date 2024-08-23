@@ -29,7 +29,7 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl }) {
             tcm_id: tcm_id
         }
         const action = await dispatch(sendCashsheetWhatsapp(sendData));
-        if (appointmentsData[0].pam_id) {
+        if (appointmentsData?.[0]?.pam_id) {
             await updateVisitStatus(appointmentsData[0].pam_id, {
               status: 3,
               prescriptionUrl: printUrl,
