@@ -401,6 +401,7 @@ function MedicalCertificate() {
             clinic_name,
             patient_number: patient_data?.pm_contact_no,
             patient_id: patient_data?.patient_unique_id,
+            certificate_type: title,
         })
         var sendData = {
             patient_unique_id: patient_data?.patient_unique_id !== undefined ? patient_data?.patient_unique_id : 0,
