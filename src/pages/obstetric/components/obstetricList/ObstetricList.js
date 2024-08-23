@@ -119,6 +119,26 @@ const ObstetricList = ({ isPatientSummary = false }) => {
       { key: "ectopicPregnancies", value: ectopicPregnancies },
     ]);
     const data = [];
+    const hasGravidity =
+      obstetricDetails?.gravidity != null && obstetricDetails?.gravidity >= 0;
+    const hasParity =
+      obstetricDetails?.parity != null && obstetricDetails?.parity >= 0;
+    const hasLivingChildren =
+      obstetricDetails?.livingChildren != null &&
+      obstetricDetails?.livingChildren >= 0;
+    const hasAbortion =
+      obstetricDetails?.abortion != null && obstetricDetails?.abortion >= 0;
+    const hasEctopicPregnancies =
+      obstetricDetails?.ectopicPregnancies != null &&
+      obstetricDetails?.ectopicPregnancies >= 0;
+    const hasDiagnosisNotes = obstetricDetails.diagnosisNotes?.length > 0;
+    const hasGplae =
+      hasGravidity ||
+      hasParity ||
+      hasLivingChildren ||
+      hasAbortion ||
+      hasEctopicPregnancies;
+    const hasPatientInfo = hasGplae || hasDiagnosisNotes;
     const updateData = {
       key: `${1}`,
       content: (
@@ -147,106 +167,78 @@ const ObstetricList = ({ isPatientSummary = false }) => {
               </>
             )}
           </div>
-          {(obstetricDetails?.gravidity ||
-            obstetricDetails?.parity ||
-            obstetricDetails?.livingChildren ||
-            obstetricDetails?.abortion ||
-            obstetricDetails?.ectopicPregnancies ||
-            obstetricDetails?.diagnosisNotes?.length > 0) && (
+          {hasPatientInfo && (
             <div className="my-2 d-flex align-items-center flex-wrap">
-              {(obstetricDetails?.gravidity ||
-                obstetricDetails?.parity ||
-                obstetricDetails?.livingChildren ||
-                obstetricDetails?.abortion ||
-                obstetricDetails?.ectopicPregnancies) && (
+              {hasGplae && (
                 <>
                   <span style={{ marginRight: 5 }}>GPLAE (</span>
                 </>
               )}
-              {obstetricDetails.gravidity != null &&
-                obstetricDetails.gravidity >= 0 && (
-                  <>
-                    {isprimigravida ? (
-                      <span className="mx-1">Primigravida</span>
-                    ) : (
-                      <div className="mx-1">
-                        <span>G</span> :{" "}
-                        <label>{obstetricDetails.gravidity}</label>
-                      </div>
-                    )}
-                    {(obstetricDetails.parity ||
-                      obstetricDetails.livingChildren ||
-                      obstetricDetails.abortion ||
-                      obstetricDetails.ectopicPregnancies ||
-                      obstetricDetails.diagnosisNotes) &&
-                      " | "}
-                  </>
-                )}
-              {!isprimigravida &&
-                obstetricDetails.parity != null &&
-                obstetricDetails.parity >= 0 && (
-                  <div className="mx-1">
-                    <span>P</span> : <label>{obstetricDetails.parity}</label>
-                    {(obstetricDetails.livingChildren ||
-                      obstetricDetails.abortion ||
-                      obstetricDetails.ectopicPregnancies ||
-                      obstetricDetails.diagnosisNotes) &&
-                      " | "}
-                  </div>
-                )}
-              {!isprimigravida &&
-                obstetricDetails.livingChildren != null &&
-                obstetricDetails.livingChildren >= 0 && (
-                  <div className="mx-1">
-                    <span>L</span> :{" "}
-                    <label>{obstetricDetails.livingChildren}</label>
-                    {(obstetricDetails.abortion ||
-                      obstetricDetails.ectopicPregnancies ||
-                      obstetricDetails.diagnosisNotes) &&
-                      " | "}
-                  </div>
-                )}
-              {!isprimigravida &&
-                obstetricDetails.abortion != null &&
-                obstetricDetails.abortion >= 0 && (
-                  <div className="mx-1">
-                    <span>A</span> : <label>{obstetricDetails.abortion}</label>
-                    {(obstetricDetails.ectopicPregnancies ||
-                      obstetricDetails.diagnosisNotes) &&
-                      " | "}
-                  </div>
-                )}
-              {!isprimigravida &&
-                obstetricDetails.ectopicPregnancies != null &&
-                obstetricDetails.ectopicPregnancies >= 0 && (
-                  <div className="mx-1">
-                    <span>E</span> :{" "}
-                    <label>{obstetricDetails.ectopicPregnancies}</label>
-                    {obstetricDetails.diagnosisNotes && " | "}
-                  </div>
-                )}
-              {obstetricDetails?.diagnosisNotes?.length ? (
+              {hasGravidity && (
                 <>
-                  <span className="mx-1">Notes :</span>{" "}
+                  {isprimigravida ? (
+                    <span style={{ marginRight: 5 }}>Primigravida</span>
+                  ) : (
+                    <div style={{ marginRight: 5 }}>
+                      <span>G</span> :{" "}
+                      <label>{obstetricDetails.gravidity}</label>
+                    </div>
+                  )}
+                  {(hasParity ||
+                    hasLivingChildren ||
+                    hasAbortion ||
+                    hasEctopicPregnancies ||
+                    hasDiagnosisNotes) &&
+                    " | "}
+                </>
+              )}
+              {!isprimigravida && hasParity && (
+                <div className="mx-1">
+                  <span>P</span> : <label>{obstetricDetails.parity}</label>
+                  {(hasLivingChildren ||
+                    hasAbortion ||
+                    hasEctopicPregnancies ||
+                    hasDiagnosisNotes) &&
+                    " | "}
+                </div>
+              )}
+              {!isprimigravida && hasLivingChildren && (
+                <div className="mx-1">
+                  <span>L</span> :{" "}
+                  <label>{obstetricDetails.livingChildren}</label>
+                  {(hasAbortion ||
+                    hasEctopicPregnancies ||
+                    hasDiagnosisNotes) &&
+                    " | "}
+                </div>
+              )}
+              {!isprimigravida && hasAbortion && (
+                <div className="mx-1">
+                  <span>A</span> : <label>{obstetricDetails.abortion}</label>
+                  {(hasEctopicPregnancies || hasDiagnosisNotes) && " | "}
+                </div>
+              )}
+              {!isprimigravida && hasEctopicPregnancies && (
+                <div className="mx-1">
+                  <span>E</span> :{" "}
+                  <label>{obstetricDetails.ectopicPregnancies}</label>
+                  {hasDiagnosisNotes && " | "}
+                </div>
+              )}
+              {hasDiagnosisNotes ? (
+                <>
+                  <span className={`${hasGplae ? "mx-1" : "me-1"}`}>
+                    Notes :
+                  </span>{" "}
                   <ReadMore
                     text={obstetricDetails?.diagnosisNotes}
                     textLimit={100}
                     labelSize={14}
-                    isInfo={
-                      obstetricDetails?.gravidity ||
-                      obstetricDetails?.parity ||
-                      obstetricDetails?.livingChildren ||
-                      obstetricDetails?.abortion ||
-                      obstetricDetails?.ectopicPregnancies
-                    }
+                    isInfo={hasGplae}
                   />
                 </>
               ) : (
-                (obstetricDetails?.gravidity ||
-                  obstetricDetails?.parity ||
-                  obstetricDetails?.livingChildren ||
-                  obstetricDetails?.abortion ||
-                  obstetricDetails?.ectopicPregnancies) && <span>)</span>
+                hasGplae && <span>)</span>
               )}
             </div>
           )}
