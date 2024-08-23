@@ -585,7 +585,7 @@ function MedicalCertificate() {
                 closable
                 open={createCertificateDrawer}
                 onClose={handleCreateCertificateDrawer}
-                key="left"
+                // key="left"
             >
                 <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={patient_data} replace={true} selectedTemplate={certificate_data !== undefined ? certificate_data?.id : 0} tcu_id={certificate_data?.tcu_id} />
             </Drawer>

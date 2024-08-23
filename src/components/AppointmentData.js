@@ -928,7 +928,7 @@ function AppointmentData({ locationPath }) {
                             Done
                         </Button>
                     }
-                    key="left"
+                    // key="left"
                 >
                     <div className="p-4">
                         <div className="title-common mb-2">Reason</div>
@@ -953,7 +953,7 @@ function AppointmentData({ locationPath }) {
                     closable
                     open={createCertificateDrawer}
                     onClose={handleCreateCertificateDrawer}
-                    key="left"
+                    // key="left"
                 >
                     <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={appointmentSelectedFromMenu} replace={false} />
                 </Drawer>

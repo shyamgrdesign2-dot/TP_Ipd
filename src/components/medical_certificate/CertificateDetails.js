@@ -149,7 +149,7 @@ function CertificateDetails({ patient_data }) {
                         closable
                         open={createCertificateDrawer}
                         onClose={handleCreateCertificateDrawer}
-                        key="left"
+                        // key="left"
                     >
                         <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={patient_data} replace={false} />
                     </Drawer>
