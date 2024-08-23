@@ -827,6 +827,34 @@ function AppointmentData({ locationPath }) {
         [loading, setOnLoad]
     );
 
+    // const lastPostElementRef = useRef(null);
+    // useEffect(() => {
+    //     if (loading || !setOnLoad) return;
+    //     const observer = new IntersectionObserver(
+    //         ([entry]) => {
+    //             if (entry.isIntersecting) {
+    //                 loadMoreData()
+    //             }
+    //         },
+    //         {
+    //             root: null, // viewport
+    //             rootMargin: '0px', // no margin
+    //             threshold: 0.5, // 50% of target visible
+    //         }
+    //     );
+
+    //     if (lastPostElementRef.current) {
+    //         observer.observe(lastPostElementRef.current);
+    //     }
+
+    //     // Clean up the observer
+    //     return () => {
+    //         if (lastPostElementRef.current) {
+    //             observer.unobserve(lastPostElementRef.current);
+    //         }
+    //     };
+    // }, [loading, setOnLoad]);
+
     return (
         <>
             <div className="border rounded-4 appointment-wrap dateborder">
@@ -947,7 +975,7 @@ function AppointmentData({ locationPath }) {
                             Done
                         </Button>
                     }
-                    // key="left"
+                // key="left"
                 >
                     <div className="p-4">
                         <div className="title-common mb-2">Reason</div>
@@ -972,7 +1000,7 @@ function AppointmentData({ locationPath }) {
                     closable
                     open={createCertificateDrawer}
                     onClose={handleCreateCertificateDrawer}
-                    // key="left"
+                // key="left"
                 >
                     <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={appointmentSelectedFromMenu} replace={false} />
                 </Drawer>
