@@ -236,7 +236,7 @@ function SmartRxPreview() {
 
     return (
         <>
-            <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} />
+            <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} printUrl={printUrl} />
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={7} lg={7} xl={7}>
