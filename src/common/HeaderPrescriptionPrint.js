@@ -19,6 +19,7 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl }) {
     const {
         loadingEndVisit,
     } = useSelector((state) => state.caseManager);
+    const { appointmentsData } = useSelector((state) => state.records);
     const dispatch = useDispatch();
 
     const onEndVisitClick = async () => {
@@ -28,7 +29,12 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl }) {
             tcm_id: tcm_id
         }
         const action = await dispatch(sendCashsheetWhatsapp(sendData));
-        await updateVisitStatus({ status: 3, prescriptionUrl: printUrl });
+        if (appointmentsData?.[0]?.pam_id) {
+            await updateVisitStatus(appointmentsData[0].pam_id, {
+              status: 3,
+              prescriptionUrl: printUrl,
+            });
+        }
         if (action.meta.requestStatus === "fulfilled") {
             dispatch(resetVaccineState());
             dispatch(resetGrowthChartState());
