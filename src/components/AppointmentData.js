@@ -14,7 +14,8 @@ import {
     Input,
     Button,
     message,
-    Modal
+    Modal,
+    Spin
 } from "antd";
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
@@ -811,6 +812,49 @@ function AppointmentData({ locationPath }) {
         return current && current >= moment().add(1, 'days').startOf('day');
     };
 
+    const observer = useRef();
+    const lastPostElementRef = useCallback(
+        (node) => {
+            if (loading || !setOnLoad) return;
+            if (observer.current) observer.current.disconnect();
+            observer.current = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    loadMoreData()
+                }
+            });
+            if (node) observer.current.observe(node);
+        },
+        [loading, setOnLoad]
+    );
+
+    // const lastPostElementRef = useRef(null);
+    // useEffect(() => {
+    //     if (loading || !setOnLoad) return;
+    //     const observer = new IntersectionObserver(
+    //         ([entry]) => {
+    //             if (entry.isIntersecting) {
+    //                 loadMoreData()
+    //             }
+    //         },
+    //         {
+    //             root: null, // viewport
+    //             rootMargin: '0px', // no margin
+    //             threshold: 0.5, // 50% of target visible
+    //         }
+    //     );
+
+    //     if (lastPostElementRef.current) {
+    //         observer.observe(lastPostElementRef.current);
+    //     }
+
+    //     // Clean up the observer
+    //     return () => {
+    //         if (lastPostElementRef.current) {
+    //             observer.unobserve(lastPostElementRef.current);
+    //         }
+    //     };
+    // }, [loading, setOnLoad]);
+
     return (
         <>
             <div className="border rounded-4 appointment-wrap dateborder">
@@ -892,15 +936,18 @@ function AppointmentData({ locationPath }) {
                                     dataSource={appointmentsData}
                                     onChange={handleChange}
                                     pagination={false}
-                                    loading={loading}
+                                    loading={loading && pageNo === 0}
                                     locale={{ emptyText: emptyText }}
                                 />
-                                {appointmentsData.length >= 10 && setOnLoad && (
-                                    <button
-                                        className="btn btn-light w-100 mt-3 load-more"
-                                        onClick={loadMoreData}>
-                                        Show More
-                                    </button>
+                                {appointmentsData.length >= 25 && setOnLoad && (
+                                    <div ref={lastPostElementRef} className="align-items-center d-flex h-38 justify-content-center">
+                                        <Spin />
+                                    </div>
+                                    // <button
+                                    //     ref={lastPostElementRef}
+                                    //     className="btn btn-light w-100 mt-3 load-more">
+                                    //     Show More
+                                    // </button>
                                 )}
                             </>
                         </div>
@@ -928,7 +975,7 @@ function AppointmentData({ locationPath }) {
                             Done
                         </Button>
                     }
-                    key="left"
+                // key="left"
                 >
                     <div className="p-4">
                         <div className="title-common mb-2">Reason</div>
@@ -953,7 +1000,7 @@ function AppointmentData({ locationPath }) {
                     closable
                     open={createCertificateDrawer}
                     onClose={handleCreateCertificateDrawer}
-                    key="left"
+                // key="left"
                 >
                     <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={appointmentSelectedFromMenu} replace={false} />
                 </Drawer>

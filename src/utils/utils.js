@@ -587,3 +587,9 @@ export const getClinicName = (hospitalData) => {
   const clinic = hospitalData?.find((e) => e?.hm_id == clinicId);
   return clinic ? clinic.hm_name : "";
 }
+
+export const getTokenData = () => {
+  const decodedToken = getDecodedToken();
+  const result = decodedToken?.result;
+  return result;
+}

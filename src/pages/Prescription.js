@@ -49,6 +49,7 @@ import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
 import { fetchAllObstetricDetails } from "./obstetric/service";
 import { addObstetricDetails, navigateToObstetric } from "../redux/obstetricSlice";
+import { getClinicName } from "../utils/utils";
 
 function Prescription() {
   const {
@@ -74,6 +75,8 @@ function Prescription() {
     caseManagerData !== undefined
       ? caseManagerData.consultation_date
       : moment().format("YYYY-MM-DD HH:mm:ss");
+
+  const { profile } = useSelector((state) => state.doctors);
 
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
@@ -141,6 +144,20 @@ function Prescription() {
   }
 
   useEffect(() => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    tcmId == 0 ?
+      window.Moengage.track_event("TP_Consultation_Started", {
+        clinic_name,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+        tcm_id: tcmId,
+      })
+      :
+      window.Moengage.track_event("TP_Consultation_edit_started", {
+        clinic_name,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+      })
     const sendData = {
       patient_unique_id: patient_data?.patient_unique_id,
     };

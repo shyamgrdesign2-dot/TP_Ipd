@@ -8,11 +8,12 @@ import { ADD, EDIT } from "../../utils/constants";
 import tutorial from '../../assets/images/tutorial-icon.svg';
 import playIcons from '../../assets/images/tube-icon.svg';
 import VideoModal from "../../common/VideoModal";
+import { getClinicName } from "../../utils/utils";
 
 function TabHeader({ flag, mode = ADD, title, loading, onClick }) {
     const navigate = useNavigate();
 
-    const { videoList } = useSelector((state) => state.doctors);
+    const { videoList, profile } = useSelector((state) => state.doctors);
 
     const [popOverVideo, setPopOverVideo] = useState(false);
     const [videoLink, setVideoLink] = useState(null);
@@ -38,7 +39,18 @@ function TabHeader({ flag, mode = ADD, title, loading, onClick }) {
                         return (
                             <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 3)[0]?.video?.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
                                 <div className="tutorial-play me-14">
-                                    <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+                                    <button type="button"
+                                        onClick={() => {
+                                            setVideoLink(item1)
+                                            const clinic_name = getClinicName(profile?.hospital_data);
+                                            window.Moengage.track_event("TP_Tutorial_Viewed", {
+                                                clinic_name,
+                                                tutorial_type: videoList[0]?.category,
+                                            });
+                                        }}
+                                    >
+                                        <img src={playIcons} />
+                                    </button>
                                     <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
                                 </div>
                                 <div>

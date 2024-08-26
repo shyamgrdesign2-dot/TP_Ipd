@@ -19,7 +19,7 @@ import playIcons from '../assets/images/tube-icon.svg';
 import fullicon from '../assets/images/full-icon.svg';
 import VideoModal from './VideoModal';
 
-import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
+import { errorMessage, getClinicName, removeBeforeWhiteSpace } from "../utils/utils";
 
 import { MESSAGE_KEY } from "../utils/constants";
 
@@ -41,14 +41,16 @@ import { listVideo } from "../redux/doctorsSlice";
 
 var oneClickCosultationTemplateId = 0
 
-function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled,gynecHistory }) {
+function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecHistory }) {
+
+    const { profile } = useSelector((state) => state.doctors);
 
     const { frequencyList, timingList, videoList } = useSelector((state) => state.doctors);
     const vaccines = useSelector((state) => state.vaccines);
     const { givenVaccines, updatedDueVaccines } = vaccines;
     const { measurements } = useSelector((state) => state.growthChart);
     const { isObstetricDetailsUpdated } = useSelector(
-      (state) => state.obstetric
+        (state) => state.obstetric
     );
     const {
         templates,
@@ -833,6 +835,22 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled,gynecHi
                 },
             };
 
+            const clinic_name = getClinicName(profile?.hospital_data);
+            tcmId == 0 ?
+                window.Moengage.track_event("TP_Consultation_ended", {
+                    clinic_name,
+                    patient_number: patient_data?.pm_contact_no,
+                    patient_id: patient_data?.patient_unique_id,
+                    tcm_id: tcmId,
+                })
+                :
+                window.Moengage.track_event("TP_Consultation_edited", {
+                    clinic_name,
+                    patient_number: patient_data?.pm_contact_no,
+                    patient_id: patient_data?.patient_unique_id,
+                    tcm_id: tcmId,
+                })
+
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
             if (action.meta.requestStatus === "fulfilled") {
                 message.open({
@@ -887,7 +905,18 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled,gynecHi
                         return (
                             <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 1)[0]?.video?.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
                                 <div className="tutorial-play me-14">
-                                    <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+                                    <button type="button"
+                                        onClick={() => {
+                                            setVideoLink(item1)
+                                            const clinic_name = getClinicName(profile?.hospital_data);
+                                            window.Moengage.track_event("TP_Tutorial_Viewed", {
+                                                clinic_name,
+                                                tutorial_type: videoList[0]?.category,
+                                            });
+                                        }}
+                                    >
+                                        <img src={playIcons} />
+                                    </button>
                                     <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
                                 </div>
                                 <div>
