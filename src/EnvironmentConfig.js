@@ -12,6 +12,7 @@ const dev = {
   medicalhistory_api_url: `https://strauss-medicalhistory.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
   videolibrary_api_url: `https://strauss-videolibrary.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
   sso_to_pm_url: `https://pms-upgrade.azurewebsites.net/api/get_doctor_sso_token.php`,
+  sso_to_pm_admin_url: `https://pms-upgrade.azurewebsites.net/api/get_doctor_admin_sso_token.php`,
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
@@ -31,6 +32,7 @@ const dev = {
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: '754811713438773',
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
+  visit_api_url: "https://pm-visit-integration-uat.tatvacare.in"
 };
 
 const qa = {
@@ -47,6 +49,7 @@ const qa = {
   medicalhistory_api_url: `https://strauss-medicalhistory.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
   videolibrary_api_url: `https://strauss-videolibrary.salmonstone-47e08067.centralindia.azurecontainerapps.io`,
   sso_to_pm_url: `https://pms-upgrade.azurewebsites.net/api/get_doctor_sso_token.php`,
+  sso_to_pm_admin_url: `https://pms-upgrade.azurewebsites.net/api/get_doctor_admin_sso_token.php`,
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pms-upgrade.azurewebsites.net/doctor_website/`,
@@ -66,6 +69,7 @@ const qa = {
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: '754811713438773',
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
+  visit_api_url: "https://pm-visit-integration-uat.tatvacare.in"
 };
 
 const uat = {
@@ -82,6 +86,7 @@ const uat = {
   medicalhistory_api_url: `https://pm-medicalhistory-uat.tatvacare.in`,
   videolibrary_api_url: `https://pm-videolibrary-uat.tatvacare.in`,
   sso_to_pm_url: `https://pm-uat-dhspl-2.tatvacare.in/api/get_doctor_sso_token.php`,
+  sso_to_pm_admin_url: `https://pm-uat-dhspl-2.tatvacare.in/api/get_doctor_admin_sso_token.php`,
   sso_to_pm_username: `PM_40d30f01184aedc47`,
   sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
   doctor_website_url: `https://pm-uat-dhspl-2.tatvacare.in/doctor_website/`,
@@ -101,6 +106,7 @@ const uat = {
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: '754811713438773',
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
+  visit_api_url: "https://pm-visit-integration-uat.tatvacare.in"
 };
 
 const prod = {
@@ -117,6 +123,7 @@ const prod = {
   medicalhistory_api_url: `https://pm-medicalhistory-prod.tatvacare.in`,
   videolibrary_api_url: `https://pm-videolibrary-prod.tatvacare.in`,
   sso_to_pm_url: `https://practice.tatvacare.in/api/get_doctor_sso_token.php`,
+  sso_to_pm_admin_url: `https://practice.tatvacare.in/api/get_doctor_admin_sso_token.php`,
   sso_to_pm_username: `PM_45dy48vh8sc4i1dum`,
   sso_to_pm_password: `481541at-j4xc-4817-q5xz-a4rt48c69bt1`,
   doctor_website_url: `https://practice.tatvacare.in/doctor_website/`,
@@ -136,6 +143,7 @@ const prod = {
   zydus_api_url: `https://pm-ingest-webhook-prod.tatvacare.in`,
   zydus_business_id: '368451724046474',
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
+  visit_api_url: "https://pm-visit-integration-prod.tatvacare.in"
 };
 
 const getEnv = () => {

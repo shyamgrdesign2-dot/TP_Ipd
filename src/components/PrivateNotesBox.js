@@ -7,12 +7,14 @@ import { addEditPrivateNotes, deletePrivateNotes } from "../redux/medicalhistory
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
 import CommonModal from '../common/CommonModal';
-import { errorMessage } from "../utils/utils";
+import { errorMessage, getClinicName } from "../utils/utils";
 
 function PrivateNotesBox(props) {
     const { handleDrawerPrivateNotes, handleCollapsed, selectPrivateNotes } = props
     const { loading } = useSelector((state) => state.medicalhistory);
     const dispatch = useDispatch();
+
+    const { profile } = useSelector((state) => state.doctors);
 
     const { privateNotesData, setPrivateNotesData, patient_data } = useContext(CashManagerContext);
 
@@ -28,6 +30,14 @@ function PrivateNotesBox(props) {
     }, [isModalOpen]);
 
     const onSave = async () => {
+
+        const clinic_name = getClinicName(profile?.hospital_data);
+        window.Moengage.track_event("TP_Patient_Notes_Added", {
+            clinic_name,
+            "patient_number": patient_data?.pm_contact_no,
+            "patient_id": patient_data?.patient_unique_id
+        });
+
         var sendData = {
             id: selectPrivateNotes?.id !== undefined ? selectPrivateNotes?.id : 0,
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
@@ -73,9 +83,9 @@ function PrivateNotesBox(props) {
                         <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={handleDrawerPrivateNotes}>
                             <i className='icon-Cross fs-3'></i>
                         </Button>
-                        <div className="modal-title">{selectPrivateNotes?.id === undefined ? 'Add' : 'Edit' } Private Note</div>
+                        <div className="modal-title">{selectPrivateNotes?.id === undefined ? 'Add' : 'Edit'} Private Note</div>
                     </div>
-                    <Button onClick={onSave} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading} disabled={note.length>0 ? false : true}>
+                    <Button onClick={onSave} className='btn btn-primary3 btn-41 px-4 me-20' loading={loading} disabled={note.length > 0 ? false : true}>
                         Save
                     </Button>
                 </div>

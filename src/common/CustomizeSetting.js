@@ -5,7 +5,7 @@ import { DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy, } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { errorMessage } from "../utils/utils";
+import { errorMessage, getClinicName } from "../utils/utils";
 
 import CashManagerContext from "../context/CashManagerContext";
 
@@ -73,7 +73,7 @@ const CustomRow = ({ children, ...props }) => {
 function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowthChartEnabled }) {
 
   const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setMedicalHistoryData, setPrivateNotesData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
-  const { loading, customizedPadLeftList, customizedPadRightList, videoList } = useSelector((state) => state.doctors);
+  const { loading, customizedPadLeftList, customizedPadRightList, videoList, profile } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
   const [dataSourceLeft, setDataSourceLeft] = useState([]);
@@ -81,7 +81,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
 
   const [popOverVideo, setPopOverVideo] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
-  const {isGynaecHistoryAccessable} = useAccess();
+  const { isGynaecHistoryAccessable } = useAccess();
 
   useEffect(() => {
     if (customizedPadLeftList.length > 0) {
@@ -117,7 +117,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
       colSpan: 0,
       dataIndex: 'tmdpm_name',
       key: 'tmdpm_name',
-      render: (text, record) => <div className='align-items-center d-flex'><img src={record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{(isGynaecHistoryAccessable && record.tmdpm_name === "Medical History") ? "Gynec History": record.tmdpm_name}</div>
+      render: (text, record) => <div className='align-items-center d-flex'><img src={record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{(isGynaecHistoryAccessable && record.tmdpm_name === "Medical History") ? "Gynec History" : record.tmdpm_name}</div>
     },
     {
       title: 'ENABLE/DISABLE',
@@ -319,7 +319,18 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
             return (
               <div key={i1} className={`d-flex ${i1 !== videoList[0]?.video.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
                 <div className="tutorial-play me-14">
-                  <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
+                  <button type="button"
+                    onClick={() => {
+                      setVideoLink(item1)
+                      const clinic_name = getClinicName(profile?.hospital_data);
+                      window.Moengage.track_event("TP_Tutorial_Viewed", {
+                        clinic_name,
+                        tutorial_type: videoList[0]?.category,
+                      });
+                    }}
+                  >
+                    <img src={playIcons} />
+                  </button>
                   <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
                 </div>
                 <div>
@@ -379,7 +390,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
               placement="bottom"
             >
               <button className='btn d-flex align-items-center btn-text me-10 tutorial'>
-              {/* onClick={showHideVideoListPopover} */}
+                {/* onClick={showHideVideoListPopover} */}
                 <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
               </button>
             </Popover>

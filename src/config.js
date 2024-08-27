@@ -13,6 +13,7 @@ export default {
   medicalhistory_api_url: env.medicalhistory_api_url,
   videolibrary_api_url: env.videolibrary_api_url,
   sso_to_pm_url: env.sso_to_pm_url,
+  sso_to_pm_admin_url: env.sso_to_pm_admin_url,
   sso_to_pm_username: env.sso_to_pm_username,
   sso_to_pm_password: env.sso_to_pm_password,
   doctor_website_url: env.doctor_website_url,
@@ -32,4 +33,5 @@ export default {
   zydus_api_url: env.zydus_api_url,
   zydus_business_id: env.zydus_business_id,
   rx_digitization: env.rx_digitization,
+  visit_api_url: env.visit_api_url,
 };

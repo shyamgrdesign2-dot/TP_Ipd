@@ -18,7 +18,7 @@ import { addPatientCertificate, editPatientCertificate } from "../redux/doctorsS
 import alertIcon from '../assets/images/alertIcon.svg';
 import fontSizeIcon from '../assets/images/fontSizeIcon.svg';
 import CreateCertificate from "../components/medical_certificate/CreateCertificate";
-import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
+import { errorMessage, getClinicName, removeBeforeWhiteSpace } from "../utils/utils";
 
 function MedicalCertificate() {
 
@@ -396,6 +396,13 @@ function MedicalCertificate() {
     }, [title]);
 
     const onPatientCertificateClick = async () => {
+        const clinic_name = getClinicName(profile?.hospital_data);
+        window.Moengage.track_event("TP_Certificate_created", {
+            clinic_name,
+            patient_number: patient_data?.pm_contact_no,
+            patient_id: patient_data?.patient_unique_id,
+            certificate_type: title,
+        })
         var sendData = {
             patient_unique_id: patient_data?.patient_unique_id !== undefined ? patient_data?.patient_unique_id : 0,
             pam_id: patient_data?.pam_id !== undefined ? patient_data?.pam_id : 0,
@@ -579,7 +586,7 @@ function MedicalCertificate() {
                 closable
                 open={createCertificateDrawer}
                 onClose={handleCreateCertificateDrawer}
-                key="left"
+                // key="left"
             >
                 <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={patient_data} replace={true} selectedTemplate={certificate_data !== undefined ? certificate_data?.id : 0} tcu_id={certificate_data?.tcu_id} />
             </Drawer>

@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 
 import { useSelector, useDispatch } from "react-redux";
 // import { v4 as uuidv4 } from 'uuid';
-import { errorMessage, onlyDecimalFormat } from "../utils/utils";
+import { errorMessage, getClinicName, onlyDecimalFormat } from "../utils/utils";
 
 import CashManagerContext from '../context/CashManagerContext';
 
@@ -35,6 +35,7 @@ function VitalsBox(props) {
     const [dateString, setDateString] = useState(null);
     const { measurements } = useSelector((state) => state.growthChart);
 
+    const { profile, userId } = useSelector((state) => state.doctors);
 
     useEffect(() => {
         if (selectedVitalsList.length > 0) {
@@ -204,6 +205,12 @@ function VitalsBox(props) {
     );
 
     const onAddUpdateClicked = async () => {
+        const clinic_name = getClinicName(profile?.hospital_data);
+        window.Moengage.track_event("TP_vitals_updated", {
+            clinic_name,
+            "patient_number": patient_data?.pm_contact_no,
+            "patient_id": patient_data?.patient_unique_id
+        });
         var sendData = {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
             pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0,

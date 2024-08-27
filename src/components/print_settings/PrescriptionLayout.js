@@ -106,9 +106,9 @@ const CustomRow = (props) => {
     transition,
     ...(isDragging
       ? {
-          position: "relative",
-          zIndex: 9999,
-        }
+        position: "relative",
+        zIndex: 9999,
+      }
       : {}),
   };
   const contextValue = useMemo(
@@ -163,8 +163,8 @@ const obsHistoryCheckboxOptions = [
   },
 ];
 
-function PrescriptionLayout({todayVaccines, growthChartDetails}) {
-  const { caseManagerData, printSettings, setPrintSettings } = useContext(PrintSettingsContext);
+function PrescriptionLayout({ todayVaccines, growthChartDetails }) {
+  const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions } = useContext(PrintSettingsContext);
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
@@ -192,7 +192,7 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
     flag === "radio"
       ? (printSettings.prescription.case_option[i].format = record.target.value)
       : (printSettings.prescription.case_option[i].enable =
-          record.enable === "Y" ? "N" : "Y");
+        record.enable === "Y" ? "N" : "Y");
 
     setPrintSettings((prev) => {
       return {
@@ -220,30 +220,39 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
     });
   };
 
+  const onMedicalHistoryOptionChange = (checkedValues, i) => {
+    printSettings.prescription.case_option[i].medical_history_option = checkedValues;
+    setPrintSettings((prev) => {
+      return {
+        ...prev,
+      };
+    });
+  };
 
- const growthChartOptions = graphsToPrintData
-   .map((item) => ({
-     label: item.label === "Height Vs Weight" ? "H & W" : item.label,
-     value: item?.id === "HeightVsWeight" ? "heightVsWeight" : item.id?.toLowerCase(),
-   }));
 
-   const onGrowthChartOptionChange = (checkedValues, i) => {
+  const growthChartOptions = graphsToPrintData
+    .map((item) => ({
+      label: item.label === "Height Vs Weight" ? "H & W" : item.label,
+      value: item?.id === "HeightVsWeight" ? "heightVsWeight" : item.id?.toLowerCase(),
+    }));
+
+  const onGrowthChartOptionChange = (checkedValues, i) => {
     setPrintSettings((prev) => {
       prev.prescription.case_option[i].growth_chart_option = checkedValues;
       return {
         ...prev,
       };
     });
-   };
+  };
 
-   const onObsHistoryOptionChange = (checkedValues, i) => {
+  const onObsHistoryOptionChange = (checkedValues, i) => {
     setPrintSettings((prev) => {
       prev.prescription.case_option[i].obs_history_option = checkedValues;
       return {
         ...prev,
       };
     });
-   };
+  };
 
   const accordionItems = (record, i) => [
     {
@@ -289,6 +298,32 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
     },
   ];
 
+  const medicalHistoryAccordionItems = (record, i) => [
+    {
+      key: "1",
+      label: (
+        <div className="text-start">
+          <div className="fw-semibold">Customise Options</div>
+          <div className="subtitle-customize">
+            Selected/deselect medical history need to be printed
+          </div>
+        </div>
+      ),
+      children: (
+        <>
+          <div className="d-flex align-items-center pt-2">
+            <Checkbox.Group
+              options={medicalHistoryCheckboxOptions}
+              value={record?.medical_history_option}
+              onChange={(checkedValues) =>
+                onMedicalHistoryOptionChange(checkedValues, i)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+  ];
   const growthChartAccordionItems = (record, i) => [
     {
       key: "1",
@@ -307,7 +342,7 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
         >
           <Checkbox.Group
             options={growthChartOptions
-              .filter(({value}) => printSettings?.prescription?.case_option?.[i]?.format === "table" ? value !== "heightVsWeight" : growthChartDetails?.growthChartImageData?.[value])}
+              .filter(({ value }) => printSettings?.prescription?.case_option?.[i]?.format === "table" ? value !== "heightVsWeight" : growthChartDetails?.growthChartImageData?.[value])}
             defaultValue={record?.growth_chart_option}
             onChange={(checkedValues) => onGrowthChartOptionChange(checkedValues, i)}
           />
@@ -328,15 +363,15 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
         </div>
       ),
       children: (
-          <div className="d-flex align-items-center">
-            <Checkbox.Group
-              options={obsHistoryCheckboxOptions}
-              value={record?.obs_history_option}
-              onChange={(checkedValues) =>
-                onObsHistoryOptionChange(checkedValues, i)
-              }
-            />
-          </div>
+        <div className="d-flex align-items-center">
+          <Checkbox.Group
+            options={obsHistoryCheckboxOptions}
+            value={record?.obs_history_option}
+            onChange={(checkedValues) =>
+              onObsHistoryOptionChange(checkedValues, i)
+            }
+          />
+        </div>
       ),
     },
   ];
@@ -363,24 +398,22 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
               onClick={() => onCaseOptionChange(record, "visible", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
             >
               <i
-                className={`icon-Preview ${
-                  record.enable === "N" && "disable-preview"
-                } me-3`}
+                className={`icon-Preview ${record.enable === "N" && "disable-preview"
+                  } me-3`}
               ></i>
               <span>{record.title}</span>
             </div>
             <Form.Item className="mb-0 form_addnewpatient ">
               <Radio.Group
-                className={`d-flex gender-radio all-change-radio ${
-                  isMobile ? "segmented-radio-mobile" : ""
-                }`}
+                className={`d-flex gender-radio all-change-radio ${isMobile ? "segmented-radio-mobile" : ""
+                  }`}
                 onChange={(e) => onCaseOptionChange(e, "radio", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
                 value={record.format}
               >
                 <Radio.Button className="w-100 text-center" value="inline">
                   {record?.id === 12 ? "Graph View" : "Inline"}
                 </Radio.Button>
-                {record?.id !== 12 && 
+                {record?.id !== 12 &&
                   <Radio.Button className="w-100 text-center" value="listview">
                     List View
                   </Radio.Button>
@@ -397,6 +430,20 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
                 <div className="border mt-3 rounded-4 p-3 bg-white ">
                   <Collapse
                     items={accordionItems(record, printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
+                    defaultActiveKey={["1"]}
+                    className="prescriptiontab-accordian"
+                    expandIconPosition={"end"}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          {record.id === 8 && (
+            <div style={{ marginLeft: -40, display: "flex" }}>
+              <div style={{ flex: 1 }}>
+                <div className="border mt-3 rounded-4 p-3 bg-white ">
+                  <Collapse
+                    items={medicalHistoryAccordionItems(record, printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
                     defaultActiveKey={["1"]}
                     className="prescriptiontab-accordian"
                     expandIconPosition={"end"}
@@ -441,13 +488,13 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
   const onDragEndCaseOption = ({ active, over }) => {
     if (active.id !== over?.id) {
       setPrintSettings((prev) => {
-          const activeIndex = prev.prescription.case_option.findIndex((i) => i.id === active.id);
-          const overIndex = prev.prescription.case_option.findIndex((i) => i.id === over?.id);
+        const activeIndex = prev.prescription.case_option.findIndex((i) => i.id === active.id);
+        const overIndex = prev.prescription.case_option.findIndex((i) => i.id === over?.id);
         return {
           ...prev,
           prescription: {
-                  case_option: arrayMove(prev.prescription.case_option, activeIndex, overIndex)
-              }
+            case_option: arrayMove(prev.prescription.case_option, activeIndex, overIndex)
+          }
         };
       });
     }
@@ -456,34 +503,34 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
   return (
     <div className="px-3">
       <div className="titleprint mb-3">Format Style</div>
-            <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                <Col>
-                    All Change to
-                </Col>
-                <Col className={`${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}>
+      <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
+        <Col>
+          All Change to
+        </Col>
+        <Col className={`${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}>
           <Form.Item className="mb-0">
-                        <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onMainCaseOptionChange}
+            <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onMainCaseOptionChange}
               value={
-                                printSettings?.prescription?.case_option.every(e => e.format === 'inline') ? 'inline'
-                                    : printSettings?.prescription?.case_option.every(e => e.format === 'listview') ? 'listview'
-                                        : printSettings?.prescription?.case_option.every(e => e.format === 'table') ? 'table'
-                                            : null}>
-                            <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
-                            <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
-                            <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>
+                printSettings?.prescription?.case_option.every(e => e.format === 'inline') ? 'inline'
+                  : printSettings?.prescription?.case_option.every(e => e.format === 'listview') ? 'listview'
+                    : printSettings?.prescription?.case_option.every(e => e.format === 'table') ? 'table'
+                      : null}>
+              <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
+              <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
+              <Radio.Button className="w-100 text-center" value="table">Table</Radio.Button>
             </Radio.Group>
           </Form.Item>
         </Col>
       </Row>
       {printSettings?.prescription?.case_option?.length > 0 && (
-                <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndCaseOption}>
+        <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndCaseOption}>
           <SortableContext
             // rowKey array
             items={printSettings?.prescription?.case_option?.map((i) => i.id)}
             strategy={verticalListSortingStrategy}
           >
             <Table
-                            className={`customize-table customize-table-format table-display-patient dragicon-position ${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}
+              className={`customize-table customize-table-format table-display-patient dragicon-position ${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}
               pagination={false}
               components={{
                 body: {
@@ -493,33 +540,34 @@ function PrescriptionLayout({todayVaccines, growthChartDetails}) {
               rowKey="id"
               columns={caseOptionTable}
               // dataSource={printSettings?.prescription?.case_option.map((e) => ({ ...e, key: e.id }))}
-                            dataSource={printSettings?.prescription?.case_option?.filter((option, index) =>
-                                (caseManagerData.symptoms.length > 0 && option.id === 1) ?
+              dataSource={printSettings?.prescription?.case_option?.filter((option, index) =>
+                (caseManagerData.symptoms.length > 0 && option.id === 1) ?
+                  ({ ...option, key: option.id })
+                  : (caseManagerData.examination.length > 0 && option.id === 2) ?
+                    ({ ...option, key: option.id })
+                    : (caseManagerData.diagnosis.length > 0 && option.id === 3) ?
+                      ({ ...option, key: option.id })
+                      : (caseManagerData.medicine.length > 0 && option.id === 4) ?
+                        ({ ...option, key: option.id })
+                        : (caseManagerData.advice.length > 0 && option.id === 5) ?
+                          ({ ...option, key: option.id })
+                          : (caseManagerData.investigation.length > 0 && option.id === 6) ?
+                            ({ ...option, key: option.id })
+                            : (caseManagerData.vitals.length > 0 && option.id === 7) ?
+                              ({ ...option, key: option.id })
+                              : (caseManagerData.medical_history.length > 0 && option.id === 8) ?
+                                ({ ...option, key: option.id })
+                                : ((caseManagerData.follow_up_date || caseManagerData.visit_advice) && option.id === 9) ?
+                                  ({ ...option, key: option.id })
+                                  : (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ?
                                     ({ ...option, key: option.id })
-                                    : (caseManagerData.examination.length > 0 && option.id === 2) ?
+                                    : (caseManagerData?.smart_prescription_filename?.length && option.id === 11) ?
+                                      ({ ...option, key: option.id })
+                                      : (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartData?.length) ?
                                         ({ ...option, key: option.id })
-                                        : (caseManagerData.diagnosis.length > 0 && option.id === 3) ?
-                                            ({ ...option, key: option.id })
-                                            : (caseManagerData.medicine.length > 0 && option.id === 4) ?
-                                                ({ ...option, key: option.id })
-                                                : (caseManagerData.advice.length > 0 && option.id === 5) ?
-                                                    ({ ...option, key: option.id })
-                                                    : (caseManagerData.investigation.length > 0 && option.id === 6) ?
-                                                        ({ ...option, key: option.id })
-                                                        : (caseManagerData.vitals.length > 0 && option.id === 7) ?
-                                                            ({ ...option, key: option.id })
-                                                            : (caseManagerData.medical_history.length > 0 && option.id === 8) ?
-                                                                ({ ...option, key: option.id })
-                                                                : ((caseManagerData.follow_up_date || caseManagerData.visit_advice) && option.id === 9) ?
-                                                                    ({ ...option, key: option.id })
-                                                                    : (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ?
-                                                                        ({ ...option, key: option.id }) 
-                                                                        :(caseManagerData?.smart_prescription_filename?.length && option.id === 11) ?
-                                                                            ({ ...option, key: option.id }) 
-                                                                            :(isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartData?.length) ? 
-                                                                              ({...option, key: option.id})
-                                                                              :(caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ? ({...option, key: option.id})
-                                                                                :(option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?._id) && ({...option, key: option.id})
+                                        : (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ?
+                                          ({ ...option, key: option.id })
+                                          : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?._id) && ({ ...option, key: option.id })
               )}
               showHeader={false}
             />
