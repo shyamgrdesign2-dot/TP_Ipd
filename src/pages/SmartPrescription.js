@@ -538,8 +538,11 @@ function SmartPrescription() {
         if (!canvas) continue;
         const blob = await convertCanvasToJPEG(canvas);
         const name = smartRxFiles && smartRxFiles[i] ? smartRxFiles[i].smart_prescription_filename : `${uuidv4()}.jpeg`;
-        blobs.push(blob);
-        files.push(new File([blob], name, { type: 'image/jpeg' }));
+        const file = new File([blob], name, { type: 'image/jpeg' });
+        if (file.size > 5 * 1000) { // 4.9 KB (4933 bytes)
+          blobs.push(blob);
+          files.push(new File([blob], name, { type: 'image/jpeg' }));
+        }
       }
     } catch (error) {
       console.error('Error converting canvas to JPEG:', error);
