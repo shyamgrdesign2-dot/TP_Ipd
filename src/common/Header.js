@@ -559,7 +559,7 @@ function Header({ locationPath }) {
       // },
     ];
 
-    if (!tokenData?.admin && process.env.REACT_APP_ENV !== "prod") {
+    if (!tokenData?.admin || process.env.REACT_APP_ENV === "prod") {
       return items.filter((item) => item.key !== "5");
     } else {
       return items;
