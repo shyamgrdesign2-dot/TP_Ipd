@@ -237,7 +237,7 @@ function Homepage({ centerPadding, scrollId, personalDetails, aboutDoctor, clini
 
   const clickRedirect = async (link, account) => {
     if (!isChrome && !isSafari) {
-      handleCopy(link, `The ${account} link has been copied. Please paste it into your browser to review your social page. Your patient will be able to access these pages smoothly once you 'save and publish' this website`)
+      handleCopy(link, `The ${account} link has been copied. Please paste it into the browser to view the location. Your patient will be able to access this page smoothly once you 'Save and Publish' this.`)
     } else {
       await window.open(link)
     }
