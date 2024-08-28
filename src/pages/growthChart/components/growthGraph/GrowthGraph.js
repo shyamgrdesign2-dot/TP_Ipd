@@ -212,7 +212,7 @@ const GrowthGraph = ({
         ctx.save();
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
-        ctx.font = "12px Arial";
+        ctx.font = display === "block" ? "bold 14px Arial" : "12px Arial";
         ctx.fillStyle = dataset.backgroundColor;
         ctx.fillText(label, right + 5, pointY);
         ctx.restore();
@@ -236,12 +236,15 @@ const GrowthGraph = ({
       ctx.moveTo(xPixel, yAxis.top);
       ctx.lineTo(xPixel, yAxis.bottom);
       ctx.lineWidth = 1.5;
-      ctx.strokeStyle = "rgba(25, 187, 122, 0.4)";
+      ctx.strokeStyle =
+        display === "block"
+          ? "rgba(25, 187, 122, 1)"
+          : "rgba(25, 187, 122, 0.4)";
       ctx.stroke();
 
       ctx.textAlign = "center";
       ctx.textBaseline = "bottom";
-      ctx.font = "12px Arial";
+      ctx.font = display === "block" ? "bold 14px Arial" : "12px Arial";
       ctx.fillStyle = "rgba(25, 187, 122, 1)";
       ctx.fillText(`${patientAge} (Today)`, xPixel, yAxis.top - 5);
 
@@ -343,7 +346,7 @@ const GrowthGraph = ({
     setVisibility((prev) => {
       const newVisibility = prev;
       newVisibility[graphName][index] = !newVisibility[graphName][index];
-      return {...newVisibility};
+      return { ...newVisibility };
     });
     setIsPercentileOrTimeLineUpdated(true);
   };
@@ -366,6 +369,11 @@ const GrowthGraph = ({
       x: {
         type: "linear",
         ticks: {
+          color: display === "block" ? "black" : "",
+          font: {
+            size: display === "block" ? "14px" : "12px",
+            weight: display === "block" ? "500" : "400",
+          },
           stepSize:
             showTimelineInYear &&
             patients_details?.ageYears < 5 &&
@@ -382,11 +390,25 @@ const GrowthGraph = ({
           text:
             graphName === "HeightVsWeight"
               ? "Height in cm"
-              : `Age in ${showTimelineInYear ? "Years" : "Months"}`, // X-axis label
+              : `Age in ${showTimelineInYear ? "Years" : "Months"}`,
+          font: {
+            size: display === "block" ? 18 : 14,
+            weight: display === "block" ? "500" : "400",
+          },
+          color: display === "block" ? "black" : "#454551",
+        },
+        grid: {
+          color: "rgba(0, 0, 0, 1)",
+          lineWidth: 0.2,
         },
       },
       y: {
         ticks: {
+          color: display === "block" ? "black" : "",
+          font: {
+            size: display === "block" ? "14px" : "12px",
+            weight: display === "block" ? "500" : "400",
+          },
           stepSize: 1,
         },
         title: {
@@ -394,7 +416,16 @@ const GrowthGraph = ({
           text:
             graphName === "HeightVsWeight"
               ? "Weight in kg"
-              : `${graphName} in ${UNITS[graphName]}`, // Y-axis label
+              : `${graphName} in ${UNITS[graphName]}`,
+          font: {
+            size: display === "block" ? 18 : 14,
+            weight: display === "block" ? "500" : "400",
+          },
+          color: display === "block" ? "black" : "#454551",
+        },
+        grid: {
+          color: "rgba(0, 0, 0, 1)",
+          lineWidth: 0.2,
         },
       },
     },
@@ -436,7 +467,7 @@ const GrowthGraph = ({
     },
     layout: {
       padding: {
-        right: 30,
+        right: 35,
         top: 18,
       },
     },
@@ -477,7 +508,14 @@ const GrowthGraph = ({
   return (
     <div className="graphStyle">
       <div className="graphHeader">
-        <div className="graphName">
+        <div
+          className="graphName"
+          style={{
+            fontSize: display === "block" ? "20px" : "",
+            fontWeight: display === "block" ? "600" : "",
+            color: display === "block" ? "#000" : "",
+          }}
+        >
           {graphName === "HeightVsWeight" ? "Height Vs Weight" : graphName}
         </div>
         <div>
